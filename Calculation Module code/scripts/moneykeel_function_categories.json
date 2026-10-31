@@ -219,6 +219,11 @@
   "file": "Calculation Module code/engines/snapshots.ts",
   "category": "3 · DEPENDENT"
  },
+ "accountsAfterRothConversion": {
+  "id": "MK-PL-F-096",
+  "file": "src/domain/planning/rothConversion.ts",
+  "category": "2 · DISPLAYED"
+ },
  "accountsInClass": {
   "id": "MK-NW-F-182",
   "file": "MoneyKeel/functions/networth-and-performance/net-worth.ts",
@@ -228,6 +233,11 @@
   "id": "MK-NW-F-183",
   "file": "MoneyKeel/functions/networth-and-performance/net-worth.ts",
   "category": "2 · DISPLAYED"
+ },
+ "accruedFrequencyAssumed": {
+  "id": "MK-NW-F-186",
+  "file": "src/domain/bonds/index.ts",
+  "category": "3 · DEPENDENT"
  },
  "accruedInterestCaveat": {
   "id": "MK-NW-F-070",
@@ -758,6 +768,11 @@
   "id": "MK-CF-F-003",
   "file": "src/domain/budget/index.ts",
   "category": "3 · DEPENDENT"
+ },
+ "centsShown": {
+  "id": "MK-XS-F-204",
+  "file": "MoneyKeel/functions/_figure-spec.ts",
+  "category": "2 · DISPLAYED"
  },
  "chainShown": {
   "id": "MK-XS-F-197",
@@ -1619,6 +1634,11 @@
   "file": "src/domain/performance/index.ts",
   "category": "3 · DEPENDENT (feeds an action only)"
  },
+ "heldQuantity": {
+  "id": "MK-PF-F-081",
+  "file": "src/domain/performance/index.ts",
+  "category": "2 · DISPLAYED"
+ },
  "heldValueOf": {
   "id": "MK-NW-F-128",
   "file": "MoneyKeel/functions/networth-and-performance/performance.ts",
@@ -1918,6 +1938,11 @@
   "id": "MK-NW-F-014",
   "file": "src/domain/assets/index.ts",
   "category": "3 · DEPENDENT"
+ },
+ "isRecordOfLot": {
+  "id": "MK-CF-F-287",
+  "file": "src/domain/transactions/index.ts",
+  "category": "1 · ACTION"
  },
  "isRecurringDebt": {
   "id": "MK-CF-F-159",
@@ -2307,7 +2332,7 @@
  "money0": {
   "id": "MK-HM-F-006",
   "file": "src/domain/insights/index.ts",
-  "category": "3 · DEPENDENT"
+  "category": "1 · ACTION"
  },
  "money2": {
   "id": "MK-ST-F-054",
@@ -2322,6 +2347,11 @@
  "moneyIntoAccount": {
   "id": "MK-ST-F-088",
   "file": "Calculation Module code/engines/ledger.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "monthBeforeAnyRecord": {
+  "id": "MK-CF-F-286",
+  "file": "MoneyKeel/functions/cashflow/this-month.ts",
   "category": "2 · DISPLAYED"
  },
  "monthKey": {
@@ -2579,8 +2609,18 @@
   "file": "Calculation Module code/engines/snapshots.ts",
   "category": "3 · DEPENDENT"
  },
+ "openingRecordsHeld": {
+  "id": "MK-CF-F-288",
+  "file": "src/domain/transactions/index.ts",
+  "category": "1 · ACTION"
+ },
  "openingRecordsOf": {
   "id": "MK-CF-F-224",
+  "file": "src/domain/transactions/index.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "optionTradesOnTheWayIn": {
+  "id": "MK-CF-F-292",
   "file": "src/domain/transactions/index.ts",
   "category": "3 · DEPENDENT (feeds an action only)"
  },
@@ -2604,6 +2644,11 @@
   "file": "src/domain/income/earners.ts",
   "category": "2 · DISPLAYED"
  },
+ "ownMark": {
+  "id": "MK-PF-F-084",
+  "file": "src/domain/performance/index.ts",
+  "category": "3 · DEPENDENT"
+ },
  "paidMonthsOf": {
   "id": "MK-CF-F-244",
   "file": "MoneyKeel/functions/cashflow/base-pay.ts",
@@ -2617,6 +2662,11 @@
  "paidOutByAccount": {
   "id": "MK-CF-F-183",
   "file": "src/domain/income/from-accounts.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "paidPerShare": {
+  "id": "MK-PF-F-083",
+  "file": "src/domain/performance/index.ts",
   "category": "3 · DEPENDENT"
  },
  "parseCsv": {
@@ -2734,6 +2784,11 @@
   "file": "src/domain/income/limits.ts",
   "category": "3 · DEPENDENT"
  },
+ "percent2": {
+  "id": "MK-HM-F-007",
+  "file": "src/domain/insights/index.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
  "percentDigits": {
   "id": "MK-XS-F-185",
   "file": "MoneyKeel/functions/_figure-spec.ts",
@@ -2782,6 +2837,11 @@
  "planDoor": {
   "id": "MK-PL-F-026",
   "file": "src/domain/planning/hub.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "planGoalRows": {
+  "id": "MK-PL-F-094",
+  "file": "src/domain/goals/index.ts",
   "category": "2 · DISPLAYED"
  },
  "planTarget": {
@@ -2843,6 +2903,11 @@
   "id": "MK-PF-F-045",
   "file": "src/domain/performance/index.ts",
   "category": "2 · DISPLAYED"
+ },
+ "priceOnRecord": {
+  "id": "MK-PF-F-082",
+  "file": "src/domain/performance/index.ts",
+  "category": "3 · DEPENDENT"
  },
  "pricePer100OfFace": {
   "id": "MK-NW-F-160",
@@ -2933,6 +2998,21 @@
   "id": "MK-NW-F-165",
   "file": "MoneyKeel/functions/networth-and-performance/holding.ts",
   "category": "2 · DISPLAYED"
+ },
+ "purchaseRecordsAfterHoldingRemoved": {
+  "id": "MK-CF-F-290",
+  "file": "src/domain/transactions/index.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "purchaseRecordsFollowEdit": {
+  "id": "MK-CF-F-289",
+  "file": "src/domain/transactions/index.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "purchaseRecordsFollowReimport": {
+  "id": "MK-CF-F-291",
+  "file": "src/domain/transactions/index.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
  },
  "purchasesHeld": {
   "id": "MK-PF-F-064",
@@ -3053,6 +3133,11 @@
   "id": "MK-PF-F-080",
   "file": "src/domain/performance/index.ts",
   "category": "3 · DEPENDENT"
+ },
+ "recordsOnTheWayIn": {
+  "id": "MK-XS-F-205",
+  "file": "src/store/useStore.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
  },
  "recurringDebtPayments": {
   "id": "MK-CF-F-149",
@@ -3287,6 +3372,11 @@
  "rothConversionCost": {
   "id": "MK-PL-F-032",
   "file": "src/domain/planning/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "rothConversionLater": {
+  "id": "MK-PL-F-095",
+  "file": "src/domain/planning/rothConversion.ts",
   "category": "2 · DISPLAYED"
  },
  "rothConversionWindow": {
@@ -3713,6 +3803,11 @@
   "id": "MK-CF-F-086",
   "file": "src/domain/income/onboarding.ts",
   "category": "2 · DISPLAYED"
+ },
+ "statedCdRate": {
+  "id": "MK-PF-F-085",
+  "file": "src/domain/performance/index.ts",
+  "category": "3 · DEPENDENT"
  },
  "stepDay": {
   "id": "MK-ST-F-068",

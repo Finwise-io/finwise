@@ -29,7 +29,8 @@
  *   k_monthly_plan, monthly_k) → profile.c_401k, the only 401(k) amount the app stores (MK-XS-I-043, a MONTHLY amount);
  *   a Roth IRA amount → profile.c_roth; medicare → profile.medicareEnrolled 'yes'/'no'. The app has NO input for money
  *   already contributed this year, for a Traditional IRA, or for HSA cover (self / family) — a case that needs one is
- *   BLOCKED or NEEDS RULING, never fed a stand-in. as_of → the `today` the door takes AND the clock (jest fake timers),
+ *   BLOCKED or NEEDS RULING, never fed a stand-in. SINCE 2026-10-27 (#361): hsa_coverage → profile.hsaCover ('self' / 'family'),
+ *   and one IRA amount a month for Traditional and Roth together → profile.c_ira; money already in this year still has none (DEC-8406). as_of → the `today` the door takes AND the clock (jest fake timers),
  *   because the door reads the age from the device clock, not from `today`.
  *   Limits (F-053/054/055/056/197): age_attained_2026 / age → the age argument; family_cover → family; medicare →
  *   medicareEnrolled; contributed_ytd → k401Headroom's annual contribution. An HSA eligible-months count or a Medicare
@@ -196,12 +197,40 @@ describe('MK-CF-O-005 theContributionRoom — five cases', () => {
     expect(r.perMonthToFill401k).toBe(X(c.expected.per_month_display));
   });
 
-  kase('MK-CF-O-005-C03', 'BLOCKED', MAP_ROOM + ' — needs three inputs the app does not have', () => {
-    throw new Error('BLOCKED: no input for 401(k) money already contributed this year, for a Traditional IRA contribution, or for HSA cover (self / family)');
-  }, 'no input for year-to-date 401(k), a Traditional IRA, or family HSA cover', () => {
+  // UNBLOCKED 2026-10-27 (FX-CF-C; workplan #361; drawing contribution-room v02, rows 3 and 4): the two inputs CFR-4 named now exist —
+  // HSA cover, self-only or family (hsaCover), and one IRA amount for Traditional and Roth together (c_ira). The third, money already
+  // in this year, has none by the lead's ruling of 2026-10-25 (DEC-8406, the C01 pattern): the room is the year at the monthly amount,
+  // and the screen says it is a plan. So the case runs as DECIDED: the limits on the reviewer's answer, the rooms on the app's reading,
+  // each worked by hand with the 2026 IRS limits (IRS_LIMITS). The case's IRA and HSA amounts are year-to-date only, with no monthly
+  // amount, so none is typed: no stand-in is fed (this file's rule).
+  kase('MK-CF-O-005-C03', 'DECIDED', MAP_ROOM + ' + hsaCover = hsa_coverage ("family"); c_401k = k_monthly_plan 1731.43; the year-to-date amounts (k_ytd, traditional_ira_ytd, roth_ira_ytd, hsa_ytd) have no input (DEC-8406) and the case gives no monthly IRA or HSA amount, so c_ira is not typed', (c, rec) => {
+    const r = room(c, { birthYear: c.inputs.birth_year, c_401k: Number(c.inputs.k_monthly_plan), hsaCover: c.inputs.hsa_coverage });
+    rec({ age: r.age, k_limit: r.k401.limit, k_used: r.k401.used, k_room: r.k401.remaining, ira_limit: r.ira.limit, ira_used: r.ira.used, ira_room: r.ira.remaining,
+      hsa_cover: r.hsaCover, hsa_limit: r.hsa.limit });
+    // what the app and the reviewer agree on — the family limit is new: 8,750 + 1,000 (55 and over) = 9,750, where it read 5,400 self-only
+    expect(r.age).toBe(X(c.expected.age));                   // 2026 − 1971 = 55
+    expect(r.k401.limit).toBe(X(c.expected.k_limit));        // 24,500 + 8,000 = 32,500
+    expect(r.ira.limit).toBe(X(c.expected.ira_limit));       // 7,500 + 1,100 = 8,600, one limit for Traditional and Roth together
+    expect(r.hsaCover).toBe('family');
+    expect(r.hsa.limit).toBe(X(c.expected.hsa_limit));       // 8,750 + 1,000 = 9,750
+    // the app's reading, hand-checked: the year's plan at $1,731.43 a month = $20,777.16, so $32,500 − $20,777.16 = $11,722.84 more room
+    // (the reviewer's $15,188.83 = $32,500 − $17,311.17 already in — money already in has no input, DEC-8406)
+    expect(r.k401.used).toBeCloseTo(1731.43 * 12, 6);
+    expect(r.k401.remaining).toBeCloseTo(32_500 - 20_777.16, 6);
+    // no monthly IRA amount in the case: nothing typed, so the card reads "up to $8,600" (the reviewer's $5,422.56 is year-to-date)
+    expect([r.ira.used, r.ira.remaining]).toEqual([0, 8_600]);
+  }, 'DECIDED 2026-10-27 (#361; DEC-8406): the two inputs exist — HSA cover takes the family limit $9,750, and one IRA amount counts Traditional and Roth together against $8,600; money already in this year stays a plan by the lead\'s ruling');
+  test.failing('MK-CF-O-005-C03 · the app until 2026-10-27, pinned: HSA cover always self-only — $5,400 for a family plan (FIXED 2026-10-27, #361)', () => {
     const c = C('MK-CF-O-005-C03');
-    const r = room(c, { birthYear: c.inputs.birth_year, c_401k: Number(c.inputs.k_monthly_plan), c_roth: 0 });
-    return { age: r.age, k_limit: r.k401.limit, ira_limit: r.ira.limit, hsa_limit_self_only: r.hsa.limit, k_used_from_plan: r.k401.used, k_room_from_plan: r.k401.remaining };
+    const r = room(c, { birthYear: c.inputs.birth_year, c_401k: Number(c.inputs.k_monthly_plan), hsaCover: c.inputs.hsa_coverage });
+    expect(r.hsa.limit).toBe(5_400);
+  });
+  // the combined IRA input, the case's own rule worked with a monthly amount: Traditional and Roth share one limit, so one amount a
+  // month for both is all the room needs — $450 a month (say $250 Traditional + $200 Roth) is $5,400 this year, $8,600 − $5,400 = $3,200
+  test('MK-CF-O-005-C03 · the combined IRA input: $450 a month for Traditional and Roth together → $5,400 used, $3,200 room, against the one $8,600 limit', () => {
+    const c = C('MK-CF-O-005-C03');
+    const r = room(c, { birthYear: c.inputs.birth_year, c_ira: '450', c_roth: '200' });   // once c_ira is typed, the old Roth amount is not read again
+    expect([r.ira.monthly, r.ira.used, r.ira.remaining, r.ira.limit]).toEqual([450, 5_400, 3_200, 8_600]);
   });
 
   kase('MK-CF-O-005-C04', 'FIXED', MAP_ROOM + ' (c_401k = 3333.33…; 3,333.33 × 12 = 40,000 — the k_ytd 40,000 has no input but coincides)', (c, rec) => {

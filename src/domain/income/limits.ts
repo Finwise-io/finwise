@@ -284,7 +284,7 @@ export function k401Headroom(age: number | null, annual401kContribution: number)
  * Changed ..... 2026-06-05 (7f0d417)
  */
 export function rothVsTraditional(marginalNow: number, marginalRetire: number): { lean: 'roth' | 'traditional' | 'either'; why: string } {
-  if (marginalNow <= 0.12) return { lean: 'roth', why: "You're in a low bracket now — pay the tax now (Roth) and withdraw tax-free later." };
+  if (marginalNow <= 0.12) return { lean: 'roth', why: "You’re in a low bracket now — pay the tax now (Roth) and withdraw tax-free later." };
   if (marginalNow >= 0.24 && marginalRetire < marginalNow) return { lean: 'traditional', why: 'High bracket now, likely lower in retirement — deduct now (Traditional), pay tax later.' };
   return { lean: 'either', why: 'Your brackets are similar — splitting Roth and Traditional hedges your future tax rate.' };
 }

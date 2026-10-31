@@ -66,7 +66,7 @@ export default function SnapTradeConnect({ reconnectId }: { reconnectId?: string
         setArrived((now.assetAccounts ?? []).filter((a: any) => a.source === 'connected'));
         setStep('review');
       } else if (res.type === 'success' && /status=ERROR/i.test(res.url ?? '')) {
-        Alert.alert("That didn't go through", 'The brokerage sign-in reported a problem. Nothing was connected — you can try again.');
+        Alert.alert("That didn’t go through", 'The brokerage sign-in reported a problem. Nothing was connected — you can try again.');
       }
       // dismissed/abandoned → stay here quietly; nothing happened, nothing to clean up
     } catch (e) {
@@ -79,9 +79,9 @@ export default function SnapTradeConnect({ reconnectId }: { reconnectId?: string
     return (
       <View style={s.card}>
         <Text style={s.h2}>Re-link this connection</Text>
-        <Text style={s.body}>Your brokerage asked to be signed in again — that's them being careful, not a problem with your data.</Text>
+        <Text style={s.body}>Your brokerage asked to be signed in again — that’s them being careful, not a problem with your data.</Text>
         <TouchableOpacity accessibilityRole="button" style={s.primaryBtn} disabled={busy} onPress={openPortal}
-          accessibilityLabel="Open your brokerage's sign-in to re-link">
+          accessibilityLabel="Open your brokerage’s sign-in to re-link">
           {busy ? <ActivityIndicator color="#fff" /> : <Text style={s.primaryTxt}>Sign in and re-link ›</Text>}
         </TouchableOpacity>
       </View>
@@ -130,7 +130,7 @@ export default function SnapTradeConnect({ reconnectId }: { reconnectId?: string
           {broker.shares.map((line) => <Text key={line} style={s.body}>·  {line}</Text>)}
           {broker.cantShare.length > 0 && (
             <>
-              <Text style={[s.kicker, { marginTop: 10 }]}>WHAT IT CAN'T SHARE</Text>
+              <Text style={[s.kicker, { marginTop: 10 }]}>WHAT IT CAN’T SHARE</Text>
               {broker.cantShare.map((line) => <Text key={line} style={s.body}>·  {line}</Text>)}
               <Text style={s.note}>Anything you add by hand stays and counts — nothing gets overwritten.</Text>
             </>
@@ -156,10 +156,10 @@ export default function SnapTradeConnect({ reconnectId }: { reconnectId?: string
           {CONSENT_COPY.map((line) => <Text key={line} style={s.body}>·  {line}</Text>)}
         </View>
         <TouchableOpacity accessibilityRole="button" style={s.primaryBtn} disabled={busy} onPress={openPortal}
-          accessibilityLabel={`Open ${broker.name}'s own sign-in`}>
-          {busy ? <ActivityIndicator color="#fff" /> : <Text style={s.primaryTxt}>Open {broker.name}'s sign-in ›</Text>}
+          accessibilityLabel={`Open ${broker.name}’s own sign-in`}>
+          {busy ? <ActivityIndicator color="#fff" /> : <Text style={s.primaryTxt}>Open {broker.name}’s sign-in ›</Text>}
         </TouchableOpacity>
-        <Text style={s.note}>The sign-in happens on {broker.name}'s own page, in your browser — we never see your password.</Text>
+        <Text style={s.note}>The sign-in happens on {broker.name}’s own page, in your browser — we never see your password.</Text>
       </ScrollView>
     );
   }
@@ -168,7 +168,7 @@ export default function SnapTradeConnect({ reconnectId }: { reconnectId?: string
     const queueNow: string[] = (useStore.getState() as any).wrapperConfirmQueue ?? [];
     return (
       <ScrollView showsVerticalScrollIndicator={false}>
-        <Text style={s.h2}>Here's what came in</Text>
+        <Text style={s.h2}>Here’s what came in</Text>
         {arrived.map((a: any) => (
           <View key={a.asset_id} style={s.row} accessible
             accessibilityLabel={`${a.label} ${a.mask ?? ''}, tracked`}>
@@ -209,7 +209,7 @@ export default function SnapTradeConnect({ reconnectId }: { reconnectId?: string
   return (
     <ScrollView showsVerticalScrollIndicator={false}>
       <Text style={s.h2}>One quick check</Text>
-      <Text style={s.body}>Your brokerage didn't say what kind of account these are. The type changes the tax math, so pick it here:</Text>
+      <Text style={s.body}>Your brokerage didn’t say what kind of account these are. The type changes the tax math, so pick it here:</Text>
       {pending.map((a: any) => (
         <View key={a.asset_id} style={s.card}>
           <Text style={s.rowTxt}>{a.label} {a.mask ?? ''}</Text>

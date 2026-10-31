@@ -1,3 +1,4 @@
+import { MoneyBox } from '../components/MoneyBox';   // every money box, one component (DEC-8385)
 import React, { useState } from 'react';
 import {
   View, Text, ScrollView, StyleSheet, TouchableOpacity, Alert, TextInput,
@@ -72,8 +73,8 @@ export default function RewardsScreen() {
         visible={modalVisible}
         title="Add to goal"
         message="How much are you adding today?"
-        placeholder="0.00"
-        keyboardType="decimal-pad"
+        placeholder="$0.00"
+        money
         confirmLabel="Add"
         onConfirm={handleAddToGoal}
         onCancel={() => setModalVisible(false)}
@@ -192,13 +193,11 @@ export default function RewardsScreen() {
             placeholderTextColor={Colors.textTertiary}
           />
           <Text style={[styles.label, { marginTop: Spacing.sm }]}>Target amount ($)</Text>
-          <TextInput
+          <MoneyBox bare
             style={styles.input}
             value={goalTarget}
             onChangeText={setGoalTarget}
             placeholder="5000"
-            keyboardType="decimal-pad"
-            placeholderTextColor={Colors.textTertiary}
           />
           <View style={{ flexDirection: 'row', gap: Spacing.sm, marginTop: Spacing.md }}>
             <Button label="Cancel" onPress={() => setShowAddGoal(false)} variant="secondary" style={{ flex: 1 }} size="md" />

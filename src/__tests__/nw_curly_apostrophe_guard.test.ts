@@ -171,6 +171,20 @@ test('every apostrophe the Performance tab prints inside a word is ’ — its o
   expect(hits).toEqual([]);
 });
 
+/** LOOK BACK (2026-10-27, FX-PF, NW2-26): reached only from the account page and the Holding page, so the seven seeds never read
+ *  its own file — it printed "What if I'd", "We don't" and "Couldn't" straight. Its own file is read whole now, and every file it
+ *  imports, as for the Performance tab. Look back v01 carries the dated correction row of 2026-10-27. */
+test('every apostrophe Look back prints inside a word is ’ — its own file read whole, and the guard proves it looked', () => {
+  const { scanned, hits, strings, bySeed } = sweep([path.join(ROOT, 'src', 'screens', 'LookBackScreen.tsx')]);
+  console.log(`Look back: ${bySeed['src/screens/LookBackScreen.tsx']} strings in its own file; ${scanned.length} files read whole, ${strings} strings with words`);
+  expect(scanned).toContain('src/screens/LookBackScreen.tsx');
+  // IT LOOKED (2026-10-27): 83 strings with words in the file itself; 55 files read whole, 3,020 strings with words
+  expect(bySeed['src/screens/LookBackScreen.tsx']).toBeGreaterThanOrEqual(80);
+  expect(scanned.length).toBeGreaterThanOrEqual(50);
+  expect(strings).toBeGreaterThanOrEqual(2900);
+  expect(hits).toEqual([]);
+});
+
 test('the guard catches what it is for: a straight apostrophe in a word, and after a name filled in', () => {
   const dir = fs.mkdtempSync(path.join(require('os').tmpdir(), 'nw-apos-'));
   const f = path.join(dir, 'Probe.tsx');

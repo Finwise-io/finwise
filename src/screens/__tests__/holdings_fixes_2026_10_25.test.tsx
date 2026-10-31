@@ -390,7 +390,10 @@ describe('H5 · item 5 · a holding with no price in an account built by hand co
     const p = (acct('fid').positions as any[]).find((x) => x.ticker === 'UNKNOWN123');
     const ACC = look('account', { id: 'fid', period: '1M' });
     const alt = band(ACC, 'ALTERNATIVES', 6);
-    expect(alt).toEqual(['▾ ALTERNATIVES', '$1,000', '—', 'UNKNOWN123', '10 shares · no price today — showing what you paid', '$1,000']);
+    // BOUGHT TODAY, IT COUNTS AT WHAT WAS PAID WITH 0% GAIN (2026-10-27, FX-PF, PF-4; the lead's ruling R4): 10 × $100.00 = $1,000 paid
+    // today, no price since, worth $1,000 → 1,000 ÷ 1,000 − 1 = +0.00% over 1M. It read "—": a holding bought inside the window,
+    // dropped from the bar's return with no sentence. (The old answer, "—", is kept in the test.failing below.)
+    expect(alt).toEqual(['▾ ALTERNATIVES', '$1,000', '+0.00%', 'UNKNOWN123', '10 shares · no price today — showing what you paid', '$1,000']);
     const parts = [band(ACC, 'CASH', 2)[1], band(ACC, 'BONDS & CDS', 2)[1], alt[1]];
     expect(parts).toEqual(['$1,000', '$3,650', '$1,000']);
     expect(after(ACC, 'Total')).toBe(money0(1_000 + 3_650 + 1_000));
@@ -404,6 +407,13 @@ describe('H5 · item 5 · a holding with no price in an account built by hand co
     expect(after(NW, 'Bonds & CDs')).toBe(parts[1]);
     expect(after(NW, 'Own $5,650 − Owe $0')).toBe(after(ACC, 'Total'));
     expect(after(look('invest', {}, pick('1M')), 'Ending value')).toBe(after(ACC, 'Total'));   // the Performance tab, the same $5,650
+  });
+  test.failing('the answer until 2026-10-27, kept (no longer the app\'s): the bar read "—" for UNKNOWN123 bought today (PF-4, R4)', () => {
+    household({ assetAccounts: [FIDELITY(2_000)], transactions: [BND_OPENING] });
+    buyOnAccountPage('fid', 'UNKNOWN123', '10', '100', 'Other');
+    press('Record buy');
+    screen.unmount();
+    expect(band(look('account', { id: 'fid', period: '1M' }), 'ALTERNATIVES', 6)[2]).toBe('—');
   });
   test('a linked account keeps its own rule: no price today with nothing left over reads "no price today", no figure (DEC-6926)', () => {
     const linked = { asset_id: 'lnk', label: 'Brokerage', institution: 'Vanguard', kind: 'brokerage', tax_bucket: 'TAXABLE', source: 'connected', balance: 1_000, cash_balance: 0,

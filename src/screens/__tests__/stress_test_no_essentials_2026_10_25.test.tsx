@@ -9,6 +9,10 @@
  *  Held to the drawing it was built from, MoneyKeel/documents/other/moneykeel_pres_mock_stresstest-mock_v02.html (drawn first,
  *  its READ THIS FIRST row dated 2026-10-25): phone A (with essentials, unchanged) and phone B (no essentials, the change) —
  *  every rendered line, in order, is on the drawn phone. And the function, its door and the screen give one answer (tenet 4).
+ *
+ *  SINCE 2026-10-27 (FX-CF-C, DEC-8839) the screen is built to v03, and src/screens/__tests__/stress_test_drawing_v03.test.tsx holds
+ *  it word for word, both ways. v02 is archived; its two phone matches are kept below as test.failing (the old answer, never deleted).
+ *  The words of phone B's change stand in v03 unchanged, with ’ for the apostrophe.
  */
 import React from 'react';
 import { render, screen } from '@testing-library/react-native';
@@ -25,7 +29,7 @@ jest.mock('expo-router', () => ({
 }));
 
 const ROOT = path.join(__dirname, '..', '..', '..');
-const MOCK = 'MoneyKeel/documents/other/moneykeel_pres_mock_stresstest-mock_v02.html';
+const MOCK = 'MoneyKeel/documents/other/archive/2026-10-27_moneykeel_pres_mock_stresstest-mock_v02.html';   // archived 2026-10-27; v03 is the design
 
 const textOf = (n: any): string => (n == null ? '' : typeof n === 'string' ? n : Array.isArray(n) ? n.map(textOf).join('') : (n.children ?? []).map(textOf).join(''));
 function lines(): string[] {
@@ -71,21 +75,25 @@ describe('the Stress test with $0 of essentials (MK-CF-F-010, MK-MN-M-025)', () 
   test('phone B, as drawn: "$3,000 left. With $0/month of essentials there is no count of months to state." and "No target yet"', () => {
     const l = shoot(PHONE_B);
     expect(l).toContain('✓ You could cover a $3,000 hit');
-    expect(l).toContain("You'd have $3,000 left. With $0/month of essentials there is no count of months to state.");
+    expect(l).toContain('You’d have $3,000 left. With $0/month of essentials there is no count of months to state.');
     expect(l).toContain('No target yet: your essentials come to $0/month.');
     // never a 0 that reads as an answer, never a verdict on nothing
     expect(l.join(' | ')).not.toMatch(/0\.0 months/);
     expect(l.join(' | ')).not.toMatch(/already have at least 3 months|strong emergency fund/i);
-    onPhoneInOrder(l, phones()[1]);
+  });
+  test.failing('phone B, the screen until 2026-10-27, pinned: every line on v02\'s phone B in order — no longer its design (v03 since 2026-10-27, DEC-8839)', () => {
+    onPhoneInOrder(shoot(PHONE_B), phones()[1]);
   });
   test('phone A, as drawn and unchanged: $18,000, a $3,000 hit, $3,470/month → $15,000 left, 4.3 months; 5.2 months; no gap', () => {
     const l = shoot(PHONE_A);
-    expect(l).toContain("You'd have $15,000 left — about 4.3 months of essentials ($3,470/month — you entered).");   // 15,000 ÷ 3,470 = 4.32
-    expect(l).toContain('5.2');                                                                                   // 18,000 ÷ 3,470 = 5.19
+    expect(l).toContain('You’d have $15,000 left — about 4.3 months of essentials ($3,470/month — you entered).');   // 15,000 ÷ 3,470 = 4.32
+    expect(l).toContain('5.2 months');                                                                            // 18,000 ÷ 3,470 = 5.19 (v03: the months as Net worth writes them)
     expect(l).toContain('✓ You already have at least 3 months of essentials set aside. A strong emergency fund — some stretch toward 6 months — your call.');   // 3 × 3,470 = 10,410 ≤ 18,000
-    onPhoneInOrder(l, phones()[0]);
   });
-  test('the drawing holds two phones and its READ THIS FIRST row is dated 2026-10-25', () => {
+  test.failing('phone A, the screen until 2026-10-27, pinned: every line on v02\'s phone A in order — no longer its design (v03 since 2026-10-27, DEC-8839)', () => {
+    onPhoneInOrder(shoot(PHONE_A), phones()[0]);
+  });
+  test('the archived v02 drawing holds two phones and its READ THIS FIRST row is dated 2026-10-25', () => {
     expect(phones()).toHaveLength(2);
     expect(fs.readFileSync(path.join(ROOT, MOCK), 'utf8')).toMatch(/READ THIS FIRST — 2026-10-25/);
   });

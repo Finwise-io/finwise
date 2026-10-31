@@ -433,7 +433,7 @@ describe('E2E-64 · hide balances, from the eye on the Performance tab', () => {
     expect(noDollars()).toEqual([]);
     expect(ls).toContain('▲ up •••• (1.54%) this month');
     expect(dotsHeard()).toEqual([]);
-    expect(heard().find((l) => l.startsWith('Your investments:'))).toMatch(/^Your investments: hidden\. up hidden, 1\.54 percent this month\. This month's change is on hidden:/);
+    expect(heard().find((l) => l.startsWith('Your investments:'))).toMatch(/^Your investments: hidden\. up hidden, 1\.54 percent this month\. This month’s change is on hidden:/);
   });
 });
 
@@ -586,7 +586,7 @@ describe('E2E-66 · Look back, opened from an alternative\'s page, with nothing 
     openFromGold();
     follow();
     expect(lines()).toContain('Getting prices for AGG and SPY…');
-    await waitFor(() => expect(lines()).toContain("Couldn't refresh prices for AGG or SPY, so there is nothing to compare yet. Look back tries again each time it opens."));
+    await waitFor(() => expect(lines()).toContain("Couldn’t refresh prices for AGG or SPY, so there is nothing to compare yet. Look back tries again each time it opens."));
     expect(lines().filter((l) => /\$\d|%/.test(l))).toEqual([]);           // no figure anywhere on the screen
     expect((useStore.getState() as any).priceRefreshFailed).toBe(true);
   });
@@ -594,7 +594,7 @@ describe('E2E-66 · Look back, opened from an alternative\'s page, with nothing 
 
 // ════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
 // E2E-67 · PRICES THAT ARE OLD — a Fidelity brokerage built from its holdings, prices last fetched six days ago. The tab and
-// the Holding page say so; a refresh fails and Home says "Couldn't refresh"; a pull to refresh that works moves every figure,
+// the Holding page say so; a refresh fails and Home says "Couldn’t refresh"; a pull to refresh that works moves every figure,
 // and every screen agrees.
 // ════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
 describe('E2E-67 · old prices, a failed refresh, then a pull to refresh that works', () => {
@@ -637,7 +637,7 @@ describe('E2E-67 · old prices, a failed refresh, then a pull to refresh that wo
     screen.unmount();
     open('/(tabs)/home');
     ls = lines();
-    expect(ls).toContain("📡 Couldn't refresh — showing your numbers from Sep 24, 9:00 AM.");
+    expect(ls).toContain("📡 Couldn’t refresh — showing your numbers from Sep 24, 9:00 AM.");
     expect(ls).toContain('⚠ prices may be out of date — updated 6 days ago');
     // Home's month is the tab's 1M: Aug 29's beginning (the record's Aug 28) $28,000 → $29,000: up $1,000 (3.57%)
     expect(ls).toContain('▲ up $1,000 (3.57%) this month');
@@ -647,13 +647,13 @@ describe('E2E-67 · old prices, a failed refresh, then a pull to refresh that wo
     const pull = screen.UNSAFE_getAllByType(ScrollView)[0];
     await act(async () => { await pull.props.refreshControl.props.onRefresh(); });
     ls = lines();
-    expect(ls.some((l) => l.startsWith("📡 Couldn't refresh"))).toBe(false);
+    expect(ls.some((l) => l.startsWith("📡 Couldn’t refresh"))).toBe(false);
     expect(ls).toContain('prices updated just now');
     // YOUR INVESTMENTS leaves the cash out: 100 × $290 = $29,000; the month: $28,000 → $30,000 = up $2,000, 2,000 ÷ 28,000 = 7.14%,
     // on $30,000 — the account with its cash; Net worth $30,000
     expect(after('YOUR INVESTMENTS', 2, ls)).toBe('$29,000');
     expect(ls).toContain('▲ up $2,000 (7.14%) this month');
-    expect(ls).toContain("This month's change is on $30,000: your investment accounts with the cash in them.");
+    expect(ls).toContain("This month’s change is on $30,000: your investment accounts with the cash in them.");
     expect(after('Net worth', 2, ls)).toBe('$30,000');
 
     // the Performance tab: no warning; the same $30,000, $2,000 and +7.14%
@@ -707,12 +707,12 @@ describe('E2E-68 · a screen-reader user', () => {
     open('/(tabs)/home');
     const card = reachable().find((r) => r.said.startsWith('Your investments:'))!;
     // printed, in order: YOUR INVESTMENTS · $106,000 (84,000 + 22,000, the cash left out) · ⚠ Schwab Traditional IRA has no
-    // balance › · ▲ up $1,900 (1.54%) this month · This month's change is on $125,200 … · you +1.54% … · market +1.69%
+    // balance › · ▲ up $1,900 (1.54%) this month · This month’s change is on $125,200 … · you +1.54% … · market +1.69%
     // (SPY 590 → 600) · behind by 0.15% · prices updated 8h ago · See your growth ›
     expect(card.said).toBe("Your investments: $106,000. Schwab Traditional IRA has no balance. up $1,900, 1.54 percent this month. "
-      + "This month's change is on $125,200: your investment accounts with the cash in them. you plus 1.54% (including dividends and interest), "
+      + "This month’s change is on $125,200: your investment accounts with the cash in them. you plus 1.54% (including dividends and interest), "
       + 'market plus 1.69%, behind by 0.15%. prices updated 8h ago. See your growth.');
-    const printedOrder = ['$106,000', 'Schwab Traditional IRA has no balance', '$1,900', "This month's change is on $125,200", '1.69%', 'prices updated 8h ago', 'See your growth'];
+    const printedOrder = ['$106,000', 'Schwab Traditional IRA has no balance', '$1,900', "This month’s change is on $125,200", '1.69%', 'prices updated 8h ago', 'See your growth'];
     const at = printedOrder.map((p) => card.said.indexOf(p));
     expect(at.every((i) => i >= 0)).toBe(true);
     expect([...at].sort((x, y) => x - y)).toEqual(at);                  // in the order the card prints them

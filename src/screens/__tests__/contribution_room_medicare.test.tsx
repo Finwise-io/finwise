@@ -23,7 +23,7 @@ test('at 66 with no answer: the limit shows with the founder\'s condition, and t
 
 test('answering "enrolled" drops the HSA room to $0 and says why; the answer is stored (MK-XS-I-062)', () => {
   render(<ContributionRoomScreen />);
-  fireEvent.press(screen.getByLabelText("I'm enrolled in Medicare"));
+  fireEvent.press(screen.getByLabelText('I’m enrolled in Medicare'));   // ’ since 2026-10-27 (contribution-room v02 row 5; tenet 4)
   expect((useStore.getState() as any).onboardingProfile.medicareEnrolled).toBe('yes');
   expect(screen.getByText(/enrolled in Medicare, so no HSA contribution is allowed/)).toBeOnTheScreen();
   expect(screen.getByText(/up to \$0/)).toBeOnTheScreen();

@@ -1,3 +1,4 @@
+import { MoneyBox } from '../components/MoneyBox';   // every money box, one component (DEC-8385)
 import React, { useState } from 'react';
 import {
   View, Text, TextInput, StyleSheet, ScrollView, FlatList,
@@ -255,15 +256,13 @@ export default function ExpenseScreen() {
             {/* Amount */}
             <Card>
               <Text style={styles.inputLabel}>Amount ($)</Text>
-              <TextInput
+              <MoneyBox bare
                 style={styles.bigInput}
                 value={amount}
                 onChangeText={setAmount}
                 placeholder="$0.00"
-                keyboardType="decimal-pad"
                 returnKeyType="done"
                 onSubmitEditing={handleSave}
-                placeholderTextColor={Colors.textTertiary}
                 autoFocus={!editId}
               />
             </Card>
@@ -391,8 +390,7 @@ export default function ExpenseScreen() {
                 placeholder="e.g. Netflix, PG&E, Rent" placeholderTextColor={Colors.textTertiary} />
 
               <Text style={styles.inputLabel}>Amount ($)</Text>
-              <TextInput style={styles.input} value={recurAmount} onChangeText={setRecurAmount}
-                keyboardType="decimal-pad" placeholder="99.99" placeholderTextColor={Colors.textTertiary} />
+              <MoneyBox bare style={styles.input} value={recurAmount} onChangeText={setRecurAmount} placeholder="99.99" />
 
               <Text style={styles.inputLabel}>Frequency</Text>
               <View style={{ flexDirection: 'row', gap: Spacing.sm, marginBottom: Spacing.sm }}>

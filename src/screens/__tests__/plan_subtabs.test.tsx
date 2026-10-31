@@ -57,7 +57,7 @@ test('Goals with nothing set is an ON-RAMP, not a brochure about what the screen
   render(<PlanHubScreen />);
   fireEvent.press(screen.getByLabelText('Goals'));
   expect(screen.getByText('Nothing here yet')).toBeOnTheScreen();
-  expect(screen.getByText(/A goal is anything you're putting money aside for/)).toBeOnTheScreen();
+  expect(screen.getByText(/A goal is anything you’re putting money aside for/)).toBeOnTheScreen();
   expect(screen.getByText('+ Add a goal')).toBeOnTheScreen();
 });
 

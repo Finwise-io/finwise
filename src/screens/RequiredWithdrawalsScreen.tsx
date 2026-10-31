@@ -3,6 +3,7 @@
 // amount, what's already taken (from the ONE ledger), the deadline, a year-by-year schedule
 // (clearly labeled estimates), and a getting-ready checklist for the run-up to 73.
 // Logistics and reminders — the decision of WHEN in the year to take it stays with the user.
+import { MoneyBox } from '../components/MoneyBox';   // every money box, one component (DEC-8385)
 import { CountedTaxableLines } from '../components/CountedTaxableLines';   // (DEC-4105, 2026-10-10)
 import React, { useMemo, useState } from 'react';
 import { ScrollView, View, Text, TextInput, StyleSheet, TouchableOpacity, Modal, KeyboardAvoidingView, Platform, Alert } from 'react-native';
@@ -60,6 +61,8 @@ export default function RequiredWithdrawalsScreen() {
   // mark-as-taken sheet
   const [markOpen, setMarkOpen] = useState(false);
   const [markAmt, setMarkAmt] = useState('');
+  // the Dec 31 balance box, held as typed and saved when typing ends (it was uncontrolled; a MoneyBox shows "$412,000" as typed)
+  const [pyEnd, setPyEnd] = useState(priorYearEnd ? String(priorYearEnd) : '');
   const [markAcct, setMarkAcct] = useState<string>('');
   const [reminded, setReminded] = useState(false);
   const markReady = num(markAmt) > 0 && !!(markAcct || preTaxAccts[0]);
@@ -79,7 +82,7 @@ export default function RequiredWithdrawalsScreen() {
     const scheduled = await scheduleRmdReminder(year);
     setReminded(true);
     Alert.alert(scheduled ? 'Reminder set' : 'Too late for this year',
-      scheduled ? `We'll nudge you November 1, ${year} — the deadline is Dec 31.` : 'November has passed — the deadline is Dec 31 this year.');
+      scheduled ? `We’ll nudge you November 1, ${year} — the deadline is Dec 31.` : 'November has passed — the deadline is Dec 31 this year.');
   };
 
   // getting-ready checklist (r49): states DERIVE from the same stores the target screens read —
@@ -102,7 +105,7 @@ export default function RequiredWithdrawalsScreen() {
       {/* the dot beside the sentence, not inside it, so a screen reader says "What is …?" rather than "ⓘ" (2026-10-24, E2E-78) */}
       <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 4 }}>
         <Text style={[s.line, { flex: 1 }]}>From age {rmdStartAgeFor(age)}, the law requires a yearly withdrawal from pre-tax retirement accounts (401(k), traditional IRA).</Text>
-        <InfoDot term="rmd" />
+        <InfoDot term="rmd" line={s.line} />
       </View>
       {preTax > 0 && age != null && !applies && (
         <>
@@ -149,17 +152,17 @@ export default function RequiredWithdrawalsScreen() {
             {thisYear?.basis === 'prior_year_end' ? (
               <Text style={s.note}>Based on your pre-tax balance of {maskedMoney(Math.round(thisYear.balanceUsed))} on Dec 31, {nowYear - 1} (you entered).</Text>
             ) : (
-              <Text style={[s.note, s.warnTxt]}>Based on today's balance. Enter your pre-tax balance on Dec 31, {nowYear - 1} to calculate it exactly — the law bases the required withdrawal on last Dec 31's balance.</Text>
+              <Text style={[s.note, s.warnTxt]}>Based on today’s balance. Enter your pre-tax balance on Dec 31, {nowYear - 1} to calculate it exactly — the law bases the required withdrawal on last Dec 31's balance.</Text>
             )}
-            <TextInput style={s.input} keyboardType="decimal-pad" placeholder={`Pre-tax balance on Dec 31, ${nowYear - 1}`} placeholderTextColor={Colors.textTertiary}
-              defaultValue={priorYearEnd ? String(priorYearEnd) : ''} accessibilityLabel={`Your pre-tax balance on December 31, ${nowYear - 1}`}
-              onEndEditing={(e) => store.setOnboardingProfile?.({ ...(op ?? {}), rmdPriorYearEndPreTax: e.nativeEvent.text })} />
+            <MoneyBox bare style={s.input} placeholder={`Pre-tax balance on Dec 31, ${nowYear - 1}`}
+              value={pyEnd} onChangeText={setPyEnd} a11y={`Your pre-tax balance on December 31, ${nowYear - 1}`}
+              onEndEditing={() => store.setOnboardingProfile?.({ ...(op ?? {}), rmdPriorYearEndPreTax: pyEnd })} />
             <Text style={s.line}>Taken so far {maskedMoney(Math.round(taken))} · <Text style={[s.strong, still > 0 && s.warnTxt]}>Still to take {maskedMoney(Math.round(still))}</Text> by Dec 31</Text>
             {still <= 0 && <Text style={s.doneTxt}>✓ Done for {nowYear} — nothing left to take.</Text>}
             {age === rmdStartAgeFor(age) && (
               // PRD F9#16 (SECURE 2.0): the very FIRST one may wait until April 1 next year —
               // stated as a fact with the trade-off, never a recommendation
-              <Text style={s.note}>First-year rule: because this is your first required withdrawal, the law lets it wait until April 1, {nowYear + 1} — but then you'd take two in {nowYear + 1}, which can mean more tax that year. Your call; your tax preparer knows your picture.</Text>
+              <Text style={s.note}>First-year rule: because this is your first required withdrawal, the law lets it wait until April 1, {nowYear + 1} — but then you’d take two in {nowYear + 1}, which can mean more tax that year. Your call; your tax preparer knows your picture.</Text>
             )}
             <View style={s.btnRow}>
               <TouchableOpacity accessibilityRole="button" style={s.secondaryBtn} onPress={() => setMarkOpen(true)} accessibilityLabel="Mark a withdrawal as taken">
@@ -230,9 +233,9 @@ export default function RequiredWithdrawalsScreen() {
           <TouchableOpacity accessibilityRole="button" accessibilityLabel="Close" style={s.scrim} activeOpacity={1} onPress={() => setMarkOpen(false)} />
           <View style={s.sheet}>
             <Text style={s.sheetT}>Mark a withdrawal as taken</Text>
-            <Text style={s.note}>Records it in the account's history — it counts toward this year's requirement.</Text>
-            <TextInput style={s.input} keyboardType="decimal-pad" placeholder="Amount" placeholderTextColor={Colors.textTertiary}
-              value={markAmt} onChangeText={setMarkAmt} accessibilityLabel="Withdrawal amount" autoFocus />
+            <Text style={s.note}>Records it in the account’s history — it counts toward this year’s requirement.</Text>
+            <MoneyBox bare style={s.input} placeholder="Amount"
+              value={markAmt} onChangeText={setMarkAmt} a11y="Withdrawal amount" autoFocus />
             {preTaxAccts.map((a: any) => {
               const on = (markAcct || preTaxAccts[0]?.asset_id) === a.asset_id;
               return (
@@ -256,7 +259,7 @@ export default function RequiredWithdrawalsScreen() {
         <TouchableOpacity accessibilityRole="button" accessibilityLabel="Close" style={s.scrim} activeOpacity={1} onPress={() => setHealthOpen(false)} />
         <View style={s.sheet}>
           <Text style={s.sheetT}>Health coverage before 65</Text>
-          <Text style={s.line}>Medicare starts at 65. If you stop working earlier, plan how you'll be covered in between — employer retiree coverage, a spouse's plan, COBRA, or the marketplace. Costs vary a lot; check before you set a retirement date.</Text>
+          <Text style={s.line}>Medicare starts at 65. If you stop working earlier, plan how you’ll be covered in between — employer retiree coverage, a spouse’s plan, COBRA, or the marketplace. Costs vary a lot; check before you set a retirement date.</Text>
           <TouchableOpacity accessibilityRole="button" style={s.primaryBtn} onPress={() => setHealthOpen(false)} accessibilityLabel="Got it">
             <Text style={s.primaryTxt}>Got it</Text>
           </TouchableOpacity>
@@ -272,7 +275,10 @@ const s = StyleSheet.create({
   content: { padding: Spacing.lg, paddingTop: Spacing.xl },
   h1: { fontSize: 20, fontWeight: '800', color: Colors.textPrimary },
   sub: { fontSize: 15, color: Colors.textSecondary, marginBottom: Spacing.md },
-  card: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.lg, marginBottom: Spacing.md },
+  // EACH BOX RUNS END TO END ACROSS THE SCREEN, square corners, so its dark bar does too (his words on Roth conversion, 2026-10-27,
+  // DEC-8890: "dark green bar should be end to end across the screen" — this screen's boxes are built the same way; drawing
+  // plan/moneykeel_pres_mock_required-withdrawals_v02.html): the page's margins taken back, the Cash flow pattern of 2026-10-25
+  card: { backgroundColor: Colors.cardBg, padding: Spacing.lg, marginBottom: Spacing.md, marginHorizontal: -Spacing.lg },
   kicker: { fontSize: 13, fontWeight: '800', color: Colors.textSecondary, letterSpacing: 0.6, marginBottom: 6 },
   bigLine: { fontSize: 24, fontWeight: '800', color: Colors.textPrimary },
   line: { fontSize: 15, color: Colors.textPrimary, marginTop: 4, lineHeight: 21 },

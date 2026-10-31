@@ -57,6 +57,7 @@ test('Roth conversion: the smaller withdrawals are worked at 0%, and the line sa
   open('RothScreen');
   fireEvent.changeText(screen.getByLabelText('Amount to convert this year'), '20000');
   const L = builtLines(screen.toJSON());
-  expect(L).toContain(`Growth used until 75: ${FLOOR}.`);
-  expect(L).toContain('Required withdrawals at 75: about $813/year smaller');   // 20,000 ÷ 24.6 = 813.01
+  // since 2026-10-30 the growth is said inside the line that works the $813 out (roth-conversion_v02, DEC-8890) — the floor, word for word
+  expect(L.some((l: string) => l.includes(`would grow at ${FLOOR} — for 15 years, to $20,000. ÷ 24.6, the IRS factor at 75 = $813/year less`))).toBe(true);   // 20,000 ÷ 24.6 = 813.01
+  expect(L).toContain('about $813');
 });

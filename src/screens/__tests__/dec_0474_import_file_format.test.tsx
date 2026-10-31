@@ -26,11 +26,11 @@ test('DEC-0474 — before a file is picked, the import screen names the file typ
   // every Text, as the words a person reads (a bullet nests a bold Text inside it; the inner one is a fragment and matches no full line)
   const lines = UNSAFE_getAllByType(Text).map((n: any) => flat(n.props.children).trim());
   const want = [
-    'Upload a CSV export from your brokerage (Fidelity, Schwab, Vanguard, Robinhood, and most others). We\'ll read your tickers, shares, and cost — no logins or passwords.',
+    'Upload a CSV export from your brokerage (Fidelity, Schwab, Vanguard, Robinhood, and most others). We’ll read your tickers, shares, and cost — no logins or passwords.',   // ’ since 2026-10-27
     'What we look for',
     '• A Symbol / Ticker column',
     '• A Quantity / Shares column',
-    '• A Cost basis column (optional — we\'ll still import without it)',
+    '• A Cost basis column (optional — we’ll still import without it)',
     'Choose a file',
   ];
   const at = want.map((w) => lines.indexOf(w));
@@ -59,7 +59,7 @@ test('DEC-0474 — a file missing the must-have columns is refused with the same
   (FileSystem.readAsStringAsync as jest.Mock).mockResolvedValue('Description,Quantity\nVanguard Total Stock,10\n');
   const { getByText } = render(<ImportHoldingsScreen />);
   fireEvent.press(getByText('Choose a file'));
-  await waitFor(() => expect(getByText('We couldn\'t find any holdings in that file. Make sure it\'s a CSV with a symbol/ticker column and a quantity/shares column.')).toBeTruthy());
+  await waitFor(() => expect(getByText('We couldn’t find any holdings in that file. Make sure it’s a CSV with a symbol/ticker column and a quantity/shares column.')).toBeTruthy());
   expect(useStore.getState().assetAccounts).toHaveLength(0);
 });
 

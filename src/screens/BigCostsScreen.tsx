@@ -3,6 +3,7 @@
 // is subtracted in its year inside the SAME simulation the Plan needle runs; the screen says plainly
 // what the list did to the odds. Empty state = the honest default: no entries means the plan
 // quietly assumes no big one-time costs.
+import { MoneyBox } from '../components/MoneyBox';   // every money box, one component (DEC-8385)
 import { EmptyNote } from '../components/UI';
 import { money } from '../domain/_shared/num';
 import React, { useMemo, useState } from 'react';
@@ -71,8 +72,8 @@ export default function BigCostsScreen() {
             {withoutChance != null && withCosts.chance != null && (
               <Text style={s.delta}>
                 {withoutChance === withCosts.chance
-                  ? `These don't move your odds (${withCosts.chance}%) — the plan absorbs them.`
-                  : `These ${withoutChance > withCosts.chance ? 'lower' : 'raise'} your odds from ${withoutChance}% to ${withCosts.chance}% — already counted in the Plan tab's needle.`}
+                  ? `These don’t move your odds (${withCosts.chance}%) — the plan absorbs them.`
+                  : `These ${withoutChance > withCosts.chance ? 'lower' : 'raise'} your odds from ${withoutChance}% to ${withCosts.chance}% — already counted in the Plan tab’s needle.`}
               </Text>
             )}
             <TouchableOpacity accessibilityRole="button" style={s.cta} onPress={() => setSheet({ open: true })}
@@ -118,8 +119,8 @@ function BigCostSheet({ state, onClose }: { state: { open: boolean; edit?: { id:
     <KeyboardAwareSheet open={state.open} onClose={onClose} title={editing ? 'Edit big cost' : 'Add a big cost'}>
       <Text style={s.lbl}>What is it?</Text>
       <TextInput style={s.input} placeholder="New roof" placeholderTextColor={Colors.textTertiary} value={label} onChangeText={setLabel} />
-      <Text style={s.lbl}>About how much? (today's dollars)</Text>
-      <TextInput style={s.input} keyboardType="decimal-pad" placeholder="$28,000" placeholderTextColor={Colors.textTertiary} value={amount} onChangeText={setAmount} />
+      <Text style={s.lbl}>About how much? (today’s dollars)</Text>
+      <MoneyBox bare style={s.input} placeholder="$28,000" value={amount} onChangeText={setAmount} />
       <Text style={s.lbl}>Which year?</Text>
       <TextInput style={s.input} keyboardType="number-pad" placeholder={String(nowYear + 2)} placeholderTextColor={Colors.textTertiary} value={year} onChangeText={setYear} />
       <TouchableOpacity accessibilityRole="button" style={[s.saveBtn, !ready && { opacity: 0.4 }]} disabled={!ready} onPress={save}

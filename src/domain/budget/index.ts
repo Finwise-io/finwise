@@ -119,7 +119,7 @@ export function plannedMonthlySpend(op: OnboardingProfile | null): number {
  * Called by ... MK-CF-F-003 categoryMonthly · MK-CF-F-221 spendByMonthByBucket
  *               MK-CF-F-255 spendByMonthByCategory
  *
- * Reaches ..... 385 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 438 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -129,7 +129,7 @@ export function plannedMonthlySpend(op: OnboardingProfile | null): number {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 367 more — the full list is on functions_from_code
+ *               … and 420 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -160,7 +160,7 @@ function pctBaseMonthly(op: OnboardingProfile | null): number {
  *
  * Called by ... MK-CF-F-004 spendBuckets · MK-CF-F-009 monthlyEssentials
  *
- * Reaches ..... 385 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 438 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -170,7 +170,7 @@ function pctBaseMonthly(op: OnboardingProfile | null): number {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 367 more — the full list is on functions_from_code
+ *               … and 420 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-064 the unit beside a quantity — shares, coins, contracts, ounces or units
@@ -206,12 +206,13 @@ export function categoryMonthly(c: { amount?: any; unit?: string; bucket?: strin
  *     non monthly = non
  *     flexible = flex
  *     monthly total = fixed + non + flex
- *     fixed = 0, flex = 0, non mo = 0, any monthly category = false
+ *     dated = 0
+ *     fixed = 0, flex = 0, non mo = 0, dated = 0, any monthly category = false
  *     m = category monthly(c, op); if (m ≤ 0) continue
  *
  * Called by ... MK-CF-F-221 spendByMonthByBucket
  *
- * Reaches ..... 385 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 438 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -221,7 +222,7 @@ export function categoryMonthly(c: { amount?: any; unit?: string; bucket?: strin
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 367 more — the full list is on functions_from_code
+ *               … and 420 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-032 expenses categories the person set up
@@ -229,26 +230,29 @@ export function categoryMonthly(c: { amount?: any; unit?: string; bucket?: strin
  * Formula also on the master file · functions_from_code · MK-CF-F-004
  * Changed ..... 2026-06-27 (6eb9522)
  */
-export function spendBuckets(op: OnboardingProfile | null): { fixed: number; non_monthly: number; flexible: number; monthly_total: number } {
+export function spendBuckets(op: OnboardingProfile | null): { fixed: number; non_monthly: number; flexible: number; monthly_total: number; dated: number } {
   const a = op ?? {};
+  // `dated` (2026-10-27, FX-CF-B; workplan #322): the part of non_monthly that is bills given their own months, as a month's
+  // twelfth — the part spendByMonthByBucket adds on top of the monthly figure typed (DEC-7951), never inside it. Sign-up's budget
+  // step reads it so its figures are the recap's: $1,200 given December is $100 here, on top of the $2,000 typed.
   // ONE RULE FOR WHEN CATEGORIES REPLACE THE TOTALS TYPED BY GROUP (categoriesInForce, 2026-10-25, FIX-BUDGET; DEC-7951; tenet 4):
   // an empty category list was read as categories, so typed $1,000 / $100 / $900 became $0 here while the month table read
   // $1,000 + $900 — two readers, two answers. Now both read $1,000 / $100 / $900.
   const cats = categoriesInForce(op);
   if (!cats) {
     const fixed = toNum(a.b_fixed), non = toNum(a.b_nonmonthly), flex = toNum(a.b_flexible);
-    return { fixed, non_monthly: non, flexible: flex, monthly_total: (fixed + non + flex) };
+    return { fixed, non_monthly: non, flexible: flex, monthly_total: (fixed + non + flex), dated: 0 };
   }
-  let fixed = 0, flex = 0, nonMo = 0, anyMonthlyCategory = false;
+  let fixed = 0, flex = 0, nonMo = 0, dated = 0, anyMonthlyCategory = false;
   for (const c of cats) {
     const m = categoryMonthly(c, op); if (m <= 0) continue;                     // the shared per-category $
-    if (c?.bucket === 'nonmonthly') nonMo += m;
+    if (c?.bucket === 'nonmonthly') { nonMo += m; if (Array.isArray(c?.months) && c.months.length > 0) dated += m; }
     else { if (c?.bucket === 'fixed') fixed += m; else flex += m; anyMonthlyCategory = true; }
   }
   // the typed bills & fixed / everyday split stands while no category of either kind replaces it — as the month table reads it
   // (spendByMonthByBucket): his DEC-7951 household, $1,100 / $900 typed beside a $1,200 December bill, is 1,100 + 100 + 900
   if (!anyMonthlyCategory) { fixed += toNum(a.b_fixed); flex += toNum(a.b_flexible); }
-  return { fixed: (fixed), non_monthly: (nonMo), flexible: (flex), monthly_total: (fixed + nonMo + flex) };
+  return { fixed: (fixed), non_monthly: (nonMo), flexible: (flex), monthly_total: (fixed + nonMo + flex), dated };
 }
 
 /** What it is for: THE ONE RULE FOR WHEN THE BUDGET'S CATEGORIES REPLACE THE TOTALS TYPED BY GROUP (2026-10-25, FIX-BUDGET; the
@@ -271,7 +275,7 @@ export function spendBuckets(op: OnboardingProfile | null): { fixed: number; non
  * Called by ... MK-CF-F-004 spendBuckets · MK-CF-F-009 monthlyEssentials
  *               MK-CF-F-221 spendByMonthByBucket · MK-CF-F-257 budgetEntered
  *
- * Reaches ..... 385 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 438 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -281,7 +285,7 @@ export function spendBuckets(op: OnboardingProfile | null): { fixed: number; non
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 367 more — the full list is on functions_from_code
+ *               … and 420 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-032 expenses categories the person set up
@@ -366,7 +370,7 @@ export function nonMonthlyBasis(op: OnboardingProfile | null): { allPct: boolean
  * Called by ... MK-CF-F-002 plannedMonthlySpend · MK-CF-F-011 savingsByMonth
  *               MK-CF-F-012 annualCashflow · MK-XS-F-004 buildDatedGrid
  *
- * Reaches ..... 385 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 438 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -376,7 +380,7 @@ export function nonMonthlyBasis(op: OnboardingProfile | null): { allPct: boolean
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 367 more — the full list is on functions_from_code
+ *               … and 420 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -423,7 +427,7 @@ export function spendByMonth(op: OnboardingProfile | null): number[] {
  *               MK-CF-F-255 spendByMonthByCategory · MK-CF-F-256 budgetEditorBuckets
  *               MK-CF-O-010 theMonth
  *
- * Reaches ..... 385 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 438 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -433,7 +437,7 @@ export function spendByMonth(op: OnboardingProfile | null): number[] {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 367 more — the full list is on functions_from_code
+ *               … and 420 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-024 logged expenses
@@ -543,7 +547,7 @@ export const PLANNED_GROUP_WORDS: Record<'fixed' | 'nonmonthly' | 'flexible', st
  *
  * Called by ... MK-CF-F-256 budgetEditorBuckets · MK-CF-O-010 theMonth
  *
- * Reaches ..... 385 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 438 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -553,7 +557,7 @@ export const PLANNED_GROUP_WORDS: Record<'fixed' | 'nonmonthly' | 'flexible', st
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 367 more — the full list is on functions_from_code
+ *               … and 420 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-032 expenses categories the person set up
@@ -827,7 +831,7 @@ export function emergencyTest(op: OnboardingProfile | null, cash: number, shock:
  * Called by ... MK-XS-F-027 takeHomeMonthly · MK-XS-F-028 surplusByMonth
  *               MK-XS-F-030 effectiveAnnualContribution
  *
- * Reaches ..... 385 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 438 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -837,7 +841,7 @@ export function emergencyTest(op: OnboardingProfile | null, cash: number, shock:
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 367 more — the full list is on functions_from_code
+ *               … and 420 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -957,7 +961,7 @@ export function budgetFromOnboarding(uid: UserId, op: OnboardingProfile | null):
  *
  * Called by ... MK-CF-F-013 budgetFromOnboarding · MK-CF-O-020 theBudgetCounted
  *
- * Reaches ..... 385 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 438 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -967,7 +971,7 @@ export function budgetFromOnboarding(uid: UserId, op: OnboardingProfile | null):
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 367 more — the full list is on functions_from_code
+ *               … and 420 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-032 expenses categories the person set up
@@ -1031,7 +1035,7 @@ export interface BudgetVsActual {
  * Called by ... MK-CF-F-008 spendByMonth · MK-CF-F-255 spendByMonthByCategory
  *               MK-CF-F-256 budgetEditorBuckets
  *
- * Reaches ..... 385 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 438 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -1041,7 +1045,7 @@ export interface BudgetVsActual {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 367 more — the full list is on functions_from_code
+ *               … and 420 more — the full list is on functions_from_code
  *
  * Serves ...... MK-XS-M-005
  * Reads ....... MK-XS-I-024 logged expenses

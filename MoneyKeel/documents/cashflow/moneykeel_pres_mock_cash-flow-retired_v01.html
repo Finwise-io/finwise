@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MoneyKeel — Cash flow when retired: This month (v1, drawn from the build)</title>
+<style>
+  :root{ --bg:#e8ece9; --ink:#1a1a18; --ink2:#585d59; --accent:#178F6B; }
+  *{box-sizing:border-box}
+  body{background:var(--bg);color:var(--ink);margin:0;padding:32px 20px 64px;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1300px;margin:0 auto}
+  .eyebrow{font-size:12px;font-weight:800;letter-spacing:.09em;color:var(--accent);text-transform:uppercase}
+  h1{font-size:26px;font-weight:800;margin:6px 0 8px}
+  .lede{font-size:14.5px;line-height:1.55;color:var(--ink2);max-width:940px}
+  .blk{background:#fff;border-radius:10px;padding:12px 16px;margin:14px 0;max-width:940px;font-size:13px;line-height:19px}
+  .blk h2{font-size:13px;margin:0 0 6px;letter-spacing:.3px}
+  .blk ul{margin:0;padding-left:18px}
+  .row{display:flex;gap:24px;flex-wrap:wrap;margin-top:20px;align-items:flex-start}
+  .col h3{font-size:14px;font-weight:800;margin:0 0 8px}
+  .col .note{font-size:12px;color:var(--ink2);max-width:360px;margin:8px 0 0;line-height:1.5}
+  /* the phone: the app's real tokens (src/utils/theme.ts) and the sizes the StyleSheet renders, read off the build */
+  .phone{width:360px;background:#0c0d0c;border-radius:46px;padding:8px;box-shadow:0 18px 40px rgba(10,25,18,.25)}
+  .screen{background:#F6F7F5;border-radius:39px;overflow:hidden;color:#1A1A18;display:flex;flex-direction:column}
+  .statusbar{display:flex;justify-content:space-between;align-items:center;padding:11px 24px 2px;font-size:13px;font-weight:700}
+  .topbar{display:flex;align-items:center;justify-content:space-between;padding:4px 12px 8px}
+  .tbtn{display:flex;align-items:center;gap:5px;height:32px;padding:0 12px;border:1px solid rgba(0,0,0,.1);border-radius:12px;background:#fff;font-size:13px;font-weight:700;color:#6B6B66}
+  .wordmark{font-size:15px;font-weight:800;letter-spacing:.2px}.wordmark b{color:#178F6B}.wordmark i{font-style:normal;color:#0B2545}
+  .tico{width:32px;height:32px;border:1px solid rgba(0,0,0,.1);border-radius:16px;background:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;color:#6B6B66}
+  .tright{display:flex;gap:7px;align-items:center}
+  .content{padding:6px 16px 0;flex:1}
+  .headRow{display:flex;align-items:baseline;justify-content:space-between;padding:4px 0 6px}
+  .t{font-size:20px;font-weight:800}
+  .headDate{font-size:13px;font-weight:700;color:#76766F}
+  .switchRow{display:flex;align-items:center;justify-content:center;gap:14px;min-height:44px;margin-bottom:8px}
+  .switchArrow{font-size:17px;font-weight:800;color:#178F6B}
+  .switchLabel{font-size:13px;font-weight:800}
+  .subtabs{display:flex;gap:6px;padding-bottom:10px}
+  .stab{font-size:13px;font-weight:700;color:#6B6B66;border:1.5px solid rgba(0,0,0,.10);border-radius:12px;padding:9px 12px}
+  .stab.on{color:#0F6E56;border-color:#178F6B;background:#E1F5EE;font-weight:800}
+  .card{background:#FFF;padding:16px;margin:0 -16px 12px}
+  .band{background:#085041;color:#fff;font-size:11px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;padding:8px 16px;margin:-16px -16px 8px;display:flex;justify-content:space-between}
+  .kicker{font-size:13px;font-weight:700;color:#6B6B66;letter-spacing:.04em}
+  .kick11{font-size:11px;font-weight:800;color:#76766F;letter-spacing:.05em}
+  .hero{font-size:38px;font-weight:800;font-variant-numeric:tabular-nums;margin-top:2px}
+  .est{font-size:13px;font-weight:600;color:#76766F}
+  .rrow{display:flex;justify-content:space-between;align-items:center;padding:6px 0;font-size:15px;font-variant-numeric:tabular-nums}
+  .rrow .l{color:#6B6B66}.rrow .v{font-size:17px}
+  .rrow.tot .l{font-weight:800}.rrow.tot .v{font-weight:800}
+  .dot{display:inline-block;width:15px;height:15px;border-radius:8px;border:1.5px solid #6B6B66;font-size:10px;line-height:12px;text-align:center;color:#6B6B66;font-weight:700;margin-left:6px}
+  .yr{font-size:17px;font-weight:600;margin-top:8px}
+  .p{font-size:14px;color:#6B6B66;line-height:1.4;margin:6px 0 0}
+  .amber{font-size:15px;color:#854F0B;line-height:1.4;margin:6px 0 0}
+  .pace{height:10px;border-radius:5px;background:#EEEEE9;margin-top:10px;position:relative;overflow:hidden}
+  .paceF{position:absolute;left:0;top:0;bottom:0;background:#178F6B;border-radius:5px}
+  .paceM{position:absolute;top:-2px;width:2px;height:14px;background:#6B6B66}
+  .paceLine{font-size:15px;font-weight:700;margin-top:8px}
+  .paceSub{font-size:13px;color:#6B6B66;margin-top:2px}
+  .hdrRow{display:flex;align-items:center;gap:12px}
+  .hdrRow .kick11{flex:1}
+  .link{font-size:13px;font-weight:700;color:#178F6B}
+  .orderLine{font-size:15px;font-weight:700;margin-top:8px}
+  .note{font-size:13px;color:#6B6B66;line-height:1.4;margin-top:8px}
+  .empty{font-size:13px;color:#6B6B66;line-height:1.4;padding:4px 0}
+  .empty b{color:#178F6B;font-weight:700}
+  .bar{display:flex;align-items:center;gap:8px;min-height:44px}
+  .bar .m{width:52px;font-size:11px;font-weight:700;color:#6B6B66}
+  .bar .tracks{flex:1}
+  .track{height:8px;border-radius:4px;background:#F6F7F5;overflow:hidden;margin-top:2px}
+  .in{height:8px;border-radius:4px;background:#2A78D6}.out{height:8px;border-radius:4px;background:#EB6834}
+  .flag{font-size:13px;font-weight:700;color:#6B6B66;margin-top:3px}
+  .legend{display:flex;align-items:center;gap:12px;margin-top:8px;font-size:13px;color:#6B6B66}
+  .legend i{display:inline-block;width:9px;height:9px;border-radius:5px;margin-right:5px}
+  .wil{font-size:17px;font-weight:800;margin-top:2px}
+  .fab{align-self:flex-end;margin:8px 16px 8px 0;background:#178F6B;color:#fff;font-size:17px;font-weight:800;padding:12px 18px;border-radius:12px}
+  .tabbar{display:flex;justify-content:space-around;border-top:1px solid rgba(0,0,0,.10);padding:7px 0 12px;background:#fff}
+  .tb{font-size:11px;font-weight:700;color:#76766F;text-align:center}.tb.on{color:#0F6E56}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div style="max-width:1100px;margin:0 0 14px;padding:12px 14px;border:2px solid #0B5D3B;border-radius:12px;font-size:13px;line-height:1.55;background:#fff;color:#111"><b>READ THIS FIRST — CASH FLOW WHEN RETIRED, THIS MONTH. Drawn from the build, 2026-10-27, for workplan row 360.</b><br><br>
+<b>1 · WHAT HE APPROVED BEFORE FOR THIS SCREEN.</b> No drawing of this screen was ever approved: the retired lens of This month has never been drawn. What it is built on, each approved by him:
+<ul style="margin:4px 0 4px;padding-left:18px">
+<li>2026-07-19 — the four-tab Cash flow surface, one screen with This month · Income · Expenses · Debts, approved as the v1.3 final drawing (built in commit cd1e6c7, shipped in Build 47; the design record’s row).</li>
+<li>2026-09-28 · DEC-0440 — cash-flow_v01, the one Cash flow drawing. It draws the working month only (frames A and B); its dated rows of 2026-10-10 to 2026-10-27 give the retired card its words, and they are applied here.</li>
+<li>2026-09-28 · DEC-2164 — the paycheck’s draw from savings rises with inflation, so the figure is what it buys today.</li>
+<li>2026-10-10 · DEC-4105 — DRAW COMES FROM names an account with no tax type, and counts it as taxable until he chooses.</li>
+<li>2026-10-27 · DEC-8839 — every box title on a dark-green bar, every sub-title on a light-green bar.</li>
+</ul>
+<b>2 · HIS FEEDBACK, IN HIS WORDS.</b>
+<ul style="margin:4px 0 4px;padding-left:18px">
+<li>DEC-0440 (2026-09-28), on cash-flow_v01: “Approved”</li>
+<li>DEC-2164 (2026-09-28): “rise with inflation each year”</li>
+<li>DEC-4105 (2026-10-10): “the withdrawal-planning line. An account with no tax type would be counted as taxable for the plan, with a line naming it: "Brokerage — tax type not stated; counted as taxable until you choose." … - a[[roved”</li>
+<li>DEC-8839 (2026-10-27): “ContributionRoom, Stress Test screens - both are not standard app design as the standard design says box titles in dark green bar, and sub-titles in light green bar.”</li>
+<li>DEC-8891 (2026-10-27): “I do not want to reviews screens in blind.”</li>
+</ul>
+<b>3 · EXACTLY WHAT IS NEW.</b> The whole screen is drawn for the first time; nothing here was on a phone he saw. Against the build as it stood that morning, four things changed, each made while drawing it (FX-CF-A, under the tenets — not a decision of his; one word from him reverses any of them):
+<ul style="margin:4px 0 4px;padding-left:18px">
+<li>DRAW COMES FROM is on a dark-green bar, edge to edge, and its two doors, ‘Steer it ›’ and ‘Why? ›’, sit on the line under the bar (it was a grey label with the doors beside it) — DEC-8839.</li>
+<li>The legend under the twelve bars no longer ends ‘· tap a month for detail’: the bars open nothing since month detail retired on 2026-10-02 (tenet 1; the Bill calendar’s foot line lost the same promise on 2026-10-24).</li>
+<li>With no account entered, DRAW COMES FROM reads ‘Nothing entered yet. Add your accounts ›’ (it printed an empty order and ‘The order the math would tap your accounts — not a directive …’) — Q48, DEC-0260, DEC-0431.</li>
+<li>With nothing in and nothing out in any month, the bars keep their shape and read ‘Nothing entered yet. Add your guaranteed income ›’ under them (they said nothing) — Q48.</li>
+</ul>
+To reverse any: put that part back as it was. In the code since 2026-10-27.<br>2026-10-27 · DEC-0354 · DEC-0059 · DEC-6457 · DEC-4529 — <b>Approved before:</b> nothing — this drawing was drawn for his approval; no approval of it is on record. It draws the top bar 12 points in from each side and 8 above the page. <b>His feedback:</b> His words, 2026-09-14 (DEC-0354): “you did not have ‘MoneyKeel’ at the top which every other screen has”; 2026-08-04 (DEC-0059): “make sure font size and color and overall design are same across all screens.” <b>New:</b> The MoneyKeel top bar starts 4 points below the status bar (the app started it 6 down until today), sits 20 points in from each side and 10 above the page; its button and two round icons are 38 points tall, the button’s words 13 points. The phones are not redrawn. Why 4 · 20 · 10: the account page v01, approved 2026-10-19 (DEC-6457), the newest approved drawing with this bar, and Net worth v08 (DEC-0644) both draw it. Not a decision of his: the lead’s ruling of 2026-10-27, made without asking him, as his order of 2026-09-30 says. To reverse: start the bar 6 points down again. In the code since 2026-10-27.<br>2026-10-27 · DEC-8839 · DEC-0059 · canon row 26 — <b>Approved before:</b> nothing — this drawing is for his approval; no approval of it is on record. It draws the paycheck card’s title ‘YOUR PAYCHECK — OCT’ as the card printed it, 13-point grey capitals, and its line ‘The draw assumes …’ with no size of its own (the phone’s 14, off the scale). <b>His feedback:</b> His words, 2026-10-27 (DEC-8839): “the standard design says box titles in dark green bar, and sub-titles in light green bar”. <b>New:</b> the paycheck card’s title YOUR PAYCHECK — OCT stands on a dark-green bar, white capitals 11 points weight 800, edge to edge across the card, square corners; with no birth year its title YOUR PAYCHECK stands on the same bar. The line ‘The draw assumes 7.57%/year — the blended benchmark.’ and the no-birth-year sentence are 13 points in #6B6B66. No figure and no word changes. The phones are not redrawn. Not a decision of his beyond those words: the lead’s ruling R1 of 2026-10-27 makes them app-wide, applied without asking him, as his order of 2026-09-30 says. The 13 points: every size on the scale (DEC-0059, his words of 2026-08-04: “make sure font size and color and overall design are same across all screens.”). To reverse: the title back to grey capitals, the line to no size. In the code since 2026-10-27.<br>2026-10-30 · brand-wordmark v02 · DEC-8891 — <b>Approved before:</b> nothing — this drawing is for his approval; no approval of it is on record. Its top bar draws the name typed in two colours, ‘Money’ green and ‘Keel’ navy, as the app drew it until 2026-10-30. No logo decision of his is on record before this one. <b>His feedback:</b> his instruction of 2026-10-30, with his three logo files: “change the logo to attached”. <b>New:</b> The lettering in the top bar is now his logo of 2026-10-30, his dark-green ‘MoneyKeel’ lettering at 84 × 17.1 points, as ‘MoneyKeel/documents/other/moneykeel_pres_mock_brand-wordmark_v02.html’ draws it. Nothing else on the phones moves. The phones are not redrawn. His instruction, carried to this drawing by the lead’s row of 2026-10-30, made without asking him, as his order of 2026-09-30 says. To reverse: the old lettering is kept in ‘assets/brand/archive-2026-10-30/’. In the code since 2026-10-30.</div>
+
+<div class="eyebrow">MoneyKeel · Cash flow · This month, retired · v01 · 2026-10-27</div>
+<h1>Cash flow when retired — This month</h1>
+<p class="lede">The tab a retired person opens: what their month brings to spend (‘YOUR PAYCHECK’, canon row 26), how much of it is spent so far, which accounts the draw comes from, the twelve months ahead, and the will-my-money-last strip that lives in the Plan. Phone A is a retired household with savings and Social Security; phone B is a retired person who has entered nothing yet. The figures add up: $2,400 of Social Security + $2,025 drawn from savings = $4,425 this month; $640 + $410 = $1,050 spent, 1,050 ÷ 4,425 = 24% of it, on the 27th of a 31-day month, 87% of the month gone.</p>
+
+<div class="blk"><h2>WHAT THIS IS</h2>Workplan row 360 (2026-10-26, CFR-5’s tenet-6 checks): ‘The retired This month is on no drawing of record — draw it from the build; no approval of it is on record.’ Every string below is what the build renders on 2026-10-27 for each household, read off the rendered screen; the MoneyKeel bar is TopBar.tsx with Menu; the tab bar is the navigator’s. Phone A’s household: born 1956, retired, Social Security $2,400/month received, $20,000 in checking, a $100,000 brokerage and a $300,000 401(k) set aside for retirement, a $3,000 monthly budget with $1,200 of car insurance in December, and $640 + $410 logged this month.</div>
+
+<div class="blk"><h2>CHECKED AGAINST THE SCREEN-DESIGN STANDARD (moneykeel_pres_spec_screen-design-standard_v01.md)</h2><ul>
+<li>[x] 0. No earlier approved design exists for this lens; the build is drawn, and its three gaps above are fixed in the build, not drawn around.</li>
+<li>[x] 1. Status bar, the MoneyKeel bar with Menu, the title and the date, the one month switcher, the four sub-tabs, the tab bar — top to bottom.</li>
+<li>[x] 2. One title, 20 points, weight 800.</li>
+<li>[x] 3. Every dark-green bar runs edge to edge with square corners (BY MONTH · OCT – SEP ’27, WILL MY MONEY LAST?).</li>
+<li>[x] 4. Words on the canon: YOUR PAYCHECK (row 26), Will my money last (row 15), ‘/year’ (row 14), Social Security · pension, ‘Nothing entered yet.’ and its door (Q48).</li>
+<li>[x] 5. The figures add up on the page (the lede above), and a figure with nothing behind it says so with its door (phone B).</li>
+<li>[x] 6. Tap targets 44 points; the bars are rows 44 high.</li>
+<li>[x] 7. Box titles on bars (DEC-8839): BY MONTH · OCT – SEP ’27, WILL MY MONEY LAST? and DRAW COMES FROM. The paycheck card’s own title, ‘YOUR PAYCHECK — OCT’, is drawn as the shared card prints it on 2026-10-27 (src/components/PaycheckCard.tsx); that card is the shared-components fixer’s, and its bar is named in FX-CF-A’s report to the lead.</li>
+<li>[x] 8. The paycheck card’s line ‘The draw assumes 7.57%/year — the blended benchmark.’ carries no size of its own in the shared card and renders at the platform’s default; it is drawn here at 14, as it renders, and named in the same report (on the scale it is 13).</li>
+</ul><p style="margin:6px 0 0">Not checked here, by design: fonts and the larger-text settings on a device — on the next TestFlight build.</p></div>
+
+<div class="row">
+<div class="col"><h3>A · with savings and Social Security</h3>
+<div class="phone"><div class="screen">
+<div class="statusbar"><span>9:41</span><span>▮▮▮ ⌁</span></div>
+<div class="topbar"><span class="tbtn">▦ Menu</span><span class="wordmark"><b>Money</b><i>Keel</i></span><span class="tright"><span class="tico">◉</span><span class="tico">⚙</span></span></div>
+<div class="content">
+<div class="headRow"><span class="t">Cash flow</span><span class="headDate">October 2026</span></div>
+<div class="switchRow"><span class="switchArrow">‹</span><span class="switchLabel">October 2026</span><span class="switchArrow">›</span></div>
+<div class="subtabs"><span class="stab on">This month</span><span class="stab">Income</span><span class="stab">Expenses</span><span class="stab">Debts</span></div>
+<div class="card">
+<div class="kicker">YOUR PAYCHECK — OCT</div>
+<div class="hero">$4,425 this month</div>
+<div class="est">estimate</div>
+<div class="rrow"><span class="l">Social Security</span><span class="v">$2,400</span></div>
+<div class="rrow tot"><span class="l">= Guaranteed <span class="dot">i</span></span><span class="v">$2,400</span></div>
+<div class="rrow"><span class="l">+ Draw from savings <span class="dot">i</span></span><span class="v">$2,025</span></div>
+<div class="yr">This year ~$51,900 estimate — varies month to month</div>
+<p class="p">The draw assumes 7.57%/year — the blended benchmark.</p>
+<p class="amber">Heads-up: this draw is above what your own numbers support long-term — the pace itself is the risk.</p>
+</div>
+<div class="card">
+<div class="pace"><div class="paceF" style="width:24%"></div><div class="paceM" style="left:87%"></div></div>
+<div class="paceLine">Spent $1,050 of your $4,425 paycheck this month</div>
+<div class="paceSub">24% spent, 87% of the month gone</div>
+</div>
+<div class="card">
+<div class="band"><span>DRAW COMES FROM</span></div>
+<div class="hdrRow" style="justify-content:flex-end"><span class="link">Steer it ›</span><span class="link">Why? ›</span></div>
+<div class="orderLine">1 Cash&nbsp;&nbsp;&nbsp;2 Taxable / brokerage&nbsp;&nbsp;&nbsp;3 Pre-tax (401k / Traditional IRA)</div>
+<div class="note">The order the math would tap your accounts — not a directive. Balances match your Net worth.</div>
+</div>
+<div class="card">
+<div class="band"><span>BY MONTH · OCT – SEP ’27</span></div>
+<div class="bar"><span class="m">Oct</span><div class="tracks"><div class="track"><div class="in" style="width:100%"></div></div><div class="track"><div class="out" style="width:2%"></div></div></div></div>
+<div class="bar"><span class="m">Nov</span><div class="tracks"><div class="track"><div class="in" style="width:100%"></div></div><div class="track"><div class="out" style="width:2%"></div></div></div></div>
+<div class="bar"><span class="m">Dec</span><div class="tracks"><div class="track"><div class="in" style="width:100%"></div></div><div class="track"><div class="out" style="width:27%"></div></div><div class="flag">! Car insurance −$1,200</div></div></div>
+<div class="bar"><span class="m">Jan ’27</span><div class="tracks"><div class="track"><div class="in" style="width:100%"></div></div><div class="track"><div class="out" style="width:2%"></div></div></div></div>
+<div class="bar"><span class="m">Feb ’27</span><div class="tracks"><div class="track"><div class="in" style="width:100%"></div></div><div class="track"><div class="out" style="width:2%"></div></div></div></div>
+<div class="bar"><span class="m">Mar ’27</span><div class="tracks"><div class="track"><div class="in" style="width:100%"></div></div><div class="track"><div class="out" style="width:2%"></div></div></div></div>
+<div class="bar"><span class="m">Apr ’27</span><div class="tracks"><div class="track"><div class="in" style="width:100%"></div></div><div class="track"><div class="out" style="width:2%"></div></div></div></div>
+<div class="bar"><span class="m">May ’27</span><div class="tracks"><div class="track"><div class="in" style="width:100%"></div></div><div class="track"><div class="out" style="width:2%"></div></div></div></div>
+<div class="bar"><span class="m">Jun ’27</span><div class="tracks"><div class="track"><div class="in" style="width:100%"></div></div><div class="track"><div class="out" style="width:2%"></div></div></div></div>
+<div class="bar"><span class="m">Jul ’27</span><div class="tracks"><div class="track"><div class="in" style="width:100%"></div></div><div class="track"><div class="out" style="width:2%"></div></div></div></div>
+<div class="bar"><span class="m">Aug ’27</span><div class="tracks"><div class="track"><div class="in" style="width:100%"></div></div><div class="track"><div class="out" style="width:2%"></div></div></div></div>
+<div class="bar"><span class="m">Sep ’27</span><div class="tracks"><div class="track"><div class="in" style="width:100%"></div></div><div class="track"><div class="out" style="width:2%"></div></div></div></div>
+<div class="legend"><span><i style="background:#2A78D6"></i>in</span><span><i style="background:#EB6834"></i>out</span></div>
+</div>
+<div class="card">
+<div class="band"><span>WILL MY MONEY LAST?</span></div>
+<div class="wil">100% <span class="est">estimate</span></div>
+<div class="link" style="padding:12px 0">Lives in your Plan ›</div>
+</div>
+</div>
+<div class="fab">＋ Expense</div>
+<div class="tabbar"><span class="tb">Home</span><span class="tb">Net worth</span><span class="tb">Performance</span><span class="tb on">Cash flow</span><span class="tb">Plan</span></div>
+</div></div>
+<p class="note">The paycheck is what the month brings to spend: the guaranteed income that lands plus the level draw from savings (canon row 26). Each month’s bar is that paycheck in, and the month’s dated bills out; December’s car insurance is the one flag.</p>
+</div>
+
+<div class="col"><h3>B · retired, nothing entered yet</h3>
+<div class="phone"><div class="screen">
+<div class="statusbar"><span>9:41</span><span>▮▮▮ ⌁</span></div>
+<div class="topbar"><span class="tbtn">▦ Menu</span><span class="wordmark"><b>Money</b><i>Keel</i></span><span class="tright"><span class="tico">◉</span><span class="tico">⚙</span></span></div>
+<div class="content">
+<div class="headRow"><span class="t">Cash flow</span><span class="headDate">October 2026</span></div>
+<div class="switchRow"><span class="switchArrow">‹</span><span class="switchLabel">October 2026</span><span class="switchArrow">›</span></div>
+<div class="subtabs"><span class="stab on">This month</span><span class="stab">Income</span><span class="stab">Expenses</span><span class="stab">Debts</span></div>
+<div class="card">
+<div class="kicker">YOUR PAYCHECK</div>
+<p class="p">Your birth year is not entered, so there is no paycheck to work out — we won’t guess one.</p>
+</div>
+<div class="card">
+<div class="band"><span>DRAW COMES FROM</span></div>
+<div class="hdrRow" style="justify-content:flex-end"><span class="link">Steer it ›</span><span class="link">Why? ›</span></div>
+<div class="empty">Nothing entered yet. <b>Add your accounts ›</b></div>
+</div>
+<div class="card">
+<div class="band"><span>BY MONTH · OCT – SEP ’27</span></div>
+<div class="bar"><span class="m">Oct</span><div class="tracks"><div class="track"><div class="in" style="width:2%"></div></div><div class="track"><div class="out" style="width:2%"></div></div></div></div>
+<div class="bar"><span class="m">Nov</span><div class="tracks"><div class="track"><div class="in" style="width:2%"></div></div><div class="track"><div class="out" style="width:2%"></div></div></div></div>
+<div class="bar"><span class="m">Dec</span><div class="tracks"><div class="track"><div class="in" style="width:2%"></div></div><div class="track"><div class="out" style="width:2%"></div></div></div></div>
+<div class="bar"><span class="m">Jan ’27</span><div class="tracks"><div class="track"><div class="in" style="width:2%"></div></div><div class="track"><div class="out" style="width:2%"></div></div></div></div>
+<div class="bar"><span class="m">Feb ’27</span><div class="tracks"><div class="track"><div class="in" style="width:2%"></div></div><div class="track"><div class="out" style="width:2%"></div></div></div></div>
+<div class="bar"><span class="m">Mar ’27</span><div class="tracks"><div class="track"><div class="in" style="width:2%"></div></div><div class="track"><div class="out" style="width:2%"></div></div></div></div>
+<div class="bar"><span class="m">Apr ’27</span><div class="tracks"><div class="track"><div class="in" style="width:2%"></div></div><div class="track"><div class="out" style="width:2%"></div></div></div></div>
+<div class="bar"><span class="m">May ’27</span><div class="tracks"><div class="track"><div class="in" style="width:2%"></div></div><div class="track"><div class="out" style="width:2%"></div></div></div></div>
+<div class="bar"><span class="m">Jun ’27</span><div class="tracks"><div class="track"><div class="in" style="width:2%"></div></div><div class="track"><div class="out" style="width:2%"></div></div></div></div>
+<div class="bar"><span class="m">Jul ’27</span><div class="tracks"><div class="track"><div class="in" style="width:2%"></div></div><div class="track"><div class="out" style="width:2%"></div></div></div></div>
+<div class="bar"><span class="m">Aug ’27</span><div class="tracks"><div class="track"><div class="in" style="width:2%"></div></div><div class="track"><div class="out" style="width:2%"></div></div></div></div>
+<div class="bar"><span class="m">Sep ’27</span><div class="tracks"><div class="track"><div class="in" style="width:2%"></div></div><div class="track"><div class="out" style="width:2%"></div></div></div></div>
+<div class="legend"><span><i style="background:#2A78D6"></i>in</span><span><i style="background:#EB6834"></i>out</span></div>
+<div class="empty">Nothing entered yet. <b>Add your guaranteed income ›</b></div>
+</div>
+<div class="card">
+<div class="band"><span>WILL MY MONEY LAST?</span></div>
+<p class="note">Answer 3 quick questions in Plan to see your odds</p>
+<div class="link" style="padding:12px 0">Lives in your Plan ›</div>
+</div>
+</div>
+<div class="fab">＋ Expense</div>
+<div class="tabbar"><span class="tb">Home</span><span class="tb">Net worth</span><span class="tb">Performance</span><span class="tb on">Cash flow</span><span class="tb">Plan</span></div>
+</div></div>
+<p class="note">Every section keeps its heading when empty, so the shape of the screen never changes — only what is in it (Q48). The pace card is not drawn: with no paycheck worked out there is nothing to measure the month against.</p>
+</div>
+</div>
+</div>
+</body>
+</html>

@@ -19,7 +19,7 @@ describe('InsuranceScreen prefill (B-36)', () => {
   test('savings/assets is prefilled from investable accounts, not left at $0', () => {
     render(<InsuranceScreen />);
     // investable = 401(k) 120k + investments 45k = 165,000 (property excluded; none here)
-    expect(screen.getByDisplayValue('165000')).toBeOnTheScreen();
+    expect(screen.getByDisplayValue('$165,000')).toBeOnTheScreen();   // the money form since 2026-10-27 (DEC-8385): the same 165,000, prefilled
   });
 });
 
@@ -29,4 +29,11 @@ describe('RothScreen prefill (B-36)', () => {
     // FCC rebuild: the balance is no longer a prefilled input — the REAL bucket shows as fact
     expect(screen.getByText(/from your pre-tax \$120,000/)).toBeOnTheScreen();
   });
+});
+
+// THE OLD ANSWER, KEPT (the fix wave's rule): until 2026-10-27 the savings box printed the plain 165000; it reads $165,000 now (DEC-8385).
+// This fails because the box prints money; the day it passes, the box has gone back to a plain figure.
+test.failing('before 2026-10-27, kept · Insurance prefilled savings/assets as the plain 165000', () => {
+  render(<InsuranceScreen />);
+  expect(screen.getByDisplayValue('165000')).toBeOnTheScreen();
 });

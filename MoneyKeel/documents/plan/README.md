@@ -21,6 +21,13 @@ approved design now has one home, and one file that stands on its own.
 - `moneykeel_pres_mock_plan_v06.html` — **THE ONE FILE FOR THIS SCREEN** (2026-09-26): the founder's eight decisions applied, the five blockers fixed, every figure re-run at 1,000 futures, the words on the canon, and every placeholder filled with the figure the function gives — it needs no other file, and no tool, to be read.
 - `archive/2026-09-26_moneykeel_pres_mock_plan_v05.html` — the version that carried the questions.
 
+The four Plan screens drawn on 2026-10-26/27, none approved yet — each opens with what he approved before, his words, and what is new (DEC-8891):
+
+- `moneykeel_pres_mock_goals_v03.html` — Plan · Goals (2026-10-27), drawn from his approved Plan v4 frames ‘Goals — populated’ and ‘Goals — empty’ and Build 53 (DEC-8889). No code until he approves it. v01 and v02 were drawn from today’s old full Goals screen, the wrong starting point: `archive/2026-10-27_moneykeel_pres_mock_goals_v01.html`, `archive/2026-10-27_moneykeel_pres_mock_goals_v02.html`.
+- `moneykeel_pres_mock_roth-conversion_v02.html` — Roth conversion (2026-10-27, DEC-8890): bars end to end across the screen, What it buys row by row, the odds in his words’ shape. v01: `archive/2026-10-27_moneykeel_pres_mock_roth-conversion_v01.html`.
+- `moneykeel_pres_mock_required-withdrawals_v02.html` — Required withdrawals (2026-10-27): the same boxes as Roth, end to end. v01: `archive/2026-10-27_moneykeel_pres_mock_required-withdrawals_v01.html`.
+- `moneykeel_pres_mock_retirement-cockpit_v02.html` — the Retirement cockpit, two phones (2026-10-27, DEC-8839: the bars). v01: `archive/2026-10-27_moneykeel_pres_mock_retirement-cockpit_v01.html`.
+
 ## The papers behind it
 
 - `moneykeel_pres_spec_plan-redesign-brief_v03.md` — the brief the design was drawn to (2026-08-14),

@@ -19,6 +19,10 @@
 // 2026-10-26 (FIX-INCOME-A; READ THIS FIRST rows of that day on income-end-to-end_v07): Hourly asks "Hours a week" and, until it
 // is filled, says "Hours a week not entered" and counts none of the pay (DEC-0296); every "/month" is a month the wage is paid;
 // the bracket note names other income when the band is read on it (DEC-0178).
+//
+// 2026-10-27 (FX-CF-B, the drawing check IN2-01 to IN2-05): row labels are ink; every money figure is one size, a total bold at
+// the rows' size under the drawn rule (DEC-0093) — "Everything else taken out" in an open section is one (phone 5); a question's
+// hint is the darker grey and a closed section's line the lighter, as drawn; the month names in the pay table are regular.
 import TopBar from '../components/TopBar';
 import React, { useMemo, useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
@@ -215,7 +219,7 @@ function HouseholdCard({ pay, wages, op, approx, onRate }: {
           {pay.monthly401k > 0 && <Row label="Your 401(k)s" value={figPer('MK-CF-M-034', pay.monthly401k)} />}
         </>
       )}
-      <Row label="= Take-home" value={`${approx ? '≈' : ''}${figPer('MK-CF-M-031', pay.landsInBank)}`} strong />
+      <Row label="= Take-home" value={`${approx ? '≈' : ''}${figPer('MK-CF-M-031', pay.landsInBank)}`} strong pos />
       {pay.landsNote && <Text style={s.landsNote}>{pay.landsNote}</Text>}
       {pay.bandNote && <Text style={s.info}>{pay.bandNote}</Text>}
 
@@ -249,22 +253,23 @@ function HouseholdCard({ pay, wages, op, approx, onRate }: {
           </Text>
         )}
         {typedRate && (
-          <Row label="= Take-home" value={figPer('MK-CF-M-031', pay.landsInBank)} strong />
+          <Row label="= Take-home" value={figPer('MK-CF-M-031', pay.landsInBank)} strong pos />
         )}
       </>)}
     </>
   );
 }
 
-function Row({ label, note, value, strong }: { label: string; note?: string | null; value: string; strong?: boolean }) {
+/** A row; `strong` is a total, drawn bold at the rows' size under a rule (.rrow.tot); `pos` is green, as "= Take-home" is drawn. */
+function Row({ label, note, value, strong, pos }: { label: string; note?: string | null; value: string; strong?: boolean; pos?: boolean }) {
   return (
-    <View style={s.row}>
+    <View style={[s.row, strong && s.rowTot]}>
       <View style={{ flex: 1 }}>
         <Text style={[s.rowL, strong && s.rowLStrong]}>{label}</Text>
         {note ? <Text style={s.rowNote}>{note}</Text> : null}
       </View>
       {/* "= Take-home" is green, as drawn (IN-15) */}
-      <Text style={[s.rowV, strong && s.rowVStrong]}>{value}</Text>
+      <Text style={[s.rowV, strong && s.rowVStrong, pos && s.pos]}>{value}</Text>
     </View>
   );
 }
@@ -409,15 +414,15 @@ function EarnerSection({ name, wage, onChange, pay, approx, entered, rate, band,
                     {/* A MONTH NOT TYPED SHOWS THE MONTH THE APP COUNTS (IN-05, 2026-10-25): the typical gross as a month —
                         $2,077 a fortnight is $4,500 — never "2077", the fortnight figure a monthly box must not hold. Last month
                         is greyed, a typed month marked, as drawn (phone 6). */}
-                    <TextInput style={[s.cellIn, i === 0 && s.cellInPast, typed && s.cellInTyped]} keyboardType="decimal-pad"
-                      accessibilityLabel={`${monthLabel(k)} gross pay`}
-                      value={typed ? amountInBox(asStored ?? table[k]) : ''}
+                    {/* every money box, one component (DEC-8385, FX-SHARED 2026-10-27): MoneyBox draws the figure as amountInBox did and
+                        refuses a typed letter; the box keeps this table's look */}
+                    <MoneyBox bare style={[s.cellIn, i === 0 && s.cellInPast, typed && s.cellInTyped]}
+                      a11y={`${monthLabel(k)} gross pay`}
+                      value={typed ? (asStored ?? table[k]) : ''}
                       placeholder={pay && pay.typicalMonth > 0 ? fig('MK-CF-M-080', pay.typicalMonth) : ''}
                       placeholderTextColor={i === 0 ? Colors.textTertiary : Colors.textPrimary}
-                      onChangeText={(v) => {
-                        if (/[A-Za-z]/.test(v)) return;
+                      onChangeText={(typedNow) => {
                         const next: Record<string, any> = { ...(rawTable ?? table) };
-                        const typedNow = plainAmount(v);
                         if (typedNow === '') delete next[k]; else next[k] = typedNow;
                         onChange({ ...wage, salaryByMonth: next });
                       }} />
@@ -502,7 +507,8 @@ function EarnerSection({ name, wage, onChange, pay, approx, entered, rate, band,
           {/* only while the three figures agree — a share worked from figures that cannot all be right is not a figure */}
           {pay && pay.everythingElseMonthly != null && pay.verdict.ok && (
             <>
-              <Row label="Everything else taken out" value={figPer('MK-CF-M-036', pay.everythingElseMonthly)} />
+              {/* a total row, as phone 5 draws it: bold, ink, under the rule (IN2-04, 2026-10-27) — gross less 401(k) less take-home */}
+              <Row label="Everything else taken out" value={figPer('MK-CF-M-036', pay.everythingElseMonthly)} strong />
               <Text style={s.info}>
                 {Math.round(((pay.everythingElse ?? 0) / (pay.grossAnnualised || 1)) * 100)}% of {whose} gross. Tax,
                 medical cover and anything else bought through work — we do not need to ask about each.
@@ -544,10 +550,10 @@ const s = StyleSheet.create({
   secBody: { paddingBottom: 8 },
   who: { fontSize: 15, fontWeight: '800', color: Colors.textPrimary },
   tick: { fontSize: 13, fontWeight: '800', color: Colors.primaryDark },
-  whoSub: { fontSize: 11, color: Colors.textSecondary, marginTop: 2 },
+  whoSub: { fontSize: 11, color: Colors.textTertiary, marginTop: 2 },   // a closed section's line, the lighter grey (IN2-03)
   chev: { fontSize: 13, fontWeight: '800', color: Colors.primary },   // brand green at 800, as drawn (IN-15)
   q: { fontSize: 15, fontWeight: '700', color: Colors.textPrimary, marginTop: 14 },
-  qsub: { fontSize: 11, color: Colors.textTertiary, marginTop: 2, lineHeight: 16 },
+  qsub: { fontSize: 11, color: Colors.textSecondary, marginTop: 2, lineHeight: 16 },   // a question's hint, the darker grey (IN2-03)
   segRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 8 },
   seg: { flexGrow: 1, minHeight: 44, minWidth: 84, justifyContent: 'center', alignItems: 'center', borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radii.md, paddingHorizontal: 10, backgroundColor: Colors.cardBg },
   segOn: { borderColor: Colors.primary, backgroundColor: Colors.primaryLight },
@@ -557,16 +563,18 @@ const s = StyleSheet.create({
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 10 },
   cell: { width: '47%', borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radii.sm, padding: 8 },
   cellTyped: { backgroundColor: Colors.primaryLight, borderColor: Colors.primary },
-  cellM: { fontSize: 11, fontWeight: '800', color: Colors.textTertiary },
+  cellM: { fontSize: 11, fontWeight: '400', color: Colors.textTertiary },   // the month's name regular, as drawn (IN2-05)
   cellIn: { fontSize: 15, fontWeight: '600', color: Colors.textPrimary, padding: 0, marginTop: 2, fontVariant: ['tabular-nums'] },
   cellInPast: { color: Colors.textTertiary, fontWeight: '400' },
   cellInTyped: { color: Colors.primaryDark },
   row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 8 },
-  rowL: { fontSize: 15, color: Colors.textSecondary },
+  rowL: { fontSize: 15, color: Colors.textPrimary },   // ink, as drawn (IN2-01, 2026-10-27)
   rowLStrong: { fontWeight: '800', color: Colors.textPrimary },
+  rowTot: { borderTopWidth: 1.5, borderTopColor: Colors.textPrimary },
   rowNote: { fontSize: 11, color: Colors.textTertiary },
   rowV: { fontSize: 15, fontWeight: '700', color: Colors.textPrimary, fontVariant: ['tabular-nums'] },
-  rowVStrong: { fontSize: 17, fontWeight: '800', color: Colors.gainText },
+  rowVStrong: { fontWeight: '800' },   // every money figure one size (DEC-0093; IN2-02, 2026-10-27: it was 17 beside 15)
+  pos: { color: Colors.gainText },
   // the drawing's information box: ink on the blue tint, a blue rule on its left (IN-15)
   info: { fontSize: 11, color: Colors.textPrimary, lineHeight: 17, marginTop: 10, backgroundColor: Colors.blueLight,
           borderLeftWidth: 3, borderLeftColor: Colors.blue, paddingVertical: 8, paddingHorizontal: 10 },

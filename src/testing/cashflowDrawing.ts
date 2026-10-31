@@ -106,7 +106,10 @@ export type DrawnEdit = { why: string } & (
   | { insertAfter: [string, string[]] }
   | { remove: string[] }
   | { append: string[] }
-  | { centsAfter: string[] });
+  | { centsAfter: string[] }
+  /** the figure after EVERY occurrence of each label, at least one — for a name the phone prints twice (a debt's payment row and
+   *  its radar row) */
+  | { centsAfterEvery: string[] });
 const once = (L: string[], line: string, why: string) => {
   const at = L.map((l, i) => (l === line ? i : -1)).filter((i) => i >= 0);
   if (at.length !== 1) throw new Error(`${why}: "${line}" is on the phone ${at.length} times, not once`);
@@ -127,6 +130,15 @@ export function asBuilt(drawn: string[], edits: DrawnEdit[]): string[] {
       if (at.length !== 1) throw new Error(`${e.why}: the run "${e.remove.join(' | ')}" is on the phone ${at.length} times, not once`);
       L.splice(at[0], e.remove.length);
     } else if ('append' in e) L = [...L, ...e.append];
+    else if ('centsAfterEvery' in e) for (const label of e.centsAfterEvery) {
+      const at = L.map((l, i) => (l === label ? i : -1)).filter((i) => i >= 0);
+      if (at.length === 0) throw new Error(`${e.why}: "${label}" is not on the phone`);
+      for (const i of at) {
+        const j = L.findIndex((l, k) => k > i && /^[+−-]?\$[\d,]+$/.test(l));
+        if (j < 0) throw new Error(`${e.why}: no figure after "${label}"`);
+        L[j] = `${L[j]}.00`;
+      }
+    }
     else for (const label of e.centsAfter) {
       const i = once(L, label, e.why);
       const j = L.findIndex((l, k) => k > i && /^[+−-]?\$[\d,]+$/.test(l));
@@ -139,6 +151,7 @@ export function asBuilt(drawn: string[], edits: DrawnEdit[]): string[] {
 
 const KEPT = 'DEC-1560 (2026-10-04, “Rest - keep it.”): kept as built, not drawn';
 const CENTS = 'cash-flow_v01 READ THIS FIRST, 2026-10-25 — an expense or a payment received prints to the cent (DEC-0264)';
+const ONCE = 'cash-flow_v01 READ THIS FIRST, 2026-10-27 — rows round once (the lead’s R5, CF2-06): every total over rows written to the cent is written to the cent';
 /** Each frame of cash-flow_v01, as the dated rows say it is built. Figures that depend on today's date are none: every frame is
  *  rendered on the drawing's own day (DRAWN_NOW). */
 export const AS_BUILT: Record<'A' | 'B' | 'C' | 'D' | 'E' | 'F', () => string[]> = {
@@ -149,10 +162,17 @@ export const AS_BUILT: Record<'A' | 'B' | 'C' | 'D' | 'E' | 'F', () => string[]>
       '19 Aug · Target', '16 Aug · Home Depot', '11 Aug · Chevron', '8 Aug · Local Kitchen', '3 Aug · Whole Foods'] },
     { why: 'cash-flow_v01 READ THIS FIRST, 2026-10-25 — no card can be connected yet, so the connected card’s radar row is not drawn',
       remove: ['Credit card debt payment', 'debt', 'connected card · NOT counted as an expense — the $1,200 of purchases is', '$1,200'] },
+    // the totals over those rows, and the debt payments and the radar's payments, to the cent: $500.00 · $1,200.00 · $400.00 · $2,100.00
+    { why: ONCE, centsAfter: ['Actual expenses', 'Entered by hand', '= Entered by hand · 9 items', 'Imported from your card', '= Imported · 23 purchases',
+      'Debt payments counted as expenses', '= Actual expenses, all sources'] },
+    { why: ONCE, centsAfterEvery: ['HELOC payment', 'Credit card debt payment'] },
+    { why: ONCE, replace: ['Show all 9 · $195 more ›', 'Show all 9 · $195.00 more ›'] },
+    { why: ONCE, replace: ['Show all 23 · $560 more ›', 'Show all 23 · $560.00 more ›'] },
     { why: KEPT, insertAfter: ['Your mortgage and car loan never appear here. They are the same every month, and a warning you see every month stops being a warning.', ['Import a statement ›']] },
     { why: KEPT, append: ['＋ Expense'] },
   ]),
   D: () => asBuilt(cashflowPhone(4, true), [
+    { why: ONCE, centsAfter: ['Actual expenses'] },   // $0.00, the one form of that total
     { why: KEPT, insertAfter: ['Nothing unusual. Regular debt payments never appear here — only a card or HELOC payment, or a bill well above its usual size.', ['Import a statement ›']] },
     { why: KEPT, append: ['＋ Expense'] },
   ]),
@@ -164,14 +184,18 @@ export const AS_BUILT: Record<'A' | 'B' | 'C' | 'D' | 'E' | 'F', () => string[]>
   F: () => asBuilt(cashflowPhone(6), [
     // $110 + $300 = $410 (the drawing's $310 leaves $10 for the Visa); the interest a month is kept: 3,200 × 22.9% ÷ 12 = $61.07
     // and 9,800 × 6.4% ÷ 12 = $52.27, $113.33 in all → $113
-    { why: 'cash-flow_v01 READ THIS FIRST, 2026-10-25 — DRAWING ERROR: $410/month in payments; and ' + KEPT,
-      replace: ['across 2 debts · $310/month in payments', 'across 2 debts · $410/month in payments · ~$113/month interest'] },
+    // the total line as drawn — the interest is on each debt's line (DEC-1560), not the total (2026-10-27, CF2-03; it read "· ~$113/month interest")
+    { why: 'cash-flow_v01 READ THIS FIRST, 2026-10-25 — DRAWING ERROR: $410/month in payments',
+      replace: ['across 2 debts · $310/month in payments', 'across 2 debts · $410/month in payments'] },
     // PAYOFF PLAN: its words, and the payments a month ($110 + $300); the month it ends and its interest are counted from today
-    { why: KEPT, insertAfter: ['across 2 debts · $410/month in payments · ~$113/month interest', ['Payoff plan', 'Avalanche', 'Snowball',
+    // its title on a dark-green bar (DEC-8839, R1 — cash-flow_v01's row of 2026-10-27)
+    { why: KEPT, insertAfter: ['across 2 debts · $410/month in payments', ['PAYOFF PLAN', 'Avalanche', 'Snowball',
       'Highest interest rate first — saves the most interest.', 'Extra / month', '$', '<the month it ends>', 'debt-free', '$410', '/month total', '<its interest>', 'total interest']] },
     { why: KEPT, replace: ['22.90% — the costliest', '22.90% — the costliest · $110/month min · ~$61/month interest'] },
     // a $9,800 loan at 6.40% paying $300/month: n = −ln(1 − 0.0053333 × 9,800 ÷ 300) ÷ ln(1.0053333) = 35.99 → 36 months, 3 years
     { why: KEPT, replace: ['6.40% · 3 years left', '6.40% · 3 years left · $300/month min · ~$52/month interest'] },
-    { why: KEPT, append: ['+ Add debt account', 'Tap a debt to edit • Hold to delete', '＋ Expense'] },
+    // "+ Add debt account" under the list, as DEC-1560 keeps it (2026-10-27, CF2-05: it was after PROGRESS); no edit hint (CF2-04)
+    { why: KEPT, insertAfter: ['Log a payment ›', ['+ Add debt account']] },
+    { why: KEPT, append: ['＋ Expense'] },
   ]),
 };

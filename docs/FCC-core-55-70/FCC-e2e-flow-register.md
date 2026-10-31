@@ -156,6 +156,13 @@ bonds-only, brand-new with nothing).
 | 91 | A card and a mortgage added by hand with boxes left blank: the card's Save waits for its balance, payment and rate; the mortgage's payment is saved as not entered, and Net worth, the Debts tab and This month all say payment not entered; a typed 0 is $0 |
 | 92 | A $60,100 loan at 0% with $100 a month: the Debts tab and the Plan tab print one payoff, month 601 (Nov 2076); a payment that cannot cover the interest reads never on both |
 
+## The fix wave of 2026-10-27/30 — no flow added, no flow's outcome moved
+The wave added no end-to-end flow; the 92 above still run and are green (the closing full run, 2026-10-31: 10,665 of 10,698 tests pass, 31 skipped, 2 red in no flow file). Five flows check words the wave changed, and each test now reads the new words with its reason on the line:
+- **46** and **51** — the curly ’ (Allocate this month’s surplus…, not today’s money), the apostrophe rule DEC-8932.
+- **52** — the bill form’s title on its dark-green bar, EDIT THIS BILL (the bar ruling DEC-8915).
+- **71** and **79** — the figure bold inside its sentence on the filing comparison; $327/month more is unchanged.
+The Cash flow flows 69, 72 to 78 and 80 were re-run after the wave’s Cash flow fixes and are green; the mortgage counted once (DEC-8919) moves no flow’s household.
+
 ## Beyond the 92 — deeper feature journeys (also automated, also green)
 The connect flow (9), the Plan tab (16), draw-order steering (11), the bill calendar (7),
 multi-goal (6), scenario compare (3), holding detail (12), Invest fidelity (10), plus the

@@ -31,7 +31,7 @@ export function RecoveryCodeModal({ visible, code, onDone, securing = false }: {
             {'\n\n'}
             <Text style={s.bold}>Save it now</Text> — in a password manager, or written down somewhere safe.
             {'\n\n'}
-            Your data is encrypted so even we can't read it, and it's <Text style={s.bold}>never sent to AI services</Text> — which means <Text style={s.bold}>if you lose both your password and this code, no one (including MoneyKeel) can recover your data.</Text> We'll never ask you for it.
+            Your data is encrypted so even we can’t read it, and it’s <Text style={s.bold}>never sent to AI services</Text> — which means <Text style={s.bold}>if you lose both your password and this code, no one (including MoneyKeel) can recover your data.</Text> We’ll never ask you for it.
           </Text>
 
           <View style={s.codeBox}>
@@ -51,9 +51,9 @@ export function RecoveryCodeModal({ visible, code, onDone, securing = false }: {
               <Text style={s.securingTxt}>Securing your account… you can read your code while you wait.</Text>
             </View>
           ) : (
-            <TouchableOpacity style={s.ackRow} onPress={() => setAck((v) => !v)} accessibilityRole="checkbox" accessibilityState={{ checked: ack }} accessibilityLabel="I've saved my recovery code somewhere safe">
+            <TouchableOpacity style={s.ackRow} onPress={() => setAck((v) => !v)} accessibilityRole="checkbox" accessibilityState={{ checked: ack }} accessibilityLabel="I’ve saved my recovery code somewhere safe">
               <View style={[s.box, ack && s.boxOn]}>{ack ? <Text style={s.check}>✓</Text> : null}</View>
-              <Text style={s.ackTxt}>I've saved it somewhere safe</Text>
+              <Text style={s.ackTxt}>I’ve saved it somewhere safe</Text>
             </TouchableOpacity>
           )}
 

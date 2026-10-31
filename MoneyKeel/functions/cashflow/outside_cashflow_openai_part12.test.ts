@@ -259,7 +259,7 @@ describe('MK-CF-F-110 flagComparisonText — five cases (a function nothing call
   kase('MK-CF-F-110-C01', 'AGREE', { mapped: MAPPED, rests_on: 'fixed template (flags.ts)', note: `One fixed sentence for a possible duplicate. ${NO_CALLER}` },
     (c, seen) => { const s = flagComparisonText(flag(c.inputs)); seen(s); expect(s).toBe(flagComparisonText(flag(c.inputs))); expect(s).toMatch(/same charge twice/); });
   kase('MK-CF-F-110-C02', 'AGREE', { mapped: MAPPED, rests_on: 'fixed template (flags.ts)', note: `One fixed sentence for a first-time payee. ${NO_CALLER}` },
-    (c, seen) => { const s = flagComparisonText(flag(c.inputs)); seen(s); expect(s).toBe('First time we\'ve seen this payee on this account.'); });
+    (c, seen) => { const s = flagComparisonText(flag(c.inputs)); seen(s); expect(s).toBe('First time we’ve seen this payee on this account.'); });   // ’ since 2026-10-30 (DEC-8336 carried to src/domain)
   kase('MK-CF-F-110-C03', 'AGREE', { mapped: MAPPED, rests_on: 'rounding once, at display', note: `$831.43 ÷ $173.17 = 4.80, said as 5 times about $173. ${NO_CALLER}` },
     (c, seen) => { const s = flagComparisonText(flag(c.inputs)); seen(s); expect(s).toContain(c.expected.typical_shown); expect(s).toContain(`${c.expected.times_shown.exact} times`); });
   kase('MK-CF-F-110-C04', 'AGREE', { mapped: MAPPED, rests_on: 'rounding once, at display', note: `3 withdrawals, $1,731 together. ${NO_CALLER}` },

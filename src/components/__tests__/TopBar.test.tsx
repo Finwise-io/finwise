@@ -30,6 +30,24 @@ describe('TopBar', () => {
     expect(screen.queryByText('MoneyKeel')).toBeNull();
   });
 
+  // 2026-10-30, his words: "change the logo to attached" — the lettering is his, 4.9 : 1 (drawing brand-wordmark v02, phones 1 and 2;
+  // the shape of every logo placement is held by src/__tests__/brand_logo_guard.test.ts)
+  test('the lettering is drawn 84 × 17.1, the shape of his art, on a tab and with ‹ Back', () => {
+    const { StyleSheet } = require('react-native');
+    for (const back of [false, true]) {
+      const { unmount } = render(<TopBar back={back} />);
+      const st = StyleSheet.flatten(screen.getByLabelText('MoneyKeel').props.style);
+      expect([st.width, st.height]).toEqual([84, 17.1]);
+      unmount();
+    }
+  });
+  test.failing('the bar until 2026-10-30, pinned: the K-era two-colour lettering at 84 × 17 (REPLACED 2026-10-30, brand-wordmark v02)', () => {
+    const { StyleSheet } = require('react-native');
+    render(<TopBar />);
+    const st = StyleSheet.flatten(screen.getByLabelText('MoneyKeel').props.style);
+    expect([st.width, st.height]).toEqual([84, 17]);
+  });
+
   test('the settings gear opens Settings from every tab', () => {
     render(<TopBar />);
     fireEvent.press(screen.getByLabelText('Settings'));

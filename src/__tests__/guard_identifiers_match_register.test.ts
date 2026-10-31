@@ -97,7 +97,12 @@ test('a doc header claims the number the register issued to the function beneath
   // 886 headers paired with the function beneath them on 2026-10-26 (PF-TOOLS) — it was a floor of 400; numbering raises it,
   // and a retirement lowers it by its true number, said here
   console.log(`guard_identifiers_match_register: ${pairs} headers paired with their function`);
-  expect(pairs).toBeGreaterThanOrEqual(895);       // it read this many headers, not zero (895 at the end of 2026-10-26)
+  // 921 on 2026-10-30 (PF-TOOLS): 894 read before the round, as three headers had been left above new functions written between a
+  // header and its own (MK-PF-F-033 and MK-PF-F-040 in src/domain/performance/index.ts, MK-XS-F-199 in src/store/useStore.ts —
+  // moved back over their functions); + 19 the scan numbered, + 5 numbered by hand (MK-CF-F-293, 294, MK-XS-F-206 to 208)
+  // 920 on 2026-10-31: MK-PL-F-097 rothWorked, the Roth examples' helper, was removed with the Roth declarations (the lead's
+  // ruling that day) and retired on the register — a retirement lowers the floor by its true number, one
+  expect(pairs).toBeGreaterThanOrEqual(920);       // it read this many headers, not zero (895 at the end of 2026-10-26)
   expect([...new Set(offences)]).toEqual([]);
 });
 

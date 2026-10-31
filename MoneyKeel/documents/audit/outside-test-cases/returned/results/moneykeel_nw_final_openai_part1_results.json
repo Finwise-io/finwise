@@ -395,7 +395,8 @@
    "formula_gives_match": null,
    "note": "",
    "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-005 accountAllowsTicker — five cases › complex · 529 remains disallowed even with holdings",
-   "recheck_2026_10_22": "BRIEF WRONG since 2026-10-22: his ruling DEC-2484g — \"Any account that already lists holdings can take a recorded buy or sale\" — covers a 529 listing its funds; the auditor's answer is kept as test.failing, and the pin holds the app: a 529 that lists holdings takes a buy or sale, one that lists none does not"
+   "recheck_2026_10_22": "BRIEF WRONG since 2026-10-22: his ruling DEC-2484g — \"Any account that already lists holdings can take a recorded buy or sale\" — covers a 529 listing its funds; the auditor's answer is kept as test.failing, and the pin holds the app: a 529 that lists holdings takes a buy or sale, one that lists none does not",
+   "settled": "SETTLED 2026-10-27 (re-run at 45d680a4 + the fix wave) — APP RIGHT (BRIEF WRONG since 2026-10-22) by his DEC-2484g: any account that lists holdings takes a recorded buy or sale, a 529 listing its funds included; one listing none does not. The auditor's No is kept failing. Held by outside_networth_final_openai_part1.test.ts:167."
   },
   {
    "id": "MK-NW-F-005",
@@ -931,7 +932,8 @@
    "difference": "none",
    "formula_gives_match": null,
    "note": "",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-012 taxTreatmentOf — five cases › edge · No treatment and no tax bucket"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-012 taxTreatmentOf — five cases › edge · No treatment and no tax bucket",
+   "settled": "SETTLED 2026-10-27 (re-run at 45d680a4 + the fix wave) — APP RIGHT (BRIEF WRONG since 2026-10-10) by DEC-4036f: nothing stated is never assumed taxable — it reads \"tax type not stated\"; the case was changed in place, so the auditor's \"taxable\" is now kept failing at outside_networth_final_openai_part1.test.ts:266. Held by outside_networth_final_openai_part1.test.ts:263."
   },
   {
    "id": "MK-NW-F-013",
@@ -1234,7 +1236,8 @@
    "difference": "app 0 vs REFUSES",
    "formula_gives_match": "formula_gives",
    "note": "BRIEF WRONG: DEC-3279e: a missing balance is left out of the total and the amber box names the account. So the right answer is $0 cash plus the named account, which the app gives.",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-016 cashTotal — five cases › edge · No cash value known"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-016 cashTotal — five cases › edge · No cash value known",
+   "settled": "SETTLED 2026-10-27 (re-run at 45d680a4 + the fix wave) — APP RIGHT (BRIEF WRONG) by DEC-3279e: no cash is on record, so Cash counts $0 of it and the amber box reads \"Account has no balance — It is left out of your totals until it has one — not counted as $0.\" Held by outside_networth_final_openai_part1.test.ts:307."
   },
   {
    "id": "MK-NW-F-017",
@@ -2334,5 +2337,5 @@
   "Screen-check evidence was gathered by a read-only code search and spot-checked at AccountPortfolioScreen.tsx:794, HoldingDetailScreen.tsx:245 and :300, and performance.ts:459-464.",
   "Two defects outside the auditor's list: (1) fig() prints a figure's refusal text when its value is NaN, so an undefined balance puts register text on screen (src/components/figure.ts:37); (2) AccountPortfolioScreen.tsx:794 hides face value and maturity for any bond with no rate."
  ],
- "coverage": "130 of 130 cases run; 118 PASS, 1 FINDING, 6 BRIEF_WRONG, 5 UNCLEAR, 0 BLOCKED. Formula checks: 8 of 8 non-RIGHT classified. Rules: 6 of 6 NOT HELD classified. Screens: 14 of 14 FAIL classified."
+ "coverage": "130 of 130 cases run; 118 PASS, 1 FINDING, 6 BRIEF_WRONG, 5 UNCLEAR, 0 BLOCKED. Formula checks: 8 of 8 non-RIGHT classified. Rules: 6 of 6 NOT HELD classified. Screens: 14 of 14 FAIL classified. | 2026-10-27 (FX-AUDITS, re-run at 45d680a4 + the fix wave, outside_networth_final_openai_part1.test.ts green): 3 more cases given a settled line — 3 app right; every case that does not pass as written now carries one, held by outside_audit_results_settled.test.ts."
 }

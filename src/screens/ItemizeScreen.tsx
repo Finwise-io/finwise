@@ -1,12 +1,14 @@
 // "Itemize this account" (Mock C) — decompose a lump-sum account into its real holdings while a meter shows
 // what's still unallocated. On Done we delete the lump and create the holdings (institution inherited); a
 // positive remainder is kept as cash so the account TOTAL never drifts (buildItemizedAccounts).
+import { MoneyBox } from '../components/MoneyBox';   // every money box, one component (DEC-8385)
 import { plural } from '../domain/_shared/plural';   // the one list of words and plurals (DEC-4082, 2026-10-10)
 import TopBar from '../components/TopBar';
 import React, { useState } from 'react';
 import { View, Text, ScrollView, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { DateField } from '../components/DateField';
+import { SectionBand } from '../components/SectionBand';   // the form's title on its bar (R1, DEC-8839, 2026-10-30)
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { fig } from '../components/figure';   // rule 11: a figure prints with its identifier
@@ -127,7 +129,8 @@ export default function ItemizeScreen() {
         </View>
       )}
 
-      <Text style={styles.formHdr}>ADD A HOLDING</Text>
+      {/* the form's title on the dark-green bar, edge to edge of the phone (2026-10-30, R1, DEC-8839; Itemize v02 row of that date) */}
+      <View style={styles.bleed}><SectionBand title="ADD A HOLDING" /></View>
       <View style={styles.chips}>
         {CLS_PICKS.map((p) => (
           <TouchableOpacity key={p.id} style={[styles.chip, pick === p.id && styles.chipOn]} accessibilityRole="button" accessibilityState={{ selected: pick === p.id }} accessibilityLabel={p.label} onPress={() => setPick(p.id)}>
@@ -144,10 +147,10 @@ export default function ItemizeScreen() {
       )}
       {pickDef.cls === 'bonds' && (
         <View style={{ flexDirection: 'row', gap: Spacing.sm }}>
-          <TextInput style={[styles.input, { flex: 1 }]} keyboardType="decimal-pad" placeholder="Face value (optional) — what it pays back" placeholderTextColor={Colors.textTertiary} value={face} onChangeText={setFace} accessibilityLabel="Face value, optional — what the bond pays back at maturity" />
+          <MoneyBox bare style={[styles.input, { flex: 1 }]} placeholder="Face value (optional) — what it pays back" value={face} onChangeText={setFace} a11y="Face value, optional — what the bond pays back at maturity" />
         </View>
       )}
-      <View style={styles.amtRow}><Text style={styles.amtPre}>{currencySymbol()}</Text><TextInput style={styles.amtIn} keyboardType="decimal-pad" placeholder="0" placeholderTextColor={Colors.textTertiary} value={val} onChangeText={setVal} /></View>
+      <View style={styles.amtRow}><Text style={styles.amtPre}>{currencySymbol()}</Text><MoneyBox bare dollarBeside style={styles.amtIn} placeholder="0" value={val} onChangeText={setVal} /></View>
       <TouchableOpacity style={[styles.addBtn, !canAdd && { opacity: 0.4 }]} disabled={!canAdd} accessibilityRole="button" accessibilityLabel="Add this holding" onPress={addHolding}><Text style={styles.addBtnT}>＋ Add holding</Text></TouchableOpacity>
 
       <View style={styles.footerNote}>
@@ -186,7 +189,7 @@ const styles = StyleSheet.create({
   itemSub: { fontSize: 11, color: Colors.textSecondary, marginTop: 1, fontWeight: '600' },
   itemVal: { fontSize: 15, fontWeight: '800', color: Colors.textPrimary },
   remove: { fontSize: 15, color: Colors.textTertiary, paddingHorizontal: 4 },
-  formHdr: { fontSize: 11, fontWeight: '800', color: Colors.textSecondary, letterSpacing: 0.5, marginTop: Spacing.lg, marginBottom: 6 },
+  bleed: { marginHorizontal: -Spacing.lg, marginTop: Spacing.lg },   // the page's padding, taken back: the bar runs edge to edge
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   // rounded corners, not semicircle ends — the one shape of a choice (DEC-0231, 2026-09-25; corrected 2026-10-20)
   chip: { paddingHorizontal: 12, paddingVertical: 10, borderRadius: Radii.md, borderWidth: 1.5, borderColor: Colors.border, backgroundColor: Colors.cardBg },

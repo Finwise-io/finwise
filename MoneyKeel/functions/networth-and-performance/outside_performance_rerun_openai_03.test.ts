@@ -214,7 +214,9 @@ describe('MK-PF-F-015 topHoldingConcentration — five cases', () => {
   kase('MK-PF-F-015', 'easy', 'One holding has no concentration card', () => { refuses(topHoldingConcentration(rows([['A', 1000]]))); });
   kase('MK-PF-F-015', 'complex', 'Unround largest across three holdings', () => {
     const t = topHoldingConcentration(rows([['A', 12345.67], ['B', 4567.89], ['C', 3210.98]]))!;
-    expect(t.ticker).toBe('A'); near(t.value, 12345.67); expect(t.pct).toBe(61);
+    // the share at full precision, rounded once where it is printed (2026-10-27, FX-PF; Q49): 12,345.67 ÷ 20,124.54 = 61.3463…%, shown
+    // "61.35%" — it was returned as 61 and printed "(61%)"
+    expect(t.ticker).toBe('A'); near(t.value, 12345.67); expect(t.pct).toBeCloseTo(61.346346301580056, 9); expect(t.pct.toFixed(2)).toBe('61.35');
     near(t.value / (12345.67 + 4567.89 + 3210.98), 0.6134634630158006);   // unrounded share, from the app's own value
   });
   // NEEDS A RULING (OpenAI: RULE UNCLEAR): a short position counts negative, so the share is of the NET total: 112%.
@@ -238,7 +240,8 @@ describe('MK-PF-F-015 topHoldingConcentration — five cases', () => {
   // topHoldingConcentration, key each row by itself again.
   test('witness, after 2026-10-21 · one ticker held in two accounts is one holding: VTI $60,000 of $110,000 = 55% (DECIDED, tenets 1 and 4)', () => {
     // Insights hands every account's positions as separate rows (InsightsScreen.tsx: accounts.flatMap(positions))
-    expect(topHoldingConcentration(rows([['VTI', 30000], ['vti', 30000], ['SCHD', 50000]]))).toEqual({ ticker: 'VTI', pct: 55, value: 60000 });
+    // 60,000 ÷ 110,000 = 54.5454…%, shown "54.55%" (2026-10-27, FX-PF; Q49 — it was returned as 55)
+    expect(topHoldingConcentration(rows([['VTI', 30000], ['vti', 30000], ['SCHD', 50000]]))).toEqual({ ticker: 'VTI', pct: (60000 / 110000) * 100, value: 60000 });
   });
   test.failing('witness · one ticker held in two accounts is two rows — still open: "define aggregation by holding" — no longer the app\'s answer (DECIDED 2026-10-21)', () => {
     expect(topHoldingConcentration(rows([['VTI', 30000], ['VTI', 30000], ['SCHD', 50000]]))).toEqual({ ticker: 'SCHD', pct: 45, value: 50000 });

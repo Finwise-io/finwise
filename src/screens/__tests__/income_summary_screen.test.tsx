@@ -71,8 +71,16 @@ test('5b — a fresh account keeps both headings and shows $0 with the one line 
   expect(screen.queryByText('—')).toBeNull();
   expect(screen.getAllByText('$0')).toHaveLength(2);
   expect(screen.getAllByText(/^Nothing entered yet\./).length).toBe(2);
-  // ONE DOOR under each figure, never the same door twice in a row (IN-11, 2026-10-25; Q48: one line and its door) — the
-  // separate "Add your income ›" button under the first line is gone; each line carries its own door
+  // THE DOOR ONCE ON THE SCREEN (IN2-12, 2026-10-27; the v07 row of 2026-10-25: "‘Nothing entered yet. Add your income ›’
+  // once"; Q48): under the first heading; the second keeps its $0 and the sentence, with no second door to the same place
   expect(screen.queryByLabelText('Add your income')).toBeNull();
+  expect(screen.getAllByText('Add your income ›')).toHaveLength(1);
+  expect(screen.getAllByText('Nothing entered yet.')).toHaveLength(1);                      // the second heading's sentence, alone
+});
+
+// THE OLD ANSWER, KEPT (2026-10-27): one door under each heading, two in all — read as "once" per heading on 2026-10-25
+test.failing('5b, as read on 2026-10-25 — the door under each heading, twice on the screen', () => {
+  set({});
+  render(<IncomeSummaryScreen />);
   expect(screen.getAllByText('Add your income ›')).toHaveLength(2);
 });

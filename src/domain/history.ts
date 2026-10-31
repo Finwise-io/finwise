@@ -52,7 +52,7 @@ export interface TrendPoint { key: string; nw: number }   // key 'YYYY-MM' (mont
  * Called by ... MK-NW-F-099 SNAP · MK-NW-F-100 TREND
  *               MK-NW-F-147 paymentNotEntered
  *
- * Reaches ..... 385 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 438 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -62,7 +62,7 @@ export interface TrendPoint { key: string; nw: number }   // key 'YYYY-MM' (mont
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 367 more — the full list is on functions_from_code
+ *               … and 420 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-031 daily and monthly snapshots
@@ -120,7 +120,7 @@ export function pruneDaily(daily: Record<string, number>): Record<string, number
  *
  * Called by ... MK-XS-F-008 normalizeSnapshot
  *
- * Reaches ..... 386 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 439 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -130,7 +130,7 @@ export function pruneDaily(daily: Record<string, number>): Record<string, number
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 368 more — the full list is on functions_from_code
+ *               … and 421 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -150,13 +150,14 @@ const isYm = (s: unknown): s is string => typeof s === 'string' && /^\d{4}-\d{2}
  * Called by ... MK-CF-F-028 loanPayment · MK-CF-F-049 buildIncomeState
  *               MK-CF-F-122 addDays · MK-CF-F-129 round4
  *               MK-CF-F-155 cash · MK-CF-F-189 essentialsFromLoggedSpending
- *               MK-CF-O-001 basePay · MK-CF-O-016 incomeSources
- *               MK-HM-F-006 money0 · MK-NW-F-026 accountDisplayNames
- *               MK-NW-F-058 yearsToMaturity · MK-NW-F-067 plural
- *               MK-NW-F-119 estimatedAccrued · MK-NW-F-130 notIncludedSentence
- *               MK-NW-F-170 incomeSumParts · MK-NW-F-176 categoriesEarnedTotal
- *               MK-PF-F-006 capGains · MK-PF-F-028 realizedFromLedger
- *               MK-PF-F-033 quantityWithUnit · MK-PF-F-041 isoDay
+ *               MK-CF-F-291 purchaseRecordsFollowReimport · MK-CF-O-001 basePay
+ *               MK-CF-O-016 incomeSources · MK-HM-F-006 money0
+ *               MK-NW-F-026 accountDisplayNames · MK-NW-F-058 yearsToMaturity
+ *               MK-NW-F-067 plural · MK-NW-F-119 estimatedAccrued
+ *               MK-NW-F-130 notIncludedSentence · MK-NW-F-170 incomeSumParts
+ *               MK-NW-F-176 categoriesEarnedTotal · MK-PF-F-006 capGains
+ *               MK-PF-F-028 realizedFromLedger · MK-PF-F-033 quantityWithUnit
+ *               MK-PF-F-041 isoDay · MK-PF-F-081 heldQuantity
  *               MK-PL-F-028 sampleAskLine · MK-PL-F-033 educationPlan
  *               MK-PL-F-050 simulate · MK-PL-F-079 numOrZero
  *               MK-ST-F-021 toNumber · MK-ST-F-049 formatMoney
@@ -168,7 +169,7 @@ const isYm = (s: unknown): s is string => typeof s === 'string' && /^\d{4}-\d{2}
  *               MK-XS-F-131 toInt · MK-XS-F-171 numOrNaN
  *               MK-XS-F-199 profileOnTheWayIn
  *
- * Reaches ..... 491 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 542 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -178,7 +179,7 @@ const isYm = (s: unknown): s is string => typeof s === 'string' && /^\d{4}-\d{2}
  *               MK-CF-F-237 LATER · MK-NW-F-081 LB
  *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
  *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
- *               … and 473 more — the full list is on functions_from_code
+ *               … and 524 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -234,7 +235,7 @@ export function makeMonthlySnapshot(i: Omit<MonthlySnapshot, 'v' | 'net_worth'> 
  *
  * Called by ... MK-XS-F-009 readHistory
  *
- * Reaches ..... 385 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 438 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -244,7 +245,7 @@ export function makeMonthlySnapshot(i: Omit<MonthlySnapshot, 'v' | 'net_worth'> 
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 367 more — the full list is on functions_from_code
+ *               … and 420 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -291,7 +292,7 @@ export function normalizeSnapshot(ym: string, raw: unknown): MonthlySnapshot | n
  *
  * Called by ... MK-XS-F-005 trendPoints
  *
- * Reaches ..... 385 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 438 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -301,7 +302,7 @@ export function normalizeSnapshot(ym: string, raw: unknown): MonthlySnapshot | n
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 367 more — the full list is on functions_from_code
+ *               … and 420 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-031 daily and monthly snapshots

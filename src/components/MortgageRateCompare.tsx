@@ -115,7 +115,7 @@ export function MortgageRateCompare({ balance, annualRate, monthlyPayment, extra
       {effect && (
         <Text style={s.body}
           accessibilityLabel={`Paying the extra means less going into savings. Your money lasts in about ${effect.before} of 100 futures today, and about ${effect.after} of 100 if you do this.`}>
-          {'\n'}That's {maskedMoney(extraMonthly)}/month not going into savings while the loan runs — and the whole
+          {'\n'}That’s {maskedMoney(extraMonthly)}/month not going into savings while the loan runs — and the whole
           payment freeing up once it clears, {effect.fasterPayoffYear} instead of {effect.payoffYear}. Taken together, your
           money lasts in about <Text style={s.b}>{effect.before} out of 100 simulated futures</Text> today, and about{' '}
           <Text style={s.b}>{effect.after} out of 100</Text> if you do this.
@@ -130,7 +130,7 @@ export function MortgageRateCompare({ balance, annualRate, monthlyPayment, extra
         <Text style={[s.caveat, { flex: 1, marginTop: 0 }]}>
           Shares might earn more than either — or less. Paying the mortgage is the only one that is certain. {taxWords}
         </Text>
-        <InfoDot term="nestEggMath" size={11} />
+        <InfoDot term="nestEggMath" line={s.caveat} />
       </View>
 
       {isFallback && (

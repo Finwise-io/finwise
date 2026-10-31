@@ -237,7 +237,8 @@
    "difference": "0.5035",
    "formula_gives_match": "n/a",
    "note": "BRIEF WRONG: 524.187475 — right is 524.690975: 12,345.67 × 0.04 = 493.8268, × 0.0025 = 30.864175, sum 524.690975. App is right.",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-057 annualCoupon — five cases › complex · Unround face and coupon"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-057 annualCoupon — five cases › complex · Unround face and coupon",
+   "settled": "SETTLED 2026-10-27 (re-run at 45d680a4 + the fix wave) — APP RIGHT (BRIEF WRONG): 12,345.67 × 4% = 493.8268 and 12,345.67 × 0.25% = 30.864175, which add to $524.690975, not 524.187475. Held by outside_networth_final_openai_part3.test.ts:145."
   },
   {
    "id": "MK-NW-F-057",
@@ -252,7 +253,8 @@
    "difference": "app null; expected 0 + disclosure",
    "formula_gives_match": "formula_gives (REFUSES / no value)",
    "note": "DEC-2748c puts \"no rate → $0 and said so\" on yearlyInterest (MK-NW-F-112) and the income figures, not on annualCoupon, whose only caller is priceAtYield (src/domain/bonds/index.ts:669). The $0 + words appear at the income figure: couponIncomeAnnual 0, row \"coupon not entered\" (BondsScreen.tsx:89).",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-057 annualCoupon — five cases › complex · Missing rate must disclose zero annual interest"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-057 annualCoupon — five cases › complex · Missing rate must disclose zero annual interest",
+   "settled": "SETTLED 2026-10-27 (re-run at 45d680a4 + the fix wave) — APP RIGHT (BRIEF WRONG) by DEC-2748c: this helper gives nothing with no rate; the $0 and its words sit on the income figure — interest $0 a year, the Bonds screen's coupon $0 a year, and \"Bond A\" named as having no rate. Held by outside_networth_final_openai_part3.test.ts:148."
   },
   {
    "id": "MK-NW-F-057",
@@ -314,7 +316,8 @@
    "difference": "none",
    "formula_gives_match": "n/a",
    "note": "Auditor wrote RULE UNCLEAR; SETTLED BY DEC-3279b — anniversaries are counted back from the MATURITY date (Aug 29 exists every year): 1 + 182/366. A Feb-29 maturity would still need a rule (Date.UTC rolls Feb 29 to Mar 1 in non-leap years, bonds/index.ts:230).",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-058 yearsToMaturity — five cases › complex · Leap-year anniversary fraction"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-058 yearsToMaturity — five cases › complex · Leap-year anniversary fraction",
+   "settled": "SETTLED 2026-10-27 (re-run at 45d680a4 + the fix wave) — APP RIGHT for this case by DEC-3279b (its note): anniversaries count back from the maturity, Aug 29, so 1 + 182 ÷ 366 = 1.4973. The note's open point, a 29 February maturity, is decided by the app's own rule (28 February in other years, as the accrual estimate and the long/short split use): APP WRONG in yearsToMaturity, for FX-NW — 2028-02-29 seen 2026-10-09 reads 1.3918, right 1.3890. Held by outside_networth_final_openai_part3.test.ts:163; the finding kept failing at outside_networth_final_openai_part3.test.ts:169."
   },
   {
    "id": "MK-NW-F-058",
@@ -342,7 +345,8 @@
    "difference": "app 0 (reads as matured); expected refusal",
    "formula_gives_match": "n/a",
    "note": "yearsToMaturity validates with new Date(maturity) (src/domain/bonds/index.ts:222); JavaScript rolls 2026-02-30 to 2026-03-02, so an impossible date is \"matured\" (from 2026-01-01 it is 0.1644 years away). Card: \"Nothing when there is no valid date.\" CODE WRONG.",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-058 yearsToMaturity — five cases › edge · Invalid date refuses"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-058 yearsToMaturity — five cases › edge · Invalid date refuses",
+   "settled": "SETTLED 2026-10-27 (re-run at 45d680a4 + the fix wave) — FIXED 2026-10-09 (DEC-0332): 2026-02-30 is no date, so there are no years to maturity; it read 0, as if matured. Held by outside_networth_final_openai_part3.test.ts:172."
   },
   {
    "id": "MK-NW-F-059",
@@ -648,7 +652,8 @@
    "difference": "none",
    "formula_gives_match": "both (formula_gives 770)",
    "note": "Auditor wrote RULE UNCLEAR; SETTLED BY DEC-2748c (one rule everywhere; \"Before: the Bonds screen counted a CD at $0\") and DEC-0051 (a CD is Bonds & CDs) → CD included, $770.",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-062 couponIncomeAnnual — five cases › complex · Several bonds and CD"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-062 couponIncomeAnnual — five cases › complex · Several bonds and CD",
+   "settled": "SETTLED 2026-10-27 (re-run at 45d680a4 + the fix wave) — APP RIGHT, settled at the run by DEC-2748c (one rule everywhere) and DEC-0051 (a CD is Bonds & CDs): the CD is included — $450 + $4,000 × 3% + $200 = $770. Held by outside_networth_final_openai_part3.test.ts:259."
   },
   {
    "id": "MK-NW-F-062",
@@ -662,7 +667,8 @@
    "difference": "+500",
    "formula_gives_match": "n/a",
    "note": "couponIncomeAnnual takes no date and keeps the matured $10,000 bond (src/domain/bonds/index.ts:557); bondSummary's COUPON /year does the same (:522). interestIncomeAnnual drops it (:602, DEC-2748d) → two figures for one year's interest: 580 vs 80. DEC-2748c: one rule everywhere.",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-062 couponIncomeAnnual — five cases › complex · Expired bond omitted"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-062 couponIncomeAnnual — five cases › complex · Expired bond omitted",
+   "settled": "SETTLED 2026-10-27 (re-run at 45d680a4 + the fix wave) — FIXED 2026-10-09 by DEC-2748c and DEC-2748d: the matured $10,000 bond pays $0, so a year's coupon is $2,000 × 4% = $80 (it read $580). Held by outside_networth_final_openai_part3.test.ts:259."
   },
   {
    "id": "MK-NW-F-062",
@@ -727,7 +733,8 @@
    "difference": "none",
    "formula_gives_match": "n/a",
    "note": "",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-063 interestIncomeAnnual — five cases › complex · Bonds, CD, and savings interest"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-063 interestIncomeAnnual — five cases › complex · Bonds, CD, and savings interest",
+   "settled": "SETTLED 2026-10-27 (re-run at 45d680a4 + the fix wave) — APP RIGHT (BRIEF WRONG since 2026-10-24) by DEC-7933 (the lead's, under DEC-2748c and tenet 3): the case's \"cd\" arrives as a dated bond with no face, whose year's interest is not known: $450 + $0 + $200 = $650. Entered as a bank CD it pays $5,000 × 4% = $200, so $850. Held by outside_networth_final_openai_part3.test.ts:284."
   },
   {
    "id": "MK-NW-F-063",
@@ -780,7 +787,8 @@
    "difference": "",
    "formula_gives_match": "n/a",
    "note": "bondRateSensitivity takes no yield; it solves its own inside −99%…1,000% (bonds/index.ts:454) and floors the down move at 0.01% (:737), so −100% cannot reach it. The −100% price is tested under MK-NW-F-069 edge (FINDING: Infinity).",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-064 bondRateSensitivity — five cases › edge · Invalid yield cannot produce a price range"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-064 bondRateSensitivity — five cases › edge · Invalid yield cannot produce a price range",
+   "settled": "SETTLED 2026-10-27 (re-run at 45d680a4 + the fix wave) — APP RIGHT: the function takes no yield; it solves its own inside −99%…1,000% and floors the down move at 0.01%, so −100% never reaches it, and a price at −100% refuses (MK-NW-F-069 edge). A $10,000 5% bond worth $9,800 solves to 5.57% with both ranges finite. The case stays skipped (it cannot be handed in). Held by outside_networth_final_openai_part3.test.ts:315."
   },
   {
    "id": "MK-NW-F-064",
@@ -797,7 +805,8 @@
    "difference": "",
    "formula_gives_match": "n/a",
    "note": "The function prices the bond itself; the three given prices cannot be handed in.",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-064 bondRateSensitivity — five cases › complex · Sensitivity uses price change at yield ±1 point"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-064 bondRateSensitivity — five cases › complex · Sensitivity uses price change at yield ±1 point",
+   "settled": "SETTLED 2026-10-27 (re-run at 45d680a4 + the fix wave) — APP RIGHT by DEC-6074: the change is the price at yield ±1 point less the price at today's yield, as the auditor says. $10,000 at 4% for 5 years, at par: 9,567.05 − 10,000 = −$432.95 → −$400; 10,457.97 − 10,000 = +$457.97 → +$500 (step $100). The case's own prices cannot be handed in; it stays skipped. Held by outside_networth_final_openai_part3.test.ts:322."
   },
   {
    "id": "MK-NW-F-064",
@@ -812,7 +821,8 @@
    "difference": "",
    "formula_gives_match": "n/a",
    "note": "Raw changes cannot be handed in. By hand the app rule (bonds/index.ts:730, :745) gives step 10 for $4,250 and 43→40, −37→−40 — the auditor's answer.",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-064 bondRateSensitivity — five cases › complex · Bond under $10k rounds in proportion"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-064 bondRateSensitivity — five cases › complex · Bond under $10k rounds in proportion",
+   "settled": "SETTLED 2026-10-27 (re-run at 45d680a4 + the fix wave) — APP RIGHT: below $10,000 the step is $10. A $5,000-face 4% bond worth $4,250 (yield 7.73%): −$176.41 → −$180, +$186.22 → +$190; the auditor's 43 → 40 and −37 → −40 follow the same rule. Raw changes cannot be handed in; the case stays skipped. Held by outside_networth_final_openai_part3.test.ts:331."
   },
   {
    "id": "MK-NW-F-064",
@@ -898,7 +908,8 @@
    "difference": "net worth right; no incomplete flag",
    "formula_gives_match": "formula_gives",
    "note": "totalDebtBalance adds a debt with no balance as 0 (src/domain/debt/index.ts:269); buildNetWorth (src/domain/networth/index.ts:35) gets totals only; dataGaps names accounts with no balance (src/domain/gaps/index.ts:166) but never a debt. DEC-3279e: \"a missing balance is never $0\" — its governed list names only asset functions, so whether debts are covered needs his word.",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-065 buildNetWorth — five cases › complex · Unknown debt balance must flag incomplete"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-065 buildNetWorth — five cases › complex · Unknown debt balance must flag incomplete",
+   "settled": "SETTLED 2026-10-27 (re-run at 45d680a4 + the fix wave) — APP RIGHT (re-judged) by DEC-3279e and DEC-3657: known net worth $100,000 − $20,000 = $80,000; the debt with no balance is left out, never $0, named in the amber box (\"…left out of what you owe until it has one — not counted as $0\"), its row reading \"Value not entered\". Held by outside_networth_final_openai_part3.test.ts:368."
   },
   {
    "id": "MK-NW-F-065",
@@ -912,7 +923,8 @@
    "difference": "none",
    "formula_gives_match": "n/a",
    "note": "Auditor wrote RULE UNCLEAR; SETTLED BY DEC-0260 (fresh account: $0 + \"nothing entered\" sentence + the door) and DEC-2748i (first-day screen). The function's $0 is right; the words are the screen's.",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-065 buildNetWorth — five cases › edge · No assets and no debt"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-065 buildNetWorth — five cases › edge · No assets and no debt",
+   "settled": "SETTLED 2026-10-27 (re-run at 45d680a4 + the fix wave) — APP RIGHT, settled at the run by DEC-0260 and DEC-2748i: with nothing entered net worth is $0 and the screen says \"Nothing entered yet.\" with the door; the words are the screen's. Held by outside_networth_final_openai_part3.test.ts:386."
   },
   {
    "id": "MK-NW-F-066",
@@ -1209,7 +1221,8 @@
    "difference": "app prices it at $0",
    "formula_gives_match": "formula_gives (no face guard)",
    "note": "priceAtYield uses face ?? 0 and coupon ?? 0 (src/domain/bonds/index.ts:669, :672). Latent: approxYTM (:442) and bondRateSensitivity (:728) refuse a missing face first. DEC-2748b: a face never entered is never $0.",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-069 priceAtYield — five cases › complex · Missing face must not create a numeric price"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-069 priceAtYield — five cases › complex · Missing face must not create a numeric price",
+   "settled": "SETTLED 2026-10-27 (re-run at 45d680a4 + the fix wave) — FIXED 2026-10-09 by DEC-2748b: a bond with no face entered has no price (it priced $0). Held by outside_networth_final_openai_part3.test.ts:431."
   },
   {
    "id": "MK-NW-F-069",
@@ -1221,7 +1234,8 @@
    "difference": "app Infinity; expected refusal",
    "formula_gives_match": "n/a",
    "note": "(1 + y)^t = 0 at y = −1 and nothing guards it (src/domain/bonds/index.ts:671-672). Latent: the solver never asks below −99% (:454).",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-069 priceAtYield — five cases › edge · Invalid yield at or below −100%"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-069 priceAtYield — five cases › edge · Invalid yield at or below −100%",
+   "settled": "SETTLED 2026-10-27 (re-run at 45d680a4 + the fix wave) — FIXED 2026-10-09: at −100% (1 + yield = 0) there is no price (it gave Infinity). Held by outside_networth_final_openai_part3.test.ts:435."
   },
   {
    "id": "MK-NW-F-070",
@@ -1400,7 +1414,8 @@
    "difference": "ytm 0.0672268 vs 0.055",
    "formula_gives_match": "n/a",
    "note": "BRIEF WRONG: 0.055 was handed in as an input, not worked out. Under DEC-3390 the full price is $980 + $38.49 accrued (1,000 × 5% × 281/365) = $1,018.49; at 5.5% the bond prices at $1,032.46, at 6.72% at $1,018.49. Every other field matches.",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-072 rowOf — five cases › easy · Basic bond row"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-072 rowOf — five cases › easy · Basic bond row",
+   "settled": "SETTLED 2026-10-27 (re-run at 45d680a4 + the fix wave) — APP RIGHT (BRIEF WRONG) by DEC-3390: 5.5% was handed in, not worked out. Full price $980 + $1,000 × 5% × 281 ÷ 365 = $38.49 accrued = $1,018.49; at 5.5% the bond prices $1,032.46, at 6.72% $1,018.49 — so 6.72%. Every other field matches. Held by outside_networth_final_openai_part3.test.ts:473."
   },
   {
    "id": "MK-NW-F-072",
@@ -1666,7 +1681,8 @@
    "difference": "+0.909 points",
    "formula_gives_match": "formula_gives (0.1090909…)",
    "note": "Category return weighted by TODAY's value (MoneyKeel/functions/networth-and-performance/performance.ts:621-626). With no money moved the class went $20,000 → $22,000 = 10%. DEC-1669 (every return time-weighted) and DEC-3035b (same fix on the retirement return: Σ now ÷ Σ start − 1) say 10%.",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-084 categoryEarnings — five cases › complex · Current-value weighting differs from beginning-value TWR"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-084 categoryEarnings — five cases › complex · Current-value weighting differs from beginning-value TWR",
+   "settled": "SETTLED 2026-10-27 (re-run at 45d680a4 + the fix wave) — FIXED 2026-10-09 by DEC-1669 and DEC-3035b: weighted by the start, the class grew $20,000 → $22,000 = 10.00% (it read 10.91%, weighted by today). Held by outside_networth_final_openai_part3.test.ts:547."
   },
   {
    "id": "MK-NW-F-084",
@@ -1868,7 +1884,8 @@
    "difference": "app $0; expected refusal",
    "formula_gives_match": "n/a",
    "note": "A holding with no period return adds $0 (performance.ts:190); a one-holding gain reads \"$0 gained\", not unknown (tenet 3). Callers: PerformanceScreen.tsx:114 (per row), :156; HomeScreen.tsx:189.",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-091 pricedGainOf — five cases › edge · Missing return refuses gain"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-091 pricedGainOf — five cases › edge · Missing return refuses gain",
+   "settled": "SETTLED 2026-10-27 (re-run at 45d680a4 + the fix wave) — FIXED 2026-10-09 by DEC-3656, re-settled by DEC-5068: a holding with no price history and no rate has an unknown gain (no figure), named in a sentence below the figures; it read $0. Held by outside_networth_final_openai_part3.test.ts:597."
   },
   {
    "id": "MK-NW-F-092",
@@ -2332,7 +2349,8 @@
    "difference": "per-account split cannot be handed in",
    "formula_gives_match": "n/a",
    "note": "closedWith takes ONE ending total (performance.ts:286). Run with the sum $20,000 it writes all $20,000 on A and $0 on B (performance.ts:290); the total, which is all the return reads, is right.",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-104 closedWith — five cases › complex · Several named accounts carry ending values"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-104 closedWith — five cases › complex · Several named accounts carry ending values",
+   "settled": "SETTLED 2026-10-27 (re-run at 45d680a4 + the fix wave) — APP RIGHT: every screen hands the accounts in, so today reads A $12,000 and B $8,000; closedWith, reached by no screen, writes the $20,000 total on A. Either way the return is 20,000 ÷ (11,000 + 7,500) − 1 = +8.11%. Now run with the sum, kept failing. Held by outside_networth_final_openai_part3.test.ts:685."
   },
   {
    "id": "MK-NW-F-104",
@@ -2545,5 +2563,5 @@
    "plain_example": "Record holds today at $1,000, caller says $1,100: $1,000 stands, no duplicate row. Should $1,100 replace it?"
   }
  ],
- "coverage": "130 of 130 cases mapped and recorded (108 PASS, 7 FINDING, 3 BRIEF_WRONG, 8 UNCLEAR, 4 BLOCKED); 126 run + 4 skipped in MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts, suite green; 15 of 15 non-RIGHT formula checks classified (11 RIGHT not listed)."
+ "coverage": "130 of 130 cases mapped and recorded (108 PASS, 7 FINDING, 3 BRIEF_WRONG, 8 UNCLEAR, 4 BLOCKED); 126 run + 4 skipped in MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts, suite green; 15 of 15 non-RIGHT formula checks classified (11 RIGHT not listed). | 2026-10-27 (FX-AUDITS, re-run at 45d680a4 + the fix wave, outside_networth_final_openai_part3.test.ts green): 18 more cases given a settled line — 12 app right, 6 fixed, now right; every case that does not pass as written now carries one, held by outside_audit_results_settled.test.ts."
 }

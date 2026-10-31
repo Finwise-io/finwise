@@ -1,3 +1,4 @@
+import { MoneyBox } from '../src/components/MoneyBox';   // every money box, one component (DEC-8385)
 import React, { useState } from 'react';
 import {
   View, Text, TextInput, StyleSheet, ScrollView, Alert,
@@ -66,13 +67,11 @@ export default function InvestScreen() {
 
         <Card>
           <Text style={styles.label}>Amount invested ($)</Text>
-          <TextInput
+          <MoneyBox bare
             style={styles.amountInput}
             value={amount}
             onChangeText={setAmount}
             placeholder="0.00"
-            keyboardType="decimal-pad"
-            placeholderTextColor={Colors.textTertiary}
             autoFocus
           />
 
@@ -84,7 +83,7 @@ export default function InvestScreen() {
                 style={[styles.typeBtn, type === t.label && styles.typeBtnOn]}
                 onPress={() => setType(t.label)}
               >
-                <Text style={{ fontSize: 22 }}>{t.icon}</Text>
+                <Text style={{ fontSize: 24 }}>{t.icon}</Text>
                 <Text style={[styles.typeBtnText, type === t.label && styles.typeBtnTextOn]}>{t.label}</Text>
               </TouchableOpacity>
             ))}
@@ -140,7 +139,7 @@ const styles = StyleSheet.create({
   newTotal: { fontSize: Typography.sizes.sm, color: Colors.blue, marginTop: 4 },
   label: { fontSize: Typography.sizes.base, fontWeight: '500', color: Colors.textPrimary, marginBottom: 8 },
   amountInput: {
-    fontSize: 32, fontWeight: '700', textAlign: 'center', paddingVertical: 16,
+    fontSize: 30, fontWeight: '700', textAlign: 'center', paddingVertical: 16,   // on the scale (DEC-0059): 32 → 30, the nearest step
     color: Colors.textPrimary, backgroundColor: Colors.bgSecondary,
     borderRadius: Radii.md, borderWidth: 0.5, borderColor: Colors.border,
   },
@@ -157,6 +156,6 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.bgSecondary,
   },
   typeBtnOn: { backgroundColor: Colors.blueLight, borderColor: Colors.blueMid },
-  typeBtnText: { fontSize: 10, color: Colors.textSecondary, fontWeight: '500', textAlign: 'center' },
+  typeBtnText: { fontSize: 11, color: Colors.textSecondary, fontWeight: '500', textAlign: 'center' },
   typeBtnTextOn: { color: Colors.blue },
 });

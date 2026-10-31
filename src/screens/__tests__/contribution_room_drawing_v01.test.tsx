@@ -1,6 +1,9 @@
 // CONTRIBUTION ROOM, HELD TO ITS DRAWING — MoneyKeel/documents/cashflow/moneykeel_pres_mock_contribution-room_v01.html, states
 // A to E (2026-10-25, FIX-ROOM). Every sentence the drawing prints for a state is read off the rendered screen, in the drawing's
 // words, on the drawing's day (25 October 2026, three months left). The figures are MK-CF-O-005 theContributionRoom's.
+// SINCE 2026-10-27 (FX-CF-C, DEC-8839) v01 is archived (cashflow/archive/2026-10-27_…_v01.html) and the screen is built to v02, held
+// word for word, in order, both ways, by contribution_room_drawing_v02.test.tsx (REC2-01). v01's sentences that still stand are kept
+// here; the one that changed (D's HSA note, which now names the cover) keeps its v01 answer as test.failing.
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react-native';
 import ContributionRoomScreen from '../ContributionRoomScreen';
@@ -78,7 +81,8 @@ test('D · 66, enrolled in Medicare from July 2026: $5,400 × 6 ÷ 12 = $2,700, 
   words('up to $8,600');
   words('up to $2,700');
   words('The 2026 limit is $2,700. (Includes the age-55+ catch-up.)');
-  words('You are enrolled in Medicare from July 2026, so HSA money counts for January to June only: $5,400 × 6 ÷ 12 = $2,700 (IRS Publication 969).');
+  // v02 row 4 (2026-10-27, #361): the note now says which limit it is — no cover chosen, so the self-only one ($4,400 + $1,000 = $5,400)
+  words('You are enrolled in Medicare from July 2026, so HSA money counts for January to June only: $5,400 × 6 ÷ 12 = $2,700 (IRS Publication 969). Your cover is not chosen, so this is the self-only limit.');
   words('When did your Medicare start?');
   for (const c of ['Before 2026', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']) words(c);
   expect(screen.getByLabelText('July 2026').props.accessibilityState).toEqual({ selected: true });
@@ -87,6 +91,10 @@ test('D · 66, enrolled in Medicare from July 2026: $5,400 × 6 ÷ 12 = $2,700, 
   expect((useStore.getState() as any).onboardingProfile.medicareStart).toBe('before-2026');
   words('up to $0');
   words('You are enrolled in Medicare, so no HSA contribution is allowed this year (IRS Publication 969). Not enrolled? Update it below.');
+});
+test.failing('D · the v01 words until 2026-10-27, pinned: the HSA note ended at "(IRS Publication 969)." with no word on the cover (FIXED 2026-10-27, v02 row 4)', () => {
+  open({ birthYear: '1960', medicareEnrolled: 'yes', medicareStart: '2026-07' });
+  words('You are enrolled in Medicare from July 2026, so HSA money counts for January to June only: $5,400 × 6 ÷ 12 = $2,700 (IRS Publication 969).');
 });
 test('D · enrolled with no month picked: $0 (his G10), and the month is asked for', () => {
   open({ birthYear: '1960', medicareEnrolled: 'yes' });

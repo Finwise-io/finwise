@@ -14,6 +14,8 @@ import { holdingClassOf, assetClassOf } from '../assets';
 import { cashEffect } from '../transactions';   // the one reader of the cash a record moved (a sale's, 2026-10-22)
 import { feeNotInPrice } from './realized';      // the one reading of a trade's fee the price does not carry (2026-10-22)
 import { maturityParts } from '../_shared/dates';
+import { windowBounds } from '../../../Calculation Module code/engines/window-return';   // the window's own days (PF-5, 2026-10-27)
+import { bondInfo } from '../bonds';   // the one test of what a CD is, by its own name (PF-5, 2026-10-27)
 
 /** One purchase lot — shares bought at a price on a date (enables true cost-basis ROI). */
 export interface Lot {
@@ -94,10 +96,11 @@ export const OPTION_CONTRACT_MULTIPLIER = 100;
  *               MK-PF-F-014 buildPerformance · MK-PF-F-028 realizedFromLedger
  *               MK-PF-F-051 paidOnRecord · MK-PF-F-070 holdingPath
  *               MK-PF-F-072 tradesAfter · MK-PF-F-073 sharesThroughWindow
- *               MK-PF-F-077 eventPath · MK-PL-F-081 taxableGainShare
+ *               MK-PF-F-077 eventPath · MK-PF-F-083 paidPerShare
+ *               MK-PF-F-084 ownMark · MK-PL-F-081 taxableGainShare
  *               MK-XS-F-102 ingestSync
  *
- * Reaches ..... 388 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 441 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -107,7 +110,7 @@ export const OPTION_CONTRACT_MULTIPLIER = 100;
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 370 more — the full list is on functions_from_code
+ *               … and 423 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
@@ -149,7 +152,7 @@ export function contractMultiplier(p: Pick<Position, 'kind' | 'multiplier'> & { 
  *
  * Called by ... MK-NW-F-165 purchaseQuantityWords · MK-PF-F-033 quantityWithUnit
  *
- * Reaches ..... 386 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 439 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -159,7 +162,7 @@ export function contractMultiplier(p: Pick<Position, 'kind' | 'multiplier'> & { 
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 368 more — the full list is on functions_from_code
+ *               … and 421 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -178,6 +181,29 @@ export function quantityUnit(p: Pick<Position, 'kind' | 'unit'>): QuantityUnit {
   return 'shares';
 }
 
+/** A QUANTITY AS HELD, ITS WHOLE PART IN THOUSANDS (2026-10-27, FX-PF; the precision standard: "any other quantity as it is
+ *  held"): 5000 → "5,000", 1234.5 → "1,234.5", 0.125 → "0.125" — its decimals never cut, a minus sign kept. The Holding page
+ *  printed "Quantity 5000 shares" while every figure beside it is grouped. A coin keeps coinQuantity's eight decimals. */
+/* ─ MK-PF-F-081 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * heldQuantity
+ *
+ * Answers ..... A QUANTITY AS HELD, ITS WHOLE PART IN THOUSANDS (2026-10-27, FX-PF; the precision standard: "any other quantity as it is held"): 5000 → "5,000", 1234.5 → "1,234.5", 0.125 → "0.125" — its decimals never cut, a minus sign kept.
+ *
+ * Formula .....
+ *     `${whole.replace( ÷ \B(?=(\d{3})+(?!\d)) ÷ g, ',')}${frac ≠ nothing ? `.${frac}` : ''}`
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-PF-F-081
+ * Changed ..... not in git yet (—)
+ */
+export function heldQuantity(n: number): string {
+  const [whole, frac] = String(n).split('.');
+  return `${whole.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}${frac != null ? `.${frac}` : ''}`;
+}
+
 /** "3 shares", "1 coin", "2 contracts" — the quantity printed with its unit, singular when it is one. */
 /* ─ MK-PF-F-033 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * quantityWithUnit
@@ -191,7 +217,7 @@ export function quantityUnit(p: Pick<Position, 'kind' | 'unit'>): QuantityUnit {
  * Called by ... MK-NW-F-146 undatedGainSentence · MK-NW-F-165 purchaseQuantityWords
  *               MK-PF-F-058 gainOnPartSentence
  *
- * Reaches ..... 385 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 438 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -201,7 +227,7 @@ export function quantityUnit(p: Pick<Position, 'kind' | 'unit'>): QuantityUnit {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 367 more — the full list is on functions_from_code
+ *               … and 420 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-005 holding price
@@ -247,12 +273,13 @@ export const PERIODS: Period[] = ['1M', '3M', '6M', 'YTD', '1Y', '2Y'];
  * Formula .....
  *     total shares(holding) = Σ over every lot of (shares, or 0 when missing)
  *
- * Called by ... MK-CF-F-111 applyTransaction · MK-NW-F-127 gainOfRow
- *               MK-NW-F-128 heldValueOf · MK-NW-F-170 incomeSumParts
- *               MK-NW-F-171 listedShares · MK-NW-O-006 theHolding
- *               MK-PF-F-004 marketValue · MK-PF-F-073 sharesThroughWindow
+ * Called by ... MK-CF-F-111 applyTransaction · MK-CF-F-291 purchaseRecordsFollowReimport
+ *               MK-NW-F-127 gainOfRow · MK-NW-F-128 heldValueOf
+ *               MK-NW-F-170 incomeSumParts · MK-NW-F-171 listedShares
+ *               MK-NW-O-006 theHolding · MK-PF-F-004 marketValue
+ *               MK-PF-F-073 sharesThroughWindow · MK-PF-F-084 ownMark
  *
- * Reaches ..... 388 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 441 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -262,7 +289,7 @@ export const PERIODS: Period[] = ['1M', '3M', '6M', 'YTD', '1Y', '2Y'];
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 370 more — the full list is on functions_from_code
+ *               … and 423 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -295,7 +322,7 @@ export function totalShares(p: Position): number | null {
  *               MK-PF-F-051 paidOnRecord · MK-PF-F-073 sharesThroughWindow
  *               MK-PF-F-080 recordedBuysExplain
  *
- * Reaches ..... 385 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 438 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -305,7 +332,7 @@ export function totalShares(p: Position): number | null {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 367 more — the full list is on functions_from_code
+ *               … and 420 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -349,10 +376,10 @@ export { lotCostOnRecord };
  *               MK-NW-F-144 beforeTheRecordSentence · MK-NW-F-167 COMPARE
  *               MK-NW-O-006 theHolding · MK-PF-F-005 unrealizedGain
  *               MK-PF-F-007 totalROI · MK-PF-F-013 benchmarkTicker
- *               MK-PF-F-014 buildPerformance · MK-PL-F-081 taxableGainShare
- *               MK-XS-F-174 recomputeBalances
+ *               MK-PF-F-014 buildPerformance · MK-PF-F-083 paidPerShare
+ *               MK-PL-F-081 taxableGainShare · MK-XS-F-174 recomputeBalances
  *
- * Reaches ..... 385 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 438 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -362,7 +389,7 @@ export { lotCostOnRecord };
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 367 more — the full list is on functions_from_code
+ *               … and 420 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -435,7 +462,7 @@ export function costBasis(p: Position): number | null {
  *               MK-PF-F-014 buildPerformance · MK-PF-F-055 valueAtClose
  *               MK-PL-F-081 taxableGainShare · MK-XS-F-174 recomputeBalances
  *
- * Reaches ..... 386 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 439 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -445,7 +472,7 @@ export function costBasis(p: Position): number | null {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 368 more — the full list is on functions_from_code
+ *               … and 421 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -528,10 +555,11 @@ export function unrealizedGain(p: Position, price: number | null | undefined): n
  *
  * Called by ... MK-CF-F-139 removeShares · MK-NW-F-143 gainRowBetween
  *               MK-PF-F-006 capGains · MK-PF-F-012 earliestPurchaseDate
- *               MK-PF-F-053 isBroadIndexOption · MK-PF-F-060 closeDayOnOrBefore
- *               MK-PF-F-063 heldOnDay · MK-PF-F-065 firstDatedPurchase
- *               MK-PF-F-067 purchaseDays · MK-PF-F-073 sharesThroughWindow
- *               MK-PF-F-080 recordedBuysExplain · MK-XS-F-127 toIsoDate
+ *               MK-PF-F-014 buildPerformance · MK-PF-F-053 isBroadIndexOption
+ *               MK-PF-F-060 closeDayOnOrBefore · MK-PF-F-063 heldOnDay
+ *               MK-PF-F-065 firstDatedPurchase · MK-PF-F-067 purchaseDays
+ *               MK-PF-F-073 sharesThroughWindow · MK-PF-F-080 recordedBuysExplain
+ *               MK-XS-F-127 toIsoDate
  *
  * Reaches ..... 56 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
@@ -1226,7 +1254,7 @@ export function calendarDay(d: unknown): string | null {
  *               MK-PF-F-014 buildPerformance · MK-PF-F-039 periodReturnParts
  *               MK-PF-F-054 latestCloseLookup · MK-PF-F-078 yardstickOn
  *
- * Reaches ..... 386 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 439 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -1236,7 +1264,7 @@ export function calendarDay(d: unknown): string | null {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 368 more — the full list is on functions_from_code
+ *               … and 421 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-005 holding price
@@ -1261,7 +1289,7 @@ export function latestClose(series: PriceSeries | null | undefined): number | nu
  *
  * Called by ... MK-XS-F-174 recomputeBalances
  *
- * Reaches ..... 385 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 438 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -1271,7 +1299,7 @@ export function latestClose(series: PriceSeries | null | undefined): number | nu
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 367 more — the full list is on functions_from_code
+ *               … and 420 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-005 holding price
@@ -1904,6 +1932,7 @@ export interface PerformanceRow {
  *
  * Decides .....
  *     · If years is missing it uses 1.
+ *     · Treats a year as 365 days.
  *     · Uses today's date from the device clock, so the answer changes by itself overnight.
  *
  * Formula also on the master file · functions_from_code · MK-PF-F-014
@@ -1964,10 +1993,20 @@ export function buildPerformance(
     // the record's own first day — the holding is part of the beginning value, not bought inside the window — so only a
     // stand-in AFTER the first day caps it.
     const capped = !gone && bought != null && periodStart != null && (given && firstDated == null ? bought > periodStart : bought >= periodStart);
+    // A HOLDING BOUGHT INSIDE THE WINDOW COUNTS, WITH PRICES OR WITHOUT (2026-10-27, FX-PF, PF-4; the lead's ruling R4 under
+    // DEC-3656 "bought inside the window: value − cost" and Performance v17 line 106: "bought inside the window" is a history).
+    // With no close on record, what it is worth today is its own price on record — the broker's last mark, or the price typed for
+    // it — and its return since purchase is that value ÷ what was paid − 1. With no price on record at all, a holding bought
+    // TODAY is worth what was paid (nothing has moved since): +0.00%, gained $0. Bought earlier with no price on record, its
+    // worth today is not known, and it is named (tenet 3). v17 phone 4: KEYBANK CD 4.00% bought today, $4,610 paid, marked
+    // $4,610: +0.00%, so Return is 351,110 ÷ 319,610 − 1 = +9.86%; it was left out with no sentence: +10.00% on $346,500. The
+    // close stays the row's price (the Holding page's "last close"); only its value and its own figures read this. To
+    // reverse: own = price.
+    const own = price ?? (capped ? (priceOnRecord(p) ?? (bought === isoDay(now) ? paidPerShare(p) : null)) : null);
     // A HOLDING BOUGHT INSIDE THE WINDOW IS TIME-WEIGHTED FROM ITS PURCHASES (DEC-1669): split at each purchase,
     // each piece's growth multiplied — bought at $200 and again at $250, now $260, is +30.00%, not the +15.56%
     // return on cost (outside review Claude Performance, 2026-10-11). One purchase day gives the return on cost.
-    const pricePr = capped ? returnSincePurchases(p, series, price, bought!) : ret(series);
+    const pricePr = capped ? returnSincePurchases(p, series, own, bought!) : ret(series);
     const priceTotal = capped ? pricePr : total(series);
     const benchTicker = benchmarkTicker(p);
     const benchSeries = benchTicker ? priceOf(benchTicker) : null;
@@ -1997,7 +2036,7 @@ export function buildPerformance(
     // not accurate." — "approved."). The interest counted is from the day the price is measured from: the purchase when
     // bought inside the window, the first close when its prices begin later, else the window's first day. A fund keeps
     // its adjusted closes alone (DEC-4644): its distributions are already in them, so nothing is added twice.
-    const mv = marketValue(p, price);
+    const mv = marketValue(p, own);
     const from = capped ? bought : short ? isoDay(new Date(Date.parse(`${firstISO!.slice(0, 10)}T12:00:00`) + 86_400_000)) : periodStart;
     const interest = income ? bondInterestInWindow(p, income.transactions ?? [], from, income.accounts ?? []) : null;
     // WHAT IT WAS WORTH WHEN ITS WINDOW FIGURE BEGAN (2026-10-21; DEC-5068, tenet 4): the shares held × the very close its
@@ -2068,7 +2107,13 @@ export function buildPerformance(
     // $121: $1,210 − $2,000 + $1,100 = $310, beginning $2,000 (from today's 10 shares it read $210 and $2,100). Bought inside
     // the window, everything it paid in the window counts, so a purchase a sale took is still in what was paid.
     // (on the trades themselves, so a figure that cannot be read from them still leaves its gain unknown, never a guess)
-    const paidInside = priceTotal == null || !traded.some((g) => g.bought > 0) ? (capped && priceTotal != null ? 0 : undefined)
+    // BOUGHT INSIDE THE WINDOW WITH A PURCHASE WHOSE PRICE PAID IS NOT ON RECORD (2026-10-27, FX-PF, the class of PF-4; canon row 24,
+    // tenet 3): its return since purchase cannot be read, so what it gained is not known and it is named for that reason. It was
+    // counted at the gain of the purchases on record alone and left out of Return with no sentence: 10 VOO at $500 and 10 more
+    // with no price, $550 today, read a gain of $500 for 20 shares, said nowhere.
+    const costMissingInside = capped && priceTotal == null && (() => { const c = paidOnRecord(p); return c.held != null && c.counted !== c.held; })();
+    const paidInside = costMissingInside ? null
+      : priceTotal == null || !traded.some((g) => g.bought > 0) ? (capped && priceTotal != null ? 0 : undefined)
       : traded.reduce<number | null>((t, g) => (t == null || (g.bought > 0 && g.paid == null) ? null : t + (g.bought > 0 ? g.paid as number : 0)), 0);
     const soldInside = priceTotal == null || !traded.some((g) => g.sold > 0) ? undefined
       : traded.reduce<number | null>((t, g) => (t == null || (g.sold > 0 && g.proceeds == null) ? null : t + (g.sold > 0 ? g.proceeds as number : 0)), 0);
@@ -2088,11 +2133,36 @@ export function buildPerformance(
     // its market over the same days, made yearly over the same years as its own figure where that is one (2Y)
     const benchShown = events ? (benchTicker == null || ownMarket == null ? null
       : parts && parts.years > 1 ? Math.pow(1 + ownMarket, 1 / parts.years) - 1 : ownMarket) : benchReturn;
+    // A CD WITH A STATED RATE GAINS BY ITS RATE WHEREVER IT IS HELD (2026-10-27, FX-PF, PF-5; the lead's ruling R4 under DEC-3656:
+    // "a CD with a stated rate gains by its rate: value now × (1 − 1 ÷ (1 + rate) to the power of the years in the window")). A CD
+    // held as its own account was read so; one held inside a brokerage was named "has no price history" and gained nothing. Held
+    // when the window began, no prices on record, no purchase or sale inside the window: its window total is (1 + rate)^years − 1
+    // over the window's own days ÷ 365 (the years thePerformance uses), its value today is its own mark, and its start that value
+    // ÷ (1 + the total). $10,400 at 4.00% over a year: +4.00%, started $10,000, gained $400. Over 2Y the figure shown is the rate a
+    // year and the two years' total beside it. Interest paid out is not added on top: the stated rate already is its interest.
+    // Bought inside the window it reads its mark and what was paid, as above. To reverse: drop `rated`.
+    const rated = !capped && !gone && price == null && beginISO != null && periodStart != null ? statedCdRate(p) : null;
+    const ratedYears = rated != null ? windowBounds(periodStart!, isoDay(now)).days / 365 : null;
+    const ratedClean = rated != null && (p.lots ?? []).every((l) => { const d = purchaseDateOnRecord(l?.purchase_date); return d == null || d <= beginISO!; })
+      && (!income || tradesAfter(p, income.transactions ?? [], income.accounts ?? [], beginISO!, isoDay(now)).sales.length === 0);
+    const ratedMv = ratedClean ? marketValue(p, ownMark(p)) : null;
+    if (rated != null && ratedClean && ratedYears != null && ratedMv != null) {
+      const t = Math.pow(1 + rated, ratedYears) - 1;
+      const yearlyShown = !given && period === '2Y' && ratedYears > 1;
+      plans[plans.length - 1] = null;   // no path: its category is weighed by its start
+      return {
+        position: p, price, marketValue: ratedMv, costBasis: paidOnRecord(p).paid, gain: unrealizedGain(p, ownMark(p)),
+        totalROI: totalROI(p, ownMark(p)), periodReturn: yearlyShown ? rated : t, periodTotal: t,
+        benchTicker, benchReturn, benchTotal, beatBy: marketGap(yearlyShown ? rated : t, benchReturn),
+        cappedSince: null, interest: null, startValue: ratedMv / (1 + t), years: yearlyShown ? ratedYears : null,
+      };
+    }
     return {
       position: p, price,
       // what was paid and the gain over the purchases whose price paid is on record — the holding page's Total paid (2026-10-20)
-      marketValue: mv, costBasis: paidOnRecord(p).paid, gain: unrealizedGain(p, price),
-      totalROI: totalROI(p, price), periodReturn: pr, periodTotal: prTotal,
+      // (bought inside the window with no close, at its own mark: PF-4 above)
+      marketValue: mv, costBasis: paidOnRecord(p).paid, gain: unrealizedGain(p, own),
+      totalROI: totalROI(p, own), periodReturn: pr, periodTotal: prTotal,
       benchTicker, benchReturn: benchShown, benchTotal: events ? (benchTicker == null ? null : ownMarket) : benchTotal,
       beatBy: marketGap(pr, benchShown),
       cappedSince: capped ? bought : null,
@@ -2131,9 +2201,10 @@ export function buildPerformance(
  *     false   when TBILL_ETF_TICKERS.has(t)
  *     security id = ÷ ^[0 − 9A − Z]{9}$ ÷ .test(t) and ÷ \d ÷ .test(t)
  *
- * Called by ... MK-PF-F-048 bondInterestInWindow · MK-XS-F-102 ingestSync
+ * Called by ... MK-PF-F-048 bondInterestInWindow · MK-PF-F-085 statedCdRate
+ *               MK-XS-F-102 ingestSync
  *
- * Reaches ..... 37 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 38 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
  *               MK-NW-F-086 CATS · MK-NW-F-167 COMPARE
  *               MK-NW-F-080 HOLD · MK-NW-F-140 LEFT_OUT
@@ -2143,7 +2214,7 @@ export function buildPerformance(
  *               MK-NW-F-084 categoryEarnings · MK-NW-F-142 classReturnOf
  *               MK-PF-F-068 dayAfterDay · MK-PF-F-012 earliestPurchaseDate
  *               MK-PF-F-079 eventDays · MK-PF-F-065 firstDatedPurchase
- *               … and 19 more — the full list is on functions_from_code
+ *               … and 20 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-011 bond face value
@@ -2317,6 +2388,167 @@ export function returnWithInterest(priceTotal: number | null, valueNow: number |
  */
 export function worthWithInterest(r: { marketValue?: number | null; interest?: number | null }): number {
   return (r.marketValue ?? 0) + (r.interest ?? 0);
+}
+
+/** A HOLDING'S OWN PRICE ON RECORD, where no close is (2026-10-27, FX-PF, PF-4): the broker's last mark, or the price typed for
+ *  it. Null where none is on record. */
+/* ─ MK-PF-F-082 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * priceOnRecord
+ *
+ * Answers ..... A HOLDING'S OWN PRICE ON RECORD, where no close is (2026-10-27, FX-PF, PF-4): the broker's last mark, or the price typed for it.
+ *
+ * Formula .....
+ *     last price   if last price ≠ nothing and number.is finite(last price) and last price ≥ 0
+ *     nothing   otherwise
+ *
+ * Called by ... MK-PF-F-014 buildPerformance · MK-PF-F-084 ownMark
+ *
+ * Reaches ..... 35 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS · MK-NW-F-167 COMPARE
+ *               MK-NW-F-080 HOLD · MK-NW-F-140 LEFT_OUT
+ *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
+ *               MK-NW-F-093 QUIET_PERF · MK-NW-F-144 beforeTheRecordSentence
+ *               MK-PF-F-014 buildPerformance · MK-NW-F-084 categoryEarnings
+ *               MK-NW-F-142 classReturnOf · MK-PF-F-068 dayAfterDay
+ *               MK-PF-F-012 earliestPurchaseDate · MK-PF-F-079 eventDays
+ *               MK-PF-F-065 firstDatedPurchase · MK-PF-F-070 holdingPath
+ *               … and 17 more — the full list is on functions_from_code
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-005 holding price
+ *
+ * Formula also on the master file · functions_from_code · MK-PF-F-082
+ * Changed ..... not in git yet (—)
+ */
+function priceOnRecord(p: Position): number | null {
+  return p.last_price != null && Number.isFinite(p.last_price) && p.last_price >= 0 ? p.last_price : null;
+}
+
+/** WHAT WAS PAID A SHARE, over every purchase (2026-10-27, FX-PF, PF-4): what a holding bought today is worth when no price is on
+ *  record. Null where a purchase has no price paid or no share count on record (tenet 3). */
+/* ─ MK-PF-F-083 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * paidPerShare
+ *
+ * Answers ..... WHAT WAS PAID A SHARE, over every purchase (2026-10-27, FX-PF, PF-4): what a holding bought today is worth when no price is on record.
+ *
+ * Formula .....
+ *     c = paid on record(p)
+ *     the answer:
+ *     paid ÷ (held × contract multiplier(p))   if paid ≠ nothing and held ≠ nothing and held > 0 and counted = held
+ *     nothing   otherwise
+ *
+ * Called by ... MK-PF-F-014 buildPerformance
+ *
+ * Reaches ..... 34 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS · MK-NW-F-167 COMPARE
+ *               MK-NW-F-080 HOLD · MK-NW-F-140 LEFT_OUT
+ *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
+ *               MK-NW-F-093 QUIET_PERF · MK-NW-F-144 beforeTheRecordSentence
+ *               MK-PF-F-014 buildPerformance · MK-NW-F-084 categoryEarnings
+ *               MK-NW-F-142 classReturnOf · MK-PF-F-068 dayAfterDay
+ *               MK-PF-F-012 earliestPurchaseDate · MK-PF-F-079 eventDays
+ *               MK-PF-F-065 firstDatedPurchase · MK-PF-F-070 holdingPath
+ *               … and 16 more — the full list is on functions_from_code
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-063 option contract multiplier — 100 unless the broker or the person states otherwise
+ *
+ * Formula also on the master file · functions_from_code · MK-PF-F-083
+ * Changed ..... not in git yet (—)
+ */
+function paidPerShare(p: Position): number | null {
+  const c = paidOnRecord(p);
+  return c.paid != null && c.held != null && c.held > 0 && c.counted === c.held ? c.paid / (c.held * contractMultiplier(p)) : null;
+}
+
+/** A HOLDING'S OWN MARK, where no close is on record (2026-10-27, FX-PF, PF-5): its price on record, or the price its value was
+ *  last built at (value ÷ shares) — the price its account balance holds, as heldValueOf (MK-NW-F-128) reads it. Null where
+ *  neither is on record, or no share count is: its worth today is then unknown (tenet 3). */
+/* ─ MK-PF-F-084 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * ownMark
+ *
+ * Answers ..... A HOLDING'S OWN MARK, where no close is on record (2026-10-27, FX-PF, PF-5): its price on record, or the price its value was last built at (value ÷ shares) — the price its account balance holds, as heldValueOf (MK-NW-F-128) reads it.
+ *
+ * Formula .....
+ *     on record = price on record(p)
+ *     on record   when on record ≠ nothing
+ *     sh = total shares(p)
+ *     value now ÷ (sh × contract multiplier(p))   when value now ≠ nothing and number.is finite(value now) and sh ≠ nothing and sh > 0
+ *     the answer = nothing
+ *
+ * Called by ... MK-PF-F-014 buildPerformance
+ *
+ * Reaches ..... 34 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS · MK-NW-F-167 COMPARE
+ *               MK-NW-F-080 HOLD · MK-NW-F-140 LEFT_OUT
+ *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
+ *               MK-NW-F-093 QUIET_PERF · MK-NW-F-144 beforeTheRecordSentence
+ *               MK-PF-F-014 buildPerformance · MK-NW-F-084 categoryEarnings
+ *               MK-NW-F-142 classReturnOf · MK-PF-F-068 dayAfterDay
+ *               MK-PF-F-012 earliestPurchaseDate · MK-PF-F-079 eventDays
+ *               MK-PF-F-065 firstDatedPurchase · MK-PF-F-070 holdingPath
+ *               … and 16 more — the full list is on functions_from_code
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-004 holding quantity (shares)
+ *               MK-XS-I-063 option contract multiplier — 100 unless the broker or the person states otherwise
+ *
+ * Formula also on the master file · functions_from_code · MK-PF-F-084
+ * Changed ..... not in git yet (—)
+ */
+function ownMark(p: Position): number | null {
+  const onRecord = priceOnRecord(p);
+  if (onRecord != null) return onRecord;
+  const sh = totalShares(p);
+  if (p.value_now != null && Number.isFinite(p.value_now) && sh != null && sh > 0) return p.value_now / (sh * contractMultiplier(p));
+  return null;
+}
+
+/** THE YEARLY RATE A CD HELD AS A HOLDING STATES (2026-10-27, FX-PF, PF-5; DEC-3656): one CD — told by its own name or type,
+ *  the one test bondInfo uses for a CD held as its own account (DEC-4036c) — in Bonds & CDs, with a rate entered (0% is a
+ *  rate, DEC-2748b). Null for anything else, and for a rate never entered. */
+/* ─ MK-PF-F-085 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * statedCdRate
+ *
+ * Answers ..... THE YEARLY RATE A CD HELD AS A HOLDING STATES (2026-10-27, FX-PF, PF-5; DEC-3656): one CD — told by its own name or type, the one test bondInfo uses for a CD held as its own account (DEC-4036c) — in Bonds & CDs, with a rate entered (0% is a rate, DEC-2748b).
+ *
+ * Formula .....
+ *     nothing   when p is missing
+ *     nothing   when !is individual bond or cd(p)
+ *     is cd = !!bond info({ label: `${label ?? ''} ${ticker ?? ''}`, kind: kind } as any).is cd
+ *     the answer:
+ *     coupon rate   if is cd and coupon rate ≠ nothing and number.is finite(coupon rate) and coupon rate ≥ 0
+ *     nothing   otherwise
+ *
+ * Called by ... MK-NW-F-143 gainRowBetween · MK-PF-F-014 buildPerformance
+ *
+ * Reaches ..... 35 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS · MK-NW-F-167 COMPARE
+ *               MK-NW-F-080 HOLD · MK-NW-F-140 LEFT_OUT
+ *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
+ *               MK-NW-F-093 QUIET_PERF · MK-NW-F-144 beforeTheRecordSentence
+ *               MK-PF-F-014 buildPerformance · MK-NW-F-084 categoryEarnings
+ *               MK-NW-F-142 classReturnOf · MK-PF-F-068 dayAfterDay
+ *               MK-PF-F-012 earliestPurchaseDate · MK-PF-F-079 eventDays
+ *               MK-PF-F-065 firstDatedPurchase · MK-NW-F-143 gainRowBetween
+ *               … and 17 more — the full list is on functions_from_code
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-012 bond coupon rate
+ *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
+ *
+ * Formula also on the master file · functions_from_code · MK-PF-F-085
+ * Changed ..... not in git yet (—)
+ */
+export function statedCdRate(p: Position | null | undefined): number | null {
+  if (!p) return null;
+  if (!isIndividualBondOrCD(p)) return null;
+  const isCd = !!bondInfo({ label: `${p.label ?? ''} ${p.ticker ?? ''}`, kind: p.kind } as any).isCd;
+  return isCd && p.coupon_rate != null && Number.isFinite(p.coupon_rate) && p.coupon_rate >= 0 ? p.coupon_rate : null;
 }
 
 /** A holding bought inside the window: its time-weighted return from the first purchase to today (DEC-1669).
@@ -3425,9 +3657,6 @@ function isoDay(d: Date): string {
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
- * Decides .....
- *     · Rounds the answer to a whole number.
- *
  * Formula also on the master file · functions_from_code · MK-PF-F-015
  * Changed ..... 2026-07-29 (13c9be6)
  */
@@ -3457,8 +3686,10 @@ export function topHoldingConcentration(rows: PerformanceRow[]): { ticker: strin
   const share = (topValue / invested) * 100;
   // THE 25% LINE IS TESTED ON THE UNROUNDED SHARE, and the value is not rounded (DEC-0300: nothing rounds inside a
   // calculation): 24.6% is under the line, it read 25 and was reported (outside review Claude Performance,
-  // 2026-10-11). `pct` stays the whole percent the card states it returns — the figure as shown.
-  return share >= 25 ? { ticker: top.ticker, pct: Math.round(share), value: topValue } : null;
+  // 2026-10-11). NOR IS THE SHARE ROUNDED (2026-10-27, FX-PF; his precision order Q49: nothing rounds inside, a percent is
+  // shown to two decimals): `pct` returned Math.round(share), so 41,250.17 ÷ 95,617 = 43.14% came back as 43 and the
+  // notice printed "(43%)". It is the full share now, rounded once where it is printed: "(43.14%)". To reverse: Math.round.
+  return share >= 25 ? { ticker: top.ticker, pct: share, value: topValue } : null;
 }
 
 

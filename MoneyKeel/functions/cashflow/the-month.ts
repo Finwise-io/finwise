@@ -57,7 +57,7 @@ export interface TheMonth {
  *
  * Called by ... MK-CF-F-203 MONTH
  *
- * Reaches ..... 385 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 438 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -67,11 +67,11 @@ export interface TheMonth {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 367 more — the full list is on functions_from_code
+ *               … and 420 more — the full list is on functions_from_code
  *
  * Serves ...... MK-CF-M-001 · MK-CF-M-002 · MK-CF-M-003 · MK-CF-M-004
  *               MK-CF-M-013 · MK-CF-M-014 · MK-CF-M-015 · MK-CF-M-020
- *               MK-CF-M-021 · MK-CF-M-056
+ *               MK-CF-M-021 · MK-CF-M-056 · MK-CF-M-101
  * Reads ....... MK-XS-I-014 debt balance
  *               MK-XS-I-015 debt interest rate
  *               MK-XS-I-016 debt minimum payment
@@ -176,10 +176,11 @@ const GIVEN =
  *               MK-CF-F-246 expensesAsCounted · MK-CF-F-255 spendByMonthByCategory
  *               MK-CF-F-259 rateNotEntered · MK-CF-O-004 incomeSummary
  *               MK-CF-O-010 theMonth · MK-CF-O-020 theBudgetCounted
- *               MK-NW-F-046 historyCoverage · MK-PF-F-045 priceHistoryShortSentence
- *               MK-PL-F-036 weighGoals · MK-XS-F-004 buildDatedGrid
+ *               MK-NW-F-046 historyCoverage · MK-NW-O-004 theEmergencyFund
+ *               MK-PF-F-045 priceHistoryShortSentence · MK-PL-F-036 weighGoals
+ *               MK-XS-F-004 buildDatedGrid
  *
- * Reaches ..... 385 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 438 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -189,7 +190,7 @@ const GIVEN =
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 367 more — the full list is on functions_from_code
+ *               … and 420 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -223,7 +224,7 @@ const MONTH = () => theMonth(EXAMPLE);
  *               MK-XS-F-004 buildDatedGrid · MK-XS-F-058 parseReceipt
  *               MK-XS-F-094 parseReceiptText · MK-XS-F-096 pickReceipt
  *
- * Reaches ..... 385 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 438 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -233,10 +234,11 @@ const MONTH = () => theMonth(EXAMPLE);
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 367 more — the full list is on functions_from_code
+ *               … and 420 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- * Reads ....... MK-XS-I-024 logged expenses
+ * Reads ....... MK-XS-I-004 holding quantity (shares)
+ *               MK-XS-I-024 logged expenses
  *               MK-XS-I-027 goals (target, saved, date)
  *               MK-XS-I-064 the unit beside a quantity — shares, coins, contracts, ounces or units
  *
@@ -340,6 +342,20 @@ export const THE_MONTH_FIGURES = declareFigures({
     refusal: 'Nothing logged in the month — the list is not drawn; "Nothing logged this month. …" and the door "Log an expense" stand in its place.',
     ruled: '2026-10-02',
     worked: { given: GIVEN, answer: '$186.00', run: () => MONTH().expenses.actual.items[0].amount },
+  },
+  // EACH LIST'S TOTAL ON EXPENSES, TO THE CENT (2026-10-27, FX-CF-A; the lead's ruling R5 on the round-2 drawing match, CF2-06): the
+  // rows above it are written to the cent (MK-CF-M-014, and a debt payment logged), so the total under them is too — two $200.40
+  // payments read $200.40 + $200.40 = $400.80; each rounded to the dollar alone they read $200 + $200 under $401
+  'MK-CF-M-101': {
+    label: 'each list’s total on Expenses — what its rows add up to', unit: 'money-cents', screens: ['/cashflow'], grain: 'one list',
+    period: 'the month shown — this month unless another is picked with ‹ ›; a month in progress counts what is logged from the 1st to today',
+    answers: 'What the rows printed above it add up to, to the cent — entered by hand, imported, debt payments counted as expenses, the rest of a list under “Show all”, and all sources together.',
+    formula: 'the amounts as logged, added up with nothing rounded on the way, then written to the cent once; each row shares its list’s total (centsShown, in MoneyKeel/functions/_figure-spec.ts), so the rows as printed add up to it, and the lists add up to all sources',
+    inputs: ['MK-CF-I-016 logged expense'],
+    decisions: ['ROWS ROUND ONCE (the lead’s ruling R5, 2026-10-27; DEC-3523 tenet 2 above tenet 4): every row is printed from its full value and the rows under a total add up to that total as printed — an expense is written to the cent (DEC-0264), so its total is.'],
+    refusal: 'Nothing logged in the month — a real $0.00 on the ACTUAL EXPENSES bar, with "Nothing logged this month. …" and the door "Log an expense".',
+    ruled: '2026-10-27',   // the lead's decision R5, made without asking him; its decision row is PF-RECORDS'
+    worked: { given: GIVEN, answer: '$698.00', run: () => MONTH().expenses.byHand.total },   // $512 + $186: the $2,300 is the mortgage's payment
   },
   'MK-CF-M-015': {
     label: 'Planned expenses — each category', unit: 'money', screens: ['/cashflow'], grain: 'one category',

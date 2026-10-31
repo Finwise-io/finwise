@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
   View, Text, TouchableOpacity, StyleSheet, ActivityIndicator, Modal,
-  ViewStyle, TextStyle, Animated, ScrollView,
+  ViewStyle, TextStyle, StyleProp, Animated, ScrollView,
 } from 'react-native';
 import { Colors, Typography, Spacing, Radii, Shadows } from '../utils/theme';
 import { formatMoney } from '../domain/_shared/money';
@@ -191,16 +191,38 @@ const TAP_MIN = 44;          // the tap-target floor this app holds itself to
 const GAP = 6;               // the visible space the dot keeps from the text it follows
 // A small tappable ⓘ next to a term; opens its plain-English GLOSSARY definition. One component, one
 // glossary — so a term is never explained on one screen and left bare on another.
-export function InfoDot({ term, color, size = 13 }: {
+/* ─ MK-XS-F-208 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * InfoDot
+ *
+ * Answers ..... The small tappable ⓘ beside a term: it opens the term's plain-English definition from the one glossary, drawn at the size and colour of the line it sits beside (DEC-0142, DEC-8339); words only, it calculates nothing.
+ *
+ * Called by ... 18 screens and components — AccountPortfolioScreen, AddAccountScreen, BudgetScreen, ContributionRoomScreen, DrawSteerSheet, HoldingDetailScreen,
+ *               HomeScreen, MonthlyIncomeScreen, MortgageRateCompare, NetWorthScreen, PaycheckCard, PerformanceScreen, PlanHubScreen, PlanOutcome,
+ *               RequiredWithdrawalsScreen, RetirementCockpit, SectionBand, WhatIfScreen
+ *
+ * Numbered by hand 2026-10-30 (PF-TOOLS, the lead's instruction): the scan that issues identifiers reads functions in the
+ *               calculation folders only, so this component has no generated record; this one is written by hand in the generated form,
+ *               as MK-NW-F-145's is
+ * Changed ..... not in git yet (—)
+ */
+export function InfoDot({ term, line, color: colorOver, size: sizeOver }: {
   term: GlossaryTerm;
+  /** THE LINE IT SITS BESIDE — that line's own style. The dot takes the line's size AND the line's colour (his words, DEC-0142:
+   *  "info dot should be the same size as text"; DEC-8339 "in that line's colour"; the lead's ruling R8 of 2026-10-27: the line's
+   *  size and colour win over the old "13 on a line", everywhere). It was a flat 13 in the tertiary grey beside every line, so it sat
+   *  grey and small beside a 15-point line in the primary text colour. Every call passes its line, or a size and colour it states (a bar's title,
+   *  a chip), and src/__tests__/info_dot_takes_its_line.test.tsx holds every call site to that. */
+  line?: StyleProp<TextStyle>;
+  /** a colour stated outright, where the dot sits on no line of text (beside a chip) */
   color?: string;
-  /** MATCH THE TEXT IT SITS BESIDE (founder 2026-08-14: "info dot should be the same size as text").
-   *  It was a flat 13pt everywhere, so it loomed over an 11pt band title and shrank beside a 30pt
-   *  hero. Callers pass the size of the line the dot belongs to; 13 is the common row size. */
+  /** a size stated outright, likewise */
   size?: number;
 }) {
   const [open, setOpen] = useState(false);
   const def = GLOSSARY[term];
+  const of = (StyleSheet.flatten(line) ?? {}) as TextStyle;
+  const size = sizeOver ?? (typeof of.fontSize === 'number' ? of.fontSize : 13);
+  const color = colorOver ?? (typeof of.color === 'string' ? of.color : Colors.textPrimary);
   // enough padding to carry the glyph to a 44pt touch box, whatever size it is drawn at
   const pad = Math.ceil((TAP_MIN - size) / 2);
   return (
@@ -229,7 +251,7 @@ export function InfoDot({ term, color, size = 13 }: {
       <Text onPress={() => setOpen(true)} suppressHighlighting
         accessibilityRole="button" accessibilityLabel={`About ${def.title}`}
         style={{
-          fontSize: size, color: color || Colors.textTertiary, fontWeight: '700',
+          fontSize: size, color, fontWeight: '700',
           paddingVertical: pad, marginVertical: -pad,
           paddingHorizontal: pad, marginHorizontal: -(pad - GAP),
         }}>ⓘ</Text>

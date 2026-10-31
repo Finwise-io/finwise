@@ -350,10 +350,18 @@ describe('MK-NW-F-035 blendedVolatility — five cases', () => {
   test('complex · Weighted holding volatilities', () => {
     expect(blendedVolatility([acct({ id: 'a', kind: 'stocks_etf', balance: 20000 }), acct({ id: 'b', kind: 'crypto', balance: 10000 })], { stocks_etf: 0.15, crypto: 0.3 })!).toBeCloseTo(0.2, 12);
   });
-  test.skip('complex · Weighted average is not true portfolio volatility', () => {
-    // BLOCKED: the app has no correlation input — no table of how classes move together exists (index.ts:2038-2041);
+  // SETTLED 2026-10-27 (FX-AUDITS) by his DEC-4082 ("6 - let's park for now"): the risk swing is parked until the Plan
+  // module decides how investment types move together (workplan #231). The auditor's 0.0 needs a correlation of −1:
+  // 0.5² × 0.2² + 0.5² × 0.2² + 2 × 0.5 × 0.5 × (−1) × 0.2 × 0.2 = 0.01 + 0.01 − 0.02 = 0 — an input the app does not
+  // have. Was test.skip (BLOCKED); now run and kept failing, the app's weighted average pinned beside it.
+  test.failing('complex · Weighted average is not true portfolio volatility', () => {
+    // the app has no correlation input — no table of how classes move together exists (index.ts:2038-2041);
     // the same two $50,000 holdings at 20% give 0.2 (the formula_gives answer), expected portfolio_volatility 0.0.
     expect(blendedVolatility([acct({ id: 'a', kind: 'stocks_etf', balance: 50000 }), acct({ id: 'b', kind: 'crypto', balance: 50000 })], { stocks_etf: 0.2, crypto: 0.2 })).toBe(0);
+  });
+  test('pin · Weighted average — the app\'s answer until the Plan module (DEC-4082): (50,000 × 20% + 50,000 × 20%) ÷ 100,000 = 20%', () => {
+    expect(blendedVolatility([acct({ id: 'a', kind: 'stocks_etf', balance: 50000 }), acct({ id: 'b', kind: 'crypto', balance: 50000 })], { stocks_etf: 0.2, crypto: 0.2 })!)
+      .toBeCloseTo((50000 * 0.2 + 50000 * 0.2) / 100000, 12);
   });
   test('edge · Missing per-kind volatility fallback', () => {
     expect(blendedVolatility([acct({ kind: null, balance: 2000 })])!).toBeCloseTo(0.12, 12);

@@ -76,7 +76,7 @@ export default function ImportHoldingsScreen() {
       const text = await readCsvText(res.assets[0].uri);
       const parsed = importHoldings(text);
       if (parsed.holdings.length === 0) {
-        setError('We couldn\'t find any holdings in that file. Make sure it\'s a CSV with a symbol/ticker column and a quantity/shares column.');
+        setError('We couldn’t find any holdings in that file. Make sure it’s a CSV with a symbol/ticker column and a quantity/shares column.');
         setResult(null);
       } else {
         setResult(parsed);
@@ -87,7 +87,7 @@ export default function ImportHoldingsScreen() {
     } catch (e: any) {
       // Surface a short technical detail so a remaining failure is self-diagnosing (no more blind rounds).
       const detail = String(e?.message || e || '').slice(0, 140);
-      setError('We couldn\'t read that file. Your data is safe — try exporting a CSV from your brokerage and pick it again.'
+      setError('We couldn’t read that file. Your data is safe — try exporting a CSV from your brokerage and pick it again.'
         + (detail ? `\n\n(Details: ${detail})` : ''));
     } finally {
       setBusy(false);
@@ -179,7 +179,7 @@ export default function ImportHoldingsScreen() {
       <SectionBand title="REVIEW YOUR HOLDINGS" />
         <Text style={styles.sub}>
           Found <Text style={styles.bold}>{result.holdings.length}</Text> {plural(result.holdings.length, 'holding', '').trim()}
-          {result.skipped > 0 ? ` · skipped ${plural(result.skipped, 'row')} we couldn't read` : ''}.
+          {result.skipped > 0 ? ` · skipped ${plural(result.skipped, 'row')} we couldn’t read` : ''}.
         </Text>
 
         <View style={styles.card}>
@@ -269,14 +269,14 @@ export default function ImportHoldingsScreen() {
       <SectionBand title="IMPORT YOUR HOLDINGS" />
       <Text style={styles.sub}>
         Upload a CSV export from your brokerage (Fidelity, Schwab, Vanguard, Robinhood, and most others).
-        We'll read your tickers, shares, and cost — no logins or passwords.
+        We’ll read your tickers, shares, and cost — no logins or passwords.
       </Text>
 
       <View style={styles.card}>
         <Text style={styles.cardTitle}>What we look for</Text>
         <Text style={styles.bullet}>• A <Text style={styles.bold}>Symbol</Text> / Ticker column</Text>
         <Text style={styles.bullet}>• A <Text style={styles.bold}>Quantity</Text> / Shares column</Text>
-        <Text style={styles.bullet}>• A <Text style={styles.bold}>Cost basis</Text> column (optional — we'll still import without it)</Text>
+        <Text style={styles.bullet}>• A <Text style={styles.bold}>Cost basis</Text> column (optional — we’ll still import without it)</Text>
       </View>
 
       {error && <Text style={styles.error}>{error}</Text>}

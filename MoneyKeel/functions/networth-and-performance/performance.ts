@@ -20,7 +20,7 @@
 //     brokerage statements do the same). His ruling: show BOTH, and label them.
 import { availableCash } from '../../../src/domain/transactions';
 import { declareFigures, writeFigure } from '../_figure-spec';
-import { portfolioBenchReturn, startDateFor, contractMultiplier, totalShares, windowTotal, paidOnRecord, purchaseDateOnRecord, lotCostOnRecord, worthWithInterest, closeOnOrBefore, latestClose, bondInterestInWindow, returnWithInterest, periodReturnSince, marketGap, calendarDay, returnSplitAtPurchases, type HoldingPath, type Period, type PriceSeries } from '../../../src/domain/performance';
+import { portfolioBenchReturn, startDateFor, contractMultiplier, totalShares, windowTotal, paidOnRecord, purchaseDateOnRecord, lotCostOnRecord, worthWithInterest, closeOnOrBefore, latestClose, bondInterestInWindow, statedCdRate, returnWithInterest, periodReturnSince, marketGap, calendarDay, returnSplitAtPurchases, type HoldingPath, type Period, type PriceSeries } from '../../../src/domain/performance';
 import { formatMoney } from '../../../src/domain/_shared/money';
 import { buildChangeWalk, type ChangeWalk } from '../../../src/domain/history';
 import { personalFlowTotals, moneyIntoAccount } from '../../../Calculation Module code/engines/ledger';
@@ -358,6 +358,7 @@ export type GainRow = {
  * Formula .....
  *     nothing   when market value = nothing (or paid inside = nothing (or sold inside = nothing (or held at start = nothing when missing or zero) when missing or zero) when missing or zero)
  *     the answer = worth with interest(r) + (sold inside ?? 0) − paid inside − (held at start ?? 0)
+ *     nothing   when gain = nothing
  *     mv = market value (or 0 when missing)
  *     pr = window total(period return, period total, years)
  *     worth with interest(r) × (1 − 1 ÷ (1 + pr))   when mv > 0
@@ -369,6 +370,7 @@ export type GainRow = {
  *     0   when position and holding class of(position) = 'cash'
  *     shares = total shares({ lots: position.lots ?? [] } as any)   if position
  *     0   otherwise
+ *     … the first steps only — the rest of the body needs reading by hand.
  *
  * Called by ... MK-NW-F-091 pricedGainOf · MK-NW-O-008 thePerformance
  *
@@ -404,6 +406,10 @@ function gainOfRow(r: GainRow, years: number): number | null {
       if (r.marketValue == null || r.paidInside == null || r.soldInside === null || r.heldAtStart === null) return null;
       return worthWithInterest(r) + (r.soldInside ?? 0) - r.paidInside - (r.heldAtStart ?? 0);
     }
+    // ITS GAIN NOT KNOWN IS NOT A GAIN OF $0 (2026-10-27, FX-PF, the class of PF-4; tenet 3): bought inside the window with no
+    // close and no mark of its own, what it is worth today is not known, so it is named. It read $0 and was left out of Return
+    // with no sentence: 10 PRIV bought at $100 on Jul 20, no price anywhere, read a beginning that counted it as unchanged.
+    if (r.gain === null) return null;
     return (r.gain ?? 0) + (r.interest ?? 0);
   }
   const mv = r.marketValue ?? 0;
@@ -470,13 +476,19 @@ function gainOfRow(r: GainRow, years: number): number | null {
  *
  * Called by ... MK-NW-F-088 BENCH · MK-NW-F-127 gainOfRow
  *               MK-NW-F-139 leftOutValueOf · MK-NW-F-144 beforeTheRecordSentence
+ *               MK-PF-F-083 paidPerShare
  *
- * Reaches ..... 10 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-088 BENCH · MK-NW-F-140 LEFT_OUT
+ * Reaches ..... 37 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS · MK-NW-F-167 COMPARE
+ *               MK-NW-F-080 HOLD · MK-NW-F-140 LEFT_OUT
  *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
  *               MK-NW-F-093 QUIET_PERF · MK-NW-F-144 beforeTheRecordSentence
- *               MK-NW-F-127 gainOfRow · MK-NW-F-139 leftOutValueOf
- *               MK-NW-F-091 pricedGainOf · MK-NW-O-008 thePerformance
+ *               MK-PF-F-014 buildPerformance · MK-NW-F-084 categoryEarnings
+ *               MK-NW-F-142 classReturnOf · MK-PF-F-068 dayAfterDay
+ *               MK-PF-F-012 earliestPurchaseDate · MK-PF-F-079 eventDays
+ *               MK-PF-F-065 firstDatedPurchase · MK-NW-F-127 gainOfRow
+ *               … and 19 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -899,12 +911,13 @@ function closedWith(days: any[], ids: Set<string>, today: string, ending: number
  * Decides .....
  *     · If market value is missing it uses 0.
  *     · If close from is missing it uses 0.
+ *     · Treats a year as 365 days.
  *
  * Formula also on the master file · functions_from_code · MK-NW-F-143
  * Changed ..... not in git yet (—)
  */
 function gainRowBetween(r: GainRow, from: string, to: string, priceOf: (ticker: string) => PriceSeries | null | undefined,
-  transactions: any[], accounts: any[]): GainRow | null {
+  transactions: any[], accounts: any[], today?: string): GainRow | null {
   const p = r.position as any;
   // the row's money paid inside the window and its path across it are the whole window's, not these days' (2026-10-21): here
   // a purchase inside these days is in the start at what was paid, so what it gained is its value then less that start
@@ -926,6 +939,18 @@ function gainRowBetween(r: GainRow, from: string, to: string, priceOf: (ticker: 
   const firstPoint = [...(series?.points ?? [])].filter((x) => /^\d{4}-\d{2}-\d{2}/.test(String(x?.date ?? ''))).sort((x, y) => String(x.date).localeCompare(String(y.date)))[0];
   const closeTo = closeOnOrBefore(series, to);
   const closeFrom = closeOnOrBefore(series, from) ?? (firstPoint && String(firstPoint.date).slice(0, 10) <= to ? firstPoint.close : null);
+  // A CD WITH A STATED RATE, NO PRICES, HELD THROUGH THOSE DAYS (2026-10-27, FX-PF, PF-5; DEC-3656): it grows by its rate over
+  // them, as it does over the whole window — its value on a day is its value today ÷ (1 + rate)^(the days from then to today ÷
+  // 365). $10,400 at 4.00% with the record beginning 90 days ago, over 1Y: on the record's first day 10,400 ÷ 1.04^(90 ÷ 365),
+  // and over the 276 days before it +2.97%. It was named "has no price history". Bought inside those days, it stays unknown.
+  const rate = closeTo == null ? statedCdRate(p) : null;
+  if (rate != null && today != null && r.marketValue != null && r.marketValue > 0 && !inside.length && lots.length > 0 && to <= today) {
+    const yearsTo = (d: string) => (Date.parse(`${today}T00:00:00Z`) - Date.parse(`${d}T00:00:00Z`)) / 86_400_000 / 365;
+    const valueThen = r.marketValue / Math.pow(1 + rate, yearsTo(to));
+    const start = r.marketValue / Math.pow(1 + rate, yearsTo(from));
+    const total = valueThen / start - 1;
+    return { ...unknown, marketValue: valueThen, periodReturn: total, periodTotal: total, startValue: start };
+  }
   if (closeTo == null || (closeFrom == null && (before.length || !lots.length))) return unknown;
   const mult = contractMultiplier(p);
   let valueThen: number, start: number;
@@ -1396,7 +1421,7 @@ export function thePerformance(input: {
     // its own over them, as Since does it (DEC-5291's parts added up).
     const since = windowStartKey('SINCE', [first], today)!;
     const partYears = windowBounds(since, today).days / 365;
-    const partRows = input.holdings!.map((r) => gainRowBetween(r, first, today, input.priceOf!, input.transactions ?? [], input.accounts ?? []))
+    const partRows = input.holdings!.map((r) => gainRowBetween(r, first, today, input.priceOf!, input.transactions ?? [], input.accounts ?? [], today))
       .filter((r): r is GainRow => r != null);
     const part = thePerformance({ ...input, windowStart: since, wholeRecord: false, holdings: partRows });
     if (!part.walk) return null;
@@ -1420,7 +1445,7 @@ export function thePerformance(input: {
     const pairs: { gap: GainRow; now: GainRow }[] = [];
     for (const r of input.holdings!) {
       if (!hadPart(ownerOf(r))) continue;
-      const g = gainRowBetween(r, B, first, input.priceOf!, input.transactions ?? [], input.accounts ?? []);
+      const g = gainRowBetween(r, B, first, input.priceOf!, input.transactions ?? [], input.accounts ?? [], today);
       if (g) pairs.push({ gap: g, now: r });
     }
     instrumentAccounts.forEach((a: any, i: number) => {

@@ -71,6 +71,31 @@ test('B45: sign-in shows the DESIGNED wordmark art — the name is never typed (
   expect(queryByText('MoneyKeel')).toBeNull();
 });
 
+// 2026-10-30, his words: "change the logo to attached" — drawing brand-wordmark v02, phone 3. His mark above his lettering,
+// at the sizes they have to each other in his full logo; the tagline under them stays typed words.
+const logoSizes = (root: any) => {
+  const { Image, StyleSheet } = require('react-native');
+  return root.UNSAFE_getAllByType(Image).map((i: any) => {
+    const st = StyleSheet.flatten(i.props.style);
+    return [i.props.source, st.width, st.height];
+  });
+};
+test('sign-in draws his mark at 89 × 43.7 and his lettering at 150 × 30.6, the tagline as words', () => {
+  const r = render(<AuthScreen />);
+  expect(logoSizes(r)).toEqual([
+    [require('../../../assets/brand/mark.png'), 89, 43.7],
+    [require('../../../assets/brand/wordmark.png'), 150, 30.6],
+  ]);
+  expect(r.getByText('Your finance command center')).toBeTruthy();
+});
+test.failing('sign-in until 2026-10-30, pinned: the K mark as a square 84 × 84 over the lettering at 150 × 30 (REPLACED 2026-10-30, brand-wordmark v02)', () => {
+  const r = render(<AuthScreen />);
+  expect(logoSizes(r)).toEqual([
+    [require('../../../assets/brand/mark.png'), 84, 84],
+    [require('../../../assets/brand/wordmark.png'), 150, 30],
+  ]);
+});
+
 test('B45: legacy sign-in surfaces the recovery code + "Securing…" IMMEDIATELY, not after ~30s of key-wrapping', async () => {
   let finishEnvelope!: (v: any) => void;
   (loginUser as jest.Mock).mockImplementation((_e: any, _p: any, onCode: any) => {

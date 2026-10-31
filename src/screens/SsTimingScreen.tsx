@@ -1,6 +1,7 @@
 // Claim Social Security (FCC detailed design v1.1, Plan sheet) — the flagship decision: 62 vs 67 vs 70
 // laid out in YOUR dollars. You set how long you expect to live; we never crown a winner. Everything is
 // a sandbox until the Use-this-plan sheet; Back discards silently (nothing was at risk).
+import { MoneyBox } from '../components/MoneyBox';   // every money box, one component (DEC-8385)
 import { CountedTaxableLines } from '../components/CountedTaxableLines';   // (DEC-4105, 2026-10-10)
 import React, { useMemo, useState } from 'react';
 import { displayOdds } from '../domain/retirement/willItLast';
@@ -81,7 +82,7 @@ export default function SsTimingScreen() {
     const monthly = ssBenefitAt(effStmt, claimAge, num(op.birthYear) || null);
     const out: PlanChange[] = [
       { label: 'Claim age', from: adopted != null ? `age ${adopted}` : 'not set', to: `age ${claimAge}` },
-      { label: 'Monthly check (today\'s dollars)', from: A.guaranteedMonthly != null ? maskedMoney(A.guaranteedMonthly) : 'not set', to: maskedMoney(monthly) },
+      { label: 'Monthly check (today’s dollars)', from: A.guaranteedMonthly != null ? maskedMoney(A.guaranteedMonthly) : 'not set', to: maskedMoney(monthly) },
     ];
     if (liveTo !== (A.horizonAge ?? liveTo)) out.push({ label: 'Plan-to age', from: `age ${A.horizonAge}`, to: `age ${liveTo}` });
     return out;
@@ -101,7 +102,7 @@ export default function SsTimingScreen() {
         <Text style={styles.tagline}>We lay it out. You decide.</Text>
         <View style={styles.card}>
           <Text style={styles.receiveHead}>You receive {maskedMoney(num(op.ri_ss))}/month ✓</Text>
-          <Text style={styles.body}>You're already receiving Social Security, so claim timing is decided. Your check lives on the Monthly income screen — edit it there and every number follows.</Text>
+          <Text style={styles.body}>You’re already receiving Social Security, so claim timing is decided. Your check lives on the Monthly income screen — edit it there and every number follows.</Text>
           <TouchableOpacity accessibilityRole="button" style={styles.primaryBtn} onPress={() => router.push('/monthly-income')}
             accessibilityLabel="Edit what you receive on the Monthly income screen">
             <Text style={styles.primaryTxt}>Edit what you receive ›</Text>
@@ -126,12 +127,11 @@ export default function SsTimingScreen() {
         <Text style={styles.label}>Your statement amount at your full retirement age ({fraLabel(num(op.birthYear) || null)})</Text>
         <View style={styles.inputRow}>
           <Text style={styles.currency}>{currencySymbol()}</Text>
-          <TextInput style={styles.input} keyboardType="number-pad" placeholder={String(exampleStmt)}
-            placeholderTextColor={Colors.textTertiary} value={statement} onChangeText={setStatement}
-            accessibilityLabel={`Monthly amount from your Social Security statement at your full retirement age, ${fraLabel(num(op.birthYear) || null)}`} />
+          <MoneyBox bare dollarBeside style={styles.input} placeholder={String(exampleStmt)} value={statement} onChangeText={setStatement}
+            a11y={`Monthly amount from your Social Security statement at your full retirement age, ${fraLabel(num(op.birthYear) || null)}`} />
           <Text style={styles.perMo}>/month</Text>
         </View>
-        <Text style={styles.finder}>It's on your Social Security statement — ssa.gov/myaccount or the mailed copy. No rush; the example numbers stay until you have it.</Text>
+        <Text style={styles.finder}>It’s on your Social Security statement — ssa.gov/myaccount or the mailed copy. No rush; the example numbers stay until you have it.</Text>
       </View>
 
       {usingExample && <Text style={styles.exampleBanner}>Showing example numbers (a {maskedMoney(exampleStmt)}/month statement) — type yours above to see your own.</Text>}
@@ -205,7 +205,7 @@ export default function SsTimingScreen() {
             if (!ok) { Alert.alert('Notifications are off', 'Turn them on in Settings to get the reminder.'); return; }
             const done = await scheduleSsWindowReminder(window.opensYear, window.opensMonth);
             setRemindSet(true);
-            Alert.alert(done ? 'Reminder set' : 'Window already open', done ? `We'll nudge you when the window opens — nothing is claimed for you.` : 'Your window is open now — the table above is live.');
+            Alert.alert(done ? 'Reminder set' : 'Window already open', done ? `We’ll nudge you when the window opens — nothing is claimed for you.` : 'Your window is open now — the table above is live.');
           }}>
           <Text style={styles.remindTxt}>🔔 Remind me when it opens</Text>
         </TouchableOpacity>
@@ -223,7 +223,7 @@ export default function SsTimingScreen() {
       {age != null && age > 62 && (
         <Text style={styles.couplesNote}>Options below your current age are marked passed — a choice that no longer exists is never shown as live.</Text>
       )}
-      <Text style={styles.couplesNote}>These figures reflect one person's benefit. Spousal and survivor benefits can change the best timing for couples — v1 doesn't model them yet.</Text>
+      <Text style={styles.couplesNote}>These figures reflect one person’s benefit. Spousal and survivor benefits can change the best timing for couples — v1 doesn’t model them yet.</Text>
 
       <UseThisPlanSheet
         visible={adoptFor != null}

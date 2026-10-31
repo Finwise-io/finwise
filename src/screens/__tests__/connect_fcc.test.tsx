@@ -32,7 +32,7 @@ afterEach(() => setSyncProviderForTesting(null as any));
 const linkThroughChase = async () => {
   render(<ConnectFlowScreen />);
   fireEvent.press(await screen.findByLabelText('Chase. Opens what happens to your data.'));
-  fireEvent.press(screen.getByLabelText("Continue to Chase's own sign-in"));
+  fireEvent.press(screen.getByLabelText("Continue to Chase’s own sign-in"));   // ’ since 2026-10-27
   await waitFor(() => expect(screen.getByText(/Found at Chase/)).toBeTruthy());
 };
 
@@ -85,7 +85,7 @@ test("'add as new — it really is separate' overrides the merge and creates the
 test('NO provider (production today): the honest not-yet state + working equal doors — never a dead button', () => {
   setSyncProviderForTesting(null);
   render(<ConnectFlowScreen />);
-  expect(screen.getByText(/isn't switched on in this version yet/)).toBeOnTheScreen();
+  expect(screen.getByText(/isn’t switched on in this version yet/)).toBeOnTheScreen();   // ’ since 2026-10-27
   fireEvent.press(screen.getByLabelText('Import a file instead'));
   expect(mockPushes).toContain('/import-holdings');
 });
@@ -146,7 +146,9 @@ test('F1 freshness: a connected balance older than 3 days SAYS so on Home', () =
 // The consent copy and the Settings disconnect dialog must state the same two paths.
 test('walk row 16: the disconnect promise offers the choice, in the consent AND in Settings', () => {
   const joined = CONSENT_COPY.join(' ');
-  expect(joined).toMatch(/Disconnect any time in Settings — you choose/);
+  // canon row 18 (2026-10-27): the link's words are Linked · Link again · Unlink — Disconnect is retired
+  expect(joined).toMatch(/Unlink any time in Settings — you choose/);
+  expect(joined).not.toMatch(/Disconnect/);
   expect(joined).toMatch(/keep your numbers as a by-hand account/);
   expect(joined).toMatch(/delete the connection’s data/);
   expect(joined).not.toMatch(/and we delete the connection’s data with it/);   // the old one-sided promise

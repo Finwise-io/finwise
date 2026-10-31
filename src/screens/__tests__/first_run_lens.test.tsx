@@ -39,6 +39,30 @@ test('answering the stage question sets the lens for the whole app (the one reso
   expect(mockReplaces).toEqual(['/(tabs)/home']);
 });
 
+// 2026-10-30, his words: "change the logo to attached" — drawing brand-wordmark v02, phone 4. His mark above his lettering,
+// at the sizes they have to each other in his full logo.
+const logoSizes = () => {
+  const { Image, StyleSheet } = require('react-native');
+  return screen.UNSAFE_getAllByType(Image).map((i: any) => {
+    const st = StyleSheet.flatten(i.props.style);
+    return [i.props.source, st.width, st.height];
+  });
+};
+test('first run draws his mark at 101 × 49.6 and his lettering at 170 × 34.7', () => {
+  render(<FirstRunScreen />);
+  expect(logoSizes()).toEqual([
+    [require('../../../assets/brand/mark.png'), 101, 49.6],
+    [require('../../../assets/brand/wordmark.png'), 170, 34.7],
+  ]);
+});
+test.failing('first run until 2026-10-30, pinned: the K mark as a square 92 × 92 over the lettering at 170 × 34 (REPLACED 2026-10-30, brand-wordmark v02)', () => {
+  render(<FirstRunScreen />);
+  expect(logoSizes()).toEqual([
+    [require('../../../assets/brand/mark.png'), 92, 92],
+    [require('../../../assets/brand/wordmark.png'), 170, 34],
+  ]);
+});
+
 test('the retired fast-path: paycheck intent + retired → the Monthly-income door (two typed numbers first)', () => {
   render(<FirstRunScreen />);
   fireEvent.press(screen.getByLabelText('Continue'));
@@ -81,7 +105,7 @@ test('answering the questions without any money data still shows the three doors
     onboardingProfile: { intents: ['cashflow'], status: 'employed', name: 'Pat' },   // questions answered, zero dollars anywhere
   } as any);
   render(<HomeScreen />);
-  expect(screen.getByText("Let's get your real numbers in.")).toBeOnTheScreen();
+  expect(screen.getByText("Let’s get your real numbers in.")).toBeOnTheScreen();
   expect(screen.getByLabelText('Import a file from your brokerage')).toBeOnTheScreen();
   expect(screen.getByLabelText(/Add something by hand/)).toBeOnTheScreen();
   expect(screen.getByLabelText(/Connect your bank/)).toBeOnTheScreen();
@@ -131,12 +155,12 @@ test("the cash-flow snapshot card: income/spent/left from the month's own figure
     expenses: [{ id: 'e1', amount: 1200, category: 'Groceries', date: isoLocalDate(new Date()) }],
   } as any);
   render(<HomeScreen />);
-  expect(screen.getByText("THIS MONTH'S CASH FLOW")).toBeOnTheScreen();
+  expect(screen.getByText("THIS MONTH’S CASH FLOW")).toBeOnTheScreen();
   // the pace now leads with a WORD (approved mock 2026-07-16) — never color alone
   // MOVED ON PURPOSE 2026-10-23 (CF-FIX; outside re-run of Performance, gap list item 38): the box prints the Cash flow tab's own
   // three figures, and its middle one is the expenses AND the debt paid — "Outflow (expenses + debt)" — so it is said that way.
   // No figure moves for this household (no debt paid): $6,000 in, $1,200 out, $4,800 left. It read "spent so far $1,200".
-  expect(screen.getByLabelText(/This month's cash flow, On pace: income \$6,000, expenses and debt paid so far \$1,200, \$4,800 left, bills may still be coming/)).toBeOnTheScreen();
+  expect(screen.getByLabelText(/This month’s cash flow, On pace: income \$6,000, expenses and debt paid so far \$1,200, \$4,800 left, bills may still be coming/)).toBeOnTheScreen();
   expect(screen.getByText('Outflow (expenses + debt)')).toBeOnTheScreen();
   expect(screen.getByText('✓ On pace')).toBeOnTheScreen();
 });

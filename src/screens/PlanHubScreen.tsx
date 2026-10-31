@@ -30,6 +30,7 @@ import { SpendMoreControl } from '../components/SpendMoreControl';
 import { ClaimAgeRow } from '../components/ClaimAgeRow';
 import { retirementEarmarkedValue } from '../domain/assets';
 import { PlanGoals } from '../components/PlanGoals';
+import { planGoalRows } from '../domain/goals';   // the goals as the app saves them (2026-10-30)
 import { PlanPrepare } from '../components/PlanPrepare';
 import { targetAtRetirement } from '../domain/planning/target';
 import { onCourseSentence, planDoor, nextDecision, shortfallAgeFromBand, oddsLine, sampleOddsLine, SS_DECISION_FROM, SS_DECISION_TO } from '../domain/planning/hub';
@@ -268,9 +269,9 @@ export default function PlanHubScreen() {
             </View>
             {/* the can't-compute box, in place of the odds — the design's "Missing Age" state */}
             <View style={styles.cantCompute} accessible
-              accessibilityLabel={`Your odds can't be calculated yet. Add ${door.missing.join(' and ')} in the facts below.`}>
+              accessibilityLabel={`Your odds can’t be calculated yet. Add ${door.missing.join(' and ')} in the facts below.`}>
               <Text style={styles.cantComputeTxt}>
-                Your odds — can't be calculated yet. Add {door.missing.map((m) => m === 'what you spend' && lens === 'retired' ? 'what you spend each month' : m).join(' and ')} below.
+                Your odds — can’t be calculated yet. Add {door.missing.map((m) => m === 'what you spend' && lens === 'retired' ? 'what you spend each month' : m).join(' and ')} below.
               </Text>
             </View>
             {door.credit && (
@@ -291,7 +292,7 @@ export default function PlanHubScreen() {
             accessibilityLabel="Sample of the next-decision card — real ones are dated from your numbers, never invented.">
             <Text style={styles.nextKicker}>{lens === 'retired' ? 'SAMPLE — DEADLINES LAND HERE' : 'SAMPLE — YOUR NEXT DECISION LANDS HERE'}</Text>
             <Text style={styles.nextTitle}>{lens === 'retired' ? 'Required withdrawal: due Dec 31' : 'Your Social Security claim window opens at 62'}</Text>
-            <Text style={styles.nextSub}>{lens === 'retired' ? "Watched and dated from your real accounts, once they're in. Never invented before then." : 'Dated and in your dollars, once your numbers are in. Never invented before then.'}</Text>
+            <Text style={styles.nextSub}>{lens === 'retired' ? "Watched and dated from your real accounts, once they’re in. Never invented before then." : 'Dated and in your dollars, once your numbers are in. Never invented before then.'}</Text>
           </View>
         </>
       )}
@@ -318,7 +319,7 @@ export default function PlanHubScreen() {
               <View key={i} style={styles.payRow}><Text style={styles.payL}>{g.source}</Text><Text style={styles.payV}>{maskedMoney(Math.round(g.amount))}</Text></View>
             ))}
             <View style={styles.payRow}><Text style={[styles.payL, styles.payStrong]}>= Guaranteed</Text><Text style={[styles.payV, styles.payStrong]}>{maskedMoney(Math.round(payMonth.guaranteedTotal))}</Text></View>
-            <View style={styles.payRow}><View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}><Text style={styles.payL}>+ Draw from savings</Text><InfoDot term="safeDraw" /></View><Text style={styles.payV}>{maskedMoney(Math.round(payMonth.safeDraw))}</Text></View>
+            <View style={styles.payRow}><View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}><Text style={styles.payL}>+ Draw from savings</Text><InfoDot term="safeDraw" line={styles.payL} /></View><Text style={styles.payV}>{maskedMoney(Math.round(payMonth.safeDraw))}</Text></View>
             <View style={[styles.payRow, styles.payTotal]}><Text style={[styles.payL, styles.payStrong]}>Your paycheck</Text><Text style={[styles.payV, styles.payStrong]}>{maskedMoney(Math.round(paycheckTotal))}/month</Text></View>
             {/* THE RATE BELONGS TO THE DRAW, not to what is left over (founder 2026-08-13). It is
                 (expenses − guaranteed income) ÷ savings, so it is printed beside the very figure it
@@ -328,16 +329,16 @@ export default function PlanHubScreen() {
                 copy of them (DEC-0036, DEC-0215). */}
             {planSpend > 0 && (paycheckTotal >= planSpend ? (
               <Text style={styles.payOk}>
-                ✓ covers your {maskedMoney(planSpend)}/month expenses. You're drawing {maskedMoney(Math.round(drawUsed))}/month
+                ✓ covers your {maskedMoney(planSpend)}/month expenses. You’re drawing {maskedMoney(Math.round(drawUsed))}/month
                 {wplan?.withdrawalRate != null ? ` — ${(wplan.withdrawalRate * 100).toFixed(1)}% of your savings a year, ${rateWords(wplan.rateBand)}` : ''}. You could draw up to {maskedMoney(Math.round(payMonth.safeDraw))}.
               </Text>
             ) : (
               <Text style={styles.payWarn}>
                 your {maskedMoney(planSpend)}/month of expenses run {maskedMoney(Math.round(planSpend - paycheckTotal))} above this paycheck — worth a look below
-                {wplan?.withdrawalRate != null ? `. You'd be drawing ${(wplan.withdrawalRate * 100).toFixed(1)}% of your savings a year — ${rateWords(wplan.rateBand)}` : ''}
+                {wplan?.withdrawalRate != null ? `. You’d be drawing ${(wplan.withdrawalRate * 100).toFixed(1)}% of your savings a year — ${rateWords(wplan.rateBand)}` : ''}
               </Text>
             ))}
-            <Text style={styles.payNote}>The same paycheck as Home's card — one function, one set of numbers.</Text>
+            <Text style={styles.payNote}>The same paycheck as Home’s card — one function, one set of numbers.</Text>
           </TouchableOpacity>
         </>
       )}
@@ -376,7 +377,7 @@ export default function PlanHubScreen() {
                 <DecisionRow divider title="Which account do I draw from first?" sub="the order matters — taxes differ by account" onPress={() => router.push('/(tabs)/cashflow')} />
                 {ssIsLive && (
                   <DecisionRow divider title="When should I claim Social Security?"
-                    sub={A.ssClaimAge != null ? `claimed at ${A.ssClaimAge} ✓ — settled, shown so you know it's handled` : 'set the age your plan counts on — in your dollars'}
+                    sub={A.ssClaimAge != null ? `claimed at ${A.ssClaimAge} ✓ — settled, shown so you know it’s handled` : 'set the age your plan counts on — in your dollars'}
                     onPress={() => router.push('/ss-timing')} />
                 )}
                 {next?.kind !== 'rmd' && age != null && age >= rmdStartAgeFor(age) && (
@@ -492,7 +493,7 @@ export default function PlanHubScreen() {
   const footBlock = (<>
       {wil.captured && wil.chance != null
         ? <Text style={styles.tinyFoot}>Estimates from 1,000 market simulations of your own numbers — not advice.</Text>
-        : <Text style={styles.tinyFoot}>No percent is shown until it's yours — we never fake a number.</Text>}
+        : <Text style={styles.tinyFoot}>No percent is shown until it’s yours — we never fake a number.</Text>}
   </>);
 
   // DESKTOP (approved shell mock, 2026-08-03): verdict + next + decisions LEFT (1.15) |
@@ -531,10 +532,9 @@ export default function PlanHubScreen() {
     return Math.max(0, Math.round((payMonth.safeDraw ?? 0) - usingFromSavings));
   }, [payMonth, planSpend, lens]);
 
-  const goalRows = (store.goals ?? []).map((g: any) => ({
-    id: g.goal_id, label: g.label, target: g.target_amount ?? 0, saved: g.saved ?? 0,
-    targetDate: g.target_year ? String(g.target_year) : null,
-  }));
+  // THE GOALS AS SAVED (2026-10-30, FX-PLAN): the rows read goal_id, target_amount and target_year, names the app never saves a goal
+  // under, so every goal read $0 and the tab showed 'Nothing here yet' with goals entered. One reader, both shapes (src/domain/goals).
+  const goalRows = planGoalRows(store.goals);
 
   return (
     <ScrollView style={styles.root} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>

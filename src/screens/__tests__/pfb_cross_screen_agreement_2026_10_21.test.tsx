@@ -210,7 +210,7 @@ describe('4 · MK-XS-M-004 / MK-PF-M-001 — Home\'s month and its base are the 
   });
   test('Home names the base of that change — the Performance tab\'s 1M Ending value, $46,600 — under YOUR INVESTMENTS $35,775', () => {
     expect(after(HOME(), 'YOUR INVESTMENTS', 2)).toBe('$35,775');
-    expect(HOME().lines).toContain("This month's change is on $46,600: your investment accounts with the cash in them.");
+    expect(HOME().lines).toContain("This month’s change is on $46,600: your investment accounts with the cash in them.");
     expect(printed(HOME(), 'MK-PF-M-001')).toEqual([after(INV(), 'Ending value')]);
   });
 });

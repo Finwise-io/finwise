@@ -43,7 +43,7 @@ test('SEAM connect→import: importing a file for an institution you CONNECTED s
   // connect Chase (creates source:'connected' accounts)
   render(<ConnectFlowScreen />);
   fireEvent.press(await screen.findByLabelText('Chase. Opens what happens to your data.'));
-  fireEvent.press(screen.getByLabelText("Continue to Chase's own sign-in"));
+  fireEvent.press(screen.getByLabelText("Continue to Chase’s own sign-in"));   // ’ since 2026-10-27
   await waitFor(() => expect(screen.getByText(/Found at Chase/)).toBeTruthy());
   fireEvent.press(screen.getByLabelText(/Track 2 accounts/));
   // the import matcher must SEE the connected brokerage as the same institution account
@@ -111,7 +111,7 @@ test('MASK: the connect accounts-found list and the add screen respect hide-bala
   useStore.setState({ hideBalances: true } as any);
   render(<ConnectFlowScreen />);
   fireEvent.press(await screen.findByLabelText('Chase. Opens what happens to your data.'));
-  fireEvent.press(screen.getByLabelText("Continue to Chase's own sign-in"));
+  fireEvent.press(screen.getByLabelText("Continue to Chase’s own sign-in"));   // ’ since 2026-10-27
   await waitFor(() => expect(screen.getByText(/Found at Chase/)).toBeTruthy());
   expect(screen.getAllByText(/••••/).length).toBeGreaterThan(0);
   expect(screen.queryByText(/\$4,211/)).toBeNull();

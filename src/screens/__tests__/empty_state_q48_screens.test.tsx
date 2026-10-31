@@ -61,8 +61,15 @@ test('Income summary — nothing entered: $0 on both bands (never a dash), the l
   seed(); show('IncomeSummaryScreen');
   expect(screen.queryByText('—')).toBeNull();
   expect(line()).toBeGreaterThanOrEqual(2);
-  expect(door('income')).toBeGreaterThanOrEqual(2);
+  // the door once on the screen, under the first band; the second keeps its $0 and the sentence (IN2-12, 2026-10-27; the
+  // income-end-to-end_v07 row of 2026-10-25: "‘Nothing entered yet. Add your income ›’ once")
+  expect(door('income')).toBe(1);
   expect(screen.queryByText(/told us/)).toBeNull();
+});
+// THE OLD ANSWER, KEPT (2026-10-27): a door under each band, two on the screen
+test.failing('Income summary — nothing entered, as read before 2026-10-27: the door under each band', () => {
+  seed(); show('IncomeSummaryScreen');
+  expect(door('income')).toBeGreaterThanOrEqual(2);
 });
 
 test('Other investments and Bonds — none entered: $0, the line and the door', () => {

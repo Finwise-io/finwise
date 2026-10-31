@@ -57,7 +57,7 @@ test('reorder by buttons → re-run → the HONEST comparison (real math, no fak
   fireEvent.press(screen.getByLabelText('Move Roth up'));                 // roth ahead of taxable
   fireEvent.press(screen.getByLabelText('Re-run with my order'));
   expect(screen.getByText(/With your order:/)).toBeOnTheScreen();
-  expect(screen.getByText(/isn't re-run per order/)).toBeOnTheScreen();   // the no-fake-percent note
+  expect(screen.getByText(/isn’t re-run per order/)).toBeOnTheScreen();   // the no-fake-percent note
 });
 
 test('Keep this order persists the ONE preference and the main preview reorders with it', () => {
@@ -156,5 +156,5 @@ test('without a purchase price on the taxable holdings the sheet refuses to esti
   useStore.setState({ assetAccounts: ACCOUNTS.map((a) => (a.asset_id === 'brk' ? { ...a, positions: undefined } : a)) } as any);
   openSheet();
   fireEvent.press(screen.getByLabelText('Re-run with my order'));
-  expect(screen.getByText(/Can't compare the orders yet — no cost basis is recorded for your taxable holdings/)).toBeOnTheScreen();
+  expect(screen.getByText(/Can’t compare the orders yet — no cost basis is recorded for your taxable holdings/)).toBeOnTheScreen();
 });

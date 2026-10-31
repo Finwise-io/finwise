@@ -4,6 +4,7 @@
 //   installment  → the REAL monthly payment ↔ "paid off by" (enter either, the other is computed)
 //   revolving    → cards keep the minimum + you-pay fields
 //   due_in_full  → amount + due date; cash flow schedules it as a dated big-ticket, not a monthly row
+import { MoneyBox } from './MoneyBox';   // every money box, one component (DEC-8385)
 import { plural } from '../domain/_shared/plural';   // the one list of words and plurals (DEC-4082, 2026-10-10)
 import React, { useEffect, useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
@@ -197,7 +198,7 @@ export function DebtEditorSheet({ state, onClose }: { state: { open: boolean; ed
           )}
         </>
       )}
-      <View style={sh.amtRow}><Text style={sh.amtPre}>{currencySymbol()}</Text><TextInput style={sh.amtIn} keyboardType="decimal-pad" placeholder="0" placeholderTextColor={Colors.textTertiary} value={bal} onChangeText={setBal} /></View>
+      <View style={sh.amtRow}><Text style={sh.amtPre}>{currencySymbol()}</Text><MoneyBox bare dollarBeside style={sh.amtIn} placeholder="0" value={bal} onChangeText={setBal} /></View>
 
       <Text style={sh.lbl}>How is it repaid?</Text>
       <View style={sh.segRow}>
@@ -222,7 +223,7 @@ export function DebtEditorSheet({ state, onClose }: { state: { open: boolean; ed
           <View style={{ flex: 1 }}><Text style={sh.lbl}>Due day</Text><TextInput style={sh.input} keyboardType="number-pad" placeholder="1–31" placeholderTextColor={Colors.textTertiary} value={due} onChangeText={setDue} /></View>
         </View>
         <View style={{ flexDirection: 'row', gap: Spacing.sm }}>
-          <View style={{ flex: 1 }}><Text style={sh.lbl}>Monthly payment (what you pay)</Text><TextInput style={sh.input} keyboardType="decimal-pad" placeholder="$0" placeholderTextColor={Colors.textTertiary} value={monthly} onChangeText={(t) => { setMonthly(t); setDrives('payment'); }} /></View>
+          <View style={{ flex: 1 }}><Text style={sh.lbl}>Monthly payment (what you pay)</Text><MoneyBox bare style={sh.input} placeholder="$0" value={monthly} onChangeText={(t) => { setMonthly(t); setDrives('payment'); }} /></View>
           <View style={{ flex: 1 }}><Text style={sh.lbl}>Or: paid off by</Text><TextInput style={sh.input} keyboardType="numbers-and-punctuation" placeholder="03/2047" placeholderTextColor={Colors.textTertiary} value={endBy} onChangeText={(t) => { setEndBy(t); setDrives('date'); }} /></View>
         </View>
         {derivedLine
@@ -236,8 +237,8 @@ export function DebtEditorSheet({ state, onClose }: { state: { open: boolean; ed
           <View style={{ flex: 1 }}><Text style={sh.lbl}>Due day</Text><TextInput style={sh.input} keyboardType="number-pad" placeholder="1–31" placeholderTextColor={Colors.textTertiary} value={due} onChangeText={setDue} /></View>
         </View>
         <View style={{ flexDirection: 'row', gap: Spacing.sm }}>
-          <View style={{ flex: 1 }}><Text style={sh.lbl}>Min payment /month</Text><TextInput style={sh.input} keyboardType="decimal-pad" placeholder="$0" placeholderTextColor={Colors.textTertiary} value={pay} onChangeText={setPay} /></View>
-          <View style={{ flex: 1 }}><Text style={sh.lbl}>You pay /month</Text><TextInput style={sh.input} keyboardType="decimal-pad" placeholder="≥ min" placeholderTextColor={Colors.textTertiary} value={monthly} onChangeText={setMonthly} /></View>
+          <View style={{ flex: 1 }}><Text style={sh.lbl}>Min payment /month</Text><MoneyBox bare style={sh.input} placeholder="$0" value={pay} onChangeText={setPay} /></View>
+          <View style={{ flex: 1 }}><Text style={sh.lbl}>You pay /month</Text><MoneyBox bare style={sh.input} placeholder="≥ min" value={monthly} onChangeText={setMonthly} /></View>
         </View>
         {cardMonths != null
           ? <Text style={sh.derived}>✓ clear in {plural(cardMonths, 'month')} at {money(cardPay)}/month</Text>
@@ -247,7 +248,7 @@ export function DebtEditorSheet({ state, onClose }: { state: { open: boolean; ed
       </>)}
 
       <TouchableOpacity style={[sh.save, !ready && { opacity: 0.4 }]} disabled={!ready} accessibilityRole="button" accessibilityLabel={editing ? 'Save debt' : 'Add debt'} onPress={save}><Text style={sh.saveTxt}>{editing ? 'Save' : 'Add'} {shape === 'revolving' ? 'card' : shape === 'due_in_full' ? 'loan' : (debtKind(kind)?.label.toLowerCase() ?? 'debt')}</Text></TouchableOpacity>
-      {editing && <TouchableOpacity accessibilityRole="button" accessibilityLabel="Remove debt" onPress={remove}><Text style={sh.remove}>Remove</Text></TouchableOpacity>}
+      {editing && <TouchableOpacity accessibilityRole="button" accessibilityLabel="Remove debt" style={{ minHeight: 44, justifyContent: 'center' }} onPress={remove}><Text style={sh.remove}>Remove</Text></TouchableOpacity>}
     </KeyboardAwareSheet>
   );
 }
@@ -255,7 +256,8 @@ export function DebtEditorSheet({ state, onClose }: { state: { open: boolean; ed
 const sh = StyleSheet.create({
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, justifyContent: 'flex-start' },
   // rounded corners, not semicircle ends — the one shape of a choice (DEC-0231, 2026-09-25; corrected 2026-10-20)
-  chip: { paddingHorizontal: 12, paddingVertical: 10, borderRadius: Radii.md, borderWidth: 1.5, borderColor: Colors.border, backgroundColor: Colors.cardBg },
+  // every choice at least 44 tall, the smallest finger target (DEC-0141): measured drawing the debt editor v02 (2026-10-27), the kinds were 43
+  chip: { paddingHorizontal: 12, paddingVertical: 10, minHeight: 44, justifyContent: 'center', borderRadius: Radii.md, borderWidth: 1.5, borderColor: Colors.border, backgroundColor: Colors.cardBg },
   chipOn: { borderColor: Colors.primary, backgroundColor: Colors.primaryLight },
   chipTxt: { fontSize: 13, fontWeight: '600', color: Colors.textPrimary },
   input: { backgroundColor: Colors.cardBg, borderRadius: Radii.md, padding: Spacing.md, fontSize: 15, color: Colors.textPrimary, borderWidth: 1, borderColor: Colors.border, marginTop: Spacing.sm },

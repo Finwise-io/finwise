@@ -1,6 +1,8 @@
 // Shared money bottom-sheets, extracted from the old HomeScreen so Home and Cash flow reuse ONE
 // implementation (FCC M4: one habit, one spot): QuickAddExpense (the '+ Expense' sheet), IncomeSheet,
 // AllocateSavings (month-end surplus prompt), DebtPaySheet, plus the ExpenseFab floating button.
+import { MoneyBox } from './MoneyBox';
+import { SectionBand } from './SectionBand';   // every money box, one component (DEC-8385)
 import React, { useEffect, useState } from 'react';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Modal, Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import { useRouter, router } from 'expo-router';
@@ -124,7 +126,8 @@ export function QuickAddExpense({ visible, onClose, customCats, isCurrentMonth, 
           <View style={sh.card}>
             <View style={sh.handle} />
             <SheetClose onPress={() => { reset(); onClose(); }} />
-            <Text style={sh.title}>Add expense</Text>
+            {/* the door's own words, one term (canon row 27, 2026-10-27): Log an expense — it read Add expense */}
+            <Text style={sh.title}>Log an expense</Text>
             {/* design r64 (pre-48 audit C4c): the not-an-expense escape hatch — three doors */}
             <TouchableOpacity accessibilityRole="button" style={sh.elseLink}
               accessibilityLabel="Add something else — a dated bill, an account, or one-time money in"
@@ -145,14 +148,16 @@ export function QuickAddExpense({ visible, onClose, customCats, isCurrentMonth, 
 
             <View style={sh.amtRow}>
               <Text style={sh.amtPrefix}>{currencySymbol()}</Text>
-              <TextInput style={sh.amtInput} keyboardType="decimal-pad" placeholder="0" placeholderTextColor={Colors.textTertiary}
+              <MoneyBox bare dollarBeside style={sh.amtInput} placeholder="0"
                 value={amount} onChangeText={setAmount} autoFocus />
             </View>
             <Text style={sh.bucketHint}>{finalCat ? `${finalCat} → ${bucket} budget` : 'Pick a category'}</Text>
 
             {catSections.map((sec) => (
               <View key={sec.title}>
-                <Text style={sh.catHdr}>{sec.title}</Text>
+                {/* a sub-title on its light-green bar, edge to edge across the sheet (DEC-8839; the lead's ruling R1, 2026-10-27).
+                    In a card the bar takes the card's padding back on three sides; bandGap gives the top back, mid-sheet. */}
+                <View style={sh.bandGap}><SectionBand light inCard inset={Spacing.lg} onRowEdges title={sec.title} /></View>
                 <View style={sh.catGrid}>
                   {sec.items.map((c) => (
                     <GridChip key={c.label} icon={c.icon} label={c.label === '__other__' ? 'Other' : c.label}
@@ -225,7 +230,7 @@ export function DebtPaySheet({ state, onClose }: { state: { open: boolean; debt?
           <Text style={sh.bucketHint}>{money(d?.remaining_balance ?? 0)} balance · {d?.due_day ? `due ${ordinal(d.due_day)}` : 'no due date'}</Text>
           <View style={sh.amtRow}>
             <Text style={sh.amtPrefix}>{currencySymbol()}</Text>
-            <TextInput style={sh.amtInput} keyboardType="decimal-pad" placeholder="0" placeholderTextColor={Colors.textTertiary} value={amount} onChangeText={setAmount} autoFocus />
+            <MoneyBox bare dollarBeside style={sh.amtInput} placeholder="0" value={amount} onChangeText={setAmount} autoFocus />
           </View>
           <View style={sh.dayRow}>
             {(['today', 'yesterday'] as const).map((dd) => (
@@ -287,7 +292,7 @@ export function AllocateSavings({ state, onClose }: { state: { open: boolean; ym
             <Text style={sh.title}>Put your {state.label} surplus to work</Text>
             <Text style={[sh.allocHead, over && { color: Colors.red }]}>{money(Math.max(0, available - total))} of {money(available)} left to assign</Text>
 
-            {goals.length > 0 && <Text style={sh.allocSectionHdr}>GOALS</Text>}
+            {goals.length > 0 && <View style={sh.bandGap}><SectionBand light inCard inset={Spacing.lg} onRowEdges title="GOALS" /></View>}
             {goals.map((g) => (
               <View key={g.id} style={sh.allocRow}>
                 <Text style={sh.allocIcon}>{g.icon ?? '🎯'}</Text>
@@ -295,13 +300,13 @@ export function AllocateSavings({ state, onClose }: { state: { open: boolean; ym
                   <Text style={sh.allocName}>{g.label}</Text>
                   <Text style={sh.allocSub}>{money(g.saved || 0)} of {money(g.target || 0)}</Text>
                 </View>
-                <TextInput style={sh.allocInput} keyboardType="decimal-pad" placeholder={`${currencySymbol()}0`} placeholderTextColor={Colors.textTertiary}
+                <MoneyBox bare style={sh.allocInput} placeholder={`${currencySymbol()}0`}
                   value={goalAmts[g.id] || ''} onChangeText={(t) => setGoalAmts((m) => ({ ...m, [g.id]: t }))}
-                  accessibilityLabel={`Amount toward ${g.label}`} />
+                  a11y={`Amount toward ${g.label}`} />
               </View>
             ))}
 
-            {accounts.length > 0 && goals.length > 0 && <Text style={sh.allocSectionHdr}>ACCOUNTS / INVESTING</Text>}
+            {accounts.length > 0 && goals.length > 0 && <View style={sh.bandGap}><SectionBand light inCard inset={Spacing.lg} onRowEdges title="ACCOUNTS / INVESTING" /></View>}
             {accounts.map((a) => {
               const unit = units[a.asset_id] ?? 'dollar';
               const d = dollarOf(a.asset_id);
@@ -312,7 +317,7 @@ export function AllocateSavings({ state, onClose }: { state: { open: boolean; ym
                     <Text style={sh.allocName}>{a.label}</Text>
                     <Text style={sh.allocSub}>{assetKind(a.kind)?.label ?? a.tax_bucket}{unit === 'pct' && parse(amounts[a.asset_id]) > 0 ? ` · = ${money(d)}` : (a.institution ? ` · ${a.institution}` : '')}</Text>
                   </View>
-                  <TextInput style={sh.allocInput} keyboardType="decimal-pad" placeholder={unit === 'pct' ? '0%' : `${currencySymbol()}0`} placeholderTextColor={Colors.textTertiary}
+                  <MoneyBox bare unitBeside style={sh.allocInput} placeholder={unit === 'pct' ? '0%' : `${currencySymbol()}0`}
                     value={amounts[a.asset_id] || ''} onChangeText={(t) => setAmounts((m) => ({ ...m, [a.asset_id]: t }))} />
                   <TouchableOpacity accessibilityRole="button" style={sh.unitToggle} onPress={() => setUnits((u) => ({ ...u, [a.asset_id]: unit === 'pct' ? 'dollar' : 'pct' }))}>
                     <Text style={sh.unitToggleTxt}>{unit === 'pct' ? '%' : currencySymbol()}</Text>
@@ -405,7 +410,7 @@ export function IncomeSheet({ visible, onClose, op, isCurrentMonth, baseDate, mo
                 <Text style={sh.bucketHint}>A one-time for {isCurrentMonth ? 'this month' : monthLabel} — gift, stock sale, refund…</Text>
                 <View style={sh.amtRow}>
                   <Text style={sh.amtPrefix}>{currencySymbol()}</Text>
-                  <TextInput style={sh.amtInput} keyboardType="decimal-pad" placeholder="0" placeholderTextColor={Colors.textTertiary} value={amount} onChangeText={setAmount} autoFocus />
+                  <MoneyBox bare dollarBeside style={sh.amtInput} placeholder="0" value={amount} onChangeText={setAmount} autoFocus />
                 </View>
                 <View style={sh.catGrid}>
                   {INCOME_SOURCES.map((c) => (
@@ -443,7 +448,7 @@ export function IncomeSheet({ visible, onClose, op, isCurrentMonth, baseDate, mo
                 </View>
                 <View style={sh.amtRow}>
                   <Text style={sh.amtPrefix}>{currencySymbol()}</Text>
-                  <TextInput style={sh.amtInput} keyboardType="decimal-pad" placeholder="0" placeholderTextColor={Colors.textTertiary} value={baseAmt} onChangeText={setBaseAmt} />
+                  <MoneyBox bare dollarBeside style={sh.amtInput} placeholder="0" value={baseAmt} onChangeText={setBaseAmt} />
                 </View>
                 <View style={sh.freqRow}>
                   {FREQS.map((f) => (
@@ -488,7 +493,8 @@ const sh = StyleSheet.create({
   bucketHint: { fontSize: 13, color: Colors.textSecondary, textAlign: 'center', marginTop: 6, marginBottom: Spacing.sm },
   manageLink: { fontSize: 15, fontWeight: '700', color: Colors.primary, textAlign: 'center', marginTop: 4, paddingVertical: 12, minHeight: 44 },
   // the even choice grid — 3 equal cells per row, packed from the left (no ragged centered rows)
-  catHdr: { fontSize: 11, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.7, marginTop: Spacing.md, marginBottom: 6 },
+  // a light bar mid-sheet: its inCard pull (−20) is given back and the 12 above it kept, as the grey label had
+  bandGap: { marginTop: Spacing.lg + Spacing.md },
   catGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 2 },
   catCell: { width: '31.5%', minHeight: 66, borderRadius: 12, borderWidth: 1.5, borderColor: Colors.border, backgroundColor: Colors.cardBg, alignItems: 'center', justifyContent: 'center', paddingVertical: 8, paddingHorizontal: 4 },
   catIcon: { fontSize: 20 },
@@ -513,7 +519,6 @@ const sh = StyleSheet.create({
   saveTxt: { color: Colors.white, fontSize: 17, fontWeight: '800' },
   remove: { color: Colors.textSecondary, fontWeight: '700', textAlign: 'center', paddingVertical: Spacing.md, fontSize: 15 },
   allocHead: { fontSize: 15, fontWeight: '800', color: Colors.textPrimary, textAlign: 'center', marginTop: 2, marginBottom: Spacing.sm, fontVariant: ['tabular-nums'] },
-  allocSectionHdr: { fontSize: 11, fontWeight: '800', color: Colors.textSecondary, letterSpacing: 0.5, marginTop: Spacing.sm, marginBottom: 2 },
   allocRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: Colors.border, minHeight: 52 },
   allocIcon: { fontSize: 20, width: 24, textAlign: 'center' },
   allocName: { fontSize: 15, fontWeight: '600', color: Colors.textPrimary },

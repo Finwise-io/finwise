@@ -3,6 +3,7 @@
 // the end of each month, starting from real cash on hand. Big bills get day-level treatment
 // ('will the money be there two days before it's due?'). Dated bills are added and edited HERE,
 // and a deferred loan visibly starts paying in its real first month. One grid (F2), no second math.
+import { MoneyBox } from '../components/MoneyBox';   // every money box, one component (DEC-8385)
 import TopBar from '../components/TopBar';
 import { EmptyNote } from '../components/UI';
 import { SectionBand } from '../components/SectionBand';
@@ -105,7 +106,7 @@ export default function BillCalendarScreen() {
         <Text style={styles.gateEmoji}>🗓️</Text>
         <Text style={styles.h1}>Bill calendar</Text>
         <Text style={[styles.sub, { textAlign: 'center' }]}>
-          This calendar maps when your money lands against when your bills are due — it's built from
+          This calendar maps when your money lands against when your bills are due — it’s built from
           the income and expenses you enter during setup.
         </Text>
         <TouchableOpacity accessibilityRole="button" style={styles.gateBtn}
@@ -135,8 +136,10 @@ export default function BillCalendarScreen() {
 
       <View style={styles.card}>
         <Text style={styles.fieldL}>Cash on hand now</Text>
-        <TextInput style={styles.input} keyboardType="decimal-pad" placeholder="$0" placeholderTextColor={Colors.textTertiary}
-          value={startStr} onChangeText={setStartStr} accessibilityLabel="Cash on hand now, editable" />
+        {/* AN EMPTY BOX, NOT A GREY "$0" (2026-10-27, BC2-01; DEC-0296): with no cash balance on record the box is blank and the line
+            under it says why — a "$0" sample inside it read as a balance entered */}
+        <MoneyBox bare style={styles.input}
+          value={startStr} onChangeText={setStartStr} a11y="Cash on hand now, editable" />
         {kept
           ? <Text style={styles.tiny}>You entered this on {dateShown(kept.date)}; your accounts hold {fig('MK-NW-M-005', Math.round(cashOnHand))}. The table carries forward what you entered — edit it and the End column recalculates from there.</Text>
           : onRecord == null
@@ -197,7 +200,8 @@ export default function BillCalendarScreen() {
       {/* coming up (r40): day-level big bills — 55-70 copy: savings or a backup, never a family ask */}
       {(bills.length > 0 || deferredDebts.length > 0) && (
         <View style={styles.card}>
-          <SectionBand inCard quiet title="COMING UP" />
+          {/* every box title on a dark-green bar, edge to edge (his words, DEC-8839; the lead's R1, 2026-10-27; bill-calendar_v02's row of that date) — the three were quiet labels */}
+          <SectionBand inCard onRowEdges inset={16} title="COMING UP" />
           {bills.map((b) => (
             <TouchableOpacity accessibilityRole="button" key={b.id} style={styles.billRow} onPress={() => editBill(b.label)}
               accessibilityLabel={`${b.label}, ${figSaid('MK-CF-M-028', b.amount)} due ${fmtDate(b.dueDate)}. ${b.shortfall == null || b.availableByNeed == null ? NO_START_BALANCE : b.shortfall > 0 ? `Short ${figSaid('MK-CF-M-062', b.shortfall)} — set it aside by ${fmtDate(b.needByDate)}, from savings or a backup.` : `Covered: about ${figSaid('MK-CF-M-063', b.availableByNeed)} there by ${fmtDate(b.needByDate)}.`} Opens the editor.`}>
@@ -215,7 +219,7 @@ export default function BillCalendarScreen() {
             <View key={d.debt_id} style={styles.billRow} accessible
               accessibilityLabel={`${d.label}: ${figSaid('MK-NW-M-010', d.remaining_balance)} due in full ${fmtDate(d.payoff_date)}. No monthly payment — the full balance is due on that date.`}>
               <Text style={styles.billName}>{d.label} — {fig('MK-NW-M-010', d.remaining_balance)} due in full {fmtDate(d.payoff_date)}</Text>
-              <Text style={styles.billShort}>One lump payment, not a monthly bill — it's in that month's Out column.</Text>
+              <Text style={styles.billShort}>One lump payment, not a monthly bill — it’s in that month’s Out column.</Text>
             </View>
           ))}
           {deferredDebts.map((d: any) => (
@@ -232,7 +236,7 @@ export default function BillCalendarScreen() {
       {/* beyond the window (r43): never silently dropped */}
       {grid.later.length > 0 && (
         <View style={styles.card}>
-          <SectionBand inCard quiet title="LATER — BEYOND THIS 12-MONTH WINDOW" />
+          <SectionBand inCard onRowEdges inset={16} title="LATER — BEYOND THIS 12-MONTH WINDOW" />
           {grid.later.map((l, i) => (
             <Text key={i} style={styles.billShort}>· {l.label} — {fig('MK-CF-M-016', Math.round(l.amount))}{l.year ? `, ${MO[l.month - 1]} ${l.year}` : ''}</Text>
           ))}
@@ -242,13 +246,14 @@ export default function BillCalendarScreen() {
       {/* add / edit a dated bill (r41) */}
       {form.open ? (
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>{form.id ? 'Edit this bill' : 'Add a dated bill'}</Text>
+          <SectionBand inCard onRowEdges inset={16} title={form.id ? 'EDIT THIS BILL' : 'ADD A DATED BILL'} />
           <Text style={styles.fieldL}>Name</Text>
           <TextInput style={styles.input} placeholder="Property tax" placeholderTextColor={Colors.textTertiary}
             value={form.label} onChangeText={(t) => setForm({ ...form, label: t })} accessibilityLabel="Bill name" />
           <Text style={styles.fieldL}>Amount</Text>
-          <TextInput style={styles.input} keyboardType="decimal-pad" placeholder="$0" placeholderTextColor={Colors.textTertiary}
-            value={form.amount} onChangeText={(t) => setForm({ ...form, amount: t })} accessibilityLabel="Bill amount" />
+          {/* no grey sample figures in the boxes (BC2-01, DEC-0296): the amount, day and year are empty until typed */}
+          <MoneyBox bare style={styles.input}
+            value={form.amount} onChangeText={(t) => setForm({ ...form, amount: t })} a11y="Bill amount" />
           <Text style={styles.fieldL}>Due month</Text>
           <View style={styles.monthWrap}>
             {MO.map((m, i) => (
@@ -262,13 +267,13 @@ export default function BillCalendarScreen() {
           <View style={styles.formRow}>
             <View style={{ flex: 1 }}>
               <Text style={styles.fieldL}>Day (optional)</Text>
-              <TextInput style={styles.input} keyboardType="number-pad" placeholder="15" placeholderTextColor={Colors.textTertiary}
+              <TextInput style={styles.input} keyboardType="number-pad"
                 value={form.day} onChangeText={(t) => setForm({ ...form, day: t })} accessibilityLabel="Due day of month" />
             </View>
             {!form.yearly && (
               <View style={{ flex: 1 }}>
                 <Text style={styles.fieldL}>Year (one-time)</Text>
-                <TextInput style={styles.input} keyboardType="number-pad" placeholder={String(new Date().getFullYear())} placeholderTextColor={Colors.textTertiary}
+                <TextInput style={styles.input} keyboardType="number-pad"
                   value={form.year} onChangeText={(t) => setForm({ ...form, year: t })} accessibilityLabel="Year, for a one-time bill" />
               </View>
             )}
@@ -300,11 +305,11 @@ export default function BillCalendarScreen() {
       {/* prioritize when short — protect the essentials */}
       {short && (
         <View style={styles.card}>
-          <SectionBand inCard quiet title="IF YOU CAN'T PAY EVERYTHING, PAY THESE FIRST" />
+          <SectionBand inCard onRowEdges inset={16} title="IF YOU CAN’T PAY EVERYTHING, PAY THESE FIRST" />
           <Text style={styles.tiny}>Protect the essentials — housing, food, utilities, medicine — before anything optional.</Text>
           {critical.length > 0
             ? critical.map((c: any) => <Text key={c.id} style={styles.critItem}>• {c.label}</Text>)
-            : <Text style={styles.critItem}>• Mark bills 'essential' to see them here.</Text>}
+            : <Text style={styles.critItem}>• Mark bills ‘essential’ to see them here.</Text>}
         </View>
       )}
 
@@ -323,7 +328,9 @@ const styles = StyleSheet.create({
   gateBtn: { backgroundColor: Colors.primary, borderRadius: Radii.md, paddingVertical: 14, paddingHorizontal: 28, marginTop: Spacing.md },
   gateBtnT: { color: Colors.white, fontWeight: '800', fontSize: 15 },
   sub: { fontSize: 13, color: Colors.textSecondary, marginTop: 4, marginBottom: 6, lineHeight: 19 },
-  card: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginTop: 10 },
+  // a banded box: square and white, its bars run to its edges, its rows 16 in (R1, 2026-10-27 — it was rounded, 12 in), as Cash
+  // flow's tabs and Contribution room draw a box
+  card: { backgroundColor: Colors.cardBg, padding: Spacing.base, marginTop: 10 },
   cardTitle: { fontSize: 15, fontWeight: '800', color: Colors.textPrimary, marginBottom: 4 },
   billRow: { paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: Colors.bgTertiary, minHeight: 52, justifyContent: 'center' },
   billName: { fontSize: 15, fontWeight: '800', color: Colors.textPrimary },
@@ -341,7 +348,8 @@ const styles = StyleSheet.create({
   hCell: { fontSize: 13, fontWeight: '800', color: Colors.textSecondary, letterSpacing: 0.3 },
   numCell: { width: 88, textAlign: 'right' },
   mRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: Colors.bgTertiary, minHeight: 52 },
-  mLabel: { fontSize: 13, fontWeight: '700', color: Colors.textPrimary },
+  // the month's name as drawn: the row's 15, regular weight (bill-calendar_v02 .r; 2026-10-27, BC2-02) — it was 13 bold
+  mLabel: { fontSize: 15, fontWeight: '400', color: Colors.textPrimary },
   mChev: { fontSize: 17, color: Colors.textTertiary, marginLeft: 4 },
   mNum: { fontSize: 15, fontVariant: ['tabular-nums'] },
   mNumDrawn: { fontWeight: '800', color: Colors.textPrimary },

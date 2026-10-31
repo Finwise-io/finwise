@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Retirement cockpit v02</title>
+<style>
+  :root{--primary:#178F6B;--primaryDark:#0F6E56;--primaryDeep:#085041;--primaryLight:#E1F5EE;--bandLight:#DFF2E9;--primaryMid:#9FE1CB;--onDeepTint:#BEE7D8;
+        --amber:#854F0B;--amberLight:#FAEEDA;--red:#A32D2D;--bg2:#F6F7F5;--bg3:#EEEEE9;--card:#FFFFFF;--t1:#1A1A18;--t2:#6B6B66;--t3:#76766F;
+        --border:rgba(0,0,0,0.10);--gain:#006300}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:-apple-system,'SF Pro Text','Segoe UI',Roboto,sans-serif;background:#ECEBE4;color:var(--t1);padding:22px}
+  .wrap{max-width:1500px}
+  .row{display:flex;gap:22px;flex-wrap:wrap;align-items:flex-start}
+  .phone{width:375px;background:#000;border-radius:44px;padding:10px;box-shadow:0 16px 36px rgba(0,0,0,.24)}
+  .screen{background:var(--bg2);border-radius:35px;overflow:hidden;display:flex;flex-direction:column}
+  .sbar{display:flex;justify-content:space-between;padding:12px 22px 4px;font-size:14px;font-weight:700}
+  .nav{display:flex;align-items:center;min-height:44px;background:var(--bg2)}
+  .back{font-size:16px;color:var(--primary);font-weight:600;padding:8px 16px}
+  .topbar{display:flex;align-items:center;justify-content:space-between;padding:6px 20px 10px;background:var(--bg2)}
+  .menuBtn{display:flex;align-items:center;gap:6px;height:38px;padding:0 13px;border-radius:12px;background:var(--card);border:1px solid var(--border);font-size:13px;font-weight:700;color:var(--t2)}
+  .wordmark{font-size:15px;font-weight:800;letter-spacing:-.2px}.wordmark .m{color:#178F6B}.wordmark .k{color:#1F3A5F}
+  .tright{display:flex;gap:8px}
+  .ico{width:38px;height:38px;border-radius:19px;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:15px;color:var(--t2)}
+  .tabbar{display:flex;justify-content:space-around;background:var(--card);border-top:.5px solid var(--border);height:84px;padding:6px 0 20px}
+  .tb{width:56px;display:flex;flex-direction:column;align-items:center;font-size:10.5px;font-weight:700;color:var(--t3)}
+  .tb i{display:block;height:3px;width:22px;margin-bottom:5px}
+  .tb b{font-size:20px;font-weight:400;line-height:23px;color:var(--t3)}
+  .band{background:var(--primaryDeep);padding:8px 12px;margin:0 -20px 4px;color:#fff;font-size:11px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;border-radius:0}
+  .band.sec{margin-top:18px}
+  .lband{display:flex;align-items:center;gap:6px;background:var(--bandLight);color:var(--primaryDeep);padding:8px 12px;margin:-12px -12px 4px;font-size:11px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;border-radius:0}
+  .lband .bv{margin-left:auto;font-size:15px;font-weight:800;letter-spacing:0;text-transform:none;font-variant-numeric:tabular-nums}
+  .lband .dotB{font-size:11px;color:var(--primaryDeep);text-transform:none}
+  .new{outline:2px dashed #185FA5;outline-offset:2px}
+  .newb{box-shadow:inset 0 0 0 2px #185FA5}
+  .adv{text-decoration:underline dotted #185FA5;text-underline-offset:3px}
+  .cap{font-size:12px;color:#4a4a45;max-width:375px;margin-top:9px;line-height:1.5}
+  .note-doc{max-width:1100px;margin:0 0 14px;padding:12px 14px;border:2px solid #0B5D3B;border-radius:12px;font-size:13px;line-height:1.5;background:#fff;color:#111}
+  .note-doc table{border-collapse:collapse;margin-top:8px;font-size:12.5px}
+  .note-doc td,.note-doc th{padding:4px 8px;border:1px solid #ccc;vertical-align:top;text-align:left}
+
+  .content{padding:20px}
+  .heroRow{display:flex;margin-top:10px;gap:10px}
+  .heroCard{flex:1;background:var(--primaryDark);border-radius:16px;padding:14px 13px;min-height:96px;display:flex;flex-direction:column;justify-content:center}
+  .heroK{color:var(--onDeepTint);font-size:11px;font-weight:800;letter-spacing:.3px}
+  .heroBig{color:#fff;font-size:24px;font-weight:800;margin:3px 0}
+  .heroSub{color:var(--onDeepTint);font-size:11px;font-weight:600;line-height:14px}
+  .heroRoi{color:var(--primaryMid);font-size:11px;font-weight:700;margin-top:5px}
+  .heroExplain{font-size:13px;color:var(--t2);line-height:16px;margin-top:8px}
+  .planStmt{font-size:13px;color:var(--primaryDark);font-weight:600;margin-top:8px;line-height:16px}
+  .divider{font-size:11px;font-weight:800;color:var(--t3);letter-spacing:.6px;margin:18px 0 2px}
+  .donutCard{background:var(--card);border-radius:16px;padding:16px;margin-top:10px}
+  .donutRow{display:flex;align-items:center;gap:14px}
+  .donut{position:relative;width:124px;height:124px;flex:none}
+  .donut svg{position:absolute;inset:0}
+  .donutC{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+  .donutAmt{font-size:20px;font-weight:800}
+  .donutLab{font-size:11px;font-weight:700;color:var(--t3)}
+  .legend{flex:1}
+  .lg{display:flex;align-items:center;gap:7px;padding:3px 0}
+  .ldot{width:9px;height:9px;border-radius:3px}
+  .lgL{flex:1;font-size:13px}.lgV{font-size:13px;font-weight:700}
+  .editLink{margin-top:12px;font-size:13px;font-weight:700;color:var(--primary);text-align:center}
+  .card{background:var(--card);border-radius:16px;padding:12px;margin-top:10px}
+  .liK{font-size:13px;color:var(--t2)}
+  .li{display:flex;justify-content:space-between;align-items:center;padding:5px 0}
+  .liV{font-size:15px;font-weight:800;color:var(--primary)}
+  .tHead{display:flex;align-items:center;gap:14px;margin-top:8px;padding-bottom:4px;border-bottom:1px solid var(--border)}
+  .tHL{font-size:11px;font-weight:800;color:var(--t3);letter-spacing:.4px}
+  .tCol{width:64px;text-align:right;flex:none}
+  .tRow{display:flex;align-items:center;gap:14px;padding:9px 0;border-bottom:1px solid var(--bg3)}
+  .tRow.total{border-bottom:0;border-top:1.5px solid var(--border);margin-top:2px}
+  .instName{font-size:13px;font-weight:700}.instSrc{font-size:13px;color:var(--t2);margin-top:1px;line-height:16px}
+  .ttmAdd{font-size:13px;font-weight:700;color:var(--primary)}
+  .instBench{font-size:13px;font-weight:700;color:var(--t2)}
+  .muted{color:var(--t3)}
+  .tFoot{font-size:11px;color:var(--t3);line-height:14px;margin-top:8px}
+  .tFootMuted{font-size:11px;color:var(--t3);line-height:13.5px;margin-top:6px}
+  .editLink2{font-size:13px;font-weight:700;color:var(--primary);margin-top:10px}
+  .basisRow{display:flex;gap:7px;margin-top:8px}
+  .pill{flex:1;border:1.5px solid var(--border);border-radius:12px;padding:8px 6px;text-align:center}
+  .pill.on{border-color:var(--primary);background:var(--primaryLight)}
+  .pill.off{opacity:.4}
+  .pillT{font-size:11px;font-weight:700;color:var(--t2)}.pillR{font-size:13px;font-weight:800;margin-top:2px}
+  .pill.on .pillT,.pill.on .pillR{color:var(--primaryDark)}
+  .note{font-size:11px;color:var(--t2);margin-top:8px;line-height:16px}
+  .b{font-weight:800;color:var(--t1)}
+  .srcTag{font-size:11px;color:var(--t3);font-weight:700}
+  .chart{display:block;margin-top:8px}
+  .breakdown{display:flex;align-items:flex-end;justify-content:space-between;margin-top:12px;padding-top:10px;border-top:1px solid var(--bg3)}
+  .bdItem{text-align:center}.bdV{font-size:13px;font-weight:800}.bdL{font-size:11px;color:var(--t2);margin-top:1px}
+  .bdOp{font-size:13px;color:var(--t3);font-weight:700;margin-bottom:10px}
+  .ssRow{display:flex;align-items:center;gap:10px;background:var(--card);border-radius:12px;padding:12px;margin-top:10px}
+  .ssIc{font-size:17px}.ssBody{flex:1}.ssName{font-size:15px;font-weight:700}.ssSub{font-size:11px;color:var(--t2);margin-top:1px}
+  .ssPill{background:var(--primaryLight);color:var(--primary);border-radius:100px;padding:5px 10px;font-size:11px;font-weight:800}
+  .save{background:var(--primary);border-radius:12px;padding:14px 0;text-align:center;margin-top:14px;color:#fff;font-size:15px;font-weight:800}
+  .foot{font-size:11px;color:var(--t3);text-align:center;margin-top:8px}
+  .disc{font-size:11px;line-height:16px;color:var(--t3);text-align:center;margin-top:12px}
+  .dotI{font-size:13px;color:var(--t2)}
+
+  .scTop{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+  .scBack{font-size:15px;font-weight:700;color:var(--primary)}
+  .sandboxTag{font-size:11px;font-weight:800;color:var(--amber);letter-spacing:.6px;background:var(--amberLight);padding:4px 8px;border-radius:100px}
+  .scHero{background:var(--card);border-radius:16px;padding:16px;margin-top:8px}
+  .twoUp{display:flex;align-items:center;justify-content:space-between;margin-top:2px}
+  .hCol{flex:1;text-align:center}.hLab{font-size:11px;font-weight:700;color:var(--t3);letter-spacing:.3px}
+  .hNum{font-size:24px;font-weight:800;margin-top:3px}.hArrow{font-size:20px;color:var(--t3);padding:0 6px}
+  .hDelta{font-size:13px;font-weight:800;margin-top:2px;color:var(--gain)}
+  .sl{margin:9px 0}.slTop{display:flex;justify-content:space-between;align-items:baseline}
+  .slL{font-size:13px;color:var(--t2);font-weight:600}.slV{font-size:15px;font-weight:800}
+  .trackHit{padding:9px 0}.track{height:6px;border-radius:3px;background:var(--border);position:relative}
+  .fill{position:absolute;left:0;top:0;height:6px;border-radius:3px;background:var(--primary)}
+  .tick{position:absolute;top:-3px;width:2px;height:12px;margin-left:-1px;background:var(--t3);border-radius:1px}
+  .thumb{position:absolute;top:-7px;width:20px;height:20px;border-radius:10px;background:#fff;border:3px solid var(--primary);margin-left:-10px}
+  .markerCap{font-size:11px;color:var(--t3);margin-top:6px}
+  .hzRow{display:flex;align-items:center;gap:10px;margin-top:10px;min-height:44px}
+  .hzLab{font-size:15px;font-weight:700;width:92px}.hzBtn{width:40px;height:40px;border-radius:12px;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:800;color:var(--primaryDark)}
+  .hzVal{font-size:17px;font-weight:800;width:40px;text-align:center}.hzHint{flex:1;font-size:11px;color:var(--t3)}
+  .actionHint{font-size:11px;color:var(--t2);text-align:center;margin-top:6px;line-height:15px}
+  .btnRow2{display:flex;gap:10px;margin-top:12px}.btn2{flex:1;border:1.5px solid var(--border);border-radius:12px;padding:12px 0;text-align:center;font-size:13px;font-weight:700}
+</style></head>
+<body><div class="wrap">
+
+<div class="note-doc">
+<b>READ THIS FIRST — 2026-10-27. Retirement cockpit, version 02: the bars of the standard design, opened the way he asked (DEC-8891: what he approved before, his words, what is new). Drawn from the build of 2026-10-26 with today’s change, before it is built. No approval of this screen is on record.</b>
+<table style="margin:8px 0">
+<tr><th style="width:24%">What he approved before for this screen</th><td><b>Nothing approved; drawn from the build of 2026-10-26</b> (v01, now <span style="font-family:ui-monospace,monospace">archive/2026-10-27_moneykeel_pres_mock_retirement-cockpit_v01.html</span>). This drawing waits on his approval; the screen is built to it today so he can see it on a phone.</td></tr>
+<tr><th>His feedback on it so far, word for word</th><td>None on this screen itself. His ruling of 2026-10-27 reaches it, said of every screen (DEC-8839): <i>“the standard design says box titles in dark green bar, and sub-titles in light green bar”</i>; and the same day, of Roth conversion (DEC-8890), <i>“Roth Conversion - dark green bar should be end to end across the screen.”</i> — this screen’s dark bars already run end to end. His words on the top bar and the info dot, which reach every screen, are on their rows below.</td></tr>
+<tr><th>What is new for him to look at</th><td>1. The section names (WHAT YOU HAVE, YOUR PLAN · ASSUMES AGE 65) are dark bars, and the two dark bars run end to end across the phone. 2. Each box’s title is a light-green bar across its box (YOUR INVESTMENTS, GROW MY NEST EGG USING, PROJECTED NEST EGG with ‘$813K by 2031’ on it, IN RETIREMENT (FROM 65), TAX-SMART MOVES, HOW CONFIDENT IS THIS?). 3. The chart’s two values print at 11 points. Each is a dated row below; nothing else on the screen changes.</td></tr>
+<tr><td style="padding:4px 8px;border:1px solid #ccc;vertical-align:top;white-space:nowrap">2026-10-27</td><td style="padding:4px 8px;border:1px solid #ccc;vertical-align:top"><b>Approved before:</b> nothing — this drawing was drawn from the build; no approval of it is on record. Its money boxes print a typed figure plain. <b>His feedback:</b> None on these boxes. He approved the income drawing on 2026-08-27 (DEC-0177: “yes”), which draws a money box with its figure as money, ‘$7,000’. <b>New:</b> Every money box on this screen shows its figure the way a figure is printed, while it is typed — ‘$1,000’ where a box was drawn ‘1000’, ‘$192.50’ where ‘192.5’; where the screen prints its own $ just before the box, the box reads ‘1,000’, so the $ is printed once — and it stores the plain amount, so no figure moves. The box keeps its look. A typed letter is refused whole (DEC-3768c). Shares, contracts, rates, days and years keep their plain digits. The phones are not redrawn.</td><td style="padding:4px 8px;border:1px solid #ccc;vertical-align:top">One figure, one form (tenet 4, DEC-3523): the money boxes of the income screens already show ‘$7,000’ (DEC-8385), and one component, MoneyBox, now draws every money box in the app — src/__tests__/every_money_box_is_moneybox.test.tsx counts them all. Not a decision of his: the lead’s ruling of 2026-10-27, made without asking him, as his order of 2026-09-30 says. To reverse: print the plain figure in the box again.</td><td style="padding:4px 8px;border:1px solid #ccc;vertical-align:top">DEC-8385 · DEC-0177 · DEC-3768c · DEC-3523</td><td style="padding:4px 8px;border:1px solid #ccc;vertical-align:top">In the code since 2026-10-27</td></tr>
+<tr><td style="padding:4px 8px;border:1px solid #ccc;vertical-align:top;white-space:nowrap">2026-10-30</td><td style="padding:4px 8px;border:1px solid #ccc;vertical-align:top"><b>Approved before:</b> nothing — no approval of this drawing is on record; it was drawn from the build. <b>His feedback:</b> His words, 2026-08-04 (DEC-0059): “make sure font size and color and overall design are same across all screens.” <b>New:</b> Every apostrophe inside a word on this screen prints as ’, as every other screen has since 2026-10-27 — 22 strings: ‘you’d need about’, ‘Markets aren’t a straight line’, ‘doesn’t change your plan’, ‘re-run on today’s balances’, ‘alone doesn’t get there’, ‘your money doesn’t run out’, ‘It’s the first slice’, ‘each bucket’s full balance’, ‘that’s about’, ‘you’re on Medicare’, ‘you’re retired’, ‘the asset class’s historical index return’, ‘isn’t a guarantee’, ‘in today’s dollars’, the place’s ‘…’s cost of living’, ‘today’s $’, ‘If you’ve worked’, ‘if you won’t receive it’ ‘in today’s dollars’ on the Social Security line, and the Roth-or-Traditional lean ‘You’re in a low bracket now’ (written in src/domain/income/limits.ts). No word and no figure moves. The phones are not redrawn.</td><td style="padding:4px 8px;border:1px solid #ccc;vertical-align:top">One sentence, spelled one way (tenet 4, DEC-3523): the lead’s rule of 2026-10-25 (DEC-8336), carried to every screen on 2026-10-27 and held by src/__tests__/curly_apostrophe_everywhere.test.ts, which now carries no debt for this screen. Not a decision of his: the lead’s ruling of 2026-10-30, made without asking him, as his order of 2026-09-30 says; built by CLEANUP-TESTS. One word from him reverses it. To reverse: type a straight ' in these strings again.</td><td style="padding:4px 8px;border:1px solid #ccc;vertical-align:top">DEC-8336 · DEC-3523 · DEC-0059</td><td style="padding:4px 8px;border:1px solid #ccc;vertical-align:top">In the code since 2026-10-30</td></tr>
+<tr><td style="padding:4px 8px;border:1px solid #ccc;vertical-align:top;white-space:nowrap">2026-10-30</td><td style="padding:4px 8px;border:1px solid #ccc;vertical-align:top"><b>Approved before:</b> nothing — no approval of this drawing is on record. Its top bar draws the name typed in two colours, ‘Money’ green and ‘Keel’ navy, as the app drew it until 2026-10-30. No logo decision of his is on record before this one. <b>His feedback:</b> his instruction of 2026-10-30, with his three logo files: “change the logo to attached”. <b>New:</b> The lettering in the top bar is now his logo of 2026-10-30, his dark-green ‘MoneyKeel’ lettering at 84 × 17.1 points, as ‘MoneyKeel/documents/other/moneykeel_pres_mock_brand-wordmark_v02.html’ draws it. Nothing else on the phones moves. The phones are not redrawn.</td><td style="padding:4px 8px;border:1px solid #ccc;vertical-align:top">His instruction, carried to this drawing by the lead’s row of 2026-10-30, made without asking him, as his order of 2026-09-30 says. To reverse: the old lettering is kept in ‘assets/brand/archive-2026-10-30/’.</td><td style="padding:4px 8px;border:1px solid #ccc;vertical-align:top">His instruction of 2026-10-30 · ‘moneykeel_pres_mock_brand-wordmark_v02.html’ · DEC-8891</td><td style="padding:4px 8px;border:1px solid #ccc;vertical-align:top">In the code since 2026-10-30</td></tr>
+</table>
+<br>His words today, 2026-10-27 (DEC-8839), said of Contribution room and the Stress test and applied to every screen: <i>“the standard design says box titles in dark green bar, and sub-titles in light green bar”</i>. v01 (now <span style="font-family:ui-monospace,monospace">archive/2026-10-27_moneykeel_pres_mock_retirement-cockpit_v01.html</span>) drew this screen’s section names as small grey capitals and each box’s title as a grey line, and its two dark bars inside the page’s 20-point margins. This version draws each one on its bar; today’s changes wear a dashed blue outline (yesterday’s rows below are kept as the screen’s history). The Retirement cockpit is the Plan’s Retirement, route /(tabs)/retirement from the Menu: every string from <span style="font-family:ui-monospace,monospace">src/screens/RetirementCockpit.tsx</span>, every size, weight and colour from its StyleSheet, <span style="font-family:ui-monospace,monospace">src/components/SectionBand.tsx</span> and <span style="font-family:ui-monospace,monospace">src/utils/theme.ts</span>, the app’s top bar and tab bar — two phones, Where you stand and its what-if page, for a person of 60 still working, in Advisor mode. In Simple mode (the default) the lines underlined in blue dots are not shown. Where a line here and the phone disagree, this line is the design.
+<br><b>Checked before sending</b> (the screen standard, section 5): every dark bar runs edge to edge of the phone with square corners; every light bar runs to its box’s edges · every bar carries the code’s own words · a total on a bar lands on the box’s right edge · sizes on the scale, nothing under 10.5 (the chart’s two values were 10) · the words on the canon · the figures add up (below each phone) · the two dark-green hero boxes, the column headers, the donut’s centre, the SANDBOX tag and the Social Security door are not box titles and stay as they are · two phones, one per view.
+<table>
+<tr><th>Dated</th><th>What changed on the screen today</th><th>Why · how to reverse</th><th>Record</th><th>State</th></tr>
+<tr><td style="white-space:nowrap">2026-10-27</td><td><b>Every dark bar runs edge to edge of the phone.</b> RETIREMENT · WHERE YOU STAND (phone 1) and WHAT IF? — DRAG TO EXPLORE (phone 2) take back the page’s 20-point margins, as the Net worth screen’s step-by-step bars do; they sat 20 points short of each edge. <b>The section names are dark bars:</b> WHAT YOU HAVE and YOUR PLAN · ASSUMES AGE 65, each with 18 points above it. They were small grey capitals (11 points, no fill). Not drawn: for a retired person, WILL YOUR MONEY LAST?, THE DETAILS (Advisor) and YOUR PLAN · IN RETIREMENT are dark bars the same way; a retired person’s money appears under the first bar, as before.</td><td>His words of 2026-10-27 (DEC-8839): box titles in the dark-green bar; it replaces the 2026-08-13 heading rule (DEC-0132) that kept the dark bar for a group with a total. Applied by FX-PLAN, the lead’s ruling R1, without asking him; one word from him reverses it. To reverse: the grey capitals and the bars inside the margins again.</td><td>DEC-8839 · DEC-0132 (replaced) · the screen standard 2.3</td><td>Drawn 2026-10-27, before the code</td></tr>
+<tr><td style="white-space:nowrap">2026-10-27</td><td><b>Each box’s title is a light-green bar across the top of its box,</b> in capitals: YOUR INVESTMENTS, GROW MY NEST EGG USING, PROJECTED NEST EGG with ‘$813K by 2031’ on the bar’s right edge (it sat on a row under a grey label), IN RETIREMENT (FROM 65), TAX-SMART MOVES with its ⓘ; on phone 2, HOW CONFIDENT IS THIS?. They were grey 13-point lines. Not drawn: once the simulation runs, RANGE OF OUTCOMES BY AGE is a light bar across that box; for a retired person, WHERE YOUR MONEY SITS, SUGGESTED WITHDRAWAL ORDER (a light bar across the box after its divider), HEADS-UP and ASSUMED RETURN ON YOUR REMAINING NEST EGG; the ‘What is …?’ sheet that sets an account’s type lists its kinds under light bars (CASH, INVESTMENTS, RETIREMENT …), which were grey capitals.</td><td>DEC-8839: a sub-title sits on the light-green bar; each box here sits under a section’s dark bar. Applied by FX-PLAN without asking him; one word from him reverses it. To reverse: the grey lines again.</td><td>DEC-8839</td><td>Drawn 2026-10-27, before the code</td></tr>
+<tr><td style="white-space:nowrap">2026-10-27</td><td><b>What stays, and why.</b> The two hero boxes are themselves dark green; their light capitals (IF YOU NEVER SAVE AGAIN · AT YOUR TARGET, 65) name the figure inside each box, so they stay. INSTRUMENT · YOUR 12-MO · BENCHMARK name a table’s columns; NEST EGG names the donut’s figure; ‘Nest egg today’ and ‘At retirement (65)’ name the what-if’s two figures; SANDBOX is a tag; the Social Security row is a door. None is a box title. <b>The chart’s two values ($573K, $813K) print at 11 points,</b> on the type scale and above its 10.5 floor; they printed at 10.</td><td>The screen standard 2.4 (sizes from the scale, nothing under 10.5). Applied by FX-PLAN without asking him; one word from him reverses it. To reverse: 10-point values again.</td><td>the screen standard 2.4 · type_floor_guard</td><td>Drawn 2026-10-27, before the code</td></tr>
+
+<tr><td style="white-space:nowrap">2026-10-26</td><td><b>The bracket today is the Income summary’s</b> (Advisor’s line under ‘Lean Roth’): ‘marginal ~12% now’, the band of what the year is taxed on — the accounts’ interest and dividends in, each earner’s 401(k) out ($70,000 − $10,000 − $16,100 = $43,900, in the 12% band). It read 22%, the band of the whole $70,000.</td><td>Not a decision of his: the lead’s, made without asking him, as his order of 2026-09-30 says; built by CLEANUP-LEFT. One word from him reverses it. His DEC-0283; one concept, one function (MK-CF-M-043). To reverse: read the bracket on the year’s whole gross again.</td><td>MK-CF-M-043 · DEC-0283</td><td>In the code</td></tr>
+<tr><td style="white-space:nowrap">2026-10-26</td><td><b>The catch-up is the one inside the limit, in Contribution room’s words.</b> At 60: ‘(incl. the $11,250 age 60–63 catch-up) — up to $35,750.’ It read ‘(incl. the $8,000 age-50+ catch-up)’ at every age from 50; at 60 to 63 the limit holds $11,250 instead (IRC §414(v)(2)(E)).</td><td>Not a decision of his: the lead’s, made without asking him, as his order of 2026-09-30 says; built by CLEANUP-LEFT. One word from him reverses it. Tenet 1; the amount is the limit’s own, IRS_LIMITS read through k401Headroom — no second copy. To reverse: print the $8,000 words again.</td><td>MK-PL-M-038 · MK-CF-F-056 k401Headroom</td><td>In the code</td></tr>
+<tr><td style="white-space:nowrap">2026-10-26</td><td><b>Every rate to two decimals.</b> ‘growing at 7.62%/year’, the instruments’ ‘7.90%’, ‘0.50%’ and ‘7.62%’, the basis choices, ‘as prices rise 2.50%/year’ — they read 7.6%, 7.9%, 0.5% and 2.5%. The odds keep their tenths (1,000 simulated futures), the IRS divisor its one decimal, the bracket its published whole rate.</td><td>Not a decision of his: the lead’s, made without asking him, as his order of 2026-09-30 says; built by CLEANUP-LEFT. One word from him reverses it. His Q49 (percents to two decimals unless the figure’s row states otherwise). To reverse: one decimal again.</td><td>Q49 · moneykeel_one_decimal_percents.json (the cockpit’s 26 places, now 0)</td><td>In the code</td></tr>
+<tr><td style="white-space:nowrap">2026-10-26</td><td><b>Nothing is rounded inside, and the checking account’s label states no second figure.</b> The plan’s defaults (the monthly saving, the expenses) and the what-if sliders start from the plan’s own figures, kept whole — ‘Use as my plan’ untouched no longer writes back a return cut to a tenth of a point (5.63% saved as 5.6%). Checking’s source reads ‘Interest checking’ — it read ‘Interest checking, ~0%’ beside its 0.50% benchmark. No other drawn figure moves for this household.</td><td>Not a decision of his: the lead’s, made without asking him, as his order of 2026-09-30 says; built by CLEANUP-LEFT. One word from him reverses it. His Q49; tenet 1. To reverse: round the defaults and the sliders again; put ‘~0%’ back.</td><td>MK-PL-F-067 willItLastInputs · Q49 · MK-NW-F-036 benchmarkInfo</td><td>In the code</td></tr>
+<tr><td style="white-space:nowrap">2026-10-26</td><td><b>The plan reads the year’s interest the way the Income summary does</b> — the year’s records, then the figure typed, then calculated from the accounts’ rates — for the tax rate on required withdrawals. No drawn figure moves for this household.</td><td>Not a decision of his: the lead’s, made without asking him, as his order of 2026-09-30 says; built by CLEANUP-LEFT. One word from him reverses it. Tenet 4. To reverse: hand the plan no records.</td><td>MK-PL-F-067 willItLastInputs</td><td>In the code</td></tr>
+<tr><td style="padding:4px 8px;border:1px solid #ccc;vertical-align:top;white-space:nowrap">2026-10-27</td><td style="padding:4px 8px;border:1px solid #ccc;vertical-align:top"><b>Approved before:</b> nothing — no approval of this drawing is on record. Both phones, drawn from the build, draw the tab bar’s names at 10.5 points, the top bar 6 points below the status bar, and the dot beside Social Security 13 points in #6B6B66. <b>His feedback:</b> His words, 2026-08-04 (DEC-0059): “make sure font size and color and overall design are same across all screens.” His UX review of 2026-07-16, as the code records it: ‘it is hard to link menu to button bar’. His words, 2026-09-14 (DEC-0354): “you did not have ‘MoneyKeel’ at the top which every other screen has”; 2026-08-04 (DEC-0059): “make sure font size and color and overall design are same across all screens.” His words, 2026-08-13 (DEC-0142): “info dot should be the same size as text. Can we do that?” <b>New:</b> The names are 11 points and the top bar starts 4 points below the status bar. The tab bar is the one the app draws: each tab an icon above its name — the same five icons the Menu’s top strip shows, filled on the picked tab, outlined on the others; the picked tab brand green #178F6B with a short green bar (22 × 3 points) above its icon; the other four grey #76766F; names weight 700. One thing changes in the app: the names are 11 points, where they were 10.5 — the one size in the app off the scale (11 · 13 · 15 · 17 · 20 · 24 · 30 · 38). The MoneyKeel top bar starts 4 points below the status bar (the app started it 6 down until today), sits 20 points in from each side and 10 above the page; its button and two round icons are 38 points tall, the button’s words 13 points. The dot beside Social Security is the name’s 15 points in its #1A1A18, weight 700. The phones are not redrawn.</td><td style="padding:4px 8px;border:1px solid #ccc;vertical-align:top">Why the app’s bar: Net worth v08, approved 2026-10-01 (DEC-0644), draws its names, colours and green bar; Cash flow v01 (DEC-0440) draws the picked tab #178F6B; the UX design v1.2 says ‘active = brand teal + label bold’; the screen standard says ‘Brand green #178F6B is for buttons and the active tab’; and the Menu mirrors the bar from one list, so a drawn emoji or letter would break the pair. Why 4 · 20 · 10: the account page v01, approved 2026-10-19 (DEC-6457), the newest approved drawing with this bar, and Net worth v08 (DEC-0644) both draw it. One dot, drawn one way (tenet 4, DEC-3523): beside its line, never inside it, weight 700, at the line’s size and in the line’s colour (DEC-8339). Not a decision of his: the lead’s ruling of 2026-10-27, made without asking him, as his order of 2026-09-30 says. To reverse: the names at 10.5 again. To reverse: start the bar 6 points down again. To reverse: every dot 13 points in grey #76766F beside a line, 11 on a bar.</td><td style="padding:4px 8px;border:1px solid #ccc;vertical-align:top">DEC-0059 · DEC-0644 · DEC-0440 · DEC-4529 · DEC-0354 · DEC-6457 · DEC-0142 · DEC-8339</td><td style="padding:4px 8px;border:1px solid #ccc;vertical-align:top">In the code since 2026-10-27</td></tr>
+</table>
+</div>
+
+<div class="row">
+<div>
+<div class="phone"><div class="screen">
+  <div class="sbar"><span>9:41</span><span>▮▮▮ ◔ ▮</span></div>
+  <div class="topbar"><span class="menuBtn">▦ Menu</span><span class="wordmark"><span class="m">Money</span><span class="k">Keel</span></span><span class="tright"><span class="ico">◉</span><span class="ico">⚙</span></span></div>
+  <div class="content" id="cockpit-content">
+    <div class="band newb">RETIREMENT · WHERE YOU STAND</div>
+    <div class="heroRow">
+      <div class="heroCard"><div class="heroK">IF YOU NEVER SAVE AGAIN</div><div class="heroBig">Retire 68</div><div class="heroSub">today's $523K alone gets there by 68</div><div class="heroRoi">growing at 7.62%/year</div></div>
+      <div class="heroCard"><div class="heroK">AT YOUR TARGET, 65</div><div class="heroBig">$813K</div><div class="heroSub">36.4% odds it lasts to 90</div><div class="heroRoi">at 7.62%/year</div></div>
+    </div>
+    <div class="heroExplain adv">“36.4% odds it lasts to 90” = across 1,000 market simulations, your money doesn't run out before 90 in 36.4% of them.</div>
+    <div class="planStmt">▸ Everything below assumes your plan: retire at 65, keep saving $833/month.</div>
+    <div class="band sec newb">WHAT YOU HAVE</div>
+    <div class="donutCard">
+      <div class="donutRow">
+        <div class="donut"><svg width="124" height="124"><g transform="rotate(-90 62 62)"><circle cx="62" cy="62" r="54" stroke="#EEEEE9" stroke-width="16" fill="none"/><circle cx="62" cy="62" r="54" stroke="#178F6B" stroke-width="16" fill="none" stroke-dasharray="12.97 326.32" stroke-dashoffset="0"/><circle cx="62" cy="62" r="54" stroke="#185FA5" stroke-width="16" fill="none" stroke-dasharray="326.32 12.97" stroke-dashoffset="-12.97"/></g></svg><div class="donutC"><div class="donutAmt">$523K</div><div class="donutLab">NEST EGG</div></div></div>
+        <div class="legend">
+          <div class="lg"><span class="ldot" style="background:#178F6B"></span><span class="lgL">Cash</span><span class="lgV">$20K</span></div>
+          <div class="lg"><span class="ldot" style="background:#185FA5"></span><span class="lgL">Retirement</span><span class="lgV">$503K</span></div>
+        </div>
+      </div>
+      <div class="editLink">⚙︎ Edit what counts toward retirement ›</div>
+    </div>
+    <div class="card">
+      <div class="lband newb">YOUR INVESTMENTS</div>
+      <div class="tHead"><span class="tHL" style="flex:1">INSTRUMENT</span><span class="tHL tCol">YOUR 12-MO</span><span class="tHL tCol">BENCHMARK</span></div>
+      <div class="tRow"><div style="flex:1"><div class="instName">Fidelity</div><div class="instSrc">Traditional IRA · $415K<span class="adv"> · Assumed 60/40 mix · 30-yr · est.</span></div></div><span class="tCol ttmAdd">+ Add</span><span class="tCol instBench">7.90%</span></div>
+      <div class="tRow"><div style="flex:1"><div class="instName">Roth IRA</div><div class="instSrc">Roth IRA · $88K<span class="adv"> · Assumed 60/40 mix · 30-yr · est.</span></div></div><span class="tCol ttmAdd">+ Add</span><span class="tCol instBench">7.90%</span></div>
+      <div class="tRow"><div style="flex:1"><div class="instName">Checking</div><div class="instSrc">Checking · $20K<span class="adv"> · Interest checking · current · est.</span></div></div><span class="tCol ttmAdd">+ Add</span><span class="tCol instBench">0.50%</span></div>
+      <div class="tRow total"><span class="instName" style="flex:1">Weighted average</span><span class="tCol instBench muted">—</span><span class="tCol instBench">7.62%</span></div>
+      <div class="tFoot">Add historic 12-month return on each holding to see how you compare to the benchmark.</div>
+      <div class="tFootMuted adv">“Your 12-mo” = the historic 12-month return you enter on each holding. Benchmark = the asset class's historical index return (not editable); past performance isn't a guarantee, and a 12-mo actual vs a ~30-yr average is directional only.</div>
+      <div class="editLink2">📈 Track live performance vs benchmark ›</div>
+    </div>
+    <div class="band sec newb">YOUR PLAN · ASSUMES AGE 65</div>
+    <div class="card">
+      <div class="lband newb">GROW MY NEST EGG USING</div>
+      <div class="basisRow">
+        <div class="pill on"><div class="pillT">Benchmark</div><div class="pillR">7.62%</div></div>
+        <div class="pill off"><div class="pillT">Your 12-mo ⚠</div><div class="pillR">— add</div></div>
+        <div class="pill"><div class="pillT">Scenario</div><div class="pillR">7.62%</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="lband newb"><span>PROJECTED NEST EGG</span><span class="bv">$813K by 2031</span></div>
+      <div class="note">If your $523K grows at 7.62% (the blended benchmark) and you keep saving $833/month. Amber bar = retirement at 65.</div>
+      <svg class="chart" width="311" height="150"><line x1="0" y1="132" x2="311" y2="132" stroke="rgba(0,0,0,0.10)" stroke-width="1"/><rect x="0.0" y="50.3" width="59.0" height="81.7" rx="2" fill="#9FE1CB" opacity="0.85"/><text x="29.5" y="46.3" font-size="11" font-weight="700" fill="#6B6B66" text-anchor="start">$573K</text><text x="0.0" y="146" font-size="11" font-weight="400" fill="#76766F" text-anchor="start">&#39;27</text><rect x="63.0" y="42.6" width="59.0" height="89.4" rx="2" fill="#9FE1CB" opacity="0.85"/><rect x="126.0" y="34.4" width="59.0" height="97.6" rx="2" fill="#9FE1CB" opacity="0.85"/><text x="155.5" y="146" font-size="11" font-weight="400" fill="#76766F" text-anchor="middle">&#39;29</text><rect x="189.0" y="25.5" width="59.0" height="106.5" rx="2" fill="#9FE1CB" opacity="0.85"/><rect x="252.0" y="16.0" width="59.0" height="116.0" rx="2" fill="#854F0B" opacity="0.95"/><text x="281.5" y="12.0" font-size="11" font-weight="700" fill="#854F0B" text-anchor="end">$813K</text><text x="311.0" y="146" font-size="11" font-weight="700" fill="#854F0B" text-anchor="end">&#39;31</text></svg>
+      <div class="breakdown">
+        <div class="bdItem"><div class="bdV">$523K</div><div class="bdL">now</div></div><span class="bdOp">+</span>
+        <div class="bdItem"><div class="bdV">$50K</div><div class="bdL">you add</div></div><span class="bdOp">+</span>
+        <div class="bdItem"><div class="bdV">$240K</div><div class="bdL">growth</div></div><span class="bdOp">=</span>
+        <div class="bdItem"><div class="bdV" style="color:#178F6B">$813K</div><div class="bdL">at 65</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="lband newb">IN RETIREMENT (FROM 65)</div>
+      <div class="note">You plan to spend <span class="b">$4,500/month</span> in today's dollars → about <span class="b">$8K/month</span> by 90 as prices rise 2.50%/year <span class="srcTag">actual.</span></div>
+    </div>
+    <div class="card">
+      <div class="lband newb"><span>TAX-SMART MOVES</span><span class="dotB">ⓘ</span></div>
+      <div class="note">💼 You can still add <span class="b">$25,750</span> to your 401(k) this year (incl. the $11,250 age 60–63 catch-up) — up to $35,750.</div>
+      <div class="note" style="margin-top:6px">🏦 You can also contribute up to <span class="b">$8,600</span> to an IRA (incl. catch-up).</div>
+      <div class="note" style="margin-top:6px">⚖️ <span class="b" style="font-weight:700">Lean Roth</span><span class="adv"> — You're in a low bracket now — pay the tax now (Roth) and withdraw tax-free later. <span class="srcTag">marginal ~12% now</span></span></div>
+      <div class="tFootMuted">General guidance, not tax advice.</div>
+    </div>
+    <div class="ssRow"><span class="ssIc">🏛️</span><div class="ssBody"><div style="display:flex;align-items:center;gap:4px"><span class="ssName">Social Security</span><span class="dotI">ⓘ</span></div><div class="ssSub">Are you eligible? Tap to set up ›</div></div><span class="ssPill">Set up</span></div>
+    <div class="save">Run scenario analysis →</div>
+    <div class="foot">Test retiring earlier, saving more, market ups &amp; downs.</div>
+    <div class="disc">Estimates for guidance only — not financial, investment, or tax advice, and projections aren’t guaranteed. See Settings for the full disclaimer.</div>
+    <span id="cockpit-content-end"></span>
+    <div style="height:40px"></div>
+  </div>
+  <div class="tabbar">
+    <div class="tb"><i></i><b>⌂</b>Home</div>
+    <div class="tb"><i></i><b>◇</b>Net worth</div>
+    <div class="tb"><i></i><b>▤</b>Performance</div>
+    <div class="tb"><i></i><b>▭</b>Cash flow</div>
+    <div class="tb"><i></i><b>◎</b>Plan</div>
+  </div>
+</div></div>
+<div class="cap"><b>The household, on 27 October 2026 (v01’s, unchanged).</b> Born 1966 (60 this year), single, working; $70,000 of wages, $833.33/month ($10,000 a year) into a 401(k); target retirement 65; $4,500/month of expenses; Checking $20,000, a Fidelity IRA $415,000, a Roth IRA $88,000; nothing typed for the 12-month return; Advisor mode.<br><b>The figures, by hand.</b> Nest egg: $20,000 + $415,000 + $88,000 = $523,000 (Cash $20K, Retirement $503K). The blended benchmark: ($415,000 × 7.90% + $88,000 × 7.90% + $20,000 × 0.50%) ÷ $523,000 = 7.62%. Each year to 65: balance × 1.0762 + $10,000 → $572,837 (2027), $626,470, $684,188, $746,303, $813,149 (2031): $813K; you add 5 × $10,000 = $50K, growth $813,149 − $523,000 − $50,000 = $240K. 401(k): the 60–63 limit $24,500 + $11,250 = $35,750, less the $10,000 put in = $25,750. IRA: $7,500 + $1,100 = $8,600. The bracket: $70,000 − $10,000 − $16,100 = $43,900, in the 12% band (to $50,400). Expenses at 90: $4,500 × 1.025²⁵ = $8,342/month, printed $8K. The odds are 1,000 simulated futures, printed to the tenth.</div>
+</div>
+<div>
+<div class="phone"><div class="screen">
+  <div class="sbar"><span>9:41</span><span>▮▮▮ ◔ ▮</span></div>
+  <div class="topbar"><span class="menuBtn">▦ Menu</span><span class="wordmark"><span class="m">Money</span><span class="k">Keel</span></span><span class="tright"><span class="ico">◉</span><span class="ico">⚙</span></span></div>
+  <div class="content" id="cockpit-sandbox-content">
+    <div class="scTop"><span class="scBack">‹ Where you stand</span><span class="sandboxTag">SANDBOX</span></div>
+    <div class="band newb">WHAT IF? — DRAG TO EXPLORE</div>
+    <div class="note">Trying it out — nothing changes until you tap Use as my plan.</div>
+    <div class="scHero"><div class="twoUp">
+      <div class="hCol"><div class="hLab">Nest egg today</div><div class="hNum">$523K</div></div>
+      <span class="hArrow">→</span>
+      <div class="hCol"><div class="hLab">At retirement (65)</div><div class="hNum" style="color:#006300">$813K</div><div class="hDelta">▲ +$290K</div></div>
+    </div></div>
+    <div class="note">Your $523K grows to $813K by age 65 at 7.62%/year. To fund $4,500/month to age 90 you'd need about $905K (≈$92K short).</div>
+    <div class="card">
+      <div class="sl"><div class="slTop"><span class="slL">Retire at age</span><span class="slV">65</span></div><div class="trackHit"><div class="track"><div class="fill" style="width:28.6%"></div><span class="tick" style="left:28.6%"></span><span class="thumb" style="left:28.6%"></span></div></div><div class="markerCap">▲ plan 65</div></div>
+      <div class="hzRow"><span class="hzLab">Plan to age</span><span class="hzBtn">−</span><span class="hzVal">90</span><span class="hzBtn">+</span><span class="hzHint">how long the money must last</span></div>
+      <div class=""><div class="sl"><div class="slTop"><span class="slL">Expected return</span><span class="slV">7.62%</span></div><div class="trackHit"><div class="track"><div class="fill" style="width:46.8%"></div><span class="tick" style="left:46.8%"></span><span class="tick" style="left:46.8%"></span><span class="thumb" style="left:46.8%"></span></div></div><div class="markerCap">▲ bench 7.62% ▲ plan 7.62%</div></div></div>
+      <div class="sl"><div class="slTop"><span class="slL">Save / month</span><span class="slV">$833</span></div><div class="trackHit"><div class="track"><div class="fill" style="width:10.4%"></div><span class="tick" style="left:10.4%"></span><span class="thumb" style="left:10.4%"></span></div></div><div class="markerCap">▲ plan $833</div></div>
+      <div class="sl"><div class="slTop"><span class="slL">Pay raises / year</span><span class="slV">none</span></div><div class="trackHit"><div class="track"><div class="fill" style="width:0.0%"></div><span class="thumb" style="left:0.0%"></span></div></div></div>
+      <div class="sl"><div class="slTop"><span class="slL">Planned spend / month</span><span class="slV">$4,500</span></div><div class="trackHit"><div class="track"><div class="fill" style="width:18.4%"></div><span class="tick" style="left:18.4%"></span><span class="thumb" style="left:18.4%"></span></div></div><div class="markerCap">▲ plan $4,500</div></div>
+      <div class=""><div class="sl"><div class="slTop"><span class="slL">Inflation</span><span class="slV">2.50%</span></div><div class="trackHit"><div class="track"><div class="fill" style="width:41.7%"></div><span class="tick" style="left:41.7%"></span><span class="thumb" style="left:41.7%"></span></div></div><div class="markerCap">▲ default 2.50%</div></div></div>
+      <div class="note">Inflation default 2.50% — the 30-year average of consumer prices (Bureau of Labor Statistics, CPI-U, 1996–2025). Yours to change.</div>
+      <div class="note">▲ marks your benchmark, current plan, and 12-mo actual where relevant — so you can see how far a what-if drifts from them.</div>
+    </div>
+    <div class="card">
+      <div class="lband newb">HOW CONFIDENT IS THIS?</div>
+      <div class="note">A Monte Carlo simulation runs this scenario through 1,000 random market futures (good and bad return sequences) and counts how often your money lasts to 90. Markets aren't a straight line, so this shows the range of outcomes — not a promise.</div>
+      <div class="save" style="margin-top:10px">Run Monte Carlo simulation</div>
+    </div>
+    <div class="save">Use as my plan</div>
+    <div class="actionHint">Makes these your real numbers — updates “Where you stand”.</div>
+    <div class="btnRow2"><span class="btn2">＋ Save scenario</span><span class="btn2">↺ Reset to plan</span></div>
+    <div class="actionHint">Save = bookmark this what-if to compare later (doesn't change your plan). Reset = pull the sliders back to your current plan.</div>
+    <span id="cockpit-sandbox-content-end"></span>
+    <div style="height:40px"></div>
+  </div>
+  <div class="tabbar">
+    <div class="tb"><i></i><b>⌂</b>Home</div>
+    <div class="tb"><i></i><b>◇</b>Net worth</div>
+    <div class="tb"><i></i><b>▤</b>Performance</div>
+    <div class="tb"><i></i><b>▭</b>Cash flow</div>
+    <div class="tb"><i></i><b>◎</b>Plan</div>
+  </div>
+</div></div>
+<div class="cap"><b>The same route, its second view</b> — opened by ‘Run scenario analysis →’. The sliders start from the plan’s own figures, kept whole: the return 7.62% (the blended benchmark), saving $833/month, $4,500/month, inflation 2.50% (the dated default). Nest egg $523K → $813K at 65: ▲ +$290K ($813,149 − $523,000). Before ‘Run Monte Carlo simulation’ is tapped no odds are shown.</div>
+</div>
+</div>
+
+</div></body></html>

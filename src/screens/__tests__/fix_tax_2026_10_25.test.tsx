@@ -123,12 +123,12 @@ describe('2 · the Tax organizer', () => {
     const base = { baseSalary: '6000', salaryFreq: 'monthly', filingStatus: 'single' };
     useStore.setState({ hideBalances: false, onboardingProfile: base } as any);
     const a = render(<TaxOrganizerScreen />);
-    expect(screen.getByText(/^Calculated federal tax ≈\d+\.\d{2}% of the year's income — assumes you take the standard deduction\. Figures are/)).toBeOnTheScreen();
+    expect(screen.getByText(/^Calculated federal tax ≈\d+\.\d{2}% of the year’s income — assumes you take the standard deduction\. Figures are/)).toBeOnTheScreen();
     expect(screen.queryByText(/Est\. effective federal rate/)).toBeNull();
     a.unmount();
     useStore.setState({ onboardingProfile: { ...base, stateTaxRate: '5' } } as any);
     const b = render(<TaxOrganizerScreen />);
-    expect(screen.getByText(/^Calculated tax ≈\d+\.\d{2}% of the year's income — federal income tax, plus the 5\.00% state rate you entered; assumes you take the standard deduction\./)).toBeOnTheScreen();
+    expect(screen.getByText(/^Calculated tax ≈\d+\.\d{2}% of the year’s income — federal income tax, plus the 5\.00% state rate you entered; assumes you take the standard deduction\./)).toBeOnTheScreen();
     b.unmount();
     useStore.setState({ onboardingProfile: { ...base, taxMode: 'manual', manualTaxRate: '24' } } as any);
     render(<TaxOrganizerScreen />);

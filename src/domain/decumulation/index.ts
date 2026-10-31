@@ -392,12 +392,13 @@ export function withdrawalOrder(split: BucketSplit, age = 0, userOrder?: DrawBuc
  *
  * Called by ... MK-PL-F-003 depletionAge · MK-PL-F-004 withdrawalOrder
  *               MK-PL-F-008 rmdSchedule · MK-PL-F-010 drawOrderOutcome
- *               MK-PL-F-027 nextDecision
+ *               MK-PL-F-027 nextDecision · MK-PL-F-095 rothConversionLater
  *
- * Reaches ..... 6 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 7 functions. Change the arithmetic above and these change with it:
  *               MK-PL-F-003 depletionAge · MK-PL-F-010 drawOrderOutcome
  *               MK-CF-O-017 futurePaycheck · MK-PL-F-027 nextDecision
- *               MK-PL-F-008 rmdSchedule · MK-PL-F-004 withdrawalOrder
+ *               MK-PL-F-008 rmdSchedule · MK-PL-F-095 rothConversionLater
+ *               MK-PL-F-004 withdrawalOrder
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -419,12 +420,14 @@ export function rmdStartAgeFor(age?: number | null, nowYear = new Date().getFull
  *     table rmd divisor(age, now year − age)
  *
  * Called by ... MK-PL-F-007 rmdAtAge · MK-PL-F-008 rmdSchedule
+ *               MK-PL-F-095 rothConversionLater
  *
- * Reaches ..... 8 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 9 functions. Change the arithmetic above and these change with it:
  *               MK-PL-F-003 depletionAge · MK-PL-F-010 drawOrderOutcome
  *               MK-CF-O-017 futurePaycheck · MK-PL-F-027 nextDecision
  *               MK-PL-F-007 rmdAtAge · MK-PL-F-080 rmdRequiredThisYear
- *               MK-PL-F-008 rmdSchedule · MK-PL-F-004 withdrawalOrder
+ *               MK-PL-F-008 rmdSchedule · MK-PL-F-095 rothConversionLater
+ *               MK-PL-F-004 withdrawalOrder
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -449,13 +452,13 @@ export function rmdDivisorAtAge(age: number, nowYear = new Date().getFullYear())
  *
  * Called by ... MK-PL-F-003 depletionAge · MK-PL-F-004 withdrawalOrder
  *               MK-PL-F-008 rmdSchedule · MK-PL-F-010 drawOrderOutcome
- *               MK-PL-F-080 rmdRequiredThisYear
+ *               MK-PL-F-080 rmdRequiredThisYear · MK-PL-F-095 rothConversionLater
  *
- * Reaches ..... 7 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 8 functions. Change the arithmetic above and these change with it:
  *               MK-PL-F-003 depletionAge · MK-PL-F-010 drawOrderOutcome
  *               MK-CF-O-017 futurePaycheck · MK-PL-F-027 nextDecision
  *               MK-PL-F-080 rmdRequiredThisYear · MK-PL-F-008 rmdSchedule
- *               MK-PL-F-004 withdrawalOrder
+ *               MK-PL-F-095 rothConversionLater · MK-PL-F-004 withdrawalOrder
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

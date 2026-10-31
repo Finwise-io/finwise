@@ -54,6 +54,9 @@ const DOORS: [string, Record<string, FigureSpec>][] = [
   ['MK-CF-O-017 futurePaycheck', FUTURE_PAYCHECK_FIGURES],   // the projection card's door, 2026-10-02
   ['MK-CF-O-017 futurePaycheck', PAYCHECK_RETURN_FIGURES],   // the return it runs on (its `assumes`), 2026-10-26
   ['MK-CF-O-017 futurePaycheck', INFLATION_FIGURES],   // the inflation it runs on (its `assumes`), 2026-10-26
+  // Roth conversion's twelve figures LEFT THIS LIST 2026-10-31 (the lead's ruling, PF-TOOLS): a door is an orchestrator, and no
+  // orchestrator hands them — MK-PL-F-032 rothConversionCost is a function, and the Plan doors wait on Q-PL-5 (workplan #121).
+  // Their numbers stay reserved on the metric register; RothScreen prints them, counted by guard_figures_declared.
 ];
 
 /* ─ MK-XS-F-181 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)

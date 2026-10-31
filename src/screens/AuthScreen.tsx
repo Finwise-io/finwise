@@ -69,7 +69,7 @@ export default function AuthScreen() {
     s.setOnboardingDraft?.(null);
     s.setOnboardingPaused?.(false);
     s.setOnboardingComplete?.(true);
-    Alert.alert("You're in! 🎉", `You're sharing a plan with ${inv.inviterName ?? 'your spouse'} — you'll both see the same accounts, plans and goals.`);
+    Alert.alert("You’re in! 🎉", `You’re sharing a plan with ${inv.inviterName ?? 'your spouse'} — you’ll both see the same accounts, plans and goals.`);
     router.replace('/(tabs)/home');
     return true;
   }
@@ -97,7 +97,7 @@ export default function AuthScreen() {
       return;
     }
     if (mode === 'register' && password !== confirm) {
-      Alert.alert('Passwords don\'t match', 'Please make sure both passwords are identical.');
+      Alert.alert('Passwords don’t match', 'Please make sure both passwords are identical.');
       return;
     }
     if (mode === 'register' && !name.trim()) {
@@ -129,7 +129,7 @@ export default function AuthScreen() {
           try {
             await joinHousehold(user.uid);
           } catch {
-            Alert.alert("Couldn't join the household", 'Check your connection — you can also join later. Continuing your own setup for now.');
+            Alert.alert("Couldn’t join the household", 'Check your connection — you can also join later. Continuing your own setup for now.');
           }
         }
 
@@ -165,7 +165,7 @@ export default function AuthScreen() {
         // Don't reveal whether the email is registered (prevents account enumeration).
         Alert.alert(
           'Password reset sent',
-          `If an account exists for ${trimEmail}, you'll receive reset instructions by email.\n\nYour data is end-to-end encrypted — after resetting, sign in and enter your recovery code to restore it.`,
+          `If an account exists for ${trimEmail}, you’ll receive reset instructions by email.\n\nYour data is end-to-end encrypted — after resetting, sign in and enter your recovery code to restore it.`,
         );
         setMode('login');
       }
@@ -192,7 +192,7 @@ export default function AuthScreen() {
         Alert.alert('No internet', 'Please check your connection and try again.');
       } else {
         // Never surface a raw Firebase/network exception string to the user.
-        Alert.alert('Something went wrong', "We couldn't complete that just now. Please try again.");
+        Alert.alert('Something went wrong', "We couldn’t complete that just now. Please try again.");
       }
     } finally {
       setLoading(false);
@@ -209,7 +209,7 @@ export default function AuthScreen() {
       setRestoreVisible(false);
       router.replace('/(tabs)/home');
     } catch (err: any) {
-      Alert.alert('Couldn\'t restore', err?.message || 'That recovery code didn\'t work.');
+      Alert.alert('Couldn’t restore', err?.message || 'That recovery code didn’t work.');
     } finally {
       setRestoreBusy(false);
     }
@@ -228,7 +228,7 @@ export default function AuthScreen() {
   const subs: Record<Mode, string> = {
     login: 'Sign in to your MoneyKeel account',
     register: 'Start your financial wellness journey',
-    forgot: 'We\'ll email you a reset link. Your data is end-to-end encrypted — only your password or recovery code can unlock it, not even MoneyKeel can read it. After resetting, sign in and enter your recovery code to restore your data.',
+    forgot: 'We’ll email you a reset link. Your data is end-to-end encrypted — only your password or recovery code can unlock it, not even MoneyKeel can read it. After resetting, sign in and enter your recovery code to restore your data.',
   };
   const btnLabels: Record<Mode, string> = {
     login: 'Sign in',
@@ -244,8 +244,8 @@ export default function AuthScreen() {
           <View style={styles.restoreCard}>
             <Text style={styles.restoreTitle}>Restore your data</Text>
             <Text style={styles.restoreBody}>
-              Your data is end-to-end encrypted, so your new password can't open it yet. Enter your
-              recovery code to unlock it — it'll then re-lock under your new password automatically.
+              Your data is end-to-end encrypted, so your new password can’t open it yet. Enter your
+              recovery code to unlock it — it’ll then re-lock under your new password automatically.
             </Text>
             <TextInput
               style={styles.restoreInput}
@@ -259,7 +259,7 @@ export default function AuthScreen() {
             />
             <Button label={restoreBusy ? 'Restoring…' : 'Restore my data'} onPress={submitRestore} disabled={restoreBusy} />
             <TouchableOpacity onPress={startFresh} style={{ paddingVertical: 12, alignItems: 'center' }} accessibilityRole="button" accessibilityLabel="Start fresh instead">
-              <Text style={styles.restoreFresh}>I don't have it — start fresh</Text>
+              <Text style={styles.restoreFresh}>I don’t have it — start fresh</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -269,11 +269,12 @@ export default function AuthScreen() {
 
         {/* Logo */}
         <View style={styles.logoWrap}>
-          {/* the approved K-mark — the same brand asset first-run uses, never the old emoji circle */}
-          <Image source={require('../../assets/brand/mark.png')} style={styles.logoMark} accessible={false} />
+          {/* the founder's mark (2026-10-30, "change the logo to attached"; drawing brand-wordmark v02) — the
+              same brand asset first-run uses, never the old emoji circle or the K it replaced */}
+          <Image source={require('../../assets/brand/mark.png')} style={styles.logoMark} resizeMode="contain" accessible={false} />
           {/* B45 founder finding: the name was TYPED (black here, green in the top bar) and neither
               matched the designed logo. No screen types the name anymore — this is the logo art
-              itself (Money teal · Keel navy, the logo's own typeface), cut from the approved file. */}
+              itself, the founder's lettering cut from his full logo file (2026-10-30). */}
           <Image source={require('../../assets/brand/wordmark.png')} style={styles.wordmark} resizeMode="contain" accessibilityLabel="MoneyKeel" />
           <Text style={styles.tagline}>Your finance command center</Text>
         </View>
@@ -434,8 +435,10 @@ const styles = StyleSheet.create({
   restoreInput: { borderWidth: 1, borderColor: Colors.border, borderRadius: Radii.md, paddingHorizontal: Spacing.md, paddingVertical: 12, fontSize: Typography.sizes.md, color: Colors.textPrimary, marginBottom: Spacing.base, fontFamily: 'monospace' },
   restoreFresh: { color: Colors.textTertiary, fontWeight: '600', fontSize: Typography.sizes.sm },
   logoWrap: { alignItems: 'center', marginBottom: Spacing.xl },
-  logoMark: { width: 84, height: 84, marginBottom: Spacing.sm },
-  wordmark: { width: 150, height: 30, marginTop: 2 },
+  // brand-wordmark v02 (2026-10-30): the lettering keeps its 150 width at the art's 4.9 : 1; the mark keeps the size it
+  // has beside the lettering in the founder's full logo (0.6 of its width) at the mark's 2.04 : 1 — it was a square 84
+  logoMark: { width: 89, height: 43.7, marginBottom: Spacing.sm },
+  wordmark: { width: 150, height: 30.6, marginTop: 2 },
   tagline: { fontSize: Typography.sizes.base, color: Colors.textSecondary, marginTop: 2 },
   card: { backgroundColor: Colors.cardBg, borderRadius: Radii.xl, borderWidth: 0.5, borderColor: Colors.border, padding: Spacing.xl },
   cardTitle: { fontSize: 20, fontWeight: '700', color: Colors.textPrimary, marginBottom: 4 },

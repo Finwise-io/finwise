@@ -26,7 +26,7 @@ export function PlanGoals({ goals }: { goals: GoalRow[] }) {
           <Text style={s.emptyTitle}>Nothing here yet</Text>
           {/* names what a goal IS, in her words — a person who has never set one does not know */}
           <Text style={s.emptyBody}>
-            A goal is anything you're putting money aside for: a car, a wedding, helping a grandchild.
+            A goal is anything you’re putting money aside for: a car, a wedding, helping a grandchild.
           </Text>
           <TouchableOpacity style={s.cta} onPress={() => router.push('/(tabs)/goals')} accessibilityRole="button"
             accessibilityLabel="Add a goal">
@@ -35,7 +35,7 @@ export function PlanGoals({ goals }: { goals: GoalRow[] }) {
         </View>
       ) : (
         <>
-          <SectionBand quiet title="WHAT YOU'RE SAVING FOR" />
+          <SectionBand quiet title="WHAT YOU’RE SAVING FOR" />
           <View style={s.card}>
             {/* the front door: with more than one goal, "can I afford them together" IS the question */}
             <TouchableOpacity style={s.row} onPress={() => router.push('/multi-goal')} accessibilityRole="button"

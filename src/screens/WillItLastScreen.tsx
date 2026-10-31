@@ -70,7 +70,7 @@ export default function WillItLastScreen() {
         <SectionBand inCard title="WHAT THIS MEANS" />
         <Text style={s.body}>
           We play out hundreds of possible market futures — some kind, some rough — using the numbers below.
-          In {wil.chance} out of 100 simulated futures, your money lasts to {wil.horizonAge}. It's an honest estimate
+          In {wil.chance} out of 100 simulated futures, your money lasts to {wil.horizonAge}. It’s an honest estimate
           that moves with your balances — never a promise, never a prediction of any single year.
         </Text>
       </View>
@@ -93,7 +93,7 @@ export default function WillItLastScreen() {
       </View>
       {/* the odds count an account with no tax type as taxable, and name it (DEC-4105, 2026-10-10) */}
       <CountedTaxableLines accounts={accounts} />
-      <Text style={s.note}>Change any driver and this number, Home's strip and Cash flow's strip all move together — they are one number.</Text>
+      <Text style={s.note}>Change any driver and this number, Home’s strip and Cash flow’s strip all move together — they are one number.</Text>
       <View style={{ height: 32 }} />
     </ScrollView>
   );

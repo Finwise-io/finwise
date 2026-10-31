@@ -138,7 +138,7 @@ export default function WhatIfScreen() {
         </View>
       ) : result?.retired ? (
         <View style={s.card}>
-          <Text style={s.note}>You're already drawing down, so monthly contributions aren't the lever — the Plan tab's scenarios (expenses, claim timing) are where your choices live.</Text>
+          <Text style={s.note}>You’re already drawing down, so monthly contributions aren’t the lever — the Plan tab’s scenarios (expenses, claim timing) are where your choices live.</Text>
           <TouchableOpacity accessibilityRole="button" style={s.emptyLink} onPress={() => router.push('/(tabs)/plan')}
             accessibilityLabel="Open the Plan tab"><Text style={s.emptyLinkT}>Open the Plan tab ›</Text></TouchableOpacity>
         </View>
@@ -149,13 +149,13 @@ export default function WhatIfScreen() {
           {/* the payoff leads (audit WI-1): the delta is why the screen exists */}
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
             <Text style={s.deltaHero}>{result.after.egg - result.before.egg >= 0 ? '+' : '\u2212'}{maskedMoney(Math.abs(result.after.egg - result.before.egg))}</Text>
-            <InfoDot term="nestEggMath" />
+            <InfoDot term="nestEggMath" line={s.deltaHero} />
             <Text style={s.deltaSub}>more by {result.retireAge} — an estimate</Text>
           </View>
           <View style={s.row}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
               <Text style={s.rowL}>Projected nest egg</Text>
-              <InfoDot term="nestEggMath" />
+              <InfoDot term="nestEggMath" line={s.rowL} />
             </View>
             <Text style={s.rowV}>{`${maskedMoney(result.before.egg)} → ${maskedMoney(result.after.egg)}`}</Text>
           </View>

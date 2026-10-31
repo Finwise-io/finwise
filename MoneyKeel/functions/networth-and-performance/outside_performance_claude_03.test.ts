@@ -186,9 +186,11 @@ describe('MK-PF-F-015 topHoldingConcentration — five cases', () => {
   // (index.ts:880). DEC-0300: "full precision throughout, round once at display". pct is compared as shown (43), as the
   // auditor's note asks (the card says the share is returned as a whole percent).
   // FIXED 2026-10-11 (outside review Claude Performance, DEC-0300): the value is not rounded inside; pct stays the whole percent the card states.
+  // AND THE SHARE IS NOT ROUNDED INSIDE EITHER (2026-10-27, FX-PF; his precision order Q49, MK-PF-F-015): 41,250.17 ÷ (41,250.17 + 22,980.40
+  // + 18,100.00 + 9,875.55 + 3,410.88) = 41,250.17 ÷ 95,617.00 = 43.1410…%, shown "43.14%" — it was returned as 43 and printed "(43%)"
   test('complex · Five holdings from a broker link', () => {
     const t = topHoldingConcentration(rowsOf({ VTI: 41250.17, SCHD: 22980.4, BND: 18100.0, QQQ: 9875.55, GLD: 3410.88 }))!;
-    expect(t.ticker).toBe('VTI'); expect(t.pct).toBe(43); near(t.value, 41250.17, 9);
+    expect(t.ticker).toBe('VTI'); near(t.pct, (41250.17 / 95617) * 100, 9); expect(t.pct.toFixed(2)).toBe('43.14'); near(t.value, 41250.17, 9);
   });
   test('complex · Spread out: no fact to report', () => {
     refuses(topHoldingConcentration(rowsOf({ VTI: 22000, VXUS: 21500, BND: 20800, SCHD: 19700, VNQ: 16000 })));
@@ -272,6 +274,19 @@ describe('MK-NW-F-084 categoryEarnings — five cases', () => {
       windowStart: '2026-07-10',
       rows: [H('VTI', 'stocks', 31302.0, 0.112523), H('SCHD', 'stocks', 9880.0, 0.0233), H('QQQ', 'stocks', 8844.6, -0.0412), H('BND', 'bond', 14610.0, 0.0126)],
     }), [['Stocks / Funds', 349.55, 0.064039, false], ['Bonds & CDs', 183.2, 0.0126, false], ['Cash in this account', 14.73, null, false]]);
+  });
+  // SETTLED 2026-10-27 (FX-AUDITS, APP RIGHT by DEC-6799): BND's −$58.20 is a reversal, so Bonds & CDs earned $125.00 − $58.20.
+  // Stocks / Funds: $41.00 + $212.40 + $96.15 = $349.55 (VTI's 9 Jul $80 falls before the window); its return
+  // 50,026.60 ÷ (31,302 ÷ 1.112523 + 9,880 ÷ 1.0233 + 8,844.60 ÷ 0.9588) − 1 = +6.40%.
+  test('pin · A quarter of dividends and interest — the app\'s answer: Bonds & CDs $66.80, the reversal taken off', () => {
+    check(categoryEarnings({
+      transactions: [T('dividend', 'SCHD', '2026-07-10', 41.0), T('dividend', 'VTI', '2026-07-09', 80.0), T('dividend', 'VTI', '2026-09-25', 212.4),
+        T('dividend', 'SCHD', '2026-09-28', 96.15), T('dividend', 'BND', '2026-10-01', -58.2), T('interest', '912828ZT6', '2026-08-15', 125.0),
+        T('interest', null, '2026-09-30', 14.73, 'brokerage')],
+      windowStart: '2026-07-10',
+      rows: [H('VTI', 'stocks', 31302.0, 0.112523), H('SCHD', 'stocks', 9880.0, 0.0233), H('QQQ', 'stocks', 8844.6, -0.0412), H('BND', 'bond', 14610.0, 0.0126)],
+    }), [['Stocks / Funds', 41 + 212.4 + 96.15, 50026.6 / (31302 / 1.112523 + 9880 / 1.0233 + 8844.6 / 0.9588) - 1, false],
+      ['Bonds & CDs', 125 - 58.2, 0.0126, false], ['Cash in this account', 14.73, null, false]]);
   });
   // FINDING: app gives [Cash in this account $412, no return], expected [Bonds & CDs $412, 4.00625%/year] — interest naming
   // no ticker is filed under Cash (performance.ts:891) though it came from a CD held as its own account; Bonds & CDs then

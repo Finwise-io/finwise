@@ -261,6 +261,11 @@ describe('MK-NW-F-012 taxTreatmentOf — five cases', () => {
   });
   // SETTLED 2026-10-10 by DEC-4036f: nothing stated is never assumed taxable
   test('edge · No treatment and no tax bucket', () => { expect(taxTreatmentOf(acct({ kind: 'unknown', tax_bucket: null }))).toBe('not_stated'); });
+  // SETTLED 2026-10-27 (FX-AUDITS, APP RIGHT by DEC-4036f): the case above was changed in place on 2026-10-10; the auditor's
+  // "taxable" is kept here, failing. Nothing stated is never assumed taxable — it reads "tax type not stated".
+  test.failing('edge · No treatment and no tax bucket — the auditor\'s "taxable", kept', () => {
+    expect(taxTreatmentOf(acct({ kind: 'unknown', tax_bucket: null }))).toBe('taxable');
+  });
 });
 
 // REMOVED 2026-10-19 (DEC-5758, his words: "Removing #4,5,6,7-10,11 - approved."): MK-NW-F-013 realEstateUseOf left the code —
@@ -301,6 +306,14 @@ describe('MK-NW-F-016 cashTotal — five cases', () => {
   // is left out of the total and the amber box names it (app: 0, and dataGaps 'Account has no balance').
   test.failing('edge · No cash value known', () => {
     refuses(cashTotal([acct({ kind: 'brokerage', source: 'connected', balance: null })]));
+  });
+  // SETTLED 2026-10-27 (FX-AUDITS, APP RIGHT by DEC-3279e): no cash is on record, so the Cash line counts $0 of it and the
+  // amber box names the account — "left out of your totals until it has one — not counted as $0". Nothing is guessed.
+  test('pin · No cash value known — the app\'s answer: $0 of cash on record, the account named in the amber box (DEC-3279e)', () => {
+    const a = acct({ kind: 'brokerage', source: 'connected', balance: null });
+    expect(cashTotal([a])).toBe(0);
+    expect(dataGaps([a]).filter((g) => g.kind === 'no-balance').map((g) => `${g.title} — ${g.meanwhile}`))
+      .toEqual(['Account has no balance — It is left out of your totals until it has one — not counted as $0.']);
   });
 });
 

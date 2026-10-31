@@ -58,7 +58,8 @@ test('hero: current price on top, then the position table — the SAME numbers a
   const st = useStore.getState() as any;
   const row = buildPerformance([NVDA_POS as any], (t: string) => st.priceCache[t], '1Y')[0];
   expect(screen.getByText('NVIDIA (NVDA)')).toBeOnTheScreen();
-  expect(screen.getByText('in Fidelity')).toBeOnTheScreen();
+  // the account's one name (2026-10-27, FX-PF, PF-8; DEC-0083): Fidelity, a brokerage with no digits on record → 'Fidelity Brokerage'
+  expect(screen.getByText('in Fidelity Brokerage')).toBeOnTheScreen();
   const { money, money2 } = require('../../domain/_shared/num');
   expect(screen.getByText(/^LAST CLOSE/)).toBeOnTheScreen();   // the price is the last close, never live (2026-10-21, MK-NW-M-029)
   // PRECISION COMES FROM THE DECLARATION NOW (rule 11, 2026-10-01). These assertions were written
@@ -207,7 +208,7 @@ test('function: holding-concentration insight fires from the SAME shared rule th
   // walk row 9 (home-v2): dollar-first — the value leads, the percent follows in parentheses
   // one HOLDING, the canon's word for one ticker, whatever it is (2026-10-25): it said "one stock", and read so for VTI, a fund
   expect(hit.title).toBe('A lot rides on one holding');
-  expect(hit.body).toMatch(new RegExp(`^\\$[\\d,]+ \\(${top.pct}%\\) of your invested money rides on one holding \\(NVDA\\)`));
+  expect(hit.body).toMatch(new RegExp(`^\\$[\\d,]+ \\(${top.pct.toFixed(2)}%\\) of your invested money rides on one holding \\(NVDA\\)`));
   expect(`${hit.title} ${hit.body}`).not.toMatch(/\bstock\b/);
   expect(hit.body).toContain(top.value.toLocaleString());
   expect(hit.theme).toBe('protect');

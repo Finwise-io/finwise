@@ -13,6 +13,10 @@
 // IT DOES NO ARITHMETIC. Which sources are entered and what each line says comes from MK-CF-O-016's
 // neighbour theIncomeManager; the December card reads MK-CF-O-004 incomeSummary; what the accounts pay
 // comes from MK-CF-F-184 incomeFromAccounts.
+//
+// 2026-10-27 (FX-CF-B, the drawing check IN2-01 to IN2-03, IN2-05, IN2-06): row labels are ink; every money figure one size, a
+// total bold at the rows' size under the drawn rule (DEC-0093); December's row on phone 9 is a plain row with its figure green;
+// a hint is the darker grey and a closed line the lighter; phone 11's first sentence is bold, in one box with the second.
 import { plural } from '../domain/_shared/plural';   // the one list of words and plurals (DEC-4082, 2026-10-10)
 import TopBar from '../components/TopBar';
 import React, { useState } from 'react';
@@ -300,7 +304,8 @@ function BonusAndStock({ op, set, onDone }: { op: any; set: (p: Record<string, a
             <SectionBand inCard light inset={Spacing.base} onRowEdges title={`${sum.lands.standoutMonth.label} will look different`} />
             {/* ≈ on a month worked with the calculated rate, as the Income summary prints it (IN-03, 2026-10-25) */}
             <Row label={sum.lands.totalLabel.replace(/^= /, '')} value={`${sum.lands.approx ? '≈' : ''}${fig('MK-CF-M-037', sum.lands.usualMonth)}`} />
-            <Row label={sum.lands.standoutMonth.label} note="bonus, after tax" strong pos
+            {/* a plain row, its month regular and its figure green, as phone 9 draws it (IN2-05, 2026-10-27) */}
+            <Row label={sum.lands.standoutMonth.label} note="bonus, after tax" pos
                  value={`${sum.lands.standoutMonth.approx ? '≈' : ''}${fig('MK-CF-M-039', sum.lands.standoutMonth.amount)}`} />
             <Text style={s.info}>
               Cash flow will show that spike where it happens. Spreading it across twelve months would make every month wrong to make one look tidy.
@@ -454,11 +459,10 @@ function InterestAndDividends({ op, set, onDone }: { op: any; set: (p: Record<st
       </View>
       <View style={s.group}>
         <SectionBand inCard light inset={Spacing.base} onRowEdges title={paid ? 'This reaches your bank' : 'This does not reach your bank'} />
+        {/* one box, its first sentence bold, as phone 11 draws it (IN2-06, 2026-10-27) */}
         <Text style={s.info}>
-          {paid ? 'Interest and dividends are counted as income you are taxed on, and as money you can spend.'
-                : 'Interest and dividends are counted as income you are taxed on, not money you can spend.'}
-        </Text>
-        <Text style={s.info}>
+          <Text style={{ fontWeight: '800' }}>{paid ? 'Interest and dividends are counted as income you are taxed on, and as money you can spend.'
+                : 'Interest and dividends are counted as income you are taxed on, not money you can spend.'}</Text>{' '}
           They are normally reinvested where they are earned, so they never reach your bank account. If you actually take them as cash, tell us and we will count them.
         </Text>
         <Seg value={paid ? 'yes' : 'no'} options={[['no', 'Reinvested'], ['yes', 'Paid to my bank']]} onChange={(v) => set({ invPaidToBank: v })} />
@@ -485,8 +489,9 @@ function AskedBefore({ source, onDone }: { source: ManagedSource['key']; onDone:
         {renderStep(STEP[source]!.step as any, ctx)}
         {source === 'other_income' && (
           <>
-            <Text style={s.band}>One-time payments you recorded</Text>
-            <View style={s.card}>
+            {/* the box title on the dark bar, edge to edge of its square card (DEC-8839, R1; 2026-10-27) — it was grey capitals */}
+            <View style={s.group}>
+              <SectionBand inCard inset={Spacing.base} onRowEdges title="One-time payments you recorded" />
               {incomes.length === 0 && <Text style={s.note}>None recorded.</Text>}
               {incomes.map((i: any) => (
                 <View key={i.id} style={s.linkRow}>
@@ -531,7 +536,7 @@ function AddIncome({ open, onClose, onSave }: { open: boolean; onClose: () => vo
           <Text style={s.q}>What was it?</Text>
           <TextInput style={s.input} value={source} onChangeText={setSource} placeholder="e.g. Gift, stock sale, freelance" placeholderTextColor={Colors.textTertiary} accessibilityLabel="What was it?" />
           <Text style={s.q}>Amount</Text>
-          <TextInput style={s.input} keyboardType="decimal-pad" value={amount} onChangeText={setAmount} placeholder="0" placeholderTextColor={Colors.textTertiary} accessibilityLabel="Amount" />
+          <MoneyBox bare style={s.input} value={amount} onChangeText={setAmount} placeholder="0" a11y="Amount" />
           <TouchableOpacity accessibilityRole="button" accessibilityLabel="Add" style={[s.cta, (num(amount) <= 0 || !source.trim()) && { opacity: 0.4 }]}
             disabled={num(amount) <= 0 || !source.trim()} onPress={() => onSave(source.trim(), num(amount))}>
             <Text style={s.ctaT}>Add</Text>
@@ -544,7 +549,7 @@ function AddIncome({ open, onClose, onSave }: { open: boolean; onClose: () => vo
 
 function Row({ label, note, value, strong, pos }: { label: string; note?: string | null; value: string; strong?: boolean; pos?: boolean }) {
   return (
-    <View style={s.row}>
+    <View style={[s.row, strong && s.rowTot]}>
       <View style={{ flex: 1 }}>
         <Text style={[s.rowL, strong && s.rowLStrong]}>{label}</Text>
         {note ? <Text style={s.rowNote}>{note}</Text> : null}
@@ -570,7 +575,7 @@ const s = StyleSheet.create({
   secBody: { paddingBottom: 4 },
   who: { fontSize: 15, fontWeight: '800', color: Colors.textPrimary },
   tick: { fontSize: 13, fontWeight: '800', color: Colors.primaryDark },
-  whoSub: { fontSize: 11, color: Colors.textSecondary, marginTop: 2 },
+  whoSub: { fontSize: 11, color: Colors.textTertiary, marginTop: 2 },   // a closed line, the lighter grey, as drawn (IN2-03)
   chev: { fontSize: 13, fontWeight: '800', color: Colors.primary },   // brand green at 800, as drawn (IN-15)
   linkRow: { flexDirection: 'row', alignItems: 'center', minHeight: 48, gap: 8 },
   linkL: { fontSize: 15, fontWeight: '700', color: Colors.textPrimary, flex: 1 },
@@ -579,7 +584,7 @@ const s = StyleSheet.create({
   moreIcon: { fontSize: 17, width: 26, textAlign: 'center' },
   moreT: { fontSize: 15, fontWeight: '700', color: Colors.textPrimary },
   q: { fontSize: 15, fontWeight: '700', color: Colors.textPrimary, marginTop: 14 },
-  qsub: { fontSize: 11, color: Colors.textTertiary, marginTop: 2, lineHeight: 16 },
+  qsub: { fontSize: 11, color: Colors.textSecondary, marginTop: 2, lineHeight: 16 },   // a hint, the darker grey, as drawn (IN2-03)
   lead: { fontSize: 15, fontWeight: '700', color: Colors.textPrimary, lineHeight: 21 },
   input: { borderWidth: 1.5, borderColor: Colors.borderStrong, borderRadius: Radii.md, padding: 12, fontSize: 17, fontWeight: '800', color: Colors.textPrimary, marginTop: 8, backgroundColor: Colors.bgSecondary, fontVariant: ['tabular-nums'] },
   segRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 8 },
@@ -589,11 +594,12 @@ const s = StyleSheet.create({
   segT: { fontSize: 13, fontWeight: '700', color: Colors.textSecondary },
   segTOn: { color: Colors.primaryDark, fontWeight: '800' },
   row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 8 },
-  rowL: { fontSize: 15, color: Colors.textSecondary },
+  rowL: { fontSize: 15, color: Colors.textPrimary },   // ink, as drawn (IN2-01, 2026-10-27)
   rowLStrong: { fontWeight: '800', color: Colors.textPrimary },
+  rowTot: { borderTopWidth: 1.5, borderTopColor: Colors.textPrimary },   // the drawn total row's rule
   rowNote: { fontSize: 11, color: Colors.textTertiary },
   rowV: { fontSize: 15, fontWeight: '700', color: Colors.textPrimary, fontVariant: ['tabular-nums'] },
-  rowVStrong: { fontSize: 17, fontWeight: '800' },
+  rowVStrong: { fontWeight: '800' },   // every money figure one size (DEC-0093; IN2-02: it was 17 beside 15)
   pos: { color: Colors.gainText },   // "= You keep" and the December bonus are green, as drawn (IN-15); "= We calculate" is not
   note: { fontSize: 11, color: Colors.textSecondary, lineHeight: 17, marginTop: 8 },
   // the drawing's information box: ink on the blue tint, a blue rule on its left (IN-15)

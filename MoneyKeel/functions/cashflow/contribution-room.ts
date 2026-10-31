@@ -43,6 +43,10 @@ export interface ContributionRoom {
   medicareFrom: { year: number; month: number } | 'before' | null;
   /** the HSA limit for a whole year at this age, before any Medicare months come off — the "$5,400" of "$5,400 × 6 ÷ 12" */
   hsaFullYearLimit: number;
+  /** HSA COVER, AS THE PERSON CHOSE IT (2026-10-27, FX-CF-C; workplan #361; drawing contribution-room v02, row 4): 'family' uses the
+   *  family limit ($8,750 in 2026, Rev. Proc. 2025-19), 'self' the self-only one; null = not chosen, and the limit stays the
+   *  self-only one — the reading that never lets a person put in more than the law allows. The screen says which it is. */
+  hsaCover: 'self' | 'family' | null;
 }
 
 /** WHEN MEDICARE BEGAN, as the room reads it: the stored answer is "YYYY-MM" (its first month) or "before-YYYY" (it began
@@ -100,14 +104,15 @@ function medicareFromOf(v: unknown): { year: number; month: number } | 'before' 
  *     age = age attained in year(num(op.birth year) or nothing, today)
  *     k401 = k401 headroom(age, num(op.c 401k) × 12)
  *     ira limit = annual ira limit(age)
- *     ira used = max(0, num(op.c roth) × 12)
+ *     ira monthly = max(0, num(op.c ira)   if op.c ira ≠ nothing
+ *     num(op.c roth)   otherwise)
+ *     ira used = ira monthly × 12
  *     medicare = true   if op.medicare enrolled = 'yes'
  *     false   if op.medicare enrolled = 'no'
  *     nothing   otherwise   otherwise
  *     from = medicare from of(op.medicare start)   if medicare = true
  *     nothing   otherwise
  *     this year = today.get full year()
- *     enrolled this year = medicare = true and first month ! = 13
  *     … the first steps only — the rest of the body needs reading by hand.
  *
  * Called by ... MK-CF-F-199 ROOM
@@ -122,6 +127,8 @@ function medicareFromOf(v: unknown): { year: number; month: number } | 'before' 
  *               MK-XS-I-043 their own retirement contribution
  *               MK-XS-I-062 enrolled in Medicare (yes / no)
  *               MK-XS-I-074 the month Medicare began — "YYYY-MM", or "before-YYYY" for a start before the year
+ *               MK-XS-I-080 what goes into IRAs a month — Traditional and Roth together, one amount, since they share one limit
+ *               MK-XS-I-081 the HSA cover — self-only or family
  *
  * Decides .....
  *     · Turns a monthly figure into a year by multiplying by twelve.
@@ -148,7 +155,12 @@ export function theContributionRoom(input: {
   // in above the limit. At 60, $3,333.33 a month is $40,000 — $4,250 over the $35,750 limit; it read "$35,750 used".
   const k401 = k401Headroom(age, num(op.c_401k) * 12);
   const iraLimit = annualIraLimit(age);
-  const iraUsed = Math.max(0, num(op.c_roth) * 12);
+  // ONE AMOUNT FOR BOTH IRAs (2026-10-27, FX-CF-C; workplan #361, CFR-4: "only a Roth IRA amount exists"): a Traditional and a Roth
+  // IRA share one limit (IRC §408A(c)(2)), so the room needs one monthly amount, Traditional and Roth together — c_ira, typed on the
+  // IRA card. Until it is typed, the Roth amount sign-up stored before (c_roth) still counts, as it did; once typed (even cleared to
+  // nothing) c_ira alone is read. Read here only: what a person invests stays sign-up's one figure, so the plan counts nothing twice.
+  const iraMonthly = Math.max(0, op.c_ira != null ? num(op.c_ira) : num(op.c_roth));
+  const iraUsed = iraMonthly * 12;
   // G10: Medicare bars it from its first month — a month this year leaves the months before it (IRS Publication 969);
   // no month said, or a start before this year, leaves none
   const medicare: boolean | null = op.medicareEnrolled === 'yes' ? true : op.medicareEnrolled === 'no' ? false : null;
@@ -157,7 +169,10 @@ export function theContributionRoom(input: {
   const firstMonth = from == null || from === 'before' ? null
     : from.year < thisYear ? null : from.year > thisYear ? 13 : from.month;   // 13: it begins after this year
   const enrolledThisYear = medicare === true && firstMonth !== 13;
-  const hsaLimit = annualHsaLimit(age, false, enrolledThisYear, enrolledThisYear ? firstMonth : null);
+  // HSA COVER (2026-10-27, FX-CF-C; #361): family cover takes the family limit; not chosen → self-only, said so on the screen
+  const hsaCover: 'self' | 'family' | null = op.hsaCover === 'family' ? 'family' : op.hsaCover === 'self' ? 'self' : null;
+  const family = hsaCover === 'family';
+  const hsaLimit = annualHsaLimit(age, family, enrolledThisYear, enrolledThisYear ? firstMonth : null);
   const hsaEligibleMonths = !enrolledThisYear ? 12 : firstMonth == null ? 0 : firstMonth - 1;
   const hsaUsed = Math.max(0, num(op.c_hsa) * 12);
   const room = (limit: number, used: number) => ({ remaining: Math.max(0, limit - used), excess: Math.max(0, used - limit) });
@@ -166,7 +181,7 @@ export function theContributionRoom(input: {
     year: IRS_LIMITS.year,
     age,
     k401: { limit: k401.limit, used: k401.used, remaining: k401.remaining, excess: k401.excess, catchUp: k401.catchUp, monthly: Math.max(0, num(op.c_401k)) },
-    ira: { limit: iraLimit, used: iraUsed, ...room(iraLimit, iraUsed), catchUp: age != null && age >= 50, monthly: Math.max(0, num(op.c_roth)) },
+    ira: { limit: iraLimit, used: iraUsed, ...room(iraLimit, iraUsed), catchUp: age != null && age >= 50, monthly: iraMonthly },
     hsa: { limit: hsaLimit, used: hsaUsed, ...room(hsaLimit, hsaUsed), catchUp: age != null && age >= 55, monthly: Math.max(0, num(op.c_hsa)) },
     monthsLeft: monthsLeftInYear(today),
     perMonthToFill401k: perMonthToFill(k401.remaining, today),
@@ -174,7 +189,8 @@ export function theContributionRoom(input: {
     baseLimitOnly: age == null,
     hsaEligibleMonths,
     medicareFrom: medicare === true ? from : null,
-    hsaFullYearLimit: annualHsaLimit(age, false),
+    hsaFullYearLimit: annualHsaLimit(age, family),
+    hsaCover,
   };
 }
 
@@ -278,9 +294,10 @@ export const CONTRIBUTION_ROOM_FIGURES = declareFigures({
   'MK-MN-M-031': {
     label: 'the $X limit', unit: 'money', screens: ['/contribution-room'], grain: 'one account',
     answers: 'The most the law lets this account take this year, at the person\u2019s age — for an HSA, the months before Medicare only.',
-    formula: 'the IRS limit for the account and the age attained this year (MK-CF-F-054 annualIraLimit, MK-CF-F-055 annualHsaLimit, the 401(k) limit by age), with its catch-up; for an HSA enrolled in Medicare this year, the whole-year limit × the months before Medicare ÷ 12',
-    inputs: ['MK-XS-I-017 birth year', 'MK-XS-I-062 enrolled in Medicare (yes / no)', 'MK-XS-I-074 the month Medicare began'],
-    decisions: ['The age tested is the age ATTAINED IN THE YEAR (his ruling G1).', 'Enrolled in Medicare means no HSA contribution from its first month (his ruling G10); the months before it still count (IRS Publication 969).'],
+    formula: 'the IRS limit for the account and the age attained this year (MK-CF-F-054 annualIraLimit, MK-CF-F-055 annualHsaLimit, the 401(k) limit by age), with its catch-up; for an HSA, the self-only or the family limit as the cover chosen (self-only when none is chosen), and, enrolled in Medicare this year, the whole-year limit × the months before Medicare ÷ 12',
+    inputs: ['MK-XS-I-017 birth year', 'MK-XS-I-062 enrolled in Medicare (yes / no)', 'MK-XS-I-074 the month Medicare began', 'MK-XS-I-081 the HSA cover — self-only or family'],
+    decisions: ['The age tested is the age ATTAINED IN THE YEAR (his ruling G1).', 'Enrolled in Medicare means no HSA contribution from its first month (his ruling G10); the months before it still count (IRS Publication 969).',
+      'HSA COVER (2026-10-27, FX-CF-C, workplan #361; the lead\u2019s decision, made without asking him): family cover takes the family limit — at 55, $8,750 + $1,000 = $9,750, where self-only is $5,400 (Rev. Proc. 2025-19). Not chosen → the self-only limit, and the card says so. To reverse: self-only always.'],
     refusal: 'No birth year entered — the base limit, said as the base one.',
     ruled: '2026-10-26',   // the lead's decision, made without asking him (decide, apply, report); its decision row is PF-RECORDS'
     worked: { given: GIVEN, answer: '$35,750', run: () => ROOM().k401.limit },
@@ -288,8 +305,8 @@ export const CONTRIBUTION_ROOM_FIGURES = declareFigures({
   'MK-MN-M-032': {
     label: 'At $M/month', unit: 'money', per: 'month', screens: ['/contribution-room'], grain: 'one account',
     answers: 'The monthly amount the person entered for this account — what the year at the monthly amount is worked from.',
-    formula: 'the amount entered a month for the account, as entered',
-    inputs: ['MK-XS-I-043 their own retirement contribution'],
+    formula: 'the amount entered a month for the account, as entered; for the IRAs, one amount for Traditional and Roth together, typed on the IRA card — until it is typed, the Roth amount sign-up stored',
+    inputs: ['MK-XS-I-043 their own retirement contribution', 'MK-XS-I-080 what goes into IRAs a month — Traditional and Roth together'],
     refusal: 'Nothing entered — the card reads "up to" the limit and names no monthly amount.',
     ruled: '2026-10-26',   // the lead's decision, made without asking him (decide, apply, report); its decision row is PF-RECORDS'
     worked: { given: GIVEN, answer: '$1,200/month', run: () => ROOM().k401.monthly },
@@ -297,8 +314,8 @@ export const CONTRIBUTION_ROOM_FIGURES = declareFigures({
   'MK-MN-M-033': {
     label: 'the whole-year HSA limit, before Medicare', unit: 'money', screens: ['/contribution-room'],
     answers: 'What the HSA could take this year with no Medicare at all — the figure the months before Medicare are a share of.',
-    formula: 'the self-only HSA limit for the age attained this year, with the age-55 catch-up (MK-CF-F-055 annualHsaLimit, not enrolled)',
-    inputs: ['MK-XS-I-017 birth year'],
+    formula: 'the HSA limit for the cover chosen (self-only when none is chosen) and the age attained this year, with the age-55 catch-up (MK-CF-F-055 annualHsaLimit, not enrolled)',
+    inputs: ['MK-XS-I-017 birth year', 'MK-XS-I-081 the HSA cover — self-only or family'],
     refusal: 'Shown only for someone enrolled in Medicare from a month of this year.',
     ruled: '2026-10-26',   // the lead's decision, made without asking him (decide, apply, report); its decision row is PF-RECORDS'
     worked: { given: GIVEN, answer: '$5,400', run: () => ROOM().hsaFullYearLimit },

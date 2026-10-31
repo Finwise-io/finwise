@@ -107,7 +107,7 @@ describe('1 · the mortgage counted once — planned, actual, the budget editor 
   });
   test('Home’s box: Income $7,200 · Outflow (expenses + debt) $3,248 · Left $3,952 — the Cash flow tab’s actual surplus', () => {
     const H = shoot('home', SEPT, '2026-09-28');
-    const i = H.indexOf("THIS MONTH'S CASH FLOW");
+    const i = H.indexOf("THIS MONTH’S CASH FLOW");
     expect(i).toBeGreaterThanOrEqual(0);
     const box = H.slice(i, i + 12).join(' | ');
     expect(box).toMatch(/\$7,200/); expect(box).toMatch(/\$3,248/); expect(box).toMatch(/\$3,952/);
@@ -129,7 +129,8 @@ const debtsTab = () => fireEvent.press(screen.getByLabelText('Debts tab'));
 describe('2 · the payoff plan pays what is paid (DEC-0641)', () => {
   test('$550 /month total, debt-free Jun 2031, $7,647 total interest — "in payments" reads the same $550', () => {
     const L = shoot('cashflow', H_DEBT, '2026-10-01', debtsTab);
-    expect(L).toContain('across 2 debts · $550/month in payments · ~$261/month interest');   // 9,000 × 24% ÷ 12 + 14,000 × 6.9% ÷ 12 = 180 + 80.50
+    // the payments only — each debt's interest is on its own line (DEC-1560; CF2-03, 2026-10-27): $180 and $81 (9,000 × 24% ÷ 12; 14,000 × 6.9% ÷ 12 = 80.50)
+    expect(L).toContain('across 2 debts · $550/month in payments');
     expect(after(L, '/month total', -1)).toBe('$550');
     expect(after(L, 'debt-free', -1)).toBe('Jun 2031');                       // Oct 2026 + 56 months
     expect(after(L, 'total interest', -1)).toBe('$7,647');

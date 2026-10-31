@@ -1,3 +1,4 @@
+import { MoneyBox } from '../src/components/MoneyBox';   // every money box, one component (DEC-8385)
 import React, { useState } from 'react';
 import {
   View, Text, TextInput, StyleSheet, ScrollView, Alert,
@@ -60,13 +61,11 @@ export default function SavingsScreen() {
 
         <Card>
           <Text style={styles.label}>Amount ($)</Text>
-          <TextInput
+          <MoneyBox bare
             style={styles.amountInput}
             value={amount}
             onChangeText={setAmount}
             placeholder="0.00"
-            keyboardType="decimal-pad"
-            placeholderTextColor={Colors.textTertiary}
             autoFocus
           />
 
@@ -149,7 +148,7 @@ const styles = StyleSheet.create({
   label: { fontSize: Typography.sizes.base, fontWeight: '500', color: Colors.textPrimary, marginBottom: 8 },
   hint: { fontSize: Typography.sizes.xs, color: Colors.textTertiary, marginBottom: 8, marginTop: -4 },
   amountInput: {
-    fontSize: 32, fontWeight: '700', textAlign: 'center',
+    fontSize: 30, fontWeight: '700', textAlign: 'center',   // on the scale (DEC-0059): 32 → 30, the nearest step
     paddingVertical: 16, color: Colors.textPrimary,
     backgroundColor: Colors.bgSecondary, borderRadius: Radii.md,
     borderWidth: 0.5, borderColor: Colors.border,

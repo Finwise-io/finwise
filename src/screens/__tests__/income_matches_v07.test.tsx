@@ -22,7 +22,8 @@
  *     into 401(k)s: $167,400 − $14,400 = $153,000.
  *  4. 2026-10-25 READ THIS FIRST row (IN-10; the app is right): December with the bonus is $9,500 + $12,000 × (1 − 24%) =
  *     $18,620 at the household's own 24%; the drawn $18,860 is the bonus at 22%.
- *  5. 2026-10-25 READ THIS FIRST row (IN-11): a fresh account shows each line's door once — the second "Add your income ›" is gone.
+ *  5. 2026-10-25 READ THIS FIRST row (IN-11): a fresh account shows the door once — "Nothing entered yet. Add your income ›" under
+ *     the first heading; the second heading keeps its $0 and "Nothing entered yet." with no second door (IN2-12, 2026-10-27).
  */
 import React from 'react';
 import { render, screen } from '@testing-library/react-native';
@@ -87,10 +88,18 @@ test('frame 17 · Your income, a fresh account — both sections keep their head
   const want = applyNamed(normPrinted(phone(17, /^We will calculate this once you enter a wage\.$/)), [
     ['Take-home each month — Nothing yet. Tell us where your money comes from and this fills in — it is what every other screen measures against. Add your income',
      'Take-home each month $0 Nothing entered yet. Add your income', 'difference 2 (Q48): $0, the one line and its door'],
-    ['What it is taxed on — We will calculate this once you enter a wage.', 'What it is taxed on $0 Nothing entered yet. Add your income',
-     'difference 2 (Q48)'],
+    ['What it is taxed on — We will calculate this once you enter a wage.', 'What it is taxed on $0 Nothing entered yet.',
+     'differences 2 (Q48) and 5: the $0 and the sentence, and no second door (IN2-12, 2026-10-27)'],
   ]);
   const got = applyNamed(normPrinted(built), [BACK]);
   expect(want.split(' ').length).toBeGreaterThan(20);
-  expect(firstDifference(want, got)).toBe('');                                            // the door once, not twice (difference 5)
+  expect(firstDifference(want, got)).toBe('');                                            // the door once on the screen (difference 5)
+  expect(got.split('Add your income').length - 1).toBe(1);
+});
+
+// THE OLD ANSWER, KEPT (2026-10-27): the door under each heading — "once" read per heading on 2026-10-25, where the dated row
+// and the lead's ruling of 2026-10-27 (IN2-12) read it once on the screen
+test.failing('frame 17, as read on 2026-10-25 — the door under each of the two headings', () => {
+  const got = normPrinted(show({}));
+  expect(got.split('Add your income').length - 1).toBe(2);
 });

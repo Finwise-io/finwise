@@ -509,7 +509,7 @@ describe('the decisions in the log are held by something that executes', () => {
   test('DEC-0118 — the target nest egg is a figure YOU TYPE, marked as yours \u2014 our 80%-odds figure is only the suggestion', () => {
     const rows = fs.readFileSync(path.join(__dirname, '../components/PlanGlanceRows.tsx'), 'utf8');
     // it is ASKED for, in his words, rather than derived and presented as fact
-    expect(rows).toMatch(/What's your target nest egg\?/);
+    expect(rows).toMatch(/What’s your target nest egg\?/);   // ’ since 2026-10-27 (the curly-apostrophe class)
     // and when it is missing the row offers the way to give it, instead of filling one in
     expect(rows).toMatch(/targetNestEgg \? maskedMoney\(targetNestEgg\) : null/);
   });
@@ -574,8 +574,10 @@ describe('the decisions in the log are held by something that executes', () => {
       profile: { monthlySpending: 0, spendCats: [
         { id: 'rent', label: 'Rent / Mortgage', amount: budget, bucket: 'fixed', tier: 'need' },
         { id: 'groceries', label: 'Groceries', amount: 700, bucket: 'flexible', tier: 'need' }] } as any,
+      // the person placed it on the home (property_id): since 2026-10-27 the app no longer puts the one mortgage left over on the one
+      // property left over by itself (the lead's ruling, tenet 5; Net worth v08 row of that date) — the old answer is kept below
       debts: [{ debt_id: 'd1', label: 'Mortgage', debt_type: 'MORTGAGE', remaining_balance: 320000,
-                interest_rate_apr: 0.0625, minimum_monthly_payment: owed }] as any,
+                interest_rate_apr: 0.0625, minimum_monthly_payment: owed, property_id: 'h1' }] as any,
     });
 
     // DEBTS WINS: the $2,400 the mortgage requires is counted, and the $2,300 budget line is not —
@@ -585,6 +587,10 @@ describe('the decisions in the log are held by something that executes', () => {
     expect(off.essentialsMonthly).toBeCloseTo(3100, 2);
     expect(off.rentLineInDebts).toEqual({ budgeted: 2300, mortgage: 'Mortgage' });
     expect(off.budgetSentence).toBe('Your Rent / Mortgage budget line is not counted here: your home’s mortgage, Mortgage, is in Debts and is counted from there.');
+    // NOT PLACED BY THE PERSON (2026-10-27): the same figures, and the sentence asks for the property instead of calling it the home's
+    const unplacedHome = theEmergencyFund({ ...household(2300, 2400), debts: [{ debt_id: 'd1', label: 'Mortgage', debt_type: 'MORTGAGE', remaining_balance: 320000, interest_rate_apr: 0.0625, minimum_monthly_payment: 2400 }] as any });
+    expect([unplacedHome.debtMinimums, unplacedHome.essentialsMonthly]).toEqual([2400, 3100]);
+    expect(unplacedHome.budgetSentence).toBe('Your Rent / Mortgage budget line is not counted here: your mortgage, Mortgage, is in Debts and is counted from there. Place it on your home in Net worth, so we know they are the same.');
 
     // A RENTER — no mortgage in Debts — keeps the line: it is their rent
     const renter = theEmergencyFund({ ...household(2300, 2400), debts: [] as any });
@@ -637,7 +643,7 @@ describe('the decisions in the log are held by something that executes', () => {
 
   // ── DEC-0006 ───────────────────────────────────────────────────────────────────────────────
   test('DEC-0006 — "numbers stay": on disconnect you CHOOSE, keep them as a by-hand account or delete the connection’s data', () => {
-    const promise = CONSENT_COPY.find((l) => /disconnect/i.test(l));
+    const promise = CONSENT_COPY.find((l) => /\bunlink\b/i.test(l));   // canon row 18, 2026-10-27: Unlink, the retired Disconnect
     expect(promise).toBeDefined();
     // the choice is stated, and BOTH halves of it — a promise with one half is not his promise
     expect(promise).toMatch(/you choose/i);
@@ -687,7 +693,7 @@ describe('the decisions in the log are held by something that executes', () => {
     const nw = fs.readFileSync(path.join(__dirname, '..', 'screens', 'NetWorthScreen.tsx'), 'utf8');
     const code = nw.replace(/\/\*[\s\S]*?\*\//g, ' ').replace(/(^|[\s;,)}])\/\/.*$/gm, '$1 ');
     // the row is gone from the screen a person reads
-    expect(code).not.toMatch(/THIS MONTH'S CASH FLOW/i);
+    expect(code).not.toMatch(/THIS MONTH['’]S CASH FLOW/i);   // either mark: Home prints ’ since 2026-10-30
     // and so is the arithmetic behind it — a deleted row whose code still runs comes back
     expect(code).not.toMatch(/thisMonthCashFlow|monthCashFlowRow/);
     // the door he kept is still there, which is the other half of what he said
@@ -1535,8 +1541,9 @@ describe('the decisions in the log are held by something that executes', () => {
     // where a figure IS compared with the market: a holding against its yardstick, and Home's market line. The account page
     // carried this dot on WHAT EACH CATEGORY EARNED, a table its approved drawing (account-page drawing v01, 2026-10-19,
     // row 18) does not have, so the page compares nothing with a benchmark and the dot went with the table.
-    expect(noComments(screenSrc('HoldingDetailScreen'))).toMatch(/<InfoDot term="benchmark" \/>/);
-    expect(noComments(screenSrc('HomeScreen'))).toMatch(/<InfoDot term="benchmark" \/>/);
+    // the dot carries its line since 2026-10-27 (R8: the line's size and colour) — line={…} is allowed after the term
+    expect(noComments(screenSrc('HoldingDetailScreen'))).toMatch(/<InfoDot term="benchmark"(?: line=\{[^}]+\})? \/>/);
+    expect(noComments(screenSrc('HomeScreen'))).toMatch(/<InfoDot term="benchmark"(?: line=\{[^}]+\})? \/>/);
     expect(noComments(screenSrc('AccountPortfolioScreen'))).not.toMatch(/WHAT EACH CATEGORY EARNED/);
     expect(GLOSSARY.benchmark.body.length).toBeGreaterThan(20);
   });
@@ -1785,13 +1792,25 @@ describe('the decisions in the log are held by something that executes', () => {
       expect(`${f}: ${new RegExp(`moneykeel_pres_mock_${f}_v02\\.html[^|]*\\*\\*APPROVED 2026-10-02\\*\\*`).test(record)}`).toBe(`${f}: true`);
     }
     for (const s of ['BillCalendarScreen', 'MonthlyIncomeScreen']) expect(`${s} bar: ${/<TopBar back \/>/.test(noComments(screenSrc(s)))}`).toBe(`${s} bar: true`);
-    expect(noComments(screenSrc('BillCalendarScreen'))).toMatch(/<SectionBand inCard quiet title="COMING UP" \/>/);
+    // the box title on its dark-green bar since 2026-10-27 (his words, DEC-8839; the lead's R1 — it was a quiet label, the standard of 2026-10-02)
+    expect(noComments(screenSrc('BillCalendarScreen'))).toMatch(/<SectionBand inCard onRowEdges inset=\{16\} title="COMING UP" \/>/);
     expect(noComments(screenSrc('BillCalendarScreen'))).toMatch(/mRow: \{[^}]*minHeight: 52/);
-    expect(noComments(screenSrc('MonthlyIncomeScreen'))).toMatch(/<InfoDot term="guaranteedIncome" \/>/);
+    expect(noComments(screenSrc('MonthlyIncomeScreen'))).toMatch(/<InfoDot term="guaranteedIncome"(?: line=\{[^}]+\})? \/>/);   // its line since 2026-10-27 (R8)
     expect(noComments(screenSrc('MonthlyIncomeScreen'))).toMatch(/h1: \{ fontSize: 20, fontWeight: '800'/);
     // the four with no door in any approved design are gone (his finding, 2026-10-02)
     for (const s of ['MonthDetailScreen', 'PaycheckMonthsScreen', 'IncomeScreen', 'WorthALookScreen']) expect(`${s}: ${fs.existsSync(path.join(__dirname, '..', 'screens', `${s}.tsx`))}`).toBe(`${s}: false`);
     for (const f of ['log-income', 'month-detail', 'paycheck-months', 'worth-a-look']) expect(`${f}: ${new RegExp(`\\| [A-Za-z ]+ \\| \\*\\*RETIRED 2026-10-02\\*\\*`).test(record)}`).toBe(`${f}: true`);
   });
 
+});
+
+// THE OLD ANSWER, KEPT (2026-10-27, FX-NW): a mortgage the person never placed was read as the home's, because it was the one mortgage left
+// over beside the one property left over. Dropped by the lead's ruling under tenet 5; it fails now, by design.
+test.failing('DEC-1923 · the old answer: an unplaced "Mortgage" beside the one home read as the home’s mortgage', () => {
+  const { theEmergencyFund: ef } = require('../../MoneyKeel/functions/networth-and-performance/emergency-fund');
+  const e = ef({ accounts: [{ asset_id: 'a1', label: 'Checking', kind: 'checking', tax_bucket: 'TAXABLE', balance: 18000, asset_class: 'cash' },
+    { asset_id: 'h1', label: 'Home', kind: 'home', tax_bucket: 'PROPERTY', balance: 450000 }], expenses: [],
+    profile: { monthlySpending: 0, spendCats: [{ id: 'rent', label: 'Rent / Mortgage', amount: 2300, bucket: 'fixed', tier: 'need' }] },
+    debts: [{ debt_id: 'd1', label: 'Mortgage', debt_type: 'MORTGAGE', remaining_balance: 320000, interest_rate_apr: 0.0625, minimum_monthly_payment: 2400 }] });
+  expect(e.budgetSentence).toBe('Your Rent / Mortgage budget line is not counted here: your home’s mortgage, Mortgage, is in Debts and is counted from there.');
 });

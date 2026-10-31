@@ -82,7 +82,7 @@ test('facts and choices are told apart at a glance — FACT chips and DRAFT chip
 test('the home does not count by default, and one tap changes that — the choice always wins', () => {
   harness();
   expect(screen.getByLabelText(/Vanguard.*Counts toward retirement/)).toBeOnTheScreen();
-  const home = screen.getByLabelText(/Home.*Doesn't count/);
+  const home = screen.getByLabelText(/Home.*Doesn’t count/);
   fireEvent.press(home);
   expect((useStore.getState() as any).assetAccounts.find((a: any) => a.asset_id === 'h1').retirement_pct).toBe(100);
 });

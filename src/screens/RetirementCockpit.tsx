@@ -5,6 +5,7 @@
 //   Security (asked once) + a button into scenario analysis.
 // Screen 2 "Scenario analysis": what-if sliders → projected-nest-egg hero (deterministic, live) +
 //   Monte-Carlo confidence + percentile band (on release) + save/compare scenarios.
+import { MoneyBox } from '../components/MoneyBox';   // every money box, one component (DEC-8385)
 import { plural } from '../domain/_shared/plural';   // the one list of words and plurals (DEC-4082, 2026-10-10)
 import { ageAttainedInYear } from '../domain/income/limits';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
@@ -322,7 +323,10 @@ export default function RetirementCockpit() {
           <Text style={styles.sandboxTag}>SANDBOX</Text>
         </View>
 
-        <SectionBand title={scRetired ? 'ADJUST YOUR PLAN — DRAG TO EXPLORE' : 'WHAT IF? — DRAG TO EXPLORE'} />
+        {/* THE BARS OF THE STANDARD DESIGN (his words, 2026-10-27, DEC-8839: "box titles in dark green bar, and sub-titles in light green
+            bar"; drawing plan/moneykeel_pres_mock_retirement-cockpit_v02.html): every dark bar takes back the page's margins and runs edge to
+            edge; each box's title is a light bar across its box */}
+        <View style={styles.pageBleedTop}><SectionBand title={scRetired ? 'ADJUST YOUR PLAN — DRAG TO EXPLORE' : 'WHAT IF? — DRAG TO EXPLORE'} /></View>
         <Text style={styles.note}>{TRYING_IT_OUT}</Text>
 
         {/* HERO — two-up: today → projected at the horizon (reacts to the sliders) */}
@@ -350,8 +354,8 @@ export default function RetirementCockpit() {
         {/* the abstract lump-sum framing, demoted from the headline */}
         <Text style={styles.note}>
           {scRetired
-            ? `“${scProjLabel}” rolls your ${big(nestEgg)} forward at ${retPct.toFixed(2)}%/year minus ${money(spendMo)}/month (rising with inflation) — raise the return or trim expenses and it climbs. To fully fund your plan to age ${horizon} you'd need about ${big(scProj.will_need)} today${scProj.shortfall > 0 ? ` (≈${big(scProj.shortfall)} short).` : ' — covered.'}`
-            : `Your ${big(nestEgg)} grows to ${big(scProjected)} by age ${rAge} at ${retPct.toFixed(2)}%/year. To fund ${money(spendMo)}/month to age ${horizon} you'd need about ${big(scProj.will_need)}${scProj.shortfall > 0 ? ` (≈${big(scProj.shortfall)} short).` : ' — covered.'}`}
+            ? `“${scProjLabel}” rolls your ${big(nestEgg)} forward at ${retPct.toFixed(2)}%/year minus ${money(spendMo)}/month (rising with inflation) — raise the return or trim expenses and it climbs. To fully fund your plan to age ${horizon} you’d need about ${big(scProj.will_need)} today${scProj.shortfall > 0 ? ` (≈${big(scProj.shortfall)} short).` : ' — covered.'}`
+            : `Your ${big(nestEgg)} grows to ${big(scProjected)} by age ${rAge} at ${retPct.toFixed(2)}%/year. To fund ${money(spendMo)}/month to age ${horizon} you’d need about ${big(scProj.will_need)}${scProj.shortfall > 0 ? ` (≈${big(scProj.shortfall)} short).` : ' — covered.'}`}
         </Text>
 
         {/* SLIDERS — with benchmark + current-plan reference markers */}
@@ -386,8 +390,8 @@ export default function RetirementCockpit() {
 
         {/* MONTE CARLO — gated behind an explicit run */}
         <View style={styles.card}>
-          <Text style={styles.liK}>How confident is this?</Text>
-          <Text style={styles.note}>A Monte Carlo simulation runs this scenario through 1,000 random market futures (good and bad return sequences) and counts how often your money lasts to {horizon}. Markets aren't a straight line, so this shows the range of outcomes — not a promise.</Text>
+          <SectionBand light inCard title="HOW CONFIDENT IS THIS?" />
+          <Text style={styles.note}>A Monte Carlo simulation runs this scenario through 1,000 random market futures (good and bad return sequences) and counts how often your money lasts to {horizon}. Markets aren’t a straight line, so this shows the range of outcomes — not a promise.</Text>
           {scBand == null ? (
             <TouchableOpacity style={[styles.save, { marginTop: 10 }]} onPress={runMC}><Text style={styles.saveT}>Run Monte Carlo simulation</Text></TouchableOpacity>
           ) : (
@@ -396,7 +400,7 @@ export default function RetirementCockpit() {
                 <Text style={[styles.confPct, { color: scLevel }]}>{scChance}%</Text>
                 <Text style={styles.confT}>your money lasts to age {horizon} in {scChance}% of 1,000 simulated markets</Text>
               </View>
-              <Text style={[styles.section, { marginTop: 14 }]}>RANGE OF OUTCOMES BY AGE</Text>
+              <View style={styles.cardBleed}><SectionBand light title="RANGE OF OUTCOMES BY AGE" /></View>
               <BandChartAuto band={scBand} retireAge={scRetired ? null : Math.max(age + 1, rAge)} />
               <View style={styles.axis}>
                 <Text style={styles.axisT}>age {scBand[0].age}</Text>
@@ -420,7 +424,7 @@ export default function RetirementCockpit() {
           <TouchableOpacity style={styles.scenarioBtn2} onPress={() => setSaveOpen(true)}><Text style={styles.scenarioBtn2T}>＋ Save scenario</Text></TouchableOpacity>
           <TouchableOpacity style={styles.scenarioBtn2} onPress={resetSandbox}><Text style={styles.scenarioBtn2T}>↺ Reset to plan</Text></TouchableOpacity>
         </View>
-        <Text style={styles.actionHint}>Save = bookmark this what-if to compare later (doesn't change your plan). Reset = pull the sliders back to your current plan.</Text>
+        <Text style={styles.actionHint}>Save = bookmark this what-if to compare later (doesn’t change your plan). Reset = pull the sliders back to your current plan.</Text>
 
         {(store.retirementScenarios?.length ?? 0) > 0 && (
           <View style={styles.chips}>
@@ -459,7 +463,7 @@ export default function RetirementCockpit() {
             ];
             return (
               <View style={styles.cmpSheet}>
-                <Text style={styles.cmpTitle}>Side by side — re-run on today's balances</Text>
+                <Text style={styles.cmpTitle}>Side by side — re-run on today’s balances</Text>
                 <View style={styles.cmpHead}>
                   <Text style={[styles.cmpCell, styles.cmpLabel]} />
                   <Text style={[styles.cmpCell, styles.cmpColHead]} numberOfLines={1}>{A.name}</Text>
@@ -490,7 +494,8 @@ export default function RetirementCockpit() {
   // ───────────────── SCREEN 1 — WHERE YOU STAND ─────────────────
   return (
     <ScrollView automaticallyAdjustKeyboardInsets style={{ flex: 1, backgroundColor: Colors.bgSecondary }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-      <SectionBand title="RETIREMENT · WHERE YOU STAND" />
+      {/* the bars of the standard design (DEC-8839, 2026-10-27; retirement-cockpit_v02): dark bars edge to edge, light bars across each box */}
+      <View style={styles.pageBleedTop}><SectionBand title="RETIREMENT · WHERE YOU STAND" /></View>
 
       {/* RETIRED: input-first — WHAT YOU HAVE (nest egg + legacy) then ONE verdict; NON-RETIRED: the two target cards */}
       {isRetired ? (
@@ -544,7 +549,7 @@ export default function RetirementCockpit() {
             const pace = rateBandWords(dPlan.rateBand, { short: true });   // DEC-0036 · DEC-0215
             return (
               <>
-                <Text style={styles.divider}>WILL YOUR MONEY LAST?</Text>
+                <View style={styles.pageBleed}><SectionBand title="WILL YOUR MONEY LAST?" /></View>
                 <View style={[styles.insightBox, { backgroundColor: bg }]}>
                   <Text style={styles.verdictHead}>{head}</Text>
                   <Text style={styles.verdictBody}>Your {big(spendableEgg)} covers your expenses {lasts}{planChance != null ? ` in most futures — ${planChance} out of 100 simulated futures` : ''}.</Text>
@@ -571,8 +576,8 @@ export default function RetirementCockpit() {
               <Text style={styles.heroK}>IF YOU NEVER SAVE AGAIN</Text>
               <Text style={styles.heroBig}>{retireAtAge ? `Retire ${retireAtAge}` : 'Keep saving'}</Text>
               <Text style={styles.heroSub}>{retireAtAge
-                ? `today's ${big(nestEgg)} alone gets there by ${retireAtAge}`
-                : `today's ${big(nestEgg)} alone doesn't get there — even by 80`}</Text>
+                ? `today’s ${big(nestEgg)} alone gets there by ${retireAtAge}`
+                : `today’s ${big(nestEgg)} alone doesn’t get there — even by 80`}</Text>
               <Text style={styles.heroRoi}>growing at {(planGrowth * 100).toFixed(2)}%/year</Text>
             </View>
             <View style={[styles.heroCardG, { marginLeft: 5 }]}>
@@ -582,7 +587,7 @@ export default function RetirementCockpit() {
               <Text style={styles.heroRoi}>at {(planGrowth * 100).toFixed(2)}%/year</Text>
             </View>
           </View>
-          {!simple && planChance != null && <Text style={styles.heroExplain}>“{planChance}% odds it lasts to {horizon}” = across 1,000 market simulations, your money doesn't run out before {horizon} in {planChance}% of them.</Text>}
+          {!simple && planChance != null && <Text style={styles.heroExplain}>“{planChance}% odds it lasts to {horizon}” = across 1,000 market simulations, your money doesn’t run out before {horizon} in {planChance}% of them.</Text>}
           <Text style={styles.planStmt}>▸ Everything below assumes your plan: retire at {Math.round(planRetireAge)}{planSave > 0 ? `, keep saving ${money(planSave)}/month` : ''}.</Text>
         </>
       )}
@@ -590,7 +595,7 @@ export default function RetirementCockpit() {
       {/* ── THE DETAILS (Advisor / expanded): the mechanics behind the verdict ── */}
       {advisor && isRetired && nestEgg > 0 && (
         <>
-          <Text style={styles.divider}>THE DETAILS</Text>
+          <View style={styles.pageBleed}><SectionBand title="THE DETAILS" /></View>
 
           {/* net withdrawal + rate */}
           <View style={styles.card}>
@@ -608,7 +613,7 @@ export default function RetirementCockpit() {
 
           {/* where the money sits + suggested withdrawal order (combined into one box) */}
           <View style={styles.card}>
-            <Text style={styles.liK}>Where your money sits</Text>
+            <SectionBand light inCard title="WHERE YOUR MONEY SITS" />
             {([['cash', 'Cash'], ['taxable', 'Taxable'], ['preTax', 'Pre-tax (401k / IRA)'], ['roth', 'Roth']] as const).map(([k, lbl]) => (dSplit[k] > 0 ? (
               <View key={k} style={styles.dwRow}><Text style={styles.dwL}>{lbl}</Text><Text style={styles.dwV}>{money(dSplit[k])}</Text></View>
             ) : null))}
@@ -617,42 +622,41 @@ export default function RetirementCockpit() {
 
             {dOrder.length > 0 && (
               <>
-                <View style={styles.cardDivider} />
-                <Text style={styles.liK}>Suggested withdrawal order</Text>
+                <View style={styles.cardBleed}><SectionBand light title="SUGGESTED WITHDRAWAL ORDER" /></View>
                 {dOrder.map((s, i) => (
                   <View key={s.bucket} style={styles.orderRow}>
                     <Text style={styles.orderNum}>{i + 1}</Text>
                     <View style={{ flex: 1 }}>
                       <Text style={styles.orderName}>{s.label} <Text style={styles.orderAmt}>· {moneyCompact(s.amount, 'M')}{s.bucket === 'rmd' ? ' this year' : ''}</Text></Text>
                       {s.bucket === 'rmd' && (
-                        <Text style={styles.orderCalc}>= your {money(dSplit.preTax)} pre-tax ÷ {rmdDivisorAtAge(Math.max(age, rmdStartAgeFor(age))).toFixed(1)} (the IRS life-expectancy factor at {Math.max(age, rmdStartAgeFor(age))}). It's the first slice of your pre-tax balance below — not money on top of it.</Text>
+                        <Text style={styles.orderCalc}>= your {money(dSplit.preTax)} pre-tax ÷ {rmdDivisorAtAge(Math.max(age, rmdStartAgeFor(age))).toFixed(1)} (the IRS life-expectancy factor at {Math.max(age, rmdStartAgeFor(age))}). It’s the first slice of your pre-tax balance below — not money on top of it.</Text>
                       )}
                       <Text style={styles.orderWhy}>{s.why}</Text>
                     </View>
                   </View>
                 ))}
-                <Text style={styles.tFootMuted}>The amounts above are each bucket's full balance — what you draw from over the years — except the required withdrawal (RMD), which is just this year's required minimum (taken out of the pre-tax balance). General guidance, not tax advice; your brackets or Roth conversions may change the order.</Text>
+                <Text style={styles.tFootMuted}>The amounts above are each bucket’s full balance — what you draw from over the years — except the required withdrawal (RMD), which is just this year’s required minimum (taken out of the pre-tax balance). General guidance, not tax advice; your brackets or Roth conversions may change the order.</Text>
               </>
             )}
           </View>
 
           {/* RMDs + healthcare */}
           <View style={styles.card}>
-            <Text style={styles.liK}>Heads-up</Text>
+            <SectionBand light inCard title="HEADS-UP" />
             {dSplit.preTax > 0 && <Text style={styles.note}>📅 <Text style={{ fontWeight: '700', color: Colors.textPrimary }}>Required Minimum Distributions</Text> {age >= rmdStartAgeFor(age)
               ? <>apply to you now — the IRS requires a withdrawal of about <Text style={{ fontWeight: '700', color: Colors.textPrimary }}>{money(dRmd)}</Text> this year</>
-              : <>start at {rmdStartAgeFor(age)}; on today's pre-tax balance that's about <Text style={{ fontWeight: '700', color: Colors.textPrimary }}>{money(dRmd)}</Text> in the first year</>} from pre-tax — taxed as income whether you need it or not. The success-chance figure tracks balances <Text style={{ fontStyle: 'italic' }}>before tax</Text>, so set aside a bit for the tax.</Text>}
+              : <>start at {rmdStartAgeFor(age)}; on today’s pre-tax balance that’s about <Text style={{ fontWeight: '700', color: Colors.textPrimary }}>{money(dRmd)}</Text> in the first year</>} from pre-tax — taxed as income whether you need it or not. The success-chance figure tracks balances <Text style={{ fontStyle: 'italic' }}>before tax</Text>, so set aside a bit for the tax.</Text>}
             <Text style={[styles.note, { marginTop: dSplit.preTax > 0 ? 8 : 0 }]}>🏥 <Text style={{ fontWeight: '700', color: Colors.textPrimary }}>Healthcare:</Text> {age >= 65
-              ? "you're on Medicare — budget for premiums + out-of-pocket (often $6–7k/person/year), and watch IRMAA surcharges if your income is high."
+              ? "you’re on Medicare — budget for premiums + out-of-pocket (often $6–7k/person/year), and watch IRMAA surcharges if your income is high."
               : 'Medicare starts at 65; budget for premiums + out-of-pocket (often $6–7k/person/year). Retiring earlier? Plan for private coverage until then.'}</Text>
-            {inRothWindow && dSplit.preTax > 0 && <Text style={[styles.note, { marginTop: 8 }]}>💡 <Text style={{ fontWeight: '700', color: Colors.textPrimary }}>Roth conversion window:</Text> you're retired but before required withdrawals/Social Security, so your taxable income may be low. Converting some pre-tax to Roth now (filling the low brackets) can cut future required withdrawals and lifetime tax.</Text>}
+            {inRothWindow && dSplit.preTax > 0 && <Text style={[styles.note, { marginTop: 8 }]}>💡 <Text style={{ fontWeight: '700', color: Colors.textPrimary }}>Roth conversion window:</Text> you’re retired but before required withdrawals/Social Security, so your taxable income may be low. Converting some pre-tax to Roth now (filling the low brackets) can cut future required withdrawals and lifetime tax.</Text>}
           </View>
         </>
       )}
 
       {/* ── WHAT YOU HAVE — non-retired nest-egg donut (retired sees this at the top) ── */}
       {!isRetired && (<>
-      <Text style={styles.divider}>WHAT YOU HAVE</Text>
+      <View style={styles.pageBleed}><SectionBand title="WHAT YOU HAVE" /></View>
 
       {/* DONUT — current earmarked nest egg */}
       <View style={[styles.donutCard, { marginTop: 10 }]}>
@@ -689,7 +693,7 @@ export default function RetirementCockpit() {
       {/* INSTRUMENTS — your 12-mo actual vs benchmark (30-yr) per holding */}
       {instruments.length > 0 && (
         <View style={styles.card}>
-          <Text style={styles.liK}>Your investments</Text>
+          <SectionBand light inCard title="YOUR INVESTMENTS" />
           <View style={styles.tHead}>
             <Text style={[styles.tHL, { flex: 1 }]} numberOfLines={1}>INSTRUMENT</Text>
             <Text style={[styles.tHL, styles.tColNum]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7}>YOUR 12-MO</Text>
@@ -728,17 +732,17 @@ export default function RetirementCockpit() {
               ? 'Add historic 12-month return on each holding to see how you compare to the benchmark.'
               : `You returned ${(actualReturn * 100).toFixed(2)}% over the last 12 months vs a ${(benchBlended * 100).toFixed(2)}% benchmark — ${beatBy! >= 0 ? `${(beatBy! * 100).toFixed(2)} pts ahead` : `${(Math.abs(beatBy!) * 100).toFixed(2)} pts behind`}.`}
           </Text>
-          {!simple && <Text style={styles.tFootMuted}>“Your 12-mo” = the historic 12-month return you enter on each holding. Benchmark = the asset class's historical index return (not editable); past performance isn't a guarantee, and a 12-mo actual vs a ~30-yr average is directional only.</Text>}
+          {!simple && <Text style={styles.tFootMuted}>“Your 12-mo” = the historic 12-month return you enter on each holding. Benchmark = the asset class’s historical index return (not editable); past performance isn’t a guarantee, and a 12-mo actual vs a ~30-yr average is directional only.</Text>}
           <TouchableOpacity onPress={() => router.push('/performance')}><Text style={[styles.editLink2, { marginTop: 10 }]}>📈 Track live performance vs benchmark ›</Text></TouchableOpacity>
         </View>
       )}
 
       {/* ── YOUR PLAN (assumptions) ── */}
-      <Text style={styles.divider}>YOUR PLAN · {isRetired ? 'in retirement' : `assumes age ${Math.round(planRetireAge)}`}</Text>
+      <View style={styles.pageBleed}><SectionBand title={`YOUR PLAN · ${isRetired ? 'IN RETIREMENT' : `ASSUMES AGE ${Math.round(planRetireAge)}`}`} /></View>
 
       {/* GROWTH-RATE BASIS — which return drives the projection (growth in accumulation, returns during drawdown) */}
       <View style={styles.card}>
-        <Text style={styles.liK}>{isRetired ? 'Assumed return on your remaining nest egg' : 'Grow my nest egg using'}</Text>
+        <SectionBand light inCard title={isRetired ? 'ASSUMED RETURN ON YOUR REMAINING NEST EGG' : 'GROW MY NEST EGG USING'} />
         <View style={styles.basisRow}>
           {([
             { k: 'benchmark', label: 'Benchmark', rate: benchBlended, warn: false },
@@ -764,7 +768,7 @@ export default function RetirementCockpit() {
       {/* PROJECTION — nest egg at end of each year, up to retirement */}
       {!isRetired && nestEgg > 0 && projYears.length > 0 && (
         <View style={styles.card}>
-          <View style={styles.li}><Text style={styles.liK}>Projected nest egg</Text><Text style={[styles.liV, { color: Colors.primary }]}>{big(projYears[projYears.length - 1].bal)} by {projYears[projYears.length - 1].year}</Text></View>
+          <SectionBand light inCard onRowEdges title="PROJECTED NEST EGG" value={`${big(projYears[projYears.length - 1].bal)} by ${projYears[projYears.length - 1].year}`} />
           <Text style={styles.note}>If your {big(nestEgg)} grows at {(planGrowth * 100).toFixed(2)}% ({basisLabel}){planSave > 0 ? ` and you keep saving ${money(planSave)}/month` : ''}.{hasRetireBar ? ` Amber bar = retirement at ${Math.round(planRetireAge)}.` : ''}</Text>
           <ProjectionChartAuto data={projYears} />
           <View style={styles.breakdown}>
@@ -781,13 +785,13 @@ export default function RetirementCockpit() {
 
       {/* IN RETIREMENT — spend, anchored to target age */}
       <View style={styles.card}>
-        <Text style={styles.liK}>In retirement (from {Math.round(spendEscFromAge)})</Text>
-        <Text style={styles.note}>You plan to spend <Text style={{ fontWeight: '800', color: Colors.textPrimary }}>{money(planSpend)}/month</Text> in today's dollars → about <Text style={{ fontWeight: '800', color: Colors.textPrimary }}>{big(spendHi)}/month</Text> by {horizon} as prices rise {(planInfl * 100).toFixed(2)}%/year <Text style={styles.srcTag}>{inflIsActual ? 'actual' : 'your plan'}</Text>.</Text>
+        <SectionBand light inCard title={`IN RETIREMENT (FROM ${Math.round(spendEscFromAge)})`} />
+        <Text style={styles.note}>You plan to spend <Text style={{ fontWeight: '800', color: Colors.textPrimary }}>{money(planSpend)}/month</Text> in today’s dollars → about <Text style={{ fontWeight: '800', color: Colors.textPrimary }}>{big(spendHi)}/month</Text> by {horizon} as prices rise {(planInfl * 100).toFixed(2)}%/year <Text style={styles.srcTag}>{inflIsActual ? 'actual' : 'your plan'}</Text>.</Text>
         {/* B-32: when a recognized retirement location adjusts the figure, say so — don't apply COL silently */}
         {A.spendMonthly == null && (() => {
           const col = colFactor(op.retLocation);
           if (col.factor === 1 || !op.retLocation) return null;
-          return <Text style={[styles.note, { marginTop: 4 }]}>Adjusted for {col.name}'s cost of living ({col.factor < 1 ? `${((1 - col.factor) * 100).toFixed(2)}% lower` : `${((col.factor - 1) * 100).toFixed(2)}% higher`} than the US).</Text>;
+          return <Text style={[styles.note, { marginTop: 4 }]}>Adjusted for {col.name}’s cost of living ({col.factor < 1 ? `${((1 - col.factor) * 100).toFixed(2)}% lower` : `${((col.factor - 1) * 100).toFixed(2)}% higher`} than the US).</Text>;
         })()}
         {/* B-39: the projection doesn't subtract debt separately — make that explicit so a user with a
             mortgage includes its payment in the spend above rather than assuming it's handled. */}
@@ -799,10 +803,7 @@ export default function RetirementCockpit() {
       {/* TAX-SMART MOVES (accumulators) */}
       {!isRetired && (
         <View style={styles.card}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-            <Text style={styles.liK}>Tax-smart moves</Text>
-            <InfoDot term="rmd" />
-          </View>
+          <SectionBand light inCard title="TAX-SMART MOVES" infoTerm="rmd" />
           {k401.remaining > 0
             ? <Text style={styles.note}>💼 You can still add <Text style={{ fontWeight: '800', color: Colors.textPrimary }}>{money(k401.remaining)}</Text> to your 401(k) this year{k401.catchUp ? ` (incl. the ${money(k401CatchUp)} ${k401CatchUpWords} catch-up)` : ''} — up to {money(k401.limit)}.</Text>
             : <Text style={styles.note}>💼 401(k) maxed for the year ✓{k401.catchUp ? ' (incl. catch-up)' : ''}.</Text>}
@@ -818,10 +819,10 @@ export default function RetirementCockpit() {
       <TouchableOpacity style={styles.ssRow} onPress={() => setSsOpen(true)}>
         <Text style={styles.ssIc}>🏛️</Text>
         <View style={{ flex: 1 }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}><Text style={styles.ssName}>{hasPension ? 'Social Security & pension' : 'Social Security'}</Text><InfoDot term="guaranteedIncome" /></View>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}><Text style={styles.ssName}>{hasPension ? 'Social Security & pension' : 'Social Security'}</Text><InfoDot term="guaranteedIncome" line={styles.ssName} /></View>
           <Text style={styles.ssSub}>{
             guarRowMonthly > 0
-              ? `${money(guarRowMonthly)}/month${claimAge > age && ssIncome > 0 ? ` · Social Security part starts at ${claimAge}` : ''} · today's $${A.ssEligible == null ? ' · from your setup' : ''}`
+              ? `${money(guarRowMonthly)}/month${claimAge > age && ssIncome > 0 ? ` · Social Security part starts at ${claimAge}` : ''} · today’s $${A.ssEligible == null ? ' · from your setup' : ''}`
               : A.ssEligible === false ? 'Not eligible — tap to change' : 'Are you eligible? Tap to set up ›'
           }</Text>
         </View>
@@ -867,7 +868,7 @@ function ProjectionChart({ data, width }: { data: { year: number; age: number; b
   // P0 (design audit RC-1): chart text was 6-7.5pt — unreadable for the 55-70 audience.
   // Floor at 10-11pt and THIN the labels instead of shrinking them: values only on the
   // first / last / retire bars; year labels on first / retire / last + every 5th.
-  const vfs = 10;
+  const vfs = 11;   // on the type scale and above its 10.5 floor (2026-10-27, retirement-cockpit_v02 row 3); it was 10
   return (
     <Svg width={width} height={H}>
       <Line x1={0} y1={H - padBot} x2={width} y2={H - padBot} stroke={Colors.border} strokeWidth={1} />
@@ -1033,16 +1034,16 @@ function SsEditor({ open, onClose, A, ssDefault, onApply }: { open: boolean; onC
       <View style={styles.sheet}>
         <View style={styles.grab} />
         <Text style={styles.sheetT}>Social Security</Text>
-        <Text style={styles.sheetS}>A monthly benefit from the government in retirement. If you've worked and paid in, you're likely eligible.</Text>
+        <Text style={styles.sheetS}>A monthly benefit from the government in retirement. If you’ve worked and paid in, you’re likely eligible.</Text>
         <View style={styles.acc}>
-          <View style={{ flex: 1 }}><Text style={styles.accName}>Eligible for Social Security?</Text><Text style={styles.accBal}>Turn off if you won't receive it.</Text></View>
+          <View style={{ flex: 1 }}><Text style={styles.accName}>Eligible for Social Security?</Text><Text style={styles.accBal}>Turn off if you won’t receive it.</Text></View>
           <Switch value={eligible} onValueChange={setEligible} trackColor={{ true: Colors.primaryMid, false: Colors.border }} thumbColor={eligible ? Colors.primary : Colors.white} />
         </View>
         {eligible && (
           <>
             <View style={styles.acc}>
-              <View style={{ flex: 1 }}><Text style={styles.accName}>Estimated benefit</Text><Text style={styles.accBal}>The monthly figure on your statement — at your full retirement age — in today's dollars</Text></View>
-              <View style={styles.pctBox}><Text style={styles.pctU}>{currencySymbol()}</Text><TextInput style={[styles.pctIn, { width: 78 }]} keyboardType="decimal-pad" value={amt} onChangeText={setAmt} placeholder="0" placeholderTextColor={Colors.textTertiary} /></View>
+              <View style={{ flex: 1 }}><Text style={styles.accName}>Estimated benefit</Text><Text style={styles.accBal}>The monthly figure on your statement — at your full retirement age — in today’s dollars</Text></View>
+              <View style={styles.pctBox}><Text style={styles.pctU}>{currencySymbol()}</Text><MoneyBox bare dollarBeside style={[styles.pctIn, { width: 78 }]} value={amt} onChangeText={setAmt} placeholder="0" /></View>
             </View>
             <View style={styles.acc}>
               <View style={{ flex: 1 }}><Text style={styles.accName}>Claim at age</Text><Text style={styles.accBal}>62 earliest · 67 full · 70 max</Text></View>
@@ -1090,10 +1091,12 @@ function KindPicker({ account, onClose, onPick }: { account: AssetAccount | null
         <View style={styles.grab} />
         <Text style={styles.sheetT}>What is {account?.institution?.trim() || account?.label}?</Text>
         <Text style={styles.sheetS}>Pick the type so we can use the right historical benchmark return for it.</Text>
-        <ScrollView automaticallyAdjustKeyboardInsets style={{ maxHeight: 400 }}>
+        {/* the list takes back the sheet's padding so each group's light bar runs from one edge of the sheet to the other (DEC-8839,
+            2026-10-27; retirement-cockpit_v02 row 2); the chips keep their place inside it */}
+        <ScrollView automaticallyAdjustKeyboardInsets style={{ maxHeight: 400, marginHorizontal: -18 }} contentContainerStyle={{ paddingHorizontal: 18 }}>
           {ASSET_SECTIONS.map((sec) => (
             <View key={sec}>
-              <Text style={styles.kindSec}>{sec.toUpperCase()}</Text>
+              <View style={styles.sheetBleed}><SectionBand light title={sec.toUpperCase()} /></View>
               <View style={styles.kindGrid}>
                 {ASSET_KINDS.filter((k) => k.section === sec).map((k) => (
                   <TouchableOpacity key={k.id} style={styles.kindChip} onPress={() => onPick(k.id, k.bucket)}>
@@ -1166,7 +1169,13 @@ function BandChart({ band, width, retireAge }: { band: { age: number; p10: numbe
 
 const styles = StyleSheet.create({
   content: { padding: Spacing.lg },
-  eyebrow: { fontSize: 11, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.5, marginTop: 8, marginBottom: 8 },
+  // A DARK BAR RUNS EDGE TO EDGE (DEC-8839, 2026-10-27): the page's own padding taken back, as Net worth's step-by-step bars do
+  pageBleedTop: { marginHorizontal: -Spacing.lg },
+  pageBleed: { marginHorizontal: -Spacing.lg, marginTop: 18 },
+  // a light bar inside a card, after other lines: the card's padding taken back on both sides
+  cardBleed: { marginHorizontal: -Spacing.md, marginTop: 12 },
+  // a light bar inside the type picker sheet: the sheet's 18 points taken back
+  sheetBleed: { marginHorizontal: -18, marginTop: 12 },
   sub: { fontSize: 13, color: Colors.textSecondary, marginTop: 4, textAlign: 'center' },
   note: { fontSize: 11, color: Colors.textSecondary, marginTop: 8, lineHeight: 16 },
 
@@ -1201,10 +1210,8 @@ const styles = StyleSheet.create({
   orderAmt: { fontSize: 13, fontWeight: '700', color: Colors.textSecondary },
   orderWhy: { fontSize: 11, color: Colors.textTertiary, marginTop: 2, lineHeight: 15 },
   orderCalc: { fontSize: 11, color: Colors.primaryDark, fontWeight: '600', marginTop: 3, lineHeight: 15 },
-  cardDivider: { height: 1, backgroundColor: Colors.bgTertiary, marginVertical: 12 },
   heroExplain: { fontSize: 13, color: Colors.textSecondary, lineHeight: 16, marginTop: 8 },
   planStmt: { fontSize: 13, color: Colors.primaryDark, fontWeight: '600', marginTop: 8, lineHeight: 16 },
-  divider: { fontSize: 11, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.6, marginTop: 18, marginBottom: 2 },
   basisRow: { flexDirection: 'row', gap: 7, marginTop: 8 },
   basisPill: { flex: 1, borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radii.md, paddingVertical: 8, paddingHorizontal: 6, alignItems: 'center' },
   basisPillOn: { borderColor: Colors.primary, backgroundColor: Colors.primaryLight },
@@ -1216,7 +1223,6 @@ const styles = StyleSheet.create({
   tFootMuted: { fontSize: 11, color: Colors.textTertiary, lineHeight: 13.5, marginTop: 6 },
   srcTag: { fontSize: 11, color: Colors.textTertiary, fontWeight: '700' },
   instWarn: { fontSize: 11, color: Colors.amber, fontWeight: '700', marginTop: 1 },
-  kindSec: { fontSize: 11, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.5, marginTop: 12, marginBottom: 4 },
   kindGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   // rounded corners, not semicircle ends — the one shape of a choice (DEC-0231, 2026-09-25; corrected 2026-10-20)
   kindChip: { flexDirection: 'row', alignItems: 'center', gap: 6, borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radii.md, paddingHorizontal: 11, paddingVertical: 8 },
@@ -1257,7 +1263,6 @@ const styles = StyleSheet.create({
   ssSub: { fontSize: 11, color: Colors.textSecondary, marginTop: 1 },
   ssPill: { backgroundColor: Colors.primaryLight, color: Colors.primary, borderRadius: Radii.pill, paddingHorizontal: 10, paddingVertical: 5, fontSize: 11, fontWeight: '800', overflow: 'hidden' },
 
-  section: { fontSize: 13, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.5, marginTop: Spacing.base, marginBottom: 6 },
   card: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginTop: 10 },
 
   // instruments table
@@ -1359,9 +1364,6 @@ const styles = StyleSheet.create({
   axisT: { fontSize: 11, color: Colors.textTertiary },
   fx: { fontSize: 11, color: Colors.textSecondary, marginTop: 8 },
 
-  li: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 5 },
-  liK: { fontSize: 13, color: Colors.textSecondary, flexShrink: 1, paddingRight: 8 },
-  liV: { fontSize: 15, fontWeight: '800', color: Colors.textPrimary },
 
   scrim: { position: 'absolute', inset: 0, backgroundColor: 'rgba(0,0,0,0.3)' } as any,
   sheet: { position: 'absolute', left: 0, right: 0, bottom: 0, backgroundColor: Colors.white, borderTopLeftRadius: 22, borderTopRightRadius: 22, padding: 18, paddingBottom: 28 },

@@ -58,7 +58,7 @@ describe('Look back', () => {
     render(<LookBackScreen />);
     // Look back fetches what it compares (2026-10-22, the drawing's dated row); the refresh brought nothing, so it names the two
     // tickers it could not get — rather than "pick a shorter window", which brings no price that is missing altogether
-    await waitFor(() => expect(screen.getByText("Couldn't refresh prices for AGG or SPY, so there is nothing to compare yet. Look back tries again each time it opens.")).toBeOnTheScreen());
+    await waitFor(() => expect(screen.getByText("Couldn’t refresh prices for AGG or SPY, so there is nothing to compare yet. Look back tries again each time it opens.")).toBeOnTheScreen());
   });
 
   test('no prices for a holding → the one refresh is asked, and what it could not get is named (2026-10-22)', async () => {
@@ -66,7 +66,7 @@ describe('Look back', () => {
       positions: [{ position_id: 'p1', ticker: 'BND', kind: 'fixed_income', lots: [{ lot_id: 'l1', shares: 100, cost_per_share: 100, purchase_date: '2024-01-01' }] }] }] } as any);
     render(<LookBackScreen />);
     expect(screen.getByText('Getting prices for BND and SPY…')).toBeOnTheScreen();
-    await waitFor(() => expect(screen.getByText("Couldn't refresh prices for BND or SPY, so there is nothing to compare yet. Look back tries again each time it opens.")).toBeOnTheScreen());
+    await waitFor(() => expect(screen.getByText("Couldn’t refresh prices for BND or SPY, so there is nothing to compare yet. Look back tries again each time it opens.")).toBeOnTheScreen());
     expect(screen.queryByText(/Difference:/)).toBeNull();
     expect(screen.queryByText(/Difference:/)).toBeNull();
   });

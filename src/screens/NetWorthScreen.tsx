@@ -1,5 +1,6 @@
 // Net worth = Assets − Debts. Also the capture surface: every bucket is a section you fill in
 // (per-account, with institution), so it works as both first-run setup and ongoing management.
+import { MoneyBox } from '../components/MoneyBox';   // every money box, one component (DEC-8385)
 import { plural } from '../domain/_shared/plural';   // the one list of words and plurals (DEC-4082, 2026-10-10)
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Modal, RefreshControl, Alert } from 'react-native';
@@ -153,6 +154,10 @@ const SECTION_LABEL: Record<string, string> = {
   Property: 'Real estate & personal property',
 };
 const secLabel = (s: string) => SECTION_LABEL[s] ?? s;
+/** What a step's empty door adds, in the words of the step's title (2026-10-27, NW2-16): "Add your taxable accounts" → "Add a taxable account →". */
+/** A light-green bar that collapses its group is drawn 34 tall (v08 .band); its finger target is 44 — the slop, not a taller bar (DEC-0141). */
+const BAND_SLOP = { top: 5, bottom: 5 };
+const EMPTY_STEP_DOOR: Record<string, string> = { Cash: 'a cash account', Investments: 'a taxable account', Retirement: 'a retirement account', Property: 'a property' };
 const WIZ_HINT: Record<string, string> = {
   Cash: 'Checking, savings, emergency fund.',
   Investments: 'Brokerage & other taxable accounts — stocks and funds, bonds, crypto.',
@@ -451,7 +456,7 @@ export default function NetWorthScreen() {
           {head}
           <View style={styles.invToggle}>
             {(['type', 'account'] as const).map((g) => (
-              <TouchableOpacity key={g} style={[styles.invTab, invGroup === g && styles.invTabOn]} accessibilityRole="button" accessibilityState={{ selected: invGroup === g }} accessibilityLabel={g === 'type' ? 'Group by class' : 'Group by institution'} hitSlop={{ top: 8, bottom: 8 }} onPress={() => setInvGroup(g)}>
+              <TouchableOpacity key={g} style={[styles.invTab, invGroup === g && styles.invTabOn]} accessibilityRole="button" accessibilityState={{ selected: invGroup === g }} accessibilityLabel={g === 'type' ? 'Group by class' : 'Group by institution'} hitSlop={{ top: 9, bottom: 9 }} onPress={() => setInvGroup(g)}>
                 <Text style={[styles.invTabTxt, invGroup === g && styles.invTabTxtOn]}>{g === 'type' ? 'By class' : 'By institution'}</Text>
               </TouchableOpacity>
             ))}
@@ -461,7 +466,7 @@ export default function NetWorthScreen() {
               <View style={styles.groupHead}>
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                   <Text style={styles.groupName}>{g}</Text>
-                  {invGroup === 'type' && CLASS_TO_TERM[assetClassOf(items[0])] && <InfoDot term={CLASS_TO_TERM[assetClassOf(items[0])]!} />}
+                  {invGroup === 'type' && CLASS_TO_TERM[assetClassOf(items[0])] && <InfoDot term={CLASS_TO_TERM[assetClassOf(items[0])]!} line={styles.groupName} />}
                 </View>
                 <Text style={styles.groupVal}>{fig('MK-NW-M-007', totalOf[g])}</Text>
               </View>
@@ -501,7 +506,9 @@ export default function NetWorthScreen() {
         {head}
         <View style={styles.card}>
           {rows.length === 0
-            ? <TouchableOpacity accessibilityRole="button" accessibilityLabel={`Add a ${secLabel(sec)} account`} onPress={() => setAssetSheet({ open: true, section: sec })}><Text style={styles.empty}>Add a {sec.toLowerCase()} account →</Text></TouchableOpacity>
+            // the door names what the step adds, in the step's own words (2026-10-27, found drawing the step-by-step add, NW2-16): step 2
+            // read "Add a investments account →" under "Add your taxable accounts", and its spoken label "Add a Taxable accounts account"
+            ? <TouchableOpacity accessibilityRole="button" style={{ minHeight: 44, justifyContent: 'center' }} accessibilityLabel={`Add ${EMPTY_STEP_DOOR[sec] ?? `a ${sec.toLowerCase()} account`}`} onPress={() => setAssetSheet({ open: true, section: sec })}><Text style={styles.empty}>Add {EMPTY_STEP_DOOR[sec] ?? `a ${sec.toLowerCase()} account`} →</Text></TouchableOpacity>
             : rows.map((a, i) => assetRow(a, i, a.label, asksCashOrInvestments(a) ? `${CASH_OR_INVESTMENTS_ASK} Tap to say.`   // (DEC-4036g, 2026-10-10)
               : `${assetKind(a.kind)?.label ?? a.tax_bucket ?? TAX_TYPE_NOT_STATED}${a.institution ? ` · ${a.institution}` : ''}`))}
         </View>
@@ -644,17 +651,19 @@ export default function NetWorthScreen() {
             than drawing three $0 banks that don't exist. */}
         {groupingPills}
         <View style={styles.ledger}>
-          <SectionBand title="WHAT YOU OWN" value={fig('MK-NW-M-004', 0)} trailing={RIGHT_SLOT} />
+          {/* ONE CONTINUOUS LEDGER (2026-10-27, drawing match round 2, NW2-05): v08 draws every bar flush on what follows it, with no
+              gap. SectionBand leaves 4 points under every bar; on this screen it is taken back, so a row's line meets the bar above it. */}
+          <View style={styles.flushBand}><SectionBand title="WHAT YOU OWN" value={fig('MK-NW-M-004', 0)} trailing={RIGHT_SLOT} /></View>
           {nwGrouping === 'class' ? (<>
-            <SectionBand light title="💵 CASH" value={fig('MK-NW-M-005', 0)} trailing={RIGHT_SLOT} />
-            <SectionBand light title="📈 INVESTMENTS" value={fig('MK-XS-M-003', 0)} trailing={RIGHT_SLOT} />
-            <SectionBand light title="🏠 PERSONAL PROPERTY" value={fig('MK-NW-M-006', 0)} trailing={RIGHT_SLOT} />
+            <View style={styles.flushBand}><SectionBand light title="💵 CASH" value={fig('MK-NW-M-005', 0)} trailing={RIGHT_SLOT} /></View>
+            <View style={styles.flushBand}><SectionBand light title="📈 INVESTMENTS" value={fig('MK-XS-M-003', 0)} trailing={RIGHT_SLOT} /></View>
+            <View style={styles.flushBand}><SectionBand light title="🏠 PERSONAL PROPERTY" value={fig('MK-NW-M-006', 0)} trailing={RIGHT_SLOT} /></View>
           </>) : (
             <Text style={[styles.empty, styles.ledgerPad]}>Your banks and brokerages will be listed here, each with what it holds.</Text>
           )}
           {waysToAdd}
 
-          <SectionBand title="DEBTS" infoTerm="debt" value={fig('MK-NW-M-009', 0)} trailing={RIGHT_SLOT} />
+          <View style={styles.flushBand}><SectionBand title="DEBTS" infoTerm="debt" value={fig('MK-NW-M-009', 0)} trailing={RIGHT_SLOT} /></View>
           {/* the same one line: the door is the row right below it, so it is not repeated (v08) */}
           <Text style={[styles.firstDayAsk, styles.ledgerPad]}>Nothing entered yet.</Text>
           {/* the debts door reads the one wording every empty-debts door uses: "Add your debts ›" — it read
@@ -665,8 +674,8 @@ export default function NetWorthScreen() {
             <Text style={styles.arrowSlot}>›</Text>
           </TouchableOpacity>
 
-          <SectionBand title="EMERGENCY FUND" trailing={RIGHT_SLOT} />
-          <View style={styles.ledgerPad}>
+          <View style={styles.flushBand}><SectionBand title="EMERGENCY FUND" trailing={RIGHT_SLOT} /></View>
+          <View style={[styles.ledgerPad, styles.cushPad]}>
             <Text style={styles.cushionEmpty}>— months</Text>
             {/* 13 points, regular, the secondary grey — the emergency fund's other lines (v08 frame C, .cushMath; its row of 2026-10-25) */}
             <Text style={styles.cushionMath}>appears with your first cash account + monthly expenses</Text>
@@ -893,7 +902,7 @@ export default function NetWorthScreen() {
                 ? <Text><Text style={{ fontWeight: '800' }}>{figWords('MK-XS-M-002', oddsLine(nwLens, nwWil.chance!, nwWil.horizonAge))}</Text> · {figWords('MK-NW-M-015', nwOnCourse)} ›</Text>
                 : 'See your plan ›'}
             </Text>)}
-            <InfoDot term="nestEggMath" />
+            <InfoDot term="nestEggMath" line={styles.rowTitle} />
           </View>
         </TouchableOpacity>
 
@@ -907,7 +916,8 @@ export default function NetWorthScreen() {
             every number on the screen — band totals included — resolves to ONE right edge, each row
             reserving the same trailing arrow column. */}
         <View style={styles.ledger}>
-        <SectionBand title="WHAT YOU OWN" value={fig('MK-NW-M-004', Math.round(totalAssets))} trailing={RIGHT_SLOT} />
+        {/* ONE CONTINUOUS LEDGER (2026-10-27, drawing match round 2, NW2-05): every bar sits flush on what follows it, as v08 draws it */}
+        <View style={styles.flushBand}><SectionBand title="WHAT YOU OWN" value={fig('MK-NW-M-004', Math.round(totalAssets))} trailing={RIGHT_SLOT} /></View>
           {/* Q48: nothing entered is said row by row below (the one line and the door), not here */}
           {/* Founder finding 2026-08-11: the bar used to stay by category even on the institution
               tab, so the picture and the list underneath answered different questions. It follows
@@ -928,7 +938,7 @@ export default function NetWorthScreen() {
               const count = plural(n, 'account');
               return (
                 <View key={label}>
-                  <TouchableOpacity accessibilityRole="button" activeOpacity={0.8}
+                  <TouchableOpacity accessibilityRole="button" activeOpacity={0.8} style={styles.flushBand} hitSlop={BAND_SLOP}
                     onPress={() => setOpenInst((m) => ({ ...m, [label]: !open }))}
                     accessibilityLabel={`${label}, ${g.known ? figSaid('MK-NW-M-007', Math.round(g.total)) : 'value not entered'}, ${count}. ${open ? 'Collapses' : 'Expands'} them.`}>
                     <SectionBand light trailing={RIGHT_SLOT} title={`${open ? '▾' : '▸'} ${label}${open ? '' : ` · ${count}`}`}
@@ -967,7 +977,7 @@ export default function NetWorthScreen() {
             const count = collapsedCount(g);
             return (
               <View key={g.group}>
-                <TouchableOpacity accessibilityRole="button" activeOpacity={0.8}
+                <TouchableOpacity accessibilityRole="button" activeOpacity={0.8} style={styles.flushBand} hitSlop={BAND_SLOP}
                   onPress={() => setOpenUber((m) => ({ ...m, [g.group]: !gOpen }))}
                   accessibilityLabel={`${g.label}, ${gUnvalued ? 'value not entered' : figSaid('MK-NW-M-007', Math.round(g.total))}, ${count}. ${gOpen ? 'Collapses' : 'Expands'} them.`}>
                   <SectionBand light trailing={RIGHT_SLOT} title={`${gOpen ? '▾' : '▸'} ${g.icon} ${g.label}${gOpen ? '' : ` · ${count}`}`}
@@ -987,7 +997,7 @@ export default function NetWorthScreen() {
               const entered = assets.some((a) => uberGroupOf(assetClassOf(a)) === e.group);
               return (
                 <View key={`empty-${e.group}`}>
-                  <SectionBand light trailing={RIGHT_SLOT} title={`${e.icon} ${e.label}`} value={fig('MK-NW-M-006', 0)} />
+                  <View style={styles.flushBand}><SectionBand light trailing={RIGHT_SLOT} title={`${e.icon} ${e.label}`} value={fig('MK-NW-M-006', 0)} /></View>
                   {/* the line and door under ONE empty group (Q48 frame 2) — never under each group when
                       nothing at all is entered: that is the ways-to-add block below, once (DEC-0227) */}
                   {!entered && assets.length > 0 && <View style={styles.ledgerPad}><EmptyNote door="accounts" onPress={() => setAddChooser(true)} /></View>}
@@ -998,11 +1008,11 @@ export default function NetWorthScreen() {
           {assets.length === 0 && waysToAdd}
 
         {/* DEBTS — minus numbers, the word carries the meaning */}
-        <SectionBand title="DEBTS" infoTerm="debt" trailing={RIGHT_SLOT}
+        <View style={styles.flushBand}><SectionBand title="DEBTS" infoTerm="debt" trailing={RIGHT_SLOT}
           value={dState.total_debt_balance > 0 ? `−${fig('MK-NW-M-009', Math.round(dState.total_debt_balance))}`
             // nothing entered: the figure stays $0 with the line under it (Q48 empty-state mock frame 1, and v08 state C
             // "DEBTS $0"). It printed no figure at all once any account was entered (mock-match audit v02, 2026-10-11).
-            : liabilities.length === 0 ? fig('MK-NW-M-009', 0) : undefined} />
+            : liabilities.length === 0 ? fig('MK-NW-M-009', 0) : undefined} /></View>
           {liabilities.length === 0 && <View style={styles.ledgerPad}><EmptyNote door="debts" onPress={() => setDebtSheet({ open: true })} /></View>}   {/* Q48: nothing entered — a "no debts" answer does not exist yet, so an entered none cannot be told apart (question for the founder) */}
           {/* the debts' own composition bar (founder Q6, 2026-08-11) — the same shape as the assets
               bar above, in the warning family so the two sections can never be misread for each other */}
@@ -1018,8 +1028,9 @@ export default function NetWorthScreen() {
             <TouchableOpacity key={d.debt_id} style={styles.ledgerRow} accessibilityRole="button"
               accessibilityLabel={`${d.label}, ${d.remaining_balance == null || !Number.isFinite(d.remaining_balance) ? 'value not entered' : `you owe ${figSaid('MK-NW-M-010', Math.round(d.remaining_balance))}`}. Opens the editor.`}
               onPress={() => setDebtSheet({ open: true, edit: d })}>
-              <Text style={styles.rowIcon}>{debtKind(d.debt_type)?.icon ?? '🧾'}</Text>
+              {/* the icon at the row's own 15 points, beside the name (v08 .debt .n; drawing match round 2, NW2-06): it was 20 */}
               <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                <Text style={styles.debtIcon}>{debtKind(d.debt_type)?.icon ?? '🧾'}</Text>
                 <Text style={styles.rowTitle}>{d.label}</Text>
                 {costliest?.debt_id === d.debt_id && <View style={styles.hotPill}><Text style={styles.hotPillTxt}>pay first</Text></View>}
               </View>
@@ -1059,8 +1070,8 @@ export default function NetWorthScreen() {
           const shownMonths = Math.round(runwayMonths * 10) / 10;
           return (
           <View>
-            <SectionBand title="EMERGENCY FUND" trailing={RIGHT_SLOT} />
-            <View style={styles.ledgerPad}>
+            <View style={styles.flushBand}><SectionBand title="EMERGENCY FUND" trailing={RIGHT_SLOT} /></View>
+            <View style={[styles.ledgerPad, styles.cushPad]}>
               <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 8, marginTop: 4 }}>
                 <Text style={styles.cushionMonths}>{fig('MK-NW-M-013', shownMonths)}</Text>
                 <Text style={[styles.cushionWord, { color: shownMonths < 3 ? Colors.amber : Colors.gainText }]}>
@@ -1089,8 +1100,10 @@ export default function NetWorthScreen() {
               <Text style={styles.cushionMath}>{(() => {
                 // the line is recorded whole under MK-NW-M-014 and drawn in the same pieces as before, so what a person reads does not move
                 const c = fig('MK-NW-M-005', Math.round(cashOnHand)), e = figPer('MK-NW-M-048', Math.round(monthlySpend));
-                figWords('MK-NW-M-014', `of essentials covered by your cash — ${c} cash ÷ ${lessRent ? '(' : ''}${e} essentials${lessRent}${lessRent ? ')' : ''} — ${essentials?.label ?? ''}`);
-                return <>of essentials covered by your cash — {c} cash ÷ {lessRent ? '(' : ''}{e} essentials{lessRent}{lessRent ? ')' : ''} — {essentials?.label}</>;
+                // the source word closes the line; with none there is no dash left hanging (2026-10-27, NW2-02)
+                const tag = essentials?.label ? ` — ${essentials.label}` : '';
+                figWords('MK-NW-M-014', `of essentials covered by your cash — ${c} cash ÷ ${lessRent ? '(' : ''}${e} essentials${lessRent}${lessRent ? ')' : ''}${tag}`);
+                return <>of essentials covered by your cash — {c} cash ÷ {lessRent ? '(' : ''}{e} essentials{lessRent}{lessRent ? ')' : ''}{tag}</>;
               })()}</Text>
               {/* BOTH NUMBERS (founder, 2026-09-28). The figure above is what you could not stop paying;
                   this one is the life you plan to live. Neither is the whole truth on its own. */}
@@ -1131,16 +1144,16 @@ export default function NetWorthScreen() {
           // THE RENT PAYS FOR THE WHOLE MONTH: there is no count of months to state, and the door to
           // "tell us your expenses" below would be the wrong thing to say to someone who has
           <View>
-            <SectionBand title="EMERGENCY FUND" trailing={RIGHT_SLOT} />
-            <View style={styles.ledgerPad}>
+            <View style={styles.flushBand}><SectionBand title="EMERGENCY FUND" trailing={RIGHT_SLOT} /></View>
+            <View style={[styles.ledgerPad, styles.cushPad]}>
               <Text style={styles.cushionMath}>Rent from your property ({figPer('MK-NW-M-064', rentArriving)}) pays for your essentials ({figPer('MK-NW-M-048', Math.round(monthlySpend))}), so your cash is not drawn on if your pay stops.</Text>
             </View>
           </View>
         ) : cashOnHand > 0 ? (
           <TouchableOpacity accessibilityRole="button" onPress={() => router.push('/(tabs)/cashflow')}
             accessibilityLabel={`Emergency fund: your cash is ${figSaid('MK-NW-M-005', Math.round(cashOnHand))} — answer what a typical month costs to see the real number. Opens Cash flow.`}>
-            <SectionBand title="EMERGENCY FUND" trailing={RIGHT_SLOT} />
-            <View style={styles.ledgerPad}>
+            <View style={styles.flushBand}><SectionBand title="EMERGENCY FUND" trailing={RIGHT_SLOT} /></View>
+            <View style={[styles.ledgerPad, styles.cushPad]}>
               <Text style={styles.cushionMath}>Your cash is {fig('MK-NW-M-005', Math.round(cashOnHand))} — tell us your typical monthly expenses and this becomes a real number.</Text>
               <Text style={styles.link}>Answer one question in Cash flow ›</Text>
             </View>
@@ -1381,18 +1394,19 @@ function AssetSheet({ state, onClose }: { state: { open: boolean; section?: stri
       {step === 'pick' ? (
         <>
           <TouchableOpacity style={sh.quickRow} accessibilityRole="button" accessibilityLabel="Quick add" onPress={() => choose('quick')}><Text style={sh.quickTxt}>⚡  Quick add — just a name & value</Text></TouchableOpacity>
-          <Text style={sh.pickHdr}>WHAT IT IS</Text>
+          {/* each list's sub-title on the light-green bar, edge to edge of the sheet (2026-10-30, R1, DEC-8839; drawn in step-by-step add v01) */}
+          <View style={sh.bleed}><SectionBand light title="WHAT IT IS" /></View>
           {ADD_CLASS_PICKS.map((p) => (
             <TouchableOpacity key={p.key} style={sh.pickRow} accessibilityRole="button" accessibilityLabel={p.label} onPress={() => choose(p.key)}><Text style={sh.pickTxt}>{p.icon}  {p.label}</Text><Text style={sh.pickArrow}>›</Text></TouchableOpacity>
           ))}
-          <Text style={sh.pickHdr}>A WHOLE ACCOUNT (holds a mix)</Text>
+          <View style={sh.bleed}><SectionBand light title="A WHOLE ACCOUNT (holds a mix)" /></View>
           {ADD_ACCT_PICKS.map((p) => (
             <TouchableOpacity key={p.key} style={sh.pickRow} accessibilityRole="button" accessibilityLabel={p.label} onPress={() => choose(p.key)}><Text style={sh.pickTxt}>{p.icon}  {p.label}</Text><Text style={sh.pickArrow}>›</Text></TouchableOpacity>
           ))}
         </>
       ) : (
         <>
-          {!editing && <TouchableOpacity accessibilityRole="button" accessibilityLabel="Back" onPress={() => setStep('pick')}><Text style={sh.backLink}>‹ Back</Text></TouchableOpacity>}
+          {!editing && <TouchableOpacity accessibilityRole="button" accessibilityLabel="Back" style={sh.tap44} onPress={() => setStep('pick')}><Text style={sh.backLink}>‹ Back</Text></TouchableOpacity>}
           {step === 'cash' && (<>
             <Chips ids={CASH_OPTS} />
             {asksCdBought && cdQuestions}
@@ -1407,7 +1421,7 @@ function AssetSheet({ state, onClose }: { state: { open: boolean; section?: stri
             {/* the kinds named are the four this sheet offers — private equity and hedge funds are not offered in this phase
                 (DEC-2334, 2026-10-06); this line still named them until 2026-10-20 */}
             {/* NW-16: make the "track specifics" path actionable — route to the holdings detail screen */}
-            <TouchableOpacity accessibilityRole="button" accessibilityLabel="Add specific holdings" onPress={() => { onClose(); router.push(step === 'stocks' ? '/performance' : step === 'bonds' ? '/bonds' : '/other-investments'); }}>
+            <TouchableOpacity accessibilityRole="button" accessibilityLabel="Add specific holdings" style={sh.tap44} onPress={() => { onClose(); router.push(step === 'stocks' ? '/performance' : step === 'bonds' ? '/bonds' : '/other-investments'); }}>
               <Text style={sh.specifics}>＋ Add specific holdings instead →</Text>
             </TouchableOpacity>
           </>)}
@@ -1441,10 +1455,10 @@ function AssetSheet({ state, onClose }: { state: { open: boolean; section?: stri
                 src/__tests__/itemize_has_one_door.test.tsx. */}
           </>)}
           <TextInput style={sh.input} placeholder={step === 'quick' ? 'Name (e.g. My Robinhood)' : 'Institution / name (e.g. Chase)'} placeholderTextColor={Colors.textTertiary} value={inst} onChangeText={setInst} />
-          <View style={sh.amtRow}><Text style={sh.amtPre}>{currencySymbol()}</Text><TextInput style={sh.amtIn} keyboardType="decimal-pad" placeholder="0" placeholderTextColor={Colors.textTertiary} value={bal} onChangeText={setBal} /></View>
+          <View style={sh.amtRow}><Text style={sh.amtPre}>{currencySymbol()}</Text><MoneyBox bare dollarBeside style={sh.amtIn} placeholder="0" value={bal} onChangeText={setBal} /></View>
           {needsKind && <Text style={sh.note}>Pick which kind of retirement account it is.</Text>}
           <TouchableOpacity style={[sh.save, needsKind && { opacity: 0.4 }]} disabled={needsKind} accessibilityState={{ disabled: needsKind }} accessibilityRole="button" accessibilityLabel={editing ? 'Save account' : 'Add account'} onPress={save}><Text style={sh.saveTxt}>{editing ? 'Save' : 'Add'} {v > 0 ? typedAmount(v) : ''}</Text></TouchableOpacity>
-          {editing && <TouchableOpacity accessibilityRole="button" accessibilityLabel="Remove account" onPress={remove}><Text style={sh.remove}>Remove</Text></TouchableOpacity>}
+          {editing && <TouchableOpacity accessibilityRole="button" accessibilityLabel="Remove account" style={sh.tap44} onPress={remove}><Text style={sh.remove}>Remove</Text></TouchableOpacity>}
         </>
       )}
     </KeyboardAwareSheet>
@@ -1471,6 +1485,10 @@ const styles = StyleSheet.create({
     borderTopWidth: 1, borderTopColor: Colors.border },
   ledgerChild: { paddingLeft: Spacing.md + 20 },   // one step in — never two
   ledgerPad: { paddingHorizontal: Spacing.md, paddingBottom: Spacing.md },
+  // a bar flush on what follows it (v08 .band, margin 0): SectionBand's own 4 points under it are taken back (NW2-05)
+  flushBand: { marginBottom: -Spacing.xs },
+  // the emergency fund card's own inside (v08 .cush: 10 above, 14 below)
+  cushPad: { paddingTop: 10, paddingBottom: 14 },
   arrowSlot: { width: ARROW, fontSize: 15, color: Colors.textTertiary, textAlign: 'right' },
   arrowGap: { width: ARROW },
   // FCC glance-that-expands
@@ -1530,8 +1548,10 @@ const styles = StyleSheet.create({
   firstDayAskQ: { fontWeight: '700', color: Colors.textPrimary },   // Net worth v08 state C: a plain <b> in the drawing, which draws at 700
   chooserHead: { fontSize: 20, fontWeight: '800', color: Colors.textPrimary, textAlign: 'center', marginBottom: Spacing.md },
   chooserBackdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end' },
-  chooserCard: { backgroundColor: Colors.bgSecondary, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: Spacing.lg, paddingBottom: 34 },
-  chooserGrip: { width: 40, height: 4, borderRadius: 2, backgroundColor: Colors.border, alignSelf: 'center', marginBottom: Spacing.md },
+  // v08 frame G (.sheet, .grab; drawing match round 2, NW2-09): 10 above the handle, 16 at the sides, 30 below; the handle 36 wide in
+  // the tertiary grey, 10 above the title — the walk and fix sheets' handle. It was 40 wide in the border grey inside 20.
+  chooserCard: { backgroundColor: Colors.bgSecondary, borderTopLeftRadius: 24, borderTopRightRadius: 24, paddingTop: 10, paddingHorizontal: Spacing.base, paddingBottom: 30 },
+  chooserGrip: { width: 36, height: 4, borderRadius: 2, backgroundColor: Colors.bgTertiary, alignSelf: 'center', marginBottom: 10 },
   chooserRow: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginBottom: 8, minHeight: 64, justifyContent: 'center' },
   chooserTitle: { fontSize: 15, fontWeight: '800', color: Colors.textPrimary },
   chooserSoon: { fontSize: 11, fontWeight: '800', color: Colors.textTertiary },
@@ -1590,6 +1610,7 @@ const styles = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm, paddingVertical: 9 },
   divider: { borderTopWidth: 1, borderTopColor: Colors.border },
   rowIcon: { fontSize: 20, width: 26, textAlign: 'center' },
+  debtIcon: { fontSize: 15 },   // a ledger debt row's icon, at the row's text size (v08 .debt .n, 15; NW2-06)
   rowTitle: { fontSize: 15, fontWeight: '600', color: Colors.textPrimary },
   rowSub: { fontSize: 11, color: Colors.textSecondary, marginTop: 1, fontWeight: '600' },
   rowVal: { fontSize: 15, fontWeight: '800', color: Colors.textPrimary },
@@ -1640,9 +1661,11 @@ const sh = StyleSheet.create({
   title: { fontSize: 17, fontWeight: '800', color: Colors.textPrimary, textAlign: 'center', marginBottom: Spacing.sm },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, justifyContent: 'flex-start' },
   // rounded corners, not semicircle ends — the one shape of a choice (DEC-0231, 2026-09-25; corrected 2026-10-20)
-  chip: { paddingHorizontal: 12, paddingVertical: 10, borderRadius: Radii.md, borderWidth: 1.5, borderColor: Colors.border, backgroundColor: Colors.cardBg },
+  // every choice at least 44 tall, the smallest finger target (DEC-0141; measured drawing the step-by-step add, 2026-10-27: they were 37)
+  chip: { paddingHorizontal: 12, paddingVertical: 10, minHeight: 44, justifyContent: 'center', borderRadius: Radii.md, borderWidth: 1.5, borderColor: Colors.border, backgroundColor: Colors.cardBg },
   chipOn: { borderColor: Colors.primary, backgroundColor: Colors.primaryLight },
   chipTxt: { fontSize: 13, fontWeight: '600', color: Colors.textPrimary },
+  tap44: { minHeight: 44, justifyContent: 'center' },   // a word that is a door: 44 tall (DEC-0141; ‹ Back was 25, Remove 40)
   clsLabel: { fontSize: 13, fontWeight: '600', color: Colors.textSecondary, alignSelf: 'flex-start', marginTop: 4, marginBottom: 8 },
   input: { backgroundColor: Colors.cardBg, borderRadius: Radii.md, padding: Spacing.md, fontSize: 15, color: Colors.textPrimary, borderWidth: 1, borderColor: Colors.border, marginTop: Spacing.sm },
   lbl: { fontSize: 13, color: Colors.textSecondary, marginTop: Spacing.sm, marginBottom: 2 },
@@ -1655,7 +1678,7 @@ const sh = StyleSheet.create({
   pickRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 14, paddingHorizontal: 4, borderBottomWidth: 1, borderBottomColor: Colors.border },
   pickTxt: { fontSize: 15, fontWeight: '600', color: Colors.textPrimary },
   pickArrow: { fontSize: 20, color: Colors.textTertiary },
-  pickHdr: { fontSize: 11, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.5, marginTop: 16, marginBottom: 2 },
+  bleed: { marginHorizontal: -Spacing.lg, marginTop: 16 },   // the sheet's padding (20), taken back: the light-green bar runs edge to edge
   quickRow: { paddingVertical: 14, paddingHorizontal: 12, borderRadius: Radii.md, backgroundColor: Colors.primaryLight, marginBottom: 4 },
   quickTxt: { fontSize: 15, fontWeight: '700', color: Colors.primary },
   backLink: { fontSize: 15, fontWeight: '700', color: Colors.primary, marginBottom: 8 },

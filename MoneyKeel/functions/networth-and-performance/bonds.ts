@@ -17,7 +17,7 @@ import { formatMoney } from '../../../src/domain/_shared/money';
 import type { AssetAccount } from '../../../src/domain/assets';
 import {
   isBond, bondInfo, yearlyInterest, yearlyInterestNow, yearsToMaturity, currentYield, approxYTM,
-  bondSummary, accruedInterestCaveat, bondRateSensitivity, pricedLikeBond, maturityParts,
+  bondSummary, accruedInterestCaveat, accruedFrequencyAssumed, bondRateSensitivity, pricedLikeBond, maturityParts,
   bondValueNote, pricePer100OfFace,
   type BondInfo, type RateSensitivity, type BondValueBasis,
 } from '../../../src/domain/bonds';
@@ -91,6 +91,9 @@ export interface BondRow {
   pricedLikeBond: boolean;
   /** The note about accrued interest, when the figures need one. Null when they do not. */
   accruedCaveat: string | null;
+  /** The sentence after that note when the estimate took the bond as paying once a year because how often it pays is not entered
+   *  (2026-10-27, NW2-14; accruedFrequencyAssumed in src/domain/bonds). Null when the frequency was chosen, or no estimate was used. */
+  accruedAssumed: string | null;
 }
 
 export interface OneBond extends BondRow {
@@ -158,7 +161,7 @@ export interface BondsInput {
  * Called by ... MK-NW-F-141 holdingBondFacts · MK-NW-O-001 theBonds
  *               MK-ST-F-093 typedValueOnItsDate
  *
- * Reaches ..... 385 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 438 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -168,7 +171,7 @@ export interface BondsInput {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 367 more — the full list is on functions_from_code
+ *               … and 420 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-003 institution name
@@ -206,6 +209,7 @@ export const rowOf = (a: AssetAccount, now: Date): BondRow => {
     isCD: !!b.isCd,
     pricedLikeBond: pricedLikeBond(b),   // the one test (DEC-3837, 2026-10-10)
     accruedCaveat: accruedInterestCaveat(b, now),
+    accruedAssumed: accruedFrequencyAssumed(b, now),   // the once-a-year assumption, said (2026-10-27, NW2-14)
   };
 };
 
@@ -296,7 +300,7 @@ export function holdingBondFacts(p: { position_id?: string | number; ticker?: st
  *
  * Called by ... MK-NW-F-077 ALL · MK-NW-F-078 ONE
  *
- * Reaches ..... 385 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 438 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -306,7 +310,7 @@ export function holdingBondFacts(p: { position_id?: string | number; ticker?: st
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 367 more — the full list is on functions_from_code
+ *               … and 420 more — the full list is on functions_from_code
  *
  * Serves ...... MK-NW-M-023 · MK-NW-M-024 · MK-NW-M-025 · MK-NW-M-026
  *               MK-NW-M-027 · MK-NW-M-041 · MK-NW-M-042 · MK-NW-M-043
@@ -468,7 +472,7 @@ const ALL = () => theBonds({ accounts: EXAMPLE, today: TODAY });
  *               MK-NW-F-127 gainOfRow · MK-NW-F-179 balanceWithBondTakenOut
  *               MK-NW-O-003 theNetWorth · MK-PF-F-044 startValues
  *
- * Reaches ..... 385 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 438 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -478,7 +482,7 @@ const ALL = () => theBonds({ accounts: EXAMPLE, today: TODAY });
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 367 more — the full list is on functions_from_code
+ *               … and 420 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -702,13 +706,15 @@ export const BOND_FIGURES = declareFigures({
     formula: 'coupon rate, and face value × coupon rate; a CD bought from the bank or a bond fund with no face value, its value × coupon rate; a bond with a maturity date and no face value, none',
     inputs: ['MK-NW-I-001 your accounts'],
     decisions: [
-      'A46 (owner, 2026-08-26): no coupon rate \u2014 \u201cnot entered · $0/year \u2014 coupon rate not entered\u201d, and no yields.',
+      'A46 (owner, 2026-08-26): no coupon rate \u2014 \u201cnot entered · $0/year \u2014 coupon rate not entered\u201d, and no yields. '
+      + 'REPLACED ON SCREEN 2026-10-27 (the lead under tenet 3, DEC-3523, which is newer and higher; drawing match round 2, NW2-20; account-page v01 row 85): '
+      + 'the row reads \u201ccoupon rate not entered\u201d, with no $0 made from an unknown; the sums still count none for it (DEC-0279).',
       'NO FACE VALUE ON A BOND (2026-10-24, the lead under DEC-3523 tenet 3, which outranks tenet 6): the rate, and \u201cface '
       + 'value not entered\u201d where the year\u2019s interest stands \u2014 a bond pays its coupon on its face, so the rate on the '
       + 'market value is a guess ($1,089 for a $25,000-face 4.5% Treasury worth $24,200, which pays $1,125). A CD bought from '
       + 'the bank, or a bond fund, with no face value pays its rate on its balance (DEC-2748c, DEC-3837).',
     ],
-    refusal: 'No coupon rate entered: not entered · $0/year \u2014 coupon rate not entered. No face value on a bond: the rate · face value not entered.',
+    refusal: 'No coupon rate entered: coupon rate not entered, and no year\u2019s interest (2026-10-27). No face value on a bond: the rate · face value not entered.',
     ruled: '2026-09-27',
     worked: {
       given: GIVEN,

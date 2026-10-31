@@ -3,7 +3,7 @@
  *  Each flow renders the real screens, taps the controls a person touches (found by their words or their spoken label), follows
  *  every push to the screen it names with the parameters it carried, and checks the outcome where the person looks next — on the
  *  Cash flow tab's four tabs (This month · Income · Expenses · Debts), Your base pay, the Income summary, the filing-status
- *  question, the Bill calendar and Home's THIS MONTH'S CASH FLOW box. Every figure is worked by hand beside its check.
+ *  question, the Bill calendar and Home's THIS MONTH’S CASH FLOW box. Every figure is worked by hand beside its check.
  *
  *  THE FOUNDER'S HOUSEHOLD (E2E-75) is the one cash-flow_v01 draws on This month and Expenses (frames A and C, built row for row
  *  from his own sheet, cashflow-thismonth+spending-screen-jj.xlsx): $5,000 take-home; a mortgage ($2,000, paid), a car loan ($250,
@@ -255,11 +255,12 @@ describe('E2E-75 · the tab tour in the founder\'s household (cash-flow_v01 fram
     expect(dollars(after('PLANNED EXPENSES', 1, ls))).toBe(-plannedRows[3]);
     // ACTUAL, by where it came from — each the actual row of the same name: by hand $500 (305 shown + 195 more), imported $1,200
     // (640 shown + 560 more), the HELOC and the card $200 each; all sources 500 + 1,200 + 400 = $2,100
+    // each total over rows written to the cent is written to the cent, R5 (2026-10-27, FX-CF-A — cash-flow_v01’s rows of that date; the old answer is held as test.failing in cashflow_fix_wave_2026_10_27.test.tsx)
     expect([after('ENTERED BY HAND', 1, ls), after('IMPORTED FROM YOUR CARD', 1, ls), after('DEBT PAYMENTS COUNTED AS EXPENSES', 1, ls)])
-      .toEqual(['$500', '$1,200', '$400']);
+      .toEqual(['$500.00', '$1,200.00', '$400.00']);
     expect([dollars(after('ENTERED BY HAND', 1, ls)), dollars(after('IMPORTED FROM YOUR CARD', 1, ls)), dollars(after('DEBT PAYMENTS COUNTED AS EXPENSES', 1, ls))])
       .toEqual([-actualRows[3], -actualRows[4], -(actualRows[5] + actualRows[6])]);
-    expect([after('ACTUAL EXPENSES', 1, ls), after('= Actual expenses, all sources', 1, ls)]).toEqual(['$2,100', '$2,100']);
+    expect([after('ACTUAL EXPENSES', 1, ls), after('= Actual expenses, all sources', 1, ls)]).toEqual(['$2,100.00', '$2,100.00']);
     // and what This month took out is those expenses plus the debt paid that is not an expense: 2,100 + mortgage 2,000 = 4,100
     expect(dollars(after('ACTUAL EXPENSES', 1, ls)) + 2_000).toBe(outflow);
 
@@ -268,7 +269,8 @@ describe('E2E-75 · the tab tour in the founder\'s household (cash-flow_v01 fram
     ls = lines();
     // what is owed: 300,000 + 9,800 + 20,000 + 3,200 = $333,000; the interest a month 300,000 × 5% ÷ 12 = 1,250 + 9,800 × 6.4% ÷ 12 =
     // 52.27 + 20,000 × 8% ÷ 12 = 133.33 + 3,200 × 22.9% ÷ 12 = 61.07 → 1,496.67 → ~$1,497
-    expect(block(ls, 'YOUR DEBT', 'Payoff plan')).toEqual(['YOUR DEBT', '$333,000', 'across 4 debts · $2,650/month in payments · ~$1,497/month interest']);
+    // the total line is the payments only — each debt's interest is on its own line (DEC-1560; CF2-03), and PAYOFF PLAN is on its bar (R1) (2026-10-27, FX-CF-A — cash-flow_v01’s rows of that date; the old answer is held as test.failing in cashflow_fix_wave_2026_10_27.test.tsx)
+    expect(block(ls, 'YOUR DEBT', 'PAYOFF PLAN')).toEqual(['YOUR DEBT', '$333,000', 'across 4 debts · $2,650/month in payments']);
     expect(-(plannedRows[1] + plannedRows[2] + plannedRows[4] + plannedRows[5])).toBe(2_650);
     // the drawn lines of frame 6 that are not its household's own figures, in its order: the total, the list, the one door, progress
     expect(missingInOrder(['YOUR DEBT', 'YOUR DEBTS', 'pay first', 'Log a payment ›', 'PROGRESS'], ls)).toEqual([]);
@@ -296,7 +298,7 @@ describe('E2E-75 · the tab tour in the founder\'s household (cash-flow_v01 fram
     expect(drawnDifference(AS_BUILT.F(), tabLines(), 25)).toBe('');
     const ls = lines();
     // its payments 110 + 300 = $410 a month — This month's two debt rows
-    expect(after('YOUR DEBT', 2, ls)).toMatch(/^across 2 debts · \$410\/month in payments · /);
+    expect(after('YOUR DEBT', 2, ls)).toBe('across 2 debts · $410/month in payments');   // CF2-03 (2026-10-27, FX-CF-A — cash-flow_v01’s rows of that date; the old answer is held as test.failing in cashflow_fix_wave_2026_10_27.test.tsx)
     expect(after('PROGRESS', 1, ls)).toBe('$4,100 paid down since January — 24% of where you started');
     tab('This month');
     const p = block(lines(), 'PLANNED · AUGUST', '= Planned surplus');
@@ -308,12 +310,12 @@ describe('E2E-75 · the tab tour in the founder\'s household (cash-flow_v01 fram
     start(FOUNDER());
     open('/(tabs)/home');
     const ls = lines();
-    const i = ls.indexOf("THIS MONTH'S CASH FLOW");
+    const i = ls.indexOf("THIS MONTH’S CASH FLOW");
     // 4,100 ÷ 5,000 = 82% spent, over 70% of what came in, so the pace word is "Expenses running fast"; Aug 20 of 31 days
-    expect(ls.slice(i, i + 9)).toEqual(["THIS MONTH'S CASH FLOW", 'Expenses running fast', '82% spent · day 20 of 31',
+    expect(ls.slice(i, i + 9)).toEqual(["THIS MONTH’S CASH FLOW", 'Expenses running fast', '82% spent · day 20 of 31',
       'Income', '$5,000', 'Outflow (expenses + debt)', '$4,100', 'Left', '$900']);
     expect(dollars(ls[i + 4]) - dollars(ls[i + 6])).toBe(dollars(ls[i + 8]));   // Inflow − Outflow = Left: 5,000 − 4,100 = 900
-    fireEvent.press(screen.getByLabelText(/^This month's cash flow, Expenses running fast: /));
+    fireEvent.press(screen.getByLabelText(/^This month’s cash flow, Expenses running fast: /));
     expect(follow()).toBe('/(tabs)/cashflow');
     expect(after('= Actual surplus so far')).toBe('+$900');
   });
@@ -372,7 +374,8 @@ describe('E2E-76 · last month, then the month before, against what Home saved a
     // the band names the month, as the card's last drawing does (FIXED 2026-10-24: "SEPTEMBER 2026 — FINAL — WHAT ACTUALLY HAPPENED")
     const sep = block(ls, 'SEPTEMBER 2026 — WHAT ACTUALLY HAPPENED', 'That month’s activity ›');
     // the record: in 6,000; out = expenses 1,210 + debt paid 300 = 1,510; surplus 6,000 − 1,510 = 4,490 — the sheet's $4,490
-    expect(sep).toEqual(['SEPTEMBER 2026 — WHAT ACTUALLY HAPPENED', 'Actual inflow', '$6,000', 'Outflow (expenses + debt)', '$1,510', '= Surplus', '$4,490']);
+    // the surplus carries its sign, as This month's does (CF2-07) (2026-10-27, FX-CF-A — cash-flow_v01’s rows of that date; the old answer is held as test.failing in cashflow_fix_wave_2026_10_27.test.tsx)
+    expect(sep).toEqual(['SEPTEMBER 2026 — WHAT ACTUALLY HAPPENED', 'Actual inflow', '$6,000', 'Outflow (expenses + debt)', '$1,510', '= Surplus', '+$4,490']);
     const s = record('2026-09');
     expect([dollars(sep[2]), dollars(sep[4]), dollars(sep[6])]).toEqual([s.income_net, s.spending + s.debt_paid, s.savings]);
     expect(ls).toContain('Frozen — past months never change under you.');
@@ -381,14 +384,14 @@ describe('E2E-76 · last month, then the month before, against what Home saved a
     fireEvent.press(screen.getByLabelText('Previous month'));
     ls = lines();
     const aug = block(ls, 'AUGUST 2026 — WHAT ACTUALLY HAPPENED', 'That month’s activity ›');
-    expect(aug).toEqual(['AUGUST 2026 — WHAT ACTUALLY HAPPENED', 'Actual inflow', '$6,000', 'Outflow (expenses + debt)', '$1,030', '= Surplus', '$4,970']);
+    expect(aug).toEqual(['AUGUST 2026 — WHAT ACTUALLY HAPPENED', 'Actual inflow', '$6,000', 'Outflow (expenses + debt)', '$1,030', '= Surplus', '+$4,970']);   // its sign (CF2-07, 2026-10-27)
     const a = record('2026-08');
     expect([dollars(aug[2]), dollars(aug[4]), dollars(aug[6])]).toEqual([a.income_net, a.spending + a.debt_paid, a.savings]);
 
     // that month's activity: August's Expenses tab lists its $730 — the record's expenses, the car loan apart (same every month)
     fireEvent.press(screen.getByLabelText('See that month’s activity on the Expenses tab'));
     ls = lines();
-    expect([after('MONTHLY RECURRING EXPENSES', 1, ls), after('ACTUAL EXPENSES', 1, ls)]).toEqual(['$300', '$730']);
+    expect([after('MONTHLY RECURRING EXPENSES', 1, ls), after('ACTUAL EXPENSES', 1, ls)]).toEqual(['$300', '$730.00']);   // to the cent, R5 (2026-10-27)
     expect(dollars(after('ACTUAL EXPENSES', 1, ls)) + dollars(after('MONTHLY RECURRING EXPENSES', 1, ls))).toBe(dollars(aug[4]));
     // August's plan: groceries 800 + utilities 300 = $1,100
     // the budget as entered, by category (2026-10-25, CF-09 — it read Bills & fixed $300 · Everyday expenses $800): 800 + 300 = $1,100
@@ -403,11 +406,11 @@ describe('E2E-76 · last month, then the month before, against what Home saved a
       date: '2026-09-25', notes: '', createdAt: '2026-10-03T12:00:00.000Z', origin: 'imported' }] } as any); });
     fireEvent.press(screen.getByLabelText('Previous month'));
     tab('This month');
-    expect(block(lines(), 'SEPTEMBER 2026 — WHAT ACTUALLY HAPPENED', 'That month’s activity ›').slice(1)).toEqual(['Actual inflow', '$6,000', 'Outflow (expenses + debt)', '$1,510', '= Surplus', '$4,490']);
+    expect(block(lines(), 'SEPTEMBER 2026 — WHAT ACTUALLY HAPPENED', 'That month’s activity ›').slice(1)).toEqual(['Actual inflow', '$6,000', 'Outflow (expenses + debt)', '$1,510', '= Surplus', '+$4,490']);
     tab('Expenses');
     ls = lines();
     expect(ls.slice(ls.indexOf('25 Sep · Market'), ls.indexOf('25 Sep · Market') + 3)).toEqual(['25 Sep · Market', 'Groceries · added after September closed — not in September’s figures', '$150.00']);
-    expect([after('ACTUAL EXPENSES', 1, ls), after('= Actual expenses, all sources', 2, ls)]).toEqual(['$1,360', '$150 of it was added after September closed — not in September’s figures.']);
+    expect([after('ACTUAL EXPENSES', 1, ls), after('= Actual expenses, all sources', 2, ls)]).toEqual(['$1,360.00', '$150 of it was added after September closed — not in September’s figures.']);   // R5
     expect(dollars(after('ACTUAL EXPENSES', 1, ls)) - 150 + 300).toBe(1_510);
     expect(heard()).toContain('25 Sep · Market, Groceries · added after September closed — not in September’s figures, $150.00');
     // an expense on the record is not named: the Sep 6 groceries were entered before September's record was saved
@@ -435,7 +438,7 @@ describe('E2E-76 · last month, then the month before, against what Home saved a
 const OCT = '2026-10-24';
 const BRAND_NEW = { onboardingProfile: { status: 'employed', incomeSources: ['employment'], birthYear: '1981' },
   assetAccounts: [{ asset_id: 'chk', label: 'Checking', kind: 'checking', tax_bucket: 'TAXABLE', balance: 3_000, asset_class: 'cash' }] };
-const homeBox = (ls = lines()) => { const i = ls.indexOf("THIS MONTH'S CASH FLOW"); expect(i).toBeGreaterThanOrEqual(0); return ls.slice(i, ls.indexOf('Estimates for guidance only — not financial, investment, or tax advice, and projections aren\'t guaranteed. See Settings for the full disclaimer.', i)); };
+const homeBox = (ls = lines()) => { const i = ls.indexOf("THIS MONTH’S CASH FLOW"); expect(i).toBeGreaterThanOrEqual(0); return ls.slice(i, ls.indexOf('Estimates for guidance only — not financial, investment, or tax advice, and projections aren\'t guaranteed. See Settings for the full disclaimer.', i)); };
 const V10 = 'MoneyKeel/documents/home-screen/moneykeel_pres_mock_ways-to-add-an-account_v10.html';
 
 describe('E2E-77 · a brand-new person enters their pay', () => {
@@ -448,7 +451,7 @@ describe('E2E-77 · a brand-new person enters their pay', () => {
     let ls = tabLines();
     expect(ls.slice(ls.indexOf('SET UP YOUR MONTH — 2 STEPS'))).toEqual(['SET UP YOUR MONTH — 2 STEPS', '1 · Your base pay',
       'one section per earner — bonus and other income come after', 'Set up ›', '2 · About what goes out monthly?', 'rent, food, bills — roughly', '$',
-      "✓ Answers save to your plan — Home, Plan and this screen use the same numbers. No zeros shown until they're real.", '＋ Expense']);
+      '✓ Answers save to your plan — Home, Plan and this screen use the same numbers. No zeros shown until they’re real.', '＋ Expense']);   // ’ (CF2-10)
     expect(ls.filter((l) => /\$\d/.test(l))).toEqual([]);
     // its first step is a door straight to Your base pay
     fireEvent.press(screen.getByLabelText('Step 1: set up your income — your base pay, one section per earner'));
@@ -462,7 +465,7 @@ describe('E2E-77 · a brand-new person enters their pay', () => {
     expect(drawn).not.toBeNull();
     const box = homeBox();
     // (2026-10-25, HM-01: no "day 24 of 31" before income — the pace line goes with the pace word, and the row lists neither)
-    expect(box).toEqual(["THIS MONTH'S CASH FLOW", 'Income', '$0', 'Nothing entered yet. Add your income ›', 'Outflow (expenses + debt)', '$0', 'Left', '—']);
+    expect(box).toEqual(["THIS MONTH’S CASH FLOW", 'Income', '$0', 'Nothing entered yet. Add your income ›', 'Outflow (expenses + debt)', '$0', 'Left', '—']);
     expect([`${box[1]} ${box[2]}`, box[3], `${box[4]} ${box[5]}`, `${box[6]} ${box[7]}`].join(' · ')).toBe(drawn![1]);
     for (const w of ['Over', '✓ On pace', 'Expenses running fast']) expect(box).not.toContain(w);
 
@@ -508,7 +511,7 @@ describe('E2E-77 · a brand-new person enters their pay', () => {
     ]));
     // YOUR FUTURE PAYCHECK follows the two cards wherever there is a pot to project from (his ruling of 2026-09-08 on its arithmetic;
     // not drawn; its figures are held by cashflow_fcc) — taken out here by its own words and nothing else
-    const got = normExact(tabLines()).replace(/ your future paycheck projection — an estimate, not a promise at \d+: ~\$[\d,]+\/month in today's dollars assumes a [\d.]+% return and [\d.]+% inflation a year draw from savings ~\$[\d,]+/, '');
+    const got = normExact(tabLines()).replace(/ your future paycheck projection — an estimate, not a promise at \d+: ~\$[\d,]+\/month in today's dollars assumes an? [\d.]+%\/year return and [\d.]+%\/year inflation draw from savings ~\$[\d,]+/, '');   // "/year", canon row 14 (CF2-09)
     expect(want.split(' ').length).toBeGreaterThan(30);
     expect(firstDifference(want, got)).toBe('');
     ls = lines();
@@ -526,7 +529,7 @@ describe('E2E-77 · a brand-new person enters their pay', () => {
 
     // HOME'S BOX FILLS with the same figures: in $5,022, out $0, left 5,022 − 0 = $5,022; 0% spent — on pace
     open('/(tabs)/home');
-    expect(homeBox()).toEqual(["THIS MONTH'S CASH FLOW", '✓ On pace', '0% spent · day 24 of 31', 'Income', '≈$5,022', 'Outflow (expenses + debt)', '$0', 'Left', '$5,022']);
+    expect(homeBox()).toEqual(["THIS MONTH’S CASH FLOW", '✓ On pace', '0% spent · day 24 of 31', 'Income', '≈$5,022', 'Outflow (expenses + debt)', '$0', 'Left', '$5,022']);
   });
 });
 
@@ -583,28 +586,29 @@ describe('E2E-78 · hide balances on the Cash flow tabs and Home\'s box, heard b
     tab('Debts');
     quiet();
     const ls = lines();
-    expect(ls).toContain('across 4 debts · ••••/month in payments · ~••••/month interest');
+    expect(ls).toContain('across 4 debts · ••••/month in payments');   // CF2-03
     expect(ls).toContain('•••• paid down since January — 2% of where you started');            // the percent stays
     h = heard();
-    for (const said of ['You owe hidden', 'across 4 debts · hidden a month in payments · about hidden a month interest', 'hidden a month total',
+    for (const said of ['You owe hidden', 'across 4 debts · hidden a month in payments', 'hidden a month total',
       // a card's minimum floats with its balance, so it has no time left (2026-10-25, CF-06 — the drawn Visa reads "22.90% — the costliest")
       'Credit card debt payment, pay first, 22.90% — the costliest, hidden a month minimum, about hidden a month interest, hidden owed. Opens it to edit; hold to delete.',
       'Car loan, 6.40%, 4 years left, hidden a month minimum, about hidden a month interest, payment due in 8 days, hidden owed. Opens it to edit; hold to delete.',
-      'hidden paid down since January — 2% of where you started', 'Tap a debt to edit, hold to delete']) expect(h).toContain(said);
+      'hidden paid down since January — 2% of where you started']) expect(h).toContain(said);   // no edit hint (CF2-04): each row says it
 
     // THE MONTH BEFORE — July, nothing on record
     tab('This month');
     fireEvent.press(screen.getByLabelText('Previous month'));
     quiet();
     h = heard();
-    for (const said of ['Actual inflow, hidden', 'Outflow (expenses + debt), hidden', 'Surplus, hidden']) expect(h).toContain(said);
+    // the surplus carries its sign, heard as This month's is, "+hidden" (CF2-07, 2026-10-27)
+    for (const said of ['Actual inflow, hidden', 'Outflow (expenses + debt), hidden', 'Surplus, +hidden']) expect(h).toContain(said);
     screen.unmount();
 
     // HOME'S BOX — its three figures dots, its percent kept (4,100 ÷ 5,000 = 82%), heard as "hidden"
     open('/(tabs)/home');
-    expect(homeBox()).toEqual(["THIS MONTH'S CASH FLOW", 'Expenses running fast', '82% spent · day 20 of 31', 'Income', '••••', 'Outflow (expenses + debt)', '••••', 'Left', '••••']);
+    expect(homeBox()).toEqual(["THIS MONTH’S CASH FLOW", 'Expenses running fast', '82% spent · day 20 of 31', 'Income', '••••', 'Outflow (expenses + debt)', '••••', 'Left', '••••']);
     quiet();
-    expect(heard()).toContain("This month's cash flow, Expenses running fast: income hidden, expenses and debt paid so far hidden, hidden left, bills may still be coming. Opens the Cash flow tab.");
+    expect(heard()).toContain("This month’s cash flow, Expenses running fast: income hidden, expenses and debt paid so far hidden, hidden left, bills may still be coming. Opens the Cash flow tab.");
   });
 
   test('E2E-78 · a screen-reader user reaches every tab and every door, and hears no mark, with balances shown', () => {
@@ -624,14 +628,14 @@ describe('E2E-78 · hide balances on the Cash flow tabs and Home\'s box, heard b
     expect(markHeard()).toEqual([]);
     b = buttons();
     for (const door of ['Expenses tab, selected', 'Planned expenses: Gas, $200; Grocery, $900; Utilities, $200; Other, $700; total, $2,000. Opens your budget.',
-      'Show all 9 — $195 more', 'Show all 23 — $560 more', 'Import a statement — a CSV from your bank']) expect(b).toContain(door);
+      'Show all 9 — $195.00 more', 'Show all 23 — $560.00 more', 'Import a statement — a CSV from your bank']) expect(b).toContain(door);   // R5
     tab('Debts');
     expect(markHeard()).toEqual([]);
     b = buttons();
     for (const door of ['Debts tab, selected', 'Log a payment', 'Add debt account',
       // a mortgage on no property says so, as Net worth does (2026-10-25, CF-23; his rule DEC-1925) — this household holds no property
       'Mortgage, 5.00%, 15 years left, $2,000 a month minimum, about $1,250 a month interest, $300,000 owed. Your mortgage “Mortgage” is not on a property. A mortgage is always on a property — open it and say which one. Opens it to edit; hold to delete.']) expect(b).toContain(door);
-    expect(heard()).toContain('across 4 debts · $2,650 a month in payments · about $1,497 a month interest');
+    expect(heard()).toContain('across 4 debts · $2,650 a month in payments');   // CF2-03
     expect(screen.getByLabelText('Extra payment a month, in dollars')).toBeOnTheScreen();   // the field is named (it had no label)
     // each door reached is a door that works: the row opens its debt's editor, the past month's opens that month's Expenses tab
     tab('This month');
@@ -685,8 +689,10 @@ describe('E2E-78 · hide balances on the Cash flow tabs and Home\'s box, heard b
       }
     }
     // the guard looked: 36 dots in src on 2026-10-24; 34 on 2026-10-25, when Bonds and Alternatives put theirs inside their bars (the
-    // Net worth drawing match — a bar never sits beside its title)
-    expect(seen).toBeGreaterThanOrEqual(34);
+    // Net worth drawing match — a bar never sits beside its title); 33 on 2026-10-27, when the Retirement cockpit's Tax-smart moves put
+    // its dot inside its light-green bar (FX-PLAN, R1) — the dot is still drawn, by the bar; 32 on 2026-10-30, when the account page's
+    // IF INTEREST RATES MOVE did the same (FX-NW, R1)
+    expect(seen).toBeGreaterThanOrEqual(32);
     expect(nested).toEqual([]);
   });
 
@@ -694,8 +700,8 @@ describe('E2E-78 · hide balances on the Cash flow tabs and Home\'s box, heard b
     onDay(OCT);
     start(BRAND_NEW);
     open('/(tabs)/home');
-    const box = reachable().find((r) => r.said.startsWith("This month's cash flow"))!;
-    expect(box.said).toBe("This month's cash flow: income not entered, expenses and debt paid so far $0, nothing left is shown until your income is entered. Opens the Cash flow tab.");
+    const box = reachable().find((r) => r.said.startsWith("This month’s cash flow"))!;
+    expect(box.said).toBe("This month’s cash flow: income not entered, expenses and debt paid so far $0, nothing left is shown until your income is entered. Opens the Cash flow tab.");
     // FIXED 2026-10-24: "Add your income ›" sat inside the box, so a screen reader could not reach it
     const action = box.node.props.accessibilityActions?.find((a: any) => a.label === 'Add your income');
     expect(action).toBeDefined();
@@ -754,10 +760,12 @@ describe('E2E-79 · filing status, and the comparison it shows', () => {
     // cent-exact 327.50 and 480.50 rounded — a dollar off the figures beside it.)
     const shown = (tax: number) => Math.round(8_000 - tax / 12 - 1_000);
     expect([2_480 + 27_000 * 0.12, 2_480 + (36_500 - 24_800) * 0.12, shown(5_720) - shown(9_650), shown(3_884) - shown(9_650)]).toEqual([5_720, 3_884, 327, 480]);
-    const c = lines().filter((l) => l !== '‹ Back');
+    // the MoneyKeel bar's way back and its icons are the bar's, not the screen's (DEC-0354; FX-CF-B 2026-10-27, IN2-13); the box's
+    // figure is bold inside its sentence, as phone 15 draws it (IN2-11), so the two are one line
+    const c = lines().filter((l) => l !== '‹ Back' && !/^[\uE000-\uF8FF]+$/.test(l));
     expect(c).toEqual(['That changes your take-home', 'On the $96,000 you entered, less your 401(k)', 'Taxed as single', '$9,650/year — what we were assuming',
-      'Married filing jointly', '$5,720/year', '…and both of you over 65', '$3,884/year', '$327/month more',
-      'take-home than we were showing you — $480 if you are both over 65.', 'Your tax bracket is calculated from your income only.',
+      'Married filing jointly', '$5,720/year', '…and both of you over 65', '$3,884/year',
+      '$327/month more take-home than we were showing you — $480 if you are both over 65.', 'Your tax bracket is calculated from your income only.',
       'Add your spouse’s income if you want it to be accurate.', 'Got it']);
     // the drawn 4c, word for word, with the dated line under its title (filing-status-question_v03, READ THIS FIRST 2026-10-24)
     const drawn4c = norm(v07phone('That changes your take-home', 'Got it')).replace('on the $# you entered', 'on the $# you entered, less your #(k)');
@@ -792,9 +800,9 @@ describe('E2E-79 · filing status, and the comparison it shows', () => {
     open('/filing-status');
     fireEvent.press(screen.getByLabelText('Married filing separately'));
     fireEvent.press(screen.getByLabelText('Save'));
-    expect(lines().filter((l) => l !== '‹ Back')).toEqual(['That changes your take-home', 'On the $96,000 you entered, less your 401(k)',
-      'Taxed as married filing jointly', '$5,720/year — what we were assuming', 'Married filing separately', '$9,650/year', '$327/month less',
-      'take-home than we were showing you.', 'Your tax bracket is calculated from your income only.', 'Add your spouse’s income if you want it to be accurate.', 'Got it']);
+    expect(lines().filter((l) => l !== '‹ Back' && !/^[\uE000-\uF8FF]+$/.test(l))).toEqual(['That changes your take-home', 'On the $96,000 you entered, less your 401(k)',
+      'Taxed as married filing jointly', '$5,720/year — what we were assuming', 'Married filing separately', '$9,650/year',
+      '$327/month less take-home than we were showing you.', 'Your tax bracket is calculated from your income only.', 'Add your spouse’s income if you want it to be accurate.', 'Got it']);
     fireEvent.press(screen.getByLabelText('Got it'));
     screen.unmount();
     expect(look('/base-pay', basePay)).toEqual(['22%', '≈$804/month', '≈$6,196/month']);
@@ -841,7 +849,9 @@ describe('E2E-79 · filing status, and the comparison it shows', () => {
     fireEvent.press(screen.getByLabelText('Save'));
     const c = lines();
     expect([after('Taxed as single', 1, c), after('Married filing jointly', 1, c)]).toEqual(['$7,998/year — what we were assuming', '$4,802/year']);
-    expect(c).toContain('$266/month more');
+    // both over 65 (2026-10-27, worked by hand): 84,000 − 32,200 − 2 × 1,650 − 2 × 6,000 = 36,500 taxed → $3,884; take-home 8,000 −
+    // 323.67 − 1,000 = 6,676.33 → $6,676, less the $6,334 shown = $342
+    expect(c).toContain('$266/month more take-home than we were showing you — $342 if you are both over 65.');
     fireEvent.press(screen.getByLabelText('Got it'));
     screen.unmount();
     expect(look('/base-pay', basePay)).toEqual(['12%', '≈$400/month', '≈$6,600/month']);
@@ -887,11 +897,11 @@ describe('E2E-80 · the bill calendar: one bill changed, its month moves and no 
     expect(before[2].ex).toEqual(['PLANNED EXPENSES', '$2,100', 'Groceries', '$800', 'Car insurance', '$1,200', 'Other', '$100', '= Total', '$2,100']);
     // December's This month is its plan: in 6,000, out 2,100, surplus 6,000 − 2,100 = $3,900
     expect(block(before[2].tm, 'DECEMBER 2026 — THE PLAN (AN ESTIMATE)', 'Every figure is planned — an estimate, never dressed as fact.')).toEqual([
-      'DECEMBER 2026 — THE PLAN (AN ESTIMATE)', 'Planned inflow', '$6,000', 'Planned outflow (expenses + debt) · incl. Car insurance', '$2,100', '= Planned surplus', '$3,900']);
+      'DECEMBER 2026 — THE PLAN (AN ESTIMATE)', 'Planned inflow', '$6,000', 'Planned outflow (expenses + debt) · incl. Car insurance', '$2,100', '= Planned surplus', '+$3,900']);   // CF2-07
     // November plans its $900: 6,000 − 900 = $5,100. FIXED 2026-10-24: it read "· incl. Everyday expenses" — the budget left
     // over named as if it were a dated bill — and "Nothing entered yet. Add your bills ›" with a budget and a bill entered
     expect(block(before[1].tm, 'NOVEMBER 2026 — THE PLAN (AN ESTIMATE)', 'Every figure is planned — an estimate, never dressed as fact.')).toEqual([
-      'NOVEMBER 2026 — THE PLAN (AN ESTIMATE)', 'Planned inflow', '$6,000', 'Planned outflow (expenses + debt)', '$900', '= Planned surplus', '$5,100']);
+      'NOVEMBER 2026 — THE PLAN (AN ESTIMATE)', 'Planned inflow', '$6,000', 'Planned outflow (expenses + debt)', '$900', '= Planned surplus', '+$5,100']);   // its sign (CF2-07)
 
     // THE DOOR, from the Expenses tab: ＋ Expense → "Add something else" → "A dated bill"
     open('/(tabs)/cashflow');
@@ -916,8 +926,8 @@ describe('E2E-80 · the bill calendar: one bill changed, its month moves and no 
 
     // the bill, on its day → its editor → $1,500 → Save
     fireEvent.press(screen.getByLabelText(/^Car insurance, \$1,200 due Dec 15, 2026\. .* Opens the editor\.$/));
-    expect(lines()).toContain('Edit this bill');
-    expect(screen.getByLabelText('Bill amount').props.value).toBe('1200');
+    expect(lines()).toContain('EDIT THIS BILL');   // the box title on its dark-green bar (DEC-8839, R1 — 2026-10-27)
+    expect(screen.getByLabelText('Bill amount').props.value).toBe('$1,200');   // the money form since 2026-10-27 (DEC-8385); the bill is the same $1,200
     fireEvent.changeText(screen.getByLabelText('Bill amount'), '1500');
     fireEvent.press(screen.getByLabelText('Save this bill'));
     // the calendar moves in December only: Dec −2,400 → End 10,200 + 6,000 − 2,400 = 13,800; January's End follows, 13,800 + 5,100
@@ -935,7 +945,7 @@ describe('E2E-80 · the bill calendar: one bill changed, its month moves and no 
     expect(block(after_[1].tm, 'NOVEMBER 2026 — THE PLAN (AN ESTIMATE)', 'Every figure is planned — an estimate, never dressed as fact.')).toEqual(
       block(before[1].tm, 'NOVEMBER 2026 — THE PLAN (AN ESTIMATE)', 'Every figure is planned — an estimate, never dressed as fact.'));
     expect(after_[2].ex).toEqual(['PLANNED EXPENSES', '$2,400', 'Groceries', '$800', 'Car insurance', '$1,500', 'Other', '$100', '= Total', '$2,400']);
-    expect([after('Planned outflow (expenses + debt) · incl. Car insurance', 1, after_[2].tm), after('= Planned surplus', 1, after_[2].tm)]).toEqual(['$2,400', '$3,600']);
+    expect([after('Planned outflow (expenses + debt) · incl. Car insurance', 1, after_[2].tm), after('= Planned surplus', 1, after_[2].tm)]).toEqual(['$2,400', '+$3,600']);   // its sign, CF2-07 (2026-10-27)
     expect(dollars(after_[2].ex[1]) - dollars(before[2].ex[1])).toBe(300);
   });
 });

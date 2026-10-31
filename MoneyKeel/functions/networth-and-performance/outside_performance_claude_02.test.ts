@@ -152,6 +152,13 @@ describe('MK-PF-F-006 capGains — five cases', () => {
     expect(c.totalGain).toBeCloseTo(1320, 9);
     expect([c.countedShares, c.heldShares]).toEqual([100, 150]);
   });
+  // SETTLED 2026-10-27 (FX-AUDITS, APP RIGHT by DEC-6627, under his DEC-4643): the judge's "total REFUSES" is kept here,
+  // failing — the case above was changed in place on 2026-10-20. The total counts the 100 shares with a price paid,
+  // 100 × ($55.30 − $42.10) = $1,320, and says 50 of 150 shares are left out; the short part, all without one, refuses.
+  test.failing('complex · A lot transferred in with no basis — the judge\'s total, REFUSES', () => {
+    const c = capGains(pos({ lots: [{ date: '2023-04-17', shares: 100, cost: 42.1 }, { date: '2026-01-20', shares: 50, cost: 0 }] }), 55.3, NOW());
+    refuses(c.totalGain);
+  });
   test('edge · Bought on the leap day, today is 1 March the next year', () => {
     expect(split(capGains(pos({ lots: [{ date: '2024-02-29', shares: 10, cost: 100 }] }), 130, NOW('2025-03-01')))).toEqual([300, 0, 300]);
   });
@@ -166,6 +173,11 @@ describe('MK-PF-F-007 totalROI — five cases', () => {
   // window gets its window return from returnSincePurchases, time-weighted from purchase to purchase, not from this figure.)
   test.failing('complex · Bought twice at different prices', () => {
     expect(totalROI(pos({ lots: [{ date: '2026-01-15', shares: 10, cost: 200 }, { date: '2026-06-15', shares: 10, cost: 250 }] }), 260)!).toBeCloseTo(0.3, 12);
+  });
+  // SETTLED 2026-10-27 (FX-AUDITS, APP RIGHT by DEC-1669's own carve-out): return on cost is (20 × $260 − $4,500) ÷ $4,500.
+  test('pin · Bought twice — the app\'s answer: return on cost $700 ÷ $4,500 = +15.56%', () => {
+    expect(totalROI(pos({ lots: [{ date: '2026-01-15', shares: 10, cost: 200 }, { date: '2026-06-15', shares: 10, cost: 250 }] }), 260)!)
+      .toBeCloseTo((20 * 260 - (10 * 200 + 10 * 250)) / (10 * 200 + 10 * 250), 12);
   });
   test('complex · Adjusted option, one purchase', () => {
     expect(totalROI(pos({ kind: 'option', multiplier: 102, lots: [{ date: '2026-07-20', shares: 3, cost: 2.4 }] }), 3.15)!).toBeCloseTo(0.3125, 12);

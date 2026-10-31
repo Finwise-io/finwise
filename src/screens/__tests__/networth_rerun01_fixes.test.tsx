@@ -207,7 +207,15 @@ describe('2 · a debt whose payment was never entered is named, never a silent $
     expect(nwOf(paysOnly).monthlyDebtPayments).toBe(2700);
   });
   test('Net worth: the emergency fund card names it beside the debt payments, and nothing is named when every payment is in', () => {
-    const s = shoot('networth', H_NOPAY);
+    // THE ROW OF 2026-10-21'S WORKED EXAMPLE, RE-WORKED 2026-10-27 (v08 row of that date; the lead's ruling R2, NW2-01): with no
+    // expenses entered the card refuses — the $2,400 mortgage alone is not a month — so the car loan is named on the household
+    // with $1,100/month of expenses typed: 18,000 ÷ (1,100 + 2,400) = 5.14 → 5.1 months.
+    const noSpend = shoot('networth', H_NOPAY);
+    expect(noSpend.lines).toContain('Your cash is $18,000 — tell us your typical monthly expenses and this becomes a real number.');
+    expect(noSpend.lines.join(' ')).not.toMatch(/7\.5 months|debt payments you cannot stop/);
+    const typed = { ...H_NOPAY, onboardingProfile: { ...H_NOPAY.onboardingProfile, monthlySpending: '1100' } };
+    const s = shoot('networth', typed);
+    expect(s.lines).toContain('5.1 months');
     const i = s.lines.indexOf('Both include $2,400/month of debt payments you cannot stop.');
     expect(i).toBeGreaterThan(0);
     expect(s.lines[i + 1]).toBe('Car loan · payment not entered, so it is not included. Enter it to include.');
@@ -319,14 +327,20 @@ describe('7 · Home names a balance not entered, in the Net worth tab\'s words (
 });
 
 describe('8 · the one-account card is a share of Net worth\'s Investments line (DEC-0457)', () => {
-  test('$142,000 of $175,200 invested is 81% — the rental and the checking are not invested money', () => {
+  // RE-MEASURED 2026-10-30 (CLEANUP-TESTS): the notice prints its share to two decimals since FX-PF, 2026-10-27 (his precision
+  // order Q49; src/domain/insights percent2). By hand: 142,000 ÷ 175,200 = 0.8105023 → 81.05%. The figure did not move.
+  test('$142,000 of $175,200 invested is 81.05% — the rental and the checking are not invested money', () => {
     const nw = nwOf(H_NW);
     expect(nw.investments).toBe(175_200);
     expect(nw.investmentsByAccount.map((x) => [x.label, x.amount])).toEqual([['Fidelity', 142000], ['Fidelity', 24200], ['Vault', 9000]]);
     expect(nw.investmentsByAccount.reduce((t, x) => t + x.amount, 0)).toBe(nw.investments);
+    expect((142_000 / 175_200) * 100).toBeCloseTo(81.0502, 4);
     const home = shoot('home', H_NW);
     expect(after(home.lines, 'YOUR INVESTMENTS', 2)).toBe('$175,200');
-    expect(home.lines).toContain('$142,000 (81%) of your invested money sits in a single account — spreading across accounts lowers risk.');
+    expect(home.lines).toContain('$142,000 (81.05%) of your invested money sits in a single account — spreading across accounts lowers risk.');
+  });
+  test.failing('the notice until 2026-10-27, pinned (no longer its answer): a whole percent, "(81%)"', () => {
+    expect(shoot('home', H_NW).lines).toContain('$142,000 (81%) of your invested money sits in a single account — spreading across accounts lowers risk.');
   });
   test('an account\'s invested part leaves its cash out, and nothing invested means no card', () => {
     expect(accountInvestments(GAP_ACCOUNT as any)).toBe(40_000);
@@ -485,4 +499,10 @@ describe('14 · the class split values every holding kind as the balance and the
     expect(after(nw.lines, 'Alternatives')).toBe('$1,600');
     expect(after(nw.lines, 'Stocks / Funds')).toBe('$400');
   });
+});
+
+// THE OLD ANSWER, KEPT (2026-10-27, FX-NW; the lead's ruling R2, v08 row of that date): with no expenses entered the card read the
+// $2,400 mortgage alone as the month — "Both include $2,400/month of debt payments you cannot stop." beside 7.5 months. It fails now, by design.
+test.failing('2 · the old answer: no expenses typed, the card counted the debt payments alone as the month', () => {
+  expect(shoot('networth', H_NOPAY).lines).toContain('Both include $2,400/month of debt payments you cannot stop.');
 });

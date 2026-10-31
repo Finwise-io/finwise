@@ -1,3 +1,4 @@
+import { MoneyBox } from '../components/MoneyBox';   // every money box, one component (DEC-8385)
 import { plural } from '../domain/_shared/plural';   // the one list of words and plurals (DEC-4082, 2026-10-10)
 import React, { useMemo, useState } from 'react';
 import {
@@ -27,6 +28,7 @@ import { useNetWorthInputs } from '../hooks/useNetWorthInputs';
 import { theMonth } from '../../MoneyKeel/functions/cashflow/the-month';   // the budget card is this month's plan (2026-10-24)
 import { useThisMonthInputs } from '../hooks/useCashflowModel';
 import { monthShown } from '../components/figure';
+import { percentDigits } from '../../MoneyKeel/functions/_figure-spec';   // a percent to two decimals, the one rounding (Q49; CF2-11, 2026-10-27)
 import { theBudgetCounted, expensesAsCounted } from '../../MoneyKeel/functions/cashflow/budget-counted';   // the budget as This month counts it (DEC-1923)
 import { SectionBand } from '../components/SectionBand';
 import { DebtEditorSheet } from '../components/DebtEditorSheet';   // B47 finding 11: THE one debt editor (same sheet as Net worth)
@@ -242,7 +244,7 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
         [{ text: 'View activity', onPress: () => setTab('Activity') }]
       );
     } catch (err) {
-      Alert.alert('Import failed', 'Could not read the file. Make sure it\'s a valid CSV with columns: amount, category, store, date.');
+      Alert.alert('Import failed', 'Could not read the file. Make sure it’s a valid CSV with columns: amount, category, store, date.');
     } finally {
       setImporting(false);
     }
@@ -278,7 +280,8 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
   const spentTotal = Math.round(bva.spent_total);
   const spentPct = planExpenses > 0 ? Math.min(1, spentTotal / planExpenses) : 0;
   const spentOver = spentTotal > planExpenses && planExpenses > 0;
-  const budgetPctOfIncome = planIncome > 0 ? Math.round((planExpenses / planIncome) * 100) : 0;
+  // the share at full precision, written to two decimals once (Q49; 2026-10-27, CF2-11): 1,100 ÷ 7,200 reads 15.28%, it read 15%
+  const budgetShareOfIncome = planIncome > 0 ? planExpenses / planIncome : 0;
 
   // per-category $ limit = the SHARED canonical conversion (build-34 #3): same helper spendBuckets uses,
   // so each line item reconciles with its bucket header (% against take-home after tax + 401(k), not net-of-tax).
@@ -370,13 +373,19 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
     : plan.pastHorizon ? 'not within 1,000 years'
     : plan.months <= 0 ? 'now'
     : (() => { const dt = new Date(); dt.setMonth(dt.getMonth() + plan.months); return dt.toLocaleDateString('en-US', { month: 'short', year: 'numeric' }); })();
+  // NOTHING RANKED ON A RATE NOT ENTERED (2026-10-27, the lead's ruling R6 on CF2-12; tenet 3, DEC-0296): highest rate first puts the
+  // debts with a rate first and each debt whose rate is not entered after them; while a rate is not entered no debt is "pay first"
+  // under that order and none is "the costliest" — both turn on the rate nobody gave. The Lake house mortgage, rate not entered,
+  // read "pay first" above a car loan at 6.90% marked "— the costliest". Smallest balance first ranks on balances, which are entered.
+  const rateMissing = activeDebts.some((d) => rateNotEntered(d));
   const orderedDebts = activeDebts.slice().sort((a, b) => payoffMethod === 'avalanche'
-    ? (b.interest_rate_apr - a.interest_rate_apr)
+    ? ((rateNotEntered(a) ? 1 : 0) - (rateNotEntered(b) ? 1 : 0)) || ((b.interest_rate_apr || 0) - (a.interest_rate_apr || 0))
     : (a.remaining_balance - b.remaining_balance));
+  const rankedFirst = activeDebts.length > 1 && !(payoffMethod === 'avalanche' && rateMissing);
   const payoffMonthFor = (id: string) => plan.order.find((o) => o.debt_id === id)?.payoffMonth;
 
   // the row's own words, as the drawing writes them: "22.90% — the costliest", "6.40% · 3 years left"
-  const costliest = activeDebts.length > 1
+  const costliest = activeDebts.length > 1 && !rateMissing
     ? activeDebts.slice().sort((a, b) => (b.interest_rate_apr || 0) - (a.interest_rate_apr || 0))[0]?.debt_id : null;
   const timeLeft = (months: number) => (months >= 12
     ? `${plural(Math.round(months / 12), 'year')} left`
@@ -548,10 +557,10 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
       {tab === 'Budget' && (
         <ScrollView automaticallyAdjustKeyboardInsets style={{ flex: 1 }} contentContainerStyle={{ padding: Spacing.base, gap: Spacing.sm, paddingBottom: 48 }}>
 
-          {/* YOUR MONTHLY PLAN — Income − Expenses − Debt = Surplus */}
-          <Card>
+          {/* YOUR MONTHLY PLAN — Income − Expenses − Debt = Surplus. A square box whose title is a dark-green bar (his words, DEC-8839; the lead's R1, 2026-10-27; cash-flow_v01's row of that date) */}
+          <Card style={styles.debtCard}>
             {/* the editor's own header already says "Your budget" — the card does not say it again (2026-10-25, CF-22) */}
-            {!embedded && <Text style={styles.budgetCardTitle}>Your budget</Text>}
+            {!embedded && <SectionBand inCard onRowEdges inset={16} title="YOUR BUDGET" />}
             <View style={styles.planRow}><Text style={styles.planLabel}>Income (take-home)</Text><Text style={styles.planVal}>{fig('MK-CF-M-031', planIncome)}</Text></View>
             {/* nothing set reads as This month reads it: "— not set", and no planned surplus (tenet 3) */}
             <View style={styles.planRow}><Text style={styles.planLabel}>−  Expenses (plan)</Text><Text style={styles.planVal}>{budgetSet ? fig('MK-CF-M-001', planExpenses) : '— not set'}</Text></View>
@@ -559,12 +568,12 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
             <View style={[styles.planRow, styles.planTotalRow]}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
                 <Text style={styles.planTotalLabel}>=  Planned surplus</Text>
-                <InfoDot term="surplus" />
+                <InfoDot term="surplus" line={styles.planTotalLabel} />
               </View>
               {/* one figure, one form: This month prints the planned surplus with its sign, "+$350", so the editor does (CF-22) */}
               <Text style={[styles.planTotalVal, { color: !(planLeftOver < 0) ? Colors.primary : Colors.red }]}>{Number.isFinite(planLeftOver) ? `${planLeftOver < 0 ? '−' : '+'}${fig('MK-CF-M-002', Math.abs(planLeftOver))}` : '—'}</Text>
             </View>
-            {budgetSet && planIncome > 0 && <Text style={styles.planNote}>Your expense budget is {budgetPctOfIncome}% of take-home pay.</Text>}
+            {budgetSet && planIncome > 0 && <Text style={styles.planNote}>Your expense budget is {percentDigits(budgetShareOfIncome)}% of take-home pay.</Text>}
             {/* NO PLAN, NO "OF $0 PLAN" (2026-10-25, CF-20; the drawing's rule 6, "never $0 dressed as an answer"): what is spent
                 is measured against a budget, so with none set the bar and its two lines are not drawn */}
             {budgetSet && <View style={{ marginTop: Spacing.md }}>
@@ -579,18 +588,17 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
           </Card>
 
           {/* EXPENSES BY BUCKET — bucketed spendCats (the single budget source) */}
-          <View style={styles.sectionRow}>
-            <Text style={styles.sectionTitle}>Expenses by bucket</Text>
-            <TouchableOpacity onPress={openLimitsModal}><Text style={styles.sectionLink}>Set your budget →</Text></TouchableOpacity>
-          </View>
+          {/* one box: its title on a dark-green bar, its door on the line under it, each bucket on a light-green bar carrying its spend
+              and plan (his words, DEC-8839; the lead's R1, 2026-10-27; cash-flow_v01's row of that date) */}
+          <View style={styles.debtCard}>
+          <SectionBand inCard onRowEdges inset={16} title="EXPENSES BY BUCKET" />
+          <TouchableOpacity onPress={openLimitsModal} style={styles.underBarDoor} accessibilityRole="button" accessibilityLabel="Set your budget"><Text style={styles.sectionLink}>Set your budget ›</Text></TouchableOpacity>
           {!budgetSet && spentTotal === 0 ? (
-            <Card>
               <View style={styles.empty}>
                 <Text style={{ fontSize: 38, marginBottom: Spacing.sm }}>📊</Text>
                 <Text style={styles.emptyTitle}>No budget yet</Text>
-                <Text style={styles.emptySub}>Tap “Set your budget” to plan what you'll spend, by category.</Text>
+                <Text style={styles.emptySub}>Tap “Set your budget” to plan what you’ll spend, by category.</Text>
               </View>
-            </Card>
           ) : (
             editorBuckets.map((ba) => {
               const bk = ba.key;
@@ -599,11 +607,12 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
               const bpct = ba.planned > 0 ? Math.min(1, ba.spent / ba.planned) : 0;
               const bover = ba.spent > ba.planned && ba.planned > 0;
               return (
-                <Card key={bk} style={styles.catCard}>
-                  <View style={styles.bucketHeadRow}>
-                    <Text style={styles.bucketName}>{BUCKET_LABEL[bk]}</Text>
-                    {/* a bucket with no plan reads "· no limit", as its categories do — never "/ $0", a limit nobody set (2026-10-25, F5) */}
-                    <Text style={[styles.bucketTotal, bover && { color: Colors.red }]}>{fig('MK-CF-M-015', Math.round(ba.spent))}{ba.planned > 0 ? ` / ${fig('MK-CF-M-015', Math.round(ba.planned))}` : ' · no limit'}</Text>
+                <View key={bk}>
+                  {/* the bucket on a light-green bar, its spend and plan riding it (R1); a bucket with no plan reads "· no limit", as its
+                      categories do — never "/ $0", a limit nobody set (2026-10-25, F5) */}
+                  <View style={styles.subBarGap}>
+                    <SectionBand inCard light onRowEdges inset={16} title={BUCKET_LABEL[bk]}
+                      value={`${fig('MK-CF-M-015', Math.round(ba.spent))}${ba.planned > 0 ? ` / ${fig('MK-CF-M-015', Math.round(ba.planned))}` : ' · no limit'}`} />
                   </View>
                   <ProgressBar pct={Math.round(bpct * 100)} color={bover ? Colors.red : Colors.primary} height={6} />
                   {/* the rows as printed add up to the bucket's printed spend (spentShown — the 2026-10-24 row, tenet 2) */}
@@ -619,21 +628,20 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
                       </View>
                     );
                   })}
-                </Card>
+                </View>
               );
             })
           )}
-          {/* (removed the duplicate bottom "Set monthly limits" button — the "Set your budget →" header link
+          </View>
+          {/* (removed the duplicate bottom "Set monthly limits" button — the "Set your budget ›" header link
               above is the single entry point, consistent with the other section headers.) */}
 
           {/* DEBT THIS MONTH — managed in the Debts tab */}
           {(liabilities ?? []).length > 0 && (
             <>
-              <View style={styles.sectionRow}>
-                <Text style={styles.sectionTitle}>Debt this month</Text>
-                <TouchableOpacity onPress={() => setTab('Debts')}><Text style={styles.sectionLink}>Manage →</Text></TouchableOpacity>
-              </View>
-              <Card style={styles.catCard}>
+              <View style={styles.debtCard}>
+                <SectionBand inCard onRowEdges inset={16} title="DEBT THIS MONTH" />
+                <TouchableOpacity onPress={() => setTab('Debts')} style={styles.underBarDoor} accessibilityRole="button" accessibilityLabel="Manage your debts"><Text style={styles.sectionLink}>Manage ›</Text></TouchableOpacity>
                 {debtsView.map((d, i) => (
                   <View key={d.id} style={[styles.bcatRow, i > 0 && { borderTopWidth: 1, borderTopColor: Colors.border, paddingTop: 8, marginTop: 2 }]}>
                     <Text style={styles.bcatIcon}>{DEBT_TYPES.find((t) => t.value === d.type)?.icon || '📄'}</Text>
@@ -641,41 +649,39 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
                     <Text style={styles.bcatAmt}>{fig('MK-NW-M-011', Math.round(d.minimumPayment))}<Text style={styles.bcatLimit}> /month min</Text></Text>
                   </View>
                 ))}
-              </Card>
+              </View>
             </>
           )}
 
           {/* Custom categories */}
-          <View style={styles.sectionRow}>
-            <Text style={styles.sectionTitle}>Custom categories</Text>
-            <TouchableOpacity onPress={() => setCatFormVisible(true)}>
-              <Text style={styles.sectionLink}>+ Add →</Text>
-            </TouchableOpacity>
-          </View>
+          <View style={styles.debtCard}>
+          <SectionBand inCard onRowEdges inset={16} title="CUSTOM CATEGORIES" />
+          <TouchableOpacity onPress={() => setCatFormVisible(true)} style={styles.underBarDoor} accessibilityRole="button" accessibilityLabel="Add a custom category">
+            <Text style={styles.sectionLink}>+ Add ›</Text>
+          </TouchableOpacity>
           {(customCategories || []).length === 0 ? (
-            <Card>
               <Text style={{ fontSize: Typography.sizes.sm, color: Colors.textSecondary, textAlign: 'center', paddingVertical: Spacing.md }}>
-                No custom categories yet — tap "+ Add" to create one
+                No custom categories yet — tap “+ Add” to create one
               </Text>
-            </Card>
           ) : (
             (customCategories as { label: string; icon: string; bg: string }[]).map(c => (
-              <Card key={c.label} style={styles.catCard}>
+              <View key={c.label} style={styles.catCard}>
                 <View style={styles.catRow}>
                   <View style={[styles.catIcon, { backgroundColor: c.bg }]}>
                     <Text style={{ fontSize: 17 }}>{c.icon}</Text>
                   </View>
                   <Text style={[styles.catLabel, { flex: 1, marginLeft: Spacing.sm }]}>{c.label}</Text>
-                  <TouchableOpacity onPress={() => Alert.alert('Delete category', `Remove "${c.label}"?`, [
+                  <TouchableOpacity onPress={() => Alert.alert('Delete category', `Remove “${c.label}”?`, [
                     { text: 'Cancel', style: 'cancel' },
                     { text: 'Delete', style: 'destructive', onPress: () => deleteCustomCategory(c.label) },
                   ])}>
                     <Text style={{ color: Colors.red, fontSize: 17, padding: 8 }}>✕</Text>
                   </TouchableOpacity>
                 </View>
-              </Card>
+              </View>
             ))
           )}
+          </View>
         </ScrollView>
       )}
 
@@ -736,14 +742,17 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
               edge with square corners and name their sections with a quiet grey label — none of the three carries a total
               (2026-10-25, CF-02 and CF-15) */}
           <View style={styles.debtCard}>
-            <Text style={styles.kicker}>YOUR DEBT</Text>
+            {/* every box title on a dark-green bar, edge to edge (his words, DEC-8839; the lead's R1, 2026-10-27; cash-flow_v01's row of that date) — the four were quiet grey labels and a plain title */}
+            <SectionBand inCard onRowEdges inset={16} title="YOUR DEBT" />
             <Text style={[styles.debtHero, { color: totalDebt > 0 ? Colors.red : Colors.primary }]} accessible
               accessibilityLabel={`You owe ${figSaid('MK-NW-M-009', Math.round(totalDebt))}`}>{fig('MK-NW-M-009', Math.round(totalDebt))}</Text>
             {/* NOTHING ENTERED IS SAID, WITH ONE DOOR (Q48 — DEC-0260, DEC-0431; 2026-10-25, CF-18): a brand-new person read "across 0
                 debts · $0/month in payments · ~$0/month interest", a 🎉, an edit hint with nothing to tap and a second door */}
             {activeDebts.length > 0
               ? <SaidText style={styles.debtSub}>
-                  across {plural(activeDebts.length, 'debt')} · {fig('MK-NW-M-012', Math.round(debtsDoor.paymentsMonthly))}/month in payments{debtsDoor.interestRefusal ? '' : <> · ~{fig('MK-CF-M-057', totalInterestMonthly)}/month interest</>}
+                  {/* as drawn (frame 6, row 33): the payments only — each debt's interest is on its own line (row 6, DEC-1560); the total
+                      also printed "· ~$113/month interest", a figure no row keeps (2026-10-27, CF2-03) */}
+                  across {plural(activeDebts.length, 'debt')} · {fig('MK-NW-M-012', Math.round(debtsDoor.paymentsMonthly))}/month in payments
                 </SaidText>
               : <EmptyNote door="debts" onPress={() => setDebtSheet({ open: true })} />}
             {/* the payments above leave out one never entered, and say so in Net worth's words (2026-10-25) */}
@@ -757,7 +766,7 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
           {/* PAYOFF PLAN */}
           {activeDebts.length > 0 && (
             <Card style={styles.debtCard}>
-              <Text style={styles.budgetCardTitle}>Payoff plan</Text>
+              <SectionBand inCard onRowEdges inset={16} title="PAYOFF PLAN" />
               <View style={{ marginTop: 6 }}>
                 <SegmentedControl
                   options={['Avalanche', 'Snowball']}
@@ -770,8 +779,8 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
                 <Text style={styles.limitLabel} accessibilityLabel="Extra a month">Extra / month</Text>
                 <View style={styles.limitInputWrap}>
                   <Text style={styles.limitDollar} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">$</Text>
-                  <TextInput style={styles.limitInput} value={extraPay} onChangeText={setExtraPay} keyboardType="decimal-pad" placeholder="0" placeholderTextColor={Colors.textTertiary} returnKeyType="done"
-                    accessibilityLabel="Extra payment a month, in dollars" />
+                  <MoneyBox bare dollarBeside style={styles.limitInput} value={extraPay} onChangeText={setExtraPay} placeholder="0" returnKeyType="done"
+                    a11y="Extra payment a month, in dollars" />
                 </View>
               </View>
               {/* A PAYMENT NEVER ENTERED GIVES NO DEBT-FREE DATE (2026-10-25, tenet 3): it read "never at this rate" and the balance-grows
@@ -818,7 +827,7 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
               names its property (DEC-1925, CF-23) */}
           {activeDebts.length > 0 && (
             <View style={styles.debtCard}>
-              <Text style={styles.kicker}>YOUR DEBTS</Text>
+              <SectionBand inCard onRowEdges inset={16} title="YOUR DEBTS" />
               {orderedDebts.map((d, idx) => {
                 const monthlyInterest = debtsDoor.interestByDebt[String(d.debt_id)] ?? 0;   // the door's figure, MK-CF-M-089 (2026-10-26) — it was calculated here
                 const pm = paymentShape(d) === 'installment' ? payoffMonthFor(d.debt_id) : undefined;
@@ -835,11 +844,11 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
                     // ONE ELEMENT THAT SAYS ITS ROW IN WORDS (2026-10-24, Cash flow journey E2E-78): it was heard as its printed run —
                     // the icon, "/month", "~", "›" and, under hide-balances, the dots
                     accessibilityRole="button"
-                    accessibilityLabel={saidSentence(`${d.label}${idx === 0 && activeDebts.length > 1 ? ', pay first' : ''}, ${head.replace(/ · /g, ', ')}, ${payIsNotEntered(d) ? 'payment not entered' : payWords(d, 'minimum')}${interestWords ? `, ${interestWords}` : ''}${dueWords(d) ? `, ${dueWords(d)}` : ''}, ${fig('MK-NW-M-010', Math.round(d.remaining_balance || 0))} owed.${homeless ? ` ${mortgageOn.sentence}` : ''} Opens it to edit; hold to delete.`)}>
+                    accessibilityLabel={saidSentence(`${d.label}${idx === 0 && rankedFirst ? ', pay first' : ''}, ${head.replace(/ · /g, ', ')}, ${payIsNotEntered(d) ? 'payment not entered' : payWords(d, 'minimum')}${interestWords ? `, ${interestWords}` : ''}${dueWords(d) ? `, ${dueWords(d)}` : ''}, ${fig('MK-NW-M-010', Math.round(d.remaining_balance || 0))} owed.${homeless ? ` ${mortgageOn.sentence}` : ''} Opens it to edit; hold to delete.`)}>
                     <View style={{ flex: 1 }}>
                       <View style={styles.catTitleRow}>
                         <Text style={styles.debtName} numberOfLines={1}>{d.label}</Text>
-                        {idx === 0 && activeDebts.length > 1 && <Text style={styles.payFirstTag}>pay first</Text>}
+                        {idx === 0 && rankedFirst && <Text style={styles.payFirstTag}>pay first</Text>}
                       </View>
                       <Text style={styles.catLimit}>
                         {head} · {payIsNotEntered(d) ? 'payment not entered' : payWords(d, 'min')}{interestWords ? ` · ${interestWords}` : ''}
@@ -864,11 +873,20 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
             </View>
           )}
 
+          {/* "+ Add debt account" UNDER THE LIST, as row 6 keeps it (DEC-1560; 2026-10-27, CF2-05) — it was printed after PROGRESS. The
+              edit hint "Tap a debt to edit • Hold to delete" is on no drawing and no row (CF2-04): each row says it in words to a screen reader */}
+          {activeDebts.length > 0 && (
+            <TouchableOpacity style={styles.setLimitsBtn} onPress={() => setDebtSheet({ open: true })} activeOpacity={0.8}
+              accessibilityRole="button" accessibilityLabel="Add debt account">
+              <Text style={styles.setLimitsBtnText}>+ Add debt account</Text>
+            </TouchableOpacity>
+          )}
+
           {/* PROGRESS — only where there is an earlier recorded total to measure from; the bar is filled to the share paid down, as
               drawn (2026-10-25, CF-03) */}
           {debtProgress && (
             <View style={styles.debtCard}>
-              <Text style={styles.kicker}>PROGRESS</Text>
+              <SectionBand inCard onRowEdges inset={16} title="PROGRESS" />
               <View style={styles.paceTrack} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
                 <View style={[styles.paceFill, { width: `${Math.max(0, Math.min(100, debtProgress.share * 100))}%` }]} />
               </View>
@@ -876,18 +894,6 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
             </View>
           )}
 
-          {/* the way to add a debt and the edit hint, under a list there is (DEC-1560); with none, the line above is the one door */}
-          {activeDebts.length > 0 && (
-            <>
-              <TouchableOpacity style={styles.setLimitsBtn} onPress={() => setDebtSheet({ open: true })} activeOpacity={0.8}
-                accessibilityRole="button" accessibilityLabel="Add debt account">
-                <Text style={styles.setLimitsBtnText}>+ Add debt account</Text>
-              </TouchableOpacity>
-              <Text style={{ fontSize: Typography.sizes.xs, color: Colors.textTertiary, textAlign: 'center' }} accessibilityLabel="Tap a debt to edit, hold to delete">
-                Tap a debt to edit • Hold to delete
-              </Text>
-            </>
-          )}
         </ScrollView>
       )}
 
@@ -897,11 +903,12 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
       {tab === 'Import' && (
         <ScrollView automaticallyAdjustKeyboardInsets style={{ flex: 1 }} contentContainerStyle={{ padding: Spacing.base, gap: Spacing.sm }}>
           <TouchableOpacity onPress={() => setTab('Activity')} style={{ alignSelf: 'flex-start' }}><Text style={styles.sectionLink}>‹ Back to Activity</Text></TouchableOpacity>
-          <Card style={{ alignItems: 'center', padding: Spacing.xl }}>
-            <Text style={{ fontSize: 38, marginBottom: Spacing.md }}>📂</Text>
-            <Text style={styles.importTitle}>Import from Excel or CSV</Text>
+          {/* the box titles on dark-green bars (his words, DEC-8839; the lead's R1, 2026-10-27; cash-flow_v01's row of that date) */}
+          <Card style={styles.importBox}>
+            <SectionBand inCard onRowEdges inset={16} title="IMPORT FROM EXCEL OR CSV" />
+            <Text style={{ fontSize: 38, marginBottom: Spacing.md, marginTop: Spacing.sm }}>📂</Text>
             <Text style={styles.importSub}>
-              Upload a spreadsheet of your bank activity and we'll import it automatically.
+              Upload a spreadsheet of your bank activity and we’ll import it automatically.
             </Text>
             <Button label={importing ? 'Importing...' : 'Choose file'} onPress={handleImport} loading={importing} style={{ marginTop: Spacing.md }} />
           </Card>
@@ -918,8 +925,8 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
             </Text>
           </TipCard>
 
-          <Card>
-            <Text style={styles.importTitle}>Example CSV format</Text>
+          <Card style={styles.debtCard}>
+            <SectionBand inCard onRowEdges inset={16} title="EXAMPLE CSV FORMAT" />
             <View style={styles.codeBlock}>
               <Text style={styles.code}>amount,category,store,date</Text>
               <Text style={styles.code}>67.38,Groceries,Whole Foods,2024-04-02</Text>
@@ -951,7 +958,7 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
               <Text style={styles.limitLabel}>Amount</Text>
               <View style={styles.limitInputWrap}>
                 <Text style={styles.limitDollar}>$</Text>
-                <TextInput style={styles.limitInput} value={payAmt} onChangeText={setPayAmt} keyboardType="decimal-pad" placeholder="0" placeholderTextColor={Colors.textTertiary} autoFocus />
+                <MoneyBox bare dollarBeside style={styles.limitInput} value={payAmt} onChangeText={setPayAmt} placeholder="0" autoFocus />
               </View>
             </View>
             <Text style={{ fontSize: Typography.sizes.xs, color: Colors.textTertiary, lineHeight: 18 }}>
@@ -980,7 +987,8 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
             </TipCard>
             {(['fixed', 'nonmonthly', 'flexible'] as const).map((bk) => (
               <View key={bk}>
-                <Text style={styles.limitBucketHdr}>{BUCKET_LABEL[bk]}</Text>
+                {/* each bucket on a light-green bar, edge to edge of the sheet (his words, DEC-8839; the lead's R1, 2026-10-27; cash-flow_v01's row of that date) */}
+                <View style={styles.sheetBarBleed}><SectionBand light title={BUCKET_LABEL[bk]} /></View>
                 {limitCats.filter((c) => c.bucket === bk).map(({ label, icon }) => (
                   <View key={label} style={styles.limitRow}>
                     <View style={[styles.catIcon, { backgroundColor: Colors.bgSecondary }]}>
@@ -997,16 +1005,14 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
                           {(draftUnits[label] ?? 'dollar') === 'pct' ? '%' : '$'}
                         </Text>
                       </TouchableOpacity>
-                      <TextInput
+                      <MoneyBox bare unitBeside
                         style={styles.limitInput}
                         value={draftLimits[label] ?? ''}
                         onChangeText={(v) => setDraftLimits((d) => ({ ...d, [label]: v }))}
-                        keyboardType="decimal-pad"
                         placeholder={(draftUnits[label] ?? 'dollar') === 'pct' ? '% of take-home' : 'No limit'}
-                        placeholderTextColor={Colors.textTertiary}
                         returnKeyType="done"
                         // a screen reader names the box by its category (2026-10-24, E2E-73): it read only "No limit", fifteen times
-                        accessibilityLabel={`${label}, monthly limit`}
+                        a11y={`${label}, monthly limit`}
                       />
                     </View>
                   </View>
@@ -1132,7 +1138,7 @@ function TxnSheet({ state, onClose, onDelete }: { state: { open: boolean; editin
             <Text style={styles.limitLabel}>Amount</Text>
             <View style={styles.limitInputWrap}>
               <Text style={styles.limitDollar}>$</Text>
-              <TextInput style={styles.limitInput} value={amount} onChangeText={setAmount} keyboardType="decimal-pad" placeholder="0" placeholderTextColor={Colors.textTertiary} autoFocus />
+              <MoneyBox bare dollarBeside style={styles.limitInput} value={amount} onChangeText={setAmount} placeholder="0" autoFocus />
             </View>
           </View>
           {kind === 'expense' ? (
@@ -1149,7 +1155,7 @@ function TxnSheet({ state, onClose, onDelete }: { state: { open: boolean; editin
               <View style={styles.limitRow}>
                 <Text style={styles.limitLabel}>Payee</Text>
                 <View style={[styles.limitInputWrap, { flex: 1, minWidth: 0 }]}>
-                  <TextInput style={[styles.limitInput, { flex: 1 }]} value={payee} onChangeText={setPayee} placeholder="e.g. Trader Joe's" placeholderTextColor={Colors.textTertiary} />
+                  <TextInput style={[styles.limitInput, { flex: 1 }]} value={payee} onChangeText={setPayee} placeholder="e.g. Trader Joe’s" placeholderTextColor={Colors.textTertiary} />
                 </View>
               </View>
             </>
@@ -1283,6 +1289,13 @@ const styles = StyleSheet.create({
   progressLine: { fontSize: 13, color: Colors.textSecondary, lineHeight: 18, marginTop: 5 },
   // THE DEBTS TAB AS DRAWN (2026-10-25): cards edge to edge with square corners, a quiet grey label naming each, one row a debt
   debtCard: { backgroundColor: Colors.white, padding: Spacing.base, marginHorizontal: -Spacing.base, borderRadius: 0, borderWidth: 0 },
+  importBox: { backgroundColor: Colors.white, padding: Spacing.base, marginHorizontal: -Spacing.base, borderRadius: 0, borderWidth: 0, alignItems: 'center' },
+  // a door under its box's bar (R1, 2026-10-27): right-aligned, 44 high
+  underBarDoor: { alignSelf: 'flex-end', minHeight: 44, justifyContent: 'center' },
+  // a light sub-bar inside a box: SectionBand inCard pulls itself up by the inset, so the gap above it gives that back and 8 more
+  subBarGap: { marginTop: Spacing.base + Spacing.sm },
+  // a bar on a sheet with 16 points of margin takes the margin back, so it runs edge to edge
+  sheetBarBleed: { marginHorizontal: -Spacing.base, marginTop: Spacing.sm },
   kicker: { fontSize: 11, fontWeight: '800', letterSpacing: 0.5, color: Colors.textSecondary, textTransform: 'uppercase', marginBottom: 4 },
   debtRow: { flexDirection: 'row', alignItems: 'center', minHeight: 44, paddingVertical: 7 },
   debtRowRule: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: Colors.border },

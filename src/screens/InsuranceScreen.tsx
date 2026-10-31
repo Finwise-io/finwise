@@ -1,5 +1,6 @@
 // Life-insurance needs calculator — how much coverage protects your family, prefilled from your
 // income and debts. DIME-style: income replacement + debts + future goals + final expenses − assets.
+import { MoneyBox } from '../components/MoneyBox';   // every money box, one component (DEC-8385)
 import React, { useMemo, useState } from 'react';
 import { View, Text, ScrollView, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
 import { KeyboardAwareScreen } from '../components/KeyboardAwareScreen';
@@ -41,8 +42,10 @@ export default function InsuranceScreen() {
     <View style={{ flex: 1 }}>
       <Text style={styles.fieldL}>{label}</Text>
       <View style={styles.inputRow}>
-        {suffix === '$' ? <Text style={styles.pre}>$</Text> : null}
-        <TextInput style={styles.input} keyboardType="decimal-pad" value={v} onChangeText={set} placeholder="0" placeholderTextColor={Colors.textTertiary} />
+        {/* a $ figure is a money box — it prints "$250,000" itself, so no separate $ before it (DEC-8385, 2026-10-27) */}
+        {suffix === '$'
+          ? <MoneyBox bare style={styles.input} value={v} onChangeText={set} placeholder="$0" a11y={label} />
+          : <TextInput style={styles.input} keyboardType="decimal-pad" value={v} onChangeText={set} placeholder="0" placeholderTextColor={Colors.textTertiary} />}
         {suffix !== '$' ? <Text style={styles.suffix}>{suffix}</Text> : null}
       </View>
     </View>

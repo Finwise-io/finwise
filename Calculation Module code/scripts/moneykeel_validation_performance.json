@@ -319,7 +319,7 @@
   "verdict": "CONFIRMED BY CITATION",
   "check": "CITED",
   "governs": "MK-NW-M-036 · MK-NW-M-037 · MK-PF-F-006",
-  "notes": "8 of 13 of his words appear in what implements it: agree columns corrected formula long-term short-term; cited by identifier in outside_performance_re"
+  "notes": "9 of 13 of his words appear in what implements it: agree columns corrected formula higher long-term; cited by identifier in outside_performance_rerun_"
  },
  {
   "id": "DEC-0346",
@@ -487,7 +487,7 @@
   "verdict": "LEAVES A TRACE",
   "check": "TRACE",
   "governs": "MK-NW-O-008 thePerformance · MK-PF-F-026 moneyWeighted",
-  "notes": "28 of 39 of his words appear in what implements it: account amount approved beginning beneath built"
+  "notes": "29 of 39 of his words appear in what implements it: account amount approved beginning beneath built"
  },
  {
   "id": "DEC-0646",
@@ -522,14 +522,14 @@
   "verdict": "CONFIRMED BY CITATION",
   "check": "CITED",
   "governs": "MoneyKeel/documents/networth-and-performance/moneykeel",
-  "notes": "only 6 of 16 appear — present: closes look-back moneykeel performance prices · absent: approved built check design drawing; cited by identifier in loo"
+  "notes": "only 6 of 16 appear — present: closes look-back moneykeel performance prices · absent: approved built check design drawing; cited by identifier in Loo"
  },
  {
   "id": "DEC-1558",
-  "verdict": "FAINT TRACE",
+  "verdict": "LEAVES A TRACE",
   "check": "TRACE",
   "governs": "MoneyKeel/functions/networth-and-performance/bonds.ts ",
-  "notes": "only 5 of 14 appear — present: bonds matures maturing maturity ruling · absent: approved asked design drawing listed"
+  "notes": "7 of 14 of his words appear in what implements it: bonds drawing matures maturing maturity newer"
  },
  {
   "id": "DEC-1624",
@@ -578,7 +578,7 @@
   "verdict": "LEAVES A TRACE",
   "check": "TRACE",
   "governs": "MK-NW-M-003 the trend line · MK-NW-M-002 Return on cas",
-  "notes": "28 of 41 of his words appear in what implements it: account asked begins carried carry comes"
+  "notes": "27 of 41 of his words appear in what implements it: account asked begins carried carry comes"
  },
  {
   "id": "DEC-2160",
@@ -620,7 +620,7 @@
   "verdict": "CONFIRMED BY CITATION",
   "check": "CITED",
   "governs": "MK-NW-F-091 pricedGainOf · MK-NW-F-127 gainOfRow · MK-",
-  "notes": "24 of 29 of his words appear in what implements it: approved beginning beside comes daily gained; cited by identifier in AccountPortfolioScreen.tsx"
+  "notes": "25 of 29 of his words appear in what implements it: approved beginning beside comes daily gained; cited by identifier in AccountPortfolioScreen.tsx"
  },
  {
   "id": "DEC-3768",
@@ -634,7 +634,7 @@
   "verdict": "CONFIRMED BY CITATION",
   "check": "CITED",
   "governs": "MK-NW-F-090 windowStartKey · MK-PF-F-008 startDateFor",
-  "notes": "12 of 14 of his words appear in what implements it: approved earlier exist missing month month's; cited by identifier in performance.ts"
+  "notes": "11 of 14 of his words appear in what implements it: approved earlier exist missing month months; cited by identifier in performance.ts"
  },
  {
   "id": "DEC-4529",
@@ -662,7 +662,7 @@
   "verdict": "CONFIRMED BY CITATION",
   "check": "CITED",
   "governs": "MK-PF-F-003 avgCost · MK-PF-F-016 attribution · MK-PF-",
-  "notes": "23 of 34 of his words appear in what implements it: approved asked average daily deleted dollars; cited by identifier in guard_d3_screens_agree.test.t"
+  "notes": "24 of 34 of his words appear in what implements it: approved asked average daily deleted dollars; cited by identifier in guard_d3_screens_agree.test.t"
  },
  {
   "id": "DEC-4643",
@@ -711,7 +711,7 @@
   "verdict": "CONFIRMED BY CITATION",
   "check": "CITED",
   "governs": "MK-NW-O-008 thePerformance · MK-NW-F-138 knownHoldings",
-  "notes": "62 of 78 of his words appear in what implements it: account accounts added approved arrives balance; cited by identifier in AccountPortfolioScreen.tsx"
+  "notes": "63 of 78 of his words appear in what implements it: account accounts added approved arrives balance; cited by identifier in AccountPortfolioScreen.tsx"
  },
  {
   "id": "DEC-5425",
@@ -802,7 +802,7 @@
   "verdict": "CONFIRMED BY CITATION",
   "check": "CITED",
   "governs": "MK-PF-F-014 buildPerformance · MK-PF-F-044 startValues",
-  "notes": "67 of 107 of his words appear in what implements it: account added adjusted approved beginning begins; cited by identifier in AccountPortfolioScreen.t"
+  "notes": "69 of 107 of his words appear in what implements it: account account-page added adjusted approved beginning; cited by identifier in AccountPortfolioSc"
  },
  {
   "id": "DEC-6323",
@@ -851,7 +851,7 @@
   "verdict": "LEAVES A TRACE",
   "check": "TRACE",
   "governs": "MK-NW-M-066 Price (per $100 of face) · pricePer100OfFa",
-  "notes": "15 of 28 of his words appear in what implements it: account bonds calculated current decided entered"
+  "notes": "17 of 28 of his words appear in what implements it: account account-page bonds calculated current decided"
  },
  {
   "id": "DEC-6618",
@@ -865,7 +865,7 @@
   "verdict": "LEAVES A TRACE",
   "check": "TRACE",
   "governs": "typedValueOnItsDate (Calculation Module code/engines/s",
-  "notes": "36 of 48 of his words appear in what implements it: account accounts amount back-fill balance bonds"
+  "notes": "37 of 48 of his words appear in what implements it: account accounts amount back-fill balance bonds"
  },
  {
   "id": "DEC-6620",
@@ -984,7 +984,7 @@
   "verdict": "FAINT TRACE",
   "check": "TRACE",
   "governs": "MK-NW-M-012 · MK-NW-M-013 · MK-NW-M-047 · MK-NW-O-003 ",
-  "notes": "only 8 of 22 appear — present: checking count entered month months · absent: asking beneath complete known lead's"
+  "notes": "only 10 of 22 appear — present: checking count entered lead's month · absent: asking beneath complete known opens"
  },
  {
   "id": "DEC-6763",
@@ -1030,10 +1030,10 @@
  },
  {
   "id": "DEC-6799",
-  "verdict": "LEAVES A TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MoneyKeel/functions/networth-and-performance/outside_p",
-  "notes": "11 of 18 of his words appear in what implements it: bonds dividend earned lead's negative order"
+  "notes": "11 of 18 of his words appear in what implements it: bonds dividend earned lead's negative order; cited by identifier in outside_performance_claude_03."
  },
  {
   "id": "DEC-6824",
@@ -1145,7 +1145,7 @@
   "verdict": "FAINT TRACE",
   "check": "TRACE",
   "governs": "MK-PF-M-001 Ending value · MK-XS-M-003 YOUR INVESTMENT",
-  "notes": "only 11 of 31 appear — present: accounts brokerage check counts investment · absent: asking bases delete differ found"
+  "notes": "only 10 of 31 appear — present: accounts brokerage check counts investment · absent: asking bases delete differ found"
  },
  {
   "id": "DEC-7223",
@@ -1187,7 +1187,7 @@
   "verdict": "LEAVES A TRACE",
   "check": "TRACE",
   "governs": "MK-PF-F-009 latestClose (src/domain/performance/index.",
-  "notes": "13 of 17 of his words appear in what implements it: asked closes lead's mk-pf-f- order price"
+  "notes": "14 of 17 of his words appear in what implements it: asked closes lead's mk-pf-f- newer order"
  },
  {
   "id": "DEC-7229",
@@ -1404,7 +1404,7 @@
   "verdict": "FAINT TRACE",
   "check": "TRACE",
   "governs": "src/screens/LookBackScreen.tsx · MK-PF-M-010 · MK-PF-M",
-  "notes": "only 8 of 27 appear — present: compare couldn't getting missing opens · absent: app's arrives asking banner brings"
+  "notes": "only 7 of 27 appear — present: compare getting missing opens prices · absent: app's arrives asking banner brings"
  },
  {
   "id": "DEC-7386",
@@ -1467,7 +1467,7 @@
   "verdict": "CONFIRMED BY CITATION",
   "check": "CITED",
   "governs": "eventPath, yardstickOn, firstEvent, IDs awaiting · MK-",
-  "notes": "26 of 35 of his words appear in what implements it: beside bought close counted counts day's; cited by identifier in outside_performance_rerun_openai_"
+  "notes": "27 of 35 of his words appear in what implements it: beside bought close counted counts day's; cited by identifier in outside_performance_rerun_openai_"
  },
  {
   "id": "DEC-7452",
@@ -1621,7 +1621,7 @@
   "verdict": "CONFIRMED BY CITATION",
   "check": "CITED",
   "governs": "MK-CF-F-008 spendByMonth · MK-CF-F-221 spendByMonthByB",
-  "notes": "only 17 of 54 appear — present: average budget counts drawn emergency · absent: allowed approved april asking bills; cited by identifier in outside_ca"
+  "notes": "only 18 of 54 appear — present: average budget counts drawn emergency · absent: allowed approved april asking bills; cited by identifier in outside_ca"
  },
  {
   "id": "DEC-8333",
@@ -1646,10 +1646,10 @@
  },
  {
   "id": "DEC-8339",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "the info dot (src/components/UI.tsx) · src/screens/Net",
-  "notes": "only 7 of 24 appear — present: account alternatives bonds correction dated · absent: approved asking colour drawing drawings"
+  "notes": "only 7 of 24 appear — present: account alternatives bonds correction dated · absent: approved asking colour drawing drawings; cited by identifier in i"
  },
  {
   "id": "DEC-8342",
@@ -1762,5 +1762,145 @@
   "check": "TRACE",
   "governs": "src/screens/PerformanceScreen.tsx · src/__tests__/nw_c",
   "notes": "only 4 of 29 appear — present: account doors performance portfolio · absent: apostrophe approved asking day-one drawings"
+ },
+ {
+  "id": "DEC-8891",
+  "verdict": "LEAVES A TRACE",
+  "check": "TRACE",
+  "governs": "Every drawing sent for his review · MoneyKeel/document",
+  "notes": "22 of 30 of his words appear in what implements it: account account-page approve approved beside decided"
+ },
+ {
+  "id": "DEC-8915",
+  "verdict": "FAINT TRACE",
+  "check": "TRACE",
+  "governs": "src/components/SectionBand.tsx · src/screens/AccountPo",
+  "notes": "only 16 of 49 appear — present: account counts facts historic holding · absent: app-wide apply asking brought capitals"
+ },
+ {
+  "id": "DEC-8916",
+  "verdict": "FAINT TRACE",
+  "check": "TRACE",
+  "governs": "src/screens/PerformanceScreen.tsx · MoneyKeel/document",
+  "notes": "only 1 of 22 appear — present: performance · absent: approved asked asking cards design"
+ },
+ {
+  "id": "DEC-8920",
+  "verdict": "LEAVES A TRACE",
+  "check": "TRACE",
+  "governs": "MK-PF-F-014 buildPerformance · MK-NW-F-127 gainOfRow ·",
+  "notes": "21 of 27 of his words appear in what implements it: bought broker close counts dropped earlier"
+ },
+ {
+  "id": "DEC-8921",
+  "verdict": "LEAVES A TRACE",
+  "check": "TRACE",
+  "governs": "MK-PF-F-014 buildPerformance · MK-PF-F-085 statedCdRat",
+  "notes": "17 of 22 of his words appear in what implements it: added alone beside brokerage growth history"
+ },
+ {
+  "id": "DEC-8926",
+  "verdict": "FAINT TRACE",
+  "check": "TRACE",
+  "governs": "MK-XS-F-208 InfoDot (src/components/UI.tsx) · src/scre",
+  "notes": "only 4 of 25 appear — present: account beside reverse worth · absent: asking chip-row colour coloured contradiction"
+ },
+ {
+  "id": "DEC-8931",
+  "verdict": "LEAVES A TRACE",
+  "check": "TRACE",
+  "governs": "src/components/MoneySheets.tsx · src/components/DebtEd",
+  "notes": "15 of 23 of his words appear in what implements it: account drawn draws editor keeps lead's"
+ },
+ {
+  "id": "DEC-8932",
+  "verdict": "FAINT TRACE",
+  "check": "TRACE",
+  "governs": "src/screens/LookBackScreen.tsx · src/screens/AuthScree",
+  "notes": "only 1 of 35 appear — present: worth · absent: apostrophe asking carry couldn't curly"
+ },
+ {
+  "id": "DEC-8934",
+  "verdict": "LEAVES A TRACE",
+  "check": "TRACE",
+  "governs": "src/screens/BondsScreen.tsx · MoneyKeel/documents/netw",
+  "notes": "15 of 20 of his words appear in what implements it: account bonds counted dated drawing draws"
+ },
+ {
+  "id": "DEC-8935",
+  "verdict": "LEAVES A TRACE",
+  "check": "TRACE",
+  "governs": "src/screens/ItemizeScreen.tsx · MoneyKeel/documents/ne",
+  "notes": "12 of 18 of his words appear in what implements it: dated drawing holds itemize lead's match"
+ },
+ {
+  "id": "DEC-8936",
+  "verdict": "LEAVES A TRACE",
+  "check": "TRACE",
+  "governs": "src/screens/BondsScreen.tsx · src/screens/AccountPortf",
+  "notes": "11 of 22 of his words appear in what implements it: account accrued accruedassumed assumed bonds entered"
+ },
+ {
+  "id": "DEC-8937",
+  "verdict": "FAINT TRACE",
+  "check": "TRACE",
+  "governs": "src/screens/AccountPortfolioScreen.tsx",
+  "notes": "only 5 of 14 appear — present: coupon entered reverse state unknown · absent: asking lead's nobody order print"
+ },
+ {
+  "id": "DEC-8938",
+  "verdict": "FAINT TRACE",
+  "check": "TRACE",
+  "governs": "src/screens/AccountPortfolioScreen.tsx",
+  "notes": "only 6 of 14 appear — present: dated hidden older records reverse · absent: asking lead's order reads reverses"
+ },
+ {
+  "id": "DEC-8939",
+  "verdict": "FAINT TRACE",
+  "check": "TRACE",
+  "governs": "src/screens/AccountPortfolioScreen.tsx",
+  "notes": "only 7 of 19 appear — present: account broker entered linked records · absent: asking built edited keeps lead's"
+ },
+ {
+  "id": "DEC-8940",
+  "verdict": "LEAVES A TRACE",
+  "check": "TRACE",
+  "governs": "src/screens/AddAccountScreen.tsx · MoneyKeel/documents",
+  "notes": "13 of 17 of his words appear in what implements it: added asked blank entered interest lead's"
+ },
+ {
+  "id": "DEC-8945",
+  "verdict": "FAINT TRACE",
+  "check": "TRACE",
+  "governs": "MK-PF-F-081 heldQuantity (src/domain/performance/index",
+  "notes": "only 6 of 19 appear — present: account heldquantity holding quantity reverse · absent: asking coinquantity coins decimals lead's"
+ },
+ {
+  "id": "DEC-8949",
+  "verdict": "FAINT TRACE",
+  "check": "TRACE",
+  "governs": "src/screens/PerformanceScreen.tsx",
+  "notes": "only 4 of 19 appear — present: categories category earned return · absent: approved asking column drawing draws"
+ },
+ {
+  "id": "DEC-8950",
+  "verdict": "NO TRACE",
+  "check": "TRACE",
+  "governs": "src/screens/LookBackScreen.tsx · MoneyKeel/documents/n",
+  "notes": "none of 12 of his words appear anywhere that implements it: approved asking drawing draws lead's order print"
+ },
+ {
+  "id": "DEC-8953",
+  "verdict": "LEAVES A TRACE",
+  "check": "TRACE",
+  "governs": "MK-PF-F-015 topHoldingConcentration · MK-HM-F-007 perc",
+  "notes": "18 of 23 of his words appear in what implements it: decimals insights lead's moved notice order"
+ },
+ {
+  "id": "DEC-8980",
+  "verdict": "LEAVES A TRACE",
+  "check": "TRACE",
+  "governs": "MK-PF-F-014 buildPerformance · MK-PF-F-029 closeAsOf",
+  "notes": "19 of 23 of his words appear in what implements it: asked carries claude close falls forward"
  }
 ]

@@ -122,7 +122,7 @@ export default function ConnectFlowScreen() {
           </>
         ) : (
           <View style={s.card}>
-            <Text style={s.line}>Bank linking isn't switched on in this version yet — it arrives in an update, and we'd rather tell you that than show a button that doesn't work.</Text>
+            <Text style={s.line}>Bank linking isn’t switched on in this version yet — it arrives in an update, and we’d rather tell you that than show a button that doesn’t work.</Text>
             <Text style={s.note}>The file import gets you the same result today in about two minutes.</Text>
           </View>
         )}
@@ -149,8 +149,8 @@ export default function ConnectFlowScreen() {
           ))}
         </View>
         <TouchableOpacity accessibilityRole="button" style={[s.primaryBtn, busy && { opacity: 0.6 }]} disabled={busy} onPress={startLink}
-          accessibilityLabel={`Continue to ${institution}'s own sign-in`}>
-          {busy ? <ActivityIndicator color={Colors.white} /> : <Text style={s.primaryTxt}>Continue to {institution}'s sign-in</Text>}
+          accessibilityLabel={`Continue to ${institution}’s own sign-in`}>
+          {busy ? <ActivityIndicator color={Colors.white} /> : <Text style={s.primaryTxt}>Continue to {institution}’s sign-in</Text>}
         </TouchableOpacity>
         <Text style={s.note}>Sign-in happens on {provider?.displayName ?? 'the connection service'} — never inside this app.</Text>
         <Text style={s.equalHdr}>Rather not connect?</Text>

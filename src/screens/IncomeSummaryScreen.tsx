@@ -12,6 +12,10 @@
 // 2026-10-25 (CF-MMFIX-B; drawing check IN-03, IN-11, IN-13 to IN-15; READ THIS FIRST rows of that day): a figure worked with
 // the calculated rate wears ≈, as Your base pay prints it; a fresh account shows its door once; the headings are the drawn bands,
 // their totals on the rows' right edge; the sums are green and the notes sit in the drawn boxes.
+//
+// 2026-10-27 (FX-CF-B, the drawing check IN2-01, IN2-02, IN2-12): a fresh account prints its door once, under the first heading —
+// the second keeps the $0 and the sentence (the v07 row of 2026-10-25); row labels are ink, as drawn; every figure is one size,
+// the totals bold at the rows' size with the drawn rule above them (DEC-0093: "make all $$ same size and make totals bold").
 import { EmptyNote } from '../components/UI';
 import TopBar from '../components/TopBar';
 import React, { useMemo } from 'react';
@@ -76,7 +80,9 @@ export default function IncomeSummaryScreen() {
         <SectionBand inCard light inset={Spacing.base} onRowEdges title="What it is taxed on"
           value={fig('MK-CF-M-041', sum.ready ? sum.taxed.taxedOn : 0)} />   {/* Q48: $0, never a dash · the gross less the 401(k)s (DEC-0283, 2026-10-24) */}
         {!sum.ready ? (
-          <EmptyNote door="income" onPress={() => router.push('/base-pay' as any)} />   /* Q48 (MK-MN-M-012) */
+          /* Q48 (MK-MN-M-012): the sentence, and no second door — the one above opens the same place (IN2-12, 2026-10-27; the v07
+             row of 2026-10-25 says "once") */
+          <Text style={s.empty}>Nothing entered yet.</Text>
         ) : (
           <>
             {/* every source the year is taxed on, signed — they add to "= Gross /year" (2026-10-25, FIX-INCOME-B; DEC-0376) */}
@@ -120,9 +126,9 @@ export default function IncomeSummaryScreen() {
 
 function Row({ label, note, value, strong, tone }: { label: string; note?: string; value: string; strong?: boolean; tone?: 'pos' | 'dim' }) {
   return (
-    <View style={s.row}>
+    <View style={[s.row, strong && s.rowTot]}>
       <View style={{ flex: 1 }}>
-        <Text style={[s.rowL, strong && s.rowLStrong]}>{label}</Text>
+        <Text style={[s.rowL, strong && s.rowLStrong, tone === 'dim' && s.dim]}>{label}</Text>
         {note ? <Text style={s.rowNote}>{note}</Text> : null}
       </View>
       {/* "= Inflow" green, the standout month grey — as drawn (phone 16; IN-15) */}
@@ -138,13 +144,17 @@ const s = StyleSheet.create({
   // a banded group: square and white, as drawn; its band runs to its edges (SectionBand inCard) — DEC-0079
   group: { backgroundColor: Colors.cardBg, padding: Spacing.base, marginTop: 16 },
   row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 7 },
-  rowL: { fontSize: 13, color: Colors.textSecondary },
-  rowLStrong: { fontWeight: '800', color: Colors.textPrimary, fontSize: 15 },
+  // a row's label in ink, as drawn (IN2-01, 2026-10-27); a total row is bold at the rows' size under a rule (the drawn .rrow.tot)
+  rowL: { fontSize: 13, color: Colors.textPrimary },
+  rowLStrong: { fontWeight: '800', color: Colors.textPrimary },
+  rowTot: { borderTopWidth: 1.5, borderTopColor: Colors.textPrimary },
   rowNote: { fontSize: 11, color: Colors.textTertiary, marginTop: 1 },
   rowV: { fontSize: 15, fontWeight: '700', color: Colors.textPrimary, fontVariant: ['tabular-nums'] },
-  rowVStrong: { fontSize: 17, fontWeight: '800' },
+  rowVStrong: { fontWeight: '800' },   // every money figure one size (DEC-0093; IN2-02, 2026-10-27: it was 17 beside 15)
   pos: { color: Colors.gainText },
   dim: { color: Colors.textSecondary },
+  // the empty sentence in EmptyNote's own type, without its door (IN2-12)
+  empty: { fontSize: 13, color: Colors.textSecondary, lineHeight: 18, paddingVertical: 4 },
   // the drawing's information box: ink on the blue tint, a blue rule on its left (IN-15)
   info: { fontSize: 11, color: Colors.textPrimary, lineHeight: 17, marginTop: 10, backgroundColor: Colors.blueLight,
           borderLeftWidth: 3, borderLeftColor: Colors.blue, paddingVertical: 8, paddingHorizontal: 10 },

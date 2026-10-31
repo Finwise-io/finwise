@@ -1,5 +1,6 @@
 // Build credit — a beginner-friendly utilization calculator, score band, and the habits that move
 // your score. Aimed at students / young adults building credit for the first time.
+import { MoneyBox } from '../components/MoneyBox';   // every money box, one component (DEC-8385)
 import React, { useMemo, useState } from 'react';
 import { View, Text, ScrollView, StyleSheet, TextInput } from 'react-native';
 import { KeyboardAwareScreen } from '../components/KeyboardAwareScreen';
@@ -48,11 +49,11 @@ export default function CreditScreen() {
         <View style={styles.inRow}>
           <View style={{ flex: 1 }}>
             <Text style={styles.fieldL}>Card balance</Text>
-            <TextInput style={styles.input} keyboardType="decimal-pad" placeholder="$0" placeholderTextColor={Colors.textTertiary} value={balStr} onChangeText={setBalStr} />
+            <MoneyBox bare style={styles.input} placeholder="$0" value={balStr} onChangeText={setBalStr} />
           </View>
           <View style={{ flex: 1 }}>
             <Text style={styles.fieldL}>Total credit limit</Text>
-            <TextInput style={styles.input} keyboardType="decimal-pad" placeholder="$0" placeholderTextColor={Colors.textTertiary} value={limStr} onChangeText={setLimStr} />
+            <MoneyBox bare style={styles.input} placeholder="$0" value={limStr} onChangeText={setLimStr} />
           </View>
         </View>
         {lim > 0 ? (

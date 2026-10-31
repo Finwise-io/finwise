@@ -141,16 +141,17 @@ describe('a bond\'s value, what was paid, and how often it pays (DEC-0281; DEC-3
     const r = render(<BondsScreen />);
     fireEvent.press(screen.getByText('US Treasury 2027'));
     fireEvent.changeText(screen.getByPlaceholderText('the value on your statement'), '');
-    fireEvent.changeText(screen.getByLabelText('What you paid, optional'), '24100.375');
+    // a money box holds whole dollars or cents (Q49): $24,100.37 typed is $24,100.37 saved — not cut, not rounded
+    fireEvent.changeText(screen.getByLabelText('What you paid, optional'), '24100.37');
     fireEvent.press(screen.getByText('Save'));
     let b = st().assetAccounts[0];
-    expect([b.balance, b.value_basis, b.amount_paid]).toEqual([24100.375, 'paid', 24100.375]);   // before: the box could not be blank — it read the face, $25,000, as a market value
+    expect([b.balance, b.value_basis, b.amount_paid]).toEqual([24100.37, 'paid', 24100.37]);   // before: the box could not be blank — it read the face, $25,000, as a market value
     expect(screen.getByText('The value shown is what you paid — no market value entered.')).toBeOnTheScreen();
     expect(screen.getAllByText('$24,100')).toHaveLength(2);                 // the bond's value and the total, the same figure
     // opened again, the market value box is blank — the value is not a market value
     fireEvent.press(screen.getByText('US Treasury 2027'));
     expect(screen.getByPlaceholderText('the value on your statement').props.value).toBe('');
-    expect(screen.getByLabelText('What you paid, optional').props.value).toBe('24100.375');
+    expect(screen.getByLabelText('What you paid, optional').props.value).toBe('$24,100.37');   // printed as money (DEC-8385)
     // and with nothing paid either, the face value, said so
     fireEvent.changeText(screen.getByLabelText('What you paid, optional'), '');
     fireEvent.press(screen.getByText('Save'));
@@ -187,7 +188,7 @@ describe('a bond\'s value, what was paid, and how often it pays (DEC-0281; DEC-3
   });
 
   test('Add an account · what you paid is saved as typed: empty is not entered, 0 is $0', () => {
-    for (const [typed, saved] of [['9700.125', 9700.125], ['0', 0], ['', undefined]] as const) {
+    for (const [typed, saved] of [['9700.12', 9700.12], ['0', 0], ['', undefined]] as const) {   // cents, the most a money box holds (Q49)
       fresh({ assetAccounts: [] });
       const r = render(<AddAccountScreen />);
       fireEvent.press(screen.getAllByText('Bonds')[0]);
@@ -285,24 +286,51 @@ describe('nothing is cut to cents before it is saved (Q49 precision; the two rou
     render(<BondsScreen />);
     fireEvent.press(screen.getByText('US Treasury 2027'));
     pressSell();
-    fireEvent.changeText(screen.getByPlaceholderText('amount sold (up to $24,650)'), '1000.333');
+    fireEvent.changeText(screen.getByPlaceholderText('amount sold (up to $24,650)'), '1000.33');
     fireEvent.press(screen.getByLabelText('Sell'));
     const b = st().assetAccounts[0];
-    expect(b.face_value).toBe(25000 * ((24650 - 1000.333) / 24650));         // 23985.4836…; it was cut to 23985.48
+    // by hand: 25,000 × (24,650 − 1,000.33) ÷ 24,650 = 25,000 × 23,649.67 ÷ 24,650 = 23,985.4462…; a cut would give 23,985.45
+    expect(b.face_value).toBe(25000 * ((24650 - 1000.33) / 24650));
     expect(b.face_value).not.toBe(Math.round(b.face_value * 100) / 100);
-    expect(b.balance).toBeCloseTo(24650 - 1000.333, 9);                      // the sale's ledger row lowers the value, exactly
+    expect(b.balance).toBeCloseTo(24650 - 1000.33, 9);                       // 23,649.67: the sale's ledger row lowers the value, exactly
   });
 
   test('Alternatives · part of a holding sold: the value left is kept at full precision', () => {
-    fresh({ assetAccounts: [{ asset_id: 'a1', label: 'Bitcoin', institution: 'Coinbase', kind: 'crypto', tax_bucket: 'TAXABLE', balance: 28000 }] });
+    // a value held at full precision (an import's 28,000.12345); the amount sold is cents, the most a money box holds (Q49)
+    fresh({ assetAccounts: [{ asset_id: 'a1', label: 'Bitcoin', institution: 'Coinbase', kind: 'crypto', tax_bucket: 'TAXABLE', balance: 28000.12345 }] });
     render(<OtherInvestmentsScreen />);
     fireEvent.press(screen.getByText('Bitcoin'));
     pressSell();
-    fireEvent.changeText(screen.getByPlaceholderText('amount sold (up to $28,000)'), '1000.333');
+    fireEvent.changeText(screen.getByPlaceholderText('amount sold (up to $28,000)'), '1000.33');
     fireEvent.press(screen.getByLabelText('Sell'));
     const a = st().assetAccounts[0];
-    expect(a.balance).toBeCloseTo(28000 - 1000.333, 9);                      // 26999.667, not 26999.67
+    expect(a.balance).toBeCloseTo(28000.12345 - 1000.33, 9);                 // by hand 26,999.79345 — not cut to 26,999.79
     expect(a.balance).not.toBe(Math.round(a.balance * 100) / 100);
+  });
+});
+
+// THE OLD ANSWERS, KEPT (the fix wave's rule). Until 2026-10-30 a money box took a third decimal, so 24100.375 and 1000.333 were typed and
+// saved whole. A money box holds whole dollars or cents (Q49; FX-NW's finding, $24,100.375 on screen): a third decimal is refused. These
+// fail now because the box refuses it; the day one passes, a box takes a third decimal again.
+describe('before 2026-10-30, kept: a money box took a third decimal', () => {
+  test.failing('the Bonds editor saved a paid 24100.375 whole', () => {
+    fresh({ assetAccounts: [{ ...TREASURY }] });
+    render(<BondsScreen />);
+    fireEvent.press(screen.getByText('US Treasury 2027'));
+    fireEvent.changeText(screen.getByPlaceholderText('the value on your statement'), '');
+    fireEvent.changeText(screen.getByLabelText('What you paid, optional'), '24100.375');
+    fireEvent.press(screen.getByText('Save'));
+    expect(st().assetAccounts[0].amount_paid).toBe(24100.375);
+  });
+  test.failing('Add an account saved a paid 9700.125 whole', () => {
+    fresh({ assetAccounts: [] });
+    render(<AddAccountScreen />);
+    fireEvent.press(screen.getAllByText('Bonds')[0]);
+    fireEvent.changeText(screen.getByLabelText('Account name'), 'US Treasury 2030');
+    fireEvent.changeText(screen.getByLabelText('Balance'), '9850');
+    fireEvent.changeText(screen.getByLabelText('What you paid'), '9700.125');
+    fireEvent.press(screen.getByLabelText('Save this account'));
+    expect(st().assetAccounts[0].amount_paid).toBe(9700.125);
   });
 });
 

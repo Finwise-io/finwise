@@ -55,16 +55,17 @@ describe('RetirementCockpit — where you stand', () => {
     useStore.setState({ employmentStatus: 'retired' });
     complete(retiree75);   // born 1951, no targetRetirementAge
     render(<RetirementCockpit />);
-    expect(screen.getByText(/YOUR PLAN · in retirement/)).toBeOnTheScreen();
-    expect(screen.queryByText(/assumes age 65/)).toBeNull();
-    expect(screen.queryByText('Grow my nest egg using')).toBeNull();   // accumulation label hidden
+    // the section names are dark bars in capitals since 2026-10-27 (retirement-cockpit_v02, DEC-8839): read without regard to case
+    expect(screen.getByText(/YOUR PLAN · in retirement/i)).toBeOnTheScreen();
+    expect(screen.queryByText(/assumes age 65/i)).toBeNull();
+    expect(screen.queryByText(/^Grow my nest egg using$/i)).toBeNull();   // accumulation label hidden
   });
 
   test('still-accumulating user keeps the age-based plan framing', () => {
     complete(employedPartner);   // target 65, employed
     render(<RetirementCockpit />);
-    expect(screen.getByText(/assumes age \d+/)).toBeOnTheScreen();
-    expect(screen.getByText('Grow my nest egg using')).toBeOnTheScreen();
+    expect(screen.getByText(/assumes age \d+/i)).toBeOnTheScreen();
+    expect(screen.getByText(/^Grow my nest egg using$/i)).toBeOnTheScreen();
   });
 
   // BUG-LEDGER: B-32 — a cost-of-living adjustment from the retirement location must be labeled,
@@ -72,7 +73,7 @@ describe('RetirementCockpit — where you stand', () => {
   test('a recognized retirement location labels the cost-of-living adjustment', () => {
     complete({ ...employedPartner, retLocation: 'Portugal', monthlySpending: '15000', expectedRetirementSpending: '15000' });
     render(<RetirementCockpit />);
-    expect(screen.getByText(/Adjusted for Portugal's cost of living/)).toBeOnTheScreen();
+    expect(screen.getByText(/Adjusted for Portugal’s cost of living/)).toBeOnTheScreen();
   });
 
   test('a US-based (factor 1) user sees no cost-of-living note', () => {
@@ -157,8 +158,9 @@ describe('GoalsScreen — debt payoff plan', () => {
   test('onboarding goals appear on the Plan tab on first visit', () => {
     complete(employedPartner);   // goals: House down payment, New car
     render(<GoalsScreen />);
-    expect(screen.getByText('House down payment')).toBeOnTheScreen();
-    expect(screen.getByText('New car')).toBeOnTheScreen();
+    // a goal's name rides its card's light bar with its icon since 2026-10-27 (archived goals_v02; GoalsScreen kept as built, the lead's order)
+    expect(screen.getByText(/House down payment$/)).toBeOnTheScreen();
+    expect(screen.getByText(/New car$/)).toBeOnTheScreen();
     expect(screen.queryByText(/No goals yet/)).toBeNull();
   });
 });

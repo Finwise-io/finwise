@@ -151,7 +151,7 @@ export default function OnboardingScreen() {
       router.replace('/(tabs)/home');
     } else {
       // no account yet (early steps) → just save the draft locally
-      Alert.alert('Progress saved', "We'll pick up right here next time you open the app.");
+      Alert.alert('Progress saved', "We’ll pick up right here next time you open the app.");
     }
   }
 

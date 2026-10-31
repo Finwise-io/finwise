@@ -56,7 +56,9 @@ test('typing an amount → the tax line (estimate, editable rate) + the two late
   expect(screen.getByText(/Tax bill next April: about \$/)).toBeOnTheScreen();
   expect(screen.getByText(/calculated from your income.*change it/)).toBeOnTheScreen();
   expect(screen.getByText(/Estimate — your tax preparer has the exact number/)).toBeOnTheScreen();
-  expect(screen.getByText(/\/year smaller/)).toBeOnTheScreen();                    // RMD effect
+  // RMD effect — since 2026-10-30 a row of its own, 'Smaller each year by', with the figure on its right (roth-conversion_v02, DEC-8890)
+  expect(screen.getByText('Smaller each year by')).toBeOnTheScreen();
+  expect(screen.getByText(/^about \$[\d,]+$/)).toBeOnTheScreen();
   expect(screen.getByText(/\$118,000 → /)).toBeOnTheScreen();                      // tax-free bucket grows
   // the amount is CAPPED at the real balance
   fireEvent.changeText(screen.getByLabelText('Amount to convert this year'), '999999');
@@ -184,7 +186,7 @@ test('required withdrawal: without the Dec 31 balance it says "based on today\'s
   useStore.setState({ onboardingProfile: { ...WORKER60, status: 'retired', birthYear: String(new Date().getFullYear() - 75) } } as any);
   render(<RequiredWithdrawalsScreen />);
   const y = new Date().getFullYear() - 1;
-  expect(screen.getByText(new RegExp(`Based on today's balance\\. Enter your pre-tax balance on Dec 31, ${y} to calculate it exactly`))).toBeOnTheScreen();
+  expect(screen.getByText(new RegExp(`Based on today’s balance\\. Enter your pre-tax balance on Dec 31, ${y} to calculate it exactly`))).toBeOnTheScreen();
   expect(screen.getByLabelText(`Your pre-tax balance on December 31, ${y}`)).toBeOnTheScreen();
 });
 

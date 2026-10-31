@@ -51,10 +51,16 @@ test('Net worth, rent that pays for the whole month: no months figure, and the s
 
 test('Stress test: the same 10.5 months, and the note names the rent', () => {
   render(<StressTestScreen />);
-  expect(screen.getByText('10.5')).toBeOnTheScreen();
+  expect(screen.getByText('10.5 months')).toBeOnTheScreen();   // since 2026-10-27 written as Net worth writes it (stresstest v03, row 3)
   expect(screen.getByText(/Covering your \$3,000\/month of essentials \(7 month average\) with no paycheck coming in, counting \$1,000\/month of rent from your property, which keeps arriving\./)).toBeOnTheScreen();
   // after the $3,000 hit: $18,000 ÷ $2,000 = 9.0 months
-  expect(screen.getByText(/You'd have \$18,000 left — about 9\.0 months of essentials \(\$3,000\/month — 7 month average, less \$1,000\/month rent from your property\)\./)).toBeOnTheScreen();
+  expect(screen.getByText(/You’d have \$18,000 left — about 9\.0 months of essentials \(\$3,000\/month — 7 month average, less \$1,000\/month rent from your property\)\./)).toBeOnTheScreen();   // ’ since 2026-10-27 (tenet 4)
+  // and the months say they count the cash before the expense, the rent coming off as Net worth shows it (v03, row 2)
+  expect(screen.getByText('$21,000 ÷ ($3,000/month − $1,000/month rent from your property) — your cash today, before the $3,000 expense.')).toBeOnTheScreen();
+});
+test.failing('Stress test, the screen until 2026-10-27, pinned: the months as a bare "10.5" (FIXED 2026-10-27, stresstest v03 row 3)', () => {
+  render(<StressTestScreen />);
+  expect(screen.getByText('10.5')).toBeOnTheScreen();
 });
 
 test('Job safety: six months is 6 × ($3,000 − $1,000), and the line shows the sum', () => {

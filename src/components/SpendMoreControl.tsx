@@ -70,8 +70,8 @@ export function SpendMoreControl({ inputs, maxExtra, horizonAge, onCommit }: {
           arrow at it as though a decision had been made. It says so plainly now. */}
       <Text style={s.total}>
         {extra === 0
-          ? <>You'd spend <Text style={s.b}>{maskedMoney(total)}</Text>/month — the same as now.</>
-          : <>You'd spend <Text style={s.b}>{maskedMoney(total)}</Text>/month{extra >= maxExtra ? ' — the most your income and savings can cover.' : '.'}</>}
+          ? <>You’d spend <Text style={s.b}>{maskedMoney(total)}</Text>/month — the same as now.</>
+          : <>You’d spend <Text style={s.b}>{maskedMoney(total)}</Text>/month{extra >= maxExtra ? ' — the most your income and savings can cover.' : '.'}</>}
       </Text>
 
       <View style={[s.verdict, said.tone === 'edge' ? s.vEdge : said.tone === 'watch' ? s.vWatch : s.vClear]}>
@@ -89,7 +89,7 @@ export function SpendMoreControl({ inputs, maxExtra, horizonAge, onCommit }: {
 
       {/* THE ONE SENTENCE THE ROW WAS MISSING. She was expected to work out that expenses more and
           taking more from savings are the same act for her — obvious to us, invisible to her. */}
-      <Text style={s.foot}>Your Social Security and pension don't change, so anything extra comes out of savings.</Text>
+      <Text style={s.foot}>Your Social Security and pension don’t change, so anything extra comes out of savings.</Text>
     </View>
   );
 }

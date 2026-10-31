@@ -18,7 +18,7 @@ test('row 1: the HSA card says "up to $X" and the honest not-tracked note — ne
   const ContributionRoomScreen = require('../ContributionRoomScreen').default;
   render(<ContributionRoomScreen />);
   expect(screen.getAllByText(/up to \$/).length).toBeGreaterThan(0);
-  expect(screen.getByText(/We don't track your HSA contributions yet/)).toBeOnTheScreen();
+  expect(screen.getByText(/We don’t track your HSA contributions yet/)).toBeOnTheScreen();   // ’ since 2026-10-27 (contribution-room v02 row 5; tenet 4)
 });
 
 test('row 2: a 68-year-old sees claim NOW (68) vs 70 — never a table of greyed-out "passed" rows', () => {
@@ -381,11 +381,11 @@ test("couldn't-refresh: the banner shows the honest as-of time and clears on suc
   // so the expected label is derived from the same instant the same way — the test used to pin
   // "Jul 28" and failed on any machine east of Greenwich (2026-09-08, run on India time).
   const asOf = new Date('2026-07-28T21:14:00Z').toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-  expect(screen.getByText(new RegExp(`📡 Couldn't refresh — showing your numbers from ${asOf}`))).toBeOnTheScreen();
+  expect(screen.getByText(new RegExp(`📡 Couldn’t refresh — showing your numbers from ${asOf}`))).toBeOnTheScreen();   // ’ since 2026-10-27
   r1.unmount();
   useStore.setState({ priceRefreshFailed: false } as any);
   render(<HomeScreen />);
-  expect(screen.queryByText(/Couldn't refresh/)).toBeNull();
+  expect(screen.queryByText(/Couldn[’']t refresh/)).toBeNull();
 });
 
 test('the hydration hold exists at the root — no screen renders before the store is ready', () => {
@@ -630,7 +630,7 @@ describe('B47 finding 13 — the coasting box reads as one honest sentence', () 
     seedWorker(40000);
     const RetirementCockpit = require('../RetirementCockpit').default;
     render(<RetirementCockpit />);
-    expect(screen.getByText(/alone doesn't get there — even by 80/)).toBeOnTheScreen();
+    expect(screen.getByText(/alone doesn’t get there — even by 80/)).toBeOnTheScreen();
     expect(screen.queryByText(/^on today's/)).toBeNull();        // the old dangling fragment is gone
   });
 
@@ -692,7 +692,7 @@ test('C4a: a dated goal funded below its needed pace fires the months-behind ins
   const hit = buildInsights({ cashMonths: 6, toxicDebt: null, k401Remaining: 0, hasEarnedIncome: true, retireChance: 90,
     topAccountPct: 20, planPct: 100, beatBy: 0.01, investRate: 0.2,
     goalOffTrack: { label: 'College fund', monthsBehind: 4 } } as any).find((i: any) => i.id === 'goal-offtrack');
-  expect(hit.body).toMatch(/^College fund is about 4 months behind at this month's funding pace/);
+  expect(hit.body).toMatch(/^College fund is about 4 months behind at this month’s funding pace/);
   expect(hit.theme).toBe('protect');
 });
 

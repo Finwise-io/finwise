@@ -8,7 +8,7 @@ import { Colors, Spacing, Radii } from '../utils/theme';
 const ITEMS: { id: string; title: string; sub: string; who?: string }[] = [
   { id: 'will', title: 'Write a will', sub: 'Says who gets what and (if you have kids) who raises them. Without one, the state decides.' },
   { id: 'beneficiaries', title: 'Set account beneficiaries', sub: 'On 401(k)/IRA, life insurance, and bank accounts. These override your will, so keep them current.' },
-  { id: 'poa', title: 'Power of attorney', sub: 'Lets someone you trust handle money/legal matters if you can\'t.' },
+  { id: 'poa', title: 'Power of attorney', sub: 'Lets someone you trust handle money/legal matters if you can’t.' },
   { id: 'healthcare', title: 'Healthcare directive', sub: 'A living will + medical proxy so your care wishes are known.' },
   { id: 'guardian', title: 'Name a guardian for kids', sub: 'If you have minor children, name who would care for them.' },
   { id: 'docs', title: 'Organize key documents', sub: 'Insurance, deeds, accounts, passwords — somewhere a trusted person can find them.' },
@@ -24,7 +24,7 @@ export default function EstateScreen() {
   return (
     <ScrollView style={{ flex: 1, backgroundColor: Colors.bgSecondary }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
       <Text style={styles.h1}>Estate & legacy</Text>
-      <Text style={styles.sub}>A short checklist so your wishes are followed and your family isn't left guessing. Tap each as you handle it.</Text>
+      <Text style={styles.sub}>A short checklist so your wishes are followed and your family isn’t left guessing. Tap each as you handle it.</Text>
 
       <View style={styles.progressCard}>
         <Text style={styles.pct}>{pct}%</Text>

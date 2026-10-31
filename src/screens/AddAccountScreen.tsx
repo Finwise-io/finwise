@@ -3,6 +3,7 @@
 // ones gate the Save. Edit mode is this same screen pre-filled (the 'manual update' view) —
 // saving writes the balance AND stamps value-as-of together, the same staleness concept bonds
 // and alternatives use. Writes through the SAME store actions every editor uses — one write path.
+import { MoneyBox } from '../components/MoneyBox';   // every money box, one component (DEC-8385)
 import TopBar from '../components/TopBar';
 import React, { useMemo, useState } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert, Platform } from 'react-native';
@@ -78,6 +79,7 @@ export default function AddAccountScreen() {
   const [altType, setAltType] = useState<string>(existing?.kind && (ALT_TYPES.some(([k]) => k === existing.kind) || KEPT_ALT_KINDS.includes(existing.kind)) ? existing.kind : 'crypto');
   const [owe, setOwe] = useState<string>('');
   const [owePay, setOwePay] = useState<string>('');   // the mortgage's monthly payment (his rule, 2026-10-04)
+  const [oweApr, setOweApr] = useState<string>('');   // the mortgage's rate, % a year — asked here since 2026-10-27 (workplan row 353); blank is not entered
   // WHICH PROPERTY IS THE HOME LIVED IN. Nobody is asked what a property is "for": one with rent
   // entered on the Income screen is a rental, and any other is a second or vacation home (his rule,
   // 2026-10-04, DEC-1926). The one thing that cannot be read from anything else is which property
@@ -176,9 +178,11 @@ export default function AddAccountScreen() {
       const added = (useStore.getState() as any).assetAccounts?.[0];   // addAsset puts the new one first
       // the payment left blank is NOT ENTERED (2026-10-25, tenet 3; Add an account v02's READ THIS FIRST row of that date): it was
       // saved as $0, so the Debts tab's payoff read "never at this rate"; now every screen says "payment not entered". A typed 0 is $0.
-      // this form never asks the mortgage's rate, so it is saved as NOT ENTERED, never 0% (2026-10-25, FIX-MONTH; tenet 3): every screen
-      // says "rate not entered" until it is typed in the debt editor
-      store.addLiability?.({ label: `${name.trim()} mortgage`, debt_type: 'MORTGAGE', remaining_balance: num(owe), interest_rate_apr: undefined as any,
+      // THE MORTGAGE'S RATE IS ASKED HERE (2026-10-27, workplan row 353; Add an account v02, row of that date): left blank it is saved as NOT
+      // ENTERED, never 0% (2026-10-25, FIX-MONTH; tenet 3, DEC-8462), and every screen says "rate not entered"; a typed 0 is 0%. Until
+      // this date the form never asked it, so it could only be typed later in the debt editor.
+      store.addLiability?.({ label: `${name.trim()} mortgage`, debt_type: 'MORTGAGE', remaining_balance: num(owe),
+        interest_rate_apr: oweApr.trim() === '' ? (undefined as any) : num(oweApr) / 100,
         minimum_monthly_payment: enteredOrNot(owePay), monthly_payment: num(owePay) > 0 ? num(owePay) : undefined,
         property_id: added && added.label === base.label ? added.asset_id : undefined });
     }
@@ -190,12 +194,15 @@ export default function AddAccountScreen() {
     { text: 'Delete', style: 'destructive', onPress: () => { store.deleteAsset?.(existing.asset_id); router.back(); } },
   ]);
 
+  // a field whose example is a dollar amount ("$0", "$10,000", "$2,400") is a money box: "$25,000" while it is typed, 25000 saved (DEC-8385, FX-SHARED 2026-10-27)
   const field = (label: string, value: string, set: (t: string) => void, opts: { placeholder?: string; keyboard?: any; required?: boolean; a11y?: string } = {}) => (
     <View>
       <Text style={s.fieldL}>{label}{opts.required ? ' *' : ''}</Text>
-      <TextInput style={s.input} value={value} onChangeText={set} placeholder={opts.placeholder}
-        placeholderTextColor={Colors.textTertiary} keyboardType={opts.keyboard}
-        accessibilityLabel={opts.a11y ?? label} />
+      {/^\$/.test(opts.placeholder ?? '')
+        ? <MoneyBox bare style={s.input} value={value} onChangeText={set} placeholder={opts.placeholder} a11y={opts.a11y ?? label} />
+        : <TextInput style={s.input} value={value} onChangeText={set} placeholder={opts.placeholder}
+            placeholderTextColor={Colors.textTertiary} keyboardType={opts.keyboard}
+            accessibilityLabel={opts.a11y ?? label} />}
     </View>
   );
 
@@ -306,6 +313,7 @@ export default function AddAccountScreen() {
       )}
       {cls === 'property' && !editMode && field('Mortgage balance (optional)', owe, setOwe, { placeholder: '$0', keyboard: 'decimal-pad', a11y: 'Amount still owed' })}
       {cls === 'property' && !editMode && num(owe) > 0 && field('Monthly mortgage payment', owePay, setOwePay, { placeholder: '$2,400', keyboard: 'decimal-pad', a11y: 'Monthly mortgage payment' })}
+      {cls === 'property' && !editMode && num(owe) > 0 && field('Mortgage interest rate % (optional)', oweApr, setOweApr, { placeholder: '6.5', keyboard: 'decimal-pad', a11y: 'Mortgage interest rate percent, optional' })}
       {cls === 'debt' && (
         <>
           {field('Interest rate % *', apr, setApr, { placeholder: '7.0', keyboard: 'decimal-pad', a11y: 'Interest rate percent' })}
@@ -326,7 +334,7 @@ export default function AddAccountScreen() {
           </View>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
             <Text style={s.fieldL}>Retirement earmark % (optional)</Text>
-            <InfoDot term="earmarked" />
+            <InfoDot term="earmarked" line={s.fieldL} />
           </View>
           <TextInput style={s.input} value={earmark} onChangeText={setEarmark} placeholder="100"
             placeholderTextColor={Colors.textTertiary} keyboardType="number-pad" accessibilityLabel="Retirement earmark percent" />
@@ -364,7 +372,8 @@ const s = StyleSheet.create({
   sub: { fontSize: 13, color: Colors.textSecondary, marginTop: 4, lineHeight: 19 },
   q: { fontSize: 15, fontWeight: '800', color: Colors.textPrimary, marginTop: Spacing.md, marginBottom: 8 },
   chipWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 4 },
-  chip: { borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radii.md, paddingVertical: 9, paddingHorizontal: 12, minHeight: 42, justifyContent: 'center', backgroundColor: Colors.cardBg },
+  // 44, the smallest finger target (DEC-0141): measured drawing Add an account in edit mode (2026-10-27), the chips were 42
+  chip: { borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radii.md, paddingVertical: 9, paddingHorizontal: 12, minHeight: 44, justifyContent: 'center', backgroundColor: Colors.cardBg },
   chipOn: { borderColor: Colors.primary, backgroundColor: Colors.primaryLight },
   chipTxt: { fontSize: 13, fontWeight: '700', color: Colors.textSecondary },
   fieldL: { fontSize: 13, fontWeight: '700', color: Colors.textSecondary, marginTop: Spacing.md, marginBottom: 5 },

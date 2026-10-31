@@ -23,7 +23,11 @@ import { writeFigure } from '../../MoneyKeel/functions/_figure-spec';
 
 /** Figures with no worked example yet. It may only ever get shorter — a new figure brings its own
  *  example, and one that is on this list leaves it and never comes back. */
-const NOT_YET_WORKED = 0;   // 6 → 0 on 2026-10-02 (Cash flow step 2.b: the last six got their examples)   // 9 → 8 on 2026-09-30 (Performance pass 1); 8 → 7 the same day, when
+const NOT_YET_WORKED = 0;   // 0 → 12 → 1 → 0, 2026-10-30/31 (PF-TOOLS): FX-PLAN declared twelve Roth figures with no example; eleven
+                            // were worked on 2026-10-30, then the lead ruled on 2026-10-31 that no orchestrator hands them, so they are
+                            // not declared and left this register — their examples run in
+                            // src/domain/planning/roth_worked_examples_2026_10_31.test.ts. The true count is 0 again.
+                            // 6 → 0 on 2026-10-02 (Cash flow step 2.b: the last six got their examples)   // 9 → 8 on 2026-09-30 (Performance pass 1); 8 → 7 the same day, when
                             // MK-PF-M-009 left the register — no screen shows it (Performance pass 2);
                             // 7 → 6 the same day, MK-NW-M-040 each holding and its value (Net worth
                             // pass 1) — the last Net worth figure without one. Every figure on Net

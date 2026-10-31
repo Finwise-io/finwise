@@ -10,16 +10,19 @@
 
 ## Logo
 
-Files are in `logo/`:
-- `moneykeel-wordmark.png`: the name, with "Money" in teal and "Keel" in navy, bold. This is the artwork the app shows at the top of every screen. The name is always shown as this artwork, never retyped in another font.
-- `moneykeel-mark.png` and `moneykeel-mark.svg`: the "K" mark. A steady upright stem stands for stability, and a rising arrow stands for growth. Its gradient runs from navy to blue to mint.
-- `moneykeel-app-icon.png`: the app icon (1024 × 1024).
+The logo is the founder's own artwork, adopted 2026-10-30. His original files are in `MoneyKeel/documents/other/brand-source-2026-10-30/`. Files are in `logo/`, all on a see-through background except the app icon:
+- `moneykeel-wordmark.png`: the name MoneyKeel in his dark-green lettering. This is the artwork the app shows at the top of every screen. The name is always shown as this artwork, never retyped in another font.
+- `moneykeel-mark.png`: the mark, three slanted green strokes, the last one folding over.
+- `moneykeel-lockup.png`: the full logo, the mark beside the name and the tagline "Your Finance Command Center".
+- `moneykeel-app-icon.png`: the app icon (1024 × 1024), the mark on white.
 
-| Logo colour | Hex |
+His files spell the name 'aMoneyKeel'; the stray 'a' is cut off in every file here. No SVG of the new mark exists yet; the PNGs are no larger than his files, so ask for an SVG before printing the logo large. The old K logo is in `logo/archive-2026-10-30/`.
+
+| Logo colour (measured from his files) | Hex |
 |---|---|
-| "Money" teal | `#0E8C74` |
-| "Keel" navy | `#0D233A` |
-| Mark gradient (navy → blue → mint) | `#0D233A` → `#185FA5` → `#1AC4A7` |
+| Lettering, dark green | `#063F35` |
+| Mark, the two dark strokes | `#07473A` and `#0C5441` |
+| Mark, the lighter fold and the third stroke | about `#4C8369` |
 
 ## Colours (from the app itself)
 

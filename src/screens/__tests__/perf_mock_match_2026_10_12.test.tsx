@@ -65,6 +65,15 @@ const acct = (id: string, institution: string, label: string, balance: number, l
 const pos = (id: string, ticker: string, shares: number, price: number, cost: number, date: string, cls = 'stock_etf') => (
   { position_id: id, ticker, asset_class: cls, last_price: price, lots: [{ lot_id: `${id}l`, shares, cost_per_share: cost, purchase_date: date }] });
 const closes = (ticker: string, pts: [string, number][]) => ({ ticker, points: pts.map(([date, close]) => ({ date, close })) });
+/** A CLOSE ON EVERY DAY OF THE RECORD, read from the record itself (2026-10-27, FX-PF; the round-2 drawing match G-2): the holding's value
+ *  that day ÷ the shares held that day. The households held 3 to 5 closes, so outside Since a category's return read a close months
+ *  old — phone 1 on 1M showed Stocks / Funds +6.10% beside a walk that moved $502. With a close every day the prices and the record
+ *  agree on every day, and each category's return in 1M, This year and 1Y is worked by hand below. */
+const dailyCloses = (ticker: string, first: [string, number], from: string, to: string, value: (d: string) => number, units: (d: string) => number) => {
+  const pts: [string, number][] = [first];
+  for (let d = from; d <= to; d = plus(d, 1)) pts.push([d, value(d) / units(d)]);
+  return closes(ticker, pts);
+};
 const txn = (id: string, date: string, type: string, account_id: string, amount: number, ticker?: string) => ({ id, date, type, account_id, amount, ticker, created_at: 'x', source: 'connected' });
 
 /** PHONE 1 — Sep 30, 2026. The record begins Oct 1, 2025: Vanguard $80,000 and E*TRADE $20,000. $15,000 goes into
@@ -101,7 +110,8 @@ function phone1() {
                    txn('v2', '2026-06-30', 'DIVIDEND', 'etr', 300, 'VOO'), txn('i2', '2026-06-30', 'INTEREST', 'etr', 200)],
     snapshotDays: record(S, T, [['van', 'VTI', 200, (d) => at(van, d) - cashV(d)], ['van', 'CASH', 1, cashV], ['etr', 'VOO', 40, (d) => at(etr, d) - cashE(d)], ['etr', 'CASH', 1, cashE]]),
     invDaily: { [S]: 100_000, [T]: 123_000 },
-    priceCache: { VTI: closes('VTI', [[plus(S, -1), 390], [S, 390], [T, 411.5]]), VOO: closes('VOO', [[plus(S, -1), 427.5], [S, 427.5], [T, 465]]) },
+    priceCache: { VTI: dailyCloses('VTI', [plus(S, -1), 390], S, T, (d) => at(van, d) - cashV(d), () => 200),
+                  VOO: dailyCloses('VOO', [plus(S, -1), 427.5], S, T, (d) => at(etr, d) - cashE(d), () => 40) },   // G-2: every day (390, 411.50; 427.50, 465.00 at the ends)
     pricesFetchedAt: `${T}T11:00:00Z`,
   } };
 }
@@ -146,7 +156,8 @@ function phone3() {
                    txn('b1', '2025-12-01', 'INTEREST', 'etr', 300, 'US TREASURY 4.25%'), txn('i1', '2026-02-01', 'INTEREST', 'etr', 220)],
     snapshotDays: record(S, T, [['etr', 'VTI', (d) => (d >= '2024-07-01' ? 120 : 99), (d) => at(all, d) - 3_000 - cash(d)], ['etr', 'US TREASURY 4.25%', 3000, () => 3_000], ['etr', 'CASH', 1, cash]]),
     invDaily: { [S]: 38_000, [T]: E }, rebuiltFrom: { etr: S },
-    priceCache: { VTI: closes('VTI', [[plus(S, -1), P0], [S, P0], ['2024-06-30', P1], ['2024-07-01', P1], [T, PT]]) }, pricesFetchedAt: `${T}T11:00:00Z`,
+    // G-2: a close every day, from the record (P0 on Jun 3, 2024, P1 on Jun 30 and Jul 1, 2024, PT today, as before)
+    priceCache: { VTI: dailyCloses('VTI', [plus(S, -1), P0], S, T, (d) => at(all, d) - 3_000 - cash(d), (d) => (d >= '2024-07-01' ? 120 : 99)) }, pricesFetchedAt: `${T}T11:00:00Z`,
   } };
 }
 /** PHONE 4 — Aug 4, 2026, day one: Vanguard $301,610 and E*TRADE $52,704, both typed by hand. PHONE 5 — nothing. */
@@ -252,8 +263,8 @@ const KNOWN: [number, string, string, string][] = [
   // JOINED at the record's first day — only the days before it are worked back from prices, then the record's own return.
   [1, '1y — 2y — summary', '1y +7.46% 2y +3.66% 2y is shown per year, so it sits fairly beside 1y summary',
     'DEC-6412: the record begins Oct 1, 2025. 1Y: VTI and VOO did not move from Sep 29 to Oct 1, 2025 (their first closes are Sep 30), so 1Y = the record\'s own +7.46%, as Since. 2Y: each holding from its Sep 1, 2025 purchase to Oct 1, 2025 — bought at its Oct 1 price, so +0.00% — chained to +7.46%: 1.0000 × 1.0746 = 1.0746 over the 731 days of Sep 30, 2024 → Sep 30, 2026, (1.0746)^(365 ÷ 731) − 1 = +3.66% a year. It read +11.81% a year while the household\'s prices put VTI at $313.48 on Oct 1 against $260 in its own record (2026-10-25, MM-PF D17; the drawing\'s line of that day gives both). Before DEC-6412 (worked back whole): 1Y +6.10%, 2Y +11.10%'],
-  [4, 'since today — 1m — this year — 1y — 2y — summary', 'since today — 1m +10.00% this year +10.00% 1y +10.00% 2y +4.87% 2y is shown per year, so it sits fairly beside 1y summary',
-    'DEC-5291: each holding was bought inside the window, so its gain is value less cost (VTI 330 ÷ 300, VOO 550 ÷ 500); 2Y is (1.10)^(365 ÷ 731) − 1 = 4.87%'],
+  [4, 'since today — 1m — this year — 1y — 2y — summary', 'since today — 1m +9.86% this year +9.86% 1y +9.86% 2y +4.81% 2y is shown per year, so it sits fairly beside 1y summary',
+    'DEC-5291: each holding was bought inside the window, so its gain is value less cost (VTI 330 ÷ 300, VOO 550 ÷ 500, KEYBANK CD $4,610 ÷ $4,610 bought today at its cost, 0% — R4, 2026-10-27, PF-4: it was left out with no sentence, +10.00%): (297,000 + 4,610 + 49,500) ÷ (270,000 + 4,610 + 45,000) − 1 = 351,110 ÷ 319,610 − 1 = +9.86%; 2Y is (351,110 ÷ 319,610)^(365 ÷ 731) − 1 = +4.81%'],
   [4, "day one: your value is real, your return starts measuring from today. we never back-fill a year we didn't see.",
     "you added your accounts today. figures for 1m, 1y and longer come from each holding's past prices.",
     'DEC-5291: the day-one line says the longer windows come from price history; DEC-5425 (2026-10-14, "approved."): in his words'],
@@ -558,5 +569,114 @@ describe('FIXED by the drawing check of 2026-10-24 (MM-PF, fixed 2026-10-25) —
     expect(bar).toBeGreaterThan(0);
     expect(a.slice(bar, bar + 6)).toContain('+10.00%');
     mockParams = {};
+  });
+});
+
+// ── FX-PF, 2026-10-27 · PF-4 (the drawing match of 2026-10-27, round 2) ───────────────────────────────────────────────────────
+// v17 phone 4 (day one), every window but Since worked back. KEYBANK CD 4.00% was bought today: $4,610 paid, marked $4,610, no
+// price history. The lead's ruling R4: a holding bought inside the window counts — bought today at its cost with 0% gain — and is
+// never dropped silently (v17 line 106: "bought inside the window" is a history). By hand:
+//   Return   = (297,000 + 4,610 + 49,500) ÷ (270,000 + 4,610 + 45,000) − 1 = 351,110 ÷ 319,610 − 1 = +9.86%   (it read +10.00%)
+//   Vanguard = (297,000 + 4,610) ÷ (270,000 + 4,610) − 1 = 301,610 ÷ 274,610 − 1 = +9.83%                     (it read +10.00%)
+//   2Y       = (351,110 ÷ 319,610)^(365 ÷ 731) − 1 = +4.81% a year; Vanguard (301,610 ÷ 274,610)^(365 ÷ 731) − 1 = +4.79%
+//   Wealth generated 27,000 + 4,500 + 0 = $31,500; beginning 354,314 − 31,500 = $322,814 — unchanged (the CD gained $0 either way)
+describe('PF-4 · v17 phone 4: the CD bought today counts at its cost, 0% — Return +9.86%, Vanguard +9.83%, 2Y +4.81% a year (FX-PF, 2026-10-27)', () => {
+  const pick = (w: string) => {
+    const b = screen.getAllByRole('button').find((x) => String(x.props.accessibilityLabel ?? '').startsWith(`Show ${w}`));
+    expect(b).toBeDefined();
+    fireEvent.press(b!);
+  };
+  const after = (r: string[], t: string, from = 0) => { const i = r.indexOf(t, from); expect(i).toBeGreaterThanOrEqual(0); return r[i + 1]; };
+  test.each([['1M'], ['This year'], ['1Y']])('%s: Return +9.86%, Vanguard +9.83%, the Bonds & CDs row +0.00%, and no holding named as left out', (w) => {
+    open(4); pick(w);
+    const r = shown().map((x) => x.t);
+    const sum = r.findIndex((t) => t.startsWith('SUMMARY ·'));
+    expect(sum).toBeGreaterThan(0);
+    expect([after(r, 'Wealth generated', sum), after(r, 'Return', sum)]).toEqual(['$31,500', '+9.86%']);
+    expect(after(r, 'Return', r.indexOf('▾ VANGUARD BROKERAGE'))).toBe('+9.83%');
+    expect(r[r.indexOf('· wealth generated $4,500 · return +10.00%')]).toBe('· wealth generated $4,500 · return +10.00%');   // E*TRADE holds no CD
+    const bonds = r.indexOf('Bonds & CDs', r.indexOf('WHAT EACH CATEGORY EARNED'));
+    expect(r.slice(bonds, bonds + 3)).toEqual(['Bonds & CDs', '$0', '+0.00%']);
+    expect(r.some((t) => /KEYBANK|no price history|gains are not included/.test(t))).toBe(false);
+  });
+  test('2Y: +4.81% a year from +9.86% over the two years; Vanguard +4.79% a year from +9.83%', () => {
+    open(4); pick('2Y');
+    const r = shown().map((x) => x.t);
+    expect(r).toContain('+9.86% over the two years, which is +4.81%/year — a yearly rate, so it sits fairly beside a one-year window.');
+    expect(r).toContain('+9.83% over the two years, which is +4.79%/year — a yearly rate, so it sits fairly beside a one-year window.');
+  });
+  test.failing('the answer until 2026-10-27, kept (no longer the app\'s): 1M read +10.00%, the CD left out with no sentence', () => {
+    open(4); pick('1M');
+    const r = shown().map((x) => x.t);
+    expect(after(r, 'Return', r.findIndex((t) => t.startsWith('SUMMARY ·')))).toBe('+10.00%');
+  });
+});
+
+// ── FX-PF, 2026-10-27 · PF-1 and PF-2 (the drawing match of 2026-10-27, round 2) ─────────────────────────────────────────────
+describe('PF-1 · PF-2 · the category rows at 15 and the bold /year (v17 .rw 13.5 → 15 on the one scale, DEC-0059; "a <b>/year</b> figure")', () => {
+  test.each([[1], [3], [4], [5]] as [1 | 3 | 4 | 5][])('phone %i: every category name, Earned, Return and All categories at 15 — none at 13', (n) => {
+    const r = open(n);
+    const at = idx(r, 'WHAT EACH CATEGORY EARNED');
+    const end = idx(r, 'All categories', at);
+    expect(end).toBeGreaterThan(at);
+    const rows = r.slice(idx(r, 'RETURN', at) + 1, end + 2).filter((x) => x.t !== 'ⓘ');
+    expect(rows.length).toBeGreaterThanOrEqual(2 * 3 + 2);           // the guard looked: two categories at least (phone 1 draws two), and the total
+    for (const x of rows) expect(`${x.t} ${x.size}`).toBe(`${x.t} 15`);
+  });
+  test('phones 1 and 3: "/year" in the note is 700, the rest of the line 400', () => {
+    for (const n of [1, 3] as const) {
+      open(n);
+      const line = screen.getByText('a /year figure is that category’s yearly pace');
+      const inner = (line.children as any[]).filter((c) => typeof c !== 'string');
+      expect(inner).toHaveLength(1);
+      expect(StyleSheet.flatten((inner[0] as any).props.style)?.fontWeight).toBe('700');
+      expect(StyleSheet.flatten(line.props.style)?.fontWeight ?? '400').toBe('400');
+    }
+  });
+});
+
+// ── FX-PF, 2026-10-27 · G-2 (the drawing match of 2026-10-27, round 2) ────────────────────────────────────────────────────────
+// Each category's return in 1M, This year and 1Y, worked by hand from the household's own closes — which now fall on every day and
+// equal the record's value of each holding ÷ its shares (checked below, so the household agrees with itself). A category's return
+// is its holdings' worth today ÷ their worth at the close its window is measured from − 1 (no purchase inside these windows):
+//   phone 1 · Stocks / Funds = (200 VTI + 40 VOO): 100,900 ÷ (200 × VTI + 40 × VOO at that close) − 1
+//   phone 3 · Stocks / Funds = 120 VTI: 120 × $382.57 ÷ (120 × VTI at that close) − 1
+// 1M measures from Aug 30, 2026 (phone 1) and Jul 3, 2026 (phone 3); This year from Dec 31, 2025; 1Y from Sep 29, 2025 (phone 1 —
+// before its first close, Sep 30, 2025, so from that first close) and Aug 3, 2025 (phone 3).
+describe('G-2 · the category returns in 1M, This year and 1Y, by hand from closes on every day (FX-PF, 2026-10-27)', () => {
+  const pick = (w: string) => {
+    const b = screen.getAllByRole('button').find((x) => String(x.props.accessibilityLabel ?? '').startsWith(`Show ${w}`));
+    expect(b).toBeDefined();
+    fireEvent.press(b!);
+  };
+  const closeOn = (series: any, d: string) => [...series.points].filter((p: any) => p.date <= d).sort((a: any, b: any) => a.date.localeCompare(b.date)).pop()?.close as number;
+  const pct = (x: number) => `${x >= 0 ? '+' : '−'}${Math.abs(x * 100).toFixed(2)}%`;
+  const stocksRow = () => { const r = shown().map((x) => x.t); const i = r.indexOf('Stocks / Funds', r.indexOf('WHAT EACH CATEGORY EARNED')); expect(i).toBeGreaterThan(0); return r[i + 2]; };
+  test('the closes are the record\'s own: on every recorded day, each holding\'s close × its shares is its value in the record (phones 1 and 3)', () => {
+    for (const [ph, ticker] of [[phone1, 'VTI'], [phone1, 'VOO'], [phone3, 'VTI']] as [() => any, string][]) {
+      const { state } = ph();
+      let seen = 0;
+      for (const day of state.snapshotDays) for (const h of day.holdings.filter((x: any) => x.securityKey === ticker)) {
+        expect(Math.abs(closeOn(state.priceCache[ticker], day.date) * h.units - h.value)).toBeLessThan(1e-6);
+        seen += 1;
+      }
+      expect(seen).toBeGreaterThan(300);                                   // the guard looked: a year and more of days
+    }
+  });
+  test.each([['1M', '2026-08-30'], ['This year', '2025-12-31'], ['1Y', '2025-09-30']])('phone 1 · %s: Stocks / Funds by hand from the close of %s', (w, from) => {
+    const { state } = phone1();
+    const start = 200 * closeOn(state.priceCache.VTI, from) + 40 * closeOn(state.priceCache.VOO, from);
+    open(1); pick(w);
+    expect(stocksRow()).toBe(pct((200 * 411.5 + 40 * 465) / start - 1));
+  });
+  test.each([['1M', '2026-07-03'], ['This year', '2025-12-31'], ['1Y', '2025-08-03']])('phone 3 · %s: Stocks / Funds by hand from the close of %s', (w, from) => {
+    const { state } = phone3();
+    const today = closeOn(state.priceCache.VTI, '2026-08-04');
+    open(3); pick(w);
+    expect(stocksRow()).toBe(pct(today / closeOn(state.priceCache.VTI, from) - 1));
+  });
+  test('phone 1 on 1M no longer reads +6.10% beside a walk that moved $502: the month\'s own move', () => {
+    open(1); pick('1M');
+    expect(stocksRow()).not.toBe('+6.10%');
   });
 });

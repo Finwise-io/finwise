@@ -214,11 +214,17 @@ describe('MK-CF-F-004 spendBuckets — five cases', () => {
   kase('MK-CF-F-004-C02', 'AGREE', (c, put) => check(c, put), 'FIXED 2026-10-25: an empty category list keeps the typed totals (it read $0; DEC-7951, tenet 4)');
   test('MK-CF-F-004-C02 · one budget, one reading (FIXED 2026-10-25): spendCats [] and spendCats absent both give the typed $1,000 / $100 / $900, on spendBuckets and on every month of spendByMonthByBucket', () => {
     const typed = { b_fixed: '1000', b_nonmonthly: '100', b_flexible: '900' };
-    expect(spendBuckets({ ...typed, spendCats: [] } as any)).toEqual({ fixed: 1000, non_monthly: 100, flexible: 900, monthly_total: 2000 });
-    expect(spendBuckets(typed as any)).toEqual({ fixed: 1000, non_monthly: 100, flexible: 900, monthly_total: 2000 });
+    // `dated` (2026-10-27, FX-CF-B, workplan #322): the bills given their own months, as a month's twelfth — none here, so $0; the
+    // four figures are the same: 1,000 + 100 + 900 = 2,000
+    expect(spendBuckets({ ...typed, spendCats: [] } as any)).toEqual({ fixed: 1000, non_monthly: 100, flexible: 900, monthly_total: 2000, dated: 0 });
+    expect(spendBuckets(typed as any)).toEqual({ fixed: 1000, non_monthly: 100, flexible: 900, monthly_total: 2000, dated: 0 });
     for (const m of spendByMonthByBucket({ ...typed, spendCats: [] } as any)) expect(m).toEqual({ fixed: 1000, nonmonthly: 100, flexible: 900 });
     // a list holding only a category left at $0 is no categories too (C05's shape, with typed totals)
     expect(spendBuckets({ ...typed, spendCats: [{ id: 'r', label: 'Rent', bucket: 'fixed', unit: 'dollar', amount: '0' }] } as any).monthly_total).toBe(2000);
+  });
+  failing('MK-CF-F-004-C02 · the answer until 2026-10-27, pinned: the object without its `dated` key — no longer its shape (FX-CF-B, #322)', () => {
+    const typed = { b_fixed: '1000', b_nonmonthly: '100', b_flexible: '900' };
+    expect(spendBuckets(typed as any)).toEqual({ fixed: 1000, non_monthly: 100, flexible: 900, monthly_total: 2000 });
   });
   failing('MK-CF-F-004-C02 · the app until 2026-10-25, pinned: spendCats [] → $0 in every group, and spendByMonthByBucket on [] → fixed 1,000, once in a while 0, everyday 900 — no longer its answer (FIXED 2026-10-25)', () => {
     const typed = { b_fixed: '1000', b_nonmonthly: '100', b_flexible: '900' };

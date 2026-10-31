@@ -47,7 +47,7 @@ import {
 import { itemizeMissingCount } from '../../../src/domain/assets/itemize';
 import { rentFigure } from '../../../src/domain/_shared/num';
 import { altPartsOf } from '../../../src/domain/alternatives';
-import { yearlyInterest, estimatedAccrued, accruedInterestCaveat, interestIncomeAnnual, type BondInfo } from '../../../src/domain/bonds';
+import { yearlyInterest, estimatedAccrued, accruedInterestCaveat, interestIncomeAnnual, approxYTM, type BondInfo } from '../../../src/domain/bonds';
 import { applyTransaction } from '../../../src/domain/transactions';
 import { dataGaps } from '../../../src/domain/gaps';
 import { lookBack } from '../../../src/domain/performance/lookBack';
@@ -448,6 +448,13 @@ describe('MK-NW-F-119 estimatedAccrued — five cases', () => {
     const e = estimatedAccrued(bi({ face: 10000, couponRate: 0, maturity: '2030-07-01', value: 9000 }), NOW);
     expect(e?.amount).toBe(0);
   });
+  // SETTLED 2026-10-27 (FX-AUDITS, APP RIGHT by DEC-3279i): a bond that pays no interest has nothing accrued to estimate and
+  // gets no note; its yield to maturity is the same either way, (10,000 ÷ 9,000)^(1 ÷ 3.73) − 1 = 2.87%.
+  test('pin · Known zero coupon — the app\'s answer: no estimate and no note; the yield to maturity is unchanged (DEC-3279i)', () => {
+    const z = bi({ face: 10000, couponRate: 0, maturity: '2030-07-01', value: 9000 });
+    refuses(estimatedAccrued(z, NOW)); refuses(accruedInterestCaveat(z, NOW));
+    expect(approxYTM(z, NOW)!).toBeCloseTo(0.028680, 5);
+  });
   test('edge · Matured or undated bond refuses estimate', () => { refuses(estimatedAccrued(bi({ face: 10000, couponRate: 0.045, maturity: '', value: 9800 }), NOW)); });
 });
 
@@ -472,6 +479,13 @@ describe('MK-NW-O-001 theBonds — five cases', () => {
       bond('B', { balance: null, face_value: 2000, coupon_rate: 0.05, maturity_date: '2029-01-01' }), bond('C', { balance: 2000, maturity_date: '2030-01-01' })], today: T });
     expect({ count: b.count, average_yield: b.avgYield, excluded_no_value: b.leftOutOfAverage, excluded_no_rate: b.leftOutNoRate, missing_face_notice: b.faceNotEntered, known_face_subtotal: b.totalFace })
       .toEqual({ count: 3, average_yield: 0.05263157894736842, excluded_no_value: ['B'], excluded_no_rate: ['C'], missing_face_notice: ['B', 'C'], known_face_subtotal: 3000 });
+  });
+  // SETTLED 2026-10-27 (FX-AUDITS, APP RIGHT): B's face, $2,000, was entered; only C's is not. Average yield $50 ÷ $950 = 5.26%.
+  test('pin · Summary excludes unpriced bond — the app\'s answer: only C named for its face; $1,000 + $2,000 = $3,000 known', () => {
+    const b = theBonds({ accounts: [bond('A', { balance: 950, face_value: 1000, coupon_rate: 0.05, maturity_date: '2028-01-01' }),
+      bond('B', { balance: null, face_value: 2000, coupon_rate: 0.05, maturity_date: '2029-01-01' }), bond('C', { balance: 2000, maturity_date: '2030-01-01' })], today: T });
+    expect({ count: b.count, average_yield: b.avgYield, excluded_no_value: b.leftOutOfAverage, excluded_no_rate: b.leftOutNoRate, missing_face_notice: b.faceNotEntered, known_face_subtotal: b.totalFace })
+      .toEqual({ count: 3, average_yield: near(50 / 950), excluded_no_value: ['B'], excluded_no_rate: ['C'], missing_face_notice: ['C'], known_face_subtotal: 1000 + 2000 });
   });
   test('complex · All totals and rows reconcile', () => {
     const b = theBonds({ accounts: [bond('A', { balance: 980, face_value: 1000, coupon_rate: 0.05, maturity_date: '2027-01-01' }),
@@ -548,6 +562,15 @@ describe('MK-NW-O-003 theNetWorth — five cases', () => {
     const n = theNetWorth({ uid: 'u', accounts: [], debts: [] });
     refuses(n.netWorth);
   });
+  // SETTLED 2026-10-27 (FX-AUDITS, APP RIGHT by DEC-0260): a fresh account shows $0, "Nothing entered yet." and the door —
+  // the screen's words are held by src/screens/__tests__/nw_no_accounts_one_door.test.tsx and empty_state_q48.test.tsx.
+  test('pin · No accounts — the app\'s answer: $0 owned, $0 owed, $0 net worth, with the first-day sentence on the screen (DEC-0260)', () => {
+    const n = theNetWorth({ uid: 'u', accounts: [], debts: [] });
+    expect({ netWorth: n.netWorth, assets: n.assets, debts: n.debts, cash: n.cash, investments: n.investments })
+      .toEqual({ netWorth: 0, assets: 0, debts: 0, cash: 0, investments: 0 });
+    const screen = fs.readFileSync(path.join(__dirname, '../../../src/screens/NetWorthScreen.tsx'), 'utf8');
+    expect(screen).toContain('Nothing entered yet.');
+  });
 });
 
 describe('MK-NW-O-004 theEmergencyFund — five cases', () => {
@@ -607,7 +630,19 @@ describe('MK-NW-O-005 theAlternativesOutlook — five cases', () => {
   });
   // BLOCKED: rows at 5%, 12% and 3% — theAlternativesOutlook reads each kind's fixed benchmark (alternatives-outlook.ts:78,100;
   // benchmarkReturn, assets/index.ts:1958) and takes no rate per row; no kind carries 12% or 3%, so the case cannot be put to it
-  test.skip('complex · Multiple rates and rows add to total', () => {});
+  // SETTLED 2026-10-27 (FX-AUDITS, APP RIGHT by DEC-3035n — "each part is rated by what it is"): was test.skip. The rule the
+  // auditor checks is the app's: rows add to the total and growth = Σ value × rate. A row's rate is its kind's own rate, so
+  // the case runs on the three kinds it names: gold 8.2%, crypto 8%, annuities 4.5%. By hand: 8,000 × 8.2% = 656 +
+  // 9,031 × 8% = 722.48 + 6,000 × 4.5% = 270 → $1,648.48 a year on $23,031, 7.16%. (The auditor's own rates, 5% / 12% / 3%,
+  // give its $1,663.72 and 7.22% by the same sum; those rates are not ones the app carries.)
+  test('complex · Multiple rates and rows add to total', () => {
+    const o = theAlternativesOutlook({ accounts: [acct({ asset_id: 'g', label: 'Gold', kind: 'commodities', balance: 8000 }),
+      acct({ asset_id: 'c', label: 'Crypto', kind: 'crypto', balance: 9031 }), acct({ asset_id: 'n', label: 'Annuity', kind: 'annuities', balance: 6000 })] });
+    const growth = 8000 * benchmarkReturn('commodities') + 9031 * benchmarkReturn('crypto') + 6000 * benchmarkReturn('annuities');
+    expect(growth).toBeCloseTo(656 + 722.48 + 270, 9);
+    expect({ count: o.count, total: o.totalValue, growth: o.estimatedGrowthPerYear, blended_rate: o.expectedReturn, rows_sum: o.rows.reduce((t, r) => t + (r.value ?? 0), 0) })
+      .toEqual({ count: 3, total: 23031, growth: near(1648.48), blended_rate: near(1648.48 / 23031), rows_sum: 23031 });
+  });
   test('complex · Money no priced holding explains is named, not grown (DEC-4036h, 2026-10-10)', () => {
     // $2,500 of gold priced, $1,500 unexplained: the total still equals the Alternatives line ($4,000); the rate and the
     // growth are over the $2,500 only, and the summary says it leaves the $1,500 out
@@ -728,6 +763,15 @@ describe('MK-NW-O-008 thePerformance — five cases', () => {
       transactions: [{ id: 'd', type: 'DEPOSIT', account_id: 'v', amount: 2000, date: '2026-10-02' }], investmentAccountIds: new Set(['v']), accounts: [linkedAt('v', 12000)] });
     expect({ beginning_inferred: f.walk!.beginning, wealth_generated: f.walk!.wealthGenerated, beginning_read_from_record: f.measured }).toEqual({ beginning_inferred: 9000, wealth_generated: 1000, beginning_read_from_record: null });
     refuses(f.ret); refuses(f.cumulative);
+  });
+  // SETTLED 2026-10-27 (FX-AUDITS, APP RIGHT by his DEC-4439, "approved."): the auditor's REFUSES, kept here failing — its
+  // case was changed in place on 2026-10-11. Money counts for its whole day, so $500 that evening on $100 + $600 is a loss
+  // that day, measured: 500 ÷ 700 × 700 ÷ 500 − 1 = 0.00%, the same as the dollars ($100 + $600 in, $700 now, $0 made).
+  test.failing('edge · Cash value less than deposit refuses return', () => {
+    const f = thePerformance({ windowStart: '2026-10-01', windowLabel: 'this month', today: '2026-10-09', pricedGain: 0,
+      snapshotDays: [recorded('2026-09-30', [linkedAt('v', 100)]), recorded('2026-10-01', [linkedAt('v', 500)])],
+      transactions: [{ id: 'd', type: 'DEPOSIT', account_id: 'v', amount: 600, date: '2026-10-01' }], investmentAccountIds: new Set(['v']), accounts: [linkedAt('v', 700)] });
+    refuses(f.ret);
   });
   test('edge · Cash value less than deposit: measured as a loss that day (DEC-4439; it refused before)', () => {
     const f = thePerformance({ windowStart: '2026-10-01', windowLabel: 'this month', today: '2026-10-09', pricedGain: 0,

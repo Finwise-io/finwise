@@ -3,7 +3,7 @@
  *  Each flow renders the real screens, taps and types on the controls a person touches (found by their words or their spoken
  *  label), follows every push to the screen it names with what the push carried, and checks the outcome where the person looks
  *  next — the Cash flow tab's four tabs (This month · Income · Expenses · Debts), Your base pay, the Income summary, the
- *  filing-status question, the Bill calendar, Net worth and Home's THIS MONTH'S CASH FLOW box. The store is written only to set
+ *  filing-status question, the Bill calendar, Net worth and Home's THIS MONTH’S CASH FLOW box. The store is written only to set
  *  up the starting household. Every figure is worked by hand beside its check. The day is Mon Sep 28, 2026.
  *
  *  THE FOUNDER'S HOUSEHOLD is the one cash-flow_v01 draws (frames A and B, src/screens/__tests__/cashflow_matches_v01.test.tsx):
@@ -117,7 +117,7 @@ const block = (L: string[], start: string, end: string, extra = 1) => {
 };
 const dollars = (s: string | undefined) => (s == null ? NaN : Number(s.replace('−', '-').replace(/[^0-9.\-]/g, '')));
 /** Home's box, from its band to Left / Over and its figure */
-const homeBox = (L: string[]) => { const i = L.indexOf("THIS MONTH'S CASH FLOW"); expect(i).toBeGreaterThanOrEqual(0); return L.slice(i, i + 9); };
+const homeBox = (L: string[]) => { const i = L.indexOf("THIS MONTH’S CASH FLOW"); expect(i).toBeGreaterThanOrEqual(0); return L.slice(i, i + 9); };
 /** an Alert's buttons, recorded, with the one named pressed */
 function chooseInAlert(text: string) {
   const seen: { title: string; buttons: string[] }[] = [];
@@ -175,7 +175,7 @@ const asDrawn = (n: 1 | 2, more: DrawnEdit[] = []) => {
 // E2E-69 · LOG AN EXPENSE — a $6.50 coffee, today, from the "＋ Expense" button (the one place, DEC-0039: Home has none)
 // ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
 describe('E2E-69 · a $6.50 coffee logged from ＋ Expense moves This month, the Expenses tab and Home by $6.50, and all three agree', () => {
-  test('E2E-69 · in the founder\'s household: This month −$507 · +$893, the Expenses tab $507 · $2,107, Home $4,107 · $893 — rows that add up', () => {
+  test('E2E-69 · in the founder\'s household: This month −$507 · +$893, the Expenses tab $506.50 · $2,106.50, Home $4,107 · $893 — rows that add up', () => {
     start(FRAME_A());
     // BEFORE — the drawing's own figures (frame A): $5,000 − $2,000 − $0 − $500 − $1,200 − $200 − $200 = +$900
     let home = homeBox(look('/(tabs)/home'));
@@ -210,21 +210,22 @@ describe('E2E-69 · a $6.50 coffee logged from ＋ Expense moves This month, the
     // 1,200 − 200 − 200 = 893.50, printed as the rows make it, +$893 (the 2026-10-24 row)
     asDrawn(1, [{ why: 'the $6.50 coffee', replace: ['−$500', '−$507'] }, { why: 'the $6.50 coffee', replaceEvery: ['+$900', '+$893'] }]);
 
-    // the Expenses tab: the coffee is the newest row, with its category; by hand $6.50 + $300.00 + $200.00 = $506.50 → $507,
-    // and the three sources $506.50 + $1,200 + $400 = $2,106.50 → $2,107 = $507 + $1,200 + $400
+    // the Expenses tab: the coffee is the newest row, with its category; by hand $6.50 + $300.00 + $200.00 = $506.50, and the three
+    // sources $506.50 + $1,200.00 + $400.00 = $2,106.50 — every total over rows to the cent is to the cent, R5 (2026-10-27, FX-CF-A — cash-flow_v01’s rows of that date; the old answer is held as test.failing in cashflow_fix_wave_2026_10_27.test.tsx) (This month
+    // keeps its whole dollars, −$507, adding up to its surplus)
     tab('Expenses');
     const X = readLines();
-    expect(block(X, 'ENTERED BY HAND', '= Entered by hand · 3 items')).toEqual(['ENTERED BY HAND', '$507',
+    expect(block(X, 'ENTERED BY HAND', '= Entered by hand · 3 items')).toEqual(['ENTERED BY HAND', '$506.50',
       '28 Sep · Starbucks', 'Dining out · typed', '$6.50', '28 Sep · Amazon', 'Other · typed', '$300.00',
-      '28 Sep · Shell', 'Other · typed', '$200.00', '= Entered by hand · 3 items', '$507']);
+      '28 Sep · Shell', 'Other · typed', '$200.00', '= Entered by hand · 3 items', '$506.50']);
     expect([after(X, 'ACTUAL EXPENSES'), after(X, 'IMPORTED FROM YOUR CARD'), after(X, 'DEBT PAYMENTS COUNTED AS EXPENSES'),
-      after(X, '= Actual expenses, all sources')]).toEqual(['$2,107', '$1,200', '$400', '$2,107']);
+      after(X, '= Actual expenses, all sources')]).toEqual(['$2,106.50', '$1,200.00', '$400.00', '$2,106.50']);
     expect(after(X, 'PLANNED EXPENSES')).toBe('$2,000');
     screen.unmount();
 
     // Home: the tab's own three, Income less Outflow is Left — $5,000 − $4,107 = $893; 82% spent ($4,106.50 ÷ $5,000 = 82.13%)
     home = homeBox(look('/(tabs)/home'));
-    expect(home).toEqual(["THIS MONTH'S CASH FLOW", 'Expenses running fast', '82% spent · day 28 of 30', 'Income', '$5,000',
+    expect(home).toEqual(["THIS MONTH’S CASH FLOW", 'Expenses running fast', '82% spent · day 28 of 30', 'Income', '$5,000',
       'Outflow (expenses + debt)', '$4,107', 'Left', '$893']);
     expect(dollars(home[4]) - dollars(home[6])).toBe(dollars(home[8]));
   });
@@ -377,7 +378,8 @@ describe('E2E-71 · base pay: the take-home on Your base pay, the Income summary
     press('Save');
     const fs4c = readLines();
     expect([after(fs4c, 'Taxed as single'), after(fs4c, 'Married filing jointly')]).toEqual(['$12,290/year — what we were assuming', '$7,160/year']);
-    expect(fs4c).toContain('$427/month more');                                     // the two take-homes as printed: $7,403 − $6,976 (E2E-79's ruling)
+    // the two take-homes as printed: $7,403 − $6,976 (E2E-79's ruling) — bold inside its sentence, as phone 15 draws it (IN2-11, 2026-10-27)
+    expect(fs4c.some((l) => l.startsWith('$427/month more take-home than we were showing you'))).toBe(true);
     press('Got it');
     screen.unmount();
     t = takeHomes();
@@ -509,7 +511,7 @@ describe('E2E-72 · a $1,200 December bill: September reads without it, December
     tab('This month');
     L = readLines();
     expect(block(L, 'DECEMBER 2026 — THE PLAN (AN ESTIMATE)', '= Planned surplus')).toEqual(['DECEMBER 2026 — THE PLAN (AN ESTIMATE)',
-      'Planned inflow', '$5,000', 'Planned outflow (expenses + debt) · incl. Car insurance', '$2,250', '= Planned surplus', '$2,750']);
+      'Planned inflow', '$5,000', 'Planned outflow (expenses + debt) · incl. Car insurance', '$2,250', '= Planned surplus', '+$2,750']);   // its sign, CF2-07
     screen.unmount();
 
     // HOME'S RECORDS of the month — September's plans $800; on Dec 10, December's plans $2,000 and This month reads −$2,000
@@ -595,7 +597,7 @@ describe('E2E-73 · set the budget, change one category: the editor, This month,
     press('Set your budget');                                                       // the editor opens over This month
     // NOTHING SET reads as This month reads it: no expenses plan and no planned surplus — it read "$0" and "= Planned surplus $2,350"
     expect(editorCard(readLines())).toEqual(['Income (take-home)', '$5,000', '− Expenses (plan)', '— not set', '− Debt payments', '$2,250', '= Planned surplus', '—']);
-    fireEvent.press(screen.getByText('Set your budget →'));
+    fireEvent.press(screen.getByText('Set your budget ›'));   // the one door glyph, CF2-11 (2026-10-27)
     fireEvent.changeText(screen.getByLabelText('Groceries, monthly limit'), '700');
     fireEvent.changeText(screen.getByLabelText('Dining out, monthly limit'), '300');
     fireEvent.changeText(screen.getByLabelText('Utilities, monthly limit'), '200');
@@ -612,7 +614,7 @@ describe('E2E-73 · set the budget, change one category: the editor, This month,
 
     // CHANGE ONE: Dining out $300 → $450, from the Expenses tab's planned rows. $700 + $450 + $200 = $1,350; surplus $1,400
     fireEvent.press(screen.getByLabelText(/^Planned expenses: .*Opens your budget\.$/));
-    fireEvent.press(screen.getByText('Set your budget →'));
+    fireEvent.press(screen.getByText('Set your budget ›'));   // the one door glyph, CF2-11 (2026-10-27)
     expect(screen.getByLabelText('Dining out, monthly limit').props.value).toBe('300');
     fireEvent.changeText(screen.getByLabelText('Dining out, monthly limit'), '450');
     fireEvent.press(screen.getByText('Save'));
@@ -686,11 +688,11 @@ describe('E2E-74 · a car-loan payment: the Debts tab, This month (expenses + de
     expect([after(L, 'ACTUAL · SO FAR'), after(L, '= Actual surplus so far')]).toEqual(['+$650', '+$650']);
     // an installment payment is debt, not an expense: the Expenses tab's actual expenses stay $2,100
     tab('Expenses');
-    expect(after(readLines(), 'ACTUAL EXPENSES')).toBe('$2,100');
+    expect(after(readLines(), 'ACTUAL EXPENSES')).toBe('$2,100.00');   // to the cent, R5
     screen.unmount();
     // Home: out = $2,100 of expenses + $2,250 of debt paid = $4,350 (DEC-0269); left $5,000 − $4,350 = $650; 87% spent
     const home = homeBox(look('/(tabs)/home'));
-    expect(home).toEqual(["THIS MONTH'S CASH FLOW", 'Expenses running fast', '87% spent · day 28 of 30', 'Income', '$5,000',
+    expect(home).toEqual(["THIS MONTH’S CASH FLOW", 'Expenses running fast', '87% spent · day 28 of 30', 'Income', '$5,000',
       'Outflow (expenses + debt)', '$4,350', 'Left', '$650']);
     // Net worth: the same balance
     const nw = look('/networth');

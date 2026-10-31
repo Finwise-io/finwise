@@ -166,7 +166,8 @@
    },
    "difference": "",
    "formula_gives_match": "yes — one matched, one unassigned; and the state is flagged invalid (ok false + amber fix-it sentence)",
-   "note": "SETTLED by DEC-1925: net-worth.ts:306-312 lists it on no property, ok=false; NetWorthScreen.tsx:973-977 prints the sentence in amber and opens that mortgage."
+   "note": "SETTLED by DEC-1925: net-worth.ts:306-312 lists it on no property, ok=false; NetWorthScreen.tsx:973-977 prints the sentence in amber and opens that mortgage.",
+   "settled": "SETTLED 2026-10-27 (re-run at 45d680a4 + the fix wave) — APP RIGHT, settled at the run by DEC-1925: a second mortgage on the same property is placed on no property, the answer is not ok, and Net worth names it in amber and opens it. Held by outside_networth_final_openai_part4.test.ts:160."
   },
   {
    "id": "MK-NW-F-106",
@@ -399,7 +400,8 @@
    },
    "difference": "",
    "formula_gives_match": null,
-   "note": "SETTLED by DEC-2160 (refuse the line and ask) and DEC-2747d (a word inside a name is not evidence): incomeBearingClassOf gives null, holdingClassOf gives Unclassified (assets/index.ts:1415-1430). Silver does not make it Alternatives."
+   "note": "SETTLED by DEC-2160 (refuse the line and ask) and DEC-2747d (a word inside a name is not evidence): incomeBearingClassOf gives null, holdingClassOf gives Unclassified (assets/index.ts:1415-1430). Silver does not make it Alternatives.",
+   "settled": "SETTLED 2026-10-27 (re-run at 45d680a4 + the fix wave) — APP RIGHT, settled at the run by DEC-2160 and DEC-2747d: a word inside a name is not evidence, so the holding is Unclassified and asked about; \"Silver\" does not make it Alternatives. Held by outside_networth_final_openai_part4.test.ts:227."
   },
   {
    "id": "MK-NW-F-109",
@@ -487,7 +489,8 @@
    },
    "difference": "",
    "formula_gives_match": null,
-   "note": "SETTLED: the app has one mark for the home — stored use \"primary\" (assets/index.ts:803; DEC-1926/DEC-3035p). A stored use \"home\" is the mark."
+   "note": "SETTLED: the app has one mark for the home — stored use \"primary\" (assets/index.ts:803; DEC-1926/DEC-3035p). A stored use \"home\" is the mark.",
+   "settled": "SETTLED 2026-10-27 (re-run at 45d680a4 + the fix wave) — APP RIGHT, settled at the run by DEC-1926 and DEC-3035p: the app has one mark for the home lived in, the stored use \"primary\"; A carries it, so A is the home. Held by outside_networth_final_openai_part4.test.ts:243."
   },
   {
    "id": "MK-NW-F-111",
@@ -646,7 +649,8 @@
    },
    "difference": "Bonds screen COUPON /year counts $50 for a bond that matured yesterday; the income figure counts $0",
    "formula_gives_match": null,
-   "note": "FINDING: bondSummary (bonds/index.ts:522) and couponIncomeAnnual (:557) have no maturity filter; interestIncomeAnnual does (:602). Two figures DEC-2748c says share one rule disagree by $50."
+   "note": "FINDING: bondSummary (bonds/index.ts:522) and couponIncomeAnnual (:557) have no maturity filter; interestIncomeAnnual does (:602). Two figures DEC-2748c says share one rule disagree by $50.",
+   "settled": "SETTLED 2026-10-27 (re-run at 45d680a4 + the fix wave) — FIXED 2026-10-09 by DEC-2748c: the Bonds screen's coupon a year is $0 for a bond that matured yesterday, the same as the income figure; the helper alone still gives $50 and its callers drop it. Held by outside_networth_final_openai_part4.test.ts:275."
   },
   {
    "id": "MK-NW-F-113",
@@ -1040,7 +1044,8 @@
    },
    "difference": "",
    "formula_gives_match": null,
-   "note": "SETTLED: DEC-2747e + store order evidence (useStore.ts:756 addAsset prepends; comment at assets/index.ts:811). See re-seed caveat on F-110."
+   "note": "SETTLED: DEC-2747e + store order evidence (useStore.ts:756 addAsset prepends; comment at assets/index.ts:811). See re-seed caveat on F-110.",
+   "settled": "SETTLED 2026-10-27 (re-run at 45d680a4 + the fix wave) — APP RIGHT, settled at the run by DEC-2747e: the property entered first is the home; the store keeps the newest first, so of [B, A] A is the home and B the second home. Held by outside_networth_final_openai_part4.test.ts:397."
   },
   {
    "id": "MK-NW-F-117",
@@ -1211,7 +1216,8 @@
    "actual": null,
    "difference": "app gives no estimate (null); expected 0 / \"$0.00\"",
    "formula_gives_match": "yes — matches formula_gives (refuses)",
-   "note": "BRIEF WRONG: DEC-3279i rules the accrued-interest note shows only for a bond that pays interest (\"Before: a zero-coupon bond got the note\"). Arithmetic is 10,000 × 0 × 100 ÷ 365 = 0 and the YTM adds 0 either way, so no figure differs. bonds/index.ts:381."
+   "note": "BRIEF WRONG: DEC-3279i rules the accrued-interest note shows only for a bond that pays interest (\"Before: a zero-coupon bond got the note\"). Arithmetic is 10,000 × 0 × 100 ÷ 365 = 0 and the YTM adds 0 either way, so no figure differs. bonds/index.ts:381.",
+   "settled": "SETTLED 2026-10-27 (re-run at 45d680a4 + the fix wave) — APP RIGHT (BRIEF WRONG) by DEC-3279i: a bond that pays no interest has nothing accrued to estimate and gets no note; 10,000 × 0 × 100 ÷ 365 = 0, and its yield to maturity, 2.87%, is the same either way. Held by outside_networth_final_openai_part4.test.ts:453."
   },
   {
    "id": "MK-NW-F-119",
@@ -1303,7 +1309,8 @@
    },
    "difference": "missing_face_notice: app [\"C\"], brief [\"B\",\"C\"]",
    "formula_gives_match": "no — the face total is not presented as complete: C is named (bonds.ts:207, BondsScreen.tsx:73)",
-   "note": "BRIEF WRONG: B's $100/yr at 5% means its $2,000 face was entered, and the brief's own $3,000 subtotal (A 1,000 + B 2,000) counts it. Every other figure matches."
+   "note": "BRIEF WRONG: B's $100/yr at 5% means its $2,000 face was entered, and the brief's own $3,000 subtotal (A 1,000 + B 2,000) counts it. Every other figure matches.",
+   "settled": "SETTLED 2026-10-27 (re-run at 45d680a4 + the fix wave) — APP RIGHT (BRIEF WRONG): B's $100 a year at 5% means its $2,000 face was entered; only C's face is named. Known face $1,000 + $2,000 = $3,000; average yield $50 ÷ $950 = 5.26%. Held by outside_networth_final_openai_part4.test.ts:484."
   },
   {
    "id": "MK-NW-O-001",
@@ -1515,7 +1522,8 @@
    },
    "difference": "app $0 with the first-day sentence; brief expects a refusal",
    "formula_gives_match": null,
-   "note": "BRIEF WRONG: DEC-0260 (\"the screen shows $0 with a sentence explaining nothing is entered, and the door\") and DEC-0431. The first-day state IS $0 + that sentence."
+   "note": "BRIEF WRONG: DEC-0260 (\"the screen shows $0 with a sentence explaining nothing is entered, and the door\") and DEC-0431. The first-day state IS $0 + that sentence.",
+   "settled": "SETTLED 2026-10-27 (re-run at 45d680a4 + the fix wave) — APP RIGHT (BRIEF WRONG) by DEC-0260: a fresh account shows $0, \"Nothing entered yet.\" and the door — not a refusal: $0 owned, $0 owed, $0 net worth. Held by outside_networth_final_openai_part4.test.ts:567 and src/screens/__tests__/nw_no_accounts_one_door.test.tsx."
   },
   {
    "id": "MK-NW-O-004",
@@ -1692,7 +1700,8 @@
    "actual": null,
    "difference": "not run",
    "formula_gives_match": null,
-   "note": "BLOCKED: theAlternativesOutlook reads each kind's fixed benchmark (alternatives-outlook.ts:78,100; assets/index.ts:1958) and takes no per-row rate; no kind carries 12% or 3%."
+   "note": "BLOCKED: theAlternativesOutlook reads each kind's fixed benchmark (alternatives-outlook.ts:78,100; assets/index.ts:1958) and takes no per-row rate; no kind carries 12% or 3%.",
+   "settled": "SETTLED 2026-10-27 (re-run at 45d680a4 + the fix wave) — APP RIGHT by DEC-3035n (\"each part is rated by what it is\"): rows add to the total and growth = Σ value × rate, the auditor's rule; a row's rate is its kind's — gold 8.2%, crypto 8%, annuities 4.5%: 656 + 722.48 + 270 = $1,648.48 a year on $23,031, 7.16%. Was skipped; now run. Held by outside_networth_final_openai_part4.test.ts:638."
   },
   {
    "id": "MK-NW-O-005",
@@ -1952,7 +1961,8 @@
    },
    "difference": "no expected return given (no dates); returns shown are for the adapter's dates only",
    "formula_gives_match": null,
-   "note": "Input mapping as Part 2: the $15,000 on 2026-04-01 (a recorded day), dividends 2026-06-01, interest 2026-07-01."
+   "note": "Input mapping as Part 2: the $15,000 on 2026-04-01 (a recorded day), dividends 2026-06-01, interest 2026-07-01.",
+   "settled": "SETTLED 2026-10-27 (re-run at 45d680a4 + the fix wave) — APP RIGHT, settled at the run by DEC-0647 (Performance v17 approved in full): the drawn household gives wealth generated $8,000 and ending $123,000 across both accounts, as phone 1 draws. Held by outside_networth_final_openai_part4.test.ts:740."
   },
   {
    "id": "MK-NW-O-008",
@@ -1992,7 +2002,8 @@
    },
    "difference": "wording only",
    "formula_gives_match": null,
-   "note": ""
+   "note": "",
+   "settled": "SETTLED 2026-10-27 (re-run at 45d680a4 + the fix wave) — APP RIGHT (BRIEF WRONG since 2026-10-11) by his DEC-4439: a value below the money just added is a loss that day, measured: 500 ÷ (100 + 600) × 700 ÷ 500 − 1 = 0.00%, the same as the dollars ($100 + $600 in, $700 now). The auditor's REFUSES is kept failing at outside_networth_final_openai_part4.test.ts:770. Held by outside_networth_final_openai_part4.test.ts:776."
   }
  ],
  "formula_checks": [
@@ -2141,5 +2152,5 @@
    "plain_example": "No record, ending $12,000, priced gain $1,000, $2,000 in → beginning $9,000, wealth $1,000, no %; account page says \"the beginning is read back from your activity records and no return is measured\" ✔."
   }
  ],
- "coverage": "115 of 115 cases run or classified (98 PASS · 1 FINDING · 3 BRIEF_WRONG · 12 UNCLEAR · 1 BLOCKED); 16 of 16 non-RIGHT formula checks classified (7 RIGHT need none); 23 of 23 cards."
+ "coverage": "115 of 115 cases run or classified (98 PASS · 1 FINDING · 3 BRIEF_WRONG · 12 UNCLEAR · 1 BLOCKED); 16 of 16 non-RIGHT formula checks classified (7 RIGHT need none); 23 of 23 cards. | 2026-10-27 (FX-AUDITS, re-run at 45d680a4 + the fix wave, outside_networth_final_openai_part4.test.ts green): 11 more cases given a settled line — 10 app right, 1 fixed, now right; every case that does not pass as written now carries one, held by outside_audit_results_settled.test.ts."
 }

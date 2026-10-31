@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { MoneyBox } from './MoneyBox';   // every money box, one component (DEC-8385)
 import {
   View, Text, TextInput, Modal, TouchableOpacity,
   StyleSheet, KeyboardAvoidingView, Platform,
@@ -11,13 +12,15 @@ type Props = {
   message?: string;
   placeholder?: string;
   keyboardType?: 'default' | 'decimal-pad' | 'numeric' | 'email-address';
+  /** the box holds an amount of money: drawn by MoneyBox (DEC-8385) */
+  money?: boolean;
   onConfirm: (value: string) => void;
   onCancel: () => void;
   confirmLabel?: string;
 };
 
 export function InputModal({
-  visible, title, message, placeholder, keyboardType = 'default',
+  visible, title, message, placeholder, keyboardType = 'default', money,
   onConfirm, onCancel, confirmLabel = 'OK',
 }: Props) {
   const [value, setValue] = useState('');
@@ -41,6 +44,11 @@ export function InputModal({
         <View style={styles.card}>
           <Text style={styles.title}>{title}</Text>
           {message ? <Text style={styles.message}>{message}</Text> : null}
+          {/* an amount of money is a money box: "$1,250" while it is typed, 1250 handed back (DEC-8385, 2026-10-27) */}
+          {money ? (
+            <MoneyBox bare style={styles.input} value={value} onChangeText={setValue} placeholder={placeholder} a11y={title}
+              autoFocus onSubmitEditing={handleConfirm} />
+          ) : (
           <TextInput
             style={styles.input}
             value={value}
@@ -51,6 +59,7 @@ export function InputModal({
             autoFocus
             onSubmitEditing={handleConfirm}
           />
+          )}
           <View style={styles.btnRow}>
             <TouchableOpacity style={[styles.btn, styles.cancelBtn]} onPress={handleCancel}>
               <Text style={styles.cancelText}>Cancel</Text>

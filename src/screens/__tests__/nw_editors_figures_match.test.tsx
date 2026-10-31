@@ -166,6 +166,7 @@ const BONDS_YEARS = 'Bonds v02 READ THIS FIRST 2026-10-11 (DEC-4529 · MK-NW-F-0
 const BONDS_EXACT = 'Bonds v02 ALSO CHANGED 2026-10-08 (DEC-3279 · MK-NW-F-060): "Yield to maturity is solved exactly, at the bond\'s exact years left" — the drawn 4.95% was the approximation';
 const BONDS_ACCRUED = 'Bonds v02 ALSO CHANGED 2026-10-09 (DEC-3390 · MK-NW-F-119): the star moves to "Yield to maturity" and the note reads "Added estimated $… in accrued interest … at …% coupon for … days to calculate YTM"; READ THIS FIRST 2026-10-20 (DEC-3390): the estimate reads Pays interest, not chosen here';
 const BONDS_FIELDS = 'Bonds v02 ALSO CHANGED 2026-10-09 (DEC-3390): phone 3\'s value field reads "Market value, as your statement shows it…"; READ THIS FIRST 2026-10-20 (DEC-0281 · MK-XS-I-067): "A box for what you paid, marked optional, after the value"';
+const MONEY_BOX = (d: string) => `${d} READ THIS FIRST 2026-10-27 (DEC-8385 · DEC-0177 · DEC-3768c): every money box shows its figure the way a figure is printed while it is typed — ‘$1,000’ where a box was drawn ‘1000’ — and stores the plain amount`;
 const HELD_IN = (d: string) => `${d} READ THIS FIRST 2026-10-20 (DEC-2441 · DEC-2484h · MK-NW-F-010): Held in offers the one list of six — Taxable, 401(k), Traditional IRA, Roth IRA, Roth 401(k), HSA`;
 const ALTS_RATES = 'Alternatives v02 READ THIS FIRST 2026-10-11 (DEC-4529 · DEC-2334 · MK-NW-M-050 · MK-NW-M-051): DRAWING ERROR, phone 1 — "Crypto 8.00%, Gold / commodities 8.20%, Other 5.00%" … EXP. RETURN 6.81%, EST. GROWTH $4,187; kept as private equity 13.00%, 10.06%, $6,187';
 const ITEMIZE_DATE = 'Itemize v02 READ THIS FIRST (2026-10-19, MK-ST-F-078 dateShown · DEC-6323): "Bond · matures 2032-05-15" is written "Bond · matures May 15, 2032"';
@@ -190,7 +191,9 @@ const KNOWN: Known[] = [
   ['bonds 1', ['mar 15, 2030', '4', '$900'], ['mar 15, 2030', '3', '$900'], BONDS_YEARS],
   ['bonds 1', ['4.31%', '4.95%'], ['4.31%', '7.76%'], BONDS_EXACT],
   ['bonds 1', ['4.61%', '5.12%'], ['4.61%', '5.25%', '$493', '4.5%', '200'], BONDS_ACCRUED],
-  ['bonds 3', ['jun 30, 2027', '~$1,063'], ['jun 30, 2027', '24650', '$9,700', '~$1,063'], BONDS_FIELDS],
+  // the Treasury's market value box (24,650) and its paid box's hint ($9,700): printed as money since 2026-10-27 — 24650 → $24,650
+  ['bonds 3', ['jun 30, 2027', '~$1,063'], ['jun 30, 2027', '$24,650', '$9,700', '~$1,063'], BONDS_FIELDS],
+  ['bonds 3', ['25000'], ['$25,000'], MONEY_BOX('Bonds v02')],          // the face value box: the Treasury's 25,000 face, as money
   ['bonds 3', ['401'], ['401', '401'], HELD_IN('Bonds v02')],
   ['alternatives 1', ['7.32%', '$4,502'], ['6.81%', '$4,187'], ALTS_RATES],
   ['alternatives 1', ['~9.00%'], ['~8.00%'], ALTS_RATES],
@@ -203,6 +206,7 @@ const KNOWN: Known[] = [
   // the editor's line under the kind quotes the same benchmark as the row's Crypto 8.00% (one list of kinds)
   ['alternatives 3', ['~9.00%'], ['~8.00%'], ALTS_RATES],
   ['alternatives 3', ['401'], ['401', '401'], HELD_IN('Alternatives v02')],
+  ['alternatives 3', ['28000'], ['$28,000'], MONEY_BOX('Alternatives v02')],   // Bitcoin's value box: 28,000, as money
   ['itemize 2', ['2032-05-15'], ['may 15, 2032'], ITEMIZE_DATE],
   ['itemize 3', ['2032-05-15'], ['may 15, 2032'], ITEMIZE_DATE],
   ['holding 1', ['+$9,357.60'], ['+$9,358'], HOLDING_GAINS],
@@ -306,8 +310,21 @@ describe('Bonds v02 — every figure and date (Oct 1, 2026)', () => {
     const shown = fromLine(shownLines(), 'Edit bond');
     compare('bonds 3', upTo(P[2], /^Sold the whole position/), shown, 7, KNOWN);
   });
+  // the old answer, kept: the same phone with the rows of before 2026-10-27 — it fails because the boxes print $25,000 and $24,650
+  test.failing('before 2026-10-27, kept · phone 3 printed the face box 25000 and the value box 24650', () => {
+    show(BondsScreen, { assetAccounts: BONDS.map((x) => (x.asset_id === 'b1' ? { ...x, accrued_interest: undefined } : x)) });
+    fireEvent.press(screen.getByText('US Treasury 2027'));
+    const shown = fromLine(shownLines(), 'Edit bond');
+    expect(shown.join(' ')).toContain('$25,000');   // the setup reached the editor: the failure below is the money box, nothing else
+    compare('bonds 3', upTo(P[2], /^Sold the whole position/), shown, 7, KNOWN_BEFORE_MONEY_BOX);
+  });
 });
 
+// THE OLD ANSWER, KEPT (the fix wave's rule: a changed expected value keeps the old one as test.failing). Until 2026-10-27 the editors'
+// money boxes printed the plain figure — the face box 25000, the value box 24650 — so phone 3 matched with no money-box row. It fails now
+// because the boxes print $25,000 and $24,650 (DEC-8385); the day it passes again, a box has gone back to a plain figure.
+const KNOWN_BEFORE_MONEY_BOX: Known[] = KNOWN.filter((k) => !/2026-10-27 \(DEC-8385/.test(k[3]))
+  .map((k): Known => (k[0] === 'bonds 3' && k[3] === BONDS_FIELDS ? ['bonds 3', k[1], ['jun 30, 2027', '24650', '$9,700', '~$1,063'], k[3]] : k));
 // ═══ ALTERNATIVES v02 — Oct 1, 2026 ════════════════════════════════════════════════════════════════════════════════
 describe('Alternatives v02 — every figure and date (Oct 1, 2026)', () => {
   const P = phones('alternatives_v02.html');

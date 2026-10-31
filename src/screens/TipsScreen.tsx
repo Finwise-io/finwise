@@ -84,7 +84,7 @@ export default function TipsScreen() {
       <Card style={styles.summaryCard}>
         <Text style={styles.summaryTitle}>This month at a glance</Text>
         {/* B-46: explain the $0 — this section reflects what you've LOGGED, not your declared income/plan. */}
-        <Text style={styles.summarySub}>From what you've logged this month — not your full income or budget.</Text>
+        <Text style={styles.summarySub}>From what you’ve logged this month — not your full income or budget.</Text>
         <View style={styles.summaryRow}>
           <View style={styles.summaryItem}>
             <Text style={styles.summaryLabel}>Income</Text>
@@ -184,7 +184,7 @@ export default function TipsScreen() {
                       style={[styles.tipBtn, styles.tipBtnAccept]}
                       onPress={() => handleTip(idx, 'accepted')}
                     >
-                      <Text style={styles.tipBtnAcceptText}>I'll try this ✓</Text>
+                      <Text style={styles.tipBtnAcceptText}>I’ll try this ✓</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
                       style={[styles.tipBtn, styles.tipBtnSkip]}
@@ -195,7 +195,7 @@ export default function TipsScreen() {
                   </View>
                 )}
                 {state === 'accepted' && (
-                  <Text style={styles.tipAcceptedNote}>✅ Great choice! We'll track this for you.</Text>
+                  <Text style={styles.tipAcceptedNote}>✅ Great choice! We’ll track this for you.</Text>
                 )}
                 {state === 'skipped' && (
                   <Text style={styles.tipSkippedNote}>Skipped — no worries, you can revisit anytime.</Text>
@@ -213,7 +213,7 @@ export default function TipsScreen() {
         <TipCard color="amber">
           <Text style={styles.nudgeTitle}>🛡 Plan for income gaps</Text>
           <Text style={styles.nudgeText}>
-            Worried about job security? Answer 2 questions and we'll build you a plan.
+            Worried about job security? Answer 2 questions and we’ll build you a plan.
           </Text>
         </TipCard>
       </TouchableOpacity>

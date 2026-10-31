@@ -81,6 +81,10 @@ const DATA = (over: any = {}) => ({
 const setup = (over: any = {}) => { useStore.getState().resetAll(); useStore.setState(DATA(over) as any); };
 /** The two lines his ruling of 2026-09-28 added under the emergency fund (see the header). */
 const KNOWN = (built: string) => built.replace(/ # months at your planned spend — \$# cash ÷ \$#\/month both include \$#\/month of debt payments you cannot stop\./, '')
+  // THE LEAD'S RULING R7, 2026-10-27 (a READ THIS FIRST row on v08; canon rows 4 and 0b): the drawn household's $4,150 is calculated by the app
+  // ($1,600 of the typed plan + $2,400 mortgage + $150 card), so its tag reads "calculated"; the drawing's "you entered" was true of
+  // the $4,500 he typed when it was drawn. The figure itself is held below by networth_fxnw_2026_10_27.test.tsx, as printed.
+  .replace('/month essentials — calculated ', '/month essentials — you entered ')
   // HIS RULE, 2026-10-04 (DEC-1923): the drawn household owns its home with the mortgage in Debts and a
   // Rent / Mortgage budget line, so the mortgage is counted from Debts and the card says the line is not.
   .replace(" your rent / mortgage budget line is not counted here: your home's mortgage, home mortgage, is in debts and is counted from there.", '')

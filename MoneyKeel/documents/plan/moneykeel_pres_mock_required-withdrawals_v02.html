@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Required withdrawals v02</title>
+<style>
+  :root{--primary:#178F6B;--primaryDark:#0F6E56;--primaryDeep:#085041;--primaryLight:#E1F5EE;--primaryMid:#9FE1CB;--onDeepTint:#BEE7D8;
+        --amber:#854F0B;--amberLight:#FAEEDA;--red:#A32D2D;--bg2:#F6F7F5;--bg3:#EEEEE9;--card:#FFFFFF;--t1:#1A1A18;--t2:#6B6B66;--t3:#76766F;
+        --border:rgba(0,0,0,0.10);--gain:#006300}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:-apple-system,'SF Pro Text','Segoe UI',Roboto,sans-serif;background:#ECEBE4;color:var(--t1);padding:22px}
+  .wrap{max-width:1500px}
+  .row{display:flex;gap:22px;flex-wrap:wrap;align-items:flex-start}
+  .phone{width:375px;background:#000;border-radius:44px;padding:10px;box-shadow:0 16px 36px rgba(0,0,0,.24)}
+  .screen{background:var(--bg2);border-radius:35px;overflow:hidden;display:flex;flex-direction:column}
+  .sbar{display:flex;justify-content:space-between;padding:12px 22px 4px;font-size:14px;font-weight:700}
+  .nav{display:flex;align-items:center;min-height:44px;background:var(--bg2)}
+  .back{font-size:16px;color:var(--primary);font-weight:600;padding:8px 16px}
+  .topbar{display:flex;align-items:center;justify-content:space-between;padding:6px 20px 10px;background:var(--bg2)}
+  .menuBtn{display:flex;align-items:center;gap:6px;height:38px;padding:0 13px;border-radius:12px;background:var(--card);border:1px solid var(--border);font-size:13px;font-weight:700;color:var(--t2)}
+  .wordmark{font-size:15px;font-weight:800;letter-spacing:-.2px}.wordmark .m{color:#178F6B}.wordmark .k{color:#1F3A5F}
+  .tright{display:flex;gap:8px}
+  .ico{width:38px;height:38px;border-radius:19px;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:15px;color:var(--t2)}
+  .tabbar{display:flex;justify-content:space-around;background:var(--card);border-top:.5px solid var(--border);height:84px;padding:6px 0 20px}
+  .tb{width:56px;display:flex;flex-direction:column;align-items:center;font-size:10.5px;font-weight:700;color:var(--t3)}
+  .tb i{display:block;height:3px;width:22px;margin-bottom:5px}
+  .tb b{font-size:20px;font-weight:400;line-height:23px;color:var(--t3)}
+  .band{background:var(--primaryDeep);padding:8px 12px;margin-bottom:4px;color:#fff;font-size:11px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;border-radius:0}
+  .new{outline:2px dashed #185FA5;outline-offset:2px}
+  .adv{text-decoration:underline dotted #185FA5;text-underline-offset:3px}
+  .cap{font-size:12px;color:#4a4a45;max-width:375px;margin-top:9px;line-height:1.5}
+  .note-doc{max-width:1100px;margin:0 0 14px;padding:12px 14px;border:2px solid #0B5D3B;border-radius:12px;font-size:13px;line-height:1.5;background:#fff;color:#111}
+  .note-doc table{border-collapse:collapse;margin-top:8px;font-size:12.5px}
+  .note-doc td,.note-doc th{padding:4px 8px;border:1px solid #ccc;vertical-align:top;text-align:left}
+
+  .content{padding:24px 20px 20px}
+  .h1{font-size:20px;font-weight:800;color:var(--t1)}
+  .sub{font-size:15px;color:var(--t2);margin-bottom:12px}
+  /* each box runs edge to edge of the phone, square corners, so its dark bar runs end to end across the screen (2026-10-27) */
+  .card{background:var(--card);border-radius:0;padding:20px;margin:0 -20px 12px}
+  .card > .band{margin:-20px -20px 4px}
+  .newb{box-shadow:inset 0 0 0 2px #185FA5}
+  .line{font-size:15px;color:var(--t1);margin-top:4px;line-height:21px}
+  .lineRow{display:flex;align-items:flex-start;gap:4px}.lineRow .line{flex:1}
+  .dotI{font-size:13px;color:var(--t2);margin-top:6px}
+  .strong{font-weight:800}
+  .note{font-size:13px;color:var(--t3);margin-top:8px;line-height:17px}
+  .secondaryBtn{background:var(--bg3);border-radius:12px;padding:12px 0;text-align:center;min-height:44px;margin-top:12px;font-size:13px;font-weight:700;color:var(--primaryDark)}
+  .checkRow{display:flex;align-items:center;gap:10px;padding:10px 0;min-height:44px}
+  .checkMark{font-size:17px;color:var(--t3);width:22px;text-align:center}
+  .checkTxt{flex:1;font-size:15px;font-weight:600;color:var(--t1)}
+  .chev{font-size:17px;color:var(--t3)}
+  .schedRow{display:flex;justify-content:space-between;padding:7px 0;min-height:32px}
+  .schedYear{font-size:15px;color:var(--t2)}
+  .schedAmt{font-size:15px;color:var(--t1);font-variant-numeric:tabular-nums}
+  .acctRow{display:flex;align-items:center;gap:8px;padding:10px 0;min-height:44px}
+  .acctLabel{flex:1;font-size:15px;font-weight:600;color:var(--t1)}
+  .acctBal{font-size:15px;color:var(--t2);font-variant-numeric:tabular-nums}
+</style></head>
+<body><div class="wrap">
+
+<div class="note-doc">
+<b>READ THIS FIRST — 2026-10-27. Required withdrawals, version 02, opened the way he asked (DEC-8891: what he approved before, his words, what is new). This drawing waits on his approval; the screen is built to it today so he can see it on a phone.</b>
+<table>
+<tr><th style="width:24%">What he approved before for this screen</th><td><b>Nothing approved; drawn from the build of 2026-10-26</b> (v01, now <span style="font-family:ui-monospace,monospace">archive/2026-10-27_moneykeel_pres_mock_required-withdrawals_v01.html</span>).</td></tr>
+<tr><th>His feedback on it so far, word for word</th><td>None on this screen itself. Two of his rulings of 2026-10-27 reach it: of Roth conversion, whose boxes are built the same way (DEC-8890), <i>“Roth Conversion - dark green bar should be end to end across the screen.”</i>; and of every screen (DEC-8839), <i>“the standard design says box titles in dark green bar, and sub-titles in light green bar”</i>. His earlier words on the info dot beside WHAT THIS IS are on the row of that date below (DEC-0142).</td></tr>
+<tr><th>What is new for him to look at</th><td>
+1. <b>Every dark bar runs end to end across the screen.</b> Each box — WHAT THIS IS, GETTING READY FOR 75, YEAR BY YEAR (ESTIMATES), BASED ON THESE ACCOUNTS, and, not drawn, THIS YEAR (2026) for a person already taking them — now runs from one edge of the phone to the other with square corners, as on Roth conversion v02 and the Cash flow tab, so its bar does too. They stopped 20 points short of each edge.<br>
+Nothing else on the screen changes: every word and figure is v01’s.
+</td></tr>
+<tr><td style="padding:4px 8px;border:1px solid #ccc;vertical-align:top;white-space:nowrap">2026-10-27</td><td style="padding:4px 8px;border:1px solid #ccc;vertical-align:top"><b>Approved before:</b> nothing — this drawing was drawn from the build; no approval of it is on record. Its money boxes print a typed figure plain. <b>His feedback:</b> None on these boxes. He approved the income drawing on 2026-08-27 (DEC-0177: “yes”), which draws a money box with its figure as money, ‘$7,000’. <b>New:</b> Every money box on this screen shows its figure the way a figure is printed, while it is typed — ‘$1,000’ where a box was drawn ‘1000’, ‘$192.50’ where ‘192.5’; where the screen prints its own $ just before the box, the box reads ‘1,000’, so the $ is printed once — and it stores the plain amount, so no figure moves. The box keeps its look. A typed letter is refused whole (DEC-3768c). Shares, contracts, rates, days and years keep their plain digits. The phones are not redrawn.</td><td style="padding:4px 8px;border:1px solid #ccc;vertical-align:top">One figure, one form (tenet 4, DEC-3523): the money boxes of the income screens already show ‘$7,000’ (DEC-8385), and one component, MoneyBox, now draws every money box in the app — src/__tests__/every_money_box_is_moneybox.test.tsx counts them all. Not a decision of his: the lead’s ruling of 2026-10-27, made without asking him, as his order of 2026-09-30 says. To reverse: print the plain figure in the box again.</td><td style="padding:4px 8px;border:1px solid #ccc;vertical-align:top">DEC-8385 · DEC-0177 · DEC-3768c · DEC-3523</td><td style="padding:4px 8px;border:1px solid #ccc;vertical-align:top">In the code since 2026-10-27</td></tr>
+<tr><td style="padding:4px 8px;border:1px solid #ccc;vertical-align:top;white-space:nowrap">2026-10-30</td><td style="padding:4px 8px;border:1px solid #ccc;vertical-align:top"><b>Approved before:</b> nothing — no approval of this drawing is on record; it was drawn from the build. <b>His feedback:</b> His words, 2026-08-04 (DEC-0059): “make sure font size and color and overall design are same across all screens.” <b>New:</b> Every apostrophe inside a word on this screen prints as ’ — 5 strings: ‘We’ll nudge you November 1’, ‘Based on today’s balance’, ‘but then you’d take two in’, ‘the account’s history — it counts toward this year’s requirement’ and ‘plan how you’ll be covered’. No word and no figure moves. The phones are not redrawn.</td><td style="padding:4px 8px;border:1px solid #ccc;vertical-align:top">One sentence, spelled one way (tenet 4, DEC-3523): the lead’s rule of 2026-10-25 (DEC-8336), carried to every screen on 2026-10-27 and held by src/__tests__/curly_apostrophe_everywhere.test.ts, which now carries no debt for this screen. Not a decision of his: the lead’s ruling of 2026-10-30, made without asking him, as his order of 2026-09-30 says; built by CLEANUP-TESTS. One word from him reverses it. To reverse: type a straight ' in these strings again.</td><td style="padding:4px 8px;border:1px solid #ccc;vertical-align:top">DEC-8336 · DEC-3523 · DEC-0059</td><td style="padding:4px 8px;border:1px solid #ccc;vertical-align:top">In the code since 2026-10-30</td></tr>
+</table>
+<br><b>Checked before sending</b> (the screen standard, section 5): every box title on a dark bar running end to end across the phone, square corners · no sub-titles on this screen · sizes on the scale, nothing under 10.5 · the words on the canon · the figures as v01 worked them, below the phone · one phone, a person of 60.
+<br><br><b>The screen’s history, kept:</b>
+<table>
+<tr><th>Dated</th><th>What changed on the screen today</th><th>Why · how to reverse</th><th>Record</th><th>State</th></tr>
+<tr><td style="white-space:nowrap">2026-10-27</td><td><b>Checked against his words of today, and it already meets them: nothing on the screen moves.</b> His words (DEC-8839): <i>“the standard design says box titles in dark green bar, and sub-titles in light green bar”</i>. Each box’s title — WHAT THIS IS, GETTING READY FOR 75, YEAR BY YEAR (ESTIMATES) and BASED ON THESE ACCOUNTS — and, not drawn, THIS YEAR (2026) for a person already taking them — is a dark-green bar, white capitals, square corners, running from one edge of its card to the other; the screen has no sub-titles. The screen’s one title at 20 points, every size on the scale, nothing under 10.5. No new version is drawn.</td><td>The check his ruling asks for (DEC-8839, step 2: the four Plan drawings made from the build). Done by FX-PLAN, the lead’s ruling R1. Held by the bar guard, <span style="font-family:ui-monospace,monospace">src/__tests__/guard_box_titles_on_bars.test.ts</span>.</td><td>DEC-8839</td><td>Checked 2026-10-27</td></tr>
+
+<tr><td style="white-space:nowrap">2026-10-26</td><td><b>The rows grow at the Plan’s one return, and the screen says which.</b> Under YEAR BY YEAR: ‘Growth used: 7.62%/year — the blended benchmark.’ The first withdrawal reads ~$50,737 (2041, age 75); it was ~$37,662, worked at a flat 5.50% that the screen did not state, and every row after it moved the same way.</td><td>Not a decision of his: the lead’s, made without asking him, as his order of 2026-09-30 says; built by CLEANUP-LEFT. One word from him reverses it. The lead’s ruling 2 of 2026-10-25 (one plan, one return) and tenet 1. To reverse: grow at 5.50% again.</td><td>MK-CF-M-082 · MK-CF-F-279 paycheckReturn · MK-PL-F-008 rmdSchedule</td><td>In the code</td></tr>
+<tr><td style="white-space:nowrap">2026-10-26</td><td><b>A loss is never projected forward, and the line says so.</b> Not drawn (this household’s rate is the benchmark): with the 12-month return chosen and the last 12 months at −4.20%, the line reads ‘Growth used: 0.00%/year — your last 12 months were −4.20%; we don’t project a loss forward.’ The rows grew at 0% while the screen stated the negative rate.</td><td>Not a decision of his: the lead’s, made without asking him, as his order of 2026-09-30 says; built by CLEANUP-LEFT. One word from him reverses it. Tenet 1 (DEC-3523): the rate stated is the rate used. To reverse: state the negative return and grow at 0% silently.</td><td>growthUsed (src/domain/paycheck) · MK-PL-F-008</td><td>In the code</td></tr>
+<tr><td style="white-space:nowrap">2026-10-26</td><td><b>The balances behind the rows are kept whole.</b> rmdSchedule rounded each year’s projected balance to the dollar inside the function; it is rounded only when printed. No drawn figure moves.</td><td>Not a decision of his: the lead’s, made without asking him, as his order of 2026-09-30 says; built by CLEANUP-LEFT. One word from him reverses it. His Q49. To reverse: round the balance inside again.</td><td>MK-PL-F-008 rmdSchedule · Q49</td><td>In the code</td></tr>
+<tr><td style="padding:4px 8px;border:1px solid #ccc;vertical-align:top;white-space:nowrap">2026-10-27</td><td style="padding:4px 8px;border:1px solid #ccc;vertical-align:top"><b>Approved before:</b> nothing — no approval of this drawing is on record. The phone, drawn from the build, draws the dot beside the sentence under WHAT THIS IS at 13 points in #6B6B66. <b>His feedback:</b> His words, 2026-08-13 (DEC-0142): “info dot should be the same size as text. Can we do that?” <b>New:</b> The dot is the sentence’s 15 points in its #1A1A18, weight 700. The phones are not redrawn.</td><td style="padding:4px 8px;border:1px solid #ccc;vertical-align:top">One dot, drawn one way (tenet 4, DEC-3523): beside its line, never inside it, weight 700, at the line’s size and in the line’s colour (DEC-8339). Not a decision of his: the lead’s ruling of 2026-10-27, made without asking him, as his order of 2026-09-30 says. To reverse: every dot 13 points in grey #76766F beside a line, 11 on a bar.</td><td style="padding:4px 8px;border:1px solid #ccc;vertical-align:top">DEC-0142 · DEC-8339 · DEC-3523 · DEC-4529</td><td style="padding:4px 8px;border:1px solid #ccc;vertical-align:top">In the code since 2026-10-27</td></tr>
+</table>
+</div>
+
+<div class="row">
+<div>
+<div class="phone"><div class="screen">
+  <div class="sbar"><span>9:41</span><span>▮▮▮ ◔ ▮</span></div>
+  <div class="nav"><span class="back">← Back</span></div>
+  <div class="content" id="rmd-content">
+    <div class="h1">Required withdrawals</div>
+    <div class="sub">Logistics only — when in the year you take it is your call.</div>
+    <div class="card">
+      <div class="band newb">WHAT THIS IS</div>
+      <div class="lineRow"><div class="line">From age 75, the law requires a yearly withdrawal from pre-tax retirement accounts (401(k), traditional IRA).</div><span class="dotI">ⓘ</span></div>
+      <div class="line">Yours starts in <span class="strong">2041</span> (age 75). Estimated first withdrawal: <span class="strong">~$50,737</span> — it moves with your balance between now and then.</div>
+      <div class="secondaryBtn">Remind me when this starts (2041)</div>
+    </div>
+    <div class="card">
+      <div class="band newb">GETTING READY FOR 75</div>
+      <div class="checkRow"><span class="checkMark">○</span><span class="checkTxt">Social Security decided</span><span class="chev">›</span></div>
+      <div class="checkRow"><span class="checkMark">○</span><span class="checkTxt">Retirement paycheck set up</span><span class="chev">›</span></div>
+      <div class="checkRow"><span class="checkMark">○</span><span class="checkTxt">Withdrawal order reviewed</span><span class="chev">›</span></div>
+      <div class="checkRow"><span class="checkMark">○</span><span class="checkTxt">Health coverage checked</span><span class="chev">›</span></div>
+      <div class="note">Progress, not pressure — each row opens the real screen.</div>
+    </div>
+    <div class="card">
+      <div class="band newb">YEAR BY YEAR (ESTIMATES)</div>
+      <div class="schedRow"><span class="schedYear">2041 · 75</span><span class="schedAmt">~$50,737</span></div>
+      <div class="schedRow"><span class="schedYear">2042 · 76</span><span class="schedAmt">~$54,372</span></div>
+      <div class="schedRow"><span class="schedYear">2043 · 77</span><span class="schedAmt">~$58,002</span></div>
+      <div class="schedRow"><span class="schedYear">2044 · 78</span><span class="schedAmt">~$62,136</span></div>
+      <div class="schedRow"><span class="schedYear">2045 · 79</span><span class="schedAmt">~$66,552</span></div>
+      <div class="schedRow"><span class="schedYear">2046 · 80</span><span class="schedAmt">~$71,267</span></div>
+      <div class="schedRow"><span class="schedYear">2047 · 81</span><span class="schedAmt">~$75,905</span></div>
+      <div class="schedRow"><span class="schedYear">2048 · 82</span><span class="schedAmt">~$81,245</span></div>
+      <div class="note">Growth used: 7.62%/year — the blended benchmark.</div>
+      <div class="note">Future amounts move with your balance and the IRS divisor table — estimates, not promises. Adopting a plan (like a Roth conversion) changes these rows.</div>
+    </div>
+    <div class="card">
+      <div class="band newb">BASED ON THESE ACCOUNTS</div>
+      <div class="acctRow"><span class="acctLabel">Fidelity</span><span class="acctBal">$415,000</span><span class="chev">›</span></div>
+      <div class="note">Marked pre-tax when added — tap to fix a wrong label.</div>
+    </div>
+    <span id="rmd-content-end"></span>
+  </div>
+</div></div>
+<div class="cap"><b>The household, on 27 October 2026 (v01’s, unchanged).</b> Born 1966 (60 this year), single; $70,000 of wages, $10,000 of it into a 401(k); Checking $20,000, a Fidelity IRA $415,000 (pre-tax), a Roth IRA $88,000. No return set on the Plan.<br><b>The figures, by hand.</b> Born 1966, the withdrawals start at 75, in 2041. The return: ($415,000 × 7.90% + $88,000 × 7.90% + $20,000 × 0.50%) ÷ $523,000 = 7.62%. In 15 years: $415,000 × 1.0762¹⁵ = $1,248,141; ÷ the age-75 divisor 24.6 = $50,737. Each later row: last year’s balance less its withdrawal, grown 7.62%, ÷ that age’s divisor. At 5.50% it was $415,000 × 1.055¹⁵ = $926,487 ÷ 24.6 = $37,662.</div>
+</div>
+</div>
+
+</div></body></html>

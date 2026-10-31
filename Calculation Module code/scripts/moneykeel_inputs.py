@@ -141,6 +141,14 @@ NEW = {
                  'set when the person logs a payment from a debt (Log a payment)', ['debtId']),
  'MK-XS-I-079': ('the year a Roth conversion is made — its tax is due the April after',
                  'saved when the person adopts a conversion on the Roth screen', ['rothConversionYear']),
+ # 2026-10-30 (PF-TOOLS) — the three values the fix wave of 2026-10-27/30 began storing, each named by the agent that added it
+ # (FX-CF-C, workplan #361: one IRA amount a month and the HSA cover; FX-PF, workplan #293: the purchase an opening record is of)
+ 'MK-XS-I-080': ('what goes into IRAs a month — Traditional and Roth together, one amount, since they share one limit',
+                 'typed by the person on the Contribution-room screen (IRA card); until it is typed, the Roth amount sign-up stored', ['c_ira']),
+ 'MK-XS-I-081': ('the HSA cover — self-only or family',
+                 'typed by the person on the Contribution-room screen (HSA card)', ['hsaCover']),
+ 'MK-XS-I-082': ('the purchase an opening record is of — so editing or removing that purchase changes or removes its record',
+                 'set by the app when a holding\'s purchases open its records (openingRecordsOf); absent on records written before 2026-10-27', ['lot_id']),
 }
 
 # MoneyKeel/functions added 2026-08-27 — new calculations live there, and a folder the sweep

@@ -5,7 +5,7 @@
  "run_on": "2026-10-25",
  "test_file": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part13.test.ts",
  "source": "returned/MoneyKeel_CashFlow_Independent_Audit_Package/MoneyKeel_CashFlow_Independent_Audit/audit_results/MoneyKeel_CashFlow_Audit_Part_13.json",
- "run": "npx jest --maxWorkers=1 --no-watchman MoneyKeel/functions/cashflow/outside_cashflow_openai_part13.test.ts → 83 passed, 2 skipped (the 2 BLOCKED cases), 0 failed, 85 total: 70 cases + 1 witness + 10 source-check tests + 3 zero-return tests + 1 coverage guard. Each APP WRONG case is test.failing on the reviewer's answer. npx tsc --noEmit: no error in this file (2 errors in another agent's outside_cashflow_openai_part06.test.ts).",
+ "run": "npx jest --maxWorkers=1 --no-watchman MoneyKeel/functions/cashflow/outside_cashflow_openai_part13.test.ts → 83 passed, 2 skipped (the 2 BLOCKED cases) on 2026-10-25; since 2026-10-27 (FX-CF-C, #361) 96 passed, 1 skipped (MK-CF-F-107-C05, the one BLOCKED case left), 97 total, 0 failed, 85 total: 70 cases + 1 witness + 10 source-check tests + 3 zero-return tests + 1 coverage guard. Each APP WRONG case is test.failing on the reviewer's answer. npx tsc --noEmit: no error in this file (2 errors in another agent's outside_cashflow_openai_part06.test.ts).",
  "measured_only": "No app code, record, drawing or existing test was changed. Only this results file and the test file were written.",
  "assumed_plan_for_the_safe_draw": "The reviewer gives no return, volatility or inflation for MK-CF-F-106: current age 67, mean return 6%, volatility 12%, inflation 2.5%, 1,000 paths, seed 42 (DEC-0247).",
  "ready_to_close": false,
@@ -115,9 +115,9 @@
    "name": "theContributionRoom",
    "kind": "complex",
    "title": "Mixed IRA and family HSA",
-   "classification": "BLOCKED",
-   "status": "NOT RUN",
-   "mapped": "theContributionRoom({ profile: { birthYear, c_401k = the monthly 401(k) plan, c_roth, medicareEnrolled }, today = as_of }), clock pinned to as_of — needs three inputs the app does not have",
+   "classification": "DECIDED",
+   "status": "RUN",
+   "mapped": "theContributionRoom({ profile: { birthYear, c_401k = k_monthly_plan 1731.43, hsaCover = hsa_coverage 'family' }, today = as_of }), clock pinned to as_of; the year-to-date amounts have no input (DEC-8406) and the case gives no monthly IRA or HSA amount, so c_ira is not typed",
    "expected": {
     "age": {
      "exact": "55",
@@ -155,16 +155,19 @@
    "actual": {
     "age": 55,
     "k_limit": 32500,
+    "k_used": 20777.16,
+    "k_room": 11722.84,
     "ira_limit": 8600,
-    "hsa_limit_self_only": 5400,
-    "k_used_from_plan": 20777.16,
-    "k_room_from_plan": 11722.84
+    "ira_used": 0,
+    "ira_room": 8600,
+    "hsa_cover": "family",
+    "hsa_limit": 9750
    },
-   "difference": "not run",
+   "difference": "age, the 401(k) limit, the IRA limit and the family HSA limit agree; the rooms differ by the lead’s ruling: the app works the year at the monthly amount, the reviewer the money already in",
    "rests_on": "",
-   "note": "Needs three inputs the app does not have: 401(k) money already in this year, a Traditional IRA contribution (the profile holds c_roth only), and HSA cover (the door always uses self-only). What the app can answer agrees: age 55, 401(k) limit $32,500, IRA limit $8,600. Its HSA limit is the self-only $5,400 (screen: \"self-only limit; family plans cap higher\"); the reviewer's family limit is $9,750.",
-   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part13.test.ts › MK-CF-O-005 theContributionRoom — five cases › MK-CF-O-005-C03 · complex · Mixed IRA and family HSA [BLOCKED] — no input for year-to-date 401(k), a Traditional IRA, or family HSA cover",
-   "test_result": "pending (test.skip)"
+   "note": "UNBLOCKED 2026-10-27 (FX-CF-C, workplan #361; drawing contribution-room v02, rows 3 and 4). Two of the three missing inputs now exist: HSA cover (Self-only / Family) and one IRA amount a month for Traditional and Roth together. The family HSA limit is the reviewer's: $8,750 + $1,000 at 55 = $9,750 (it read $5,400 self-only; that answer is kept as test.failing). The third, money already in this year, has none by the lead's ruling of 2026-10-25 (DEC-8406, as C01): the 401(k) room is $32,500 − $1,731.43 × 12 = $11,722.84, not the reviewer's $32,500 − $17,311.17 = $15,188.83. The case's IRA and HSA amounts are year-to-date only, so none is typed and the IRA reads up to $8,600; the combined input itself is checked beside it: $450 a month → $5,400 used, $3,200 room.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part13.test.ts › MK-CF-O-005 theContributionRoom — five cases › MK-CF-O-005-C03 · complex · Mixed IRA and family HSA [DECIDED]",
+   "test_result": "passed"
   },
   {
    "id": "MK-CF-O-005",
@@ -2348,11 +2351,6 @@
  ],
  "blocked": [
   {
-   "item": "MK-CF-O-005-C03 · Mixed IRA and family HSA",
-   "missing": "Three inputs: 401(k) money already in this year; a Traditional IRA contribution (only c_roth exists, so the \"IRA (Traditional + Roth)\" card counts Roth only); HSA cover, self or family (the door always uses self-only).",
-   "app_partial": "Age 55, 401(k) limit $32,500, IRA limit $8,600 agree; HSA $5,400 self-only against the reviewer's family $9,750."
-  },
-  {
    "item": "MK-CF-F-107-C05 · Unknown simulation",
    "missing": "An expected number: the reviewer had no simulation contract (could_not_test MK-CF-O-017; simulate is MK-PL-F-050, another part).",
    "app_partial": "Recorded on the assumed plan: $305 a month draw, $2,305 with the $2,000 check."
@@ -2435,5 +2433,12 @@
  "witnesses_fixed_2026_10_25": [
   "witness beyond the 70 (10% plan, 6% volatility, $173,111.19): FIXED — a multiple of $5 above the starting top that holds 80 (was $961.73).",
   "source witness 9 (65, Medicare from 2026-07-01): FIXED — $2,700 (was $0)."
+ ],
+ "decided_2026_10_27": [
+  {
+   "item": "MK-CF-O-005-C03 · Mixed IRA and family HSA",
+   "by": "FX-CF-C, workplan #361",
+   "what": "HSA cover and one IRA amount for Traditional and Roth together are inputs now; the case runs as DECIDED (DEC-8406 for money already in this year)."
+  }
  ]
 }

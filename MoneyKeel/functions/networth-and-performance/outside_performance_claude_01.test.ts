@@ -163,6 +163,19 @@ describe('MK-NW-O-008 thePerformance — five cases', () => {
     expect(r.ret!).toBeCloseTo((152300 / 150000) * (146950 / 144300) * (150512.37 / 146950) - 1, 12);
     expect(r.ret!).toBeCloseTo(0.059045, 6);
   });
+  // SETTLED 2026-10-27 (FX-AUDITS, APP RIGHT by his DEC-4439, "approved."): the case above was changed in place on
+  // 2026-10-11; the judge's +6.60% (money counted at the end of its day) is kept here, failing. Every dollar line stands.
+  test.failing('complex · Two accounts, a large deposit, a withdrawal, a dividend and interest', () => {
+    const days = [day('2026-07-09', { A: 60000, B: 40000 }), day('2026-08-14', { A: 111500, B: 40800 }), day('2026-09-20', { A: 105700, B: 41250 })];
+    const transactions = [
+      { type: 'DEPOSIT', account_id: 'A', date: '2026-08-14', amount: 50000 },
+      { type: 'DIVIDEND', account_id: 'A', date: '2026-09-15', amount: 420 },
+      { type: 'WITHDRAWAL', account_id: 'A', date: '2026-09-20', amount: 8000 },
+      { type: 'INTEREST', account_id: 'A', date: '2026-09-30', amount: 35.17 },
+    ];
+    const r = perf({ period: '3M', days, accounts: [linked('A', 108912.37), linked('B', 41600)], transactions });
+    expect(r.ret!).toBeCloseTo(0.066031, 6);
+  });
   // SETTLED BY DEC-0647 (Performance v17 approved in full, 2026-10-01): phone 1 is drawn with the Since chip chosen —
   // "SUMMARY · SINCE OCT 1, 2025", "Beginning market value (Oct 1)", and 1Y / 2Y greyed to —. So the judge's
   // "Since" reading is the drawing; its "1Y" reading is the drawing's greyed chip and is asserted too.
@@ -318,6 +331,29 @@ describe('MK-ST-F-081 timeWeightedReturn — five cases', () => {
     expect(v.rate!).toBeCloseTo(0.055325, 6);
     expect(v.measuredFrom).toBe('2026-07-09');
   });
+  // SETTLED 2026-10-27 (FX-AUDITS, APP RIGHT by his DEC-4439): the two cases above were changed in place on 2026-10-11; the
+  // judge's +8.15% (1.03 × 1.05 − 1) and +5.21% counted the money at the end of its day. Kept here, failing.
+  test.failing('easy · One deposit splits the period', () => {
+    const v = timeWeightedReturn({ days: [tday('2026-07-09', { BRK: 10000 }, ['BRK']), tday('2026-08-14', { BRK: 15300 }, ['BRK']), tday('2026-10-10', { BRK: 16065 }, ['BRK'])] as any,
+      accountIds: ids('BRK'), flows: [flow('2026-08-14', 'BRK', 5000)], start: '2026-07-09', end: TODAY });
+    expect(v.rate!).toBeCloseTo(0.0815, 6);
+  });
+  test.failing('complex · Four accounts: a typed balance, a cash account with interest, one joining mid-period, a withdrawal', () => {
+    const P = ['BRK', 'NEW'], C = ['CASH'];
+    const v = timeWeightedReturn({
+      days: [
+        tday('2026-07-09', { BRK: 50000, IRA: 30000, CASH: 10000 }, P, C),
+        tday('2026-08-20', { BRK: 51500, CASH: 10020, NEW: 8000 }, P, C),
+        tday('2026-09-30', { BRK: 49800, IRA: 30900, CASH: 12045, NEW: 8240 }, P, C),
+        tday('2026-10-10', { BRK: 50610, CASH: 12045, NEW: 8400 }, P, C),
+      ] as any,
+      accountIds: ids('BRK', 'IRA', 'CASH', 'NEW'), cashIds: ids('CASH'),
+      flows: [flow('2026-09-30', 'BRK', -3000)],
+      interest: [flow('2026-07-31', 'CASH', 20), flow('2026-09-30', 'CASH', 25)],
+      start: '2026-07-09', end: TODAY,
+    });
+    expect(v.rate!).toBeCloseTo(0.052086, 6);
+  });
   test('complex · A deposit dated on a Saturday', () => {
     const P = ['BRK', 'IRA'];
     const v = timeWeightedReturn({
@@ -362,6 +398,16 @@ describe('MK-ST-F-082 movementsOf — five cases', () => {
       { type: 'INTEREST', account_id: 'BRK', date: '2026-09-30', amount: 4.1, reinvested: true },
       { type: 'DIVIDEND', account_id: 'BRK', date: '2026-09-30', amount: 88 },
     ], M)).toEqual({ flows: [flow('2026-09-30', 'BRK', -2500)], interest: [flow('2026-09-30', 'BRK', 12.37)], sharesMoved: [] });
+  });
+  // SETTLED 2026-10-27 (FX-AUDITS, APP RIGHT): a stored withdrawal of −$2,500 is a reversal — $2,500 back in, as the ledger's
+  // totals read it; the reinvested $4.10 stays inside the value and the dividend is not a flow.
+  test('pin · A broker writes the withdrawal as a negative number — the app\'s answer: +$2,500 in, $12.37 of interest', () => {
+    expect(movementsOf([
+      { type: 'WITHDRAWAL', account_id: 'BRK', date: '2026-09-30T16:00:00-04:00', amount: -2500 },
+      { type: 'INTEREST', account_id: 'BRK', date: '2026-09-30', amount: 12.37, reinvested: false },
+      { type: 'INTEREST', account_id: 'BRK', date: '2026-09-30', amount: 4.1, reinvested: true },
+      { type: 'DIVIDEND', account_id: 'BRK', date: '2026-09-30', amount: 88 },
+    ], M)).toEqual({ flows: [flow('2026-09-30', 'BRK', 2500)], interest: [flow('2026-09-30', 'BRK', 12.37)], sharesMoved: [] });
   });
   test('complex · Shares moved in kind, valued and unvalued', () => {
     expect(movementsOf([
@@ -427,6 +473,10 @@ describe('MK-NW-F-092 investmentAccountIdsOf — five cases', () => {
   // as investments." Q2 is about money-market funds inside an account; it does not take an Unclassified account out.
   test.failing('complex · Two Unclassified accounts: one bare balance, one with holdings', () => {
     expect(of([{ id: 'u1', class: 'Unclassified' }, { id: 'u2', class: 'Unclassified' }, { id: 'a1', class: 'Stocks / Funds' }])).toEqual(['u2', 'a1']);
+  });
+  // SETTLED 2026-10-27 (FX-AUDITS, APP RIGHT by his DEC-0338, "Unclassified counts as investments"): both count.
+  test('pin · Two Unclassified accounts — the app\'s answer: u1, u2 and a1 all measured (DEC-0338)', () => {
+    expect(of([{ id: 'u1', class: 'Unclassified' }, { id: 'u2', class: 'Unclassified' }, { id: 'a1', class: 'Stocks / Funds' }])).toEqual(['u1', 'u2', 'a1']);
   });
   test('edge · Only cash and property', () => { expect(of([{ id: 'c1', class: 'Cash' }, { id: 'h1', class: 'Property' }])).toEqual([]); });
 });
@@ -639,6 +689,16 @@ describe('MK-NW-F-130 notIncludedSentence — five cases', () => {
   });
   test('complex · Two names', () => {
     expect(notIncludedSentence(un('Old employer plan fund', 'a holding'), 0)).toBe('Old employer plan fund and a holding have no price history, so their gains are not included.');
+  });
+  // SETTLED 2026-10-27 (FX-AUDITS, APP RIGHT by his DEC-6076, "approved.", and DEC-5068): the four cases above were reworded in
+  // place on 2026-10-19; the judge's sentences are kept here, failing — same names, same de-duplication, same has / have.
+  test.failing("easy · One name — the judge's sentence, kept", () => { expect(notIncludedSentence(un('Fundrise Income Fund'), 0)).toBe("The beginning can't be worked back: Fundrise Income Fund has no price history."); });
+  test.failing("easy · No name — the judge's sentence, kept", () => { expect(notIncludedSentence([], 0)).toBe("The beginning can't be worked back: a holding has no price history."); });
+  test.failing("complex · Three names — the judge's sentence, kept", () => {
+    expect(notIncludedSentence(un('PRIVX', 'Fundrise Income Fund', 'Ally CD'), 0)).toBe("The beginning can't be worked back: PRIVX, Fundrise Income Fund and Ally CD have no price history.");
+  });
+  test.failing("complex · Two names — the judge's sentence, kept", () => {
+    expect(notIncludedSentence(un('Old employer plan fund', 'a holding'), 0)).toBe("The beginning can't be worked back: Old employer plan fund and a holding have no price history.");
   });
   // FIXED 2026-10-11 (outside review Claude Performance, DEC-3656): each name listed once — and since 2026-10-19 its
   // values added: PRIVX $3,000 in one account and $2,000 in another is PRIVX ($5,000)

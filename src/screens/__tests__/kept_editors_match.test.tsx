@@ -16,6 +16,11 @@
  *  HIS RULING ON THESE, 2026-10-04 (DEC-1558, DEC-1559, DEC-1560): put to him one by one, he ruled 5 (soonest
  *  maturing first) and 13 ("$0 — nothing sold" stays), and of the rest: "keep it" — 8 and 9 stay as built.
  *
+ *  EVERY FIGURE, AND EVERY BOX (2026-10-27, FX-PF; the round-2 drawing match NW2-25 and G-1): each phone is compared word for word AND
+ *  figure for figure (normExact, both ways), on the drawing's own day where a figure depends on it, and each drawn box is read against
+ *  the box on screen. Until then the comparisons ran through norm(), which writes every figure as "$#": Holding detail matched its
+ *  drawing while its household gave +61.23% beside +53.00%.
+ *
  *  KNOWN DIFFERENCES, each named where it is applied:
  *  1. The drawings write the top bar's wordmark as the words "Money Keel" and its two icons as glyphs.
  *     In the build the wordmark is the logo image and the icons are icons — none of them is text.
@@ -38,8 +43,9 @@
  *     DEC-2334), writes "Commodities" (7) and "Annuity" (18), and its own line under the kind. Those five drawn
  *     lines are not on the form, as ruled; they are pinned below, so the form cannot change without this test
  *     saying so. (It was recorded here as open until 2026-10-20, after he had ruled it.)
- * 10. Itemize: a bond's maturity is picked on the phone's own date control, which a test cannot
- *     drive, so the bond is placed without one and the drawn words "· matures 2032-05-15" are not held.
+ * 10. Itemize: a bond's maturity is picked on the phone's own date control. SINCE 2026-10-27 (FX-PF, NW2-25) the test picks it on that
+ *     control, as the phone does (its onChange), and the drawn maturity is held: "· matures May 15, 2032". Until then the bond was
+ *     placed without one and the drawn words "· matures 2032-05-15" were not held.
  *     (2026-10-19: the app writes that date in words, "· matures May 15, 2032", through dateShown; the
  *     drawing's READ THIS FIRST note says so.)
  *     The drawing writes that control by its name, "maturity date"; empty, it reads "Tap to pick a date",
@@ -100,8 +106,8 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react-native';
 import { useStore } from '../../store/useStore';
-import { fireEvent, waitFor } from '@testing-library/react-native';
-import { norm, drawingLines, builtLines, firstDifference, missingInOrder } from '../../testing/mockMatch';
+import { fireEvent, waitFor, act } from '@testing-library/react-native';
+import { norm, normExact, drawingLines, builtLines, firstDifference, missingInOrder } from '../../testing/mockMatch';
 
 let mockParams: Record<string, string> = {};
 // Look back fetches what it compares (2026-10-22): the price source answers nothing in this file, so no test reaches the network
@@ -138,16 +144,30 @@ const noteOf = (file: string) => {
   expect(at).toBeGreaterThan(0);
   return { html, rows: html.slice(at, html.indexOf('</table>', at)).replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ') };
 };
+/** WHAT EACH BOX ON SCREEN SHOWS, in order: its typed value, else its placeholder (2026-10-27, FX-PF; NW2-25 — the drawn boxes were
+ *  stripped and never read). A drawn box is held by being found among these, in the drawn order. */
+const boxesShown = (): string[] => screen.UNSAFE_root.findAll((n: any) => n.type === 'TextInput')
+  .map((n: any) => String(n.props?.value || n.props?.placeholder || '').trim()).filter(Boolean);
+const inOrder = (want: string[], got: string[]) => { let k = 0; for (const g of got) if (g === want[k]) k += 1; return want.slice(k); };
 const SIX = ['Taxable', '401(k)', 'Traditional IRA', 'Roth IRA', 'Roth 401(k)', 'HSA'];   // 19: the one list, in its order
 const flatStyle = (node: any) => require('react-native').StyleSheet.flatten(node.props.style);
 
+/** EXACT FIGURES, ON THE DRAWINGS' OWN DAY (2026-10-27, FX-CF-A; the round-2 drawing match, REC2-03): these two drawings were held
+ *  through norm(), which writes every figure as "$#" — so a table whose Out read $4,200 where the drawing says $4,220 still matched,
+ *  and only four figures were spot-checked beside it. Each phone is now held word for word AND figure for figure (normExact), both
+ *  ways (firstDifference reads the whole stream, so a line dropped or added fails as surely as one changed), on 2026-10-02, the day
+ *  both were approved: the Bill calendar's twelve months are Oct 2026 – Sep 2027 only on that day. */
+const DRAWN_DAY = () => jest.useFakeTimers({ now: new Date('2026-10-02T12:00:00'),
+  doNotFake: ['nextTick', 'setImmediate', 'queueMicrotask', 'setTimeout', 'setInterval', 'clearTimeout', 'clearInterval'] });
 describe('Bill calendar v02', () => {
   const yearOnce = (l: string) => l.replace(/ – (\w{3}) [’'](\d\d) (\d{4})/, ' – $1 $3');   // 24
   const P = phones('cashflow/moneykeel_pres_mock_bill-calendar_v02.html');
   const BillCalendarScreen = require('../BillCalendarScreen').default;
+  beforeEach(DRAWN_DAY);
+  afterEach(() => jest.useRealTimers());
   test('the drawing has its two phones', () => { expect(P).toHaveLength(2); });
 
-  test('phone 1 · a working household, twelve months ahead', () => {
+  test('phone 1 · a working household, twelve months ahead — every figure as drawn', () => {
     // $9,000 a month at their own 20% is $7,200 in; $4,220 out, and a $3,600 bill that falls in April
     // the drawing auto-fills the box from the accounts, so its household holds a checking account — at $0, a balance on record, from
     // which the table and the verdict are projected (the drawing's row of 2026-10-26: with no cash on record nothing is projected)
@@ -155,46 +175,55 @@ describe('Bill calendar v02', () => {
       taxMode: 'manual', manualTaxRate: '20', monthlySpending: '4220',
       spendCats: [{ id: 'everyday', label: 'Everyday', amount: 4220, bucket: 'flexible' }, { id: 'ins', label: 'Home insurance', amount: 3600, bucket: 'nonmonthly', months: [4], dueDay: 10 }] },
       assetAccounts: [{ asset_id: 'chk', label: 'Checking', kind: 'checking', tax_bucket: 'TAXABLE', balance: 0, asset_class: 'cash' }] });
-    const want = norm(upTo(P[0], /^A forward plan, not a promise/).map(yearOnce)).replace(/ tap any row for that month's full detail\.$/, '');   // 23
+    const want = normExact(upTo(P[0], /^A forward plan, not a promise/).map(yearOnce)).replace(/ tap any row for that month's full detail\.$/, '');   // 23
     expect(want.split(' ').length).toBeGreaterThan(120);
-    expect(firstDifference(want, norm(built))).toBe('');
-    expect(built.filter((l) => l === '+$7,200')).toHaveLength(12);         // the same in every month
+    expect(want).toContain('$32,160');                                    // the stream holds the figures, not "$#"
+    expect(firstDifference(want, normExact(built))).toBe('');
+    // worked by hand: each End is the last + $7,200 − Out — Oct 0 + 7,200 − 4,220 = 2,980 … Apr 17,880 + 7,200 − 7,820 = 17,260 … Sep 32,160
+    expect(built.filter((l) => l === '+$7,200')).toHaveLength(12);
     expect(built.filter((l) => l === '−$4,220')).toHaveLength(11);
     expect(built).toContain('−$7,820');                                    // April: $4,220 + the $3,600 bill
-    expect(built).toContain('Lowest point $2,980 — Oct.');                 // $7,200 − $4,220, from nothing
+    expect(built).toContain('Lowest point $2,980 — Oct.');
   });
 
-  test('phone 2 · the first day, nothing entered', () => {
+  test('phone 2 · the first day, nothing entered — every figure as drawn', () => {
     const built = show(BillCalendarScreen, { onboardingProfile: {} });
     // the drawing's READ THIS FIRST row of 2026-10-25 (BC-02, tenet 3): with nothing entered there is no verdict — the drawn "OK — you
     // stay above zero in all 12 months · Lowest point $0" is a verdict on nothing, and the table's "Nothing entered yet" stands instead
-    const want = norm(upTo(P[1], /^A forward plan, not a promise/).map(yearOnce)).replace(/ tap any row for that month's full detail\.$/, '')   // 23
-      .replace(/ ok — you stay above zero in all # months lowest point \$# — [a-z]+\./, '')
+    const want = normExact(upTo(P[1], /^A forward plan, not a promise/).map(yearOnce)).replace(/ tap any row for that month's full detail\.$/, '')   // 23
+      .replace(/ ok — you stay above zero in all 12 months lowest point \$0 — oct\./, '')
       // and its row of 2026-10-26: with no cash balance on record the line under the box says so (it said "Auto-filled … ($0)")
-      .replace("auto-filled from your accounts ($#) — the starting balance the table carries forward. edit it and the end column recalculates from there.",
+      .replace("auto-filled from your accounts ($0) — the starting balance the table carries forward. edit it and the end column recalculates from there.",
         'no cash balance on record yet — enter what you have, and the table starts from it.');
     expect(want.split(' ').length).toBeGreaterThan(100);
-    expect(firstDifference(want, norm(built))).toBe('');
+    expect(want).not.toMatch(/ok — you stay above zero|auto-filled/);   // both named changes found their drawn lines
+    expect(firstDifference(want, normExact(built))).toBe('');
+    // twelve months, each — in, — out, $0 at the end: nothing behind them (Q48)
+    expect(built.filter((l) => l === '$0')).toHaveLength(12);
+    expect(built.filter((l) => l === '—')).toHaveLength(24);
   });
 });
 
 describe('Monthly income v02', () => {
   const P = phones('cashflow/moneykeel_pres_mock_monthly-income_v02.html');
   const MonthlyIncomeScreen = require('../MonthlyIncomeScreen').default;
+  beforeEach(DRAWN_DAY);
+  afterEach(() => jest.useRealTimers());
   test('the drawing has its two phones', () => { expect(P).toHaveLength(2); });
 
-  test('phone 1 · a retired household', () => {
+  test('phone 1 · a retired household — every figure as drawn', () => {
     const built = show(MonthlyIncomeScreen, { onboardingProfile: { status: 'retired', incomeSources: ['retirement_income'], ri_ss: '2400', ri_pension: '1100' } });
-    const want = norm(upTo(P[0], /^Save$/));
+    const want = normExact(upTo(P[0], /^Save$/));
     expect(want.split(' ').length).toBeGreaterThan(55);
-    expect(firstDifference(want, norm(built))).toBe('');
-    expect(built).toContain('$3,500/month');                               // $2,400 + $1,100
+    expect(want).toContain('$3,500/month');                               // $2,400 + $1,100, held as a figure
+    expect(firstDifference(want, normExact(built))).toBe('');
   });
 
-  test('phone 2 · the first day, nothing entered', () => {
+  test('phone 2 · the first day, nothing entered — every figure as drawn', () => {
     const built = show(MonthlyIncomeScreen, { onboardingProfile: { status: 'retired', incomeSources: [] } });
-    expect(firstDifference(norm(upTo(P[1], /^Save$/)), norm(built))).toBe('');
-    expect(built).toContain('$0/month');
+    const want = normExact(upTo(P[1], /^Save$/));
+    expect(want).toContain('$0/month');
+    expect(firstDifference(want, normExact(built))).toBe('');
   });
 });
 
@@ -207,6 +236,7 @@ describe('Look back v01', () => {
     { position_id: `p${i}`, ticker: t, kind: t === 'BND' ? 'fixed_income' : 'stocks', lots: [{ lot_id: `l${i}`, shares: 100, cost_per_share: 100, purchase_date: '2024-01-01' }] })) }];
   // 2: the amount sits in an input box, which the reader does not read — so the drawn "20,000" is taken out of the words and
   // held on the box itself: since 2026-10-25 (MM-PF D16) the box reads "20,000" with its separator, as drawn (it read "20000")
+  // (the money-box row of 2026-10-27, DEC-8385: nothing seen changes — the $ beside the box, '20,000' in it)
   const noTyped = (lines: string[]) => lines.filter((l) => l !== '20,000');
   const amountBox = () => screen.getByLabelText('Amount to look back on');
   const fourMore = (s: string) => s.replace(/ agg gld btc aor/g, '');                                          // 3: the four yardsticks he added
@@ -214,9 +244,13 @@ describe('Look back v01', () => {
 
   test('state A · with prices — what actually happened, in three lines', () => {
     const built = show(LookBackScreen, { onboardingProfile: {}, assetAccounts: HELD, priceCache: { BND: { ticker: 'BND', ...series(100, 102.5) }, SPY: { ticker: 'SPY', ...series(100, 116) } } });
-    const want = norm(noTyped(upTo(P[0], /^Real past prices/)));
+    // EVERY FIGURE AS DRAWN (2026-10-27, FX-PF; NW2-25 — it was norm(), "$#" for every figure): $20,000 × 1.025 = $20,500, × 1.16 =
+    // $23,200, $2,700 apart; the two percents to two decimals, as the drawing's row of 2026-10-25 writes them (+2.50%, +16.00%)
+    const want = normExact(noTyped(upTo(P[0], /^Real past prices/))).replace('(up $500, +2.5%)', '(up $500, +2.50%)').replace('(up $3,200, +16.0%)', '(up $3,200, +16.00%)');
     expect(want.split(' ').length).toBeGreaterThan(45);
-    expect(firstDifference(want, fourMore(norm(built)))).toBe('');
+    expect(want).toContain('$20,500');
+    expect(want).toContain('+16.00%');                                                                         // both replacements found their drawn words
+    expect(firstDifference(want, fourMore(normExact(built)))).toBe('');
     expect(built.slice(built.indexOf('From') + 1, built.indexOf('When'))).toEqual(                                // 3
       ['BND', 'VTI', 'QQQ', 'AGG', 'GLD', 'BTC', 'AOR', 'To', 'SPY', 'VTI', 'QQQ', 'AGG', 'GLD', 'BTC', 'AOR']);
     expect(built).toContain('Left in BND it became $20,500 (up $500, +2.50%)');                                 // $20,000 × 1.025 — a percent to two decimals (Q49)
@@ -241,8 +275,8 @@ describe('Look back v01', () => {
 
   test('state B · prices that do not reach back that far — it says what is missing and what to do', () => {
     const built = show(LookBackScreen, { onboardingProfile: {}, assetAccounts: HELD, priceCache: { BND: { ticker: 'BND', ...series(100, 102.5, 4) }, SPY: { ticker: 'SPY', ...series(100, 116, 4) } } });
-    const want = norm(noTyped(upTo(P[1], /pick a shorter window\.$/)));
-    expect(firstDifference(want, fourMore(norm(built)))).toBe('');
+    const want = normExact(noTyped(upTo(P[1], /pick a shorter window\.$/)));
+    expect(firstDifference(want, fourMore(normExact(built)))).toBe('');
     expect(built.join(' ')).not.toMatch(/Difference:/);                                                         // nothing invented
   });
 });
@@ -253,6 +287,15 @@ describe('Add an account, by hand v02', () => {
   // 2: what is typed sits in a box — except the date button, which the build prints as words
   const P = phones(NW + 'add-account-by-hand_v02.html', [/<div class="in">(?!Tap to pick a date)[\s\S]*?<\/div>/g]);
   const AddAccountScreen = require('../AddAccountScreen').default;
+  /** each phone's drawn boxes, as drawn (what each box shows), phone by phone */
+  const BOXES = ((html: string) => {
+    const segs = html.split('<span>9:41</span>').slice(1);
+    return segs.map((seg) => [...seg.matchAll(/<div class="in">(?!Tap to pick a date)([\s\S]*?)<\/div>/g)].map((m) => m[1].replace(/<[^>]+>/g, '').replace(/&amp;/g, '&').replace(/\s+/g, ' ').trim()).filter(Boolean));
+  })(require('fs').readFileSync(require('path').join(__dirname, '..', '..', '..', 'MoneyKeel/documents/' + NW + 'add-account-by-hand_v02.html'), 'utf8'));
+  // on the drawn day: its "Value as of" reads Sep 14, 2026, a figure that depends on today's date (normExact, 2026-10-27)
+  beforeEach(() => jest.useFakeTimers({ now: new Date('2026-09-14T12:00:00'),
+    doNotFake: ['nextTick', 'setImmediate', 'queueMicrotask', 'setTimeout', 'setInterval', 'clearTimeout', 'clearInterval'] }));
+  afterEach(() => jest.useRealTimers());
   test('the drawing has its six phones — one for each kind of account', () => { expect(P).toHaveLength(6); });
   test.each([['Cash', 0], ['Stocks / Funds', 1], ['Bonds', 2], ['Alternatives', 3], ['Real estate', 4], ['Debt', 5]] as [string, number][])(
     'phone %#: %s — the questions that kind asks, and no others', (kind, k) => {
@@ -260,13 +303,18 @@ describe('Add an account, by hand v02', () => {
       fireEvent.press(screen.getAllByText(kind)[0]);
       // 17: HIS RULING, 2026-10-06 — the drawn "Private stake" chip is not offered in this phase
       // 18: DEC-4529 — the drawn chip "Annuity" reads "Annuities" (the drawing's READ THIS FIRST line of 2026-10-20)
-      const want = norm(upTo(P[k], /^Save$/)).replace('debt balance (optional)', 'mortgage balance (optional)').replace(' private stake', '').replace(' annuity ', ' annuities ')   // 15, 17, 18
-        .replace(' held in taxable #(k) / ira roth ', ` held in ${norm(SIX)} `)                                                                // 19
+      // NW2-25 (2026-10-27, FX-PF): the drawn boxes, read against the boxes on screen, in order — they were stripped and never read
+      const drawnBoxes = BOXES[k];
+      expect(drawnBoxes.length).toBeGreaterThanOrEqual(1);
+      expect(inOrder(drawnBoxes, boxesShown())).toEqual([]);
+      // and every drawn word and figure, exact (normExact; it was norm(), "$#" for every figure)
+      const want = normExact(upTo(P[k], /^Save$/)).replace('debt balance (optional)', 'mortgage balance (optional)').replace(' private stake', '').replace(' annuity ', ' annuities ')   // 15, 17, 18
+        .replace(' held in taxable 401(k) / ira roth ', ` held in ${normExact(SIX)} `)                                                       // 19
         .replace('face value (optional) interest rate % (optional) matures', 'face value (optional) what you paid (optional) interest rate % (optional) pays interest once a year twice a year matures');   // 20, 21
       expect(want.split(' ').length).toBeGreaterThan(20);
       // 16: HIS RULE, 2026-10-04 (DEC-1926) — the form asks the one thing nothing else can tell it: which
       // property is the home lived in. Everything else about a property's use is read from the rent entered.
-      expect(firstDifference(want, norm(builtLines(screen.toJSON())).replace(' is this the home you live in? yes no', ''))).toBe('');
+      expect(firstDifference(want, normExact(builtLines(screen.toJSON())).replace(' is this the home you live in? yes no', ''))).toBe('');
     });
 });
 
@@ -315,7 +363,9 @@ describe('Bonds v02', () => {
     const apple = seg.slice(a, c).filter((l) => !l.startsWith('* accrued')).map(ruled)
       .map((l) => /^Yield to maturity: /.test(l) ? `${l} *` : l);
     // (the figures in the note are masked by norm; only its words are compared)
-    const note = star.map(() => '* Added estimated $193 in accrued interest to bond value at 4.5% coupon for 206 days to calculate YTM. If this is not accurate, enter actual accrued interest');
+    // THE ROW OF 2026-10-27 (NW2-14, Bonds v02 READ THIS FIRST): Apple Corp's Pays interest was never chosen, so the note says the estimate
+    // takes it as once a year, after his sentence (DEC-3390, kept word for word)
+    const note = star.map(() => '* Added estimated $193 in accrued interest to bond value at 4.5% coupon for 206 days to calculate YTM. If this is not accurate, enter actual accrued interest. How often it pays is not entered, so the estimate takes it as once a year.');
     const soonestFirst = [...seg.slice(0, t), ...seg.slice(c, add), ...seg.slice(t, a), ...apple, ...note, ...seg.slice(add)];   // 5
     expect(firstDifference(norm(soonestFirst), norm(built))).toBe('');
     expect(built.indexOf('Chase 12-month CD')).toBeLessThan(built.indexOf('US Treasury 2027'));            // Feb 2027, then Jun 2027, then Mar 2030
@@ -323,16 +373,48 @@ describe('Bonds v02', () => {
     expect(built).toEqual(expect.arrayContaining(['$74,180', '3 bonds · face $75,000', '$3,163', '4.26%', '$1,063/year coupon', 'yield 4.31%', 'yield 4.61%', 'yield 4.00%']));
   });
 
+  test('phone 1 · ON THE DRAWN DAY, Oct 1, 2026 — every figure as drawn, or as its rows give it (2026-10-27, FX-PF; NW2-25)', () => {
+    jest.useFakeTimers({ now: new Date('2026-10-01T12:00:00'), doNotFake: ['nextTick', 'setImmediate', 'queueMicrotask', 'setTimeout', 'setInterval', 'clearTimeout', 'clearInterval'] });
+    try {
+      const built = show(BondsScreen, { assetAccounts: BONDS });
+      const seg = upTo(P[0], /Yield to maturity is an estimate\.$/);
+      const at = (name: string) => seg.indexOf(name);
+      const [t, a, c, add] = [at('US Treasury 2027'), at('Apple Corp 4.5%'), at('Chase 12-month CD'), at('＋ Add a bond')];
+      // each place the drawing is not the design, by its dated row — every one must find its drawn line:
+      //   5 (DEC-1558) soonest maturity first · 2026-10-11 whole years left on Oct 1, 2026: the CD 123 days → 0y, the Treasury 272 → 1y,
+      //   Apple 1,261 → 3y · 2026-10-25 the yields to maturity on the drawn day: Treasury ((25,000 + 1,062.50) ÷ 24,650)^(1 ÷ 0.745) − 1 =
+      //   7.76%, Apple 5.25% · DEC-3390 the star moves to the yield to maturity, with his sentence: Apple's accrued 20,000 × 4.5% × 200 ÷
+      //   365 = $493 for the 200 days since Mar 15 · NW2-14 (2026-10-27) how often it pays, not chosen, is said
+      const LINE: Record<string, string> = {
+        'face $25,000 · 4.25% coupon · matures Jun 30, 2027 · 2y': 'face $25,000 · 4.25% coupon · matures Jun 30, 2027 · 1y',
+        'face $20,000 · 4.50% coupon · matures Mar 15, 2030 · 4y': 'face $20,000 · 4.50% coupon · matures Mar 15, 2030 · 3y',
+        'face $30,000 · 4.00% coupon · matures Feb 1, 2027 · 1y': 'face $30,000 · 4.00% coupon · matures Feb 1, 2027 · 0y',
+        'Yield to maturity: 4.95%': 'Yield to maturity: 7.76%', 'Yield to maturity: 5.12%': 'Yield to maturity: 5.25% *', 'yield 4.61% *': 'yield 4.61%',
+        '* accrued interest not entered — the yield uses the price as you entered it': '* Added estimated $493 in accrued interest to bond value at 4.5% coupon for 200 days to calculate YTM. If this is not accurate, enter actual accrued interest. How often it pays is not entered, so the estimate takes it as once a year.',
+      };
+      for (const k of Object.keys(LINE)) expect(seg.includes(k) ? k : `NOT FOUND: ${k}`).toBe(k);
+      const apple = seg.slice(a, c).map((l) => LINE[l] ?? l);
+      const designed = [...seg.slice(0, t), ...seg.slice(c, add), ...seg.slice(t, a), ...apple, ...seg.slice(add)].map((l) => LINE[l] ?? l);   // 5
+      expect(firstDifference(normExact(designed), normExact(built))).toBe('');
+    } finally { jest.useRealTimers(); }
+  });
+
   test('phone 2 · the first day — a real $0, what belongs here, and one button', () => {
     const built = show(BondsScreen, { assetAccounts: [] }).filter((l) => l !== 'Nothing entered yet. Add a bond ›');   // 6
-    expect(firstDifference(norm(upTo(P[1], /^＋ Add a bond$/)), norm(built))).toBe('');
+    expect(firstDifference(normExact(upTo(P[1], /^＋ Add a bond$/)), normExact(built))).toBe('');   // exact: its $0 as drawn (2026-10-27)
     expect(show(BondsScreen, { assetAccounts: [] })).toContain('Nothing entered yet. Add a bond ›');
   });
 
   test('phone 3 · the editor — every drawn line is on the form, in the drawn order', () => {
-    show(BondsScreen, { assetAccounts: BONDS });
+    // the drawn editor's accrued-interest box is empty (its placeholder shows), so the Treasury opened here has none typed — the 0
+    // the list's household types for phone 1 would show as "0" in the box (NW2-25: the boxes are read now, not stripped)
+    show(BondsScreen, { assetAccounts: BONDS.map((b) => (b.asset_id === 'b1' ? (({ accrued_interest: _typed, ...rest }) => rest)(b) : b)) });
     fireEvent.press(screen.getByText('US Treasury 2027'));
     const typed = ['US Treasury 2027', '25000', '4.25', 'interest earned since the last coupon, if you know it', 'amount sold (up to $24,650)'];   // 2
+    // NW2-25: each drawn box, read, in order — a money box as its row of 2026-10-27 says it is shown (DEC-8385: '$25,000' where
+    // '25000' is drawn); the rate box keeps its plain 4.25
+    expect(noteOf(NW + 'bonds_v02.html').rows).toMatch(/Every money box on this screen shows its figure the way a figure is printed/);
+    expect(inOrder(typed.map((t) => (t === '25000' ? '$25,000' : t)), boxesShown())).toEqual([]);
     const seg = upTo(P[2], /^Sold the whole position/).filter((l) => !typed.includes(l) && l !== '‹ Back');
     // the drawing's markup breaks two sentences across lines; the build prints each as one
     // his ruling DEC-3390 on top of the drawing (2026-10-09, noted at its top): the value field says it is the
@@ -430,18 +512,26 @@ describe('Alternatives v02', () => {
   ];
   test('the drawing has its three phones', () => { expect(P).toHaveLength(3); });
 
-  test('phone 1 · with holdings — the total, its share, and a row for each', () => {
+  test('phone 1 · with holdings — the total, its share, and a row for each — every figure as drawn, or as its row of 2026-10-20 gives it', () => {
+    // EXACT (2026-10-27, FX-PF; NW2-25 — it was norm(), "$#" for every figure). Fund III saved before private equity left the app keeps
+    // its kind, so the drawn figures stand where they are the app's: $61,500 = 28,000 + 25,000 + 8,500, 12% of $512,500. The rates,
+    // the blend and the growth are the row's (18, DEC-4529): (28,000 × 8.00% + 25,000 × 13.00% + 8,500 × 8.20%) ÷ 61,500 = 6,187 ÷ 61,500
+    // = 10.06%, $6,187 — the row's own figures for the holding kept as private equity.
     const built = show(OtherInvestmentsScreen, { assetAccounts: ALTS });
-    const want = norm(upTo(P[0], /not guarantees\.$/)).replace('$# commodities ~#%/year expected', '$# gold / commodities ~#%/year expected');   // 7
+    const fix: [string, string][] = [['exp. return 7.32% est. growth /year $4,502', 'exp. return 10.06% est. growth /year $6,187'],
+      ['crypto ~9.00%/year expected', 'crypto ~8.00%/year expected'], ['private equity ~7.00%/year expected', 'private equity ~13.00%/year expected'],
+      ['commodities ~3.50%/year expected', 'gold / commodities ~8.20%/year expected']];                                       // 7, 18
+    let want = normExact(upTo(P[0], /not guarantees\.$/));
+    for (const [d, w] of fix) { expect(want.includes(d) ? d : `NOT FOUND: ${d}`).toBe(d); want = want.split(d).join(w); }
     expect(want.split(' ').length).toBeGreaterThan(45);
-    expect(firstDifference(want, norm(built))).toBe('');
+    expect(firstDifference(want, normExact(built))).toBe('');
     expect(built).toEqual(expect.arrayContaining(['$61,500', '3 holdings · 12% of your investable assets', '$28,000', '$25,000', '$8,500']));   // $28,000 + $25,000 + $8,500; ÷ $512,500
   });
 
   test('phone 2 · the first day', () => {
     const built = show(OtherInvestmentsScreen, { assetAccounts: [] }).filter((l) => l !== 'Nothing entered yet. Add an investment ›');   // 6
     // 17: HIS RULING, 2026-10-06 — private equity and hedge funds are not offered in this phase
-    expect(firstDifference(norm(upTo(P[1], /^＋ Add an investment$/)).replace('crypto, private equity, hedge funds, commodities', 'crypto, commodities'), norm(built))).toBe('');
+    expect(firstDifference(normExact(upTo(P[1], /^＋ Add an investment$/)).replace('crypto, private equity, hedge funds, commodities', 'crypto, commodities'), normExact(built))).toBe('');   // exact: its $0 as drawn (2026-10-27)
   });
 
   // 18: THE DRAWING'S PHONE 1 FIGURES ARE NOT THE APP'S (DEC-4529). Its READ THIS FIRST line of 2026-10-20 gives the
@@ -467,6 +557,9 @@ describe('Alternatives v02', () => {
     show(OtherInvestmentsScreen, { assetAccounts: ALTS });
     fireEvent.press(screen.getByText('Bitcoin'));
     const typed = ['Bitcoin', 'Coinbase', '28000', 'amount sold (up to $28,000)', '‹ Back'];                 // 2
+    // NW2-25: each drawn box, read, in order — the value box as its row of 2026-10-27 says a money box is shown ('$28,000')
+    expect(noteOf(NW + 'alternatives_v02.html').rows).toMatch(/Every money box on this screen shows its figure the way a figure is printed/);
+    expect(inOrder(typed.slice(0, 4).map((t) => (t === '28000' ? '$28,000' : t)), boxesShown())).toEqual([]);
     const form = builtLines(screen.toJSON()); const from = form.indexOf('Edit investment');
     const drawn = upTo(P[2], /^Sold all of it/).filter((l) => !typed.includes(l));
     const sentence = drawn.slice(drawn.indexOf('🔻 Sell') + 1, drawn.indexOf('Record')).join(' ');           // one sentence in the build
@@ -480,24 +573,56 @@ describe('Alternatives v02', () => {
   });
 });
 
+/** ITEMIZE v02, FIGURE FOR FIGURE, ITS BOXES READ, ITS BOND'S MATURITY PICKED (2026-10-27, FX-PF; the round-2 drawing match NW2-25). It
+ *  was held through norm() ("$#" for every figure), with every drawn box stripped out, and the bond placed with no maturity because
+ *  the date is picked on the phone's own control — so "· matures May 15, 2032" was never checked. Now: the maturity is picked on that
+ *  control (its onChange, as the phone calls it), every drawn word and figure is compared both ways, and each drawn box is read
+ *  against the box on screen — what it shows, its typed value or its placeholder, in its place. By hand: 18,400 + 12,000 + 6,000 =
+ *  36,400 of 48,000, $11,600 left; with NVDA's 14,200, 50,600 — $2,600 over. */
 describe('Itemize v02', () => {
-  const P = phones(NW + 'itemize_v02.html', [/<div class="input[^"]*">[\s\S]*?<\/div>/g, /<[a-z]+ class="amtIn[^"]*">[\s\S]*?<\/[a-z]+>/g]);   // 2
+  const P = phones(NW + 'itemize_v02.html');
   const ItemizeScreen = require('../ItemizeScreen').default;
   const start = () => show(ItemizeScreen, { assetAccounts: [{ asset_id: 'chase', label: 'Chase', kind: 'brokerage', tax_bucket: 'TAXABLE', balance: 48000 }] }, { accountId: 'chase' });
-  const place = (kind: string, placeholder: string, name: string, amount: string) => {
+  /** every Text and every box, in order — a box as what it shows: its typed value, else its placeholder */
+  const withBoxes = (): string[] => {
+    const out: string[] = [];
+    const text = (n: any): string => (n == null ? '' : typeof n === 'string' ? n : Array.isArray(n) ? n.map(text).join('') : (n.children ?? []).map(text).join(''));
+    const walk = (n: any) => {
+      if (n == null || typeof n === 'string') return;
+      if (Array.isArray(n)) { n.forEach(walk); return; }
+      if (n.type === 'TextInput') { const t = String(n.props?.value || n.props?.placeholder || '').trim(); if (t) out.push(t); return; }
+      if (n.type === 'Text') { const t = text(n).replace(/\s+/g, ' ').trim(); if (t) out.push(t); return; }
+      (n.children ?? []).forEach(walk);
+    };
+    walk(screen.toJSON());
+    return out;
+  };
+  const pickMaturity = (y: number, m: number, d: number) => {
+    fireEvent.press(screen.getByLabelText('Pick a maturity date'));
+    const pickers = screen.UNSAFE_root.findAll((n: any) => n.props?.mode === 'date' && typeof n.props?.onChange === 'function');
+    expect(pickers.length).toBeGreaterThanOrEqual(1);                                       // the phone's own control is there
+    act(() => { pickers[0].props.onChange({ type: 'set' }, new Date(y, m - 1, d)); });
+  };
+  const place = (kind: string, placeholder: string, name: string, amount: string, maturity?: [number, number, number]) => {
     fireEvent.press(screen.getByLabelText(kind));
     fireEvent.changeText(screen.getByPlaceholderText(placeholder), name);
+    if (maturity) pickMaturity(...maturity);
     fireEvent.changeText(screen.getByPlaceholderText('0'), amount);
     fireEvent.press(screen.getByLabelText('Add this holding'));
   };
   const three = () => {
     place('Stock / Fund', 'Ticker or name (e.g. AAPL)', 'AAPL', '18400');
-    place('Bond', 'Bond name (e.g. US Treasury 2032)', 'US Treasury 2032', '12000');
+    place('Bond', 'Bond name (e.g. US Treasury 2032)', 'US Treasury 2032', '12000', [2032, 5, 15]);   // the drawn maturity
     place('Cash', 'Name', 'Chase sweep', '6000');
   };
-  const noMaturity = (s: string) => s.replace('bond matures #-#-# $#', 'bond $#')                            // 10
-    .replace('itemize chase ✕ add what', 'itemize chase add what')                                            // 11
-    .replace('coupon % (optional) maturity date', 'tap to pick a date');                                      // 2, 10
+  /** 11: no ✕ beside the title (the build closes with Back); the maturity in words (the row of 2026-10-19); 10: an empty date box reads
+   *  "Tap to pick a date". Each must find its drawn words. */
+  const KNOWN: [string, string][] = [['itemize chase ✕ add what', 'itemize chase add what'], ['bond matures 2032-05-15', 'bond matures may 15, 2032']];
+  const asDesigned = (drawn: string, extra: [string, string][] = []) => {
+    let w = drawn;
+    for (const [d, b] of [...KNOWN, ...extra]) { expect(w.includes(d) ? d : `NOT FOUND: ${d}`).toBe(d); w = w.split(d).join(b); }
+    return w;
+  };
   test('the drawing records 10 and 11 on its face, dated 2026-10-25 — it is not approved, so the notes say what the screen does', () => {
     const { html } = noteOf(NW + 'itemize_v02.html');
     expect(html).toMatch(/READ THIS FIRST \(2026-10-25, DEC-0651\):<\/b> this drawing was taken as the design on 2026-10-01 on my decision, not his/);
@@ -506,91 +631,144 @@ describe('Itemize v02', () => {
   });
   test('the drawing has its three phones', () => { expect(P).toHaveLength(3); });
 
-  test('phone 1 · nothing placed — the whole balance is unallocated and Done waits', () => {
-    const built = start();
-    expect(firstDifference(norm(upTo(P[0], /^Done — replace with 0 holdings$/)), norm(built))).toBe('');
-    expect(built).toEqual(expect.arrayContaining(['$48,000', '$0 of $48,000 itemized']));
+  test('phone 1 · nothing placed — the whole balance is unallocated and Done waits — every figure and box as drawn', () => {
+    start();
+    expect(firstDifference(normExact(upTo(P[0], /^Done — replace with 0 holdings$/)), normExact(withBoxes()))).toBe('');
+    expect(withBoxes()).toEqual(expect.arrayContaining(['$48,000', '$0 of $48,000 itemized', 'Ticker or name (e.g. AAPL)', '0']));
   });
 
-  test('phone 2 · three holdings placed, money left over — the note says where it goes', () => {
+  test('phone 2 · three holdings placed, money left over — the maturity picked and printed, every figure and box as drawn', () => {
     start(); three();
     fireEvent.press(screen.getByLabelText('Stock / Fund'));
-    const built = builtLines(screen.toJSON());
-    expect(firstDifference(noMaturity(norm(upTo(P[1], /^Done — replace with 3 holdings$/))), norm(built))).toBe('');
+    const built = withBoxes();
+    expect(firstDifference(asDesigned(normExact(upTo(P[1], /^Done — replace with 3 holdings$/))), normExact(built))).toBe('');
+    expect(built).toContain('Bond · matures May 15, 2032');                                   // NW2-25: the drawn maturity, held
     expect(built).toEqual(expect.arrayContaining(['$11,600', '$36,400 of $48,000 itemized', '$18,400', '$12,000', '$6,000']));   // $48,000 − $36,400
   });
 
-  test('phone 3 · more placed than the account holds — it says the new total rather than correcting silently', () => {
+  test('phone 3 · more placed than the account holds — it says the new total; the bond form\'s boxes as drawn, and one more', () => {
     start(); three();
     place('Stock / Fund', 'Ticker or name (e.g. AAPL)', 'NVDA', '14200');
     fireEvent.press(screen.getByLabelText('Bond'));
-    const built = builtLines(screen.toJSON());
-    expect(firstDifference(noMaturity(norm(upTo(P[2], /^Done — replace with 4 holdings$/))), norm(built))).toBe('');
-    expect(built).toEqual(expect.arrayContaining(['$2,600 over', '$50,600 of $48,000 itemized', '$14,200']));  // $50,600 − $48,000
+    const built = withBoxes();
+    // NW2-13 (open with FX-NW on 2026-10-27): the form asks one box the drawing does not draw and no Itemize row names. It is held as
+    // the one extra line, in its place, so the day it is drawn or ruled this test says so.
+    const FACE = 'Face value (optional) — what it pays back';
+    expect(built.filter((l) => l === FACE)).toHaveLength(1);
+    const want = asDesigned(normExact(upTo(P[2], /^Done — replace with 4 holdings$/)), [['coupon % (optional) maturity date', 'coupon % (optional) tap to pick a date']]);
+    expect(firstDifference(want, normExact(built.filter((l) => l !== FACE)))).toBe('');
+    expect(built).toEqual(expect.arrayContaining(['$2,600 over', '$50,600 of $48,000 itemized', '$14,200', 'Bond name (e.g. US Treasury 2032)', 'Coupon % (optional)', 'Tap to pick a date']));  // $50,600 − $48,000
   });
 });
 
+/** HOLDING DETAIL v02, FIGURE FOR FIGURE ON THE DRAWING'S OWN DAY (2026-10-27, FX-PF; the round-2 drawing match, G-1 and NW2-25).
+ *  It was held through norm(), which writes every figure as "$#", on a household with no close on the evening before the past year
+ *  began or on Jan 8: the screen read Your return +61.23% and the market +53.00% and still matched. It is now rendered on Sep 30, 2026
+ *  (the drawing's LAST CLOSE · SEP 30, 2026) with the closes the drawing's own arithmetic uses — AAPL $175.00 the evening before the
+ *  past year began, $192.50 the evening before the Jan 9 purchase, $239.53 and $241.84; the market $500 and $612 — and every drawn
+ *  word AND figure is compared, both ways (firstDifference reads the whole stream). Each place the drawing is not the design is
+ *  replaced by what its dated READ THIS FIRST row says, and each replacement must find its drawn words. By hand, phone A:
+ *    Your return (100 × 192.50 ÷ 100 × 175.00) × (140 × 241.84 ÷ (100 × 192.50 + 7,700)) − 1 = 1.1 × 33,857.60 ÷ 26,950 − 1 = +38.19%
+ *    the market 612 ÷ 500 − 1 = +22.40% (the same days, split at the purchase), ahead by 38.19 − 22.40 = 15.79 points
+ *    value 140 × $241.84 = $33,857.60 → $33,858; paid $16,800 + $7,700 = $24,500; gain $9,357.60 → $9,358, +38.19% of $24,500
+ *    long-term 100 × ($241.84 − $168.00) = $7,384; short-term 40 × ($241.84 − $192.50) = $1,973.60 → $1,974; the day $2.31 on $239.53 = 0.96% */
 describe('Holding detail v02', () => {
   const P = phones(NW + 'holding-detail_v02.html');
   const HoldingDetailScreen = require('../HoldingDetailScreen').default;
-  const day = (n: number) => iso(new Date(Date.now() - n * 86400e3));
-  const months = (m: number) => { const n = new Date(); return iso(new Date(n.getFullYear(), n.getMonth() - m, n.getDate())); };
-  const SPY = { ticker: 'SPY', points: [{ date: months(26), close: 400 }, { date: months(12), close: 500 }, { date: months(6), close: 560 }, { date: day(1), close: 610 }, { date: day(0), close: 612 }] };
-  const live = { pricesFetchedAt: new Date().toISOString() };
+  beforeEach(() => jest.useFakeTimers({ now: new Date('2026-09-30T12:00:00'),
+    doNotFake: ['nextTick', 'setImmediate', 'queueMicrotask', 'setTimeout', 'setInterval', 'clearTimeout', 'clearInterval'] }));
+  afterEach(() => jest.useRealTimers());
+  const SPY = { ticker: 'SPY', points: [{ date: '2024-09-27', close: 420 }, { date: '2025-09-28', close: 500 }, { date: '2025-09-29', close: 500 }, { date: '2026-01-08', close: 540 }, { date: '2026-09-29', close: 610 }, { date: '2026-09-30', close: 612 }] };
+  const live = { pricesFetchedAt: '2026-09-30T11:00:00Z' };
+  /** [drawn, built, the row that says so] — every drawn piece must be found, or the test fails rather than going quiet */
+  const apply = (drawn: string, known: [string, string, string][]) => {
+    let s = drawn;
+    for (const [d, b, row] of known) { expect(s.includes(d) ? d : `NOT FOUND (${row}): ${d}\n IN: ${s}`).toBe(d); s = s.split(d).join(b); }
+    return s;
+  };
+  // PF-8 (row of 2026-10-27): the account's one name. 16 (row of 2026-10-21): the band names the last close and its day.
+  const NAME = (who: string): [string, string, string] => [`in ${who} `, `in ${who} brokerage `, 'PF-8, 2026-10-27'];
+  const CLOSE: [string, string, string] = ['current price live', 'last close sep 30, 2026', '16, 2026-10-21'];
   test('the drawing has its three phones', () => { expect(P).toHaveLength(3); });
 
-  test('phone 1 · a priced holding — price, position, the market beside it, what was bought, and the tax if sold today', () => {
+  test('phone 1 · a priced holding — price, position, the market beside it, what was bought, and the tax if sold today — every figure as drawn', () => {
     const built = show(HoldingDetailScreen, { ...live,
       assetAccounts: [{ asset_id: 'fid', label: 'Fidelity', institution: 'Fidelity', kind: 'brokerage', tax_bucket: 'TAXABLE', balance: 0, derive_balance: true,
         positions: [{ position_id: 'p1', ticker: 'AAPL', label: 'Apple Inc.', kind: 'stocks_etf', lots: [
           { lot_id: 'l1', shares: 100, cost_per_share: 168, purchase_date: '2023-03-14' }, { lot_id: 'l2', shares: 40, cost_per_share: 192.5, purchase_date: '2026-01-09' }] }] }],
-      priceCache: { AAPL: { ticker: 'AAPL', points: [{ date: months(26), close: 150 }, { date: months(12), close: 175 }, { date: months(6), close: 210 }, { date: day(1), close: 239.53 }, { date: day(0), close: 241.84 }] }, SPY },
-      transactions: [{ id: 'd1', account_id: 'fid', type: 'DIVIDEND', ticker: 'AAPL', amount: 134.4, date: day(60) }],
+      priceCache: { AAPL: { ticker: 'AAPL', points: [{ date: '2024-09-27', close: 150 }, { date: '2025-09-28', close: 175 }, { date: '2025-09-29', close: 175 },
+        { date: '2026-01-08', close: 192.5 }, { date: '2026-09-29', close: 239.53 }, { date: '2026-09-30', close: 241.84 }] }, SPY },
+      transactions: [{ id: 'd1', account_id: 'fid', type: 'DIVIDEND', ticker: 'AAPL', amount: 134.4, date: '2026-08-01' }],
     }, { account: 'fid', position: 'p1' });
-    const want = norm(upTo(P[0], /^Activity$/))
-      .replace('realized from sales $# from your recorded buys and sells (oldest shares sold first).', 'realized from sales $# — nothing sold')   // 13
-      .replace('gain — short-term (under # yr)', 'gain — short-term (held # yr or less)')                                                     // 14
-      // 15: the drawing's note was false — both figures are read from dividend-adjusted closes (DEC-4645, 2026-10-12;
-      // the drawing carries a dated READ THIS FIRST line)
-      .replace('price changes only — dividends not included', 'both include dividends and interest')
-      // 16: the drawing's live wording — the price is the last close the app holds, so the band says so with its day
-      // (2026-10-21, the lead's decision under tenets 1, 2 and 7; the drawing carries a dated READ THIS FIRST line)
-      .replace('current price live', 'last close <date>')
-      // 24: the twelve-month window spelled out (Q35, 2026-10-21, the lead's decision; the drawing carries a dated READ THIS
-      // FIRST row). The average's info dot (Q34, the same day) is a glyph, which this reading leaves out, as it does the
-      // benchmark's; holding_cost_not_on_record.test.tsx holds the dot and its words.
-      .replace('dividends received (# mo)', 'dividends received (trailing twelve months)');
-    expect(want.split(' ').length).toBeGreaterThan(110);
-    expect(firstDifference(want, norm(built))).toBe('');
-    // 12: the drawing's own arithmetic, in the standard's precision
-    expect(built).toEqual(expect.arrayContaining(['$241.84', '$33,858', '140 shares', '$175.00', '100 sh @ $168.00', '40 sh @ $192.50', '$24,500', '$134']));   // 140 × $241.84 = $33,857.60
-    expect(built).toContain('▲ +$9,358 (+38.19%)');                                    // $33,857.60 − $24,500, over $24,500 — two decimals
-    expect(built).toContain('▲ up $2.31 (0.96%) today');                               // $241.84 against $239.53
+    const want = apply(normExact(upTo(P[0], /^Activity$/)), [
+      NAME('fidelity'), CLOSE,
+      ['(1.0%) today', '(0.96%) today', '12 · 2026-10-21, fifteen figures: a percent to two decimals'],
+      ['current value $33,857.60', 'current value $33,858', '12 · a balance in whole dollars'],
+      ['▲ +$9,357.60 (38.19%)', '▲ +$9,358 (+38.19%)', '12 · whole dollars, the sign on the percent'],
+      ['your return, past year 38.19% the market, same dates 22.40% you are ahead by 15.8 points', 'your return, past year +38.19% the market, same dates +22.40% you are ahead by 15.79 points', '12 · 2026-10-21: two decimals, with their signs'],
+      ['price changes only — dividends not included', 'both include dividends and interest', '15 · DEC-4645'],
+      ['march 14, 2023', 'mar 14, 2023', '12 · the one date writer'], ['january 9, 2026', 'jan 9, 2026', '12 · the one date writer'],
+      ['total paid $24,500.00', 'total paid $24,500', '12 · a total in whole dollars'],
+      ['dividends received (12 mo) $134.40', 'dividends received (trailing twelve months) $134', '24 · Q35; 12 · whole dollars'],
+      ['realized from sales $0.00 from your recorded buys and sells (oldest shares sold first).', 'realized from sales $0 — nothing sold', '13 · DEC-1559'],
+      ['gain — long-term (held over 1 yr) +$7,400.00 gain — short-term (under 1 yr) +$1,957.60', 'gain — long-term (held over 1 yr) +$7,384 gain — short-term (held 1 yr or less) +$1,974', '14 · 2026-10-11 drawing error, DEC-0324'],
+    ]);
+    expect(want).toContain('+38.19%');                                                    // the stream holds the figures, not "$#"
+    expect(firstDifference(want, normExact(built))).toBe('');
+    expect(built).toContain('Your return, past year'); expect(built).toContain('+38.19%'); expect(built).toContain('+22.40%');
+    expect(built).toContain('ahead by 15.79 points');
   });
 
-  test('phone 2 · no live price — it shows what was paid, and says so', () => {
+  test('phone 2 · no live price — it shows what was paid, and says so — every figure as drawn', () => {
     const built = show(HoldingDetailScreen, { ...live,
       assetAccounts: [{ asset_id: 'cb', label: 'Coinbase', institution: 'Coinbase', kind: 'brokerage', tax_bucket: 'TAXABLE', balance: 0, derive_balance: true,
         positions: [{ position_id: 'p1', ticker: 'BTC', label: 'Bitcoin', kind: 'crypto', lots: [{ lot_id: 'l1', shares: 0.5, cost_per_share: 56000, purchase_date: '2024-07-02' }] }] }],
       priceCache: {} }, { account: 'cb', position: 'p1' });
-    // the purchase line carries the holding's own unit — the drawing's "0.5 sh" for a coin reads "0.5 coins", as Quantity does
-    // (DEC-0277, tenet 4; 2026-10-21, the drawing carries a dated READ THIS FIRST row)
-    expect(firstDifference(norm(upTo(P[1], /^Activity$/)).replace('<date> # sh @ $#', '<date> # coins @ $#'), norm(built))).toBe('');
-    expect(built).toEqual(expect.arrayContaining(['$28,000', '0.5 coins', '$56,000.00', '0.5 coins @ $56,000.00']));                    // 12
+    // 0.5 × $56,000 = $28,000; the coin quantity trimmed of its trailing zeros (12); the purchase in the holding's own unit (2026-10-21)
+    const want = apply(normExact(upTo(P[1], /^Activity$/)), [
+      NAME('coinbase'),
+      ['what you paid $28,000.00', 'what you paid $28,000', '12 · a total in whole dollars'],
+      ['quantity 0.50000000 coins', 'quantity 0.5 coins', '12 · a coin quantity, its trailing zeros trimmed'],
+      ['july 2, 2024 0.5 sh @ $56,000.00', 'jul 2, 2024 0.5 coins @ $56,000.00', '12 · the date writer; DEC-0277, the unit (2026-10-21)'],
+      ['total paid $28,000.00', 'total paid $28,000', '12 · a total in whole dollars'],
+    ]);
+    expect(firstDifference(want, normExact(built))).toBe('');
   });
 
-  test('phone 3 · sold, and a window the prices cannot reach — both said, neither papered over', () => {
+  test('phone 3 · sold, and a window the prices cannot reach — both said, neither papered over — every figure as drawn', () => {
     const built = show(HoldingDetailScreen, { ...live,
       assetAccounts: [{ asset_id: 'et', label: 'E*TRADE', institution: 'E*TRADE', kind: 'brokerage', tax_bucket: 'TAXABLE', balance: 0, derive_balance: true,
         positions: [{ position_id: 'p1', ticker: 'LCTX', label: 'Lucid Diagnostics', kind: 'stocks_etf', lots: [] }] }],
-      priceCache: { LCTX: { ticker: 'LCTX', points: [{ date: months(14), close: 2.1 }, { date: months(6), close: 1.8 }, { date: day(1), close: 1.48 }, { date: day(0), close: 1.42 }] }, SPY },
+      priceCache: { LCTX: { ticker: 'LCTX', points: [{ date: '2025-07-30', close: 2.1 }, { date: '2026-03-30', close: 1.8 }, { date: '2026-09-29', close: 1.48 }, { date: '2026-09-30', close: 1.42 }] }, SPY },
     }, { account: 'et', position: 'p1', period: '2Y' });
-    const want = norm(upTo(P[2], /^Activity$/)).replace('current price live', 'last close <date>');   // 16, as phone 1
-    expect(want.split(' ').length).toBeGreaterThan(45);
-    expect(firstDifference(want, norm(built))).toBe('');
+    // $1.42 against $1.48: down $0.06, 4.05%; prices from Jul 30, 2025: 14 months
+    const want = apply(normExact(upTo(P[2], /^Activity$/)), [NAME('e*trade'), CLOSE, ['(4.1%) today', '(4.05%) today', '12 · a percent to two decimals']]);
+    expect(firstDifference(want, normExact(built))).toBe('');
     expect(built).toContain('Prices for this holding go back 14 months, so the 2-year figure covers 14 months — not two years.');
-    expect(built).toContain('▼ down $0.06 (4.05%) today');                             // $1.42 against $1.48
   });
+
+  test('the drawing carries every row the replacements above name: 2026-10-11, 2026-10-21 (fifteen figures, the last close), 2026-10-27 (one name)', () => {
+    const { rows } = noteOf(NW + 'holding-detail_v02.html');
+    expect(rows).toMatch(/DRAWING ERROR — the gain split/);
+    expect(rows).toMatch(/DRAWING ERROR — fifteen figures on the three phones/);
+    expect(rows).toMatch(/One thing named one way \(tenet 4, DEC-3523\); his naming rule \(DEC-0083\)/);
+    expect(rows).toMatch(/‘in Fidelity Brokerage’, ‘in Coinbase Brokerage’, ‘in E\*TRADE Brokerage’/);
+  });
+});
+
+/** THE OLD HOUSEHOLD, KEPT (G-1): no close on the evening before the past year began, nor on Jan 8 — the screen read +61.23% beside
+ *  +53.00%, figures the drawing never had, and norm() let it pass. Held here as no longer matching the drawing's figures. */
+test.failing('Holding detail v02 · the household until 2026-10-27, pinned: its closes do not give the drawing\'s +38.19% (G-1)', () => {
+  const months = (m: number) => { const n = new Date(); return iso(new Date(n.getFullYear(), n.getMonth() - m, n.getDate())); };
+  const day = (n: number) => iso(new Date(Date.now() - n * 86400e3));
+  const built = show(require('../HoldingDetailScreen').default, { pricesFetchedAt: new Date().toISOString(),
+    assetAccounts: [{ asset_id: 'fid', label: 'Fidelity', institution: 'Fidelity', kind: 'brokerage', tax_bucket: 'TAXABLE', balance: 0, derive_balance: true,
+      positions: [{ position_id: 'p1', ticker: 'AAPL', label: 'Apple Inc.', kind: 'stocks_etf', lots: [
+        { lot_id: 'l1', shares: 100, cost_per_share: 168, purchase_date: '2023-03-14' }, { lot_id: 'l2', shares: 40, cost_per_share: 192.5, purchase_date: '2026-01-09' }] }] }],
+    priceCache: { AAPL: { ticker: 'AAPL', points: [{ date: months(26), close: 150 }, { date: months(12), close: 175 }, { date: months(6), close: 210 }, { date: day(1), close: 239.53 }, { date: day(0), close: 241.84 }] },
+      SPY: { ticker: 'SPY', points: [{ date: months(26), close: 400 }, { date: months(12), close: 500 }, { date: months(6), close: 560 }, { date: day(1), close: 610 }, { date: day(0), close: 612 }] } },
+  }, { account: 'fid', position: 'p1' });
+  expect(built).toContain('+38.19%'); expect(built).toContain('+22.40%');
 });
 
 // A BOND WITH NO VALUE TODAY IS LEFT OUT OF THE AVERAGE YIELD, AND THE SCREEN SAYS WHICH (outside review,
@@ -810,7 +988,7 @@ describe('Look back v01 · the empty state: no holdings, no prices (27)', () => 
   // Look back fetches what it compares (2026-10-22, the drawing's dated row): here the price source brings nothing (this file
   // replaces it with one that answers nothing), so the line names the two tickers the refresh could not get — it read "prices
   // for that pairing yet … or pick a shorter window", which brings no price that is missing altogether
-  const NO_PRICES = "Couldn't refresh prices for AGG or SPY, so there is nothing to compare yet. Look back tries again each time it opens.";
+  const NO_PRICES = "Couldn’t refresh prices for AGG or SPY, so there is nothing to compare yet. Look back tries again each time it opens.";
   test('phone B\'s screen, with an empty account\'s choices and the missing prices named — and no figure at all', async () => {
     show(LookBackScreen, { onboardingProfile: {}, assetAccounts: EMPTY, priceCache: {} });
     expect(screen.getByText('Getting prices for AGG and SPY…')).toBeOnTheScreen();                             // while the refresh runs
@@ -823,7 +1001,7 @@ describe('Look back v01 · the empty state: no holdings, no prices (27)', () => 
       'To', 'SPY', ...YARDSTICKS.filter((t) => t !== 'AGG'), ...drawn.slice(at(drawn, 'When'))]
       .map((l) => (/pick a shorter window\.$/.test(l) ? NO_PRICES : l));
     expect(drawn).toContain('BND');                                                                           // the drawing's own holdings were there to replace
-    expect(firstDifference(norm(want), norm(built))).toBe('');
+    expect(firstDifference(normExact(want), normExact(built))).toBe('');
     expect(built[built.length - 1]).toBe(NO_PRICES);
     expect(built.filter((l) => /\$\d|%/.test(l))).toEqual([]);                                                 // nothing invented: no $0, no 0%
     expect(built).not.toContain('WHAT ACTUALLY HAPPENED');
@@ -836,4 +1014,12 @@ describe('Look back v01 · the empty state: no holdings, no prices (27)', () => 
     expect(built.filter((l) => /\$\d|%/.test(l))).toEqual([]);
     expect(built).not.toContain('WHAT ACTUALLY HAPPENED');
   });
+});
+
+// THE OLD ANSWER, KEPT (2026-10-27, FX-NW; Bonds v02 row of that date, NW2-14): the note ended at his sentence, with no word that the
+// estimate took Apple Corp as paying once a year. It fails now, by design.
+test.failing('Bonds v02 · the old answer: Apple Corp’s note is his sentence alone', () => {
+  const built = show(require('../BondsScreen').default, { assetAccounts: [
+    { asset_id: 'b2', label: 'Apple Corp 4.5%', kind: 'bond', tax_bucket: 'TAXABLE', balance: 19530, face_value: 20000, coupon_rate: 0.045, maturity_date: '2030-03-15' }] });
+  expect(built.some((l: string) => /^\* Added estimated \$[\d,]+ in accrued interest .* enter actual accrued interest$/.test(l))).toBe(true);
 });

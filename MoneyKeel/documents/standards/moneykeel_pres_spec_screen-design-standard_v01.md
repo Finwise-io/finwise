@@ -84,12 +84,13 @@ This document holds every rule a new or changed screen must meet, and the order 
 
 | Rule | Where it lives | Checked by |
 |---|---|---|
-| **The full band** has a deep-green fill (`primaryDeep` #085041), white capitals at 11 points weight 800, and a total at 15 points on the right. On most screens it is used only for a group that shows its own total (Plan heading rule, 2026-08-13). **On Net worth (founder, 2026-09-14): *"dark bars for section headings and light green for sub-headings"*** — its five sections (your net worth, your retirement plan, what you own, debts, emergency fund) wear the dark bar and its groups (Cash, Investments, Personal property, each institution) the light-green bar, as ruled 2026-08-11 and confirmed with v06. WAITING ON YOU: whether this also replaces the quiet labels on the Plan tab. | `src/components/SectionBand.tsx` (founder, 2026-08-04, 2026-08-11 and 2026-08-13) | the checklist |
-| A dark-green bar **always runs edge to edge with square corners**, in the app and in every mock, change marks included (founder, 2026-09-14). | `SectionBand.tsx` | the checklist |
+| **RULED 2026-10-27 — every box title on the dark bar, every sub-title on the light bar, on every screen** (DEC-8839). His words, said of Contribution room and the Stress test: *"the standard design says box titles in dark green bar, and sub-titles in light green bar"*; the same day, of Roth conversion (DEC-8890): *"dark green bar should be end to end across the screen"*. **The full band**: a deep-green fill (`primaryDeep` #085041), white capitals at 11 points weight 800, and a total at 15 points on the right when the box has one. It titles every box and every section, with or without a total — the 2026-08-13 rule that kept it for a group with its own total (DEC-0132) is replaced. It settles the question that stood here since 2026-09-14, whether the Plan tab's quiet labels go too: they do. **It governs every screen**: Net worth (its five sections, as ruled 2026-09-14: *"dark bars for section headings and light green for sub-headings"*), Performance, Cash flow and its tools (Contribution room, the Stress test, Bill calendar, Monthly income, Income manager), the Plan tab and its screens (Goals, Roth conversion, Required withdrawals, the Retirement cockpit, What-if, Will it last, Multi-goal), Home and the Menu. Home, Plan and Menu are built to it in their own module round (his order of 2026-10-03); until then each screen that does not meet it is named, with its count, in the guard's list. | `src/components/SectionBand.tsx` (founder, 2026-08-04, 2026-08-11, 2026-08-13, 2026-09-14, 2026-10-27) | `src/__tests__/guard_box_titles_on_bars.test.ts` (no heading drawn without its bar; a dark bar on the page reaches both edges of the phone; every other screen named with its true count) · `src/testing/bandGeometry.ts` on the drawn screens |
+| **NEVER SEND HIM A SCREEN BLIND** (founder, 2026-10-27, DEC-8891: *"I do not want to reviews screens in blind"*), ruled the same day as the bars and applied first to the drawings that carry them: every drawing for his review opens with what he approved before for the screen (date and number, or ‘nothing approved; drawn from the build’), his feedback on it word for word, and exactly what is new for him to look at. The full rule is section 3, step 8. | the drawing's READ THIS FIRST block | the checklist, item 16 |
+| A dark-green bar **always runs edge to edge with square corners**, in the app and in every mock, change marks included (founder, 2026-09-14). **End to end across the screen** (founder, 2026-10-27, Roth conversion, DEC-8890: *"dark green bar should be end to end across the screen"*): a bar on the page takes back the page's margins; a bar that titles a box sits on a box that itself runs edge to edge of the phone, with square corners — the Cash flow pattern built 2026-10-25. | `SectionBand.tsx`; a box's `marginHorizontal: -Spacing.lg` | `src/__tests__/guard_bands_edge_to_edge.test.ts` (a bar reaches its box's edges) · `src/__tests__/guard_box_titles_on_bars.test.ts` (a bar on the page reaches the phone's) |
 | **The one named exception:** the import screen's title is "Import from File" on a dark-green bar at the top, with no total (founder, 2026-09-14). | mock v10, section 9 | — |
-| **The light band** has a light-green fill (`bandLight` #DFF2E9) and deep-green text. It is used for a group inside a full band, for example Cash inside What you own. | `SectionBand.tsx` `light` | the checklist |
-| **The quiet label** is deep-green capitals, 11 points, weight 800, with no fill. It is used for a section that has no total. The label uses deep green because the brand green measures 3.78 to 1 on the page and fails the contrast floor. | `SectionBand.tsx` `quiet` (2026-08-13) | the checklist |
-| **PROPOSED:** the heading above a set of doors is "How do you want to add an account?", as a quiet label on a screen and as the sheet title on a sheet. | mock v10 | WAITING ON YOU (mock v10) |
+| **The light band** has a light-green fill (`bandLight` #DFF2E9) and deep-green text. It is **every sub-title** (DEC-8839, 2026-10-27): a group inside a box, for example Cash inside What you own, a box inside a section (the Retirement cockpit's YOUR INVESTMENTS under WHAT YOU HAVE), and a group of choices inside a sheet. It runs from one edge of its box to the other. | `SectionBand.tsx` `light` | `src/__tests__/guard_box_titles_on_bars.test.ts` |
+| **RETIRED 2026-10-27 — the quiet label** (deep-green capitals, 11 points, weight 800, no fill; 2026-08-13). A section without a total no longer gets it: every box title is the dark bar (DEC-8839). Grey capitals and plain bold lines used as a box's title are retired with it. The component keeps the option only until its last use is gone; each use left is named in the guard's list. | `SectionBand.tsx` `quiet` | `src/__tests__/guard_box_titles_on_bars.test.ts` (a quiet label fails in the screens it holds; elsewhere it is counted) |
+| **PROPOSED:** the heading above a set of doors is "How do you want to add an account?", on a dark bar on a screen (the quiet label it was drawn with is retired, DEC-8839, 2026-10-27) and as the sheet title on a sheet. | mock v10 | WAITING ON YOU (mock v10) |
 | **Sheet title size is not yet ruled.** Today sheets use two sizes (section 6, item 2). | — | WAITING ON YOU |
 
 ### 2.4 Type and reading at 65 and over
@@ -98,7 +99,7 @@ This document holds every rule a new or changed screen must meet, and the order 
 |---|---|---|
 | **ONE PHONE PER SCREEN, in its final state.** A mock never draws the old version of a screen beside the new one, and never draws two candidate designs for the same screen. Earlier versions live in `archive/` and nowhere else. | founder, 2026-09-30 | the checklist |
 | Sizes come from the scale only: 11 · 13 · 15 · 17 · 20 · 24 · 30 · 38. | `src/utils/theme.ts` `Typography.sizes` | the checklist |
-| No text is smaller than 10.5 points. Only the tab-bar labels use 10.5. | UX design v1.2, "Type & readability 65+" | `src/__tests__/type_floor_guard.test.ts` |
+| No text is smaller than 11 points, the scale's smallest step — the tab-bar labels included (they sat at 10.5 until 2026-10-27, when FX-SHARED moved them onto the scale; line corrected 2026-10-30). | UX design v1.2, "Type & readability 65+" | `src/__tests__/type_floor_guard.test.ts` |
 | A money figure is at least 17 points. Reference tables may use 12 to 15 points (founder amendment, 2026-07-15). | UX design v1.2 | the checklist |
 | One hero figure per screen, at 38 or 30 points. | UX design v1.2 | the checklist |
 | A column of figures uses fixed-width digits, so the digits line up. | `fontVariant: ['tabular-nums']` | the checklist |
@@ -140,7 +141,7 @@ This document holds every rule a new or changed screen must meet, and the order 
 
 | Rule | Where it lives | Checked by |
 |---|---|---|
-| Nothing tappable is smaller than 44 by 44 points. List rows are at least 52 points. Nothing works by gesture alone. | accessibility check 5 | the checklist |
+| Nothing tappable is smaller than 44 by 44 points. List rows are at least **44 points** (settled 2026-10-27 on Net worth v08's READ THIS FIRST row of that date, workplan #354: the approved drawing draws its rows at 39, 46 and 44 points and none at 52; it read 52 until 2026-10-30). Nothing works by gesture alone. | accessibility check 5; `MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_net-worth-quiet-instrument_v08.html`, row of 2026-10-27 | the checklist |
 | Every tappable thing has a spoken label. | — | `src/__tests__/a11y_guard.test.ts` (a count that can only go down) |
 | Every money figure has a spoken label that says what it is. | accessibility check 1 | the checklist |
 | A screen with a text box handles the keyboard, so its buttons stay visible when the keyboard is open. | — | `src/__tests__/keyboard_guard.test.ts` (checks the handling is there; a device screenshot checks the buttons) |
@@ -163,6 +164,7 @@ This document holds every rule a new or changed screen must meet, and the order 
 5. **Every data state that changes:** the first day with nothing entered, and a person with accounts. The numbers add up.
 6. **Every change carries an orange numbered mark that sits inside the element.** A mark on a dark-green bar keeps the bar square and edge to edge. Each mark is explained beside the screen, and a choice of mine is named as mine.
 7. **The top of the mock has three blocks:** what to approve; what changed from the last version; and the "Checked before sending" list.
+8. **NEVER SEND HIM A SCREEN BLIND** (founder, 2026-10-27, DEC-8891: *"I do not want to reviews screens in blind"*). Every drawing made for his review opens with a block that says, in this order: (a) what he approved before for this screen, with the date and the decision's number — or, in those words, ‘nothing approved; drawn from the build’ and the date of that build; (b) his feedback on it so far, word for word, with its date; (c) exactly what is new for him to look at, one line per change. A drawing that waits on his approval says so in that block, as a statement. First applied 2026-10-27 to Roth conversion v02, Required withdrawals v02, the Retirement cockpit v02 and Goals v03 (`MoneyKeel/documents/plan/`). Checked by: the checklist, item 16.
 
 ---
 
@@ -184,19 +186,20 @@ This document holds every rule a new or changed screen must meet, and the order 
 - [ ] 0. Every screen in the mock was started from its last approved design, the approval is named on the mock, and every place the code differs from that design was reported first.
 - [ ] 1. Every frame shows the status bar and the MoneyKeel top bar: Menu on tab screens, and the ruled form on screens opened from another screen. The tab bar shows on tab screens only.
 - [ ] 2. Every title is 20 points and appears once. No frame shows a title the code does not have.
-- [ ] 3. Every dark-green bar runs edge to edge, with square corners and capitals, and sits on a group that shows its total (or is the named exception).
-- [ ] 4. A section without a total uses the quiet label, and a sheet uses its sheet title.
-- [ ] 5. Every size is on the scale. Nothing is under 10.5 points, and money is at least 17 points outside reference tables.
+- [ ] 3. Every box title is on a dark-green bar and every sub-title on a light-green bar (DEC-8839, 2026-10-27). Every bar runs edge to edge — across the phone for a bar on the page or on a box, across its box for a light bar inside one — with square corners and capitals.
+- [ ] 4. No heading is drawn as a quiet label, grey capitals or a plain bold line. A sheet uses its sheet title.
+- [ ] 5. Every size is on the scale. Nothing is under 11 points, and money is at least 17 points outside reference tables.
 - [ ] 6. The words match the canon. Every door has the same words and the same destination everywhere. Every sentence names its subject, and "safe" never appears about money.
 - [ ] 7. The numbers add up. A figure with nothing behind it reads $0, then "Nothing entered yet." and its door.
 - [ ] 8. Every "today" frame matches the code: census words, StyleSheet sizes, and what sits above it.
 - [ ] 9. Every data state that changes is drawn.
 - [ ] 10. Every change is marked, and every mark is explained. The marks sit inside their elements, and the bars stay square.
 - [ ] 11. The colours are the tokens, and no meaning rests on colour alone.
-- [ ] 12. Tap targets are drawn at 44 points, and rows at 52.
+- [ ] 12. Tap targets are drawn at 44 points, and rows at 44 (Net worth v08, row of 2026-10-27).
 - [ ] 13. The file name, version, archive copy, README, ledger and workplan references are all updated.
 - [ ] 14. The page has no broken markup and reads at phone width.
 - [ ] 15. The "Checked before sending" list on the mock names these checks, and each one was done.
+- [ ] 16. The drawing opens with the three-part block of section 3, step 8: what he approved before (date and number, or ‘nothing approved; drawn from the build’), his feedback word for word, and what is new for him to look at.
 
 ---
 

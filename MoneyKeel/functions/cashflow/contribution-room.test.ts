@@ -86,3 +86,35 @@ test('no birth year: the base limit stands, and no catch-up is claimed', () => {
   expect(r.k401.catchUp).toBe(false);
   expect(r.k401.limit).toBeGreaterThan(0);
 });
+
+// ── WORKPLAN #361 (2026-10-27, FX-CF-C; drawing contribution-room v02, rows 3 and 4) — the two inputs CFR-4 found missing ─────────
+// Worked by hand with the 2026 IRS limits (src/domain/income/limits.ts IRS_LIMITS): IRA $7,500 + $1,100 at 50; HSA self-only
+// $4,400, family $8,750, + $1,000 at 55. The day is fixed, so the age is the same whatever the clock says.
+const DAY_361 = new Date(2026, 9, 27, 12);
+describe('#361 · HSA cover, self-only or family', () => {
+  test('family cover takes the family limit: 55 this year → $8,750 + $1,000 = $9,750; self-only, or nothing chosen, $4,400 + $1,000 = $5,400', () => {
+    const at = (hsaCover?: string) => theContributionRoom({ profile: { birthYear: 1971, hsaCover }, today: DAY_361 });
+    expect([at('family').hsa.limit, at('family').hsaFullYearLimit, at('family').hsaCover]).toEqual([9_750, 9_750, 'family']);
+    expect([at('self').hsa.limit, at('self').hsaCover]).toEqual([5_400, 'self']);
+    expect([at().hsa.limit, at().hsaCover]).toEqual([5_400, null]);           // not chosen: the self-only limit, never the family one unasked
+    expect([at('both').hsa.limit, at('both').hsaCover]).toEqual([5_400, null]);   // anything else is not an answer
+  });
+  test('family cover and Medicare from July: ($8,750 + $1,000) × 6 ÷ 12 = $4,875; with no month, $0 (his G10)', () => {
+    const r = theContributionRoom({ profile: { birthYear: 1960, hsaCover: 'family', medicareEnrolled: 'yes', medicareStart: '2026-07' }, today: DAY_361 });
+    expect([r.hsa.limit, r.hsaFullYearLimit, r.hsaEligibleMonths]).toEqual([4_875, 9_750, 6]);
+    expect(theContributionRoom({ profile: { birthYear: 1960, hsaCover: 'family', medicareEnrolled: 'yes' }, today: DAY_361 }).hsa.limit).toBe(0);
+  });
+});
+describe('#361 · one IRA amount for Traditional and Roth together', () => {
+  test('$450 a month → $5,400 this year; $8,600 − $5,400 = $3,200 room, one limit for both (IRC §408A(c)(2))', () => {
+    const r = theContributionRoom({ profile: { birthYear: 1971, c_ira: '450' }, today: DAY_361 });
+    expect([r.ira.monthly, r.ira.used, r.ira.remaining, r.ira.excess, r.ira.limit]).toEqual([450, 5_400, 3_200, 0, 8_600]);
+  });
+  test('until it is typed, the Roth amount sign-up stored still counts; once typed — even cleared — it alone is read, so nothing counts twice', () => {
+    const at = (p: any) => theContributionRoom({ profile: { birthYear: 1965, ...p }, today: DAY_361 }).ira;
+    expect(at({ c_roth: '300' }).used).toBe(3_600);                   // $300 × 12, as before
+    expect(at({ c_roth: '300', c_ira: '500' }).used).toBe(6_000);     // $500 × 12 — never $300 + $500
+    expect(at({ c_roth: '300', c_ira: '' }).used).toBe(0);            // cleared: nothing entered, the card reads "up to $8,600"
+    expect(at({ c_ira: '800' })).toMatchObject({ used: 9_600, remaining: 0, excess: 1_000 });   // over the $8,600 limit by $1,000
+  });
+});

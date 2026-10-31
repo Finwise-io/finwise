@@ -111,7 +111,7 @@ test('retired: the paycheck card carries the SAME function numbers as Home (guar
   expect(screen.getByText('= Guaranteed')).toBeOnTheScreen();
   expect(screen.getByText('+ Draw from savings')).toBeOnTheScreen();
   expect(screen.getByText('Your paycheck')).toBeOnTheScreen();
-  expect(screen.getByText(/The same paycheck as Home's card — one function/)).toBeOnTheScreen();
+  expect(screen.getByText(/The same paycheck as Home’s card — one function/)).toBeOnTheScreen();   // ’ since 2026-10-27
   // settled Social Security shows as handled, not hidden
   // FOUNDER 2026-08-12: for someone already drawing, the claim question is REMOVED — not shown
   // settled. A decision you cannot make is not a decision to display.
@@ -127,7 +127,7 @@ test('first day: locked sample gauge + the dynamic door counting ONLY missing an
   render(<PlanHubScreen />);
   expect(screen.getByText(/Sample: 84% odds of lasting to age \d+/)).toBeOnTheScreen();
   // the door became the state: the box names exactly what is missing, and the row wears MISSING
-  expect(screen.getByText(/can't be calculated yet\. Add what you spend/)).toBeOnTheScreen();
+  expect(screen.getByText(/can’t be calculated yet\. Add what you spend/)).toBeOnTheScreen();   // ’ since 2026-10-27
   expect(screen.getByText(/MISSING/)).toBeOnTheScreen();
   // (the old doorSub list is gone — the box above names it, and the row itself wears MISSING)
   expect(screen.getByText(/What you have — already in: 1 account, \$162,000 counted/)).toBeOnTheScreen();

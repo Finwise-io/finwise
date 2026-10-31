@@ -1,5 +1,6 @@
 // Goals & Debt — save-by-date goals with progress, and an avalanche/snowball debt-payoff plan.
 // The pre-retirement (30yo) home for "what am I working toward and how do I kill my debt".
+import { MoneyBox } from '../components/MoneyBox';   // every money box, one component (DEC-8385)
 import { plural } from '../domain/_shared/plural';   // the one list of words and plurals (DEC-4082, 2026-10-10)
 import { fig } from '../components/figure';   // a figure prints with its identifier (rule 11; MK-CF-M-096, 2026-10-26)
 import { EmptyNote } from '../components/UI';
@@ -107,8 +108,10 @@ export default function GoalsScreen() {
         </View>
       )}
 
-      {/* GOALS */}
-      <SectionBand title="YOUR GOALS" />
+      {/* GOALS. THE BARS OF THE STANDARD DESIGN (his words, 2026-10-27, DEC-8839: "box titles in dark green bar, and sub-titles in
+          light green bar"; drawing plan/moneykeel_pres_mock_goals_v02.html): every dark bar on this page takes back the page's margins
+          and runs edge to edge; a goal's name, the suggestion's title and "Payoff order" are light bars across their boxes */}
+      <View style={styles.pageBleed}><SectionBand title="YOUR GOALS" /></View>
       {sink.monthly === 0 && !hasSinkingGoal && (
         <View style={styles.suggestCard}>
           <Text style={styles.suggestSub}>Your non-monthly budget comes to {money(0)}/year.</Text>
@@ -117,7 +120,7 @@ export default function GoalsScreen() {
       )}
       {sink.monthly > 0 && !hasSinkingGoal && (
         <View style={styles.suggestCard}>
-          <Text style={styles.suggestTitle}>💡 Suggested: a sinking fund</Text>
+          <SectionBand light inCard title="💡 SUGGESTED: A SINKING FUND" />
           <Text style={styles.suggestSub}>Your non-monthly budget{sinkBasis.allPct ? ` (${sinkBasis.pct.toFixed(2)}% of take-home pay)` : ''} comes to ~{money(sink.annual)}/year. Set aside {money(sink.monthly)}/month so non-monthly costs (travel, gifts, repairs) never blow the budget.</Text>
           <TouchableOpacity onPress={() => store.addGoal({ label: 'Non-monthly fund', icon: '🛟', target: sink.annual, saved: 0, duration: '12', color: Colors.primary })}>
             <Text style={styles.suggestCta}>Create this goal ›</Text>
@@ -142,15 +145,11 @@ export default function GoalsScreen() {
         const barColor = fullyFunded ? Colors.blue : onTrack ? Colors.successGreen : behind ? Colors.amber : (g.color || Colors.primary);
         return (
           <TouchableOpacity key={g.id} style={styles.card} onPress={() => setEdit(g)}>
-            <View style={styles.goalHead}>
-              <Text style={styles.goalIcon}>{g.icon || '🎯'}</Text>
-              <Text style={styles.goalName}>{g.label}</Text>
-              {/* P0 (design audit G-1): status TEXT uses the AA green (gainText) — successGreen is a mark color (~2:1 on white) */}
-              <Text style={[styles.goalStatus, { color: fullyFunded ? Colors.blue : onTrack ? Colors.gainText : behind ? Colors.amber : Colors.textSecondary }]}>
-                {fullyFunded ? '🔵 Fully funded' : noDate ? 'Set a date' : onTrack ? '🟢 On track' : '🟡 Behind'}
-              </Text>
-              <Text style={styles.goalPct}>{pct.toFixed(2)}%</Text>
-            </View>
+            <SectionBand light inCard onRowEdges title={`${g.icon || '🎯'} ${g.label}`} value={`${pct.toFixed(2)}%`} />
+            {/* P0 (design audit G-1): status TEXT uses the AA green (gainText) — successGreen is a mark color (~2:1 on white) */}
+            <Text style={[styles.goalStatus, { color: fullyFunded ? Colors.blue : onTrack ? Colors.gainText : behind ? Colors.amber : Colors.textSecondary }]}>
+              {fullyFunded ? '🔵 Fully funded' : noDate ? 'Set a date' : onTrack ? '🟢 On track' : '🟡 Behind'}
+            </Text>
             <View style={styles.bar}><View style={[styles.barFill, { width: `${pct}%`, backgroundColor: barColor }]} /></View>
             <Text style={styles.goalSub}>{money(g.saved)} of {money(g.target)} · {money(remaining)} to go{perMonth > 0 ? ` · need ~${money(perMonth)}/month${mo > 0 ? ` for ${mo} mo` : ''}` : ''}</Text>
             {!fullyFunded && !noDate && perMonth > 0 && (
@@ -160,7 +159,7 @@ export default function GoalsScreen() {
             )}
             {noDate && <Text style={styles.goalBehind}>Set a target date to track on-track / behind.</Text>}
             {!fullyFunded && (
-              <TouchableOpacity accessibilityRole="button" accessibilityLabel={`Allocate this month's surplus to ${g.label}`} onPress={() => { setAlloc(g); const d = Math.max(0, Math.min(Math.round(perMonth || 0), Math.round(availableSurplus))); setAllocAmt(d > 0 ? String(d) : ''); }}>
+              <TouchableOpacity accessibilityRole="button" accessibilityLabel={`Allocate this month’s surplus to ${g.label}`} onPress={() => { setAlloc(g); const d = Math.max(0, Math.min(Math.round(perMonth || 0), Math.round(availableSurplus))); setAllocAmt(d > 0 ? String(d) : ''); }}>
                 <Text style={styles.goalAllocate}>Surplus this month: {money(availableSurplus)} — <Text style={styles.goalAllocateCta}>Allocate to this goal ›</Text></Text>
               </TouchableOpacity>
             )}
@@ -180,7 +179,7 @@ export default function GoalsScreen() {
       </TouchableOpacity>
 
       {/* ── DEBT & CREDIT ───────────────────────────────────────── */}
-      <SectionBand title="DEBT & CREDIT" />
+      <View style={styles.pageBleed}><SectionBand title="DEBT & CREDIT" /></View>
       <TouchableOpacity style={[styles.creditCard, { marginTop: 0 }]} activeOpacity={0.85} onPress={() => router.push('/credit')}>
         <Text style={styles.creditIcon}>📊</Text>
         <View style={{ flex: 1 }}>
@@ -193,13 +192,13 @@ export default function GoalsScreen() {
       {/* STUDENT LOAN OUTLOOK */}
       {loanOutlook.borrowed > 0 && (
         <>
-          <SectionBand title="STUDENT LOAN OUTLOOK" />
+          <View style={styles.pageBleed}><SectionBand title="STUDENT LOAN OUTLOOK" /></View>
           <View style={styles.card}>
             <Text style={styles.loanBig}>{money(loanOutlook.borrowed)} <Text style={styles.loanBigSub}>borrowed</Text></Text>
             {loanOutlook.monthly > 0 ? (
               <>
-                <Text style={styles.loanLine}>≈ <Text style={{ fontWeight: '800' }}>{money(loanOutlook.monthly)}/month</Text> once you're repaying · {money(loanOutlook.interest)} total interest</Text>
-                {grossMonthly > 0 && <Text style={styles.note}>That's ~{(loanOutlook.projDti * 100).toFixed(2)}% of today's income — keeping total debt under 20% keeps you comfortable.</Text>}
+                <Text style={styles.loanLine}>≈ <Text style={{ fontWeight: '800' }}>{money(loanOutlook.monthly)}/month</Text> once you’re repaying · {money(loanOutlook.interest)} total interest</Text>
+                {grossMonthly > 0 && <Text style={styles.note}>That’s ~{(loanOutlook.projDti * 100).toFixed(2)}% of today’s income — keeping total debt under 20% keeps you comfortable.</Text>}
               </>
             ) : (
               <Text style={styles.note}>Add an interest rate and term to each loan (in setup) to see the monthly repayment.</Text>
@@ -211,7 +210,7 @@ export default function GoalsScreen() {
       {/* DEBT-TO-INCOME */}
       {liabilities.length > 0 && grossMonthly > 0 && (
         <>
-          <SectionBand title="DEBT-TO-INCOME" />
+          <View style={styles.pageBleed}><SectionBand title="DEBT-TO-INCOME" /></View>
           <View style={styles.card}>
             <View style={styles.dtiHead}>
               <Text style={[styles.dtiPct, { color: dti.status === 'good' ? Colors.primary : dti.status === 'caution' ? Colors.amber : Colors.red }]}>{(dti.ratio * 100).toFixed(2)}%</Text>
@@ -220,7 +219,7 @@ export default function GoalsScreen() {
                 <Text style={styles.dtiSub}>{money(dti.monthlyDebt)}/month in minimum debt payments ÷ {money(dti.grossMonthly)}/month income</Text>
               </View>
             </View>
-            <Text style={styles.note}>{homeowner ? 'Aim for 36% or less (homeowners, incl. mortgage).' : 'Aim for 20% or less (renters; rent isn\'t counted).'} {dti.status !== 'good' ? 'Paying debt down lowers this.' : 'You\'re in good shape.'}</Text>
+            <Text style={styles.note}>{homeowner ? 'Aim for 36% or less (homeowners, incl. mortgage).' : 'Aim for 20% or less (renters; rent isn’t counted).'} {dti.status !== 'good' ? 'Paying debt down lowers this.' : 'You’re in good shape.'}</Text>
           </View>
         </>
       )}
@@ -228,7 +227,7 @@ export default function GoalsScreen() {
       {/* DEBT PAYOFF */}
       {liabilities.length > 0 && (
         <>
-          <SectionBand title="DEBT PAYOFF PLAN" />
+          <View style={styles.pageBleed}><SectionBand title="DEBT PAYOFF PLAN" /></View>
           <View style={styles.card}>
             <View style={styles.segRow}>
               <TouchableOpacity style={[styles.seg, method === 'avalanche' && styles.segOn]} onPress={() => setMethod('avalanche')}><Text style={[styles.segT, method === 'avalanche' && styles.segTOn]}>Avalanche</Text><Text style={styles.segSub}>least interest</Text></TouchableOpacity>
@@ -238,7 +237,7 @@ export default function GoalsScreen() {
 
             {/* the extra goes on top of the payments set, never on top of the minimums alone (2026-10-26; DEC-0641; goals_v01 row 1) */}
             <View style={styles.dRow}><Text style={styles.dL}>Extra / month (on top of your payments)</Text></View>
-            <View style={styles.amtBox}><Text style={styles.amtPre}>$</Text><TextInput style={styles.amtIn} keyboardType="decimal-pad" value={extra} onChangeText={setExtra} placeholder="0" placeholderTextColor={Colors.textTertiary} /></View>
+            <View style={styles.amtBox}><Text style={styles.amtPre}>$</Text><MoneyBox bare dollarBeside style={styles.amtIn} value={extra} onChangeText={setExtra} placeholder="0" /></View>
 
             {plan.notEntered.length > 0 ? (
               // a payment or a rate never entered gives no date and no warning about it — the Debts tab's words (2026-10-25, FIX-MONTH; tenet 3)
@@ -261,7 +260,7 @@ export default function GoalsScreen() {
 
             {plan.order.length > 0 && (
               <>
-                <Text style={[styles.dL, { marginTop: 12, fontWeight: '800', color: Colors.textPrimary }]}>Payoff order</Text>
+                <View style={styles.cardBleed}><SectionBand light title="PAYOFF ORDER" /></View>
                 {plan.order.map((o, i) => (
                   <View key={o.debt_id} style={styles.orderRow}>
                     <Text style={styles.orderNum}>{i + 1}</Text>
@@ -276,7 +275,7 @@ export default function GoalsScreen() {
       )}
 
       {/* ── PREPARE & PROTECT — plan for what's ahead ───────────── */}
-      <SectionBand title="PREPARE & PROTECT" />
+      <View style={styles.pageBleed}><SectionBand title="PREPARE & PROTECT" /></View>
       <TouchableOpacity style={[styles.creditCard, { marginTop: 0 }]} activeOpacity={0.85} onPress={() => router.push('/insurance')}>
         <Text style={styles.creditIcon}>🛡️</Text>
         <View style={{ flex: 1 }}>
@@ -323,7 +322,7 @@ export default function GoalsScreen() {
             <View style={styles.grab} />
             <Text style={styles.sheetT}>Fund {alloc?.label}</Text>
             <Text style={styles.note}>Surplus this month: {money(availableSurplus)}. What you allocate is set aside for this goal and flips it 🟢 On track.</Text>
-            <View style={[styles.amtBox, { marginTop: Spacing.sm }]}><Text style={styles.amtPre}>{currencySymbol()}</Text><TextInput style={styles.amtIn} keyboardType="decimal-pad" value={allocAmt} onChangeText={setAllocAmt} placeholder="0" placeholderTextColor={Colors.textTertiary} /></View>
+            <View style={[styles.amtBox, { marginTop: Spacing.sm }]}><Text style={styles.amtPre}>{currencySymbol()}</Text><MoneyBox bare dollarBeside style={styles.amtIn} value={allocAmt} onChangeText={setAllocAmt} placeholder="0" /></View>
             {availableSurplus > 0 && <TouchableOpacity accessibilityRole="button" accessibilityLabel={`Use all available surplus, ${money(availableSurplus)}`} onPress={() => setAllocAmt(String(Math.round(availableSurplus)))}><Text style={styles.allocUseAll}>Use all available ({money(availableSurplus)})</Text></TouchableOpacity>}
             <TouchableOpacity accessibilityRole="button" accessibilityLabel={`Allocate to ${alloc?.label ?? 'this goal'}`} style={[styles.saveBtn, !(num(allocAmt) > 0 && availableSurplus > 0) && { opacity: 0.4 }]} disabled={!(num(allocAmt) > 0 && availableSurplus > 0)}
               onPress={() => { const amt = Math.min(num(allocAmt), availableSurplus); if (amt > 0 && alloc) store.fundGoals?.(nowYm, [{ goalId: alloc.id, amount: amt }]); setAlloc(null); }}>
@@ -374,15 +373,15 @@ function GoalEditor({ goal, open, onClose, onSave, onDelete }: {
           <Text style={styles.fieldL}>Goal</Text>
           <TextInput style={styles.input} value={label} onChangeText={setLabel} placeholder="e.g. Emergency fund, House down payment" placeholderTextColor={Colors.textTertiary} />
           <Text style={styles.fieldL}>Target amount</Text>
-          <TextInput style={styles.input} keyboardType="decimal-pad" value={target} onChangeText={setTarget} placeholder="0" placeholderTextColor={Colors.textTertiary} />
+          <MoneyBox bare style={styles.input} value={target} onChangeText={setTarget} placeholder="0" />
           <Text style={styles.fieldL}>Saved so far</Text>
-          <TextInput style={styles.input} keyboardType="decimal-pad" value={saved} onChangeText={setSaved} placeholder="0" placeholderTextColor={Colors.textTertiary} />
+          <MoneyBox bare style={styles.input} value={saved} onChangeText={setSaved} placeholder="0" />
           <Text style={styles.fieldL}>Target date (optional)</Text>
           <View style={{ flexDirection: 'row', gap: Spacing.sm }}>
             <TextInput style={[styles.input, { flex: 1 }]} keyboardType="number-pad" value={tMonth} onChangeText={setTMonth} placeholder="Month (MM)" placeholderTextColor={Colors.textTertiary} />
             <TextInput style={[styles.input, { flex: 1.3 }]} keyboardType="number-pad" value={tYear} onChangeText={setTYear} placeholder="Year (YYYY)" placeholderTextColor={Colors.textTertiary} />
           </View>
-          {valid && monthsUntil > 0 && <Text style={styles.note}>~{money(reqMonthly)}/month for {monthsUntil} months to hit it by then. Fund it from your surplus on the goal card — that's what flips it 🟢 On track.</Text>}
+          {valid && monthsUntil > 0 && <Text style={styles.note}>~{money(reqMonthly)}/month for {monthsUntil} months to hit it by then. Fund it from your surplus on the goal card — that’s what flips it 🟢 On track.</Text>}
           <TouchableOpacity style={[styles.saveBtn, !valid && { opacity: 0.4 }]} disabled={!valid}
             onPress={() => onSave({ label: label.trim(), target: num(target), saved: num(saved), duration: monthsUntil > 0 ? String(monthsUntil) : undefined, targetDate: monthsUntil > 0 ? `${num(tYear)}-${String(num(tMonth)).padStart(2, '0')}` : undefined, icon, color: Colors.primary })}>
             <Text style={styles.saveBtnT}>{goal ? 'Save' : 'Add goal'}</Text>
@@ -398,6 +397,10 @@ function GoalEditor({ goal, open, onClose, onSave, onDelete }: {
 
 const styles = StyleSheet.create({
   content: { padding: Spacing.lg },
+  // A DARK BAR RUNS EDGE TO EDGE (DEC-8839, 2026-10-27): the page's own padding taken back, as Net worth's step-by-step bars do
+  pageBleed: { marginHorizontal: -Spacing.lg, marginTop: Spacing.md },
+  // a light bar inside a card: the card's padding taken back on both sides, so it runs from one edge of the box to the other
+  cardBleed: { marginHorizontal: -Spacing.md, marginTop: 12 },
   h1: { fontSize: 20, fontWeight: '800', color: Colors.textPrimary, marginTop: 8 },
   section: { fontSize: 11, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.5, marginTop: 22, marginBottom: 8 },
   cardKicker: { fontSize: 11, fontWeight: '700', color: Colors.textTertiary, letterSpacing: 0.4, marginTop: 12, marginBottom: 4 },
@@ -417,19 +420,14 @@ const styles = StyleSheet.create({
   capVal: { fontSize: 24, fontWeight: '800', color: Colors.primaryDark },
   capLab: { fontSize: 13, color: Colors.textSecondary, marginTop: 2, lineHeight: 16 },
   suggestCard: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginBottom: 10, borderWidth: 1, borderColor: Colors.border },
-  suggestTitle: { fontSize: 15, fontWeight: '800', color: Colors.textPrimary },
   suggestSub: { fontSize: 13, color: Colors.textSecondary, marginTop: 4, lineHeight: 17 },
   suggestCta: { fontSize: 13, fontWeight: '800', color: Colors.primary, marginTop: 8 },
   card: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginBottom: 10 },
   empty: { fontSize: 13, color: Colors.textSecondary, lineHeight: 19 },
-  goalHead: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  goalIcon: { fontSize: 17 },
-  goalName: { flex: 1, fontSize: 15, fontWeight: '700', color: Colors.textPrimary },
-  goalPct: { fontSize: 15, fontWeight: '800', color: Colors.primary },
   bar: { height: 8, borderRadius: 4, backgroundColor: Colors.bgTertiary, marginTop: 8, overflow: 'hidden' },
   barFill: { height: 8, borderRadius: 4 },
   goalSub: { fontSize: 13, color: Colors.textSecondary, marginTop: 6 },
-  goalStatus: { fontSize: 13, fontWeight: '800', marginRight: 8 },
+  goalStatus: { fontSize: 13, fontWeight: '800', marginTop: 2 },
   goalBehind: { fontSize: 11, color: Colors.amber, marginTop: 3 },
   goalAllocate: { fontSize: 13, color: Colors.textSecondary, marginTop: 6, paddingVertical: 10, minHeight: 44, lineHeight: 19 },
   goalAllocateCta: { color: Colors.primary, fontWeight: '700' },

@@ -69,7 +69,7 @@ test('nothing held, the refresh brings nothing: "getting", then the tickers it c
   mockFetch.mockImplementation(async () => ({}));
   open({});
   expect(screen.getByText('Getting prices for AGG and SPY…')).toBeOnTheScreen();
-  await waitFor(() => expect(screen.getByText("Couldn't refresh prices for AGG or SPY, so there is nothing to compare yet. Look back tries again each time it opens.")).toBeOnTheScreen());
+  await waitFor(() => expect(screen.getByText("Couldn’t refresh prices for AGG or SPY, so there is nothing to compare yet. Look back tries again each time it opens.")).toBeOnTheScreen());
   expect(builtLines(screen.toJSON()).filter((l) => /\$\d|%/.test(l))).toEqual([]);
   expect((useStore.getState() as any).priceRefreshFailed).toBe(true);                                      // the one failure flag
 });
@@ -77,7 +77,7 @@ test('nothing held, the refresh brings nothing: "getting", then the tickers it c
 test('the refresh brings one of the two: the one still missing is named', async () => {
   mockFetch.mockImplementation(async () => ({ AGG: series('AGG', 100, 102.5) }));
   open({});
-  await waitFor(() => expect(screen.getByText("Couldn't refresh prices for SPY, so there is nothing to compare yet. Look back tries again each time it opens.")).toBeOnTheScreen());
+  await waitFor(() => expect(screen.getByText("Couldn’t refresh prices for SPY, so there is nothing to compare yet. Look back tries again each time it opens.")).toBeOnTheScreen());
 });
 
 test('the one freshness rule: everything in hand and refreshed within 10 minutes → no fetch; a ticker not in hand → fetched', async () => {

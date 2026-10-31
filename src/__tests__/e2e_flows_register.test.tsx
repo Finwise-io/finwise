@@ -196,7 +196,7 @@ test('E2E-46 allocate surplus to a goal → saved rises and the month is funded'
   } as any);
   const GoalsScreen = require('../screens/GoalsScreen').default;
   render(<GoalsScreen />);
-  fireEvent.press(screen.getByLabelText("Allocate this month's surplus to New roof"));
+  fireEvent.press(screen.getByLabelText("Allocate this month’s surplus to New roof"));
   fireEvent.press(screen.getByLabelText(/Use all available surplus/));
   fireEvent.press(screen.getAllByText(/^Allocate\b/).pop()!);   // the sheet's confirm (a row label matches too)
   const g = (useStore.getState() as any).goals[0];
@@ -261,7 +261,7 @@ test('E2E-51 a working user sees the draw-order sheet in projection mode with th
   useStore.setState({ onboardingProfile: WORKER, assetAccounts: EGG } as any);
   const { DrawSteerSheet } = require('../components/DrawSteerSheet');
   render(<DrawSteerSheet visible onClose={() => {}} projectionMode />);
-  expect(screen.getByText(/a projection, not today's money/)).toBeOnTheScreen();
+  expect(screen.getByText(/a projection, not today[’']s money/)).toBeOnTheScreen();   // ’ since 2026-10-27 (the shared sheet's apostrophes)
 });
 
 // ── E2E-52 · edit an existing dated bill from Coming up: the change lands everywhere ──
@@ -274,7 +274,7 @@ test('E2E-52 tap a coming-up bill → the form prefills → saving updates the O
   const BillCalendarScreen = require('../screens/BillCalendarScreen').default;
   render(<BillCalendarScreen />);
   fireEvent.press(screen.getByLabelText(/Property tax, \$1,900 due/));
-  expect(screen.getByText('Edit this bill')).toBeOnTheScreen();
+  expect(screen.getByText('EDIT THIS BILL')).toBeOnTheScreen();   // the box title on its dark-green bar (DEC-8839, R1 — 2026-10-27)
   fireEvent.changeText(screen.getByLabelText('Bill amount'), '2100');
   fireEvent.press(screen.getByLabelText('Save this bill'));
   const cat = (useStore.getState() as any).onboardingProfile.spendCats.find((c: any) => c.id === 'ptax');

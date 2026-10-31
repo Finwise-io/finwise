@@ -1,7 +1,7 @@
 {
   "screens/AuthScreen.tsx": 4,
   "screens/BondsScreen.tsx": 2,
-  "screens/BudgetScreen.tsx": 31,
+  "screens/BudgetScreen.tsx": 28,
   "screens/EducationScreen.tsx": 1,
   "screens/EstateScreen.tsx": 1,
   "screens/ExpenseScreen.tsx": 8,

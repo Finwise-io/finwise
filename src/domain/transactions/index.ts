@@ -46,6 +46,10 @@ export interface Transaction {
    *  the holding's "Shares per contract"). Absent = 1: a share is a share. Stamped by recordTransaction (tradeMultiplierOf)
    *  and read by the cash the trade moved (applyTransaction, cashEffect), so 1 contract at $2.50 moves $250, never $2.50. */
   multiplier?: number;
+  /** THE PURCHASE AN OPENING RECORD IS OF (2026-10-27, FX-PF, workplan #293): the lot's own identifier, written by openingRecordsOf,
+   *  so an edit or a removal of that purchase in the holding editor changes or removes its record. Absent on records written
+   *  before 2026-10-27: those are matched to their purchase by its date, shares and price paid (purchaseRecordsFollowEdit). */
+  lot_id?: EntityId;
   reinvested?: boolean;      // dividend/interest reinvested into the position vs taken as cash
   direction?: 'IN' | 'OUT';  // TRANSFER_IN_KIND from a broker: which way the shares went. The type
                              // alone does not say, and without it a return cannot be measured
@@ -96,62 +100,66 @@ export interface Transaction {
  *               MK-CF-F-246 expensesAsCounted · MK-CF-F-251 debtPaymentsMatched
  *               MK-CF-F-252 payoffRefusal · MK-CF-F-255 spendByMonthByCategory
  *               MK-CF-F-256 budgetEditorBuckets · MK-CF-F-264 interestAndDividendsForYear
- *               MK-CF-O-001 basePay · MK-CF-O-004 incomeSummary
- *               MK-CF-O-008 whatsComing · MK-CF-O-010 theMonth
- *               MK-CF-O-018 theDebts · MK-CF-O-019 theIncomeManager
- *               MK-CF-O-020 theBudgetCounted · MK-HM-F-001 buildInsights
- *               MK-NW-F-002 alternativesSummary · MK-NW-F-026 accountDisplayNames
- *               MK-NW-F-027 accountClassBreakdown · MK-NW-F-039 buildAssetsState
- *               MK-NW-F-046 historyCoverage · MK-NW-F-048 uberGroupRows
- *               MK-NW-F-052 buildItemizedAccounts · MK-NW-F-054 reclassifyAccounts
- *               MK-NW-F-061 bondSummary · MK-NW-F-068 prettyDay
- *               MK-NW-F-084 categoryEarnings · MK-NW-F-090 windowStartKey
- *               MK-NW-F-092 investmentAccountIdsOf · MK-NW-F-094 ledgerGroups
- *               MK-NW-F-103 investmentRecordDates · MK-NW-F-104 closedWith
- *               MK-NW-F-106 mortgagesByProperty · MK-NW-F-116 rentedIdsOf
- *               MK-NW-F-130 notIncludedSentence · MK-NW-F-134 carValueNotEnteredNotes
- *               MK-NW-F-135 earmarkLeavesOut · MK-NW-F-138 knownHoldingsReturn
- *               MK-NW-F-142 classReturnOf · MK-NW-F-149 withoutBlankRows
- *               MK-NW-F-166 series · MK-NW-F-170 incomeSumParts
- *               MK-NW-F-180 barSegments · MK-NW-F-181 barDrawnWidths
- *               MK-NW-O-001 theBonds · MK-NW-O-002 theAccount
- *               MK-NW-O-003 theNetWorth · MK-NW-O-004 theEmergencyFund
- *               MK-NW-O-005 theAlternativesOutlook · MK-NW-O-006 theHolding
- *               MK-NW-O-008 thePerformance · MK-PF-F-006 capGains
- *               MK-PF-F-012 earliestPurchaseDate · MK-PF-F-014 buildPerformance
- *               MK-PF-F-020 portfolioBenchReturn · MK-PF-F-045 priceHistoryShortSentence
- *               MK-PF-F-065 firstDatedPurchase · MK-PF-F-067 purchaseDays
- *               MK-PF-F-071 returnSplitAtPurchases · MK-PF-F-074 marketSplitAtPurchases
- *               MK-PF-F-075 soldOutPositions · MK-PF-F-076 firstEvent
- *               MK-PL-F-004 withdrawalOrder · MK-PL-F-009 rmdTakenThisYear
- *               MK-PL-F-011 buildGoalsState · MK-PL-F-013 goalsFromOnboarding
- *               MK-PL-F-016 availableToSaveSummary · MK-PL-F-018 monthsUntil
- *               MK-PL-F-031 taxOrganizer · MK-PL-F-037 trimHints
- *               MK-PL-F-046 leverDeltas · MK-PL-F-050 simulate
- *               MK-PL-F-055 projectNestEgg · MK-PL-F-067 willItLastInputs
- *               MK-ST-F-002 monthWords · MK-ST-F-003 dayWords
- *               MK-ST-F-010 nameEvidence · MK-ST-F-016 totalOf
- *               MK-ST-F-020 sumSigned · MK-ST-F-022 reconcileAccountTotal
- *               MK-ST-F-029 prune · MK-ST-F-061 isMonthEnd
- *               MK-ST-F-073 rebuildDays · MK-ST-F-078 dateShown
- *               MK-ST-F-084 fillBetweenObservations · MK-ST-F-093 typedValueOnItsDate
- *               MK-ST-F-097 localMoment · MK-XS-F-002 dataGaps
- *               MK-XS-F-004 buildDatedGrid · MK-XS-F-005 trendPoints
- *               MK-XS-F-009 readHistory · MK-XS-F-015 importHoldings
- *               MK-XS-F-028 surplusByMonth · MK-XS-F-031 buildSnapshot
- *               MK-XS-F-058 parseReceipt · MK-XS-F-083 fetchPriceSeries
- *               MK-XS-F-094 parseReceiptText · MK-XS-F-102 ingestSync
- *               MK-XS-F-103 confirmWrapper · MK-XS-F-105 mapPosition
- *               MK-XS-F-111 mergeHistoryFrom · MK-XS-F-116 runSnapTradeSync
- *               MK-XS-F-129 findHeaderRow · MK-XS-F-146 prettyExpiry
- *               MK-XS-F-174 recomputeBalances · MK-XS-F-177 useCategorySpend
- *               MK-XS-F-181 merge · MK-XS-F-187 fixStoredMoney
- *               MK-XS-F-188 fixStoredFees · MK-XS-F-190 bondQuoteBasis
- *               MK-XS-F-193 walkShown · MK-XS-F-194 partsShown
- *               MK-XS-F-195 monthShown · MK-XS-F-197 chainShown
- *               MK-XS-F-199 profileOnTheWayIn
+ *               MK-CF-F-286 monthBeforeAnyRecord · MK-CF-F-289 purchaseRecordsFollowEdit
+ *               MK-CF-F-290 purchaseRecordsAfterHoldingRemoved · MK-CF-F-291 purchaseRecordsFollowReimport
+ *               MK-CF-F-292 optionTradesOnTheWayIn · MK-CF-O-001 basePay
+ *               MK-CF-O-004 incomeSummary · MK-CF-O-008 whatsComing
+ *               MK-CF-O-010 theMonth · MK-CF-O-018 theDebts
+ *               MK-CF-O-019 theIncomeManager · MK-CF-O-020 theBudgetCounted
+ *               MK-HM-F-001 buildInsights · MK-NW-F-002 alternativesSummary
+ *               MK-NW-F-026 accountDisplayNames · MK-NW-F-027 accountClassBreakdown
+ *               MK-NW-F-039 buildAssetsState · MK-NW-F-046 historyCoverage
+ *               MK-NW-F-048 uberGroupRows · MK-NW-F-052 buildItemizedAccounts
+ *               MK-NW-F-054 reclassifyAccounts · MK-NW-F-061 bondSummary
+ *               MK-NW-F-068 prettyDay · MK-NW-F-084 categoryEarnings
+ *               MK-NW-F-090 windowStartKey · MK-NW-F-092 investmentAccountIdsOf
+ *               MK-NW-F-094 ledgerGroups · MK-NW-F-103 investmentRecordDates
+ *               MK-NW-F-104 closedWith · MK-NW-F-106 mortgagesByProperty
+ *               MK-NW-F-116 rentedIdsOf · MK-NW-F-130 notIncludedSentence
+ *               MK-NW-F-134 carValueNotEnteredNotes · MK-NW-F-135 earmarkLeavesOut
+ *               MK-NW-F-138 knownHoldingsReturn · MK-NW-F-142 classReturnOf
+ *               MK-NW-F-149 withoutBlankRows · MK-NW-F-166 series
+ *               MK-NW-F-170 incomeSumParts · MK-NW-F-180 barSegments
+ *               MK-NW-F-181 barDrawnWidths · MK-NW-O-001 theBonds
+ *               MK-NW-O-002 theAccount · MK-NW-O-003 theNetWorth
+ *               MK-NW-O-004 theEmergencyFund · MK-NW-O-005 theAlternativesOutlook
+ *               MK-NW-O-006 theHolding · MK-NW-O-008 thePerformance
+ *               MK-PF-F-006 capGains · MK-PF-F-012 earliestPurchaseDate
+ *               MK-PF-F-014 buildPerformance · MK-PF-F-020 portfolioBenchReturn
+ *               MK-PF-F-045 priceHistoryShortSentence · MK-PF-F-065 firstDatedPurchase
+ *               MK-PF-F-067 purchaseDays · MK-PF-F-071 returnSplitAtPurchases
+ *               MK-PF-F-074 marketSplitAtPurchases · MK-PF-F-075 soldOutPositions
+ *               MK-PF-F-076 firstEvent · MK-PL-F-004 withdrawalOrder
+ *               MK-PL-F-009 rmdTakenThisYear · MK-PL-F-011 buildGoalsState
+ *               MK-PL-F-013 goalsFromOnboarding · MK-PL-F-016 availableToSaveSummary
+ *               MK-PL-F-018 monthsUntil · MK-PL-F-031 taxOrganizer
+ *               MK-PL-F-037 trimHints · MK-PL-F-046 leverDeltas
+ *               MK-PL-F-050 simulate · MK-PL-F-055 projectNestEgg
+ *               MK-PL-F-067 willItLastInputs · MK-PL-F-094 planGoalRows
+ *               MK-PL-F-096 accountsAfterRothConversion · MK-ST-F-002 monthWords
+ *               MK-ST-F-003 dayWords · MK-ST-F-010 nameEvidence
+ *               MK-ST-F-016 totalOf · MK-ST-F-020 sumSigned
+ *               MK-ST-F-022 reconcileAccountTotal · MK-ST-F-029 prune
+ *               MK-ST-F-061 isMonthEnd · MK-ST-F-073 rebuildDays
+ *               MK-ST-F-078 dateShown · MK-ST-F-084 fillBetweenObservations
+ *               MK-ST-F-093 typedValueOnItsDate · MK-ST-F-097 localMoment
+ *               MK-XS-F-002 dataGaps · MK-XS-F-004 buildDatedGrid
+ *               MK-XS-F-005 trendPoints · MK-XS-F-009 readHistory
+ *               MK-XS-F-015 importHoldings · MK-XS-F-028 surplusByMonth
+ *               MK-XS-F-031 buildSnapshot · MK-XS-F-058 parseReceipt
+ *               MK-XS-F-083 fetchPriceSeries · MK-XS-F-094 parseReceiptText
+ *               MK-XS-F-102 ingestSync · MK-XS-F-103 confirmWrapper
+ *               MK-XS-F-105 mapPosition · MK-XS-F-111 mergeHistoryFrom
+ *               MK-XS-F-116 runSnapTradeSync · MK-XS-F-129 findHeaderRow
+ *               MK-XS-F-146 prettyExpiry · MK-XS-F-174 recomputeBalances
+ *               MK-XS-F-177 useCategorySpend · MK-XS-F-181 merge
+ *               MK-XS-F-187 fixStoredMoney · MK-XS-F-188 fixStoredFees
+ *               MK-XS-F-190 bondQuoteBasis · MK-XS-F-193 walkShown
+ *               MK-XS-F-194 partsShown · MK-XS-F-195 monthShown
+ *               MK-XS-F-197 chainShown · MK-XS-F-199 profileOnTheWayIn
+ *               MK-XS-F-204 centsShown
  *
- * Reaches ..... 456 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 508 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -161,7 +169,7 @@ export interface Transaction {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 438 more — the full list is on functions_from_code
+ *               … and 490 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -211,8 +219,9 @@ const cashOf = (a: AssetAccount) => a.cash_balance || 0;
  *     tax bucket ! = 'CASH' and tax bucket ! = 'PROPERTY'
  *
  * Called by ... MK-CF-F-136 bumpCash · MK-CF-F-222 tradeCash
+ *               MK-CF-F-292 optionTradesOnTheWayIn
  *
- * Reaches ..... 386 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 439 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -222,7 +231,7 @@ const cashOf = (a: AssetAccount) => a.cash_balance || 0;
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 368 more — the full list is on functions_from_code
+ *               … and 421 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
@@ -258,7 +267,7 @@ const usesSleeve = (a: AssetAccount) => a.tax_bucket !== 'CASH' && a.tax_bucket 
  *
  * Called by ... MK-CF-F-136 bumpCash · MK-NW-F-088 BENCH
  *
- * Reaches ..... 385 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 438 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -268,7 +277,7 @@ const usesSleeve = (a: AssetAccount) => a.tax_bucket !== 'CASH' && a.tax_bucket 
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 367 more — the full list is on functions_from_code
+ *               … and 420 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
@@ -303,7 +312,7 @@ const availableCash = (a: AssetAccount): number | null => {
  *
  * Called by ... MK-CF-F-111 applyTransaction · MK-XS-F-174 recomputeBalances
  *
- * Reaches ..... 385 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 438 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -313,7 +322,7 @@ const availableCash = (a: AssetAccount): number | null => {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 367 more — the full list is on functions_from_code
+ *               … and 420 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
@@ -389,7 +398,7 @@ function bumpCash(a: AssetAccount, delta: number): AssetAccount {
  *
  * Called by ... MK-CF-F-111 applyTransaction · MK-XS-F-174 recomputeBalances
  *
- * Reaches ..... 385 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 438 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -399,7 +408,7 @@ function bumpCash(a: AssetAccount, delta: number): AssetAccount {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 367 more — the full list is on functions_from_code
+ *               … and 420 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
@@ -443,10 +452,19 @@ function tradeCash(a: AssetAccount, gross: number, fee: number): AssetAccount {
  *     undefined   otherwise
  *     the answer = contract multiplier(pos ?? { kind: kind, multiplier: multiplier })
  *
- * Called by ... MK-XS-F-199 profileOnTheWayIn
+ * Called by ... MK-CF-F-292 optionTradesOnTheWayIn · MK-XS-F-199 profileOnTheWayIn
  *
- * Reaches ..... 1 function. Change the arithmetic above and these change with it:
- *               MK-XS-F-199 profileOnTheWayIn
+ * Reaches ..... 438 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
+ *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
+ *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-F-241 M
+ *               … and 420 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
@@ -475,6 +493,107 @@ export function tradeMultiplierOf(accounts: AssetAccount[], t: Pick<Transaction,
  * Formula .....
  *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
  *
+ * Called by ... MK-CF-F-288 openingRecordsHeld · MK-CF-F-289 purchaseRecordsFollowEdit
+ *               MK-CF-F-291 purchaseRecordsFollowReimport · MK-XS-F-199 profileOnTheWayIn
+ *
+ * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-288 openingRecordsHeld · MK-XS-F-199 profileOnTheWayIn
+ *               MK-CF-F-290 purchaseRecordsAfterHoldingRemoved · MK-CF-F-289 purchaseRecordsFollowEdit
+ *               MK-CF-F-291 purchaseRecordsFollowReimport
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-004 holding quantity (shares)
+ *               MK-XS-I-007 purchase price and date (per lot)
+ *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
+ *               MK-XS-I-082 the purchase an opening record is of — so editing or removing that purchase changes or removes its record
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-F-224
+ * Changed ..... not in git yet (—)
+ */
+export function openingRecordsOf(accountId: EntityId, position: Position, lots: Position['lots'] = position.lots ?? []): Transaction[] {
+  return lots.map((l) => makeTransaction({ date: l.purchase_date, type: 'OPENING_POSITION', account_id: accountId, position_id: position.position_id,
+    ticker: position.ticker, kind: position.kind, shares: l.shares, price: l.cost_per_share ?? undefined, ...(l.lot_id != null ? { lot_id: l.lot_id } : {}) }));
+}
+
+/** Whether an opening record was written for this purchase: by its lot's identifier, or — a record written before 2026-10-27,
+ *  which carries none — by the purchase's own date, shares and price paid, as openingRecordsOf wrote them. */
+/* ─ MK-CF-F-287 ──────────────────────────────────────────────────────────────────── 1 · ACTION
+ * isRecordOfLot
+ *
+ * Answers ..... Whether an opening record was written for this purchase: by its lot's identifier, or — a record written before 2026-10-27, which carries none — by the purchase's own date, shares and price paid, as openingRecordsOf wrote them.
+ *
+ * Formula .....
+ *     (lot id ≠ nothing ? lot id = lot id
+ *
+ * Called by ... MK-CF-F-289 purchaseRecordsFollowEdit
+ *
+ * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-199 profileOnTheWayIn · MK-CF-F-289 purchaseRecordsFollowEdit
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-004 holding quantity (shares)
+ *               MK-XS-I-007 purchase price and date (per lot)
+ *               MK-XS-I-009 transaction date
+ *               MK-XS-I-082 the purchase an opening record is of — so editing or removing that purchase changes or removes its record
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-F-287
+ * Changed ..... not in git yet (—)
+ */
+const isRecordOfLot = (t: Transaction, l: Position['lots'][number]): boolean => (t.lot_id != null ? t.lot_id === l.lot_id
+  : String(t.date ?? '') === String(l.purchase_date ?? '') && (t.shares ?? null) === (l.shares ?? null) && (t.price ?? null) === (l.cost_per_share ?? null));
+
+/** A HOLDING'S OWN OPENING RECORDS IN ONE ACCOUNT — the ones written for purchases you already owned (addPosition, Add an account,
+ *  Import holdings, the holding editor), never a broker's (a linked account's records are its sync's). */
+/* ─ MK-CF-F-288 ──────────────────────────────────────────────────────────────────── 1 · ACTION
+ * openingRecordsHeld
+ *
+ * Answers ..... A HOLDING'S OWN OPENING RECORDS IN ONE ACCOUNT — the ones written for purchases you already owned (addPosition, Add an account, Import holdings, the holding editor), never a broker's (a linked account's records are its sync's).
+ *
+ * Formula .....
+ *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
+ *
+ * Called by ... MK-CF-F-289 purchaseRecordsFollowEdit · MK-CF-F-290 purchaseRecordsAfterHoldingRemoved
+ *
+ * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-199 profileOnTheWayIn · MK-CF-F-290 purchaseRecordsAfterHoldingRemoved
+ *               MK-CF-F-289 purchaseRecordsFollowEdit
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-024 logged expenses
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-F-288
+ * Changed ..... not in git yet (—)
+ */
+const openingRecordsHeld = (transactions: Transaction[], accountId: EntityId, p: Pick<Position, 'position_id' | 'ticker'>) =>
+  (transactions ?? []).filter((t) => t.type === 'OPENING_POSITION' && t.source !== 'connected' && String(t.account_id) === String(accountId)
+    && (t.position_id != null ? String(t.position_id) === String(p.position_id) : String(t.ticker ?? '').toUpperCase() === String(p.ticker ?? '').toUpperCase()));
+
+/** THE PURCHASE RECORDS FOLLOW THE HOLDING EDITOR (2026-10-27, FX-PF, workplan #293; DEC-7601's own limit; tenet 4: one purchase,
+ *  one figure). A purchase added writes its record (openingRecordsOf, as before); one CHANGED rewrites its record's date, shares and
+ *  price paid; one REMOVED removes its record. 10 VTI at $90.00 added Jan 5, 2026, its price changed to $95.00 in the editor: its
+ *  record reads $95.00 and a later sale's gain is read from $95.00 — it read $90.00. A record written before 2026-10-27 is found by
+ *  the purchase's old date, shares and price, and is given the purchase's identifier as it is rewritten. Records of trades (a
+ *  buy or a sale) are never touched: they moved cash, and are changed on their own sheet. To reverse: drop the changed and
+ *  removed steps. */
+/* ─ MK-CF-F-289 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+ * purchaseRecordsFollowEdit
+ *
+ * Answers ..... THE PURCHASE RECORDS FOLLOW THE HOLDING EDITOR (2026-10-27, FX-PF, workplan #293; DEC-7601's own limit; tenet 4: one purchase, one figure).
+ *
+ * Formula .....
+ *     mine = opening records held(transactions, account id, before)
+ *     claimed = new map<string, transaction>()
+ *     r = mine.find((t) => !claimed.has(id) and is record of lot(t, l))
+ *     the answer = r
+ *     after lots = a lookup of for each of after.lots (or none when missing): [string(lot id), each]
+ *     rewrite = new map<string, transaction | nothing>()
+ *     r = record of(l)
+ *     now = after lots.get(string(lot id))
+ *     had = a list with no repeats of for each of before.lots (or none when missing): string(lot id)
+ *     added = after.lots (or none when missing) where !had.has(string(lot id))
+ *     kept = (transactions ?? []).flat map((t) => (rewrite.has(id) ? (rewrite.get(id) ? [rewrite.get(id)!] : []) : [t]))
+ *     … the first steps only — the rest of the body needs reading by hand.
+ *
  * Called by ... MK-XS-F-199 profileOnTheWayIn
  *
  * Reaches ..... 1 function. Change the arithmetic above and these change with it:
@@ -483,14 +602,204 @@ export function tradeMultiplierOf(accounts: AssetAccount[], t: Pick<Transaction,
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
  *               MK-XS-I-007 purchase price and date (per lot)
+ *               MK-XS-I-024 logged expenses
  *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
+ *               MK-XS-I-082 the purchase an opening record is of — so editing or removing that purchase changes or removes its record
  *
- * Formula also on the master file · functions_from_code · MK-CF-F-224
+ * Formula also on the master file · functions_from_code · MK-CF-F-289
  * Changed ..... not in git yet (—)
  */
-export function openingRecordsOf(accountId: EntityId, position: Position, lots: Position['lots'] = position.lots ?? []): Transaction[] {
-  return lots.map((l) => makeTransaction({ date: l.purchase_date, type: 'OPENING_POSITION', account_id: accountId, position_id: position.position_id,
-    ticker: position.ticker, kind: position.kind, shares: l.shares, price: l.cost_per_share ?? undefined }));
+export function purchaseRecordsFollowEdit(transactions: Transaction[], accountId: EntityId, before: Position, after: Position): Transaction[] {
+  const mine = openingRecordsHeld(transactions, accountId, before);
+  const claimed = new Map<string, Transaction>();   // record id → the purchase it is of, one record to one purchase
+  const recordOf = (l: Position['lots'][number]) => {
+    const r = mine.find((t) => !claimed.has(t.id) && isRecordOfLot(t, l));
+    if (r) claimed.set(r.id, r);
+    return r;
+  };
+  const afterLots = new Map((after.lots ?? []).map((l) => [String(l.lot_id), l]));
+  const rewrite = new Map<string, Transaction | null>();   // record id → its new form, or null to remove it
+  for (const l of before.lots ?? []) {
+    const r = recordOf(l);
+    if (!r) continue;
+    const now = afterLots.get(String(l.lot_id));
+    if (!now) { rewrite.set(r.id, null); continue; }
+    const same = (r.lot_id != null) && String(r.date ?? '') === String(now.purchase_date ?? '') && (r.shares ?? null) === (now.shares ?? null)
+      && (r.price ?? null) === (now.cost_per_share ?? null);
+    if (!same) rewrite.set(r.id, { ...r, date: now.purchase_date, shares: now.shares, price: now.cost_per_share ?? undefined, lot_id: now.lot_id,
+      position_id: after.position_id, ticker: after.ticker?.toUpperCase(), kind: after.kind });
+  }
+  const had = new Set((before.lots ?? []).map((l) => String(l.lot_id)));
+  const added = (after.lots ?? []).filter((l) => !had.has(String(l.lot_id)));
+  const kept = (transactions ?? []).flatMap((t) => (rewrite.has(t.id) ? (rewrite.get(t.id) ? [rewrite.get(t.id)!] : []) : [t]));
+  return [...openingRecordsOf(accountId, after, added), ...kept];
+}
+
+/** A HOLDING REMOVED TAKES ITS OPENING RECORDS WITH IT (2026-10-27, FX-PF, workplan #293): Delete holding removes every purchase
+ *  you already owned, so their records go; records of trades stay. To reverse: return transactions unchanged. */
+/* ─ MK-CF-F-290 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+ * purchaseRecordsAfterHoldingRemoved
+ *
+ * Answers ..... A HOLDING REMOVED TAKES ITS OPENING RECORDS WITH IT (2026-10-27, FX-PF, workplan #293): Delete holding removes every purchase you already owned, so their records go; records of trades stay.
+ *
+ * Formula .....
+ *     tk = string(removed.ticker ?? '').to upper case()
+ *     ticker shared = (still held ?? []).some((p) => string(ticker ?? '').to upper case() = tk)
+ *     the answer = transactions (or none when missing) where !gone.has(id)
+ *
+ * Called by ... MK-XS-F-199 profileOnTheWayIn
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-XS-F-199 profileOnTheWayIn
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-024 logged expenses
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-F-290
+ * Changed ..... not in git yet (—)
+ */
+export function purchaseRecordsAfterHoldingRemoved(transactions: Transaction[], accountId: EntityId, removed: Position, stillHeld: Position[]): Transaction[] {
+  // a record naming only a ticker is the removed holding's only where no other holding in the account has that ticker
+  const tk = String(removed.ticker ?? '').toUpperCase();
+  const tickerShared = (stillHeld ?? []).some((p) => String(p.ticker ?? '').toUpperCase() === tk);
+  const gone = new Set(openingRecordsHeld(transactions, accountId, removed)
+    .filter((t) => t.position_id != null || !tickerShared).map((t) => t.id));
+  return (transactions ?? []).filter((t) => !gone.has(t.id));
+}
+
+/** A SECOND FILE FOR A HOLDING IS READ AGAINST THE RECORDS THE FIRST WROTE (2026-10-27, FX-PF, workplan #294; DEC-7601's own limit).
+ *  Import holdings into an account it matched replaces the account's holdings with the file's. A holding the account already has
+ *  opening records of has them rewritten from the new file — the shares the file holds less those the account's own recorded
+ *  trades explain (buys less sales, which are kept), at the file's price paid — so a purchase is still never counted twice, and
+ *  the new file's price paid is the one a sale reads. Import 100 VTI at $80.00 ($8,000), then a file of 100 VTI at $90.00: the
+ *  record reads 100 at $90.00 ($9,000); it kept $8,000. A holding with no record gets its records, as before. To reverse:
+ *  keep a holding's records when it has any. */
+/* ─ MK-CF-F-291 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+ * purchaseRecordsFollowReimport
+ *
+ * Answers ..... A SECOND FILE FOR A HOLDING IS READ AGAINST THE RECORDS THE FIRST WROTE (2026-10-27, FX-PF, workplan #294; DEC-7601's own limit).
+ *
+ * Formula .....
+ *     out = transactions (or none when missing)
+ *     added = []
+ *     tk = string(ticker ?? '').trim().to upper case()
+ *     of ticker = (t: transaction) => string(account id) = string(account id) and string(ticker ?? '').trim().to upper case() = tk
+ *     openings = out where of ticker(each) and type = 'OPENING_POSITION' and source ! = 'connected'
+ *     traded = out where of ticker(each) and (type = 'BUY' or type = 'SELL')
+ *     net = Σ over traded of ((type = 'BUY' ? 1 : -1) × (number(shares) or 0))
+ *     file shares = total shares(p)
+ *     gone = a list with no repeats of for each of openings: id
+ *     owned = file shares − net
+ *     lot = the first of lots (or none when missing)
+ *     … the first steps only — the rest of the body needs reading by hand.
+ *
+ * Called by ... MK-XS-F-199 profileOnTheWayIn
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-XS-F-199 profileOnTheWayIn
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-004 holding quantity (shares)
+ *               MK-XS-I-024 logged expenses
+ *               MK-XS-I-082 the purchase an opening record is of — so editing or removing that purchase changes or removes its record
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-F-291
+ * Changed ..... not in git yet (—)
+ */
+export function purchaseRecordsFollowReimport(transactions: Transaction[], accountId: EntityId, positions: Position[]): Transaction[] {
+  let out = transactions ?? [];
+  const added: Transaction[] = [];
+  for (const p of positions ?? []) {
+    const tk = String(p.ticker ?? '').trim().toUpperCase();
+    const ofTicker = (t: Transaction) => String(t.account_id) === String(accountId) && String(t.ticker ?? '').trim().toUpperCase() === tk;
+    const openings = out.filter((t) => ofTicker(t) && t.type === 'OPENING_POSITION' && t.source !== 'connected');
+    const traded = out.filter((t) => ofTicker(t) && (t.type === 'BUY' || t.type === 'SELL'));
+    if (!openings.length && !traded.length) { added.push(...openingRecordsOf(accountId, p)); continue; }
+    if (!openings.length) continue;   // only trades explain it: nothing of it was owned before (as before)
+    const net = traded.reduce((n, t) => n + (t.type === 'BUY' ? 1 : -1) * (Number(t.shares) || 0), 0);
+    const fileShares = totalShares(p);
+    const gone = new Set(openings.map((t) => t.id));
+    out = out.filter((t) => !gone.has(t.id));
+    if (fileShares == null) { added.push(...openingRecordsOf(accountId, p)); continue; }   // a count not on record: the file's purchases as they are
+    const owned = fileShares - net;
+    if (owned > 1e-9) {
+      const lot = (p.lots ?? [])[0];
+      added.push(...openingRecordsOf(accountId, p, [{ ...(lot ?? { lot_id: newEntityId('lot') }), shares: owned }]));
+    }
+  }
+  return [...added, ...out];
+}
+
+/** AN OPTION BOUGHT OR SOLD BEFORE 2026-10-23 CARRIES ITS SHARES PER CONTRACT (2026-10-27, FX-PF, NW2-18; DEC-0274, DEC-4646; a rule
+ *  change re-classifies existing data). Those records carry no multiplier, so the cash they moved and the activity line read one
+ *  share a contract: "Buy SPX · 1 contract @ $2.50" beside −$2 and $2.50 out of the cash, where $250 moved. Once, on the way into
+ *  the store: each such record typed by hand on an account built by hand, whose holding is an option, takes the holding's shares
+ *  per contract (100 unless the person said otherwise), and the account's cash takes the difference it should have moved —
+ *  1 × $2.50 × (100 − 1) = $247.50 more out. A record that has its multiplier is left as it is, so this changes nothing twice.
+ *  A linked account's cash is the broker's and is never moved here. To reverse: drop the call in the store's merge. */
+/* ─ MK-CF-F-292 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+ * optionTradesOnTheWayIn
+ *
+ * Answers ..... AN OPTION BOUGHT OR SOLD BEFORE 2026-10-23 CARRIES ITS SHARES PER CONTRACT (2026-10-27, FX-PF, NW2-18; DEC-0274, DEC-4646; a rule change re-classifies existing data).
+ *
+ * Formula .....
+ *     accts = accounts (or none when missing)
+ *     changed = 0
+ *     t   when type ! = 'BUY' and type ! = 'SELL' (or multiplier ≠ nothing (or source = 'connected' when missing or zero) when missing or zero)
+ *     a = accts.find((x) => asset id = account id)
+ *     t   when a is missing (or source = 'connected' when missing or zero)
+ *     m = trade multiplier of(accts, t)
+ *     t   when not (m > 1) or !((shares ?? 0) > 0) or !((price ?? 0) > 0)
+ *     more = (shares as number) × (price as number) × (m − 1)
+ *     the answer:
+ *     ...t = ...t
+ *     multiplier = m
+ *
+ * Called by ... MK-XS-F-175 uid · MK-XS-F-205 recordsOnTheWayIn
+ *
+ * Reaches ..... 438 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
+ *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
+ *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-F-241 M
+ *               … and 420 more — the full list is on functions_from_code
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-001 account balance
+ *               MK-XS-I-004 holding quantity (shares)
+ *               MK-XS-I-024 logged expenses
+ *               MK-XS-I-063 option contract multiplier — 100 unless the broker or the person states otherwise
+ *
+ * Decides .....
+ *     · If shares is missing it uses 0.
+ *     · If price is missing it uses 0.
+ *     · If cash balance is missing it uses 0.
+ *     · Uses a built-in changed of 0.
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-F-292
+ * Changed ..... not in git yet (—)
+ */
+export function optionTradesOnTheWayIn(transactions: Transaction[], accounts: AssetAccount[]): { transactions: Transaction[]; accounts: AssetAccount[]; changed: number } {
+  let accts = accounts ?? [];
+  let changed = 0;
+  const txns = (transactions ?? []).map((t) => {
+    if ((t.type !== 'BUY' && t.type !== 'SELL') || t.multiplier != null || t.source === 'connected') return t;
+    const a = accts.find((x) => x.asset_id === t.account_id);
+    if (!a || a.source === 'connected') return t;
+    const m = tradeMultiplierOf(accts, t);
+    if (!(m > 1) || !((t.shares ?? 0) > 0) || !((t.price ?? 0) > 0)) return t;
+    // the cash it moved is put right where a trade moves the account's cash (tradeCash: an account with a cash figure of its own)
+    const more = (t.shares as number) * (t.price as number) * (m - 1);
+    if (usesSleeve(a)) accts = accts.map((x) => (x.asset_id === a.asset_id ? { ...x, cash_balance: (x.cash_balance ?? 0) + (t.type === 'BUY' ? -more : more) } : x));
+    changed += 1;
+    return { ...t, multiplier: m };
+  });
+  return changed ? { transactions: txns, accounts: accts, changed } : { transactions: transactions ?? [], accounts: accounts ?? [], changed: 0 };
 }
 
 /** Finds the holding a transaction refers to, by the holding's own identifier or by its ticker. */
@@ -505,17 +814,17 @@ export function openingRecordsOf(accountId: EntityId, position: Position, lots: 
  * Called by ... MK-CF-F-111 applyTransaction · MK-CF-F-138 addLot
  *               MK-CF-F-139 removeShares · MK-CF-F-223 tradeMultiplierOf
  *
- * Reaches ..... 39 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
- *               MK-NW-F-086 CATS · MK-NW-F-167 COMPARE
- *               MK-NW-F-080 HOLD · MK-NW-F-140 LEFT_OUT
- *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
- *               MK-NW-F-093 QUIET_PERF · MK-CF-F-138 addLot
- *               MK-CF-F-111 applyTransaction · MK-NW-F-144 beforeTheRecordSentence
- *               MK-PF-F-014 buildPerformance · MK-NW-F-084 categoryEarnings
- *               MK-NW-F-142 classReturnOf · MK-PF-F-068 dayAfterDay
- *               MK-PF-F-012 earliestPurchaseDate · MK-PF-F-079 eventDays
- *               … and 21 more — the full list is on functions_from_code
+ * Reaches ..... 438 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
+ *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
+ *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-F-241 M
+ *               … and 420 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -559,6 +868,7 @@ const findPos = (a: AssetAccount, t: Transaction) =>
  *               MK-XS-I-048 the person’s own asset-class answer
  *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
  *               MK-XS-I-063 option contract multiplier — 100 unless the broker or the person states otherwise
+ *               MK-XS-I-082 the purchase an opening record is of — so editing or removing that purchase changes or removes its record
  *
  * Formula also on the master file · functions_from_code · MK-CF-F-138
  * Changed ..... not in git yet (—)
@@ -773,8 +1083,10 @@ export { availableCash };
  *
  * Called by ... MK-CF-F-224 openingRecordsOf · MK-XS-F-199 profileOnTheWayIn
  *
- * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-224 openingRecordsOf · MK-XS-F-199 profileOnTheWayIn
+ * Reaches ..... 6 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-288 openingRecordsHeld · MK-CF-F-224 openingRecordsOf
+ *               MK-XS-F-199 profileOnTheWayIn · MK-CF-F-290 purchaseRecordsAfterHoldingRemoved
+ *               MK-CF-F-289 purchaseRecordsFollowEdit · MK-CF-F-291 purchaseRecordsFollowReimport
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

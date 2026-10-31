@@ -14,7 +14,7 @@ beforeEach(() => { useStore.setState({ hideBalances: false } as any); });
 test('SEVEN rows on day one — not three, which is what the design drew', () => {
   render(<PlanGlanceRows rows={dayOne()} />);
   for (const q of ['How old are you?', 'When do you want to retire?', 'How long should the money last?',
-                   'What will you spend each month in retirement?', "What's your target nest egg?",
+                   'What will you spend each month in retirement?', "What’s your target nest egg?",
                    'What counts toward retirement?', 'What big one-time costs are coming?']) {
     expect(screen.getByText(q)).toBeOnTheScreen();
   }

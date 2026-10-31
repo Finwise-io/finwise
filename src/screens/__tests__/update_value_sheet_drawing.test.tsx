@@ -30,6 +30,7 @@
  *     tree keeps the opacity the sheet mounted with (40%: the amount is empty for one render before it is filled). The
  *     opacity is therefore read through the disabled flag: 40% when disabled, full otherwise.
  */
+import { amountInBox } from '../../components/MoneyBox';
 import React from 'react';
 import { render, screen, fireEvent, act } from '@testing-library/react-native';
 import { StyleSheet } from 'react-native';
@@ -313,6 +314,8 @@ describe('the drawing, read (a guard must prove it looked)', () => {
   });
 });
 
+const MONEY_ROW = fs.readFileSync(path.join(__dirname, '..', '..', '..', 'MoneyKeel', 'documents', 'networth-and-performance', 'moneykeel_pres_mock_update-value-sheet_v02.html'), 'utf8')
+  .includes('Every money box on this screen shows its figure the way a figure is printed');
 describe('WORD FOR WORD, IN ORDER: every line of each state of the drawing is the screen\'s, and nothing else is', () => {
   afterAll(() => {
     const text = Object.entries(REPORT).map(([k, v]) => `state ${k}: ${v}`).join('\n');
@@ -324,8 +327,9 @@ describe('WORD FOR WORD, IN ORDER: every line of each state of the drawing is th
     renderState(st);
     const built = builtLines();
     const drawn = DRAWN[i].lines;
-    const dSheet = drawn.filter((l) => l.sheet).map((l) => l.t);
     const bSheet = built.filter((l) => l.sheet).map((l) => l.t);
+    // the row of 2026-10-27 (DEC-8385): a value box drawn '12400' reads '12,400' beside the sheet's $ — the same figure, nothing else
+    const dSheet = drawn.filter((l) => l.sheet).map((l, j) => (MONEY_ROW && /^\d+(\.\d+)?$/.test(l.t) && (bSheet[j] === amountInBox(l.t) || bSheet[j] === amountInBox(l.t, false)) ? bSheet[j] : l.t));
     const dPage = drawn.filter((l) => !l.sheet).map((l) => l.t);
     const bPage = built.filter((l) => !l.sheet).map((l) => l.t);
     expect(bSheet.length > 0).toBe(st.sheet);
@@ -361,7 +365,12 @@ describe('APPEARANCE: every line\'s size, weight and colour as rendered, against
     for (const [d, b] of pairs) {
       if (d.t.startsWith('[')) continue;    // the wordmark and the two icons are drawn, not typeset
       const see = (x: Line | null | undefined) => (x ? `${x.t} · ${x.size} · ${x.weight ?? '400'} · ${x.color}` : '(no rendered line)');
-      expect(see(d)).toBe(see(b));
+      // THE ROW OF 2026-10-30 (R1, his words DEC-8839): the card title the drawing writes in grey is white, on the dark-green bar
+      if (['ABOUT THIS HOLDING', 'HISTORIC 12-MONTH RETURN', 'BOND FACTS', 'IF INTEREST RATES MOVE'].includes(d.t) && b && b.t === d.t && b.size === d.size && (b.weight ?? '400') === (d.weight ?? '400')
+        && String(d.color).toUpperCase() === Colors.textTertiary.toUpperCase() && String(b.color).toUpperCase() === Colors.white.toUpperCase()) { looked++; continue; }
+      // THE ROW OF 2026-10-27 (DEC-8385, FX-SHARED): the value box drawn '12400' reads '12,400' beside the $ the sheet prints — the same figure
+      const dd = MONEY_ROW && b && /^\d+(\.\d+)?$/.test(d.t) && (b.t === amountInBox(d.t) || b.t === amountInBox(d.t, false)) ? { ...d, t: b.t } : d;
+      expect(see(dd)).toBe(see(b));
       looked++;
     }
     expect(looked).toBeGreaterThanOrEqual(st.sheet ? 20 : 50);

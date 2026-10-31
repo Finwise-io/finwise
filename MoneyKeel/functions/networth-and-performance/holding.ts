@@ -112,6 +112,7 @@ export interface HoldingAnswer {
  *               MK-XS-I-007 purchase price and date (per lot)
  *               MK-XS-I-009 transaction date
  *               MK-XS-I-024 logged expenses
+ *               MK-XS-I-082 the purchase an opening record is of — so editing or removing that purchase changes or removes its record
  * Ruled by .... DEC-0092 · DEC-0108 · DEC-0152 · DEC-0165 · DEC-0264 · DEC-0301
  *               DEC-0310 · DEC-0475 · DEC-0476 · DEC-0479 · DEC-0483
  *               his decisions, in MoneyKeel/documents/decision-log/moneykeel_log_decisions_v01.xlsx.
@@ -391,6 +392,7 @@ export function purchaseQuantityWords(
  *               MK-XS-I-024 logged expenses
  *               MK-XS-I-048 the person’s own asset-class answer
  *               MK-XS-I-064 the unit beside a quantity — shares, coins, contracts, ounces or units
+ *               MK-XS-I-082 the purchase an opening record is of — so editing or removing that purchase changes or removes its record
  *
  * Decides .....
  *     · Uses today's date from the device clock, so the answer changes by itself overnight.
@@ -489,7 +491,7 @@ const HOLD = () => theHolding({ position: EXAMPLE_POSITION, accountId: 'a2', pri
  *               MK-PF-F-070 holdingPath · MK-PF-F-077 eventPath
  *               MK-XS-F-192 typedValueDatedBack
  *
- * Reaches ..... 386 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 439 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -499,7 +501,7 @@ const HOLD = () => theHolding({ position: EXAMPLE_POSITION, accountId: 'a2', pri
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 368 more — the full list is on functions_from_code
+ *               … and 421 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance

@@ -95,7 +95,13 @@ test('16 of 16 calls hand the plan the records (the one inside willItLast.ts pas
   const rothArgs = fs.readFileSync(path.join(__dirname, '..', 'RothScreen.tsx'), 'utf8').match(/const wilArgs = \{[^\n]*\}/)?.[0] ?? '';
   expect(rothArgs).toMatch(/transactions: store\.transactions/);
   const missing = sites.filter((c) => !/transactions/.test(c.text) && !/wilArgs/.test(c.text));
+  // THE WORKED EXAMPLE (2026-10-30, PF-TOOLS: src/domain/planning/rothConversion.ts runs Roth conversion's figures on a fixed
+  // household, ROTH_OP, before and after a conversion): two more calls, each handing in that household's records — none, [] —
+  // so the app's 16 callers stand and the file reads 18 in all. Counted apart, so a new caller in the app still shows here.
+  const example = sites.filter((c) => /src\/domain\/planning\/rothConversion\.ts$/.test(c.file));
+  console.log(`plan calls read: ${sites.length} — ${sites.length - example.length} in the app, ${example.length} in the worked example`);
   // A GUARD MUST PROVE IT LOOKED: the calls it read, by file
-  expect(sites.length).toBe(16);
+  expect(sites.length - example.length).toBe(16);
+  expect(example.every((c) => /transactions: \[\]/.test(c.text) && /ROTH_OP/.test(c.text))).toBe(true);
   expect(missing.map((c) => c.file)).toEqual([]);
 });

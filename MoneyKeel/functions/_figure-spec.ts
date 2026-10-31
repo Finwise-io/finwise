@@ -235,9 +235,9 @@ export function walkShown(w: Omit<WalkLines, 'wealthGenerated'> & { wealthGenera
  *     total = total
  *
  * Called by ... MK-CF-F-255 spendByMonthByCategory · MK-CF-F-256 budgetEditorBuckets
- *               MK-XS-F-195 monthShown
+ *               MK-XS-F-195 monthShown · MK-XS-F-204 centsShown
  *
- * Reaches ..... 386 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 440 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -247,7 +247,7 @@ export function walkShown(w: Omit<WalkLines, 'wealthGenerated'> & { wealthGenera
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 368 more — the full list is on functions_from_code
+ *               … and 422 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -266,6 +266,47 @@ export function partsShown(parts: number[]): { parts: number[]; total: number } 
   const shown = floors.slice();
   for (const { i } of order) { if (missing <= 0) break; shown[i] += 1; missing -= 1; }
   return { parts: shown, total };
+}
+
+/** What it is for: ROWS WRITTEN TO THE CENT THAT ADD UP TO THEIR PRINTED TOTAL (2026-10-27, FX-CF-A; the lead's ruling R5 on the
+ *  round-2 drawing match, CF2-06; DEC-3523 tenet 2). An expense, a payment logged and a payment received are written to the cent
+ *  (DEC-0264), so a list of them closes on a total to the cent: partsShown's method one place further — each row's cents rounded
+ *  down, the cents still missing to the rows with the largest part of a cent left over — handed back as whole cents, so a caller
+ *  adds totals with no float left over. A row already in whole cents never moves. Worked by hand: $200.40 + $200.40 → 20,040 +
+ *  20,040 = 40,080 cents, printed $200.40 + $200.40 = $400.80 (each rounded to the dollar alone it read $200 + $200 under $401). */
+/* ─ MK-XS-F-204 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * centsShown
+ *
+ * Answers ..... What it is for: ROWS WRITTEN TO THE CENT THAT ADD UP TO THEIR PRINTED TOTAL (2026-10-27, FX-CF-A; the lead's ruling R5 on the round-2 drawing match, CF2-06; DEC-3523 tenet 2).
+ *
+ * Formula .....
+ *     r = parts shown(parts.map((v) => (number.is finite(v) ? v × 100 : 0)))
+ *     the answer:
+ *     cents = parts
+ *     total cents = total
+ *
+ * Called by ... MK-CF-F-204 line
+ *
+ * Reaches ..... 438 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
+ *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
+ *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-F-241 M
+ *               … and 420 more — the full list is on functions_from_code
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-204
+ * Changed ..... not in git yet (—)
+ */
+export function centsShown(parts: number[]): { cents: number[]; totalCents: number } {
+  const r = partsShown(parts.map((v) => (Number.isFinite(v) ? v * 100 : 0)));
+  return { cents: r.parts, totalCents: r.total };
 }
 
 /** What it is for: A MONTH'S ROWS AS PRINTED — what came in, what went out, and the surplus — so the rows add up to the
@@ -481,7 +522,7 @@ export type FigureDeclaration = Record<string, FigureSpec>;
  *               MK-NW-F-167 COMPARE · MK-NW-F-179 balanceWithBondTakenOut
  *               MK-NW-F-185 valueChanged · MK-PL-F-083 inflationRateInForce
  *
- * Reaches ..... 387 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 440 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -491,7 +532,7 @@ export type FigureDeclaration = Record<string, FigureSpec>;
  *               MK-CF-F-237 LATER · MK-NW-F-081 LB
  *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
  *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
- *               … and 369 more — the full list is on functions_from_code
+ *               … and 422 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

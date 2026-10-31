@@ -53,7 +53,9 @@ describe('DEBT_TYPE_FROM_NAME', () => {
 describe('PLANNED_SPENDING', () => {
   test('categories add up into fixed, non-monthly and flexible', () => {
     const b = spendBuckets({ b_fixed: 3_000, b_nonmonthly: 500, b_flexible: 1_200 } as any);
-    expect(b).toEqual({ fixed: 3_000, non_monthly: 500, flexible: 1_200, monthly_total: 4_700 });
+    // `dated` (FX-CF-B, 2026-10-27, workplan #322): the part of non_monthly that is bills given their own months — none here, as
+    // the totals were typed by group and no category carries a month: 0. The total is unchanged, 3,000 + 500 + 1,200 = 4,700.
+    expect(b).toEqual({ fixed: 3_000, non_monthly: 500, flexible: 1_200, monthly_total: 4_700, dated: 0 });
   });
 
   test('the LARGER of the two answers wins — understating spending flatters a plan', () => {

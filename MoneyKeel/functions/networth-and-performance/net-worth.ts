@@ -46,7 +46,7 @@ import { isoLocalDate } from '../../../src/domain/_shared/dates';
  * Called by ... MK-CF-F-156 plannedMonthFlow · MK-NW-O-003 theNetWorth
  *               MK-NW-O-004 theEmergencyFund
  *
- * Reaches ..... 385 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 438 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -56,7 +56,7 @@ import { isoLocalDate } from '../../../src/domain/_shared/dates';
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 367 more — the full list is on functions_from_code
+ *               … and 420 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
@@ -146,8 +146,17 @@ export interface TheNetWorth {
  *
  * Called by ... MK-NW-F-082 NW · MK-NW-F-185 valueChanged
  *
- * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-082 NW · MK-NW-F-185 valueChanged
+ * Reaches ..... 438 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
+ *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
+ *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-F-241 M
+ *               … and 420 more — the full list is on functions_from_code
  *
  * Serves ...... MK-MN-M-016 · MK-NW-M-001 · MK-NW-M-002 · MK-NW-M-004
  *               MK-NW-M-005 · MK-NW-M-006 · MK-NW-M-007 · MK-NW-M-008
@@ -324,18 +333,26 @@ export interface MortgageCheck {
  *     place = (d: any, property id: string) => { on.set(property id, d); placed.add(d); }
  *     id = string(property id)   if property id ≠ nothing
  *     ''   otherwise
- *     name = string(label ?? '').trim().to lower case()
- *     free = properties where !on.has(string(asset id))
- *     loose = mortgages as any[] where !placed.has(each) and property id = nothing
+ *     plain = (v: unknown) => string(v ?? '').to lower case().replace( ÷ [^a − z0 − 9]+ ÷ g, ' ').trim()
+ *     name = plain(label)
  *     unmatched = mortgages as any[] where !placed.has(each)for each of : id = string(debt id)
  *     label = string(label ?? 'Mortgage')
  *     d = on.get(string(asset id))
+ *     the answer:
+ *     property id = string(asset id)
+ *     property = string(label ?? '')
+ *     mortgage id = string(debt id)   if d
+ *     nothing   otherwise
+ *     mortgage = string(label ?? '')   if d
+ *     nothing   otherwise
+ *     payment = required payment(d)   if d
+ *     0   otherwise
  *     … the first steps only — the rest of the body needs reading by hand.
  *
  * Called by ... MK-CF-O-018 theDebts · MK-CF-O-020 theBudgetCounted
  *               MK-NW-O-003 theNetWorth
  *
- * Reaches ..... 385 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 438 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -345,7 +362,7 @@ export interface MortgageCheck {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 367 more — the full list is on functions_from_code
+ *               … and 420 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -358,11 +375,13 @@ export function mortgagesByProperty(accounts: AssetAccount[], debts: Debt[]): Mo
   // check should be 3 properties in NW - 3 or less mortgage."
   //
   // A mortgage is on the property it NAMES. Mortgages stored before that day name none, so each is
-  // placed only where there is one honest answer:
-  //   1. the property whose name its own name begins with — "Lake house mortgage" is the Lake
-  //      house's (that is the name the app itself gives a mortgage typed with a property);
-  //   2. failing that, the one property still without a mortgage, when it is the one mortgage still
-  //      without a property.
+  // placed only where its own name says so: the property whose name its name begins with — "Lake house
+  // mortgage" is the Lake house's (the name the app itself gives a mortgage typed with a property).
+  // THE PERSON'S WORD, NEVER THE APP'S GUESS (2026-10-27, the lead's ruling under tenet 5, DEC-3523; FX-CF-A's finding on CF2-13):
+  // a second rule placed the one mortgage left over on the one property left over — so a home and a mortgage named "Chase" read
+  // "on Maple St" on Debts and Net worth as if the person had said it, and a rental with no mortgage of its own took the home's.
+  // That guess is gone: such a mortgage is on no property, Net worth names it under Debts, and a tap opens it to say which.
+  // Its balance and payment still count everywhere; only where it sits waits for the person. Net worth v08, row of 2026-10-27.
   // Anything else is not guessed: the mortgage is listed as on no property, for the person to fix.
   // One mortgage to a property: a second one naming the same property is listed the same way.
   const properties = (accounts ?? []).filter((a) => assetClassOf(a) === 'real_estate');
@@ -374,16 +393,16 @@ export function mortgagesByProperty(accounts: AssetAccount[], debts: Debt[]): Mo
     const id = d.property_id != null ? String(d.property_id) : '';
     if (id && properties.some((a) => String(a.asset_id) === id) && !on.has(id)) place(d, id);
   }
+  // the name is read as the person wrote it, without case, hyphens or extra spaces: "rental-house mortgage" is the Rental house's
+  // (2026-10-27 — the same name, written with a hyphen; nothing about position is read)
+  const plain = (v: unknown) => String(v ?? '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
   for (const d of mortgages as any[]) {
     if (placed.has(d) || d.property_id != null) continue;
-    const name = String(d.label ?? '').trim().toLowerCase();
-    const mine = properties.filter((a) => !on.has(String(a.asset_id)) && String(a.label ?? '').trim() !== ''
-      && name.startsWith(String(a.label).trim().toLowerCase()));
+    const name = plain(d.label);
+    const mine = properties.filter((a) => !on.has(String(a.asset_id)) && plain(a.label) !== ''
+      && (name === plain(a.label) || name.startsWith(`${plain(a.label)} `)));
     if (mine.length === 1) place(d, String(mine[0].asset_id));
   }
-  const free = properties.filter((a) => !on.has(String(a.asset_id)));
-  const loose = (mortgages as any[]).filter((d) => !placed.has(d) && d.property_id == null);
-  if (free.length === 1 && loose.length === 1) place(loose[0], String(free[0].asset_id));
 
   const unmatched = (mortgages as any[]).filter((d) => !placed.has(d)).map((d) => ({ id: String(d.debt_id), label: String(d.label ?? 'Mortgage') }));
   const sentence = unmatched.length === 0 ? ''
@@ -418,7 +437,7 @@ export type PropertyUse = 'home' | 'rental' | 'second';
  *
  * Called by ... MK-CF-O-020 theBudgetCounted
  *
- * Reaches ..... 385 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 438 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -428,7 +447,7 @@ export type PropertyUse = 'home' | 'rental' | 'second';
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 367 more — the full list is on functions_from_code
+ *               … and 420 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-024 logged expenses
@@ -504,9 +523,17 @@ export interface LedgerGroup {
  *
  * Called by ... MK-NW-F-097 LEDGER
  *
- * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
- *               MK-NW-F-082 NW · MK-NW-F-185 valueChanged
+ * Reaches ..... 438 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
+ *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
+ *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-F-241 M
+ *               … and 420 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
@@ -634,10 +661,19 @@ const GIVEN =
  * Formula .....
  *     the net worth(EXAMPLE)
  *
- * Called by ... MK-NW-F-185 valueChanged
+ * Called by ... MK-CF-O-020 theBudgetCounted · MK-NW-F-185 valueChanged
  *
- * Reaches ..... 1 function. Change the arithmetic above and these change with it:
- *               MK-NW-F-185 valueChanged
+ * Reaches ..... 438 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
+ *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
+ *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-F-241 M
+ *               … and 420 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
@@ -682,9 +718,17 @@ const LEDGER_GIVEN =
  *
  * Called by ... MK-NW-F-097 LEDGER
  *
- * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
- *               MK-NW-F-082 NW · MK-NW-F-185 valueChanged
+ * Reaches ..... 438 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
+ *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
+ *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-F-241 M
+ *               … and 420 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-048 the person’s own asset-class answer
@@ -708,9 +752,17 @@ const CLASS_LABEL_OF = (a: any) => ({
  *
  * Called by ... MK-NW-F-097 LEDGER
  *
- * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
- *               MK-NW-F-082 NW · MK-NW-F-185 valueChanged
+ * Reaches ..... 438 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
+ *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
+ *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-F-241 M
+ *               … and 420 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-048 the person’s own asset-class answer
@@ -732,9 +784,17 @@ const CLASS_KEY_OF = (a: any) => String(a.asset_class);
  * Called by ... MK-NW-F-082 NW · MK-NW-F-098 LEDGER_BAND
  *               MK-NW-F-185 valueChanged
  *
- * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-082 NW
- *               MK-NW-F-185 valueChanged
+ * Reaches ..... 438 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
+ *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
+ *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-F-241 M
+ *               … and 420 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-003 institution name
@@ -783,7 +843,7 @@ const TREND_GIVEN =
  *
  * Called by ... MK-CF-F-070 benefitAnnual · MK-NW-F-100 TREND
  *
- * Reaches ..... 385 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 438 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -793,7 +853,7 @@ const TREND_GIVEN =
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 367 more — the full list is on functions_from_code
+ *               … and 420 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -866,7 +926,7 @@ const PLAN_INPUTS = {
  * Called by ... MK-CF-F-013 budgetFromOnboarding · MK-CF-F-014 budgetVsActual
  *               MK-CF-F-199 ROOM
  *
- * Reaches ..... 385 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 438 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -876,7 +936,7 @@ const PLAN_INPUTS = {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 367 more — the full list is on functions_from_code
+ *               … and 420 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-018 retirement age

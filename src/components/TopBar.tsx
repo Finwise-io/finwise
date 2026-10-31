@@ -65,7 +65,9 @@ export default function TopBar({ back, onBack }: { back?: boolean; onBack?: () =
   };
 
   return (
-    <View style={[s.bar, { paddingTop: insets.top + 6 }]}>
+    // 4 points below the status bar, 20 in from the sides, 10 above the page — as the approved account page v01 (DEC-6457, the newest
+    // approved drawing with this bar) and Net worth v08 (DEC-0644) draw it; it started 6 down until 2026-10-27 (the lead's ruling R9)
+    <View style={[s.bar, { paddingTop: insets.top + 4 }]}>
       {back ? (
         <TouchableOpacity
           onPress={() => (onBack ? onBack() : router.back())}
@@ -91,7 +93,8 @@ export default function TopBar({ back, onBack }: { back?: boolean; onBack?: () =
         </TouchableOpacity>
       )}
       {/* B45 founder finding: flat green TEXT didn't match the designed logo — the wordmark is the
-          logo art itself now (Money teal · Keel navy), same asset as sign-in and first-run. */}
+          logo art itself, same asset as sign-in and first-run. Since 2026-10-30 it is the founder's own
+          lettering ("change the logo to attached"; drawing brand-wordmark v02), 490 × 100 at full size. */}
       <Image source={require('../../assets/brand/wordmark.png')} style={s.brandImg} resizeMode="contain" accessibilityRole="header" accessibilityLabel="MoneyKeel" />
       <View style={s.right}>
         <TouchableOpacity
@@ -184,7 +187,7 @@ const s = StyleSheet.create({
   right: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   eyeBtn: { height: 38, width: 38, borderRadius: 19, backgroundColor: Colors.cardBg, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: Colors.border },
   menuTxt: { fontSize: 13, fontWeight: '700', color: Colors.textSecondary },
-  brandImg: { width: 84, height: 17 },
+  brandImg: { width: 84, height: 17.1 },   // the founder's lettering, 4.9 : 1 (brand-wordmark v02, 2026-10-30)
   backdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end' },
   sheet: { backgroundColor: Colors.bgSecondary, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: Spacing.lg, paddingBottom: 32 },
   grip: { width: 38, height: 4, borderRadius: 2, backgroundColor: Colors.border, alignSelf: 'center', marginBottom: Spacing.md },

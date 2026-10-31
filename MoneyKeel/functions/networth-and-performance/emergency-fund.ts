@@ -35,6 +35,10 @@ export interface EmergencyFund {
   essentialsMonthly: number;
   /** Where that figure came from, in the words the screen shows ("4 month average"). */
   essentialsBasis: string;
+  /** THE SAME, AS THE END OF A SENTENCE (2026-10-30, the lead's follow-up to R7): "Using $3,470/month — <this>". The tag alone reads
+   *  right after a dash or in brackets; set inside a longer phrase it did not ("— calculated of your logged expenses"). Empty when
+   *  there is no essentials figure. */
+  essentialsSource: string;
   /** RENT FROM A PROPERTY, a month — the Income summary's own Rent row, so the two screens can never
    *  show two figures for it. It keeps arriving when pay stops (founder, 2026-10-04), so each month
    *  it is added to the cash before the month is paid for. 0 with no rental. */
@@ -89,10 +93,13 @@ export interface EmergencyFund {
  *     debt minimums = debts.reduce((t: number, d: any) => t + minimum of(d), 0)
  *     named = a list with no repeats of for each of debts: string(label)
  *     ess = essentials monthly(counted, monthly essentials(profile))
- *     planned = planned monthly spend(profile) + debt minimums
- *     rent = max(0, income summary(input.profile ?? {}).lands.rent monthly)
- *     from cash = max(0, monthly − rent)
- *     planned from cash = max(0, planned − rent)
+ *     typed month = input.essentials override ≠ nothing and input.essentials override > 0
+ *     monthly = input.essentials override as number   if typed month
+ *     ess.monthly + debt minimums   if ess
+ *     0   otherwise   otherwise
+ *     planned spend = planned monthly spend(profile)
+ *     planned = planned spend + debt minimums   if planned spend > 0
+ *     0   otherwise
  *     … the first steps only — the rest of the body needs reading by hand.
  *
  * Called by ... MK-NW-F-079 EF · MK-XS-F-199 profileOnTheWayIn
@@ -114,7 +121,6 @@ export interface EmergencyFund {
  *               Change the arithmetic and one of those stops being obeyed — read them first.
  *
  * Decides .....
- *     · If monthly is missing it uses 0.
  *     · Never lets cash after fall below 0.
  *
  * Formula also on the master file · functions_from_code · MK-NW-O-004
@@ -171,10 +177,23 @@ export function theEmergencyFund(input: {
     && !(budget.homeMortgage != null && e?.category === 'Rent / Mortgage'));
   // ONE essentials figure, his ruling G21 — the logged average first, the typed plan as the fallback
   const ess = essentialsMonthly(counted, monthlyEssentials(profile));
-  const monthly = input.essentialsOverride != null && input.essentialsOverride > 0
-    ? input.essentialsOverride : (ess?.monthly ?? 0) + debtMinimums;
+  const typedMonth = input.essentialsOverride != null && input.essentialsOverride > 0;
+  // NO EXPENSES ENTERED, NO MONTH (2026-10-27, the lead's ruling R2 under tenet 3, DEC-3523; drawing match round 2, NW2-01): with
+  // nothing typed and nothing logged there is no essentials figure, and the debt payments alone are never the month. $18,000 and a
+  // $2,400 mortgage read "7.5 months · Comfortable ✓" — the mortgage taken for a whole month of living. Now the month is 0, so
+  // both months figures, the target and the months after a hit refuse (MK-NW-M-013's refusal). Net worth v08, row of 2026-10-27.
+  const monthly = typedMonth ? (input.essentialsOverride as number) : ess ? ess.monthly + debtMinimums : 0;
 
-  const planned = plannedMonthlySpend(profile) + debtMinimums;
+  const plannedSpend = plannedMonthlySpend(profile);
+  const planned = plannedSpend > 0 ? plannedSpend + debtMinimums : 0;
+  // "you entered" ONLY FOR A FIGURE THE PERSON TYPED (2026-10-27, the lead's ruling R7; canon rows 4 and 0b; NW2-03): the month is
+  // what they typed only when it is their one monthly total — no debt payment added, no budget line taken out, no bill set apart.
+  // A figure the app calculates from it is "calculated": v08's $4,150 = $1,600 of the typed plan + $2,400 mortgage + $150 card.
+  const typedTotal = Number(String(input.profile?.monthlySpending ?? '').replace(/[^0-9.-]/g, '')) || 0;
+  const basis = typedMonth ? 'you entered'
+    : !ess ? ''
+      : ess.basis !== 'entered' ? ess.label
+        : (debtMinimums === 0 && typedTotal > 0 && monthly === typedTotal ? 'you entered' : 'calculated');
 
   // RENT FROM A PROPERTY KEEPS ARRIVING (founder, 2026-10-04: "add it to the cash as losing job does
   // not mean loosing rental income too"). It arrives EVERY month, so it is added to the cash every
@@ -214,7 +233,14 @@ export function theEmergencyFund(input: {
     plannedSpendMonthly: planned,
     monthsCoveredAtPlannedSpend: plannedFromCash > 0 ? cash / plannedFromCash : null,
     essentialsMonthly: monthly,
-    essentialsBasis: ess?.label ?? '',
+    essentialsBasis: basis,
+    // the words that say where the month came from, whole (2026-10-30): a typed total, a figure calculated from the budget (and the
+    // debt payments, when there are any), or the average of what was logged (plus the debt payments)
+    essentialsSource: !basis ? ''
+      : typedMonth ? 'the month you entered here'
+        : basis === 'you entered' ? 'the monthly total you entered'
+          : basis === 'calculated' ? (debtMinimums > 0 ? 'calculated from your budget and your debt payments' : 'calculated from your budget')
+            : `${basis} of your logged expenses${debtMinimums > 0 ? ', plus your debt payments' : ''}`,
     rentalIncomeMonthly: rent,
     fromCashMonthly: fromCash,
     rentCoversEssentials: rentCovers,
@@ -327,11 +353,15 @@ export const EMERGENCY_FUND_FIGURES = declareFigures({
     decisions: [
       'ONE essentials figure across all three screens (his ruling G21, 2026-09-08): the average of what has been logged, over the months logged.',
       'NOTHING LOGGED YET (DEC-0251, 2026-09-08): "The typed plan is the fallback for someone who has logged nothing — never the other way round." '
-      + 'The essentials typed in the plan stand in, and the line says so: "$18,000 cash ÷ $3,470/month essentials — you entered". (Row words corrected 2026-10-21, outside re-run OpenAI part 1; no figure moves.)',
+      + 'The essentials typed in the plan stand in, and the line says where the figure came from: "$18,000 cash ÷ $3,470/month essentials — calculated" — '
+      + '$700 typed + $2,770 of debt payments is calculated by the app, so it is "calculated"; "you entered" only where the figure is the one monthly total the person typed, with no debt payment added '
+      + '(the lead\'s ruling R7, 2026-10-27; canon rows 4 and 0b; Net worth v08, row of 2026-10-27). (Row words corrected 2026-10-21, outside re-run OpenAI part 1; no figure moves.)',
+      'NO EXPENSES ENTERED (the lead\'s ruling R2, 2026-10-27, under tenet 3, DEC-3523): with nothing typed and nothing logged there is no month, and the debt payments alone are never '
+      + 'the month — $18,000 and a $2,400 mortgage read 7.5 months; now the refusal. Net worth v08, row of 2026-10-27.',
       'FOUNDER 2026-10-04: "add it to the cash as losing job does not mean loosing rental income too." Rent arrives every month, '
       + 'so it is added to the cash every month — which is the cash ÷ (the month − the rent).',
     ],
-    refusal: 'No essentials figure yet — it says so rather than dividing by nothing. And no count of months where the rent pays for the whole month: the cash is then not drawn on.',
+    refusal: 'No essentials figure yet — it says so rather than dividing by nothing, debts entered or not: the debt payments alone are not a month. And no count of months where the rent pays for the whole month: the cash is then not drawn on.',
     ruled: '2026-09-27',
     worked: {
       given: GIVEN,
@@ -350,7 +380,7 @@ export const EMERGENCY_FUND_FIGURES = declareFigures({
       'FOUNDER 2026-09-28: "give both numbers." The figure above it is what you could not stop paying; '
       + 'this one is the life you plan to live. Neither is the whole truth alone, so the screen shows both.',
     ],
-    refusal: 'No expense figure yet — it shows nothing rather than dividing by nothing.',
+    refusal: 'No expense figure yet — it shows nothing rather than dividing by nothing; the debt payments alone are not a month (R2, 2026-10-27).',
     ruled: '2026-09-28',
     worked: {
       given: GIVEN,
@@ -436,8 +466,9 @@ export const EMERGENCY_FUND_FIGURES = declareFigures({
     ruled: '2026-09-27',
     worked: {
       given: GIVEN,
-      answer: 'Using $3,470/month — you entered',
-      run: () => `Using ${formatMoney(EF().essentialsMonthly)}/month — ${EF().essentialsBasis}`,
+      // $700 typed + $2,770 of debt payments: calculated, not typed (R7, 2026-10-27); the sentence says it whole (2026-10-30)
+      answer: 'Using $3,470/month — calculated from your budget and your debt payments',
+      run: () => `Using ${formatMoney(EF().essentialsMonthly)}/month — ${EF().essentialsSource}`,
     },
   },
   'MK-MN-M-024': {

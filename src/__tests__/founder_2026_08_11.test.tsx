@@ -494,7 +494,7 @@ test('the three questions screen shows ALL three, missing first, prefilled with 
   // 2026-08-12: folded into the Plan tab — ONE component for the complete and the missing states
   const PlanHubScreen = require('../screens/PlanHubScreen').default;
   render(<PlanHubScreen />);
-  expect(screen.getByText(/can't be calculated yet\. Add what you spend/)).toBeOnTheScreen();
+  expect(screen.getByText(/can’t be calculated yet\. Add what you spend/)).toBeOnTheScreen();   // ’ since 2026-10-27
   // the answered ones are STILL shown, prefilled, so they can be changed in place
   expect(screen.getByLabelText('Your age in years').props.value).toBe('55');
   expect(screen.getByText('Monthly expenses in retirement  MISSING')).toBeOnTheScreen();

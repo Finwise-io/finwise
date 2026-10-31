@@ -66,7 +66,7 @@ export interface WaterfallStep { name: string; allocated: number; }
  *
  * Called by ... MK-CF-F-092 incomeMonthlyGrid · MK-PL-F-011 buildGoalsState
  *
- * Reaches ..... 386 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 438 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -76,7 +76,7 @@ export interface WaterfallStep { name: string; allocated: number; }
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 368 more — the full list is on functions_from_code
+ *               … and 420 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-027 goals (target, saved, date)
@@ -120,11 +120,12 @@ export function waterfall(surplus: number, opts: {
  *     user id = uid
  *     goals = goals
  *
- * Called by ... MK-XS-F-031 buildSnapshot · MK-XS-F-199 profileOnTheWayIn
+ * Called by ... MK-PL-F-023 goalStatus · MK-XS-F-031 buildSnapshot
+ *               MK-XS-F-199 profileOnTheWayIn
  *
- * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
- *               MK-XS-F-031 buildSnapshot · MK-XS-F-199 profileOnTheWayIn
- *               MK-XS-F-032 snapshotFromOnboarding
+ * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-031 buildSnapshot · MK-PL-F-023 goalStatus
+ *               MK-XS-F-199 profileOnTheWayIn · MK-XS-F-032 snapshotFromOnboarding
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-027 goals (target, saved, date)
@@ -464,4 +465,45 @@ export function goalStatus(g: GoalLike, fundedThisMonth: number | null | undefin
   if (req == null) return 'no_date';
   if (req === 0) return 'fully_funded';
   return (fundedThisMonth || 0) + 1e-6 >= req ? 'on_track' : 'behind';
+}
+
+/** THE PLAN TAB'S GOAL ROWS, READ FROM WHAT IS SAVED (2026-10-30, FX-PLAN; the lead's order, under his approved Plan v4 frames
+ *  'Goals — populated' and 'Goals — empty').
+ *
+ *  The Goals sub-tab read each goal as goal_id, target_amount and target_year — the names of the goals service's own record (Goal,
+ *  above, built by goalsFromOnboarding). The app saves a goal as id, target, saved and targetDate ('YYYY-MM', the store's Goal). So
+ *  every goal read $0 with no date, and the tab showed 'Nothing here yet' with goals entered — in Build 53 and until today. This is
+ *  the one reader: it takes the saved shape, and the service's shape too, so a record of either kind reads the same.
+ *  The date is the year, as v4 draws it ('$28,000 by 2027'). */
+export interface PlanGoalRow { id: string; label: string; target: number; saved: number; targetDate: string | null }
+/** The Plan tab's goal rows, read from what is saved: each goal's name, target, saved and date, from either shape a goal is stored in; the date is its year, and a goal with no date has none. */
+/* ─ MK-PL-F-094 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * planGoalRows
+ *
+ * Answers ..... The Plan tab's goal rows, read from what is saved: each goal's name, target, saved and date, from either shape a goal is stored in; the date is its year, and a goal with no date has none.
+ *
+ * Formula .....
+ *     g = raw (or none when missing)
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-027 goals (target, saved, date)
+ *
+ * Formula also on the master file · functions_from_code · MK-PL-F-094
+ * Changed ..... not in git yet (—)
+ */
+export function planGoalRows(goals: unknown[] | null | undefined): PlanGoalRow[] {
+  return (Array.isArray(goals) ? goals : []).map((raw: any, i) => {
+    const g = raw ?? {};
+    const date = typeof g.targetDate === 'string' && /^\d{4}/.test(g.targetDate) ? g.targetDate.slice(0, 4)
+      : g.target_year != null && Number.isFinite(Number(g.target_year)) ? String(Number(g.target_year)) : null;
+    return {
+      id: String(g.id ?? g.goal_id ?? `goal-${i}`),
+      label: String(g.label ?? 'Goal'),
+      target: toNum(g.target ?? g.target_amount),
+      saved: toNum(g.saved),
+      targetDate: date,
+    };
+  });
 }

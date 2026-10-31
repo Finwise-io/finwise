@@ -3,7 +3,7 @@
 // Home's strip, Cash flow's strip and every decision screen read THIS — never a screen-local copy.
 // The derivation mirrors RetirementCockpit's committed-plan inputs exactly (pinned by tests).
 import { ageAttainedInYear } from '../income/limits';
-import { simulate, retirementSpendMonthly, type RetirementInputs } from './index';
+import { simulate, projectNestEgg, retirementSpendMonthly, type RetirementInputs } from './index';
 import { inflationRateInForce } from './inflation';
 import { ssBenefitAt } from './ssTiming';
 import { retirementEarmarkedValue, blendedReturn, blendedVolatility, portfolioActualReturn, monthlyContributionsFromOnboarding, type AssetAccount } from '../assets';
@@ -114,6 +114,12 @@ export interface WillItLastResult {
   chanceExact: number | null;
   horizonAge: number;
   inputs: RetirementInputs | null;   // the exact inputs fed to simulate() (decision screens re-run with patches)
+  /** THE NEST EGG AT RETIREMENT, ONE NUMBER (2026-10-30, FX-PLAN; the lead's order — one concept, one number): the Retirement
+   *  cockpit's own figure, today's money grown at the plan's return with what is added each year (MK-PL-F-055 projectNestEgg, on
+   *  these same inputs), never the simulation's middle future, which read $789,749 beside the cockpit's $813K for one household.
+   *  Asked for by Roth conversion (his words of 2026-10-27, DEC-8890: "Moving … to Roth will increase nest egg to …"). null when
+   *  the odds are not run. */
+  nestEggAtRetirement: number | null;
 }
 
 /**
@@ -314,6 +320,7 @@ export function willItLastInputs(a: WillItLastArgs): RetirementInputs | null {
  *     band = nothing
  *     horizon age = inputs.horizon age (or num or zero(op.horizon age) (or 90 when missing or zero) when missing)
  *     inputs = inputs
+ *     nest egg at retirement = nothing
  *     sim = simulate(with band ? { ...inputs, with band: true } : inputs) as any
  *     exact = sim.chance of success as number
  *
@@ -335,11 +342,12 @@ export function selectWillItLast(a: WillItLastArgs): WillItLastResult {
   const spendKnown = (retirementSpendMonthly(op) || numOrZero(op.monthlySpending)) > 0 || (a.assumptions?.spendMonthly ?? null) != null;
   const captured = inputs != null && spendKnown && nestEgg > 0;
   if (!captured || !inputs) {
-    return { captured: false, chance: null, chanceExact: null, band: null, horizonAge: inputs?.horizon_age ?? (numOrZero(op.horizonAge) || 90), inputs };
+    return { captured: false, chance: null, chanceExact: null, band: null, horizonAge: inputs?.horizon_age ?? (numOrZero(op.horizonAge) || 90), inputs, nestEggAtRetirement: null };
   }
   const sim = simulate(a.withBand ? { ...inputs, with_band: true } : inputs) as any;
   const exact = sim.chance_of_success as number;
   // B6: the DISPLAYED odds round to the nearest 5 — even at 1,000 paths the figure carries about
   // ±2 points of sampling noise, and a precise-looking 83% implies knowledge nobody has.
-  return { captured: true, chance: displayOdds(exact), chanceExact: exact, band: null, horizonAge: inputs.horizon_age, inputs };
+  return { captured: true, chance: displayOdds(exact), chanceExact: exact, band: null, horizonAge: inputs.horizon_age, inputs,
+    nestEggAtRetirement: projectNestEgg(inputs).will_have };
 }

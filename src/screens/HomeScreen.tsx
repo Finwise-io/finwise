@@ -273,7 +273,7 @@ export default function HomeScreen() {
     return (
       <ScrollView style={styles.root} contentContainerStyle={[styles.content, { paddingTop: Spacing.xl }]} showsVerticalScrollIndicator={false}>
         <Text style={styles.sub}>Welcome{name !== 'there' ? `, ${name}` : ''}</Text>
-        <Text style={styles.h1}>Let's get your real numbers in.</Text>
+        <Text style={styles.h1}>Let’s get your real numbers in.</Text>
 
         {draft && (
           <TouchableOpacity accessibilityRole="button" style={styles.cta} onPress={goSetup}
@@ -321,7 +321,7 @@ export default function HomeScreen() {
           </TouchableOpacity>
         )}
 
-        <SectionBand title={"WHAT YOU'LL SEE HERE"} />
+        <SectionBand title={"WHAT YOU’LL SEE HERE"} />
         <Text style={styles.promiseLine}>·  Your whole money picture in one place</Text>
         <Text style={styles.promiseLine}>·  What needs your attention — with dollar amounts</Text>
         <Text style={styles.promiseLine}>·  Whether your money will last — as honest odds</Text>
@@ -379,7 +379,7 @@ export default function HomeScreen() {
     youReturn != null
       ? `${youReturn >= 0 ? 'up' : 'down'} ${figSaid('MK-PF-M-002', Math.abs(youDollar))}, ${figSaid('MK-XS-M-004', Math.abs(youReturn)).replace(/%$/, ' percent')} this month`
       : investTotal > 0 ? 'change shows once your holdings have prices' : 'nothing invested yet — connect or add an account to start',
-    ...(heroBase ? [`This month's change is on ${figSaid('MK-PF-M-001', oneMonth.ending)}: your investment accounts with the cash in them`] : []),
+    ...(heroBase ? [`This month’s change is on ${figSaid('MK-PF-M-001', oneMonth.ending)}: your investment accounts with the cash in them`] : []),
     ...(heroLeftOut ? [spokenDollars(oneMonth.notIncluded as string)] : []),
     ...(heroVs ? [`you ${(youReturn as number) >= 0 ? 'plus' : 'minus'} ${figSaid('MK-XS-M-004', Math.abs(youReturn as number))} (including dividends and interest), `
       + `market ${(marketReturn as number) >= 0 ? 'plus' : 'minus'} ${figSaid('MK-PF-M-008', Math.abs(marketReturn as number))}, `
@@ -403,7 +403,7 @@ export default function HomeScreen() {
             onAccessibilityAction={(ev) => { if (ev.nativeEvent.actionName === HERO_GAP_ACTION) openGaps(); }}>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               <Text style={styles.heroKicker}>YOUR INVESTMENTS</Text>
-              <InfoDot term="investments" />
+              <InfoDot term="investments" line={styles.heroKicker} />
             </View>
             <Text style={styles.heroBig} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7}>{maskedMoney(investTotal)}</Text>
             {/* A BALANCE NOT ENTERED, NAMED UNDER THE FIGURE IT IS MISSING FROM (2026-10-21, DEC-3523 tenet 3): the same words as
@@ -442,7 +442,7 @@ export default function HomeScreen() {
                 read "up $8,200 (21.35%)" measured on $46,600, and nothing said so. Where the two differ, the base is printed
                 beneath, the Performance tab's own Ending value. To reverse: delete this line. */}
             {heroBase && (
-              <Text style={styles.freshness}>This month's change is on {fig('MK-PF-M-001', oneMonth.ending)}: your investment accounts with the cash in them.</Text>
+              <Text style={styles.freshness}>This month’s change is on {fig('MK-PF-M-001', oneMonth.ending)}: your investment accounts with the cash in them.</Text>
             )}
             {/* the holding left out of the month's figures above, in the words Performance uses (DEC-5068, 2026-10-13) */}
             {/* its dollars hidden under hide-balances like every other sentence on Home (maskDollars, spokenDollars) — they showed
@@ -466,7 +466,7 @@ export default function HomeScreen() {
                   `market ${marketReturn >= 0 ? '+' : '−'}${fig('MK-PF-M-008', Math.abs(marketReturn))}`,
                   `${gap >= 0 ? 'ahead' : 'behind'} by ${fig('MK-PF-M-027', Math.abs(gap))}`,
                 ]} />
-                <InfoDot term="benchmark" />
+                <InfoDot term="benchmark" line={styles.heroVs} />
               </View>
             )}
             {/* the DATE line always renders (approved mock; build-43 feedback #3) — freshness when
@@ -534,7 +534,7 @@ export default function HomeScreen() {
          
           accessibilityLabel={`Net worth ${spokenMoney(netWorth)}${nwDir ? `, ${nwDir} since last month` : ''}. Opens the Net worth tab.`}>
           <Text style={styles.nwLabel}>Net worth</Text>
-          <InfoDot term="netWorth" />
+          <InfoDot term="netWorth" line={styles.nwLabel} />
           <Text style={styles.nwValue}>{maskedMoney(netWorth)}</Text>
           {nwDir && <Text style={[styles.nwDir, { color: nwDir === 'up' ? Colors.gainText : Colors.red }]}>{nwDir === 'up' ? '▲ up' : '▼ down'}</Text>}
           <Text style={styles.nwArrow}>›</Text>
@@ -584,7 +584,7 @@ export default function HomeScreen() {
           {wil.chance != null ? (
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
               <Text style={styles.wilTxt}>{figWords('MK-XS-M-002', oddsLine(resolveLens(op ?? {}, store.lensOverride), wil.chance, wil.horizonAge))} <Text style={styles.wilEst}>— estimate</Text></Text>
-              <InfoDot term="estimate" />
+              <InfoDot term="estimate" line={styles.wilTxt} />
             </View>
           ) : (
             // founder 2026-07-15: a living tease of the prediction function, never a chore — the full
@@ -636,12 +636,12 @@ export default function HomeScreen() {
           const left = shown.surplus;
           return (
             <TouchableOpacity accessibilityRole="button" style={styles.box} activeOpacity={0.85} onPress={() => router.push('/(tabs)/cashflow')}
-              accessibilityLabel={`This month's cash flow${pace ? `, ${pace.word.replace('✓ ', '')}` : ''}: income ${incomeKnown ? `${takeHomeCalculated ? 'about ' : ''}${spokenMoney(shown.inflow)}` : 'not entered'}, expenses and debt paid so far ${spokenMoney(shown.outflow)}, ${!incomeKnown ? 'nothing left is shown until your income is entered' : left >= 0 ? `${spokenMoney(left)} left, bills may still be coming` : `${spokenMoney(-left)} over`}. Opens the Cash flow tab.`}
+              accessibilityLabel={`This month’s cash flow${pace ? `, ${pace.word.replace('✓ ', '')}` : ''}: income ${incomeKnown ? `${takeHomeCalculated ? 'about ' : ''}${spokenMoney(shown.inflow)}` : 'not entered'}, expenses and debt paid so far ${spokenMoney(shown.outflow)}, ${!incomeKnown ? 'nothing left is shown until your income is entered' : left >= 0 ? `${spokenMoney(left)} left, bills may still be coming` : `${spokenMoney(-left)} over`}. Opens the Cash flow tab.`}
               // THE DOOR INSIDE THE BOX, AS THE BOX'S ACTION (2026-10-24, Cash flow journey E2E-78): "Add your income ›" sits inside
               // this one element, so a screen reader could not reach it; it is offered as the box's action, in its own words
               accessibilityActions={!incomeKnown ? [{ name: 'addIncome', label: EMPTY_DOORS.income.label.replace(' ›', '') }] : undefined}
               onAccessibilityAction={(e) => { if (e.nativeEvent.actionName === 'addIncome') router.push(EMPTY_DOORS.income.route as any); }}>
-              <SectionBand inCard title={"THIS MONTH'S CASH FLOW"} />
+              <SectionBand inCard title={"THIS MONTH’S CASH FLOW"} />
               <View style={styles.paceRow}>
                 {pace && <Text style={[styles.paceChip, { backgroundColor: pace.bg, color: pace.fg }]}>{pace.word}</Text>}
                 {/* the pace line goes with the pace word: before income it is not shown at all — the row lists Income $0 · Nothing
@@ -687,7 +687,7 @@ export default function HomeScreen() {
           <HiddenBalancesBanner />
           {store.priceRefreshFailed && (
             <Text style={styles.offlineBanner}>
-              📡 Couldn't refresh — showing your numbers from {store.pricesFetchedAt
+              📡 Couldn’t refresh — showing your numbers from {store.pricesFetchedAt
                 ? new Date(store.pricesFetchedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ', ' + new Date(store.pricesFetchedAt).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
                 : 'your last session'}.
             </Text>
@@ -731,7 +731,7 @@ export default function HomeScreen() {
             agreed): the saved numbers keep showing with their honest as-of time. */}
         {store.priceRefreshFailed && (
           <Text style={styles.offlineBanner}>
-            📡 Couldn't refresh — showing your numbers from {store.pricesFetchedAt
+            📡 Couldn’t refresh — showing your numbers from {store.pricesFetchedAt
               ? new Date(store.pricesFetchedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ', ' + new Date(store.pricesFetchedAt).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
               : 'your last session'}.
           </Text>

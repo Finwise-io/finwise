@@ -1,5 +1,6 @@
 // 529 / education savings planner — what college will cost, whether you're on track, and the
 // monthly contribution to close the gap. Can save the gap as a goal.
+import { MoneyBox } from '../components/MoneyBox';   // every money box, one component (DEC-8385)
 import React, { useMemo, useState } from 'react';
 import { View, Text, ScrollView, StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
 import { KeyboardAwareScreen } from '../components/KeyboardAwareScreen';
@@ -40,8 +41,11 @@ export default function EducationScreen() {
     <View style={{ flex: 1 }}>
       <Text style={styles.fieldL}>{label}</Text>
       <View style={styles.inputRow}>
-        <TextInput style={styles.input} keyboardType="decimal-pad" value={v} onChangeText={set} placeholderTextColor={Colors.textTertiary} />
-        {suffix ? <Text style={styles.suffix}>{suffix}</Text> : null}
+        {/* a $ figure is a money box — it prints "$30,000" itself, so its $ is not repeated after it (DEC-8385, 2026-10-27) */}
+        {suffix === '$'
+          ? <MoneyBox bare style={styles.input} value={v} onChangeText={set} placeholder="$0" a11y={label} />
+          : <TextInput style={styles.input} keyboardType="decimal-pad" value={v} onChangeText={set} placeholderTextColor={Colors.textTertiary} />}
+        {suffix && suffix !== '$' ? <Text style={styles.suffix}>{suffix}</Text> : null}
       </View>
     </View>
   );
@@ -49,7 +53,7 @@ export default function EducationScreen() {
   return (
     <KeyboardAwareScreen style={{ flex: 1, backgroundColor: Colors.bgSecondary }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
       <Text style={styles.h1}>College planner</Text>
-      <Text style={styles.sub}>What it'll cost, whether you're on track, and how much to set aside each month.</Text>
+      <Text style={styles.sub}>What it’ll cost, whether you’re on track, and how much to set aside each month.</Text>
 
       <View style={styles.card}>
         <View style={styles.row}>{field('Cost per year (today)', cost, setCost, '$')}{field('Years until college', yearsUntil, setYearsUntil)}</View>
@@ -68,7 +72,7 @@ export default function EducationScreen() {
           <View style={styles.card}>
             <View style={styles.trackHead}>
               <Text style={[styles.trackPct, { color: tone }]}>{plan.onTrackPct}%</Text>
-              <Text style={styles.trackTxt}>{plan.onTrackPct >= 100 ? 'fully funded — nice.' : 'of the goal already on track from what you\'ve saved'}</Text>
+              <Text style={styles.trackTxt}>{plan.onTrackPct >= 100 ? 'fully funded — nice.' : 'of the goal already on track from what you’ve saved'}</Text>
             </View>
             {plan.gap > 0 && (
               <View style={styles.gapCard}>

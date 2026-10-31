@@ -70,7 +70,7 @@ describe('USER WALK · 10 common flows', () => {
     fireEvent.press(screen.getByText('Robinhood'));
     expect(screen.getByText(/WHAT ROBINHOOD SHARES/)).toBeOnTheScreen();
     fireEvent.press(screen.getByText('Continue ›'));
-    fireEvent.press(screen.getByText(/Open Robinhood's sign-in/));
+    fireEvent.press(screen.getByText(/Open Robinhood’s sign-in/));   // ’ since 2026-10-27
     const { runSnapTradeSync } = jest.requireMock('../services/sync/snaptradeSync');
     await waitFor(() => expect(runSnapTradeSync).toHaveBeenCalled());
   });
@@ -159,7 +159,7 @@ describe('USER WALK · 10 common flows', () => {
     useStore.setState({ onboardingProfile: WORKER, onboardingComplete: true } as any);
     (useStore.getState() as any).addGoal({ label: 'Emergency fund', icon: '🛟', target: 15000, saved: 6000, duration: '12', color: '#178F6B' });
     render(<GoalsScreen />);
-    expect(screen.getByText('Emergency fund')).toBeOnTheScreen();
+    expect(screen.getByText(/Emergency fund$/)).toBeOnTheScreen();   // its name rides the card's light bar with its icon since 2026-10-27
   });
 
   test('W10 · the eye masks EVERYTHING — including connected balances and option rows', () => {

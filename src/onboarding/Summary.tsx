@@ -67,10 +67,10 @@ export default function Summary({ status, tracks, answers: a, name, onOpen }: Pr
         <Mascot accessory="🎉" mood="celebrate" size={120} />
         <Text style={s.kicker}>SETUP COMPLETE</Text>
         <Text style={s.heroTitle}>Congratulations{firstName ? `, ${firstName}` : ''}! 🎉</Text>
-        <Text style={s.heroSub}>You're all set to manage your income, expenses and savings smartly.</Text>
+        <Text style={s.heroSub}>You’re all set to manage your income, expenses and savings smartly.</Text>
       </View>
 
-      <Text style={s.section}>WHAT'S ACTIVE — TAP TO OPEN</Text>
+      <Text style={s.section}>WHAT’S ACTIVE — TAP TO OPEN</Text>
       <Card>
         {active.map((m, i) => (
           <TouchableOpacity key={m.key} style={[s.statusRow, i > 0 && s.rowDivider]} onPress={() => onOpen?.(m.route)} disabled={!onOpen}>
@@ -86,7 +86,7 @@ export default function Summary({ status, tracks, answers: a, name, onOpen }: Pr
 
       {unlock.length > 0 && (
         <>
-          <Text style={s.section}>UNLOCK NEXT — WHENEVER YOU'RE READY</Text>
+          <Text style={s.section}>UNLOCK NEXT — WHENEVER YOU’RE READY</Text>
           {unlock.map((m) => (
             <Card key={m.key}>
               <TouchableOpacity style={s.statusRow} onPress={() => onOpen?.(m.route)} disabled={!onOpen}>

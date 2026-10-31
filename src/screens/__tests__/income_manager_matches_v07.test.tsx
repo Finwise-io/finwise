@@ -30,9 +30,10 @@
  *     repairs, management." HIS RULING, 2026-10-04 (DEC-1859): "remove langage to include interest on
  *     mortgage in maintenance expenses, as that is not standard practice." The build reads "Tax,
  *     insurance, repairs, management." — a mortgage belongs in Debts, where its whole payment is counted.
- *  8. Phone 1 lists all ten sources. The picker offers the ones that fit the person's situation, in an
- *     order of its own (eight for someone employed) — the onboarding design, which this drawing calls
- *     "unchanged". Held: the question, its line, and every offered source's words exactly as drawn.
+ *  8. Phone 1 lists all ten sources. The picker offers the ones that fit the person's situation (eight for someone employed) —
+ *     his DEC-1560 — in the drawing's order (IN2-07, 2026-10-27; a dated row on the drawing): it had ordered each list by life
+ *     stage. Held: the question and its line, and each person's list exactly as drawn — the same words, marks and order, with
+ *     the sources his ruling leaves out of it removed and nothing else.
  *  9. Phone 10 gains a question the drawing does not have: "Which property is it?" — and, once a
  *     property is picked, "Monthly mortgage payment on this property, if any". HIS RULINGS, 2026-10-04
  *     (DEC-1924: "mortgage should not costs to run. We should ask to add monthly mortgage payment …
@@ -148,26 +149,37 @@ test('phone 11 · Interest & dividends — calculated from the accounts, taxed, 
   expect(firstDifference(want, built())).toBe('');
 });
 
-test('phone 1 · Where does your money come from? — the question, and every offered source in the drawing’s words', () => {
+test('phone 1 · Where does your money come from? — the question, and each person’s list in the drawing’s words, marks and order', () => {
   const lines = phone(1, /^Continue$/);
-  const drawnPairs = new Set<string>();
-  lines.forEach((l, i) => { if (/\p{Extended_Pictographic}/u.test(l)) drawnPairs.add(`${lines[i + 1]} | ${lines[i + 2]}`); });
-  expect(drawnPairs.size).toBe(10);                                                // ten sources drawn
-  useStore.getState().resetAll();
-  const ctx: any = { status: 'employed', tracks: [], answers: {}, setAnswer: jest.fn() };
-  render(<>{renderStep('income_sources' as any, ctx)}</>);
-  const shown = builtLines(screen.toJSON());
-  // the question and its line, mark for mark: "We’ll", the curly mark the drawing draws (IN-20, 2026-10-25)
-  expect(normPrinted(shown.slice(0, 3))).toBe(normPrinted(lines.slice(0, 2)));
-  const offered = new Set<string>();
+  // the drawn sources, in order: each is a mark followed by its title and its line
+  const drawnList: string[] = [];
+  lines.forEach((l, i) => { if (/\p{Extended_Pictographic}/u.test(l)) drawnList.push(`${l} ${lines[i + 1]} | ${lines[i + 2]}`); });
+  expect(drawnList).toHaveLength(10);                                              // the guard proves it looked: ten drawn
+  const offeredAll = new Set<string>();
   for (const status of ['student', 'employed', 'partial', 'retired'] as const) {
-    for (const o of incomeSourceOptionsFor(status)) {
-      offered.add(o.value);
-      expect([...drawnPairs]).toContain(`${o.title} | ${o.sub}`);                    // 8: every offered source, word for word
-    }
+    const offered = incomeSourceOptionsFor(status).map((o) => `${o.icon} ${o.title} | ${o.sub}`);
+    offered.forEach((o) => offeredAll.add(o));
+    // BOTH DIRECTIONS, IN ORDER: every offered source is a drawn one (words and mark), and the list is the drawn list with only
+    // the sources DEC-1560 leaves out removed — so a source out of its drawn place, or one the drawing does not have, fails
+    expect(offered.filter((o) => !drawnList.includes(o))).toEqual([]);
+    expect(offered).toEqual(drawnList.filter((d) => offered.includes(d)));
+    // ON THE SCREEN, the same list in the same order (the rendered lines, mark, title and line)
+    useStore.getState().resetAll();
+    const ctx: any = { status, tracks: [], answers: {}, setAnswer: jest.fn() };
+    render(<>{renderStep('income_sources' as any, ctx)}</>);
+    const shown = builtLines(screen.toJSON());
+    // the question and its line, mark for mark — "We’ll", the curly mark the drawing draws (IN-20) — and no coin or 💰 above it
+    expect(normPrinted(shown.slice(0, 2))).toBe(normPrinted(lines.slice(0, 2)));
+    const rows: string[] = [];
+    shown.forEach((l, i) => { if (/\p{Extended_Pictographic}/u.test(l)) rows.push(`${l} ${shown[i + 1]} | ${shown[i + 2]}`); });
+    expect(rows).toEqual(offered);
+    screen.unmount();
   }
-  expect(offered.size).toBe(10);                                                   // and all ten are offered to someone
-  expect(incomeSourceOptionsFor('employed')).toHaveLength(8);
+  expect([...offeredAll].sort()).toEqual([...drawnList].sort());                  // all ten are offered to someone
+  // his DEC-1560, by name: eight for someone employed — no Retirement income, no Scholarships — Rent before Interest & dividends
+  expect(incomeSourceOptionsFor('employed').map((o) => o.title)).toEqual([
+    'A job (wages or salary)', 'Self-employed / side gig', 'Rent from a property', 'Interest & dividends',
+    'Benefits', 'Child support or alimony', 'Student loans', 'Something else']);
 });
 
 // DEC-3768c (founder, 2026-10-10): the rent fields keep digits and one decimal point only, as the person types.

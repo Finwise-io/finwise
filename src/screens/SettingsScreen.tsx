@@ -72,13 +72,15 @@ export default function SettingsScreen() {
   const handleCheckVerified = async () => {
     const v = await refreshEmailVerified().catch(() => false);
     setVerified(v);
-    Alert.alert(v ? 'Email verified ✓' : 'Not verified yet', v ? 'Thanks — you\'re all set.' : 'Click the link in the email, then try again.');
+    Alert.alert(v ? 'Email verified ✓' : 'Not verified yet', v ? 'Thanks — you’re all set.' : 'Click the link in the email, then try again.');
   };
 
+  // UNLINK, NOT DISCONNECT (canon row 18, workplan row 106, 2026-10-27): the link's words are Linked · Link again · Unlink —
+  // his words of 2026-09-14, "connected / reconnected - change to linked / link again". The lead's decision, made without asking him.
   function handleDisconnect(c: { id: string; brokerage: string }) {
     Alert.alert(
-      `Disconnect ${c.brokerage}?`,
-      'You choose: keep your numbers as a by-hand account (frozen at today\'s numbers), or delete the connection\'s data. Either way the link itself is removed from the connection service.',
+      `Unlink ${c.brokerage}?`,
+      'You choose: keep your numbers as a by-hand account (frozen at today’s numbers), or delete the connection’s data. Either way the link itself is removed from the connection service.',
       [
         { text: 'Cancel', style: 'cancel' },
         { text: 'Keep as manual', onPress: async () => {
@@ -118,7 +120,7 @@ export default function SettingsScreen() {
   function handleRegenRecovery() {
     Alert.alert(
       'New recovery code',
-      'This creates a new recovery code and turns off your old one. You\'ll need to save the new one. Continue?',
+      'This creates a new recovery code and turns off your old one. You’ll need to save the new one. Continue?',
       [
         { text: 'Cancel', style: 'cancel' },
         {
@@ -126,7 +128,7 @@ export default function SettingsScreen() {
           onPress: async () => {
             setRcBusy(true);
             try { setRcCode(await regenerateRecoveryCode()); }
-            catch (e: any) { Alert.alert('Couldn\'t generate a code', e?.message || 'Please try again.'); }
+            catch (e: any) { Alert.alert('Couldn’t generate a code', e?.message || 'Please try again.'); }
             finally { setRcBusy(false); }
           },
         },
@@ -206,7 +208,7 @@ export default function SettingsScreen() {
     Alert.alert(
       on ? 'Diagnostic sent' : 'Noted',
       on
-        ? "Thanks — a diagnostic report was sent. It's anonymous and contains no financial data."
+        ? "Thanks — a diagnostic report was sent. It’s anonymous and contains no financial data."
         : 'Diagnostics will be sent once crash reporting is enabled in this build.',
     );
   }
@@ -278,7 +280,7 @@ export default function SettingsScreen() {
           <Text style={styles.verifyTxt}>⚠ Verify your email so you can recover your account. We sent a link to {user?.email}.</Text>
           <View style={styles.verifyRow}>
             <TouchableOpacity accessibilityRole="button" onPress={handleResendVerify}><Text style={styles.verifyAction}>Resend</Text></TouchableOpacity>
-            <TouchableOpacity accessibilityRole="button" onPress={handleCheckVerified}><Text style={styles.verifyAction}>I've verified ›</Text></TouchableOpacity>
+            <TouchableOpacity accessibilityRole="button" onPress={handleCheckVerified}><Text style={styles.verifyAction}>I’ve verified ›</Text></TouchableOpacity>
           </View>
         </View>
       )}
@@ -400,7 +402,7 @@ export default function SettingsScreen() {
         {/* B-L1: the privacy promise, stated plainly where users look for it — emphasized (larger font),
             because for a finance app this claim matters most. */}
         <Text style={styles.privacyClaim}>
-          🔒 Your financial data is encrypted on your device and in the cloud — even we can't read it — and it's never sent to AI or LLM providers.
+          🔒 Your financial data is encrypted on your device and in the cloud — even we can’t read it — and it’s never sent to AI or LLM providers.
         </Text>
       </Card>
 
@@ -425,10 +427,10 @@ export default function SettingsScreen() {
                     <Text style={{ fontSize: 15, fontWeight: '700', color: Colors.amber }}>Fix ›</Text>
                   </TouchableOpacity>
                 )}
-                <TouchableOpacity accessibilityRole="button" accessibilityLabel={`Disconnect ${c.brokerage}`}
+                <TouchableOpacity accessibilityRole="button" accessibilityLabel={`Unlink ${c.brokerage}`}
                   style={{ minHeight: 44, justifyContent: 'center', paddingHorizontal: 8 }}
                   onPress={() => handleDisconnect(c)}>
-                  <Text style={{ fontSize: 15, fontWeight: '700', color: Colors.red }}>Disconnect</Text>
+                  <Text style={{ fontSize: 15, fontWeight: '700', color: Colors.red }}>Unlink</Text>
                 </TouchableOpacity>
               </View>
             ))}
@@ -489,7 +491,7 @@ export default function SettingsScreen() {
             <Text style={styles.delTitle}>Confirm account deletion</Text>
             <Text style={styles.delBody}>
               Deleting <Text style={{ fontWeight: '800', color: Colors.textPrimary }}>{acctEmail ?? 'your account'}</Text>.
-              Enter <Text style={{ fontWeight: '800' }}>this account's</Text> password to permanently delete it and all its MoneyKeel data. This can't be undone.
+              Enter <Text style={{ fontWeight: '800' }}>this account’s</Text> password to permanently delete it and all its MoneyKeel data. This can’t be undone.
             </Text>
             <View style={styles.delInputRow}>
               <TextInput
@@ -632,7 +634,7 @@ export default function SettingsScreen() {
               style={[styles.input, { height: 140, textAlignVertical: 'top' }]}
               value={fbMessage}
               onChangeText={setFbMessage}
-              placeholder="Describe your idea, what went wrong, or what you'd like to see..."
+              placeholder="Describe your idea, what went wrong, or what you’d like to see..."
               placeholderTextColor={Colors.textTertiary}
               multiline
               autoFocus

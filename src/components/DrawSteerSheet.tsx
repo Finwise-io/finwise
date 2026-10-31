@@ -101,7 +101,7 @@ export function DrawSteerSheet({ visible, onClose, projectionMode }: {
     const { math, mine, horizon, said } = outcome;
     if (math.totalTaxes == null || mine.totalTaxes == null) {
       const why = math.unknown ?? mine.unknown ?? 'the tax on the draw cannot be calculated';
-      return { text: `Can't compare the orders yet — ${why}. Add the purchase price of your taxable holdings and this will run.`, spoken: `Cannot compare yet: ${why}.`, rates: null };
+      return { text: `Can’t compare the orders yet — ${why}. Add the purchase price of your taxable holdings and this will run.`, spoken: `Cannot compare yet: ${why}.`, rates: null };
     }
     const rates = said;   // the sentence of assumptions, composed once (drawAssumptionsSaid, 2026-10-25)
     const ageTxt = (r: { lastsToAge: number | null }) => (r.lastsToAge == null ? `past ${horizon}` : `${r.lastsToAge}`);
@@ -111,7 +111,7 @@ export function DrawSteerSheet({ visible, onClose, projectionMode }: {
     if (sameAge && smallTax) return { text: 'With your order: about the same — this reorder changes taxes too little to move the answer.', spoken: 'About the same.', rates };
     return {
       text: `With your order: lasts to ${ageTxt(math)} → ${ageTxt(mine)} · taxes over the plan ~${maskedMoney(Math.round(math.totalTaxes))} → ~${maskedMoney(Math.round(mine.totalTaxes))} (estimates)`,
-      spoken: `Lasts to age ${ageTxt(math)} with the math's order, ${ageTxt(mine)} with yours. Estimated taxes ${maskedMoney(Math.round(math.totalTaxes))} versus ${maskedMoney(Math.round(mine.totalTaxes))}.`,
+      spoken: `Lasts to age ${ageTxt(math)} with the math’s order, ${ageTxt(mine)} with yours. Estimated taxes ${maskedMoney(Math.round(math.totalTaxes))} versus ${maskedMoney(Math.round(mine.totalTaxes))}.`,
       rates,
     };
   }, [outcome]);
@@ -129,9 +129,9 @@ export function DrawSteerSheet({ visible, onClose, projectionMode }: {
           <Text style={s.title}>Where the draw comes from</Text>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
             <Text style={[s.sub, { flex: 1 }]}>The order the math taps your accounts to fund the draw — a starting point. You decide.</Text>
-            <InfoDot term="safeDraw" />
+            <InfoDot term="safeDraw" line={s.sub} />
           </View>
-          {projectionMode && <Text style={s.projBanner}>This is how your future draw would work — a projection, not today's money.</Text>}
+          {projectionMode && <Text style={s.projBanner}>This is how your future draw would work — a projection, not today’s money.</Text>}
 
           {/* pinned required-withdrawal step (r48) — law, not preference */}
           {rmdFirst && age != null && (
@@ -188,7 +188,7 @@ export function DrawSteerSheet({ visible, onClose, projectionMode }: {
             <View style={s.compareBox} accessible accessibilityLabel={comparison.spoken}>
               <Text style={s.compareTxt}>{comparison.text}</Text>
               {comparison?.rates ? <Text style={s.note}>{comparison.rates}</Text> : null}
-              <Text style={s.note}>The will-it-last percent isn't re-run per order — the odds model isn't order-aware, and we won't fake a shift.</Text>
+              <Text style={s.note}>The will-it-last percent isn’t re-run per order — the odds model isn’t order-aware, and we won’t fake a shift.</Text>
             </View>
           )}
 
@@ -196,8 +196,8 @@ export function DrawSteerSheet({ visible, onClose, projectionMode }: {
             accessibilityLabel={ran ? 'Keep this order' : 'Re-run with my order'}>
             <Text style={s.primaryTxt}>{ran ? 'Keep this order' : 'Re-run with my order'}</Text>
           </TouchableOpacity>
-          <TouchableOpacity accessibilityRole="button" style={s.secondaryBtn} onPress={reset} accessibilityLabel="Reset to the math's order">
-            <Text style={s.secondaryTxt}>Reset to the math's order</Text>
+          <TouchableOpacity accessibilityRole="button" style={s.secondaryBtn} onPress={reset} accessibilityLabel="Reset to the math’s order">
+            <Text style={s.secondaryTxt}>Reset to the math’s order</Text>
           </TouchableOpacity>
           <Text style={s.note}>Closing without saving changes nothing.</Text>
           <View style={{ height: 16 }} />

@@ -2282,6 +2282,10 @@
    "why_it_governs_those": "its own words make a blended rate value-weighted; read 2026-10-22 in categoryEarnings, where the Bonds & CDs rate is weighted by what each bond is worth. Its record named MK-PF-F-019, removed by DEC-4642.",
    "evidence": "read 2026-10-22",
    "verified_by_reading": "2026-10-22 — read in src/screens/__tests__/perf_decisions_held_1.test.tsx"
+  },
+  "DEC-1560": {
+   "governs": "src/screens/__tests__/cashflow_matches_v01.test.tsx · income_manager_matches_v07.test.tsx · kept_editors_match.test.tsx (each names the difference) · Calculation Module code/scripts/moneykeel_workplan.json · src/onboarding/steps.ts (MK-XS-F-206 DRAWN_SOURCE_ORDER — the income picker keeps the sources that fit the person, eight for someone employed)",
+   "why_it_governs_those": "applied and tested, 2026-10-04; 2026-10-31: the income picker in sign-up and the Income manager keeps the subset his ruling kept, in the drawing’s order (DEC-8965, FX-CF-B, held by income_fixes_fx_cf_b_2026_10_27.test.tsx)"
   }
  }
 }

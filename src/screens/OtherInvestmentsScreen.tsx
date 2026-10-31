@@ -1,6 +1,7 @@
 // Other investments (Phase C) — alternatives (crypto, PE, hedge funds, commodities, annuities, other)
 // held at a manual value as AssetAccounts, so they flow to Net worth + nest egg. Third management
 // surface alongside Performance (stocks/ETFs) and Bonds.
+import { MoneyBox } from '../components/MoneyBox';   // every money box, one component (DEC-8385)
 import { plural } from '../domain/_shared/plural';   // the one list of words and plurals (DEC-4082, 2026-10-10)
 import TopBar from '../components/TopBar';
 import React, { useMemo, useState } from 'react';
@@ -180,7 +181,7 @@ export function AltEditor({ item, open, onClose, onSave, onDelete, presetKind }:
           <Text style={styles.fieldL}>Where it’s held (institution)</Text>
           <TextInput style={styles.input} value={inst} onChangeText={setInst} placeholder="e.g. Coinbase, Chase — optional" placeholderTextColor={Colors.textTertiary} />
           <Text style={styles.fieldL}>Current value</Text>
-          <TextInput style={styles.input} keyboardType="decimal-pad" value={value} onChangeText={setValue} placeholder="0" placeholderTextColor={Colors.textTertiary} />
+          <MoneyBox bare style={styles.input} value={value} onChangeText={setValue} placeholder="0" />
           <Text style={styles.fieldL}>Value as of</Text>
           <DateField value={valueAsOf} onChange={setValueAsOf} label="value as of" style={styles.input} />
           <Text style={styles.fieldL}>Held in</Text>
@@ -189,11 +190,12 @@ export function AltEditor({ item, open, onClose, onSave, onDelete, presetKind }:
           ))}</View>
           {item && (
             <View style={styles.sellBox}>
-              <Text style={styles.sellTitle}>🔻 Sell</Text>
+              {/* the box's sub-title on the light-green bar, edge to edge of the box (2026-10-30, R1, DEC-8839; v02 row of that date) */}
+              <SectionBand light inCard inset={12} title="🔻 Sell" />
               <Text style={styles.hint}>Sold this (or part of it) — e.g. an option before expiration, or some crypto? Enter the proceeds to lower or close the position. To re-mark its price, edit “Current value” above.</Text>
               <View style={styles.sellRow}>
-                <TextInput style={[styles.input, { flex: 1 }]} keyboardType="decimal-pad" value={sellAmt} onChangeText={setSellAmt}
-                  placeholder={`amount sold (up to ${fig('MK-NW-M-052', num(value))})`} placeholderTextColor={Colors.textTertiary} />
+                <MoneyBox bare style={[styles.input, { flex: 1 }]} value={sellAmt} onChangeText={setSellAmt}
+                  placeholder={`amount sold (up to ${fig('MK-NW-M-052', num(value))})`} />
                 <TouchableOpacity accessibilityRole="button" accessibilityLabel="Sell" style={[styles.sellBtn, !(num(sellAmt) > 0) && { opacity: 0.4 }]} disabled={!(num(sellAmt) > 0)} onPress={applySale}>
                   <Text style={styles.sellBtnT}>Record</Text>
                 </TouchableOpacity>
@@ -249,8 +251,7 @@ const styles = StyleSheet.create({
   chipOn: { borderColor: Colors.primary, backgroundColor: Colors.primaryLight },
   chipT: { fontSize: 13, fontWeight: '700', color: Colors.textSecondary },
   chipTOn: { color: Colors.primaryDark },
-  sellBox: { marginTop: 18, padding: 12, borderRadius: Radii.md, backgroundColor: Colors.bgSecondary, borderWidth: 1, borderColor: Colors.border },
-  sellTitle: { fontSize: 13, fontWeight: '800', color: Colors.textPrimary },
+  sellBox: { marginTop: 18, padding: 12, borderRadius: Radii.md, backgroundColor: Colors.bgSecondary, borderWidth: 1, borderColor: Colors.border, overflow: 'hidden' },
   sellRow: { flexDirection: 'row', gap: 8, alignItems: 'center', marginTop: 8 },
   sellBtn: { backgroundColor: Colors.textPrimary, borderRadius: Radii.md, paddingVertical: 12, paddingHorizontal: 16, alignItems: 'center' },
   sellBtnT: { color: Colors.white, fontSize: 15, fontWeight: '800' },

@@ -69,7 +69,7 @@ export function SectionBand({ title, value, light, inCard, inset = Spacing.md, i
     return (
       <View style={[s.quietWrap, { paddingHorizontal: inCard ? inset : inset * 2 }]}>
         <Text style={s.quietTitle} numberOfLines={1}>{title}</Text>
-        {!!infoTerm && <InfoDot size={11} term={infoTerm as any} color={Colors.primaryDeep} />}
+        {!!infoTerm && <InfoDot line={s.quietTitle} term={infoTerm as any} />}
         <View style={{ flex: 1 }} />
         {value != null && <Text style={s.quietValue} accessibilityLabel={valueLabel}>{value}</Text>}
       </View>
@@ -90,7 +90,7 @@ export function SectionBand({ title, value, light, inCard, inset = Spacing.md, i
         <Text style={[s.title, { flex: 0, flexShrink: 1 }, light && s.textLight]} numberOfLines={1} accessibilityLabel={titleLabel}>{title}</Text>
       )}
       {/* the band title is 11pt — the dot matches it rather than looming over it */}
-      {!!infoTerm && <InfoDot size={11} term={infoTerm as any} color={light ? Colors.primaryDeep : Colors.white} />}
+      {!!infoTerm && <InfoDot line={[s.title, light && s.textLight]} term={infoTerm as any} />}
       <View style={{ flex: 1 }} />
       {/* founder gap 4 (2026-08-10): the band bleeds to the card edge while rows are inset, so the
           value carries the same inset back — every number on the screen shares ONE right edge. */}

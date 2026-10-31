@@ -5,6 +5,7 @@
 // effects (smaller required withdrawals · bigger tax-free bucket), the will-it-last impact
 // (honest when it barely moves), ending in the shared Use-this-plan sheet. Estimates, clearly
 // labeled. The app never moves money — it records the intention and the numbers.
+import { MoneyBox } from '../components/MoneyBox';   // every money box, one component (DEC-8385)
 import { CountedTaxableLines } from '../components/CountedTaxableLines';   // (DEC-4105, 2026-10-10)
 import React, { useMemo, useState } from 'react';
 import { View, Text, ScrollView, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
@@ -13,13 +14,19 @@ import { useRouter } from 'expo-router';
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { maskedMoney, spokenMoney } from '../components/useMoney';
-import { taxBucketSplit, rmdAtAge, rmdStartAgeFor } from '../domain/decumulation';
+import { taxBucketSplit, rmdStartAgeFor } from '../domain/decumulation';
+import { rothConversionLater, accountsAfterRothConversion } from '../domain/planning/rothConversion';   // what it buys, and the accounts after it (2026-10-27)
 import { rothConversionCost } from '../domain/planning';
 import { filingStatusOf, stateRateOf } from '../domain/income';
 import { taxedAfterPreTax } from '../domain/income/tax-rate';   // what the year is taxed on, the 401(k)s out (B05, 2026-10-24)
 import { useIncomeProfile } from '../hooks/useIncomeProfile';   // the one profile income and tax figures read (2026-10-26)
 import { paycheckReturn, growthUsed } from '../domain/paycheck';   // the Plan's one return when none is set (2026-10-25, FIX-ROOM)
 import { figWords, saidSentence } from '../components/figure';   // the return prints under its number, MK-CF-M-082 (2026-10-26)
+// THE ROTH FIGURES ARE PRINTED HERE, AND THE GUARD COUNTS THEM (2026-10-31, PF-TOOLS; the lead's ruling the same day, as for the draw
+// sheet on 2026-10-26): a figure is declared through the orchestrator that hands it, and no orchestrator hands these — this screen
+// asks the functions itself, and the Plan doors wait on his Q-PL-5 (workplan row 121). So MK-PL-M-008, 022 to 024, 026 and 038 to 044
+// stay reserved on the metric register, the money printed here is on guard_figures_declared's ratchet at its true count, and
+// src/domain/planning/roth_worked_examples_2026_10_31.test.ts keeps the worked examples that prove the numbers.
 import { ageFromProfile } from '../utils/persona';
 import { selectWillItLast } from '../domain/retirement/willItLast';
 import { resolveNetWorthRows } from '../domain/snapshot';
@@ -72,30 +79,25 @@ export default function RothScreen() {
   // accounts, else the typical 6%
   const ret = paycheckReturn(rows.accounts, A, op);
   const growth = growthUsed(ret);   // never below 0%, and the words say so when the floor is used (2026-10-26, round 2 item 5)
-  const grows = age != null && age < rmdStartAgeFor(age);
-  const growTo73 = (bal: number) => {
-    if (age == null || age >= rmdStartAgeFor(age)) return bal;
-    return bal * Math.pow(1 + growth.rate, rmdStartAgeFor(age) - age);   // the rate the line states
-  };
-  const rmdAgeUsed = Math.max(rmdStartAgeFor(age), age ?? rmdStartAgeFor(age));
-  const rmdSmaller = Math.max(0, Math.round(rmdAtAge(growTo73(preTax), rmdAgeUsed) - rmdAtAge(growTo73(Math.max(0, preTax - amt)), rmdAgeUsed)));
+  // WHAT IT BUYS, ROW BY ROW (2026-10-27, FX-PLAN; his words that day: "What it buys section does not make any sense. Design properly
+  // and make it clear"; drawing plan/moneykeel_pres_mock_roth-conversion_v02.html): the pre-tax and Roth money before and after, the
+  // first required withdrawal before and after and the difference, each from the one rmdAtAge path — asked of the domain, worked there
+  const later = rothConversionLater({ preTax, roth: rothNow, amount: amt, age, growthRate: growth.rate, nowYear });
+  const { grows, years: yearsToRmd, rmdAge: rmdAgeUsed, rmdYear, divisor } = later;
 
-  // will-it-last impact (r39): before = the hub's selector untouched; after = the tax cash leaves
-  // the nest egg now (the conversion itself just moves money between buckets)
+  // will-it-last impact (r39): before = the hub's selector untouched; after = the conversion as it happens. THE CONVERSION ITSELF IS
+  // COUNTED (2026-10-27, FX-PLAN; roth-conversion_v02 row 4): the amount leaves the pre-tax accounts and lands in the Roth, and the
+  // tax leaves the first accounts with money in them. Until today only the tax left, so the odds missed that more of the money then
+  // comes out tax-free — 35.9% where the conversion gives 36.2% for the drawing's household
   const wilArgs = { op, accounts: rows.accounts, assumptions: A, bigCosts: store.bigCosts, inflationRate: store.inflationRate, employmentStatus: store.employmentStatus, transactions: store.transactions ?? [] };
   const before = selectWillItLast(wilArgs as any);
   const after = useMemo(() => {
     if (amt <= 0 || !before.captured) return null;
-    let remaining = taxCost;
-    const adjusted = rows.accounts.map((a: any) => {
-      if (remaining <= 0 || !(a.balance > 0) || a.tax_bucket === 'PROPERTY') return a;
-      const cut = Math.min(a.balance, remaining); remaining -= cut;
-      return { ...a, balance: a.balance - cut };
-    });
-    return selectWillItLast({ ...wilArgs, accounts: adjusted } as any);
+    return selectWillItLast({ ...wilArgs, accounts: accountsAfterRothConversion(rows.accounts, amt, taxCost) } as any);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [amt, taxCost, before.captured, rows.accounts]);
 
+  const retiresLater = before.inputs != null && before.inputs.retire_age > before.inputs.current_age;   // a nest egg "at retirement" only before it
   const adopted = Number(A.rothConversionThisYear) > 0;
   const [sheetOpen, setSheetOpen] = useState(false);
   const changes: PlanChange[] = [
@@ -147,8 +149,8 @@ export default function RothScreen() {
       {/* convert-this-year dial (r36) — capped at the REAL pre-tax balance */}
       <View style={s.card}>
         <SectionBand inCard inset={20} title="CONVERT THIS YEAR" />
-        <TextInput style={s.amtInput} keyboardType="number-pad" placeholder="$0" placeholderTextColor={Colors.textTertiary}
-          value={amount} onChangeText={setAmount} accessibilityLabel="Amount to convert this year" />
+        <MoneyBox bare style={s.amtInput} placeholder="$0"
+          value={amount} onChangeText={setAmount} a11y="Amount to convert this year" />
         <Text style={s.note}>from your pre-tax {maskedMoney(Math.round(preTax))}{num(amount) > preTax ? ' — capped at your balance' : ''}</Text>
         {/* an account with no tax type is counted taxable, not in this pre-tax figure, and named (DEC-4105, 2026-10-10) */}
         <CountedTaxableLines accounts={rows.accounts} />
@@ -184,20 +186,33 @@ export default function RothScreen() {
           {/* the two later effects (r38) */}
           <View style={s.card}>
             <SectionBand inCard inset={20} title="WHAT IT BUYS LATER" />
-            <Text style={s.line}>Required withdrawals at {rmdStartAgeFor(age)}: about <Text style={s.strong}>{maskedMoney(rmdSmaller)}/year smaller</Text></Text>
-            {/* the growth the smaller withdrawal is worked on, said — as the draw sheet says its own (2026-10-26) */}
-            {grows && <Text style={s.note} accessibilityLabel={saidSentence(`Growth used until ${rmdStartAgeFor(age)}: ${growth.said}.`)}>Growth used until {rmdStartAgeFor(age)}: {figWords('MK-CF-M-082', growth.said)}.</Text>}
-            <Text style={s.line}>Tax-free bucket: {maskedMoney(Math.round(rothNow))} → <Text style={s.strong}>{maskedMoney(Math.round(rothNow + amt))}</Text></Text>
-            <Text style={s.note}>From {rmdStartAgeFor(age)} the government requires yearly withdrawals from pre-tax accounts — converting shrinks that requirement.</Text>
+            <Text style={s.line}>Converting moves {maskedMoney(amt)} out of the money the law makes you take out from {rmdStartAgeFor(age)}, into money that comes out tax-free.</Text>
+            <View style={s.lrow}><Text style={s.lk}>Pre-tax (IRA, 401(k))</Text><Text style={s.lv}>{maskedMoney(preTax)} → {maskedMoney(later.preTaxAfter)}</Text></View>
+            <View style={s.lrow}><Text style={s.lk}>Tax-free (Roth)</Text><Text style={s.lv}>{maskedMoney(rothNow)} → {maskedMoney(later.rothAfter)}</Text></View>
+            <View style={s.lrow}><Text style={s.lk}>{grows ? `First required withdrawal, ${rmdYear} (age ${rmdAgeUsed})` : `This year’s required withdrawal (age ${rmdAgeUsed})`}</Text>
+              <Text style={s.lv}>~{maskedMoney(later.rmdBefore)} → ~{maskedMoney(later.rmdAfter)}</Text></View>
+            <View style={s.lrow}><Text style={s.lk}>Smaller each year by</Text><Text style={[s.lv, s.strong]}>about {maskedMoney(later.smaller)}</Text></View>
+            {/* how the difference is worked, with the growth said — as the draw sheet says its own (2026-10-26); MK-CF-M-082 */}
+            {grows
+              ? <Text style={s.note}>How: the {maskedMoney(amt)} would grow at {figWords('MK-CF-M-082', growth.said)} — for {yearsToRmd} years, to {maskedMoney(later.grown)}. ÷ {divisor.toFixed(1)}, the IRS factor at {rmdAgeUsed} = {maskedMoney(later.smaller)}/year less you must take out, and less income to pay tax on then.</Text>
+              : <Text style={s.note}>How: {maskedMoney(amt)} ÷ {divisor.toFixed(1)}, the IRS factor at {rmdAgeUsed} = {maskedMoney(later.smaller)}/year less you must take out, and less income to pay tax on.</Text>}
+            <Text style={s.note}>Roth money is never required out, and comes out tax-free.</Text>
           </View>
 
           {/* the will-it-last impact (r39) — honest when it barely moves */}
           {before.captured && before.chance != null && after?.chance != null && (
             <View style={s.card}>
               <SectionBand inCard inset={20} title="WILL MY MONEY LAST?" />
-              <Text style={s.line}>
-                {before.chance}% → {after.chance}%{Math.abs(after.chance - before.chance) < 2 ? ' — little change. This decision is about taxes, not the odds.' : ''}
-              </Text>
+              {/* HIS SHAPE (2026-10-27: "Current odds of your money "xxx" lasting till target age of yy is 35.3%. Moving … to Roth will
+                  increase nest egg to and increase odds to 35.9%. This decision is about taxes, not the odds."), filled from the two runs:
+                  today's nest egg the odds run on, the plan-to age, the middle future at retirement before and after, and the odds */}
+              <Text style={s.line}>Today, the odds that your {before.inputs?.start_balance != null ? maskedMoney(before.inputs.start_balance) : 'nest egg'} lasts to age {before.horizonAge} are {before.chance}%.</Text>
+              {/* ONE NEST EGG (2026-10-30): the cockpit's own figure, MK-PL-F-055 projectNestEgg on the same inputs, before and after */}
+              <Text style={s.line}>Converting {maskedMoney(amt)} this year changes {retiresLater && after.nestEggAtRetirement != null && before.nestEggAtRetirement != null
+                ? `your nest egg at ${before.inputs?.retire_age} to about ${maskedMoney(after.nestEggAtRetirement)} (from ${maskedMoney(before.nestEggAtRetirement)}) and `
+                : ''}the odds to {after.chance}%.</Text>
+              {Math.abs(after.chance - before.chance) < 2 && <Text style={[s.line, s.strong]}>This decision is about taxes, not the odds.</Text>}
+              <Text style={s.note}>How: {retiresLater ? `the nest egg at ${before.inputs?.retire_age} is the Retirement cockpit’s — today’s money grown at the plan’s return, with what you add each year; converted, it starts ${maskedMoney(taxCost)} smaller. ` : ''}The odds count 1,000 simulated futures, run twice — as you are, and with {maskedMoney(amt)} moved from pre-tax to Roth and the {maskedMoney(taxCost)} tax paid from your cash: more of the money then comes out tax-free.</Text>
             </View>
           )}
 
@@ -205,7 +220,7 @@ export default function RothScreen() {
             accessibilityLabel={`Use as my plan: convert ${spokenMoney(amt)} this year`}>
             <Text style={s.primaryTxt}>Use as my plan</Text>
           </TouchableOpacity>
-          <Text style={s.note}>Nothing moves by itself — you'd do the conversion with your brokerage; this records the numbers.</Text>
+          <Text style={s.note}>Nothing moves by itself — you’d do the conversion with your brokerage; this records the numbers.</Text>
         </>
       )}
 
@@ -230,7 +245,12 @@ const s = StyleSheet.create({
   content: { padding: Spacing.lg, paddingTop: Spacing.xl },
   h1: { fontSize: 20, fontWeight: '800', color: Colors.textPrimary },
   sub: { fontSize: 15, color: Colors.textSecondary, marginBottom: Spacing.md, lineHeight: 20 },
-  card: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.lg, marginBottom: Spacing.md },
+  // EACH BOX RUNS END TO END ACROSS THE SCREEN, square corners, so its dark bar does too (his words, 2026-10-27: "dark green bar should be
+  // end to end across the screen"; roth-conversion_v02 row 1): the page's margins taken back, the Cash flow pattern of 2026-10-25
+  card: { backgroundColor: Colors.cardBg, padding: Spacing.lg, marginBottom: Spacing.md, marginHorizontal: -Spacing.lg },
+  lrow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', gap: 10, paddingVertical: 7, borderTopWidth: 1, borderTopColor: Colors.bgTertiary },
+  lk: { flex: 1, fontSize: 15, color: Colors.textSecondary },
+  lv: { fontSize: 15, color: Colors.textPrimary, fontVariant: ['tabular-nums'], textAlign: 'right' },
   adoptedCard: { backgroundColor: Colors.primaryLight },
   adoptedTxt: { fontSize: 15, fontWeight: '700', color: Colors.primaryDark, lineHeight: 20 },
   kicker: { fontSize: 13, fontWeight: '800', color: Colors.textSecondary, letterSpacing: 0.6, marginBottom: 6 },

@@ -168,17 +168,19 @@ export function useInsights(limit?: number): Insight[] {
       // the drill-down names the DEBT LINE too, so the figure can be followed by hand: his ruling of
       // 2026-09-28 counts debt minimums, and a person who cannot see them cannot check the months
       runway: () => [{ label: 'Cash on hand', value: money(ef.cash) },
-                     { label: `Expenses/month (${essentialsLabel})`, value: money(ef.plannedSpendMonthly) },
+                     // each figure carries its own source (2026-10-30): the tag named where the ESSENTIALS came from ("7 month average"),
+                     // but sat beside the planned spend, which is always the budget plus the debt payments
+                     { label: 'Expenses/month at your planned spend', value: money(ef.plannedSpendMonthly) },
                      // printed through fig() so the identifier travels with the number (rule 11) —
                      // these two are MK-NW-M-047 and MK-NW-M-048, already declared on the door
                      { label: 'Debt minimums/month', value: fig('MK-NW-M-047', ef.debtMinimums) },
-                     { label: 'Needed each month', value: fig('MK-NW-M-048', monthlySpending) },
+                     { label: essentialsLabel ? `Needed each month (${essentialsLabel})` : 'Needed each month', value: fig('MK-NW-M-048', monthlySpending) },
                      // the rent that keeps arriving is named too (founder, 2026-10-04), or the months
                      // below could not be followed by hand from the rows above them
                      ...(ef.rentalIncomeMonthly > 0 ? [{ label: 'Rent from your property each month', value: fig('MK-NW-M-064', ef.rentalIncomeMonthly) }] : []),
                      { label: 'Months covered', value: ef.monthsCovered != null ? ef.monthsCovered.toFixed(1) : '—' }],
       'k401-room': () => { const h = k401Headroom(age, ownK401Annual(op)); return [
-        { label: `${IRS_LIMITS.year} 401(k) limit`, value: money(h.limit) }, { label: "You've contributed", value: money(h.used) }, { label: 'Room left', value: money(h.remaining) }]; },
+        { label: `${IRS_LIMITS.year} 401(k) limit`, value: money(h.limit) }, { label: "You’ve contributed", value: money(h.used) }, { label: 'Room left', value: money(h.remaining) }]; },
       'behind-bench': () => [{ label: 'Your 12-mo return', value: actual != null ? pct(actual) : '—' }, { label: 'Benchmark', value: bench != null ? pct(bench) : '—' },
                              { label: 'Gap', value: actual != null && bench != null ? pct(actual - bench) : '—' }],
       'invest-rate': () => [{ label: 'Annual contributions', value: money((monthlyContributionsFromOnboarding(op) ?? 0) * 12) }, { label: 'Gross income', value: money(gross) },

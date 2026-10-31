@@ -102,8 +102,11 @@ describe('(b) the Plan\'s one return, stated, on Roth conversion and Required wi
     fireEvent.changeText(screen.getByLabelText('Amount to convert this year'), '50000');
     const L = builtLines(screen.toJSON());
     // by hand: $50,000 × 1.079^15 ÷ 24.6 = $6,358.6 (at 5.5% it read $4,538)
-    expect(L).toContain('Required withdrawals at 75: about $6,359/year smaller');
-    expect(L).toContain(`Growth used until 75: ${paycheckReturn([IRA], {}, OLD).said}.`);
+    // the same $6,359, since 2026-10-30 on a row of its own under WHAT IT BUYS LATER (roth-conversion_v02, DEC-8890)
+    expect(L).toContain('Smaller each year by');
+    expect(L).toContain('about $6,359');
+    // the growth is said inside the line that works the figure out, since 2026-10-30 (roth-conversion_v02)
+    expect(L.some((l: string) => l.includes(`would grow at ${paycheckReturn([IRA], {}, OLD).said} — for 15 years`))).toBe(true);
   });
   test('Roth conversion\'s tax stands on what the year is taxed on, the Income summary\'s: $70,000 with $10,000 into a 401(k), $20,000 converted → about $3,750 (it read $4,400)', () => {
     // by hand (2026, single): on $60,000 the tax is $1,240 + 12% × $31,500 = $5,020; on $80,000, $1,240 + $4,560 + 22% × $13,500 =

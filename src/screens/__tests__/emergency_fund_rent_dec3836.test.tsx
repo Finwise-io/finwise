@@ -29,9 +29,15 @@ describe('Stress test (DEC-3836)', () => {
   test('a blank rent figure: $10,000 ÷ $2,000 = 5.0 months, and the line beside them', () => {
     at(10000, BLANK, [HOME, LAKE]);
     render(<StressTestScreen />);
-    expect(screen.getByText('5.0')).toBeOnTheScreen();
+    // since 2026-10-27 the months are written as Net worth writes them (stresstest v03, row 3): "5.0 months" over the rent line
+    expect(screen.getAllByText('5.0 months')).toHaveLength(1);
     expect(screen.getByText('5.0 months, rent not included. Enter rent to include.')).toBeOnTheScreen();
     expect(screen.getByLabelText('5.0 months, rent not included. Enter rent to include. Opens Income.')).toBeOnTheScreen();
+  });
+  test.failing('the screen until 2026-10-27, pinned: the months as a bare "5.0" (FIXED 2026-10-27, stresstest v03 row 3)', () => {
+    at(10000, BLANK, [HOME, LAKE]);
+    render(<StressTestScreen />);
+    expect(screen.getByText('5.0')).toBeOnTheScreen();
   });
   test.each(NO_LINE)('%s: no such line', (_n, rentals, accounts) => {
     at(10000, rentals, accounts);

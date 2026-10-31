@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Goals v03</title>
+<style>
+  :root{--primary:#178F6B;--primaryDark:#0F6E56;--primaryDeep:#085041;--primaryLight:#E1F5EE;--bandLight:#DFF2E9;--amber:#854F0B;--red:#A32D2D;
+        --bg2:#F6F7F5;--bg3:#EEEEE9;--card:#FFFFFF;--t1:#1A1A18;--t2:#6B6B66;--t3:#76766F;--border:rgba(0,0,0,0.10)}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:-apple-system,'SF Pro Text','Segoe UI',Roboto,sans-serif;background:#ECEBE4;color:var(--t1);padding:22px}
+  .wrap{max-width:1500px}
+  .row{display:flex;gap:22px;flex-wrap:wrap;align-items:flex-start}
+  .phone{width:375px;background:#000;border-radius:44px;padding:10px;box-shadow:0 16px 36px rgba(0,0,0,.24)}
+  .screen{background:var(--bg2);border-radius:35px;overflow:hidden;display:flex;flex-direction:column}
+  .sbar{display:flex;justify-content:space-between;padding:12px 22px 4px;font-size:14px;font-weight:700}
+  .topbar{display:flex;align-items:center;justify-content:space-between;padding:6px 20px 10px;background:var(--bg2)}
+  .menuBtn{display:flex;align-items:center;gap:6px;height:38px;padding:0 13px;border-radius:12px;background:var(--card);border:1px solid var(--border);font-size:13px;font-weight:700;color:var(--t2)}
+  .wordmark{font-size:15px;font-weight:800;letter-spacing:-.2px}.wordmark .m{color:#178F6B}.wordmark .k{color:#1F3A5F}
+  .tright{display:flex;gap:8px}
+  .ico{width:38px;height:38px;border-radius:19px;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:15px;color:var(--t2)}
+  .tabbar{display:flex;justify-content:space-around;background:var(--card);border-top:.5px solid var(--border);height:84px;padding:6px 0 20px}
+  .tb{width:56px;display:flex;flex-direction:column;align-items:center;font-size:10.5px;font-weight:700;color:var(--t3)}
+  .tb i{display:block;height:3px;width:22px;margin-bottom:5px}
+  .tb b{font-size:20px;font-weight:400;line-height:23px;color:var(--t3)}
+  .cap{font-size:12px;color:#4a4a45;max-width:375px;margin-top:9px;line-height:1.5}
+  .note-doc{max-width:1100px;margin:0 0 14px;padding:12px 14px;border:2px solid #0B5D3B;border-radius:12px;font-size:13px;line-height:1.5;background:#fff;color:#111}
+  .note-doc table{border-collapse:collapse;margin-top:8px;font-size:12.5px}
+  .note-doc td,.note-doc th{padding:4px 8px;border:1px solid #ccc;vertical-align:top;text-align:left}
+  .content{padding:20px}
+  .h1{font-size:20px;font-weight:800;color:var(--t1)}
+  .tagline{font-size:15px;color:var(--t2);margin-bottom:12px}
+  .subtabs{display:flex;background:var(--card);border-bottom:1px solid var(--border);margin-bottom:12px}
+  .st{flex:1;text-align:center;min-height:44px;line-height:44px;font-size:13px;font-weight:600;color:var(--t2);border-bottom:2px solid transparent}
+  .st.on{font-weight:800;color:var(--primaryDeep);border-bottom-color:var(--primaryDeep)}
+  /* a box runs edge to edge of the phone, square corners; its dark bar runs end to end across the screen (DEC-8839, DEC-8890) */
+  .box{background:var(--card);margin:0 -20px 12px;padding:0 20px 8px}
+  .band{display:flex;align-items:center;background:var(--primaryDeep);color:#fff;padding:8px 12px;margin:0 -20px 4px;font-size:11px;font-weight:800;letter-spacing:.5px;text-transform:uppercase}
+  .band .bv{margin-left:auto;font-size:15px;font-weight:800;letter-spacing:0;text-transform:none;font-variant-numeric:tabular-nums}
+  .lband{background:var(--bandLight);color:var(--primaryDeep);padding:8px 12px;margin:10px -20px 4px;font-size:11px;font-weight:800;letter-spacing:.5px;text-transform:uppercase}
+  .line{font-size:13px;color:var(--t2);margin-top:6px;line-height:18px}
+  .lrow{display:flex;justify-content:space-between;padding:5px 0;font-size:15px;color:var(--t1)}
+  .lrow .k{color:var(--t2)} .lrow .v{font-variant-numeric:tabular-nums}
+  .lrow.total{border-top:1px solid var(--border);margin-top:2px;font-weight:800}.lrow.total .k{color:var(--t1)}
+  .grow{display:flex;align-items:center;gap:8px;min-height:44px;padding:11px 0;border-top:1px solid var(--border)}
+  .grow:first-of-type{border-top:0}
+  .gt{flex:1;font-size:15px;font-weight:600;color:var(--t1)}
+  .gs{font-size:13px;color:var(--t2);max-width:170px;text-align:right}
+  .chev{font-size:15px;color:var(--t3)}
+  .gsub{font-size:13px;color:var(--t2);margin:-6px 0 8px;line-height:17px}
+  .add{min-height:44px;line-height:44px;font-size:15px;font-weight:700;color:var(--primaryDeep)}
+  .door{font-size:13px;font-weight:700;color:var(--primary);min-height:44px;line-height:20px;padding:12px 0}
+  .dL{font-size:13px;color:var(--t2);font-weight:600;margin-top:10px}
+  .segRow{display:flex;gap:8px;margin-top:6px}
+  .seg{flex:1;border:1.5px solid var(--border);border-radius:12px;min-height:44px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:var(--t2)}
+  .seg.on{border-color:var(--primary);background:var(--primaryLight);color:var(--primaryDark)}
+  .pick{display:flex;align-items:center;gap:8px;min-height:48px;border:1.5px solid var(--border);border-radius:12px;padding:0 12px;margin-top:8px;font-size:15px;font-weight:600}
+  .pick.on{border-color:var(--primary);background:var(--primaryLight)}
+  .dateRow{display:flex;gap:8px;margin-top:6px}
+  .in{flex:1;border:1.5px solid var(--border);border-radius:12px;padding:12px;font-size:17px;color:var(--t1)}
+  .result{background:var(--primaryLight);border-radius:12px;padding:12px;margin-top:12px}
+  .rBig{font-size:20px;font-weight:800;color:var(--primaryDark)}
+  .rSub{font-size:13px;color:var(--t2);margin-top:3px;line-height:18px}
+  .how{font-size:13px;color:var(--t3);margin-top:8px;line-height:17px}
+  .btn{background:var(--primary);border-radius:12px;min-height:50px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:17px;font-weight:800;margin-top:12px}
+  .link{text-align:center;font-size:13px;font-weight:700;color:var(--t2);min-height:44px;line-height:44px}
+  .empty{background:var(--card);margin:0 -20px 12px;padding:24px 20px;text-align:center}
+  .eT{font-size:17px;font-weight:800;color:var(--t1);margin-bottom:6px}
+  .eB{font-size:13px;line-height:20px;color:var(--t2);margin-bottom:12px}
+  .cta{display:inline-block;background:var(--primaryDeep);color:#fff;padding:12px 20px;min-height:44px;font-size:15px;font-weight:700}
+  .nothing{font-size:13px;color:var(--t2);margin-top:6px}
+  .newb{box-shadow:inset 0 0 0 2px #185FA5}
+  .tb.on b,.tb.on{color:var(--primary)} .tb.on i{background:var(--primary)}
+
+</style></head>
+<body><div class="wrap">
+
+<div class="note-doc">
+<b>READ THIS FIRST — 2026-10-27. Plan · Goals, version 03, opened the way he asked (DEC-8891: what he approved before, his words, what is new). This drawing waits on his approval. Nothing of it is built: no code changes for Goals until he approves it.</b>
+<table>
+<tr><th style="width:24%">What he approved before for this screen</th><td><b>The Plan design v4</b> — the Claude Design handoff of 2026-08-14, frames ‘Goals — populated’ and ‘Goals — empty’ (<span style="font-family:ui-monospace,monospace">August 14th Design/design_handoff_net_worth/Plan.dc.html</span>, frame group 7, with <span style="font-family:ui-monospace,monospace">PLAN-REDESIGN-BRIEF-v3-2026-08-14.md</span> §3.0, §3.0.1 and §3.3.1) — shipped in <b>Build 53</b> (cut 4fcde07d, 2026-08-15; submitted 9c17b46a) as the Plan tab’s Goals sub-tab. The record of which design each screen was built from names v4 as the Plan design; no separate approval number is on record for the two Goals frames. v01 and v02 of this file were drawn from today’s old full Goals screen, the wrong starting point (DEC-8889); both are in <span style="font-family:ui-monospace,monospace">archive/</span> under 2026-10-27.</td></tr>
+<tr><th>His feedback on it so far, word for word</th><td>2026-10-27, on goals v01 (DEC-8889): <i>“Goals screen exists in Build 53. The drawing does not match. "$1,750/month typical free cash to save" - typical based on what? The screen has no name. Both build 53 and current mockup does have Retire, and Prepare tab at the top. When I click on "Add goal" same - other tabs missing. Add goal is showing some times from prepare tab. Debt Pay-off should be a goal to enter. I do not know what the current mockup is trying to do with debt pay off section.”</i><br>2026-10-27, of every screen (DEC-8839): <i>“the standard design says box titles in dark green bar, and sub-titles in light green bar”</i>; of Roth conversion (DEC-8890): <i>“Roth Conversion - dark green bar should be end to end across the screen.”</i></td></tr>
+<tr><th>What is new for him to look at</th><td>
+1. <b>The screen has a name: the Plan bar with ‘Goals’ selected</b> — Plan, ‘We lay it out. You decide.’, then Retire · <b>Goals</b> · Prepare, as v4 draws it. The bar stays at the top on every state, <b>Add a goal included</b> (phone 2): adding a goal opens here, on the Goals sub-tab, never on the old full Goals screen.<br>
+2. <b>No Prepare items on Goals.</b> Insurance, estate, the tax organiser and build credit are on Prepare (v4 §3.0), Roth conversion on Retire.<br>
+3. <b>‘Pay off a debt’ is a goal a person enters</b> (phone 2): pick the debt — the debts come from Cash flow · Debts — then the date; it shows what a month needs and the payoff date, and how both are worked.<br>
+4. <b>The debt sections leave Goals.</b> Each one now lives here: the debt payoff plan (avalanche or snowball, the extra a month, the payoff order) — on Cash flow · Debts, where it is already built; debt-to-income and the student-loan outlook — on Cash flow · Debts too (v4 §3.3.1: a decision about a debt lives where the debt is), not built there yet; build credit — on Plan · Prepare, where it is already built. A line under the goals opens Cash flow · Debts.<br>
+5. <b>Every figure says how it is made.</b> ‘$1,750/month typical free cash to save’ becomes WHAT YOU CAN PUT TOWARD GOALS, $1,750/month: your planned surplus, the average of this year’s 12 months — take-home $4,800 − expenses $2,500 − debt payments $550. When months differ, the range shows on the same line. Each goal says what a month needs and why.<br>
+6. <b>The bars of the standard design</b> (DEC-8839): each box’s title on a dark bar running end to end across the phone; a sub-title on a light bar.
+</td></tr>
+<tr><th>Where today’s build differs from v4 and Build 53 (found first, 2026-10-27)</th><td>
+(a) <b>The Goals sub-tab never lists a goal.</b> It reads each goal’s amount, date and number under names the app does not store (target_amount, target_year, goal_id; the app stores target, targetDate, id), so every goal reads $0 and the list falls back to ‘Nothing here yet’ even with goals entered — in Build 53 and today (src/screens/PlanHubScreen.tsx, the goal rows). (b) ‘+ Add a goal’ and every goal row open the old full Goals screen (route /(tabs)/goals): no Retire · Goals · Prepare bar, titled ‘Plan’, carrying DEBT &amp; CREDIT, STUDENT LOAN OUTLOOK, DEBT-TO-INCOME, DEBT PAYOFF PLAN and PREPARE &amp; PROTECT — none of which v4 puts on Goals. (c) The populated sub-tab adds a quiet heading ‘WHAT YOU’RE SAVING FOR’ v4 does not draw; ‘Can I afford it all?’ reads ‘all of them together, not one at a time’ where v4 reads ‘with more than one goal’; on track or behind is never worked out for a row; college is a door row of its own (‘College planner’) where v4 draws college as a goal. (d) The empty state’s button has rounded corners and 15-point words; v4 draws it square, 13 points. (e) v4 draws a dark-green Plan header with its own logo; the app shows its top bar — the built bar is the design (the lead’s ruling R9). (f) The debt payoff plan is built twice, on the old Goals screen and on Cash flow · Debts.
+</td></tr>
+<tr><td style="padding:4px 8px;border:1px solid #ccc;vertical-align:top;white-space:nowrap">2026-10-27</td><td style="padding:4px 8px;border:1px solid #ccc;vertical-align:top"><b>Approved before:</b> nothing — this drawing was drawn for his approval; no approval of it is on record. It draws the tab bar’s names at 10.5 points and the top bar 6 points below the status bar. <b>His feedback:</b> His words, 2026-08-04 (DEC-0059): “make sure font size and color and overall design are same across all screens.” His UX review of 2026-07-16, as the code records it: ‘it is hard to link menu to button bar’. His words, 2026-09-14 (DEC-0354): “you did not have ‘MoneyKeel’ at the top which every other screen has”; 2026-08-04 (DEC-0059): “make sure font size and color and overall design are same across all screens.” <b>New:</b> The names are 11 points and the top bar starts 4 points below the status bar; the rest of both bars is as drawn here. The tab bar is the one the app draws: each tab an icon above its name — the same five icons the Menu’s top strip shows, filled on the picked tab, outlined on the others; the picked tab brand green #178F6B with a short green bar (22 × 3 points) above its icon; the other four grey #76766F; names weight 700. One thing changes in the app: the names are 11 points, where they were 10.5 — the one size in the app off the scale (11 · 13 · 15 · 17 · 20 · 24 · 30 · 38). The MoneyKeel top bar starts 4 points below the status bar (the app started it 6 down until today), sits 20 points in from each side and 10 above the page; its button and two round icons are 38 points tall, the button’s words 13 points. The phones are not redrawn.</td><td style="padding:4px 8px;border:1px solid #ccc;vertical-align:top">Why the app’s bar: Net worth v08, approved 2026-10-01 (DEC-0644), draws its names, colours and green bar; Cash flow v01 (DEC-0440) draws the picked tab #178F6B; the UX design v1.2 says ‘active = brand teal + label bold’; the screen standard says ‘Brand green #178F6B is for buttons and the active tab’; and the Menu mirrors the bar from one list, so a drawn emoji or letter would break the pair. Why 4 · 20 · 10: the account page v01, approved 2026-10-19 (DEC-6457), the newest approved drawing with this bar, and Net worth v08 (DEC-0644) both draw it. Not a decision of his: the lead’s ruling of 2026-10-27, made without asking him, as his order of 2026-09-30 says. To reverse: the names at 10.5 again. To reverse: start the bar 6 points down again.</td><td style="padding:4px 8px;border:1px solid #ccc;vertical-align:top">DEC-0059 · DEC-0644 · DEC-0440 · DEC-4529 · DEC-0354 · DEC-6457</td><td style="padding:4px 8px;border:1px solid #ccc;vertical-align:top">In the code since 2026-10-27</td></tr>
+<tr><td style="padding:4px 8px;border:1px solid #ccc;vertical-align:top;white-space:nowrap">2026-10-27</td><td style="padding:4px 8px;border:1px solid #ccc;vertical-align:top"><b>Approved before:</b> nothing — this drawing was drawn from the build; no approval of it is on record. Its money boxes print a typed figure plain. <b>His feedback:</b> None on these boxes. He approved the income drawing on 2026-08-27 (DEC-0177: “yes”), which draws a money box with its figure as money, ‘$7,000’. <b>New:</b> Every money box on this screen shows its figure the way a figure is printed, while it is typed — ‘$1,000’ where a box was drawn ‘1000’, ‘$192.50’ where ‘192.5’; where the screen prints its own $ just before the box, the box reads ‘1,000’, so the $ is printed once — and it stores the plain amount, so no figure moves. The box keeps its look. A typed letter is refused whole (DEC-3768c). Shares, contracts, rates, days and years keep their plain digits. The phones are not redrawn.</td><td style="padding:4px 8px;border:1px solid #ccc;vertical-align:top">One figure, one form (tenet 4, DEC-3523): the money boxes of the income screens already show ‘$7,000’ (DEC-8385), and one component, MoneyBox, now draws every money box in the app — src/__tests__/every_money_box_is_moneybox.test.tsx counts them all. Not a decision of his: the lead’s ruling of 2026-10-27, made without asking him, as his order of 2026-09-30 says. To reverse: print the plain figure in the box again.</td><td style="padding:4px 8px;border:1px solid #ccc;vertical-align:top">DEC-8385 · DEC-0177 · DEC-3768c · DEC-3523</td><td style="padding:4px 8px;border:1px solid #ccc;vertical-align:top">In the code since 2026-10-27</td></tr>
+<tr><td style="padding:4px 8px;border:1px solid #ccc;vertical-align:top;white-space:nowrap">2026-10-30</td><td style="padding:4px 8px;border:1px solid #ccc;vertical-align:top"><b>Approved before:</b> nothing — no approval of this drawing is on record; it was drawn from the build. <b>His feedback:</b> His words, 2026-08-04 (DEC-0059): “make sure font size and color and overall design are same across all screens.” <b>New:</b> Typography only, which his design freeze of 2026-10-27 (DEC-8889: no Goals design until he approves v03) leaves open: every apostrophe inside a word prints as ’ — 7 strings: ‘Allocate this month’s surplus to’ (spoken), ‘once you’re repaying’, ‘That’s ~’, ‘of today’s income’, ‘rent isn’t counted’, ‘You’re in good shape’ and ‘that’s what flips it’. No word and no figure moves. The phones are not redrawn.</td><td style="padding:4px 8px;border:1px solid #ccc;vertical-align:top">One sentence, spelled one way (tenet 4, DEC-3523): the lead’s rule of 2026-10-25 (DEC-8336), carried to every screen on 2026-10-27 and held by src/__tests__/curly_apostrophe_everywhere.test.ts, which now carries no debt for this screen. Not a decision of his: the lead’s ruling of 2026-10-30, made without asking him, as his order of 2026-09-30 says; built by CLEANUP-TESTS. One word from him reverses it. To reverse: type a straight ' in these strings again. Under DEC-8889 no layout, word or figure of Goals changes.</td><td style="padding:4px 8px;border:1px solid #ccc;vertical-align:top">DEC-8336 · DEC-3523 · DEC-0059 · DEC-8889</td><td style="padding:4px 8px;border:1px solid #ccc;vertical-align:top">In the code since 2026-10-30</td></tr>
+<tr><td style="padding:4px 8px;border:1px solid #ccc;vertical-align:top;white-space:nowrap">2026-10-30</td><td style="padding:4px 8px;border:1px solid #ccc;vertical-align:top"><b>Approved before:</b> nothing — this drawing was drawn from the build; no approval of it is on record. Its top bar draws the name typed in two colours, ‘Money’ green and ‘Keel’ navy, as the app drew it until 2026-10-30. No logo decision of his is on record before this one. <b>His feedback:</b> his instruction of 2026-10-30, with his three logo files: “change the logo to attached”. <b>New:</b> The lettering in the top bar is now his logo of 2026-10-30, his dark-green ‘MoneyKeel’ lettering at 84 × 17.1 points, as ‘MoneyKeel/documents/other/moneykeel_pres_mock_brand-wordmark_v02.html’ draws it. Nothing else on the phones moves. The phones are not redrawn.</td><td style="padding:4px 8px;border:1px solid #ccc;vertical-align:top">His instruction, carried to this drawing by the lead’s row of 2026-10-30, made without asking him, as his order of 2026-09-30 says. To reverse: the old lettering is kept in ‘assets/brand/archive-2026-10-30/’.</td><td style="padding:4px 8px;border:1px solid #ccc;vertical-align:top">His instruction of 2026-10-30 · ‘moneykeel_pres_mock_brand-wordmark_v02.html’ · DEC-8891</td><td style="padding:4px 8px;border:1px solid #ccc;vertical-align:top">In the code since 2026-10-30</td></tr>
+</table>
+<br><b>Checked before sending</b> (the screen standard, section 5): started from v4 and Build 53, every difference named above · the Plan bar on all three phones · every box title on a dark bar end to end across the phone, every sub-title on a light bar · sizes on the scale (11 · 13 · 15 · 17 · 20), nothing under 10.5 · the words on the canon (‘Surplus’, ‘take-home’, ‘Expenses’, ‘Debt’) · every figure worked by hand under its phone · three phones of one screen: with goals, adding a goal, the first day.
+</div>
+
+<div class="row">
+<div>
+<div class="phone"><div class="screen">
+  <div class="sbar"><span>9:41</span><span>▮▮▮ ◔ ▮</span></div>
+  <div class="topbar"><span class="menuBtn">▦ Menu</span><span class="wordmark"><span class="m">Money</span><span class="k">Keel</span></span><span class="tright"><span class="ico">◉</span><span class="ico">⚙</span></span></div>
+  <div class="content" id="goals-content">
+    <div class="h1">Plan</div>
+    <div class="tagline">We lay it out. You decide.</div>
+    <div class="subtabs"><div class="st">Retire</div><div class="st on newb">Goals</div><div class="st">Prepare</div></div>
+    <div class="box">
+      <div class="band newb"><span>What you can put toward goals</span><span class="bv">$1,750/month</span></div>
+      <div class="line newb">Your planned surplus — the average of this year’s 12 months:</div>
+      <div class="lrow"><span class="k">Take-home</span><span class="v">$4,800/month</span></div>
+      <div class="lrow"><span class="k">− Expenses (your budget)</span><span class="v">$2,500/month</span></div>
+      <div class="lrow"><span class="k">− Debt payments</span><span class="v">$550/month</span></div>
+      <div class="lrow total"><span class="k">= Planned surplus</span><span class="v">$1,750/month</span></div>
+      <div class="how">Every month this year comes to the same $1,750. When months differ, the lowest and highest month show here.</div>
+    </div>
+    <div class="box">
+      <div class="band newb">What you’re saving for</div>
+      <div class="grow"><span class="gt">Can I afford it all?</span><span class="gs">with more than one goal</span><span class="chev">›</span></div>
+      <div class="grow"><span class="gt">🛟 Emergency fund</span><span class="gs">$10,000 by Oct 2027 · behind</span><span class="chev">›</span></div>
+      <div class="gsub newb">$4,000 saved · needs $500/month: $6,000 to go ÷ 12 months</div>
+      <div class="grow"><span class="gt">💳 Pay off Visa card</span><span class="gs">$9,000 by Dec 2027</span><span class="chev">›</span></div>
+      <div class="gsub newb">needs about $743/month — $443 more than the $300 you pay now</div>
+      <div class="grow"><span class="gt">College planner</span><span class="gs">what a course of study costs, and what it needs a month</span><span class="chev">›</span></div>
+      <div class="add">+ Add a goal</div>
+    </div>
+    <div class="door newb">Your debts — the payoff plan, debt-to-income, what each one costs — are on Cash flow · Debts ›</div>
+    <span id="goals-content-end"></span>
+  </div>
+  <div class="tabbar">
+    <div class="tb"><i></i><b>⌂</b>Home</div>
+    <div class="tb"><i></i><b>◇</b>Net worth</div>
+    <div class="tb"><i></i><b>▤</b>Performance</div>
+    <div class="tb"><i></i><b>▭</b>Cash flow</div>
+    <div class="tb on"><i></i><b>◎</b>Plan</div>
+  </div>
+</div></div>
+<div class="cap"><b>Phone 1 — Plan · Goals, with goals. The household (v01’s), on 27 October 2026.</b> Born 1975, working; $6,000/month of wages at the 20% typed: $4,800 of take-home. A budget of $1,500 bills and fixed, $200 non-monthly and $800 everyday: $2,500/month. A Visa card, $9,000 at 24%, minimum $200, payment set at $300; a car loan, $14,000 at 6.9%, $250. Goals: an emergency fund, $4,000 of $10,000 by October 2027, nothing funded this month; paying off the Visa card by December 2027.<br><b>The figures, by hand.</b> Surplus: $4,800 − $2,500 − ($300 + $250) = $1,750, the same in each of the 12 months (both debts are still being paid all year), so no range. The emergency fund: $10,000 − $4,000 = $6,000, ÷ 12 months to October 2027 = $500/month; behind, because $0 of the $500 is funded this month. The Visa card by December 2027: see phone 2 — $743.42/month, $443.42 more than the $300 set.</div>
+</div>
+
+<div>
+<div class="phone"><div class="screen">
+  <div class="sbar"><span>9:41</span><span>▮▮▮ ◔ ▮</span></div>
+  <div class="topbar"><span class="menuBtn">▦ Menu</span><span class="wordmark"><span class="m">Money</span><span class="k">Keel</span></span><span class="tright"><span class="ico">◉</span><span class="ico">⚙</span></span></div>
+  <div class="content">
+    <div class="h1">Plan</div>
+    <div class="tagline">We lay it out. You decide.</div>
+    <div class="subtabs"><div class="st">Retire</div><div class="st on newb">Goals</div><div class="st">Prepare</div></div>
+    <div class="box">
+      <div class="band newb">Add a goal</div>
+      <div class="dL">What is it for?</div>
+      <div class="segRow"><span class="seg">Save toward something</span><span class="seg on newb">Pay off a debt</span></div>
+      <div class="lband newb">Which debt</div>
+      <div class="pick on"><span>◉</span><span style="flex:1">Visa card</span><span style="font-size:13px;color:#6B6B66">$9,000 at 24.00%</span></div>
+      <div class="pick"><span>○</span><span style="flex:1">Car loan</span><span style="font-size:13px;color:#6B6B66">$14,000 at 6.90%</span></div>
+      <div class="lband newb">Paid off by</div>
+      <div class="dateRow"><span class="in">12</span><span class="in">2027</span></div>
+      <div class="result newb">
+        <div class="rBig">Needs about $743/month</div>
+        <div class="rSub">to clear $9,000 by Dec 2027 — $443 more than the $300 you pay now.</div>
+      </div>
+      <div class="how newb">How: $9,000 at 24.00%/year is 2.00%/month. 14 equal payments, Nov 2026 to Dec 2027, clear it: $743.42/month, $1,407.85 of interest. At $300/month it clears in Sep 2030, with $4,882 of interest — paying it by Dec 2027 saves about $3,474.</div>
+      <div class="how">It fits in what you can put toward goals: $443 of your $1,750/month.</div>
+      <div class="btn">Add this goal</div>
+      <div class="link">Cancel</div>
+    </div>
+  </div>
+  <div class="tabbar">
+    <div class="tb"><i></i><b>⌂</b>Home</div>
+    <div class="tb"><i></i><b>◇</b>Net worth</div>
+    <div class="tb"><i></i><b>▤</b>Performance</div>
+    <div class="tb"><i></i><b>▭</b>Cash flow</div>
+    <div class="tb on"><i></i><b>◎</b>Plan</div>
+  </div>
+</div></div>
+<div class="cap"><b>Phone 2 — Plan · Goals, adding a goal: pay off a debt.</b> The bar stays at the top; the form opens here, under it. The debts listed are the ones on Cash flow · Debts.<br><b>The figures, by hand.</b> 24% ÷ 12 = 2% a month. 14 payments clear $9,000 when each is $9,000 × 0.02 ÷ (1 − 1.02⁻¹⁴) = $180 ÷ 0.24212 = $743.42; 14 × $743.42 = $10,407.85, so $1,407.85 is interest. $743.42 − $300 = $443.42 more a month. At $300: the balance falls to nothing in month 47 (September 2030), $4,881.94 of interest; $4,881.94 − $1,407.85 = $3,474.09 saved. $443 of the $1,750 surplus is spoken for; $1,307 is left for other goals.</div>
+</div>
+
+<div>
+<div class="phone"><div class="screen">
+  <div class="sbar"><span>9:41</span><span>▮▮▮ ◔ ▮</span></div>
+  <div class="topbar"><span class="menuBtn">▦ Menu</span><span class="wordmark"><span class="m">Money</span><span class="k">Keel</span></span><span class="tright"><span class="ico">◉</span><span class="ico">⚙</span></span></div>
+  <div class="content">
+    <div class="h1">Plan</div>
+    <div class="tagline">We lay it out. You decide.</div>
+    <div class="subtabs"><div class="st">Retire</div><div class="st on newb">Goals</div><div class="st">Prepare</div></div>
+    <div class="box">
+      <div class="band newb"><span>What you can put toward goals</span><span class="bv">$0/month</span></div>
+      <div class="nothing">Nothing entered yet.</div>
+      <div class="door">Add your income ›</div>
+    </div>
+    <div class="empty">
+      <div class="eT">Nothing here yet</div>
+      <div class="eB">A goal is anything you’re putting money aside for: a car, a wedding, helping a grandchild.</div>
+      <span class="cta">+ Add a goal</span>
+    </div>
+  </div>
+  <div class="tabbar">
+    <div class="tb"><i></i><b>⌂</b>Home</div>
+    <div class="tb"><i></i><b>◇</b>Net worth</div>
+    <div class="tb"><i></i><b>▤</b>Performance</div>
+    <div class="tb"><i></i><b>▭</b>Cash flow</div>
+    <div class="tb on"><i></i><b>◎</b>Plan</div>
+  </div>
+</div></div>
+<div class="cap"><b>Phone 3 — Plan · Goals, the first day: nothing entered.</b> The surplus has nothing behind it, so it reads $0, then ‘Nothing entered yet.’ and the door to add income (the empty-state rule, Q48). Below it, v4’s on-ramp, word for word, its button square as v4 draws it.</div>
+</div>
+</div>
+
+</div></body></html>

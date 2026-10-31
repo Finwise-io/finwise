@@ -4,9 +4,11 @@
 //   working → THIS MONTH as the approved drawing has it (cash-flow_v01, frames A and B): what is
 //             planned and what has actually happened, every row spelled out, each ending in its surplus
 // Every number is a door's — this screen computes NOTHING of its own.
+import { MoneyBox } from '../components/MoneyBox';   // every money box, one component (DEC-8385)
 import { plural, withArticle } from '../domain/_shared/plural';   // the one list of words and plurals (DEC-4082, 2026-10-10)
-import { pastMonthFlow, addedAfterRecord, type Line as MonthLine } from '../../MoneyKeel/functions/cashflow/this-month';
-import { fig, figSaid, figWords, saidSentence, monthShown, flowShown, partsShown } from '../components/figure';   // rule 11: a figure prints with its identifier
+import { pastMonthFlow, addedAfterRecord, monthBeforeAnyRecord, type Line as MonthLine } from '../../MoneyKeel/functions/cashflow/this-month';
+import { fig, figPer, figSaid, figWords, saidSentence, monthShown, flowShown, partsShown } from '../components/figure';   // rule 11: a figure prints with its identifier
+import { centsShown } from '../../MoneyKeel/functions/_figure-spec';   // rows to the cent that add up to their printed total (R5, 2026-10-27)
 import { theBudgetCounted, expensesAsCounted } from '../../MoneyKeel/functions/cashflow/budget-counted';
 import { theMonth } from '../../MoneyKeel/functions/cashflow/the-month';
 import { futurePaycheck } from '../../MoneyKeel/functions/cashflow/future-paycheck';
@@ -130,8 +132,8 @@ export default function CashFlowScreen() {
       {surfTab === 'This month' && (!incomeReady && lens !== 'retired' ? (
         /* FIRST OPEN (approved): no zeros — the two setup doors */
         <View style={styles.card}>
-          {/* a group with no total is a quiet label, not a dark-green bar (standard 2.3; 2026-10-25, CF-19) */}
-          <Text style={styles.kicker}>SET UP YOUR MONTH — 2 STEPS</Text>
+          {/* every box title on a dark-green bar, edge to edge (his words, DEC-8839; the lead's R1, 2026-10-27; cash-flow_v01's row of that date) — it was a quiet label (CF-19) */}
+          <SectionBand inCard onRowEdges inset={16} title="SET UP YOUR MONTH — 2 STEPS" />
           {/* The approved mock (income-v5, 2a) replaces the bottom sheet with a full screen: a sheet
               caps at 88% of the display, and three figures plus a fourteen-month table plus a second
               earner never fitted in one. Founder approval 2026-08-27. */}
@@ -141,7 +143,7 @@ export default function CashFlowScreen() {
             <Text style={styles.link}>Set up ›</Text>
           </TouchableOpacity>
           <SpendingQuestion op={op} store={store} />
-          <Text style={styles.note}>✓ Answers save to your plan — Home, Plan and this screen use the same numbers. No zeros shown until they're real.</Text>
+          <Text style={styles.note}>✓ Answers save to your plan — Home, Plan and this screen use the same numbers. No zeros shown until they’re real.</Text>
         </View>
       ) : surfOffset === 0 ? (
         lens === 'retired' ? (
@@ -223,8 +225,8 @@ function SpendingQuestion({ op, store }: { op: any; store: any }) {
       </View>
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
         <Text style={styles.doorT}>$</Text>
-        <TextInput style={styles.doorInput} keyboardType="decimal-pad" value={v} onChangeText={setV} onEndEditing={save}
-          placeholder="—" placeholderTextColor={Colors.textTertiary} accessibilityLabel="Typical monthly expenses" />
+        <MoneyBox bare dollarBeside style={styles.doorInput} value={v} onChangeText={setV} onEndEditing={save}
+          placeholder="—" a11y="Typical monthly expenses" />
       </View>
     </View>
   );
@@ -257,7 +259,8 @@ function OtherMonthCard({ offset, ym, label, grid, store, onSpending, budgetSet 
         {budgetSet ? (<>
           <Row label={bigBills.length ? `Planned outflow (expenses + debt) · incl. ${bigBills[0].label}` : 'Planned outflow (expenses + debt)'} value={fig('MK-CF-M-048', plan.outflow)} dim />
           {plan.outflow === 0 && <EmptyNote door="bills" />}   {/* Q48 (MK-CF-M-002): $0 planned, nothing behind it */}
-          <Row label="= Planned surplus" value={fig('MK-CF-M-049', plan.surplus)} strong color={plan.surplus >= 0 ? Colors.gainText : Colors.red} />
+          {/* the surplus carries its sign, as This month prints it — "+$3,450" (2026-10-27, CF2-07; tenet 4) */}
+          <Row label="= Planned surplus" value={`${plan.surplus < 0 ? '−' : '+'}${fig('MK-CF-M-049', Math.abs(plan.surplus))}`} strong color={plan.surplus >= 0 ? Colors.gainText : Colors.red} />
         </>) : (<>
           <Row label="Planned outflow (expenses + debt)" value="— not set" dim />
           <Text style={styles.emptyP}>{hasDebts ? 'Your debts are here, but you haven’t set your budget.' : 'You haven’t set your budget.'} Until you do there is no planned surplus — we won’t guess one.</Text>
@@ -278,18 +281,21 @@ function OtherMonthCard({ offset, ym, label, grid, store, onSpending, budgetSet 
   const flow = pastMonthFlow(snap, store.incomes, store.expenses, ym);
   // the three as printed add up: the surplus is the inflow printed less the outflow printed (2026-10-24, tenet 2)
   const { inflow: inn, outflow: out, surplus: left } = flowShown(flow.inflow, flow.outflow);
+  const predates = !snap && monthBeforeAnyRecord(ym, store.monthlySnapshots, store.incomes, store.expenses);
   return (
     <View style={styles.card}>
       <SectionBand inCard onRowEdges inset={16} title={`${bandMonth(label)} — WHAT ACTUALLY HAPPENED`} />
       <Row label="Actual inflow" value={fig('MK-CF-M-051', inn)} />
       <Row label="Outflow (expenses + debt)" value={fig('MK-CF-M-052', out)} dim />
-      <Row label="= Surplus" value={fig('MK-CF-M-053', left)} strong color={left >= 0 ? Colors.gainText : Colors.red} />
-      {!snap && inn === 0 && out === 0 && <Text style={styles.note}>Nothing recorded for this month — it predates your tracking.</Text>}
+      <Row label="= Surplus" value={`${left < 0 ? '−' : '+'}${fig('MK-CF-M-053', Math.abs(left))}`} strong color={left >= 0 ? Colors.gainText : Colors.red} />
+      {/* ONE LINE SAYS WHAT THE FIGURES ARE, NEVER TWO THAT DISAGREE (2026-10-27, CF2-08; tenet 1): a month before anything was recorded
+          predates the tracking, and says only that; it also said "Added up from what is logged …", which says it was added up */}
+      {predates && <Text style={styles.note}>Nothing recorded for this month — it predates your tracking.</Text>}
       <TouchableOpacity accessibilityRole="button" onPress={onSpending} accessibilityLabel="See that month’s activity on the Expenses tab">
         <Text style={styles.link}>That month’s activity ›</Text>
       </TouchableOpacity>
       {/* "Frozen" only when a saved record stands behind the month (2026-10-25, FIX-MONTH; CFR-4 formula check MK-CF-F-220): a month never saved is added up from what is logged, and moves */}
-      <Text style={styles.note}>{snap ? 'Frozen — past months never change under you.' : 'Added up from what is logged for this month — it changes if more is logged.'}</Text>
+      {!predates && <Text style={styles.note}>{snap ? 'Frozen — past months never change under you.' : 'Added up from what is logged for this month — it changes if more is logged.'}</Text>}
     </View>
   );
 }
@@ -368,12 +374,13 @@ function IncomeTab({ op, store, ym, expected, current, monthLabel, onSetup, onSu
       {/* THE MONTH'S EXPECTED TAKE-HOME, first (cash-flow_v01, frame 5) — the figure the sources below add up to. The section
           names are the drawing's quiet grey labels: none carries a total (CF-02, 2026-10-25; standard 2.3) */}
       <View style={styles.card}>
-        <Text style={styles.kicker}>{current ? 'THIS MONTH' : monthLabel.toUpperCase()}</Text>
+        {/* the box titles on dark-green bars (his words, DEC-8839; the lead's R1, 2026-10-27; cash-flow_v01's row of that date) — they were the drawing's quiet grey labels (CF-02) */}
+        <SectionBand inCard onRowEdges inset={16} title={current ? 'THIS MONTH' : monthLabel.toUpperCase()} />
         <Text style={styles.incomeHero} accessible accessibilityLabel={`${calculated ? 'about ' : ''}${figSaid('MK-CF-M-047', Math.round(expected))}, expected take-home`}>{heroShown}</Text>
         <Text style={styles.heroSub}>expected take-home</Text>
       </View>
       <View style={styles.card}>
-        <Text style={styles.kicker}>YOUR SOURCES</Text>
+        <SectionBand inCard onRowEdges inset={16} title="YOUR SOURCES" />
         {/* ONE DOOR (Q48, DEC-0260): with nothing entered, the line that says so IS the door — the chooser — and it is not
             printed again under it (it read "Nothing entered yet. Add your income ›" then "Add your income ›"; CF-16) */}
         {sources.length === 0 && <EmptyNote door="income" onPress={chooseIncome} />}
@@ -394,10 +401,12 @@ function IncomeTab({ op, store, ym, expected, current, monthLabel, onSetup, onSu
         )}
       </View>
       <View style={styles.card}>
-        <Text style={styles.kicker}>{current ? 'RECEIVED THIS MONTH' : `RECEIVED · ${monthLabel.toUpperCase()}`}</Text>
+        <SectionBand inCard onRowEdges inset={16} title={current ? 'RECEIVED THIS MONTH' : `RECEIVED · ${monthLabel.toUpperCase()}`} />
         {received.length === 0 && <Text style={styles.emptyP}>Nothing received yet this month.</Text>}
         {received.slice(0, 6).map((i: any) => (
-          <Row key={i.id} label={`${dayWords(i.date)} · ${i.source || i.type || 'Income'}`} value={`+${fig('MK-CF-M-012', Math.round(Number(i.amount) || 0))}`} color={Colors.gainText} />
+          // to the cent from its full value (it was rounded to the dollar, then given cents: $3,100.40 read +$3,100.00) and bold, as
+          // drawn — "a row's figure is bold (700)" (row 32; R5 and CF2-02, 2026-10-27)
+          <Row key={i.id} label={`${dayWords(i.date)} · ${i.source || i.type || 'Income'}`} value={`+${fig('MK-CF-M-012', Number(i.amount) || 0)}`} color={Colors.gainText} figure />
         ))}
       </View>
       {/* Your income, all of it — the summary (approved mock income-end-to-end, frames 16 and 17). Not
@@ -433,7 +442,15 @@ function ExpensesTab({ ym, grid, budgetProfile, liabilities, bva, expenses, onLo
   // on This month): the recurring debts, the planned groups, and the three sources under ACTUAL EXPENSES
   const recShown = partsShown(x.recurringDebt.map((r) => r.monthly));
   const planShown = partsShown(x.planned.map((c) => c.monthly));
-  const srcShown = partsShown([x.byHand.total, x.imported.total, x.debtCountedAsExpense.reduce((t, d) => t + d.amount, 0)]);
+  // ROWS ROUND ONCE, TO THE CENT (2026-10-27, FX-CF-A; the lead's ruling R5 on CF2-06; cash-flow_v01's READ THIS FIRST row of that date):
+  // an expense, a payment logged and a payment received are written to the cent, so every total over them is too, and the rows as
+  // printed add up to it — two $200.40 payments read $200 + $200 under $401, each rounded to the dollar alone. Each list shares its
+  // own total (centsShown, whole cents); the lists add up to all sources with no float left over.
+  const handC = centsShown(x.byHand.items.map((e: any) => Number(e.amount) || 0));
+  const impC = centsShown(x.imported.items.map((e: any) => Number(e.amount) || 0));
+  const debtC = centsShown(x.debtCountedAsExpense.map((d) => d.amount));
+  const allCents = handC.totalCents + impC.totalCents + debtC.totalCents;
+  const cents = (id: string, c: number) => fig(id, c / 100);
   /** One list of what was spent: the five most recent, the way to the rest, and its closing total (as printed). */
   // A PAST MONTH'S EXPENSE ENTERED AFTER ITS RECORD WAS SAVED (2026-10-24, the lead's ruling on E2E-76): the month's card is
   // frozen and leaves it out (the approved card: "past months never change under you"), so this list says so on its row and under its total — never a silent disagreement
@@ -441,28 +458,30 @@ function ExpensesTab({ ym, grid, budgetProfile, liabilities, bva, expenses, onLo
   const monthName = MONTHS_LONG[Number(ym.slice(5, 7)) - 1];
   const lateWords = `added after ${monthName} closed — not in ${monthName}’s figures`;
   const noteOf = (how: (e: any) => string) => (e: any) => (late.ids.has(String(e.id)) ? `${how(e)} · ${lateWords}` : how(e));
-  const list = (l: typeof x.byHand, closing: string, how0: (e: any) => string, shownTotal: number) => { const how = noteOf(how0); return (
+  const list = (l: typeof x.byHand, closing: string, how0: (e: any) => string, lc: { cents: number[]; totalCents: number }) => { const how = noteOf(how0);
+    const restCents = lc.cents.slice(l.shown.length).reduce((t, c) => t + c, 0);   // the rows under "Show all", as they print there
+    return (
     <>
       {l.shown.map((e: any, i: number) => (
         <View key={`${e.id ?? i}`} style={styles.mRow} accessible
-          accessibilityLabel={sayRow(`${day(e.date)} · ${e.store || e.category}`, how(e), fig('MK-CF-M-014', Number(e.amount) || 0))}>
+          accessibilityLabel={sayRow(`${day(e.date)} · ${e.store || e.category}`, how(e), cents('MK-CF-M-014', lc.cents[i]))}>
           <View style={{ flex: 1 }}>
             <Text style={styles.rowL}>{day(e.date)} · {e.store || e.category}</Text>
             <Text style={styles.mSub}>{how(e)}</Text>
           </View>
-          <Text style={[styles.rowV, styles.rowFig]}>{fig('MK-CF-M-014', Number(e.amount) || 0)}</Text>
+          <Text style={[styles.rowV, styles.rowFig]}>{cents('MK-CF-M-014', lc.cents[i])}</Text>
         </View>
       ))}
       {l.hidden > 0 && (
         /* FIVE, THEN THE REST ON A TAP (rule 7 under the drawing). The rest opens in the full list,
            where a row can also be searched, corrected or removed. */
-        <TouchableOpacity accessibilityRole="button" onPress={() => setAllTxns(true)} accessibilityLabel={`Show all ${l.items.length} — ${figSaid('MK-CF-M-004', Math.round(l.hiddenTotal))} more`}>
-          <Text style={styles.more}>Show all {l.items.length} · {fig('MK-CF-M-004', Math.round(l.hiddenTotal))} more ›</Text>
+        <TouchableOpacity accessibilityRole="button" onPress={() => setAllTxns(true)} accessibilityLabel={`Show all ${l.items.length} — ${figSaid('MK-CF-M-101', restCents / 100)} more`}>
+          <Text style={styles.more}>Show all {l.items.length} · {cents('MK-CF-M-101', restCents)} more ›</Text>
         </TouchableOpacity>
       )}
-      <View style={[styles.mRow, styles.mTotal]} accessible accessibilityLabel={sayRow(closing, fig('MK-CF-M-004', shownTotal))}>
+      <View style={[styles.mRow, styles.mTotal]} accessible accessibilityLabel={sayRow(closing, cents('MK-CF-M-101', lc.totalCents))}>
         <Text style={[styles.rowL, { fontWeight: '800' }]}>= {closing}</Text>
-        <Text style={[styles.rowV, { fontWeight: '800' }]}>{fig('MK-CF-M-004', shownTotal)}</Text>
+        <Text style={[styles.rowV, { fontWeight: '800' }]}>{cents('MK-CF-M-101', lc.totalCents)}</Text>
       </View>
     </>
   ); };
@@ -515,7 +534,7 @@ function ExpensesTab({ ym, grid, budgetProfile, liabilities, bva, expenses, onLo
       {/* ACTUAL EXPENSES, by where each came from — one card a source, as the drawing sets them, and the
           all-sources total closing the last of them */}
       <View style={[styles.card, anySpent && styles.cardBandOnly]}>
-        <SectionBand inCard onRowEdges inset={16} title="ACTUAL EXPENSES" value={fig('MK-CF-M-013', srcShown.total)} />
+        <SectionBand inCard onRowEdges inset={16} title="ACTUAL EXPENSES" value={cents('MK-CF-M-101', allCents)} />
         {!anySpent && (
           <>
             <Text style={styles.emptyP}>Nothing logged this month. Connect a card and purchases arrive on their own, or add a receipt by hand.</Text>
@@ -527,9 +546,9 @@ function ExpensesTab({ ym, grid, budgetProfile, liabilities, bva, expenses, onLo
       </View>
       {(() => {
         const allSources = (<>
-          <View style={[styles.mRow, styles.mTotal]} accessible accessibilityLabel={sayRow('Actual expenses, all sources', fig('MK-CF-M-013', srcShown.total))}>
+          <View style={[styles.mRow, styles.mTotal]} accessible accessibilityLabel={sayRow('Actual expenses, all sources', cents('MK-CF-M-101', allCents))}>
             <Text style={[styles.rowL, { fontWeight: '800' }]}>= Actual expenses, all sources</Text>
-            <Text style={[styles.rowV, { fontWeight: '800' }]}>{fig('MK-CF-M-013', srcShown.total)}</Text>
+            <Text style={[styles.rowV, { fontWeight: '800' }]}>{cents('MK-CF-M-101', allCents)}</Text>
           </View>
           {late.total > 0 && (
             <Text style={styles.emptyP} accessibilityLabel={sayRow(`${fig('MK-CF-M-004', Math.round(late.total))} of it was ${lateWords}`)}>
@@ -546,26 +565,27 @@ function ExpensesTab({ ym, grid, budgetProfile, liabilities, bva, expenses, onLo
           <>
             {x.byHand.items.length > 0 && (
               <View style={styles.card}>
-                <SectionBand light inCard onRowEdges inset={16} title="ENTERED BY HAND" value={fig('MK-CF-M-004', srcShown.parts[0])} />
+                <SectionBand light inCard onRowEdges inset={16} title="ENTERED BY HAND" value={cents('MK-CF-M-101', handC.totalCents)} />
                 {list(x.byHand, `Entered by hand · ${plural(x.byHand.items.length, 'item')}`,
-                  (e) => `${e.category} · ${e.receiptUri ? 'receipt' : 'typed'}`, srcShown.parts[0])}
+                  (e) => `${e.category} · ${e.receiptUri ? 'receipt' : 'typed'}`, handC)}
                 {last === 'hand' && allSources}
               </View>
             )}
             {x.imported.items.length > 0 && (
               <View style={styles.card}>
-                <SectionBand light inCard onRowEdges inset={16} title="IMPORTED FROM YOUR CARD" value={fig('MK-CF-M-004', srcShown.parts[1])} />
-                {list(x.imported, `Imported · ${plural(x.imported.items.length, 'purchase')}`, (e) => String(e.category), srcShown.parts[1])}
+                <SectionBand light inCard onRowEdges inset={16} title="IMPORTED FROM YOUR CARD" value={cents('MK-CF-M-101', impC.totalCents)} />
+                {list(x.imported, `Imported · ${plural(x.imported.items.length, 'purchase')}`, (e) => String(e.category), impC)}
                 {last === 'imported' && allSources}
               </View>
             )}
             {x.debtCountedAsExpense.length > 0 && (
               <View style={styles.card}>
-                <SectionBand light inCard onRowEdges inset={16} title="DEBT PAYMENTS COUNTED AS EXPENSES" value={fig('MK-CF-M-004', srcShown.parts[2])} />
-                {x.debtCountedAsExpense.map((d) => (
-                  <View key={d.label} style={styles.mRow} accessible accessibilityLabel={sayRow(d.label, d.note ?? 'entered on the Debts tab', fig('MK-CF-M-004', Math.round(d.amount)))}>
+                <SectionBand light inCard onRowEdges inset={16} title="DEBT PAYMENTS COUNTED AS EXPENSES" value={cents('MK-CF-M-101', debtC.totalCents)} />
+                {/* a payment logged is written to the cent, as every expense row is — never rounded to the dollar alone (R5, CF2-06) */}
+                {x.debtCountedAsExpense.map((d, i) => (
+                  <View key={d.label} style={styles.mRow} accessible accessibilityLabel={sayRow(d.label, d.note ?? 'entered on the Debts tab', cents('MK-CF-M-014', debtC.cents[i]))}>
                     <View style={{ flex: 1 }}><Text style={styles.rowL}>{d.label}</Text><Text style={styles.mSub}>{d.note ?? 'entered on the Debts tab'}</Text></View>
-                    <Text style={[styles.rowV, styles.rowFig]}>{fig('MK-CF-M-004', Math.round(d.amount))}</Text>
+                    <Text style={[styles.rowV, styles.rowFig]}>{cents('MK-CF-M-014', debtC.cents[i])}</Text>
                   </View>
                 ))}
                 {allSources}
@@ -584,7 +604,9 @@ function ExpensesTab({ ym, grid, budgetProfile, liabilities, bva, expenses, onLo
           <>
             {x.radar.map((r, i) => (
               <View key={`${r.label}-${i}`} style={styles.mRow} accessible
-                accessibilityLabel={sayRow(r.label, r.reason !== 'big-bill' && 'debt', r.note, fig('MK-CF-M-016', Math.round(r.amount)))}>
+                // a payment logged prints to the cent, as its row above does; a sum due or a bill planned in whole dollars, as PLANNED
+                // EXPENSES and the Bill calendar print it — each from its full value, rounded once (R5, CF2-06)
+                accessibilityLabel={sayRow(r.label, r.reason !== 'big-bill' && 'debt', r.note, r.logged ? fig('MK-CF-M-014', r.amount) : fig('MK-CF-M-016', r.amount))}>
                 <View style={{ flex: 1 }}>
                   <View style={styles.mNameRow}>
                     <Text style={styles.rowL}>{r.label}</Text>
@@ -592,7 +614,7 @@ function ExpensesTab({ ym, grid, budgetProfile, liabilities, bva, expenses, onLo
                   </View>
                   <Text style={styles.mSub}>{r.note}</Text>
                 </View>
-                <Text style={[styles.rowV, r.countedAsExpense ? styles.rowFig : { color: Colors.textSecondary }]}>{fig('MK-CF-M-016', Math.round(r.amount))}</Text>
+                <Text style={[styles.rowV, r.countedAsExpense ? styles.rowFig : { color: Colors.textSecondary }]}>{r.logged ? fig('MK-CF-M-014', r.amount) : fig('MK-CF-M-016', r.amount)}</Text>
               </View>
             ))}
             {every.length > 0 && (
@@ -669,8 +691,9 @@ function RetiredMain({ year, accounts, bva, onWhyOrder }: { year: any; accounts:
         </View>
       )}
       <View style={styles.card}>
-        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <Text style={[styles.cardHdr, { flex: 1, marginBottom: 0 }]}>DRAW COMES FROM</Text>
+        {/* the box title on a dark-green bar, its two doors on the line under it (his words, DEC-8839; the lead's R1, 2026-10-27; cash-flow_v01's row of that date) */}
+        <SectionBand inCard onRowEdges inset={16} title="DRAW COMES FROM" />
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end' }}>
           <TouchableOpacity accessibilityRole="button" onPress={() => setSteerOpen(true)} accessibilityLabel="Steer it — reorder where the draw comes from">
             <Text style={styles.link}>Steer it ›</Text>
           </TouchableOpacity>
@@ -678,10 +701,15 @@ function RetiredMain({ year, accounts, bva, onWhyOrder }: { year: any; accounts:
             <Text style={styles.link}>Why? ›</Text>
           </TouchableOpacity>
         </View>
-        <Text style={styles.orderLine}>
-          {order.map((s: any, i: number) => `${i + 1} ${s.label}`).join('   ')}
-        </Text>
-        <Text style={styles.note}>{store.drawOrder ? 'Your order — steered by you. Balances match your Net worth.' : 'The order the math would tap your accounts — not a directive. Balances match your Net worth.'}</Text>
+        {/* NOTHING ENTERED IS SAID, WITH ITS DOOR (Q48 — DEC-0260, DEC-0431; 2026-10-27, workplan row 360, the retired This month drawn
+            from the build and checked against the screen standard): with no account there is no order, and the card printed an empty
+            line and "The order the math would tap your accounts" about accounts nobody entered */}
+        {order.length > 0 ? (<>
+          <Text style={styles.orderLine}>
+            {order.map((s: any, i: number) => `${i + 1} ${s.label}`).join('   ')}
+          </Text>
+          <Text style={styles.note}>{store.drawOrder ? 'Your order — steered by you. Balances match your Net worth.' : 'The order the math would tap your accounts — not a directive. Balances match your Net worth.'}</Text>
+        </>) : <EmptyNote door="accounts" />}
         {/* the required withdrawal turns on age: with pre-tax money held and no birth year, the paycheck card's words (cash-flow_v01 row of 2026-10-26) */}
         {age == null && split.preTax > 0 && <Text style={styles.note}>{RMD_NO_AGE}</Text>}
         {/* an account with no tax type is drawn as taxable, and named (DEC-4105, 2026-10-10) */}
@@ -848,10 +876,11 @@ function WorkingMain({ grid, bva, op, budgetProfile, liabilities, store, budgetS
               today (DEC-2164) and an explanation names every figure it assumes (DEC-0088). The figures are futurePaycheck's own. */}
           {/* each rate prints under its own number (2026-10-26, PF-TOOLS): MK-CF-M-082 the return the paycheck runs on, MK-CF-M-083 the
               inflation — they printed under MK-CF-M-022, the paycheck itself */}
-          <Text style={styles.note}>{`In today’s dollars · assumes ${withArticle(fig('MK-CF-M-082', projection.assumes.yearlyReturn))} return and ${fig('MK-CF-M-083', projection.assumes.yearlyInflation)} inflation a year`}</Text>
+          {/* each rate the canon's way, "/year" (canon row 14; 2026-10-27, CF2-09) — it read "… a 6.00% return and 2.40% inflation a year" */}
+          <Text style={styles.note}>{`In today’s dollars · assumes ${withArticle(figPer('MK-CF-M-082', projection.assumes.yearlyReturn))} return and ${fig('MK-CF-M-083', projection.assumes.yearlyInflation)}/year inflation`}</Text>
           {projection.guaranteed > 0 && <Row label="Social Security · pension" value={`~${fig('MK-CF-M-023', projection.guaranteed)}`} dim />}
           <Row label="Draw from savings" value={`~${fig('MK-CF-M-055', projection.draw)}`} dim />
-          {wil.chance != null && <Text style={styles.note}>Based on your plan's {oddsLine(resolveLens(op ?? {}, store.lensOverride), wil.chance, wil.horizonAge)} · see Plan ›</Text>}
+          {wil.chance != null && <Text style={styles.note}>Based on your plan’s {oddsLine(resolveLens(op ?? {}, store.lensOverride), wil.chance, wil.horizonAge)} · see Plan ›</Text>}
         </TouchableOpacity>
       )}
       <BudgetEditor open={budgetOpen} onClose={() => setBudgetOpen(false)} />
@@ -902,8 +931,11 @@ function MonthBars({ lens, year, grid }: { lens: string; year: any; grid: any })
       <View style={styles.legendRow}>
         <View style={styles.legend}><View style={[styles.dot, { backgroundColor: Colors.chartIn }]} /><Text style={styles.legendT}>in</Text></View>
         <View style={styles.legend}><View style={[styles.dot, { backgroundColor: Colors.chartOut }]} /><Text style={styles.legendT}>out</Text></View>
-        <Text style={styles.legendT}>· tap a month for detail</Text>
+        {/* no "· tap a month for detail" (2026-10-27, workplan row 360; tenet 1): the bars open nothing since month detail retired on
+            2026-10-02 — the Bill calendar's foot line lost the same promise on 2026-10-24 (E2E-80) */}
       </View>
+      {/* nothing in and nothing out in any month: the bars keep their shape and say why, with the one door (Q48) */}
+      {cells.every((c: any) => !(c.inflow > 0) && !(c.outflow > 0)) && <EmptyNote door="guaranteed" />}
     </View>
   );
 }
@@ -934,11 +966,11 @@ function DrawOrderWhy({ visible, onClose, accounts, op }: { visible: boolean; on
   );
 }
 
-function Row({ label, value, dim, strong, color }: { label: string; value: string; dim?: boolean; strong?: boolean; color?: string }) {
+function Row({ label, value, dim, strong, color, figure }: { label: string; value: string; dim?: boolean; strong?: boolean; color?: string; figure?: boolean }) {
   return (
     <View style={styles.row} accessible accessibilityLabel={sayRow(label, value)}>
       <Text style={[styles.rowL, dim && { color: Colors.textSecondary }, strong && { fontWeight: '800' }]}>{label}</Text>
-      <Text style={[styles.rowV, strong && { fontWeight: '800' }, color ? { color } : null]}>{value}</Text>
+      <Text style={[styles.rowV, figure && styles.rowFig, strong && { fontWeight: '800' }, color ? { color } : null]}>{value}</Text>
     </View>
   );
 }
@@ -946,8 +978,9 @@ function Row({ label, value, dim, strong, color }: { label: string; value: strin
 const styles = StyleSheet.create({
   content: { padding: Spacing.base, paddingBottom: 110 },
   switchRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 14, marginBottom: 8, minHeight: 44 },
-  switchArrow: { fontSize: 20, fontWeight: '800', color: Colors.primary, paddingHorizontal: 6 },
-  switchLabel: { fontSize: 15, fontWeight: '800', color: Colors.textPrimary },
+  // the month switcher as drawn (cash-flow_v01 .switchArrow 17, .switchLabel 13 — both on the scale; 2026-10-27, CF2-01): it was 20 and 15
+  switchArrow: { fontSize: 17, fontWeight: '800', color: Colors.primary, paddingHorizontal: 6 },
+  switchLabel: { fontSize: 13, fontWeight: '800', color: Colors.textPrimary },
   switchToday: { fontSize: 13, fontWeight: '700', color: Colors.primary },
   subTabs: { flexDirection: 'row', gap: 6, marginBottom: 10 },
   // a choice's corner is 12 (DEC-0231; the drawing's square chips corrected by its 2026-10-25 row — CF-15)
@@ -969,7 +1002,6 @@ const styles = StyleSheet.create({
   // and its bands with it; the rows keep the 16-point inset, so every figure lands on one right edge
   card: { backgroundColor: Colors.white, padding: Spacing.base, marginHorizontal: -Spacing.base, marginBottom: Spacing.md },
   projCard: { backgroundColor: Colors.white, borderRadius: Radii.lg, padding: Spacing.base, marginBottom: Spacing.base, borderWidth: 1.5, borderColor: Colors.border, borderStyle: 'dashed' },
-  cardHdr: { fontSize: 11, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.5, marginBottom: 4 },
   row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 5 },
   rowL: { fontSize: Typography.sizes.base, color: Colors.textPrimary },
   rowV: { fontSize: Typography.sizes.base, color: Colors.textPrimary, fontVariant: ['tabular-nums'] },
@@ -983,8 +1015,6 @@ const styles = StyleSheet.create({
   mTagImp: { color: Colors.sepDot, backgroundColor: Colors.bgTertiary },   // the drawing's grey IMPORTED tag (CF-14)
   // a row's figure is bold (the drawing's <b>, 700); the closing total is heavier (800)
   rowFig: { fontWeight: '700' },
-  // the drawing's quiet grey section label (.kicker: 800 caps, textSecondary, no fill) — a section with no total (CF-02)
-  kicker: { fontSize: 11, fontWeight: '800', letterSpacing: 0.5, color: Colors.textSecondary, textTransform: 'uppercase', marginBottom: 4 },
   // "Show all N · $X more ›" — dark green at 800, as drawn (summary.more, CF-14)
   more: { fontSize: 13, color: Colors.primaryDark, fontWeight: '800', paddingVertical: 12, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: Colors.border },
   mSub: { fontSize: 11, color: Colors.textTertiary },

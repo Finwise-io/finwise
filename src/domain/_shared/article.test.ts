@@ -54,7 +54,7 @@ function handMade(text: string): number {
  *  the Retirement cockpit ("vs a 8.0% benchmark") and in one insight ("Only a 55% odds"); a money amount in the debt editor and
  *  Social Security timing; an institution's name in the connect flow ("a Ally"); a pay frequency on Base pay. */
 const STILL_BY_HAND: Record<string, number> = {
-  'src/screens/NetWorthScreen.tsx': 2,
+  // src/screens/NetWorthScreen.tsx: 0 since 2026-10-27 (FX-NW, NW2-16) — the step's empty door names what it adds ("Add a taxable account →")
   'src/screens/StressTestScreen.tsx': 2,
   'src/screens/RetirementCockpit.tsx': 1,
   'src/domain/insights/index.ts': 1,

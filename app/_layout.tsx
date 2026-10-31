@@ -31,6 +31,9 @@ const SYNC_FIELDS = [
   'currency', 'locale',
   'xp', 'streak', 'lastCheckIn', 'monthlyBudgetTarget', 'hourlyRate',
   'jobRiskLevel', 'emergencyMonths', 'onboardingPaused', 'onboardingProfile',
+  // the cash on hand typed on the Bill calendar, with its day (DEC-8371): kept on the phone, and now in the cloud copy too, so a
+  // reinstall or a second phone reads what the person entered (workplan row 363, 2026-10-27, FX-CF-A)
+  'billCalendarStart',
 ] as const;
 
 function pickSyncFields(state: Record<string, any>) {
@@ -48,7 +51,8 @@ function BackButton({ onPress }: { onPress: () => void }) {
       accessibilityLabel="Back"
       accessibilityHint="Returns to the previous screen"
     >
-      <Text style={{ fontSize: 16, color: Colors.primary, fontWeight: '600' }}>← Back</Text>
+      {/* on the type scale: 16 sat between 15 and 17 and goes up (DEC-0059, ties round up) — FX-SHARED 2026-10-27 */}
+      <Text style={{ fontSize: 17, color: Colors.primary, fontWeight: '600' }}>← Back</Text>
     </TouchableOpacity>
   );
 }
@@ -196,7 +200,10 @@ export default function RootLayout() {
           <Stack.Screen name="jobsafety"  options={{ title: '', headerShown: true, ...backBtn(() => router.back()) }} />
           <Stack.Screen name="income-detail" options={{ title: 'Income 💵', headerShown: true, ...backBtn(() => router.back()) }} />
           {/* FCC: cash flow is now a bottom TAB (app/(tabs)/cashflow.tsx) — no root stack route. */}
-          <Stack.Screen name="contribution-room" options={{ title: 'Contribution room 💼', headerShown: true, ...backBtn(() => router.back()) }} />
+          {/* DEC-0354, DEC-8839 (2026-10-27, FX-CF-C): Contribution room and the Stress test draw the MoneyKeel bar with ‹ Back
+              themselves (drawings contribution-room v02, stresstest v03) — no navigator header above it, and the title once */}
+          <Stack.Screen name="contribution-room" options={{ headerShown: false }} />
+          <Stack.Screen name="stress-test" options={{ headerShown: false }} />
           <Stack.Screen name="big-costs" options={{ title: 'What big costs are coming?', headerShown: true, ...backBtn(() => router.back()) }} />
           <Stack.Screen name="ss-timing" options={{ title: 'When should I claim Social Security?', headerShown: true, ...backBtn(() => router.back()) }} />
           {/* the account page carries the app's own MoneyKeel top bar with "‹ Back" (approved
@@ -206,7 +213,9 @@ export default function RootLayout() {
               has"): the Net worth module's pushed screens draw the app's own bar with ‹ Back, as account-detail
               does — never the navigator's empty header, and never a raw route name ("holding-detail") as a title. */}
           {['bonds', 'other-investments', 'itemize', 'holding-detail', 'add-account',
-            'bill-calendar', 'income-manager', 'monthly-income', 'base-pay', 'income-summary'].map((name) => (
+            'bill-calendar', 'income-manager', 'monthly-income', 'base-pay', 'income-summary',
+            // filing question: own bar, no header (IN2-13)
+            'filing-status'].map((name) => (
             <Stack.Screen key={name} name={name} options={{ headerShown: false }} />
           ))}
           <Stack.Screen name="multi-goal" options={{ title: 'Afford it all?', headerShown: true, ...backBtn(() => router.back()) }} />
@@ -220,7 +229,7 @@ export default function RootLayout() {
               background — never a duplicated or raw route-name title. */}
           {['credit', 'estate', 'education', 'insights',
             'insurance', 'performance',
-            'required-withdrawals', 'retirement', 'roth', 'stress-test', 'tax-organizer'].map((name) => (
+            'required-withdrawals', 'retirement', 'roth', 'tax-organizer'].map((name) => (
             <Stack.Screen key={name} name={name} options={{ title: '', headerShown: true, ...backBtn(() => router.back()) }} />
           ))}
         </Stack>

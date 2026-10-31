@@ -135,6 +135,13 @@ const FIGURES_MOVED_ON_PURPOSE: Record<string, { id: string; was: string; now: s
     { id: 'MK-NW-M-048', was: '$7,570/month', now: '$7,870/month', why: 'the planned spend, the April premium counted once in the year' },
   ]])),
 };
+/** A FIGURE NOW PRINTED WITH ITS IDENTIFIER WHERE THE RECORD HAS IT BARE — the value did not move; it is now written by its one
+ *  writer, so it joins the figures read, after the ones the record holds. */
+const FIGURES_NOW_DECLARED: Record<string, { id: string; now: string; why: string }[]> = {
+  // 2026-10-27 (FX-CF-C; drawing stresstest v03, row 3): the months print as Net worth prints them, MK-NW-M-013 — "5.6 months" where
+  // the record has a bare "5.6". $31,489 ÷ ($7,420 − $1,800 rent) = 5.60: the same number, the same place.
+  'Stress test': [{ id: 'MK-NW-M-013', now: '5.6 months', why: 'the months, written by the figure\'s one writer, as on Net worth' }],
+};
 const MOVED_ON_PURPOSE: Record<string, { at: number; was: string; now: string | string[] | null; why: string }[]> = {   // now: null — a number no longer on the screen; a list — a number now read in more than one place
   // 2026-10-22 (W-A11Y): the figure did not move — the punctuation after it did. Home's hero card's spoken label said
   // "Your investments: $433,200, prices updated …", and this file's number reader takes a trailing comma with the digits; the
@@ -181,7 +188,8 @@ const MOVED_ON_PURPOSE: Record<string, { at: number; was: string; now: string | 
   // line — Vanguard without its $838 of cash — out of that line ($433,200), not out of everything but property
   Insights: [
     { at: 1, was: '$214,838', now: '$214,000', why: 'the account\'s invested part, its cash left out' },
-    { at: 2, was: '46%', now: '49%', why: '$214,000 of the $433,200 Investments line' },
+    // the share to two decimals, printed once from a share kept whole (2026-10-27, FX-PF; Q49): 214,000 ÷ 433,200 = 49.40% — it printed 49%
+    { at: 2, was: '46%', now: '49.40%', why: '$214,000 of the $433,200 Investments line, to two decimals (Q49)' },
   ],
   // 2026-10-21, MK-NW-M-013 (re-run part 1, T4): Job safety's savings are the emergency fund's cash on Net worth
   // ($12,400 + $18,250.55 + Vanguard's $838 = $31,488.55), not an old savings log nobody fills — so the gap is $2,231
@@ -192,6 +200,16 @@ const MOVED_ON_PURPOSE: Record<string, { at: number; was: string; now: string | 
   // $21,600/year (1,800 × 12) are unchanged.
   'Income · rent': [
     { at: 0, was: '$1,800', now: ['$1,800', '$1,800'], why: 'the band\'s value, said ("$1,800 a month net") and printed ("$1,800/month net")' },
+  ],
+  // 2026-10-27 (FX-CF-C; his words, DEC-8839: "which I am assuming is without accounting for $3K spend. If yes, it should say so";
+  // drawing stresstest v03, rows 1 and 2). No figure moved. Three lines now say which cash each box counts: the expense's own box is
+  // titled "After the $3,000 expense"; under the months, "$31,489 ÷ ($7,420/month − $1,800/month rent from your property) — your cash
+  // today, before the $3,000 expense." ($31,488.55 ÷ $5,620 = 5.60); under the fund, "Measured against $31,489 — your cash today,
+  // before the $3,000 expense." The numbers they print are the screen's own, read again where they are said.
+  'Stress test': [
+    { at: 0, was: '$3,000', now: ['$3,000', '$3,000'], why: 'the bar "After the $3,000 expense", then the verdict "You could cover a $3,000 hit"' },
+    { at: 6, was: '5.6', now: ['5.6', '$31,489', '$7,420', '$1,800', '$3,000'], why: 'the months, then the line saying they count the cash before the expense' },
+    { at: 13, was: '6', now: ['6', '$31,489', '$3,000'], why: 'the fund, then the line saying it is measured against the cash before the expense' },
   ],
   'Job safety': [
     { at: 0, was: '$33,720', now: '$2,231', why: 'still needed: $33,720 − $31,489' },
@@ -221,6 +239,7 @@ describe('DEC-0345 — every Net worth figure reads the same as before the input
         expect([m.id, m.was, at.length > 0]).toEqual([m.id, m.was, true]);
         for (const f of at) f[1] = m.now;
       }
+      for (const m of FIGURES_NOW_DECLARED[s.name] ?? []) wantFigures.push([m.id, m.now]);
       expect(now.figures).toEqual(wantFigures);
       const expected = [...before.numbers];
       const shown: (string | string[] | null)[] = [...expected];

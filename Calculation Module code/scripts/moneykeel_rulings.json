@@ -529,7 +529,7 @@
   "proof": "src/__tests__/precision_guard.test.ts · golden.test.ts and 12 other suites re-pinned to the cent",
   "coded": "2026-09-09",
   "verified": "",
-  "notes": ""
+  "notes": "2026-10-31: the fix wave carried it further: sign-up’s percents and the budget editor’s shares to two decimals (DEC-8967, DEC-8958), the top holding’s share kept whole and printed 43.14% (DEC-8953), each row rounded once with totals to the cent where the rows are (DEC-8922), quantities written as held (DEC-8945), and no money box holds a third decimal (DEC-8930)."
  },
  {
   "id": "C2",
@@ -1909,7 +1909,7 @@
   "proof": "src/__tests__/guard_screen_title_size.test.ts — fails if any screen title is not 20 points; seen failing when GoalsScreen h1 was put back to 24",
   "coded": "2026-09-14",
   "verified": "",
-  "notes": "Every screen title is 20 points (Typography lg). Today 31 screens use 24, Cash flow 30, Will it last and Look back 20. Coded the same day with a guard test. Figures that look like titles stay as they are: Will it last headline (the odds), Month detail headline, Required withdrawals bigLine, Home heroBig."
+  "notes": "Every screen title is 20 points (Typography lg). Today 31 screens use 24, Cash flow 30, Will it last and Look back 20. Coded the same day with a guard test. Figures that look like titles stay as they are: Will it last headline (the odds), Month detail headline, Required withdrawals bigLine, Home heroBig. 2026-10-31: a sheet that adds an account or a debt is titled at 20 points weight 800, as Net worth v08’s frame G draws one; the fix sheet keeps frame F’s 17 (DEC-8931)."
  },
  {
   "id": "Screen titles — not required on every screen",
@@ -1935,7 +1935,7 @@
   "proof": "",
   "coded": "",
   "verified": "",
-  "notes": "In the app today only the five tab screens (and sign-in and first-run) show MoneyKeel at the top; every pushed screen has a native bar or none. Drawn on every pushed screen in mock v10, with ‹ Back in place of Menu, for approval before it is built."
+  "notes": "In the app today only the five tab screens (and sign-in and first-run) show MoneyKeel at the top; every pushed screen has a native bar or none. Drawn on every pushed screen in mock v10, with ‹ Back in place of Menu, for approval before it is built. 2026-10-31: the screens drawn since carry the MoneyKeel bar with ‹ Back (Add an account v02, Bonds, Alternatives, Holding detail, Itemize, Look back — DEC-0354), and Contribution room and the Stress test got it on 2026-10-27 (DEC-8970); the bar sits 4 points under the status bar (DEC-8928). The screen standard’s line 69 still says not built; a workplan row records that marker for removal."
  },
  {
   "id": "Odds — exact, no rounding",
@@ -1971,10 +1971,10 @@
   "rows": "MK-NW-M-013 · the Emergency fund card",
   "status": "TESTED",
   "code": "no change — the word stays",
-  "proof": "src/__tests__/mock_match_dump.test.tsx ('Tight ⚠')",
+  "proof": "src/__tests__/mock_match_dump.test.tsx ('Tight ⚠') · src/screens/__tests__/stress_test_drawing_v03.test.tsx (the Stress test prints the same word)",
   "coded": "2026-09-14",
   "verified": "",
-  "notes": "A named exception to Brief R3 (show the fact, not the verdict)."
+  "notes": "A named exception to Brief R3 (show the fact, not the verdict). 2026-10-31: the Stress test prints the same months with the same word and colour, 2.3 months · Tight ⚠ (DEC-8971)."
  },
  {
   "id": "Source chip — Linked, date only when stale",
@@ -2000,20 +2000,20 @@
   "proof": "src/__tests__/one_term_per_concept.test.ts (canon row 18) · founder_2026_08_11.test.tsx · build47_walk.test.tsx · user_walk_2026_07_18.test.tsx · snaptrade_connect_fcc.test.tsx",
   "coded": "2026-09-14",
   "verified": "",
-  "notes": "One term per concept: the door says 'Link it (read-only)', so an account that went through it is 'Linked' and the repair is 'Link again'. A canon row is added when it is built. Not changed: 'Disconnect' in Settings (not ruled) — to the founder."
+  "notes": "One term per concept: the door says 'Link it (read-only)', so an account that went through it is 'Linked' and the repair is 'Link again'. A canon row is added when it is built. Not changed: 'Disconnect' in Settings (not ruled) — to the founder. 2026-10-31: Settings’ Disconnect is settled: the button beside a linked account reads Unlink, and Disconnect sits in canon row 18’s Retired column (DEC-8929, workplan #106 closed); held by settings_unlink_canon_row18.test.tsx."
  },
  {
   "id": "Headings — dark bars and light-green bars",
   "date": "2026-09-14",
   "source": "chat, 2026-09-14 (on Net worth mock v07)",
   "ruling": "full green bars - dark bars for section headings and light green for sub-headings",
-  "rows": "Net worth · the screen standard §2.3",
-  "status": "RULED",
+  "rows": "every screen with a box title · the screen standard §2.3 and its line 87",
+  "status": "TESTED",
   "code": "",
-  "proof": "",
-  "coded": "",
+  "proof": "src/__tests__/guard_box_titles_on_bars.test.ts — every heading on its bar, 1,744 texts and 140 bars in 48 files",
+  "coded": "2026-10-27",
   "verified": "",
-  "notes": "Said about Net worth's five bars. Open: whether it also replaces the quiet section labels on the Plan tab (2026-08-13 rule)."
+  "notes": "Said about Net worth's five bars. Open: whether it also replaces the quiet section labels on the Plan tab (2026-08-13 rule). 2026-10-31: the open question is settled: his words of 2026-10-27 (DEC-8839) cite the standard design, so the bars apply on every screen, the Plan tab’s quiet labels included; applied as the lead’s ruling R1 (DEC-8915); the quiet-label rule of 2026-08-13 (DEC-0132) is OLD, NOT IN USE."
  },
  {
   "id": "Net worth first day — no duplicated doors",
@@ -2386,7 +2386,7 @@
   "date": "2026-09-27",
   "source": "orchestrator map, Map tab, Q-CF-2, column YOUR ANSWER",
   "ruling": "yes",
-  "rows": "MK-XS-M-005 Spent so far · Spent $X of $Y left to spend this month · MK-XS-M-007 Left / Over · left to spend this month · MK-HM-M-004 <n>% spent · day n of m · MK-CF-M-001 Expenses · MK-CF-M-002 = Planned surplus · MK-CF-M-003 = Actual surplus so far · MK-CF-M-004 each row of the month — what it is and what it costs · MK-CF-M-013 Actual expenses · MK-CF-M-014 each expense and its amount · MK-CF-M-015 Planned expenses — each category · MK-CF-M-020 THIS MONTH — free to use · MK-MN-M-007 $X of $Y this month · over by $Z · MK-CF-M-047 Planned inflow · MK-CF-M-048 Planned outflow (expenses + debt) · MK-CF-M-049 = Planned surplus · MK-CF-M-050 each planned line · MK-CF-M-051 Inflow · MK-CF-M-052 Outflow (expenses + debt) · MK-CF-M-053 = Surplus · MK-CF-M-054 each received line",
+  "rows": "MK-XS-M-005 Spent so far · Spent $X of $Y left to spend this month · MK-XS-M-007 Left / Over · left to spend this month · MK-HM-M-004 <n>% spent · day n of m · MK-CF-M-001 Expenses · MK-CF-M-002 = Planned surplus · MK-CF-M-003 = Actual surplus so far · MK-CF-M-004 each row of the month — what it is and what it costs · MK-CF-M-013 Actual expenses · MK-CF-M-014 each expense and its amount · MK-CF-M-015 Planned expenses — each category · MK-CF-M-020 THIS MONTH — free to use · MK-MN-M-007 $X of $Y this month · over by $Z · MK-CF-M-047 Planned inflow · MK-CF-M-048 Planned outflow (expenses + debt) · MK-CF-M-049 = Planned surplus · MK-CF-M-050 each planned line · MK-CF-M-051 Inflow · MK-CF-M-052 Outflow (expenses + debt) · MK-CF-M-053 = Surplus · MK-CF-M-054 each line of what has happened so far",
   "status": "RULED",
   "code": "",
   "proof": "",
@@ -2414,7 +2414,7 @@
   "date": "2026-09-27",
   "source": "orchestrator map, Map tab, Q-CF-4, column YOUR ANSWER",
   "ruling": "yes",
-  "rows": "MK-MN-M-003 $X left / up to $Y · MK-MN-M-004 about $X of the $Y limit · MK-MN-M-005 about $X for the rest of the year · MK-MN-M-029 each contribution and its amount",
+  "rows": "MK-MN-M-003 room for $X / up to $Y / $X over · MK-MN-M-004 At $M/month you will put in $X this year · MK-MN-M-005 about $X for the rest of the year · MK-MN-M-029 each contribution and its amount",
   "status": "RULED",
   "code": "",
   "proof": "",

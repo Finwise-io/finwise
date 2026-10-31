@@ -26,7 +26,7 @@ test('the surplus sheet funds goals (GOALS section + fundGoals call) and Home st
   // FCC: the sheet moved to the shared MoneySheets component (one implementation, Home + Cash flow).
   const sheets = fs.readFileSync(path.join(__dirname, '..', 'components', 'MoneySheets.tsx'), 'utf8');
   expect(sheets).toMatch(/fundGoals/);
-  expect(sheets).toMatch(/allocSectionHdr/);
+  expect(sheets).toMatch(/<SectionBand light inCard inset=\{Spacing\.lg\} onRowEdges title="GOALS" \/>/);   // the GOALS sub-title, on its light bar since 2026-10-30 (R1)
   expect(screen('HomeScreen.tsx')).toMatch(/<AllocateSavings/);   // the month-end prompt still fires from Home
 });
 

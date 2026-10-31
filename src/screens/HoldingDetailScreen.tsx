@@ -2,7 +2,7 @@
 // full story — what you own, what you paid, what it's worth, how it compares, and the tax facts
 // if you sold (clearly an estimate). Every number is the SAME helper the Invest main list uses;
 // nothing is recomputed differently here (r24: same row object, no recomputation).
-import { quantityWithUnit, lotCostOnRecord, purchaseDateOnRecord, SECTION_1256_LONG_TERM_PERCENT } from '../domain/performance';
+import { quantityWithUnit, heldQuantity, lotCostOnRecord, purchaseDateOnRecord, SECTION_1256_LONG_TERM_PERCENT } from '../domain/performance';
 import { saleShortOfPurchasesSentence, gainOnPartSentence } from '../domain/performance/realized';
 import TopBar from '../components/TopBar';
 import React, { useMemo, useState } from 'react';
@@ -27,7 +27,7 @@ import {
   PERIODS, priceHistoryShortSentence, type Period, type Position, type PerformanceRow,
 } from '../domain/performance';
 import { HoldingEditor, TransactionSheet, HistorySheet } from './PerformanceScreen';
-import type { AssetAccount } from '../domain/assets';
+import { accountDisplayNames, type AssetAccount } from '../domain/assets';
 import { isoLocalDate, dateShown } from '../domain/_shared/dates';
 
 // EVERY PERCENT ON THIS PAGE PRINTS BY ITS IDENTIFIER (rule 11; 2026-10-21, Performance launch audit gaps 9 and 10): the
@@ -38,7 +38,10 @@ import { isoLocalDate, dateShown } from '../domain/_shared/dates';
 // word — "38.19 percent"; the direction is said in words beside it.
 const percentSaid = (id: string, v: number) => figSaid(id, Math.abs(v)).replace(/^[+−]/, '').replace(/%$/, ' percent');
 const directionSaid = (id: string, v: number) => `${v >= 0 ? 'up' : 'down'} ${percentSaid(id, v)}`;
-const PERIOD_WORDS: Record<string, string> = { '1M': 'month', '3M': '3 months', '6M': '6 months', YTD: 'year so far', '1Y': 'year', '2Y': '2 years' };
+// THE WINDOW IN WORDS (2026-10-27, FX-PF, PF-10; one term per concept): YTD is "This year", the Performance tab's word for it and
+// the drawing's ("1M, YTD (This year), 1Y or 2Y", Holding detail v02, line 686). It read "Your return, past year so far" — a third
+// name for one window. To reverse: YTD → 'past year so far'.
+const PERIOD_WORDS: Record<string, string> = { '1M': 'past month', '3M': 'past 3 months', '6M': 'past 6 months', YTD: 'this year', '1Y': 'past year', '2Y': 'past 2 years' };
 
 /** The hero sparkline — the period's daily closes, nothing smoothed or invented. */
 function PriceGraph({ pts, up }: { pts: { date: string; close: number }[]; up: boolean }) {
@@ -184,7 +187,8 @@ export default function HoldingDetailScreen() {
   // ONE WAY TO WRITE THIS HOLDING'S QUANTITY (2026-10-21): a coin quantity to eight decimals, its trailing zeros dropped
   // (coinQuantity, the precision standard's formatter for coins); any other quantity as it is held. The purchase rows wrote
   // their quantity raw, so a coin quantity there could run past eight decimals while the Quantity row above was cut to eight.
-  const quantityText = (n: number): string => (position.kind === 'crypto' ? coinQuantity(n) : String(n));
+  // (any other quantity as it is held, its whole part in thousands — "5,000 shares"; it printed "5000", 2026-10-27, FX-PF)
+  const quantityText = (n: number): string => (position.kind === 'crypto' ? coinQuantity(n) : heldQuantity(n));
   const quantityWords = quantityWithUnit(position, shares, quantityText);
   // WHAT THE VALUE ROWS SAY WHEN THE VALUE CANNOT BE KNOWN (2026-10-21; tenet 3): a share count not on record, or — with no
   // price — no purchase with a price paid on record. Never the row's refusal, which is a sentence about the figure.
@@ -221,7 +225,7 @@ export default function HoldingDetailScreen() {
   // dot): drawn the same way with a live price and without one. A share count not on record says so on the row.
   const avgRow = () => (
     <View style={s.tRow}>
-      <View style={s.kickerRow}><Text style={s.tL}>Price paid (average)</Text><InfoDot term="averagePricePaid" size={15} /></View>
+      <View style={s.kickerRow}><Text style={s.tL}>Price paid (average)</Text><InfoDot term="averagePricePaid" line={s.tL} /></View>
       {/* a hidden balance is said "hidden", never the dots (2026-10-23, E2E-68) */}
       <Text style={s.tV} accessibilityLabel={shares == null ? undefined : figSaid('MK-NW-M-032', rawAvg)}>{shares == null ? figWords('MK-NW-M-032', SHARE_COUNT_NOT_STATED) : fig('MK-NW-M-032', rawAvg)}</Text>
     </View>
@@ -238,7 +242,8 @@ export default function HoldingDetailScreen() {
         </TouchableOpacity>
       </View>
       <Text style={s.h1}>{name}{name !== ticker ? ` (${ticker})` : ''}</Text>
-      <Text style={s.sub}>in {account.institution?.trim() || account.label}</Text>
+      {/* one name per account (2026-10-27, FX-PF, PF-8; DEC-0083): "in Vanguard Brokerage", as the account page names it — it read "in Vanguard" */}
+      <Text style={s.sub}>in {accountDisplayNames((store.assetAccounts ?? []) as AssetAccount[]).get(account.asset_id) ?? (account.institution?.trim() || account.label)}</Text>
 
       {/* finding 6 (approved mock v2): price hero → graph → the position as a table */}
       {/* THE CARD IS HEARD IN ITS PARTS, IN PRINTED ORDER (2026-10-23, E2E-68): it was one accessible element, so VoiceOver read
@@ -333,7 +338,7 @@ export default function HoldingDetailScreen() {
         <View style={s.pageSection} accessible
           accessibilityLabel={`Versus ${yardstick}, same dates: your return ${directionSaid('MK-PF-M-023', row.periodReturn)}${yearly ? ' a year' : ''}, the market ${directionSaid('MK-NW-M-070', row.benchReturn)}${yearly ? ' a year' : ''}${row.beatBy != null ? `, you are ${gapWords(row.beatBy)}${yearly ? ' a year' : ''}` : ''}`}>
           <View style={s.pageBand}><SectionBand title={`VS ${yardstick.toUpperCase()} · SAME DATES`} /></View>
-          <View style={s.tRow}><Text style={s.tL}>{row.cappedSince ? 'Your return since purchase' : `Your return, past ${PERIOD_WORDS[period]}`}</Text><Text style={s.tV}>{fig('MK-PF-M-023', row.periodReturn)}{perYear}</Text></View>
+          <View style={s.tRow}><Text style={s.tL}>{row.cappedSince ? 'Your return since purchase' : `Your return, ${PERIOD_WORDS[period]}`}</Text><Text style={s.tV}>{fig('MK-PF-M-023', row.periodReturn)}{perYear}</Text></View>
           <View style={s.tRow}><Text style={s.tL}>The market, same dates</Text><Text style={s.tV}>{fig('MK-NW-M-070', row.benchReturn)}{perYear}</Text></View>
           {/* THE GAP IS TO TWO DECIMALS, like the two returns it is taken from (precision standard, Q49; 2026-10-21): it printed
               one, so +38.19% beside +22.40% read 15.8 points where 15.79 is the difference. The drawing's line of 2026-10-21 says so. */}
@@ -353,7 +358,7 @@ export default function HoldingDetailScreen() {
           {/* CORRECTED 2026-10-12 (DEC-4645): this read "price changes only — dividends not included", which was false —
               the holding and its market yardstick (SPY or AGG) are both read from dividend-adjusted closes, so both
               figures include their dividends and interest. The drawing (holding-detail v02) carries a dated line. */}
-          <View style={s.kickerRow}><Text style={s.note}>both include dividends and interest</Text><InfoDot term="benchmark" /></View>
+          <View style={s.kickerRow}><Text style={s.note}>both include dividends and interest</Text><InfoDot term="benchmark" line={s.note} /></View>
           {isBondFund && <Text style={s.note}>Bond funds fall when interest rates rise — that’s the mechanism, not a prediction.</Text>}
         </View>
       ) : (
@@ -523,7 +528,9 @@ export default function HoldingDetailScreen() {
 
 const s = StyleSheet.create({
   root: { flex: 1, backgroundColor: Colors.bgSecondary },
-  content: { padding: Spacing.lg, paddingTop: Spacing.xl },
+  // one content padding, 20 on every side, as the account page's (account-page v01 line 77; Holding detail v02 draws the page 20
+  // under the top bar) — the top was 24 until 2026-10-27 (FX-PF, NW2-23)
+  content: { padding: Spacing.lg },
   topRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: Spacing.sm },
   back: { color: Colors.primary, fontSize: 17, fontWeight: '700' },
   h1: { fontSize: 20, fontWeight: '800', color: Colors.textPrimary },

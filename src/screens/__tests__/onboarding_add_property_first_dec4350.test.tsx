@@ -73,8 +73,9 @@ test('save a property → back on the rent step, rent kept, question shown; one 
 
   // back on the same rent step, the typed rent kept, the question now shown
   expect(onb.getByText('Rental property')).toBeOnTheScreen();
-  expect(onb.getByDisplayValue('1800')).toBeOnTheScreen();
-  expect(onb.getByDisplayValue('600')).toBeOnTheScreen();
+  // the rent kept, printed as money since 2026-10-27 (every money box is a MoneyBox, DEC-8385): 1800 typed reads $1,800, 600 reads $600
+  expect(onb.getByDisplayValue('$1,800')).toBeOnTheScreen();
+  expect(onb.getByDisplayValue('$600')).toBeOnTheScreen();
   expect(onb.getByText('Which property is it?')).toBeOnTheScreen();
   expect(onb.queryByText('Add the property first ›')).toBeNull();
 
@@ -100,7 +101,14 @@ test('cancel Add an account → back on the rent step unchanged', () => {
   expect((useStore.getState() as any).assetAccounts).toHaveLength(0);
   expect(JSON.stringify((useStore.getState().onboardingDraft as any).answers)).toBe(before);
   expect(onb.getByText('Rental property')).toBeOnTheScreen();
-  expect(onb.getByDisplayValue('1800')).toBeOnTheScreen();
+  expect(onb.getByDisplayValue('$1,800')).toBeOnTheScreen();   // printed as money since 2026-10-27 (DEC-8385)
   expect(onb.getByText('Add the property first ›')).toBeOnTheScreen();
   expect(onb.queryByText('Which property is it?')).toBeNull();
+});
+
+// THE OLD ANSWER, KEPT (the fix wave's rule). Until 2026-10-27 the rent box printed the plain 1800; it reads $1,800 now (DEC-8385). This fails
+// because the box prints money; the day it passes, the rent box has gone back to a plain figure.
+test.failing('before 2026-10-27, kept · the rent step\'s box read the plain 1800', () => {
+  const onb = atRentStep();
+  expect(onb.getByDisplayValue('1800')).toBeOnTheScreen();
 });

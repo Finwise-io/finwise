@@ -40,6 +40,7 @@ import { useStore } from '../../store/useStore';
 import { Colors } from '../../utils/theme';
 import { figuresPrinted, resetFiguresPrinted } from '../../components/figure';
 import { TRADE_SHEET } from '../../testing/sheetStates';
+import { amountInBox } from '../../components/MoneyBox';
 import { buildDayFromAccounts } from '../../../Calculation Module code/engines/snapshots';
 
 let mockParams: Record<string, string | undefined> = {};
@@ -128,6 +129,14 @@ const acct = (id: string) => (useStore.getState().assetAccounts as any[]).find((
 // ═══ READING A SHEET DRAWING: the lines of one state's sheet, in order (the mock-match standing order, step 1) ═══════════
 const DRAWINGS = path.join(__dirname, '..', '..', '..', 'MoneyKeel', 'documents', 'networth-and-performance');
 const decode = (s: string) => s.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&amp;/g, '&');
+/** THE DATED ROW OF 2026-10-27 ON EACH SHEET'S DRAWING (DEC-8385): a money box drawn with a plain figure ('100') reads that figure in money
+ *  form on the screen ('$100', or '1,000' beside a $ the screen prints). Applied only where the drawing carries the row, and only to a
+ *  drawn plain figure whose shown line is that same figure in money form — any other difference is still a difference. */
+function asTheRowSays(file: string, drawn: string[], shown: string[]): string[] {
+  const html = fs.readFileSync(path.join(DRAWINGS, file), 'utf8');
+  if (!html.includes('Every money box on this screen shows its figure the way a figure is printed')) return drawn;
+  return drawn.map((d, j) => (/^\d+(\.\d+)?$/.test(d) && (shown[j] === amountInBox(d) || shown[j] === amountInBox(d, false)) ? shown[j] : d));
+}
 function drawnSheetLines(file: string, key: string): string[] {
   const html = fs.readFileSync(path.join(DRAWINGS, file), 'utf8');
   const seg = html.split(/<div class="state"[^>]*>/).find((s) => s.startsWith(`STATE ${key} ·`));
@@ -205,7 +214,8 @@ describe('E2E-57 · Record a buy from the account page: tap "Add a buy or sale",
     // THE DRAWING'S STATE B, WORD FOR WORD, IN ORDER (moneykeel_pres_mock_trade-sheet_v03.html; v03 draws the fee row)
     const drawn = drawnSheetLines(TRADE_SHEET.file, 'B');
     expect(drawn.length).toBeGreaterThanOrEqual(20);               // it looked: the whole sheet
-    expect(readLines(true)).toEqual(drawn);
+    const shownB = readLines(true);
+    expect(shownB).toEqual(asTheRowSays(TRADE_SHEET.file, drawn, shownB));   // the price box: drawn 100, shown $100 (the row of 2026-10-27)
     expect(drawn).toContain('Available cash: $5,000');           // $1,000 of the $5,000 cash
     expect(drawn).toContain('Fee (opt)');
     press('Record buy');
@@ -397,7 +407,7 @@ describe('E2E-57 · Record a buy from the account page: tap "Add a buy or sale",
     expect(after(HOLD, 'Your return since purchase')).toBe(pct((409 / 390) * (204 * 411.5) / (200 * 409 + 1_646) - 1));
     // Home: the month and its base are the Performance tab's 1M, unmoved; the investments move from cash: $100,900 → $102,546
     expect(after(HOME, 'YOUR INVESTMENTS', 2)).toBe('$102,546');
-    expect(HOME.lines).toContain("This month's change is on $123,000: your investment accounts with the cash in them.");
+    expect(HOME.lines).toContain("This month’s change is on $123,000: your investment accounts with the cash in them.");
   });
 });
 
@@ -433,7 +443,7 @@ describe('E2E-58 · Record a sale with a $5 fee from the Holding page: the fee c
     pickDay(2026, 9, 15);
     // the sheet as the person sees it before saving: the fee under Shares, Price / share and Date
     const sheet = readLines(true);
-    expect(sheet.slice(sheet.indexOf('Shares'), sheet.indexOf('Shares') + 9)).toEqual(['Shares', '10', 'Price / share', '98', 'Date', 'Sep 15, 2026', 'Fee (opt)', '5', 'Record sell']);
+    expect(sheet.slice(sheet.indexOf('Shares'), sheet.indexOf('Shares') + 9)).toEqual(['Shares', '10', 'Price / share', '$98', 'Date', 'Sep 15, 2026', 'Fee (opt)', '$5', 'Record sell']);   // the price and the fee as money since 2026-10-27 (DEC-8385); shares stay plain
     press('Record sell');
     expect(screen.queryByText('Record activity')).toBeNull();
     // the Holding page itself: 90 shares, and its realized line counts the fee once: +$175 all time
@@ -442,7 +452,7 @@ describe('E2E-58 · Record a sale with a $5 fee from the Holding page: the fee c
     // its Activity sheet: the sale and what it brought in after the fee
     press("See VTI’s activity");
     const act = readLines(true);
-    expect(act.slice(act.indexOf('Sell VTI · 10 sh @ $98.00'), act.indexOf('Sell VTI · 10 sh @ $98.00') + 3)).toEqual(['Sell VTI · 10 sh @ $98.00', 'Sep 15, 2026 · Fidelity', '+$975']);
+    expect(act.slice(act.indexOf('Sell VTI · 10 sh @ $98.00'), act.indexOf('Sell VTI · 10 sh @ $98.00') + 3)).toEqual(['Sell VTI · 10 sh @ $98.00', 'Sep 15, 2026 · Fidelity Brokerage', '+$975']);
     screen.unmount();
     // the record: the $5 is kept beside the price the person typed, not inside it
     const sale = (useStore.getState().transactions as any[])[0];
@@ -464,7 +474,7 @@ describe('E2E-58 · Record a sale with a $5 fee from the Holding page: the fee c
     expect(after(HOLD, 'Your return, past month')).toBe(pct(VTI_MONTH));
     // Home: the month is the Performance tab's 1M, on the account's own value
     expect(homeMonth(HOME)).toBe(`▲ up $525 (${pct(SALE_RETURN).slice(1)}) this month`);
-    expect(HOME.lines).toContain("This month's change is on $15,625: your investment accounts with the cash in them.");
+    expect(HOME.lines).toContain("This month’s change is on $15,625: your investment accounts with the cash in them.");
   });
   test('the same sale, read on its own: the account +4.15% and VTI +5.21% (they read +4.18% and +5.26% before the return was measured from the trades, 2026-10-23)', () => {
     household({ assetAccounts: [BUILT()], transactions: OPENINGS });
@@ -655,7 +665,7 @@ describe('E2E-61 · Edit a record (its price) from the ✎, then delete a record
     open('account', { id: 'fid', period: '1M' });
     press('Edit or delete your buy of VTI, 10 shares at $100.00');   // the ✎ names its holding and its own figures (2026-10-23)
     expect(readLines(true)).toEqual(['Buy — you entered this', 'Sep 15, 2026 · correcting it reverses the old record and records the new one, so your balance stays right.',
-      'Shares', '10', 'Price / share', '100', 'Fee (opt)', '—', 'Save', 'Delete this record']);
+      'Shares', '10', 'Price / share', '$100', 'Fee (opt)', '—', 'Save', 'Delete this record']);   // the price as money since 2026-10-27 (DEC-8385)
     type('Price per share', '98');
     press('Save this correction');
     const page = readLines();
@@ -732,7 +742,9 @@ describe('E2E-62 · Update the value of an account built by hand with the Update
     press('Update the value');
     const drawn = drawnSheetLines('moneykeel_pres_mock_update-value-sheet_v02.html', 'F');
     expect(drawn.length).toBeGreaterThanOrEqual(4);
-    expect(readLines(true)).toEqual(drawn);                          // "Update value — Gold coins", "$", "8000", the stamp line, "Save value"
+    const shownF = readLines(true);
+    // "Update value — Gold coins", "$", then the box beside that $: drawn 8000, shown 8,000 (the row of 2026-10-27), the stamp line, "Save value"
+    expect(shownF).toEqual(asTheRowSays('moneykeel_pres_mock_update-value-sheet_v02.html', drawn, shownF));
     type('Current value', '8400');
     press('Save the updated value');
     const page = readLines();
@@ -891,7 +903,7 @@ describe('E2E-57 D · an option contract bought and sold by hand moves 100 share
     // its Activity sheet: the record in contracts, and what it took out
     press(`See ${CALL}’s activity`);
     const act = readLines(true);
-    expect(act.slice(act.indexOf(`Buy ${CALL} · 1 contract @ $2.50`), act.indexOf(`Buy ${CALL} · 1 contract @ $2.50`) + 3)).toEqual([`Buy ${CALL} · 1 contract @ $2.50`, 'Sep 30, 2026 · Fidelity', '−$250']);
+    expect(act.slice(act.indexOf(`Buy ${CALL} · 1 contract @ $2.50`), act.indexOf(`Buy ${CALL} · 1 contract @ $2.50`) + 3)).toEqual([`Buy ${CALL} · 1 contract @ $2.50`, 'Sep 30, 2026 · Fidelity Brokerage', '−$250']);
     press('Done');
     // the sale
     press(`Record a buy or sell for ${CALL}`);
@@ -956,5 +968,18 @@ describe('E2E-57 E · a VTI bought on the trade sheet lists under Stocks / Funds
     expect(cat).toBeGreaterThan(-1);
     expect(INV.lines[cat + 1]).toBe('$5');
     expect(INV.lines.some((l) => l === 'Unclassified')).toBe(false);
+  });
+});
+
+// THE OLD ANSWER, KEPT (the fix wave's rule). Until 2026-10-27 the trade sheet's price box printed the plain figure the drawing draws, '100';
+// it reads '$100' now (DEC-8385, every money box is a MoneyBox). This compares with the drawing as drawn, without its row of 2026-10-27, so it
+// fails; the day it passes, the price box has gone back to a plain figure.
+describe('before 2026-10-27, kept', () => {
+  test.failing('the trade sheet in state B read the drawing word for word, its price box the plain 100', () => {
+    const B = TRADE_SHEET.states.find((s) => s.key === 'B')!;
+    household({ ...B.store, pricesFetchedAt: new Date().toISOString() });
+    open('account', { id: 'van', period: '1M' });
+    B.steps();
+    expect(readLines(true)).toEqual(drawnSheetLines(TRADE_SHEET.file, 'B'));
   });
 });

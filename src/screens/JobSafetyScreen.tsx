@@ -3,6 +3,7 @@
 // single 34pt hero with its math spelled out in one sentence, honest inputs (no silent $2,500
 // default — the screen ASKS when nothing is logged), and a real action (save the gap as a goal)
 // instead of chatty alerts. Answers persist on tap; there is no Save button to forget.
+import { MoneyBox } from '../components/MoneyBox';   // every money box, one component (DEC-8385)
 import React, { useState, useMemo } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, Alert } from 'react-native';
 import { SectionBand } from '../components/SectionBand';
@@ -112,8 +113,8 @@ export default function JobSafetyScreen() {
         {ess <= 0 ? (
           <>
             <Text style={s.askLine}>What do your essential expenses come to in a typical month? (rent, food, utilities — the must-pays)</Text>
-            <TextInput style={s.input} keyboardType="decimal-pad" placeholder="$2,800" placeholderTextColor={Colors.textTertiary}
-              value={customExpenses} onChangeText={setCustomExpenses} accessibilityLabel="Essential monthly expenses" />
+            <MoneyBox bare style={s.input} placeholder="$2,800"
+              value={customExpenses} onChangeText={setCustomExpenses} a11y="Essential monthly expenses" />
           </>
         ) : (
           <>
@@ -132,12 +133,13 @@ export default function JobSafetyScreen() {
               </TouchableOpacity>
             )}
             {monthSpend > 0 && !customExpenses && (
-              <Text style={s.baselineNote}>Using {money(monthSpend)}/month — {emergencyFund.essentialsBasis} of your logged expenses — type your own if a typical month differs.</Text>
+              // the door says where the month came from as a whole phrase (2026-10-30): the tag set inside "— {tag} of your logged expenses"
+              // read "— calculated of your logged expenses" and "— you entered of your logged expenses"
+              <Text style={s.baselineNote}>Using {money(monthSpend)}/month — {emergencyFund.essentialsSource} — type your own if a typical month differs.</Text>
             )}
             {monthSpend > 0 && (
-              <TextInput style={[s.input, { marginTop: 8 }]} keyboardType="decimal-pad" placeholder={`${Math.round(monthSpend)}`}
-                placeholderTextColor={Colors.textTertiary} value={customExpenses} onChangeText={setCustomExpenses}
-                accessibilityLabel="Essential monthly expenses, editable" />
+              <MoneyBox bare style={[s.input, { marginTop: 8 }]} placeholder={`${Math.round(monthSpend)}`} value={customExpenses} onChangeText={setCustomExpenses}
+                a11y="Essential monthly expenses, editable" />
             )}
           </>
         )}

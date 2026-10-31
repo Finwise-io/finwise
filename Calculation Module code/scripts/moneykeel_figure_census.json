@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-27",
+ "generated": "2026-10-31",
  "states": [
   "worker",
   "rich",
@@ -44,7 +44,7 @@
     },
     {
      "k": "t",
-     "s": "morning"
+     "s": "afternoon"
     },
     {
      "k": "t",
@@ -52,7 +52,7 @@
     },
     {
      "k": "a",
-     "s": "Your investments: $165,000. change shows once your holdings have prices. as of Oct 27. See your growth."
+     "s": "Your investments: $165,000. change shows once your holdings have prices. as of Oct 31. See your growth."
     },
     {
      "k": "t",
@@ -80,7 +80,7 @@
     },
     {
      "k": "t",
-     "s": "Oct 27"
+     "s": "Oct 31"
     },
     {
      "k": "t",
@@ -116,7 +116,7 @@
     },
     {
      "k": "a",
-     "s": "1. Build your emergency fund. You have no cash set aside for emergencies — most planners use 3–6 months of expenses as the range (investments aren't counted here)."
+     "s": "1. Build your emergency fund. You have no cash set aside for emergencies — most planners use 3–6 months of expenses as the range (investments aren’t counted here)."
     },
     {
      "k": "t",
@@ -132,7 +132,7 @@
     },
     {
      "k": "t",
-     "s": "You have no cash set aside for emergencies — most planners use 3–6 months of expenses as the range (investments aren't counted here)."
+     "s": "You have no cash set aside for emergencies — most planners use 3–6 months of expenses as the range (investments aren’t counted here)."
     },
     {
      "k": "t",
@@ -140,7 +140,7 @@
     },
     {
      "k": "a",
-     "s": "2. Room left in your 401(k). About $14,900 of this year's tax-advantaged room looks unused — an estimate from what you entered you contribute, not from your payroll."
+     "s": "2. Room left in your 401(k). About $14,900 of this year’s tax-advantaged room looks unused — an estimate from what you entered you contribute, not from your payroll."
     },
     {
      "k": "t",
@@ -156,7 +156,7 @@
     },
     {
      "k": "t",
-     "s": "About $14,900 of this year's tax-advantaged room looks unused — an estimate from what you entered you contribute, not from your payroll."
+     "s": "About $14,900 of this year’s tax-advantaged room looks unused — an estimate from what you entered you contribute, not from your payroll."
     },
     {
      "k": "t",
@@ -164,7 +164,7 @@
     },
     {
      "k": "a",
-     "s": "3. Concentrated in one account. $120,000 (73%) of your invested money sits in a single account — spreading across accounts lowers risk."
+     "s": "3. Concentrated in one account. $120,000 (72.73%) of your invested money sits in a single account — spreading across accounts lowers risk."
     },
     {
      "k": "t",
@@ -180,7 +180,7 @@
     },
     {
      "k": "t",
-     "s": "$120,000 (73%) of your invested money sits in a single account — spreading across accounts lowers risk."
+     "s": "$120,000 (72.73%) of your invested money sits in a single account — spreading across accounts lowers risk."
     },
     {
      "k": "t",
@@ -212,11 +212,11 @@
     },
     {
      "k": "a",
-     "s": "This month's cash flow, On pace: income $6,400, expenses and debt paid so far $0, $6,400 left, bills may still be coming. Opens the Cash flow tab."
+     "s": "This month’s cash flow, On pace: income $6,400, expenses and debt paid so far $0, $6,400 left, bills may still be coming. Opens the Cash flow tab."
     },
     {
      "k": "t",
-     "s": "THIS MONTH'S CASH FLOW"
+     "s": "THIS MONTH’S CASH FLOW"
     },
     {
      "k": "t",
@@ -232,7 +232,7 @@
     },
     {
      "k": "t",
-     "s": "27"
+     "s": "31"
     },
     {
      "k": "t",
@@ -268,7 +268,7 @@
     },
     {
      "k": "t",
-     "s": "Estimates for guidance only — not financial, investment, or tax advice, and projections aren't guaranteed. See Settings for the full disclaimer."
+     "s": "Estimates for guidance only — not financial, investment, or tax advice, and projections aren’t guaranteed. See Settings for the full disclaimer."
     }
    ],
    "rich": [
@@ -278,7 +278,7 @@
     },
     {
      "k": "t",
-     "s": "morning"
+     "s": "afternoon"
     },
     {
      "k": "t",
@@ -286,7 +286,7 @@
     },
     {
      "k": "t",
-     "s": "📡 Couldn't refresh — showing your numbers from"
+     "s": "📡 Couldn’t refresh — showing your numbers from"
     },
     {
      "k": "t",
@@ -298,7 +298,7 @@
     },
     {
      "k": "a",
-     "s": "Your investments: $709,800. change shows once your holdings have prices. prices may be out of date, updated not updated yet. Vanguard part as of Sep 12, 45 days old, pull to refresh. See your growth."
+     "s": "Your investments: $709,800. change shows once your holdings have prices. prices may be out of date, updated not updated yet. Vanguard part as of Sep 12, 49 days old, pull to refresh. See your growth."
     },
     {
      "k": "t",
@@ -334,7 +334,7 @@
     },
     {
      "k": "t",
-     "s": "⏱ Vanguard part as of Sep 12 — 45 days old"
+     "s": "⏱ Vanguard part as of Sep 12 — 49 days old"
     },
     {
      "k": "t",
@@ -402,7 +402,7 @@
     },
     {
      "k": "a",
-     "s": "2. Room left in your 401(k). About $14,900 of this year's tax-advantaged room looks unused — an estimate from what you entered you contribute, not from your payroll."
+     "s": "2. Room left in your 401(k). About $14,900 of this year’s tax-advantaged room looks unused — an estimate from what you entered you contribute, not from your payroll."
     },
     {
      "k": "t",
@@ -418,7 +418,7 @@
     },
     {
      "k": "t",
-     "s": "About $14,900 of this year's tax-advantaged room looks unused — an estimate from what you entered you contribute, not from your payroll."
+     "s": "About $14,900 of this year’s tax-advantaged room looks unused — an estimate from what you entered you contribute, not from your payroll."
     },
     {
      "k": "t",
@@ -426,7 +426,7 @@
     },
     {
      "k": "a",
-     "s": "3. Concentrated in one account. $400,000 (56%) of your invested money sits in a single account — spreading across accounts lowers risk."
+     "s": "3. Concentrated in one account. $400,000 (56.35%) of your invested money sits in a single account — spreading across accounts lowers risk."
     },
     {
      "k": "t",
@@ -442,7 +442,7 @@
     },
     {
      "k": "t",
-     "s": "$400,000 (56%) of your invested money sits in a single account — spreading across accounts lowers risk."
+     "s": "$400,000 (56.35%) of your invested money sits in a single account — spreading across accounts lowers risk."
     },
     {
      "k": "t",
@@ -474,11 +474,11 @@
     },
     {
      "k": "a",
-     "s": "This month's cash flow, On pace: income $6,400, expenses and debt paid so far $0, $6,400 left, bills may still be coming. Opens the Cash flow tab."
+     "s": "This month’s cash flow, On pace: income $6,400, expenses and debt paid so far $0, $6,400 left, bills may still be coming. Opens the Cash flow tab."
     },
     {
      "k": "t",
-     "s": "THIS MONTH'S CASH FLOW"
+     "s": "THIS MONTH’S CASH FLOW"
     },
     {
      "k": "t",
@@ -494,7 +494,7 @@
     },
     {
      "k": "t",
-     "s": "27"
+     "s": "31"
     },
     {
      "k": "t",
@@ -530,7 +530,7 @@
     },
     {
      "k": "t",
-     "s": "Estimates for guidance only — not financial, investment, or tax advice, and projections aren't guaranteed. See Settings for the full disclaimer."
+     "s": "Estimates for guidance only — not financial, investment, or tax advice, and projections aren’t guaranteed. See Settings for the full disclaimer."
     }
    ],
    "retiree": [
@@ -540,7 +540,7 @@
     },
     {
      "k": "t",
-     "s": "morning"
+     "s": "afternoon"
     },
     {
      "k": "t",
@@ -548,7 +548,7 @@
     },
     {
      "k": "t",
-     "s": "📡 Couldn't refresh — showing your numbers from"
+     "s": "📡 Couldn’t refresh — showing your numbers from"
     },
     {
      "k": "t",
@@ -564,11 +564,7 @@
     },
     {
      "k": "t",
-     "s": "YOUR PAYCHECK —"
-    },
-    {
-     "k": "t",
-     "s": "OCT"
+     "s": "YOUR PAYCHECK — OCT"
     },
     {
      "k": "t",
@@ -696,7 +692,7 @@
     },
     {
      "k": "a",
-     "s": "1. Build your emergency fund. You have no cash set aside for emergencies — most planners use 3–6 months of expenses as the range (investments aren't counted here)."
+     "s": "1. Build your emergency fund. You have no cash set aside for emergencies — most planners use 3–6 months of expenses as the range (investments aren’t counted here)."
     },
     {
      "k": "t",
@@ -712,7 +708,7 @@
     },
     {
      "k": "t",
-     "s": "You have no cash set aside for emergencies — most planners use 3–6 months of expenses as the range (investments aren't counted here)."
+     "s": "You have no cash set aside for emergencies — most planners use 3–6 months of expenses as the range (investments aren’t counted here)."
     },
     {
      "k": "t",
@@ -720,7 +716,7 @@
     },
     {
      "k": "a",
-     "s": "2. Concentrated in one account. $250,000 (100%) of your invested money sits in a single account — spreading across accounts lowers risk."
+     "s": "2. Concentrated in one account. $250,000 (100.00%) of your invested money sits in a single account — spreading across accounts lowers risk."
     },
     {
      "k": "t",
@@ -736,7 +732,7 @@
     },
     {
      "k": "t",
-     "s": "$250,000 (100%) of your invested money sits in a single account — spreading across accounts lowers risk."
+     "s": "$250,000 (100.00%) of your invested money sits in a single account — spreading across accounts lowers risk."
     },
     {
      "k": "t",
@@ -796,11 +792,11 @@
     },
     {
      "k": "a",
-     "s": "This month's cash flow, On pace: income $3,500, expenses and debt paid so far $0, $3,500 left, bills may still be coming. Opens the Cash flow tab."
+     "s": "This month’s cash flow, On pace: income $3,500, expenses and debt paid so far $0, $3,500 left, bills may still be coming. Opens the Cash flow tab."
     },
     {
      "k": "t",
-     "s": "THIS MONTH'S CASH FLOW"
+     "s": "THIS MONTH’S CASH FLOW"
     },
     {
      "k": "t",
@@ -816,7 +812,7 @@
     },
     {
      "k": "t",
-     "s": "27"
+     "s": "31"
     },
     {
      "k": "t",
@@ -852,7 +848,7 @@
     },
     {
      "k": "t",
-     "s": "Estimates for guidance only — not financial, investment, or tax advice, and projections aren't guaranteed. See Settings for the full disclaimer."
+     "s": "Estimates for guidance only — not financial, investment, or tax advice, and projections aren’t guaranteed. See Settings for the full disclaimer."
     }
    ],
    "new": [
@@ -862,7 +858,7 @@
     },
     {
      "k": "t",
-     "s": "Let's get your real numbers in."
+     "s": "Let’s get your real numbers in."
     },
     {
      "k": "a",
@@ -910,7 +906,7 @@
     },
     {
      "k": "t",
-     "s": "WHAT YOU'LL SEE HERE"
+     "s": "WHAT YOU’LL SEE HERE"
     },
     {
      "k": "t",
@@ -935,7 +931,7 @@
     },
     {
      "k": "t",
-     "s": "YOUR NET WORTH · OCT 27, 2026"
+     "s": "YOUR NET WORTH · OCT 31, 2026"
     },
     {
      "k": "a",
@@ -1207,11 +1203,7 @@
     },
     {
      "k": "t",
-     "s": "—"
-    },
-    {
-     "k": "t",
-     "s": "1 month average"
+     "s": "— 1 month average"
     },
     {
      "k": "t",
@@ -1265,7 +1257,7 @@
     },
     {
      "k": "t",
-     "s": "YOUR NET WORTH · OCT 27, 2026"
+     "s": "YOUR NET WORTH · OCT 31, 2026"
     },
     {
      "k": "a",
@@ -1521,11 +1513,7 @@
     },
     {
      "k": "t",
-     "s": "—"
-    },
-    {
-     "k": "t",
-     "s": "1 month average"
+     "s": "— 1 month average"
     },
     {
      "k": "t",
@@ -1579,7 +1567,7 @@
     },
     {
      "k": "t",
-     "s": "YOUR NET WORTH · OCT 27, 2026"
+     "s": "YOUR NET WORTH · OCT 31, 2026"
     },
     {
      "k": "a",
@@ -1987,11 +1975,7 @@
     },
     {
      "k": "t",
-     "s": "—"
-    },
-    {
-     "k": "t",
-     "s": "you entered"
+     "s": "— calculated"
     },
     {
      "k": "t",
@@ -2049,7 +2033,7 @@
     },
     {
      "k": "t",
-     "s": "YOUR NET WORTH · OCT 27, 2026"
+     "s": "YOUR NET WORTH · OCT 31, 2026"
     },
     {
      "k": "a",
@@ -2285,7 +2269,7 @@
     },
     {
      "k": "t",
-     "s": "Linked · 45 days old"
+     "s": "Linked · 49 days old"
     },
     {
      "k": "t",
@@ -2505,11 +2489,7 @@
     },
     {
      "k": "t",
-     "s": "—"
-    },
-    {
-     "k": "t",
-     "s": "you entered"
+     "s": "— calculated"
     },
     {
      "k": "t",
@@ -2567,7 +2547,7 @@
     },
     {
      "k": "t",
-     "s": "YOUR NET WORTH · OCT 27, 2026"
+     "s": "YOUR NET WORTH · OCT 31, 2026"
     },
     {
      "k": "a",
@@ -2819,11 +2799,7 @@
     },
     {
      "k": "t",
-     "s": "—"
-    },
-    {
-     "k": "t",
-     "s": "you entered"
+     "s": "— calculated"
     },
     {
      "k": "t",
@@ -2865,7 +2841,7 @@
     },
     {
      "k": "t",
-     "s": "YOUR NET WORTH · OCT 27, 2026"
+     "s": "YOUR NET WORTH · OCT 31, 2026"
     },
     {
      "k": "a",
@@ -3069,11 +3045,7 @@
     },
     {
      "k": "t",
-     "s": "—"
-    },
-    {
-     "k": "t",
-     "s": "you entered"
+     "s": "— calculated"
     },
     {
      "k": "t",
@@ -3518,7 +3490,7 @@
     },
     {
      "k": "t",
-     "s": "Oct 27, 2026"
+     "s": "Oct 31, 2026"
     },
     {
      "k": "a",
@@ -3654,11 +3626,11 @@
     },
     {
      "k": "t",
-     "s": "Oct 27"
+     "s": "Oct 31"
     },
     {
      "k": "t",
-     "s": "Oct 27"
+     "s": "Oct 31"
     },
     {
      "k": "a",
@@ -4156,7 +4128,7 @@
     },
     {
      "k": "t",
-     "s": "Oct 27, 2026"
+     "s": "Oct 31, 2026"
     },
     {
      "k": "t",
@@ -4304,11 +4276,11 @@
     },
     {
      "k": "t",
-     "s": "Oct 27"
+     "s": "Oct 31"
     },
     {
      "k": "t",
-     "s": "Oct 27"
+     "s": "Oct 31"
     },
     {
      "k": "a",
@@ -4488,7 +4460,7 @@
     },
     {
      "k": "t",
-     "s": "Linked · 45 days old"
+     "s": "Linked · 49 days old"
     },
     {
      "k": "a",
@@ -4978,7 +4950,7 @@
     },
     {
      "k": "t",
-     "s": "Oct 27, 2026"
+     "s": "Oct 31, 2026"
     },
     {
      "k": "a",
@@ -5114,11 +5086,11 @@
     },
     {
      "k": "t",
-     "s": "Oct 27"
+     "s": "Oct 31"
     },
     {
      "k": "t",
-     "s": "Oct 27"
+     "s": "Oct 31"
     },
     {
      "k": "a",
@@ -5476,7 +5448,7 @@
     },
     {
      "k": "t",
-     "s": "Oct 27, 2026"
+     "s": "Oct 31, 2026"
     },
     {
      "k": "a",
@@ -5612,11 +5584,11 @@
     },
     {
      "k": "t",
-     "s": "Oct 27"
+     "s": "Oct 31"
     },
     {
      "k": "t",
-     "s": "Oct 27"
+     "s": "Oct 31"
     },
     {
      "k": "a",
@@ -5893,11 +5865,11 @@
     },
     {
      "k": "a",
-     "s": "Your odds can't be calculated yet. Add what you spend in the facts below."
+     "s": "Your odds can’t be calculated yet. Add what you spend in the facts below."
     },
     {
      "k": "t",
-     "s": "Your odds — can't be calculated yet. Add"
+     "s": "Your odds — can’t be calculated yet. Add"
     },
     {
      "k": "t",
@@ -5965,7 +5937,7 @@
     },
     {
      "k": "t",
-     "s": "What's your target nest egg?"
+     "s": "What’s your target nest egg?"
     },
     {
      "k": "t",
@@ -6269,7 +6241,7 @@
     },
     {
      "k": "t",
-     "s": "No percent is shown until it's yours — we never fake a number."
+     "s": "No percent is shown until it’s yours — we never fake a number."
     }
    ],
    "rich": [
@@ -6335,11 +6307,11 @@
     },
     {
      "k": "a",
-     "s": "Your odds can't be calculated yet. Add what you spend in the facts below."
+     "s": "Your odds can’t be calculated yet. Add what you spend in the facts below."
     },
     {
      "k": "t",
-     "s": "Your odds — can't be calculated yet. Add"
+     "s": "Your odds — can’t be calculated yet. Add"
     },
     {
      "k": "t",
@@ -6407,7 +6379,7 @@
     },
     {
      "k": "t",
-     "s": "We're including your"
+     "s": "We’re including your"
     },
     {
      "k": "t",
@@ -6415,7 +6387,7 @@
     },
     {
      "k": "t",
-     "s": "/month mortgage until it's paid off in"
+     "s": "/month mortgage until it’s paid off in"
     },
     {
      "k": "t",
@@ -6427,7 +6399,7 @@
     },
     {
      "k": "t",
-     "s": "What's your target nest egg?"
+     "s": "What’s your target nest egg?"
     },
     {
      "k": "t",
@@ -6787,7 +6759,7 @@
     },
     {
      "k": "t",
-     "s": "No percent is shown until it's yours — we never fake a number."
+     "s": "No percent is shown until it’s yours — we never fake a number."
     }
    ],
    "retiree": [
@@ -6913,7 +6885,7 @@
     },
     {
      "k": "t",
-     "s": "What's your target nest egg?"
+     "s": "What’s your target nest egg?"
     },
     {
      "k": "t",
@@ -7197,7 +7169,7 @@
     },
     {
      "k": "t",
-     "s": "/month expenses. You're drawing"
+     "s": "/month expenses. You’re drawing"
     },
     {
      "k": "t",
@@ -7225,7 +7197,7 @@
     },
     {
      "k": "t",
-     "s": "The same paycheck as Home's card — one function, one set of numbers."
+     "s": "The same paycheck as Home’s card — one function, one set of numbers."
     },
     {
      "k": "t",
@@ -7269,7 +7241,7 @@
     },
     {
      "k": "t",
-     "s": "You'd spend"
+     "s": "You’d spend"
     },
     {
      "k": "t",
@@ -7293,7 +7265,7 @@
     },
     {
      "k": "t",
-     "s": "Your Social Security and pension don't change, so anything extra comes out of savings."
+     "s": "Your Social Security and pension don’t change, so anything extra comes out of savings."
     },
     {
      "k": "a",
@@ -7435,11 +7407,11 @@
     },
     {
      "k": "a",
-     "s": "Your odds can't be calculated yet. Add your age and what you spend and what you have in the facts below."
+     "s": "Your odds can’t be calculated yet. Add your age and what you spend and what you have in the facts below."
     },
     {
      "k": "t",
-     "s": "Your odds — can't be calculated yet. Add"
+     "s": "Your odds — can’t be calculated yet. Add"
     },
     {
      "k": "t",
@@ -7487,7 +7459,7 @@
     },
     {
      "k": "t",
-     "s": "What's your target nest egg?"
+     "s": "What’s your target nest egg?"
     },
     {
      "k": "t",
@@ -7751,7 +7723,7 @@
     },
     {
      "k": "t",
-     "s": "No percent is shown until it's yours — we never fake a number."
+     "s": "No percent is shown until it’s yours — we never fake a number."
     }
    ]
   },
@@ -7984,7 +7956,7 @@
     },
     {
      "k": "t",
-     "s": "In today’s dollars · assumes an 8.58% return and 2.50% inflation a year"
+     "s": "In today’s dollars · assumes an 8.58%/year return and 2.50%/year inflation"
     },
     {
      "k": "a",
@@ -8234,7 +8206,7 @@
     },
     {
      "k": "t",
-     "s": "In today’s dollars · assumes an 8.58% return and 2.50% inflation a year"
+     "s": "In today’s dollars · assumes an 8.58%/year return and 2.50%/year inflation"
     },
     {
      "k": "a",
@@ -8542,7 +8514,7 @@
     },
     {
      "k": "t",
-     "s": "$0"
+     "s": "$0.00"
     },
     {
      "k": "t",
@@ -8656,7 +8628,7 @@
     },
     {
      "k": "a",
-     "s": "across 1 debt · $420 a month in payments · about $64 a month interest"
+     "s": "across 1 debt · $420 a month in payments"
     },
     {
      "k": "t",
@@ -8680,19 +8652,7 @@
     },
     {
      "k": "t",
-     "s": "· ~"
-    },
-    {
-     "k": "t",
-     "s": "$64"
-    },
-    {
-     "k": "t",
-     "s": "/month interest"
-    },
-    {
-     "k": "t",
-     "s": "Payoff plan"
+     "s": "PAYOFF PLAN"
     },
     {
      "k": "a",
@@ -8732,11 +8692,11 @@
     },
     {
      "k": "a",
-     "s": "Debt-free Nov 2029"
+     "s": "Debt-free Dec 2029"
     },
     {
      "k": "t",
-     "s": "Nov 2029"
+     "s": "Dec 2029"
     },
     {
      "k": "t",
@@ -8821,14 +8781,6 @@
     {
      "k": "t",
      "s": "+ Add debt account"
-    },
-    {
-     "k": "a",
-     "s": "Tap a debt to edit, hold to delete"
-    },
-    {
-     "k": "t",
-     "s": "Tap a debt to edit • Hold to delete"
     },
     {
      "k": "a",
@@ -9102,7 +9054,7 @@
     },
     {
      "k": "t",
-     "s": "In today’s dollars · assumes a 7.76% return and 2.50% inflation a year"
+     "s": "In today’s dollars · assumes a 7.76%/year return and 2.50%/year inflation"
     },
     {
      "k": "a",
@@ -9388,7 +9340,7 @@
     },
     {
      "k": "t",
-     "s": "In today’s dollars · assumes a 7.76% return and 2.50% inflation a year"
+     "s": "In today’s dollars · assumes a 7.76%/year return and 2.50%/year inflation"
     },
     {
      "k": "a",
@@ -9716,7 +9668,7 @@
     },
     {
      "k": "t",
-     "s": "$0"
+     "s": "$0.00"
     },
     {
      "k": "t",
@@ -9830,7 +9782,7 @@
     },
     {
      "k": "a",
-     "s": "across 2 debts · $2,200 a month in payments · about $1,542 a month interest"
+     "s": "across 2 debts · $2,200 a month in payments"
     },
     {
      "k": "t",
@@ -9854,19 +9806,7 @@
     },
     {
      "k": "t",
-     "s": "· ~"
-    },
-    {
-     "k": "t",
-     "s": "$1,542"
-    },
-    {
-     "k": "t",
-     "s": "/month interest"
-    },
-    {
-     "k": "t",
-     "s": "Payoff plan"
+     "s": "PAYOFF PLAN"
     },
     {
      "k": "a",
@@ -10038,7 +9978,7 @@
     },
     {
      "k": "a",
-     "s": "Mortgage, 6.25%, 18 years left, $1,900 a month minimum, about $1,458 a month interest, payment due in 5 days, $280,000 owed. Your mortgage “Mortgage” is not on a property. A mortgage is always on a property — open it and say which one. Opens it to edit; hold to delete."
+     "s": "Mortgage, 6.25%, 18 years left, $1,900 a month minimum, about $1,458 a month interest, payment due in 1 day, $280,000 owed. Your mortgage “Mortgage” is not on a property. A mortgage is always on a property — open it and say which one. Opens it to edit; hold to delete."
     },
     {
      "k": "t",
@@ -10070,7 +10010,7 @@
     },
     {
      "k": "t",
-     "s": "payment due in 5 days"
+     "s": "payment due in 1 day"
     },
     {
      "k": "t",
@@ -10099,14 +10039,6 @@
     {
      "k": "t",
      "s": "+ Add debt account"
-    },
-    {
-     "k": "a",
-     "s": "Tap a debt to edit, hold to delete"
-    },
-    {
-     "k": "t",
-     "s": "Tap a debt to edit • Hold to delete"
     },
     {
      "k": "a",
@@ -10184,11 +10116,7 @@
     },
     {
      "k": "t",
-     "s": "YOUR PAYCHECK —"
-    },
-    {
-     "k": "t",
-     "s": "OCT"
+     "s": "YOUR PAYCHECK — OCT"
     },
     {
      "k": "t",
@@ -10288,7 +10216,7 @@
     },
     {
      "k": "a",
-     "s": "Expense pace: $0 spent of your paycheck, $4,750 a month — 0 percent spent, 87 percent of the month gone."
+     "s": "Expense pace: $0 spent of your paycheck, $4,750 a month — 0 percent spent, 100 percent of the month gone."
     },
     {
      "k": "t",
@@ -10320,7 +10248,7 @@
     },
     {
      "k": "t",
-     "s": "87"
+     "s": "100"
     },
     {
      "k": "t",
@@ -10473,10 +10401,6 @@
     {
      "k": "t",
      "s": "out"
-    },
-    {
-     "k": "t",
-     "s": "· tap a month for detail"
     },
     {
      "k": "a",
@@ -10578,11 +10502,7 @@
     },
     {
      "k": "t",
-     "s": "YOUR PAYCHECK —"
-    },
-    {
-     "k": "t",
-     "s": "OCT"
+     "s": "YOUR PAYCHECK — OCT"
     },
     {
      "k": "t",
@@ -10682,7 +10602,7 @@
     },
     {
      "k": "a",
-     "s": "Expense pace: $0 spent of your paycheck, $4,750 a month — 0 percent spent, 87 percent of the month gone."
+     "s": "Expense pace: $0 spent of your paycheck, $4,750 a month — 0 percent spent, 100 percent of the month gone."
     },
     {
      "k": "t",
@@ -10714,7 +10634,7 @@
     },
     {
      "k": "t",
-     "s": "87"
+     "s": "100"
     },
     {
      "k": "t",
@@ -10867,10 +10787,6 @@
     {
      "k": "t",
      "s": "out"
-    },
-    {
-     "k": "t",
-     "s": "· tap a month for detail"
     },
     {
      "k": "a",
@@ -11170,7 +11086,7 @@
     },
     {
      "k": "t",
-     "s": "$0"
+     "s": "$0.00"
     },
     {
      "k": "t",
@@ -11402,7 +11318,7 @@
     },
     {
      "k": "t",
-     "s": "✓ Answers save to your plan — Home, Plan and this screen use the same numbers. No zeros shown until they're real."
+     "s": "✓ Answers save to your plan — Home, Plan and this screen use the same numbers. No zeros shown until they’re real."
     },
     {
      "k": "a",
@@ -11512,7 +11428,7 @@
     },
     {
      "k": "t",
-     "s": "✓ Answers save to your plan — Home, Plan and this screen use the same numbers. No zeros shown until they're real."
+     "s": "✓ Answers save to your plan — Home, Plan and this screen use the same numbers. No zeros shown until they’re real."
     },
     {
      "k": "a",
@@ -11756,7 +11672,7 @@
     },
     {
      "k": "t",
-     "s": "$0"
+     "s": "$0.00"
     },
     {
      "k": "t",
@@ -11919,7 +11835,7 @@
     },
     {
      "k": "t",
-     "s": "💡 Suggested: a sinking fund"
+     "s": "💡 SUGGESTED: A SINKING FUND"
     },
     {
      "k": "t",
@@ -11951,23 +11867,15 @@
     },
     {
      "k": "t",
-     "s": "🎯"
+     "s": "🎯 House down payment"
     },
     {
      "k": "t",
-     "s": "House down payment"
+     "s": "0.00%"
     },
     {
      "k": "t",
      "s": "🟡 Behind"
-    },
-    {
-     "k": "t",
-     "s": "0.00"
-    },
-    {
-     "k": "t",
-     "s": "%"
     },
     {
      "k": "t",
@@ -12023,7 +11931,7 @@
     },
     {
      "k": "a",
-     "s": "Allocate this month's surplus to House down payment"
+     "s": "Allocate this month’s surplus to House down payment"
     },
     {
      "k": "t",
@@ -12043,23 +11951,15 @@
     },
     {
      "k": "t",
-     "s": "🎯"
+     "s": "🎯 New car"
     },
     {
      "k": "t",
-     "s": "New car"
+     "s": "0.00%"
     },
     {
      "k": "t",
      "s": "🟡 Behind"
-    },
-    {
-     "k": "t",
-     "s": "0.00"
-    },
-    {
-     "k": "t",
-     "s": "%"
     },
     {
      "k": "t",
@@ -12115,7 +12015,7 @@
     },
     {
      "k": "a",
-     "s": "Allocate this month's surplus to New car"
+     "s": "Allocate this month’s surplus to New car"
     },
     {
      "k": "t",
@@ -12207,11 +12107,11 @@
     },
     {
      "k": "t",
-     "s": "Aim for 20% or less (renters; rent isn't counted)."
+     "s": "Aim for 20% or less (renters; rent isn’t counted)."
     },
     {
      "k": "t",
-     "s": "You're in good shape."
+     "s": "You’re in good shape."
     },
     {
      "k": "t",
@@ -12263,7 +12163,7 @@
     },
     {
      "k": "t",
-     "s": "Nov 2029"
+     "s": "Dec 2029"
     },
     {
      "k": "t",
@@ -12291,7 +12191,7 @@
     },
     {
      "k": "t",
-     "s": "Payoff order"
+     "s": "PAYOFF ORDER"
     },
     {
      "k": "t",
@@ -12307,7 +12207,7 @@
     },
     {
      "k": "t",
-     "s": "Nov 2029"
+     "s": "Dec 2029"
     },
     {
      "k": "t",
@@ -12405,7 +12305,7 @@
     },
     {
      "k": "t",
-     "s": "💡 Suggested: a sinking fund"
+     "s": "💡 SUGGESTED: A SINKING FUND"
     },
     {
      "k": "t",
@@ -12437,23 +12337,15 @@
     },
     {
      "k": "t",
-     "s": "🎯"
+     "s": "🎯 House down payment"
     },
     {
      "k": "t",
-     "s": "House down payment"
+     "s": "0.00%"
     },
     {
      "k": "t",
      "s": "🟡 Behind"
-    },
-    {
-     "k": "t",
-     "s": "0.00"
-    },
-    {
-     "k": "t",
-     "s": "%"
     },
     {
      "k": "t",
@@ -12509,7 +12401,7 @@
     },
     {
      "k": "a",
-     "s": "Allocate this month's surplus to House down payment"
+     "s": "Allocate this month’s surplus to House down payment"
     },
     {
      "k": "t",
@@ -12529,23 +12421,15 @@
     },
     {
      "k": "t",
-     "s": "🎯"
+     "s": "🎯 New car"
     },
     {
      "k": "t",
-     "s": "New car"
+     "s": "0.00%"
     },
     {
      "k": "t",
      "s": "🟡 Behind"
-    },
-    {
-     "k": "t",
-     "s": "0.00"
-    },
-    {
-     "k": "t",
-     "s": "%"
     },
     {
      "k": "t",
@@ -12601,7 +12485,7 @@
     },
     {
      "k": "a",
-     "s": "Allocate this month's surplus to New car"
+     "s": "Allocate this month’s surplus to New car"
     },
     {
      "k": "t",
@@ -12693,7 +12577,7 @@
     },
     {
      "k": "t",
-     "s": "Aim for 20% or less (renters; rent isn't counted)."
+     "s": "Aim for 20% or less (renters; rent isn’t counted)."
     },
     {
      "k": "t",
@@ -12777,7 +12661,7 @@
     },
     {
      "k": "t",
-     "s": "Payoff order"
+     "s": "PAYOFF ORDER"
     },
     {
      "k": "t",
@@ -12891,7 +12775,7 @@
     },
     {
      "k": "t",
-     "s": "💡 Suggested: a sinking fund"
+     "s": "💡 SUGGESTED: A SINKING FUND"
     },
     {
      "k": "t",
@@ -13198,7 +13082,7 @@
     },
     {
      "k": "t",
-     "s": "today's $165K alone gets there by 64"
+     "s": "today’s $165K alone gets there by 64"
     },
     {
      "k": "t",
@@ -13294,7 +13178,7 @@
     },
     {
      "k": "t",
-     "s": "Your investments"
+     "s": "YOUR INVESTMENTS"
     },
     {
      "k": "t",
@@ -13390,15 +13274,11 @@
     },
     {
      "k": "t",
-     "s": "YOUR PLAN ·"
+     "s": "YOUR PLAN · ASSUMES AGE 65"
     },
     {
      "k": "t",
-     "s": "assumes age 65"
-    },
-    {
-     "k": "t",
-     "s": "Grow my nest egg using"
+     "s": "GROW MY NEST EGG USING"
     },
     {
      "k": "t",
@@ -13430,19 +13310,11 @@
     },
     {
      "k": "t",
-     "s": "Projected nest egg"
+     "s": "PROJECTED NEST EGG"
     },
     {
      "k": "t",
-     "s": "$2.03M"
-    },
-    {
-     "k": "t",
-     "s": "by"
-    },
-    {
-     "k": "t",
-     "s": "2046"
+     "s": "$2.03M by 2046"
     },
     {
      "k": "t",
@@ -13530,15 +13402,7 @@
     },
     {
      "k": "t",
-     "s": "In retirement (from"
-    },
-    {
-     "k": "t",
-     "s": "65"
-    },
-    {
-     "k": "t",
-     "s": ")"
+     "s": "IN RETIREMENT (FROM 65)"
     },
     {
      "k": "t",
@@ -13554,7 +13418,7 @@
     },
     {
      "k": "t",
-     "s": "in today's dollars → about"
+     "s": "in today’s dollars → about"
     },
     {
      "k": "t",
@@ -13598,7 +13462,7 @@
     },
     {
      "k": "t",
-     "s": "Tax-smart moves"
+     "s": "TAX-SMART MOVES"
     },
     {
      "k": "a",
@@ -13694,7 +13558,7 @@
     },
     {
      "k": "t",
-     "s": "Estimates for guidance only — not financial, investment, or tax advice, and projections aren't guaranteed. See Settings for the full disclaimer."
+     "s": "Estimates for guidance only — not financial, investment, or tax advice, and projections aren’t guaranteed. See Settings for the full disclaimer."
     }
    ],
    "rich": [
@@ -13712,7 +13576,7 @@
     },
     {
      "k": "t",
-     "s": "today's $730K alone gets there by 44"
+     "s": "today’s $730K alone gets there by 44"
     },
     {
      "k": "t",
@@ -13816,7 +13680,7 @@
     },
     {
      "k": "t",
-     "s": "Your investments"
+     "s": "YOUR INVESTMENTS"
     },
     {
      "k": "t",
@@ -13960,15 +13824,11 @@
     },
     {
      "k": "t",
-     "s": "YOUR PLAN ·"
+     "s": "YOUR PLAN · ASSUMES AGE 65"
     },
     {
      "k": "t",
-     "s": "assumes age 65"
-    },
-    {
-     "k": "t",
-     "s": "Grow my nest egg using"
+     "s": "GROW MY NEST EGG USING"
     },
     {
      "k": "t",
@@ -14000,19 +13860,11 @@
     },
     {
      "k": "t",
-     "s": "Projected nest egg"
+     "s": "PROJECTED NEST EGG"
     },
     {
      "k": "t",
-     "s": "$4.33M"
-    },
-    {
-     "k": "t",
-     "s": "by"
-    },
-    {
-     "k": "t",
-     "s": "2046"
+     "s": "$4.33M by 2046"
     },
     {
      "k": "t",
@@ -14100,15 +13952,7 @@
     },
     {
      "k": "t",
-     "s": "In retirement (from"
-    },
-    {
-     "k": "t",
-     "s": "65"
-    },
-    {
-     "k": "t",
-     "s": ")"
+     "s": "IN RETIREMENT (FROM 65)"
     },
     {
      "k": "t",
@@ -14124,7 +13968,7 @@
     },
     {
      "k": "t",
-     "s": "in today's dollars → about"
+     "s": "in today’s dollars → about"
     },
     {
      "k": "t",
@@ -14168,7 +14012,7 @@
     },
     {
      "k": "t",
-     "s": "Tax-smart moves"
+     "s": "TAX-SMART MOVES"
     },
     {
      "k": "a",
@@ -14264,7 +14108,7 @@
     },
     {
      "k": "t",
-     "s": "Estimates for guidance only — not financial, investment, or tax advice, and projections aren't guaranteed. See Settings for the full disclaimer."
+     "s": "Estimates for guidance only — not financial, investment, or tax advice, and projections aren’t guaranteed. See Settings for the full disclaimer."
     }
    ],
    "retiree": [
@@ -14362,7 +14206,7 @@
     },
     {
      "k": "t",
-     "s": "Your investments"
+     "s": "YOUR INVESTMENTS"
     },
     {
      "k": "t",
@@ -14422,15 +14266,11 @@
     },
     {
      "k": "t",
-     "s": "YOUR PLAN ·"
+     "s": "YOUR PLAN · IN RETIREMENT"
     },
     {
      "k": "t",
-     "s": "in retirement"
-    },
-    {
-     "k": "t",
-     "s": "Assumed return on your remaining nest egg"
+     "s": "ASSUMED RETURN ON YOUR REMAINING NEST EGG"
     },
     {
      "k": "t",
@@ -14462,15 +14302,7 @@
     },
     {
      "k": "t",
-     "s": "In retirement (from"
-    },
-    {
-     "k": "t",
-     "s": "75"
-    },
-    {
-     "k": "t",
-     "s": ")"
+     "s": "IN RETIREMENT (FROM 75)"
     },
     {
      "k": "t",
@@ -14486,7 +14318,7 @@
     },
     {
      "k": "t",
-     "s": "in today's dollars → about"
+     "s": "in today’s dollars → about"
     },
     {
      "k": "t",
@@ -14542,7 +14374,7 @@
     },
     {
      "k": "t",
-     "s": "$3,500/month · today's $ · from your setup"
+     "s": "$3,500/month · today’s $ · from your setup"
     },
     {
      "k": "t",
@@ -14558,7 +14390,7 @@
     },
     {
      "k": "t",
-     "s": "Estimates for guidance only — not financial, investment, or tax advice, and projections aren't guaranteed. See Settings for the full disclaimer."
+     "s": "Estimates for guidance only — not financial, investment, or tax advice, and projections aren’t guaranteed. See Settings for the full disclaimer."
     }
    ],
    "new": [
@@ -14576,7 +14408,7 @@
     },
     {
      "k": "t",
-     "s": "today's $0 alone doesn't get there — even by 80"
+     "s": "today’s $0 alone doesn’t get there — even by 80"
     },
     {
      "k": "t",
@@ -14644,15 +14476,11 @@
     },
     {
      "k": "t",
-     "s": "YOUR PLAN ·"
+     "s": "YOUR PLAN · ASSUMES AGE 65"
     },
     {
      "k": "t",
-     "s": "assumes age 65"
-    },
-    {
-     "k": "t",
-     "s": "Grow my nest egg using"
+     "s": "GROW MY NEST EGG USING"
     },
     {
      "k": "t",
@@ -14684,15 +14512,7 @@
     },
     {
      "k": "t",
-     "s": "In retirement (from"
-    },
-    {
-     "k": "t",
-     "s": "65"
-    },
-    {
-     "k": "t",
-     "s": ")"
+     "s": "IN RETIREMENT (FROM 65)"
     },
     {
      "k": "t",
@@ -14708,7 +14528,7 @@
     },
     {
      "k": "t",
-     "s": "in today's dollars → about"
+     "s": "in today’s dollars → about"
     },
     {
      "k": "t",
@@ -14748,7 +14568,7 @@
     },
     {
      "k": "t",
-     "s": "Tax-smart moves"
+     "s": "TAX-SMART MOVES"
     },
     {
      "k": "a",
@@ -14844,7 +14664,7 @@
     },
     {
      "k": "t",
-     "s": "Estimates for guidance only — not financial, investment, or tax advice, and projections aren't guaranteed. See Settings for the full disclaimer."
+     "s": "Estimates for guidance only — not financial, investment, or tax advice, and projections aren’t guaranteed. See Settings for the full disclaimer."
     }
    ]
   },
@@ -16232,7 +16052,7 @@
     },
     {
      "k": "t",
-     "s": "🔒 Your financial data is encrypted on your device and in the cloud — even we can't read it — and it's never sent to AI or LLM providers."
+     "s": "🔒 Your financial data is encrypted on your device and in the cloud — even we can’t read it — and it’s never sent to AI or LLM providers."
     },
     {
      "k": "t",
@@ -16582,7 +16402,7 @@
     },
     {
      "k": "t",
-     "s": "🔒 Your financial data is encrypted on your device and in the cloud — even we can't read it — and it's never sent to AI or LLM providers."
+     "s": "🔒 Your financial data is encrypted on your device and in the cloud — even we can’t read it — and it’s never sent to AI or LLM providers."
     },
     {
      "k": "t",
@@ -16932,7 +16752,7 @@
     },
     {
      "k": "t",
-     "s": "🔒 Your financial data is encrypted on your device and in the cloud — even we can't read it — and it's never sent to AI or LLM providers."
+     "s": "🔒 Your financial data is encrypted on your device and in the cloud — even we can’t read it — and it’s never sent to AI or LLM providers."
     },
     {
      "k": "t",
@@ -17282,7 +17102,7 @@
     },
     {
      "k": "t",
-     "s": "🔒 Your financial data is encrypted on your device and in the cloud — even we can't read it — and it's never sent to AI or LLM providers."
+     "s": "🔒 Your financial data is encrypted on your device and in the cloud — even we can’t read it — and it’s never sent to AI or LLM providers."
     },
     {
      "k": "t",
@@ -17483,7 +17303,7 @@
     },
     {
      "k": "t",
-     "s": "From what you've logged this month — not your full income or budget."
+     "s": "From what you’ve logged this month — not your full income or budget."
     },
     {
      "k": "t",
@@ -17539,7 +17359,7 @@
     },
     {
      "k": "t",
-     "s": "Worried about job security? Answer 2 questions and we'll build you a plan."
+     "s": "Worried about job security? Answer 2 questions and we’ll build you a plan."
     }
    ],
    "rich": [
@@ -17549,7 +17369,7 @@
     },
     {
      "k": "t",
-     "s": "From what you've logged this month — not your full income or budget."
+     "s": "From what you’ve logged this month — not your full income or budget."
     },
     {
      "k": "t",
@@ -17605,7 +17425,7 @@
     },
     {
      "k": "t",
-     "s": "Worried about job security? Answer 2 questions and we'll build you a plan."
+     "s": "Worried about job security? Answer 2 questions and we’ll build you a plan."
     }
    ],
    "retiree": [
@@ -17615,7 +17435,7 @@
     },
     {
      "k": "t",
-     "s": "From what you've logged this month — not your full income or budget."
+     "s": "From what you’ve logged this month — not your full income or budget."
     },
     {
      "k": "t",
@@ -17671,7 +17491,7 @@
     },
     {
      "k": "t",
-     "s": "Worried about job security? Answer 2 questions and we'll build you a plan."
+     "s": "Worried about job security? Answer 2 questions and we’ll build you a plan."
     }
    ],
    "new": [
@@ -17681,7 +17501,7 @@
     },
     {
      "k": "t",
-     "s": "From what you've logged this month — not your full income or budget."
+     "s": "From what you’ve logged this month — not your full income or budget."
     },
     {
      "k": "t",
@@ -17737,7 +17557,7 @@
     },
     {
      "k": "t",
-     "s": "Worried about job security? Answer 2 questions and we'll build you a plan."
+     "s": "Worried about job security? Answer 2 questions and we’ll build you a plan."
     }
    ]
   },
@@ -18132,7 +17952,7 @@
     },
     {
      "k": "t",
-     "s": "Linked · 45 days old"
+     "s": "Linked · 49 days old"
     },
     {
      "k": "a",
@@ -18602,7 +18422,7 @@
     },
     {
      "k": "t",
-     "s": "Linked · 45 days old"
+     "s": "Linked · 49 days old"
     },
     {
      "k": "a",
@@ -20104,7 +19924,11 @@
     },
     {
      "k": "t",
-     "s": "Added estimated $181 in accrued interest to bond value at 4% coupon for 165 days to calculate YTM. If this is not accurate, enter actual accrued interest"
+     "s": "Added estimated $185 in accrued interest to bond value at 4% coupon for 169 days to calculate YTM. If this is not accurate, enter actual accrued interest"
+    },
+    {
+     "k": "t",
+     "s": ". How often it pays is not entered, so the estimate takes it as once a year."
     },
     {
      "k": "a",
@@ -21974,7 +21798,7 @@
     },
     {
      "k": "t",
-     "s": "IF YOU CAN'T PAY EVERYTHING, PAY THESE FIRST"
+     "s": "IF YOU CAN’T PAY EVERYTHING, PAY THESE FIRST"
     },
     {
      "k": "t",
@@ -22008,7 +21832,7 @@
     },
     {
      "k": "t",
-     "s": "This calendar maps when your money lands against when your bills are due — it's built from the income and expenses you enter during setup."
+     "s": "This calendar maps when your money lands against when your bills are due — it’s built from the income and expenses you enter during setup."
     },
     {
      "k": "t",
@@ -22231,7 +22055,11 @@
     },
     {
      "k": "t",
-     "s": "Added estimated $181 in accrued interest to bond value at 4% coupon for 165 days to calculate YTM. If this is not accurate, enter actual accrued interest"
+     "s": "Added estimated $185 in accrued interest to bond value at 4% coupon for 169 days to calculate YTM. If this is not accurate, enter actual accrued interest"
+    },
+    {
+     "k": "t",
+     "s": ". How often it pays is not entered, so the estimate takes it as once a year."
     },
     {
      "k": "a",
@@ -22407,6 +22235,34 @@
    "file": "src/screens/ContributionRoomScreen.tsx",
    "worker": [
     {
+     "k": "a",
+     "s": "Back"
+    },
+    {
+     "k": "t",
+     "s": "‹ Back"
+    },
+    {
+     "k": "a",
+     "s": "MoneyKeel"
+    },
+    {
+     "k": "a",
+     "s": "Hide balances"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
+     "k": "a",
+     "s": "Settings"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
      "k": "t",
      "s": "Contribution room ·"
     },
@@ -22433,10 +22289,6 @@
     {
      "k": "t",
      "s": "."
-    },
-    {
-     "k": "t",
-     "s": "💼"
     },
     {
      "k": "t",
@@ -22480,10 +22332,6 @@
     },
     {
      "k": "t",
-     "s": "🏦"
-    },
-    {
-     "k": "t",
      "s": "IRA (Traditional + Roth)"
     },
     {
@@ -22504,15 +22352,27 @@
     },
     {
      "k": "t",
+     "s": "What you put in a month"
+    },
+    {
+     "k": "t",
+     "s": "Traditional and Roth together"
+    },
+    {
+     "k": "a",
+     "s": "What you put into IRAs a month, Traditional and Roth together"
+    },
+    {
+     "k": "t",
+     "s": "/month"
+    },
+    {
+     "k": "t",
      "s": "How to add:"
     },
     {
      "k": "t",
      "s": "open or add to an IRA at any brokerage before the tax-filing deadline."
-    },
-    {
-     "k": "t",
-     "s": "🩺"
     },
     {
      "k": "t",
@@ -22532,7 +22392,39 @@
     },
     {
      "k": "t",
-     "s": "Only if you're on a high-deductible health plan. We don't track your HSA contributions yet, so this shows the full-year cap — self-only limit; family plans cap higher."
+     "s": "Only if you’re on a high-deductible health plan. We don’t track your HSA contributions yet, so this shows the full-year cap. Your cover is not chosen, so this is the self-only limit."
+    },
+    {
+     "k": "t",
+     "s": "Your cover"
+    },
+    {
+     "k": "a",
+     "s": "Your HSA cover"
+    },
+    {
+     "k": "a",
+     "s": "Self-only cover"
+    },
+    {
+     "k": "t",
+     "s": "○"
+    },
+    {
+     "k": "t",
+     "s": "Self-only"
+    },
+    {
+     "k": "a",
+     "s": "Family cover"
+    },
+    {
+     "k": "t",
+     "s": "○"
+    },
+    {
+     "k": "t",
+     "s": "Family"
     },
     {
      "k": "t",
@@ -22544,11 +22436,39 @@
     },
     {
      "k": "t",
-     "s": "Estimates for guidance only — not financial, investment, or tax advice, and projections aren't guaranteed. See Settings for the full disclaimer."
+     "s": "Estimates for guidance only — not financial, investment, or tax advice, and projections aren’t guaranteed. See Settings for the full disclaimer."
     }
    ],
    "rich": [
     {
+     "k": "a",
+     "s": "Back"
+    },
+    {
+     "k": "t",
+     "s": "‹ Back"
+    },
+    {
+     "k": "a",
+     "s": "MoneyKeel"
+    },
+    {
+     "k": "a",
+     "s": "Hide balances"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
+     "k": "a",
+     "s": "Settings"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
      "k": "t",
      "s": "Contribution room ·"
     },
@@ -22575,10 +22495,6 @@
     {
      "k": "t",
      "s": "."
-    },
-    {
-     "k": "t",
-     "s": "💼"
     },
     {
      "k": "t",
@@ -22622,10 +22538,6 @@
     },
     {
      "k": "t",
-     "s": "🏦"
-    },
-    {
-     "k": "t",
      "s": "IRA (Traditional + Roth)"
     },
     {
@@ -22646,15 +22558,27 @@
     },
     {
      "k": "t",
+     "s": "What you put in a month"
+    },
+    {
+     "k": "t",
+     "s": "Traditional and Roth together"
+    },
+    {
+     "k": "a",
+     "s": "What you put into IRAs a month, Traditional and Roth together"
+    },
+    {
+     "k": "t",
+     "s": "/month"
+    },
+    {
+     "k": "t",
      "s": "How to add:"
     },
     {
      "k": "t",
      "s": "open or add to an IRA at any brokerage before the tax-filing deadline."
-    },
-    {
-     "k": "t",
-     "s": "🩺"
     },
     {
      "k": "t",
@@ -22674,7 +22598,39 @@
     },
     {
      "k": "t",
-     "s": "Only if you're on a high-deductible health plan. We don't track your HSA contributions yet, so this shows the full-year cap — self-only limit; family plans cap higher."
+     "s": "Only if you’re on a high-deductible health plan. We don’t track your HSA contributions yet, so this shows the full-year cap. Your cover is not chosen, so this is the self-only limit."
+    },
+    {
+     "k": "t",
+     "s": "Your cover"
+    },
+    {
+     "k": "a",
+     "s": "Your HSA cover"
+    },
+    {
+     "k": "a",
+     "s": "Self-only cover"
+    },
+    {
+     "k": "t",
+     "s": "○"
+    },
+    {
+     "k": "t",
+     "s": "Self-only"
+    },
+    {
+     "k": "a",
+     "s": "Family cover"
+    },
+    {
+     "k": "t",
+     "s": "○"
+    },
+    {
+     "k": "t",
+     "s": "Family"
     },
     {
      "k": "t",
@@ -22686,10 +22642,38 @@
     },
     {
      "k": "t",
-     "s": "Estimates for guidance only — not financial, investment, or tax advice, and projections aren't guaranteed. See Settings for the full disclaimer."
+     "s": "Estimates for guidance only — not financial, investment, or tax advice, and projections aren’t guaranteed. See Settings for the full disclaimer."
     }
    ],
    "retiree": [
+    {
+     "k": "a",
+     "s": "Back"
+    },
+    {
+     "k": "t",
+     "s": "‹ Back"
+    },
+    {
+     "k": "a",
+     "s": "MoneyKeel"
+    },
+    {
+     "k": "a",
+     "s": "Hide balances"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
+     "k": "a",
+     "s": "Settings"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
     {
      "k": "t",
      "s": "Contribution room ·"
@@ -22717,10 +22701,6 @@
     {
      "k": "t",
      "s": "."
-    },
-    {
-     "k": "t",
-     "s": "💼"
     },
     {
      "k": "t",
@@ -22768,10 +22748,6 @@
     },
     {
      "k": "t",
-     "s": "🏦"
-    },
-    {
-     "k": "t",
      "s": "IRA (Traditional + Roth)"
     },
     {
@@ -22796,15 +22772,27 @@
     },
     {
      "k": "t",
+     "s": "What you put in a month"
+    },
+    {
+     "k": "t",
+     "s": "Traditional and Roth together"
+    },
+    {
+     "k": "a",
+     "s": "What you put into IRAs a month, Traditional and Roth together"
+    },
+    {
+     "k": "t",
+     "s": "/month"
+    },
+    {
+     "k": "t",
      "s": "How to add:"
     },
     {
      "k": "t",
      "s": "open or add to an IRA at any brokerage before the tax-filing deadline."
-    },
-    {
-     "k": "t",
-     "s": "🩺"
     },
     {
      "k": "t",
@@ -22828,7 +22816,43 @@
     },
     {
      "k": "t",
-     "s": "If you are not enrolled in Medicare. If you are enrolled in Medicare, update it below — then no contribution is allowed. Only if you're on a high-deductible health plan; self-only limit, family plans cap higher."
+     "s": "If you are not enrolled in Medicare. If you are enrolled in Medicare, update it below — then no contribution is allowed. Only if you’re on a high-deductible health plan. Your cover is not chosen, so this is the self-only limit."
+    },
+    {
+     "k": "t",
+     "s": "Your cover"
+    },
+    {
+     "k": "a",
+     "s": "Your HSA cover"
+    },
+    {
+     "k": "a",
+     "s": "Self-only cover"
+    },
+    {
+     "k": "t",
+     "s": "○"
+    },
+    {
+     "k": "t",
+     "s": "Self-only"
+    },
+    {
+     "k": "a",
+     "s": "Family cover"
+    },
+    {
+     "k": "t",
+     "s": "○"
+    },
+    {
+     "k": "t",
+     "s": "Family"
+    },
+    {
+     "k": "t",
+     "s": "Medicare"
     },
     {
      "k": "a",
@@ -22836,7 +22860,7 @@
     },
     {
      "k": "a",
-     "s": "I'm enrolled in Medicare"
+     "s": "I’m enrolled in Medicare"
     },
     {
      "k": "t",
@@ -22844,11 +22868,11 @@
     },
     {
      "k": "t",
-     "s": "I'm enrolled in Medicare"
+     "s": "I’m enrolled in Medicare"
     },
     {
      "k": "a",
-     "s": "I'm not enrolled"
+     "s": "I’m not enrolled"
     },
     {
      "k": "t",
@@ -22856,7 +22880,7 @@
     },
     {
      "k": "t",
-     "s": "I'm not enrolled"
+     "s": "I’m not enrolled"
     },
     {
      "k": "t",
@@ -22868,10 +22892,38 @@
     },
     {
      "k": "t",
-     "s": "Estimates for guidance only — not financial, investment, or tax advice, and projections aren't guaranteed. See Settings for the full disclaimer."
+     "s": "Estimates for guidance only — not financial, investment, or tax advice, and projections aren’t guaranteed. See Settings for the full disclaimer."
     }
    ],
    "new": [
+    {
+     "k": "a",
+     "s": "Back"
+    },
+    {
+     "k": "t",
+     "s": "‹ Back"
+    },
+    {
+     "k": "a",
+     "s": "MoneyKeel"
+    },
+    {
+     "k": "a",
+     "s": "Hide balances"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
+     "k": "a",
+     "s": "Settings"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
     {
      "k": "t",
      "s": "Contribution room ·"
@@ -22907,10 +22959,6 @@
     {
      "k": "a",
      "s": "Your birth year"
-    },
-    {
-     "k": "t",
-     "s": "💼"
     },
     {
      "k": "t",
@@ -22954,10 +23002,6 @@
     },
     {
      "k": "t",
-     "s": "🏦"
-    },
-    {
-     "k": "t",
      "s": "IRA (Traditional + Roth)"
     },
     {
@@ -22978,15 +23022,27 @@
     },
     {
      "k": "t",
+     "s": "What you put in a month"
+    },
+    {
+     "k": "t",
+     "s": "Traditional and Roth together"
+    },
+    {
+     "k": "a",
+     "s": "What you put into IRAs a month, Traditional and Roth together"
+    },
+    {
+     "k": "t",
+     "s": "/month"
+    },
+    {
+     "k": "t",
      "s": "How to add:"
     },
     {
      "k": "t",
      "s": "open or add to an IRA at any brokerage before the tax-filing deadline."
-    },
-    {
-     "k": "t",
-     "s": "🩺"
     },
     {
      "k": "t",
@@ -23006,7 +23062,39 @@
     },
     {
      "k": "t",
-     "s": "Only if you're on a high-deductible health plan. We don't track your HSA contributions yet, so this shows the full-year cap — self-only limit; family plans cap higher."
+     "s": "Only if you’re on a high-deductible health plan. We don’t track your HSA contributions yet, so this shows the full-year cap. Your cover is not chosen, so this is the self-only limit."
+    },
+    {
+     "k": "t",
+     "s": "Your cover"
+    },
+    {
+     "k": "a",
+     "s": "Your HSA cover"
+    },
+    {
+     "k": "a",
+     "s": "Self-only cover"
+    },
+    {
+     "k": "t",
+     "s": "○"
+    },
+    {
+     "k": "t",
+     "s": "Self-only"
+    },
+    {
+     "k": "a",
+     "s": "Family cover"
+    },
+    {
+     "k": "t",
+     "s": "○"
+    },
+    {
+     "k": "t",
+     "s": "Family"
     },
     {
      "k": "t",
@@ -23018,7 +23106,7 @@
     },
     {
      "k": "t",
-     "s": "Estimates for guidance only — not financial, investment, or tax advice, and projections aren't guaranteed. See Settings for the full disclaimer."
+     "s": "Estimates for guidance only — not financial, investment, or tax advice, and projections aren’t guaranteed. See Settings for the full disclaimer."
     }
    ]
   },
@@ -23442,15 +23530,15 @@
     },
     {
      "k": "t",
-     "s": "What it'll cost, whether you're on track, and how much to set aside each month."
+     "s": "What it’ll cost, whether you’re on track, and how much to set aside each month."
     },
     {
      "k": "t",
      "s": "Cost per year (today)"
     },
     {
-     "k": "t",
-     "s": "$"
+     "k": "a",
+     "s": "Cost per year (today)"
     },
     {
      "k": "t",
@@ -23465,8 +23553,8 @@
      "s": "Saved so far"
     },
     {
-     "k": "t",
-     "s": "$"
+     "k": "a",
+     "s": "Saved so far"
     },
     {
      "k": "t",
@@ -23522,7 +23610,7 @@
     },
     {
      "k": "t",
-     "s": "of the goal already on track from what you've saved"
+     "s": "of the goal already on track from what you’ve saved"
     },
     {
      "k": "t",
@@ -23560,15 +23648,15 @@
     },
     {
      "k": "t",
-     "s": "What it'll cost, whether you're on track, and how much to set aside each month."
+     "s": "What it’ll cost, whether you’re on track, and how much to set aside each month."
     },
     {
      "k": "t",
      "s": "Cost per year (today)"
     },
     {
-     "k": "t",
-     "s": "$"
+     "k": "a",
+     "s": "Cost per year (today)"
     },
     {
      "k": "t",
@@ -23583,8 +23671,8 @@
      "s": "Saved so far"
     },
     {
-     "k": "t",
-     "s": "$"
+     "k": "a",
+     "s": "Saved so far"
     },
     {
      "k": "t",
@@ -23640,7 +23728,7 @@
     },
     {
      "k": "t",
-     "s": "of the goal already on track from what you've saved"
+     "s": "of the goal already on track from what you’ve saved"
     },
     {
      "k": "t",
@@ -23678,15 +23766,15 @@
     },
     {
      "k": "t",
-     "s": "What it'll cost, whether you're on track, and how much to set aside each month."
+     "s": "What it’ll cost, whether you’re on track, and how much to set aside each month."
     },
     {
      "k": "t",
      "s": "Cost per year (today)"
     },
     {
-     "k": "t",
-     "s": "$"
+     "k": "a",
+     "s": "Cost per year (today)"
     },
     {
      "k": "t",
@@ -23701,8 +23789,8 @@
      "s": "Saved so far"
     },
     {
-     "k": "t",
-     "s": "$"
+     "k": "a",
+     "s": "Saved so far"
     },
     {
      "k": "t",
@@ -23758,7 +23846,7 @@
     },
     {
      "k": "t",
-     "s": "of the goal already on track from what you've saved"
+     "s": "of the goal already on track from what you’ve saved"
     },
     {
      "k": "t",
@@ -23796,15 +23884,15 @@
     },
     {
      "k": "t",
-     "s": "What it'll cost, whether you're on track, and how much to set aside each month."
+     "s": "What it’ll cost, whether you’re on track, and how much to set aside each month."
     },
     {
      "k": "t",
      "s": "Cost per year (today)"
     },
     {
-     "k": "t",
-     "s": "$"
+     "k": "a",
+     "s": "Cost per year (today)"
     },
     {
      "k": "t",
@@ -23819,8 +23907,8 @@
      "s": "Saved so far"
     },
     {
-     "k": "t",
-     "s": "$"
+     "k": "a",
+     "s": "Saved so far"
     },
     {
      "k": "t",
@@ -23876,7 +23964,7 @@
     },
     {
      "k": "t",
-     "s": "of the goal already on track from what you've saved"
+     "s": "of the goal already on track from what you’ve saved"
     },
     {
      "k": "t",
@@ -23917,7 +24005,7 @@
     },
     {
      "k": "t",
-     "s": "A short checklist so your wishes are followed and your family isn't left guessing. Tap each as you handle it."
+     "s": "A short checklist so your wishes are followed and your family isn’t left guessing. Tap each as you handle it."
     },
     {
      "k": "t",
@@ -23965,7 +24053,7 @@
     },
     {
      "k": "t",
-     "s": "Lets someone you trust handle money/legal matters if you can't."
+     "s": "Lets someone you trust handle money/legal matters if you can’t."
     },
     {
      "k": "t",
@@ -24011,7 +24099,7 @@
     },
     {
      "k": "t",
-     "s": "A short checklist so your wishes are followed and your family isn't left guessing. Tap each as you handle it."
+     "s": "A short checklist so your wishes are followed and your family isn’t left guessing. Tap each as you handle it."
     },
     {
      "k": "t",
@@ -24059,7 +24147,7 @@
     },
     {
      "k": "t",
-     "s": "Lets someone you trust handle money/legal matters if you can't."
+     "s": "Lets someone you trust handle money/legal matters if you can’t."
     },
     {
      "k": "t",
@@ -24105,7 +24193,7 @@
     },
     {
      "k": "t",
-     "s": "A short checklist so your wishes are followed and your family isn't left guessing. Tap each as you handle it."
+     "s": "A short checklist so your wishes are followed and your family isn’t left guessing. Tap each as you handle it."
     },
     {
      "k": "t",
@@ -24153,7 +24241,7 @@
     },
     {
      "k": "t",
-     "s": "Lets someone you trust handle money/legal matters if you can't."
+     "s": "Lets someone you trust handle money/legal matters if you can’t."
     },
     {
      "k": "t",
@@ -24199,7 +24287,7 @@
     },
     {
      "k": "t",
-     "s": "A short checklist so your wishes are followed and your family isn't left guessing. Tap each as you handle it."
+     "s": "A short checklist so your wishes are followed and your family isn’t left guessing. Tap each as you handle it."
     },
     {
      "k": "t",
@@ -24247,7 +24335,7 @@
     },
     {
      "k": "t",
-     "s": "Lets someone you trust handle money/legal matters if you can't."
+     "s": "Lets someone you trust handle money/legal matters if you can’t."
     },
     {
      "k": "t",
@@ -24809,7 +24897,7 @@
     },
     {
      "k": "t",
-     "s": "every dollar in and out — and what's surplus."
+     "s": "every dollar in and out — and what’s surplus."
     },
     {
      "k": "t",
@@ -25006,7 +25094,7 @@
     },
     {
      "k": "t",
-     "s": "Vanguard"
+     "s": "Vanguard Brokerage"
     },
     {
      "k": "a",
@@ -25030,7 +25118,7 @@
     },
     {
      "k": "t",
-     "s": "3000 shares"
+     "s": "3,000 shares"
     },
     {
      "k": "t",
@@ -25062,7 +25150,7 @@
     },
     {
      "k": "a",
-     "s": "3000 shares at $90.00, bought Jan 2, 2024. Opens the editor."
+     "s": "3,000 shares at $90.00, bought Jan 2, 2024. Opens the editor."
     },
     {
      "k": "t",
@@ -25070,7 +25158,7 @@
     },
     {
      "k": "t",
-     "s": "3000 sh"
+     "s": "3,000 sh"
     },
     {
      "k": "t",
@@ -25311,7 +25399,7 @@
     },
     {
      "k": "t",
-     "s": "Upload a CSV export from your brokerage (Fidelity, Schwab, Vanguard, Robinhood, and most others). We'll read your tickers, shares, and cost — no logins or passwords."
+     "s": "Upload a CSV export from your brokerage (Fidelity, Schwab, Vanguard, Robinhood, and most others). We’ll read your tickers, shares, and cost — no logins or passwords."
     },
     {
      "k": "t",
@@ -25351,7 +25439,7 @@
     },
     {
      "k": "t",
-     "s": "column (optional — we'll still import without it)"
+     "s": "column (optional — we’ll still import without it)"
     },
     {
      "k": "a",
@@ -25381,7 +25469,7 @@
     },
     {
      "k": "t",
-     "s": "Upload a CSV export from your brokerage (Fidelity, Schwab, Vanguard, Robinhood, and most others). We'll read your tickers, shares, and cost — no logins or passwords."
+     "s": "Upload a CSV export from your brokerage (Fidelity, Schwab, Vanguard, Robinhood, and most others). We’ll read your tickers, shares, and cost — no logins or passwords."
     },
     {
      "k": "t",
@@ -25421,7 +25509,7 @@
     },
     {
      "k": "t",
-     "s": "column (optional — we'll still import without it)"
+     "s": "column (optional — we’ll still import without it)"
     },
     {
      "k": "a",
@@ -25451,7 +25539,7 @@
     },
     {
      "k": "t",
-     "s": "Upload a CSV export from your brokerage (Fidelity, Schwab, Vanguard, Robinhood, and most others). We'll read your tickers, shares, and cost — no logins or passwords."
+     "s": "Upload a CSV export from your brokerage (Fidelity, Schwab, Vanguard, Robinhood, and most others). We’ll read your tickers, shares, and cost — no logins or passwords."
     },
     {
      "k": "t",
@@ -25491,7 +25579,7 @@
     },
     {
      "k": "t",
-     "s": "column (optional — we'll still import without it)"
+     "s": "column (optional — we’ll still import without it)"
     },
     {
      "k": "a",
@@ -25521,7 +25609,7 @@
     },
     {
      "k": "t",
-     "s": "Upload a CSV export from your brokerage (Fidelity, Schwab, Vanguard, Robinhood, and most others). We'll read your tickers, shares, and cost — no logins or passwords."
+     "s": "Upload a CSV export from your brokerage (Fidelity, Schwab, Vanguard, Robinhood, and most others). We’ll read your tickers, shares, and cost — no logins or passwords."
     },
     {
      "k": "t",
@@ -25561,7 +25649,7 @@
     },
     {
      "k": "t",
-     "s": "column (optional — we'll still import without it)"
+     "s": "column (optional — we’ll still import without it)"
     },
     {
      "k": "a",
@@ -26695,7 +26783,7 @@
     },
     {
      "k": "t",
-     "s": "You have no cash set aside for emergencies — most planners use 3–6 months of expenses as the range (investments aren't counted here)."
+     "s": "You have no cash set aside for emergencies — most planners use 3–6 months of expenses as the range (investments aren’t counted here)."
     },
     {
      "k": "a",
@@ -26723,7 +26811,7 @@
     },
     {
      "k": "t",
-     "s": "$120,000 (73%) of your invested money sits in a single account — spreading across accounts lowers risk."
+     "s": "$120,000 (72.73%) of your invested money sits in a single account — spreading across accounts lowers risk."
     },
     {
      "k": "a",
@@ -26755,7 +26843,7 @@
     },
     {
      "k": "t",
-     "s": "About $14,900 of this year's tax-advantaged room looks unused — an estimate from what you entered you contribute, not from your payroll."
+     "s": "About $14,900 of this year’s tax-advantaged room looks unused — an estimate from what you entered you contribute, not from your payroll."
     },
     {
      "k": "a",
@@ -26853,7 +26941,7 @@
     },
     {
      "k": "t",
-     "s": "$400,000 (56%) of your invested money sits in a single account — spreading across accounts lowers risk."
+     "s": "$400,000 (56.35%) of your invested money sits in a single account — spreading across accounts lowers risk."
     },
     {
      "k": "a",
@@ -26885,7 +26973,7 @@
     },
     {
      "k": "t",
-     "s": "About $14,900 of this year's tax-advantaged room looks unused — an estimate from what you entered you contribute, not from your payroll."
+     "s": "About $14,900 of this year’s tax-advantaged room looks unused — an estimate from what you entered you contribute, not from your payroll."
     },
     {
      "k": "a",
@@ -26955,7 +27043,7 @@
     },
     {
      "k": "t",
-     "s": "You have no cash set aside for emergencies — most planners use 3–6 months of expenses as the range (investments aren't counted here)."
+     "s": "You have no cash set aside for emergencies — most planners use 3–6 months of expenses as the range (investments aren’t counted here)."
     },
     {
      "k": "a",
@@ -26983,7 +27071,7 @@
     },
     {
      "k": "t",
-     "s": "$250,000 (100%) of your invested money sits in a single account — spreading across accounts lowers risk."
+     "s": "$250,000 (100.00%) of your invested money sits in a single account — spreading across accounts lowers risk."
     },
     {
      "k": "a",
@@ -27089,8 +27177,8 @@
      "s": "Your annual income"
     },
     {
-     "k": "t",
-     "s": "$"
+     "k": "a",
+     "s": "Your annual income"
     },
     {
      "k": "t",
@@ -27105,40 +27193,40 @@
      "s": "Debts to clear"
     },
     {
-     "k": "t",
-     "s": "$"
+     "k": "a",
+     "s": "Debts to clear"
     },
     {
      "k": "t",
      "s": "Future goals (college…)"
     },
     {
-     "k": "t",
-     "s": "$"
+     "k": "a",
+     "s": "Future goals (college…)"
     },
     {
      "k": "t",
      "s": "Final expenses"
     },
     {
-     "k": "t",
-     "s": "$"
+     "k": "a",
+     "s": "Final expenses"
     },
     {
      "k": "t",
      "s": "Savings/assets"
     },
     {
-     "k": "t",
-     "s": "$"
+     "k": "a",
+     "s": "Savings/assets"
     },
     {
      "k": "t",
      "s": "Coverage you already have"
     },
     {
-     "k": "t",
-     "s": "$"
+     "k": "a",
+     "s": "Coverage you already have"
     },
     {
      "k": "t",
@@ -27231,8 +27319,8 @@
      "s": "Your annual income"
     },
     {
-     "k": "t",
-     "s": "$"
+     "k": "a",
+     "s": "Your annual income"
     },
     {
      "k": "t",
@@ -27247,40 +27335,40 @@
      "s": "Debts to clear"
     },
     {
-     "k": "t",
-     "s": "$"
+     "k": "a",
+     "s": "Debts to clear"
     },
     {
      "k": "t",
      "s": "Future goals (college…)"
     },
     {
-     "k": "t",
-     "s": "$"
+     "k": "a",
+     "s": "Future goals (college…)"
     },
     {
      "k": "t",
      "s": "Final expenses"
     },
     {
-     "k": "t",
-     "s": "$"
+     "k": "a",
+     "s": "Final expenses"
     },
     {
      "k": "t",
      "s": "Savings/assets"
     },
     {
-     "k": "t",
-     "s": "$"
+     "k": "a",
+     "s": "Savings/assets"
     },
     {
      "k": "t",
      "s": "Coverage you already have"
     },
     {
-     "k": "t",
-     "s": "$"
+     "k": "a",
+     "s": "Coverage you already have"
     },
     {
      "k": "t",
@@ -27373,8 +27461,8 @@
      "s": "Your annual income"
     },
     {
-     "k": "t",
-     "s": "$"
+     "k": "a",
+     "s": "Your annual income"
     },
     {
      "k": "t",
@@ -27389,40 +27477,40 @@
      "s": "Debts to clear"
     },
     {
-     "k": "t",
-     "s": "$"
+     "k": "a",
+     "s": "Debts to clear"
     },
     {
      "k": "t",
      "s": "Future goals (college…)"
     },
     {
-     "k": "t",
-     "s": "$"
+     "k": "a",
+     "s": "Future goals (college…)"
     },
     {
      "k": "t",
      "s": "Final expenses"
     },
     {
-     "k": "t",
-     "s": "$"
+     "k": "a",
+     "s": "Final expenses"
     },
     {
      "k": "t",
      "s": "Savings/assets"
     },
     {
-     "k": "t",
-     "s": "$"
+     "k": "a",
+     "s": "Savings/assets"
     },
     {
      "k": "t",
      "s": "Coverage you already have"
     },
     {
-     "k": "t",
-     "s": "$"
+     "k": "a",
+     "s": "Coverage you already have"
     },
     {
      "k": "t",
@@ -27515,8 +27603,8 @@
      "s": "Your annual income"
     },
     {
-     "k": "t",
-     "s": "$"
+     "k": "a",
+     "s": "Your annual income"
     },
     {
      "k": "t",
@@ -27531,40 +27619,40 @@
      "s": "Debts to clear"
     },
     {
-     "k": "t",
-     "s": "$"
+     "k": "a",
+     "s": "Debts to clear"
     },
     {
      "k": "t",
      "s": "Future goals (college…)"
     },
     {
-     "k": "t",
-     "s": "$"
+     "k": "a",
+     "s": "Future goals (college…)"
     },
     {
      "k": "t",
      "s": "Final expenses"
     },
     {
-     "k": "t",
-     "s": "$"
+     "k": "a",
+     "s": "Final expenses"
     },
     {
      "k": "t",
      "s": "Savings/assets"
     },
     {
-     "k": "t",
-     "s": "$"
+     "k": "a",
+     "s": "Savings/assets"
     },
     {
      "k": "t",
      "s": "Coverage you already have"
     },
     {
-     "k": "t",
-     "s": "$"
+     "k": "a",
+     "s": "Coverage you already have"
     },
     {
      "k": "t",
@@ -28316,11 +28404,11 @@
     },
     {
      "k": "t",
-     "s": "1 month average"
+     "s": "1 month average of your logged expenses, plus your debt payments"
     },
     {
      "k": "t",
-     "s": "of your logged expenses — type your own if a typical month differs."
+     "s": "— type your own if a typical month differs."
     },
     {
      "k": "a",
@@ -28444,7 +28532,7 @@
     },
     {
      "k": "t",
-     "s": "Estimates for guidance only — not financial, investment, or tax advice, and projections aren't guaranteed. See Settings for the full disclaimer."
+     "s": "Estimates for guidance only — not financial, investment, or tax advice, and projections aren’t guaranteed. See Settings for the full disclaimer."
     }
    ],
    "rich": [
@@ -28562,11 +28650,11 @@
     },
     {
      "k": "t",
-     "s": "you entered"
+     "s": "calculated from your budget and your debt payments"
     },
     {
      "k": "t",
-     "s": "of your logged expenses — type your own if a typical month differs."
+     "s": "— type your own if a typical month differs."
     },
     {
      "k": "a",
@@ -28650,7 +28738,7 @@
     },
     {
      "k": "t",
-     "s": "Estimates for guidance only — not financial, investment, or tax advice, and projections aren't guaranteed. See Settings for the full disclaimer."
+     "s": "Estimates for guidance only — not financial, investment, or tax advice, and projections aren’t guaranteed. See Settings for the full disclaimer."
     }
    ],
    "retiree": [
@@ -28768,11 +28856,11 @@
     },
     {
      "k": "t",
-     "s": "you entered"
+     "s": "calculated from your budget"
     },
     {
      "k": "t",
-     "s": "of your logged expenses — type your own if a typical month differs."
+     "s": "— type your own if a typical month differs."
     },
     {
      "k": "a",
@@ -28896,7 +28984,7 @@
     },
     {
      "k": "t",
-     "s": "Estimates for guidance only — not financial, investment, or tax advice, and projections aren't guaranteed. See Settings for the full disclaimer."
+     "s": "Estimates for guidance only — not financial, investment, or tax advice, and projections aren’t guaranteed. See Settings for the full disclaimer."
     }
    ],
    "new": [
@@ -29038,7 +29126,7 @@
     },
     {
      "k": "t",
-     "s": "Estimates for guidance only — not financial, investment, or tax advice, and projections aren't guaranteed. See Settings for the full disclaimer."
+     "s": "Estimates for guidance only — not financial, investment, or tax advice, and projections aren’t guaranteed. See Settings for the full disclaimer."
     }
    ]
   },
@@ -29079,7 +29167,7 @@
     },
     {
      "k": "t",
-     "s": "What if I'd moved money"
+     "s": "What if I’d moved money"
     },
     {
      "k": "t",
@@ -29241,7 +29329,7 @@
     },
     {
      "k": "t",
-     "s": "What if I'd moved money"
+     "s": "What if I’d moved money"
     },
     {
      "k": "t",
@@ -29419,7 +29507,7 @@
     },
     {
      "k": "t",
-     "s": "What if I'd moved money"
+     "s": "What if I’d moved money"
     },
     {
      "k": "t",
@@ -29581,7 +29669,7 @@
     },
     {
      "k": "t",
-     "s": "What if I'd moved money"
+     "s": "What if I’d moved money"
     },
     {
      "k": "t",
@@ -33188,7 +33276,7 @@
     },
     {
      "k": "t",
-     "s": "It's on your Social Security statement — ssa.gov/myaccount or the mailed copy. No rush; the example numbers stay until you have it."
+     "s": "It’s on your Social Security statement — ssa.gov/myaccount or the mailed copy. No rush; the example numbers stay until you have it."
     },
     {
      "k": "t",
@@ -33368,7 +33456,7 @@
     },
     {
      "k": "t",
-     "s": "These figures reflect one person's benefit. Spousal and survivor benefits can change the best timing for couples — v1 doesn't model them yet."
+     "s": "These figures reflect one person’s benefit. Spousal and survivor benefits can change the best timing for couples — v1 doesn’t model them yet."
     }
    ],
    "rich": [
@@ -33402,7 +33490,7 @@
     },
     {
      "k": "t",
-     "s": "It's on your Social Security statement — ssa.gov/myaccount or the mailed copy. No rush; the example numbers stay until you have it."
+     "s": "It’s on your Social Security statement — ssa.gov/myaccount or the mailed copy. No rush; the example numbers stay until you have it."
     },
     {
      "k": "t",
@@ -33582,7 +33670,7 @@
     },
     {
      "k": "t",
-     "s": "These figures reflect one person's benefit. Spousal and survivor benefits can change the best timing for couples — v1 doesn't model them yet."
+     "s": "These figures reflect one person’s benefit. Spousal and survivor benefits can change the best timing for couples — v1 doesn’t model them yet."
     }
    ],
    "retiree": [
@@ -33604,7 +33692,7 @@
     },
     {
      "k": "t",
-     "s": "You're already receiving Social Security, so claim timing is decided. Your check lives on the Monthly income screen — edit it there and every number follows."
+     "s": "You’re already receiving Social Security, so claim timing is decided. Your check lives on the Monthly income screen — edit it there and every number follows."
     },
     {
      "k": "a",
@@ -33646,7 +33734,7 @@
     },
     {
      "k": "t",
-     "s": "It's on your Social Security statement — ssa.gov/myaccount or the mailed copy. No rush; the example numbers stay until you have it."
+     "s": "It’s on your Social Security statement — ssa.gov/myaccount or the mailed copy. No rush; the example numbers stay until you have it."
     },
     {
      "k": "t",
@@ -33806,7 +33894,7 @@
     },
     {
      "k": "t",
-     "s": "These figures reflect one person's benefit. Spousal and survivor benefits can change the best timing for couples — v1 doesn't model them yet."
+     "s": "These figures reflect one person’s benefit. Spousal and survivor benefits can change the best timing for couples — v1 doesn’t model them yet."
     }
    ]
   },
@@ -33814,19 +33902,59 @@
    "file": "src/screens/StressTestScreen.tsx",
    "worker": [
     {
+     "k": "a",
+     "s": "Back"
+    },
+    {
+     "k": "t",
+     "s": "‹ Back"
+    },
+    {
+     "k": "a",
+     "s": "MoneyKeel"
+    },
+    {
+     "k": "a",
+     "s": "Hide balances"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
+     "k": "a",
+     "s": "Settings"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
      "k": "t",
      "s": "What if…?"
     },
     {
      "k": "t",
-     "s": "Test a surprise expense against your cash — see if you can absorb it and how long you'd last."
+     "s": "Test a surprise expense against your cash — see if you can absorb it and how long you’d last."
+    },
+    {
+     "k": "t",
+     "s": "Your cash and the expense"
     },
     {
      "k": "t",
      "s": "Cash you could tap today"
     },
     {
+     "k": "a",
+     "s": "Cash you could tap today"
+    },
+    {
      "k": "t",
+     "s": "The surprise expense"
+    },
+    {
+     "k": "a",
      "s": "The surprise expense"
     },
     {
@@ -33847,11 +33975,7 @@
     },
     {
      "k": "t",
-     "s": "⚠ A $3,000 hit would put you $3,000 in the red"
-    },
-    {
-     "k": "t",
-     "s": "You'd need $3,000 more to absorb it without borrowing."
+     "s": "After the $3,000 expense"
     },
     {
      "k": "a",
@@ -33871,11 +33995,31 @@
     },
     {
      "k": "t",
-     "s": "0.0"
+     "s": "0.0 months"
     },
     {
      "k": "t",
-     "s": "months your cash would last"
+     "s": "Tight ⚠"
+    },
+    {
+     "k": "t",
+     "s": "$0"
+    },
+    {
+     "k": "t",
+     "s": "÷"
+    },
+    {
+     "k": "t",
+     "s": "$600/month"
+    },
+    {
+     "k": "t",
+     "s": "—"
+    },
+    {
+     "k": "t",
+     "s": "your cash today, before the $3,000 expense."
     },
     {
      "k": "t",
@@ -33919,7 +34063,7 @@
     },
     {
      "k": "t",
-     "s": ". You're"
+     "s": ". You’re"
     },
     {
      "k": "t",
@@ -33931,28 +34075,84 @@
     },
     {
      "k": "t",
+     "s": "Measured against"
+    },
+    {
+     "k": "t",
+     "s": "$0"
+    },
+    {
+     "k": "t",
+     "s": "—"
+    },
+    {
+     "k": "t",
+     "s": "your cash today, before the $3,000 expense."
+    },
+    {
+     "k": "t",
      "s": "“Essentials” are your recurring essential expenses (Critical + Important), not one-time or nice-to-have expenses. A planning estimate."
     },
     {
      "k": "t",
-     "s": "Estimates for guidance only — not financial, investment, or tax advice, and projections aren't guaranteed. See Settings for the full disclaimer."
+     "s": "Estimates for guidance only — not financial, investment, or tax advice, and projections aren’t guaranteed. See Settings for the full disclaimer."
     }
    ],
    "rich": [
+    {
+     "k": "a",
+     "s": "Back"
+    },
+    {
+     "k": "t",
+     "s": "‹ Back"
+    },
+    {
+     "k": "a",
+     "s": "MoneyKeel"
+    },
+    {
+     "k": "a",
+     "s": "Hide balances"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
+     "k": "a",
+     "s": "Settings"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
     {
      "k": "t",
      "s": "What if…?"
     },
     {
      "k": "t",
-     "s": "Test a surprise expense against your cash — see if you can absorb it and how long you'd last."
+     "s": "Test a surprise expense against your cash — see if you can absorb it and how long you’d last."
+    },
+    {
+     "k": "t",
+     "s": "Your cash and the expense"
     },
     {
      "k": "t",
      "s": "Cash you could tap today"
     },
     {
+     "k": "a",
+     "s": "Cash you could tap today"
+    },
+    {
      "k": "t",
+     "s": "The surprise expense"
+    },
+    {
+     "k": "a",
      "s": "The surprise expense"
     },
     {
@@ -33973,11 +34173,15 @@
     },
     {
      "k": "t",
+     "s": "After the $3,000 expense"
+    },
+    {
+     "k": "t",
      "s": "✓ You could cover a $3,000 hit"
     },
     {
      "k": "t",
-     "s": "You'd have $17,000 left — about 5.8 months of essentials ($2,920/month — you entered)."
+     "s": "You’d have $17,000 left — about 5.8 months of essentials ($2,920/month — calculated)."
     },
     {
      "k": "t",
@@ -33985,11 +34189,31 @@
     },
     {
      "k": "t",
-     "s": "6.8"
+     "s": "6.8 months"
     },
     {
      "k": "t",
-     "s": "months your cash would last"
+     "s": "Comfortable ✓"
+    },
+    {
+     "k": "t",
+     "s": "$20,000"
+    },
+    {
+     "k": "t",
+     "s": "÷"
+    },
+    {
+     "k": "t",
+     "s": "$2,920/month"
+    },
+    {
+     "k": "t",
+     "s": "—"
+    },
+    {
+     "k": "t",
+     "s": "your cash today, before the $3,000 expense."
     },
     {
      "k": "t",
@@ -34005,7 +34229,7 @@
     },
     {
      "k": "t",
-     "s": "you entered"
+     "s": "calculated"
     },
     {
      "k": "t",
@@ -34025,28 +34249,84 @@
     },
     {
      "k": "t",
+     "s": "Measured against"
+    },
+    {
+     "k": "t",
+     "s": "$20,000"
+    },
+    {
+     "k": "t",
+     "s": "—"
+    },
+    {
+     "k": "t",
+     "s": "your cash today, before the $3,000 expense."
+    },
+    {
+     "k": "t",
      "s": "“Essentials” are your recurring essential expenses (Critical + Important), not one-time or nice-to-have expenses. A planning estimate."
     },
     {
      "k": "t",
-     "s": "Estimates for guidance only — not financial, investment, or tax advice, and projections aren't guaranteed. See Settings for the full disclaimer."
+     "s": "Estimates for guidance only — not financial, investment, or tax advice, and projections aren’t guaranteed. See Settings for the full disclaimer."
     }
    ],
    "retiree": [
+    {
+     "k": "a",
+     "s": "Back"
+    },
+    {
+     "k": "t",
+     "s": "‹ Back"
+    },
+    {
+     "k": "a",
+     "s": "MoneyKeel"
+    },
+    {
+     "k": "a",
+     "s": "Hide balances"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
+     "k": "a",
+     "s": "Settings"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
     {
      "k": "t",
      "s": "What if…?"
     },
     {
      "k": "t",
-     "s": "Test a surprise expense against your cash — see if you can absorb it and how long you'd last."
+     "s": "Test a surprise expense against your cash — see if you can absorb it and how long you’d last."
+    },
+    {
+     "k": "t",
+     "s": "Your cash and the expense"
     },
     {
      "k": "t",
      "s": "Cash you could tap today"
     },
     {
+     "k": "a",
+     "s": "Cash you could tap today"
+    },
+    {
      "k": "t",
+     "s": "The surprise expense"
+    },
+    {
+     "k": "a",
      "s": "The surprise expense"
     },
     {
@@ -34067,11 +34347,7 @@
     },
     {
      "k": "t",
-     "s": "⚠ A $3,000 hit would put you $3,000 in the red"
-    },
-    {
-     "k": "t",
-     "s": "You'd need $3,000 more to absorb it without borrowing."
+     "s": "After the $3,000 expense"
     },
     {
      "k": "a",
@@ -34091,11 +34367,31 @@
     },
     {
      "k": "t",
-     "s": "0.0"
+     "s": "0.0 months"
     },
     {
      "k": "t",
-     "s": "months your cash would last"
+     "s": "Tight ⚠"
+    },
+    {
+     "k": "t",
+     "s": "$0"
+    },
+    {
+     "k": "t",
+     "s": "÷"
+    },
+    {
+     "k": "t",
+     "s": "$3,300/month"
+    },
+    {
+     "k": "t",
+     "s": "—"
+    },
+    {
+     "k": "t",
+     "s": "your cash today, before the $3,000 expense."
     },
     {
      "k": "t",
@@ -34111,7 +34407,7 @@
     },
     {
      "k": "t",
-     "s": "you entered"
+     "s": "calculated"
     },
     {
      "k": "t",
@@ -34139,7 +34435,7 @@
     },
     {
      "k": "t",
-     "s": ". You're"
+     "s": ". You’re"
     },
     {
      "k": "t",
@@ -34151,28 +34447,84 @@
     },
     {
      "k": "t",
+     "s": "Measured against"
+    },
+    {
+     "k": "t",
+     "s": "$0"
+    },
+    {
+     "k": "t",
+     "s": "—"
+    },
+    {
+     "k": "t",
+     "s": "your cash today, before the $3,000 expense."
+    },
+    {
+     "k": "t",
      "s": "“Essentials” are your recurring essential expenses (Critical + Important), not one-time or nice-to-have expenses. A planning estimate."
     },
     {
      "k": "t",
-     "s": "Estimates for guidance only — not financial, investment, or tax advice, and projections aren't guaranteed. See Settings for the full disclaimer."
+     "s": "Estimates for guidance only — not financial, investment, or tax advice, and projections aren’t guaranteed. See Settings for the full disclaimer."
     }
    ],
    "new": [
+    {
+     "k": "a",
+     "s": "Back"
+    },
+    {
+     "k": "t",
+     "s": "‹ Back"
+    },
+    {
+     "k": "a",
+     "s": "MoneyKeel"
+    },
+    {
+     "k": "a",
+     "s": "Hide balances"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
+    {
+     "k": "a",
+     "s": "Settings"
+    },
+    {
+     "k": "t",
+     "s": ""
+    },
     {
      "k": "t",
      "s": "What if…?"
     },
     {
      "k": "t",
-     "s": "Test a surprise expense against your cash — see if you can absorb it and how long you'd last."
+     "s": "Test a surprise expense against your cash — see if you can absorb it and how long you’d last."
+    },
+    {
+     "k": "t",
+     "s": "Your cash and the expense"
     },
     {
      "k": "t",
      "s": "Cash you could tap today"
     },
     {
+     "k": "a",
+     "s": "Cash you could tap today"
+    },
+    {
      "k": "t",
+     "s": "The surprise expense"
+    },
+    {
+     "k": "a",
      "s": "The surprise expense"
     },
     {
@@ -34193,11 +34545,7 @@
     },
     {
      "k": "t",
-     "s": "⚠ A $3,000 hit would put you $3,000 in the red"
-    },
-    {
-     "k": "t",
-     "s": "You'd need $3,000 more to absorb it without borrowing."
+     "s": "After the $3,000 expense"
     },
     {
      "k": "a",
@@ -34221,11 +34569,11 @@
     },
     {
      "k": "t",
-     "s": "$0"
+     "s": "$0/month"
     },
     {
      "k": "t",
-     "s": "/month."
+     "s": "."
     },
     {
      "k": "a",
@@ -34261,7 +34609,7 @@
     },
     {
      "k": "t",
-     "s": "Estimates for guidance only — not financial, investment, or tax advice, and projections aren't guaranteed. See Settings for the full disclaimer."
+     "s": "Estimates for guidance only — not financial, investment, or tax advice, and projections aren’t guaranteed. See Settings for the full disclaimer."
     }
    ]
   },
@@ -34442,7 +34790,7 @@
     },
     {
      "k": "t",
-     "s": "Last year's tax return"
+     "s": "Last year’s tax return"
     },
     {
      "k": "t",
@@ -34688,7 +35036,7 @@
     },
     {
      "k": "t",
-     "s": "Last year's tax return"
+     "s": "Last year’s tax return"
     },
     {
      "k": "t",
@@ -34870,7 +35218,7 @@
     },
     {
      "k": "t",
-     "s": "Last year's tax return"
+     "s": "Last year’s tax return"
     },
     {
      "k": "t",
@@ -34976,7 +35324,7 @@
     },
     {
      "k": "t",
-     "s": "Last year's tax return"
+     "s": "Last year’s tax return"
     },
     {
      "k": "t",
@@ -35568,7 +35916,7 @@
     },
     {
      "k": "t",
-     "s": ". It's an honest estimate that moves with your balances — never a promise, never a prediction of any single year."
+     "s": ". It’s an honest estimate that moves with your balances — never a promise, never a prediction of any single year."
     },
     {
      "k": "t",
@@ -35724,7 +36072,7 @@
     },
     {
      "k": "t",
-     "s": "Change any driver and this number, Home's strip and Cash flow's strip all move together — they are one number."
+     "s": "Change any driver and this number, Home’s strip and Cash flow’s strip all move together — they are one number."
     }
    ],
    "new": [
@@ -36299,16 +36647,8 @@
      "s": "$0"
     },
     {
-     "k": "a",
-     "s": "Nothing entered yet. Add your income ›"
-    },
-    {
      "k": "t",
      "s": "Nothing entered yet."
-    },
-    {
-     "k": "t",
-     "s": "Add your income ›"
     }
    ]
   },
@@ -37910,6 +38250,24 @@
     "MK-CF-M-082"
    ]
   },
+  "/stress-test": {
+   "worker": [
+    "MK-MN-M-024",
+    "MK-NW-M-013"
+   ],
+   "rich": [
+    "MK-MN-M-024",
+    "MK-NW-M-013"
+   ],
+   "retiree": [
+    "MK-MN-M-024",
+    "MK-NW-M-013"
+   ],
+   "new": [
+    "MK-MN-M-024",
+    "MK-MN-M-026"
+   ]
+  },
   "/income-summary": {
    "worker": [
     "MK-CF-M-037",
@@ -37988,11 +38346,6 @@
    "retiree": [
     "MK-NW-M-015",
     "MK-XS-M-002"
-   ]
-  },
-  "/stress-test": {
-   "new": [
-    "MK-MN-M-026"
    ]
   }
  },
@@ -38073,7 +38426,10 @@
     "/other-investments|retiree",
     "/other-investments|rich",
     "/other-investments|worker",
-    "/stress-test|new"
+    "/stress-test|new",
+    "/stress-test|retiree",
+    "/stress-test|rich",
+    "/stress-test|worker"
    ],
    "inside": "writeFigure",
    "line": "spec.unit === 'money' ? formatMoney(value)",
@@ -38087,26 +38443,32 @@
     "$14,000",
     "$120,000"
    ],
-   "renders": 1547
+   "renders": 1536
   },
   {
    "site": "MoneyKeel/functions/_figure-spec.ts:128",
    "routes": [
     "/account-detail",
+    "/cashflow",
     "/holding-detail"
    ],
    "states": [
     "/account-detail|rich",
+    "/cashflow|new",
+    "/cashflow|retiree",
+    "/cashflow|rich",
+    "/cashflow|worker",
     "/holding-detail|rich"
    ],
    "inside": "writeFigure",
    "line": ": spec.unit === 'money-cents' ? formatMoneyCents(value)",
    "values": [
+    "$0.00",
     "$100.00",
     "$98.00",
     "$90.00"
    ],
-   "renders": 7
+   "renders": 19
   },
   {
    "site": "MoneyKeel/functions/cashflow/base-pay.ts:1264",
@@ -38182,7 +38544,7 @@
    "renders": 5
   },
   {
-   "site": "src/components/MoneySheets.tsx:288",
+   "site": "src/components/MoneySheets.tsx:293",
    "routes": [
     "/home"
    ],
@@ -38199,7 +38561,7 @@
    "renders": 14
   },
   {
-   "site": "src/components/MoneySheets.tsx:327",
+   "site": "src/components/MoneySheets.tsx:332",
    "routes": [
     "/home"
    ],
@@ -38246,7 +38608,7 @@
    "renders": 2
   },
   {
-   "site": "src/components/PaycheckCard.tsx:61",
+   "site": "src/components/PaycheckCard.tsx:63",
    "routes": [
     "/cashflow",
     "/home"
@@ -38264,7 +38626,7 @@
    "renders": 14
   },
   {
-   "site": "src/components/PaycheckCard.tsx:66",
+   "site": "src/components/PaycheckCard.tsx:68",
    "routes": [
     "/cashflow",
     "/home"
@@ -38281,7 +38643,7 @@
    "renders": 7
   },
   {
-   "site": "src/components/PaycheckCard.tsx:71",
+   "site": "src/components/PaycheckCard.tsx:73",
    "routes": [
     "/cashflow",
     "/home"
@@ -38298,7 +38660,7 @@
    "renders": 7
   },
   {
-   "site": "src/components/PaycheckCard.tsx:77",
+   "site": "src/components/PaycheckCard.tsx:79",
    "routes": [
     "/cashflow",
     "/home"
@@ -38315,7 +38677,7 @@
    "renders": 7
   },
   {
-   "site": "src/components/PlanInputs.tsx:124",
+   "site": "src/components/PlanInputs.tsx:125",
    "routes": [
     "/plan"
    ],
@@ -38323,14 +38685,14 @@
     "/plan|rich"
    ],
    "inside": "PlanInputs",
-   "line": "We're including your {maskedMoney(mortgageMonthly)}/month mortgage until it's paid off in {mortgagePayoffYear}, from your loan.",
+   "line": "We’re including your {maskedMoney(mortgageMonthly)}/month mortgage until it’s paid off in {mortgagePayoffYear}, from your loan.",
    "values": [
     "$1,900"
    ],
    "renders": 1
   },
   {
-   "site": "src/components/PlanInputs.tsx:146",
+   "site": "src/components/PlanInputs.tsx:147",
    "routes": [
     "/plan"
    ],
@@ -38349,7 +38711,7 @@
    "renders": 4
   },
   {
-   "site": "src/components/PlanInputs.tsx:153",
+   "site": "src/components/PlanInputs.tsx:154",
    "routes": [
     "/plan"
    ],
@@ -38368,7 +38730,7 @@
    "renders": 4
   },
   {
-   "site": "src/components/PlanInputs.tsx:165",
+   "site": "src/components/PlanInputs.tsx:166",
    "routes": [
     "/plan"
    ],
@@ -38378,7 +38740,7 @@
     "/plan|worker"
    ],
    "inside": "PlanInputs",
-   "line": "accessibilityLabel={`${names.get(a.asset_id)}, ${spokenMoney(Math.round(a.balance ?? 0))}. ${counts ? 'Counts toward retirement' : \"Doesn't count\"}. Tap to change.`}",
+   "line": "accessibilityLabel={`${names.get(a.asset_id)}, ${spokenMoney(Math.round(a.balance ?? 0))}. ${counts ? 'Counts toward retirement' : \"Doesn’t count\"}. Tap to change.`}",
    "values": [
     "$120,000",
     "$45,000",
@@ -38391,7 +38753,7 @@
    "renders": 8
   },
   {
-   "site": "src/components/PlanInputs.tsx:168",
+   "site": "src/components/PlanInputs.tsx:169",
    "routes": [
     "/plan"
    ],
@@ -38414,7 +38776,7 @@
    "renders": 8
   },
   {
-   "site": "src/components/PlanInputs.tsx:183",
+   "site": "src/components/PlanInputs.tsx:184",
    "routes": [
     "/plan"
    ],
@@ -38429,7 +38791,7 @@
    "renders": 1
   },
   {
-   "site": "src/components/PlanInputs.tsx:185",
+   "site": "src/components/PlanInputs.tsx:186",
    "routes": [
     "/plan"
    ],
@@ -38444,7 +38806,7 @@
    "renders": 1
   },
   {
-   "site": "src/components/PlanInputs.tsx:187",
+   "site": "src/components/PlanInputs.tsx:188",
    "routes": [
     "/plan"
    ],
@@ -38459,7 +38821,7 @@
    "renders": 1
   },
   {
-   "site": "src/components/PlanInputs.tsx:253",
+   "site": "src/components/PlanInputs.tsx:254",
    "routes": [
     "/plan"
    ],
@@ -38500,7 +38862,7 @@
     "/plan|retiree"
    ],
    "inside": "SpendMoreControl",
-   "line": "? <>You'd spend <Text style={s.b}>{maskedMoney(total)}</Text>/month — the same as now.</>",
+   "line": "? <>You’d spend <Text style={s.b}>{maskedMoney(total)}</Text>/month — the same as now.</>",
    "values": [
     "$3,800"
    ],
@@ -38525,7 +38887,7 @@
    "renders": 12
   },
   {
-   "site": "src/domain/decumulation/index.ts:772",
+   "site": "src/domain/decumulation/index.ts:775",
    "routes": [
     "/cashflow"
    ],
@@ -38602,7 +38964,7 @@
    "renders": 10
   },
   {
-   "site": "src/screens/BigCostsScreen.tsx:46",
+   "site": "src/screens/BigCostsScreen.tsx:47",
    "routes": [
     "/big-costs"
    ],
@@ -38619,7 +38981,7 @@
    "renders": 3
   },
   {
-   "site": "src/screens/BigCostsScreen.tsx:61",
+   "site": "src/screens/BigCostsScreen.tsx:62",
    "routes": [
     "/big-costs"
    ],
@@ -38634,7 +38996,7 @@
    "renders": 1
   },
   {
-   "site": "src/screens/BigCostsScreen.tsx:64",
+   "site": "src/screens/BigCostsScreen.tsx:65",
    "routes": [
     "/big-costs"
    ],
@@ -38649,7 +39011,7 @@
    "renders": 1
   },
   {
-   "site": "src/screens/BigCostsScreen.tsx:69",
+   "site": "src/screens/BigCostsScreen.tsx:70",
    "routes": [
     "/big-costs"
    ],
@@ -38664,7 +39026,7 @@
    "renders": 1
   },
   {
-   "site": "src/screens/EducationScreen.tsx:64",
+   "site": "src/screens/EducationScreen.tsx:68",
    "routes": [
     "/education"
    ],
@@ -38682,7 +39044,7 @@
    "renders": 4
   },
   {
-   "site": "src/screens/EducationScreen.tsx:75",
+   "site": "src/screens/EducationScreen.tsx:79",
    "routes": [
     "/education"
    ],
@@ -38700,7 +39062,7 @@
    "renders": 4
   },
   {
-   "site": "src/screens/EducationScreen.tsx:76",
+   "site": "src/screens/EducationScreen.tsx:80",
    "routes": [
     "/education"
    ],
@@ -38718,7 +39080,7 @@
    "renders": 4
   },
   {
-   "site": "src/screens/ExpenseScreen.tsx:226",
+   "site": "src/screens/ExpenseScreen.tsx:227",
    "routes": [
     "/expense"
    ],
@@ -38734,7 +39096,7 @@
    "renders": 2
   },
   {
-   "site": "src/screens/GoalsScreen.tsx:105",
+   "site": "src/screens/GoalsScreen.tsx:106",
    "routes": [
     "/goals"
    ],
@@ -38751,7 +39113,7 @@
    "renders": 4
   },
   {
-   "site": "src/screens/GoalsScreen.tsx:106",
+   "site": "src/screens/GoalsScreen.tsx:107",
    "routes": [
     "/goals"
    ],
@@ -38770,7 +39132,7 @@
    "renders": 8
   },
   {
-   "site": "src/screens/GoalsScreen.tsx:114",
+   "site": "src/screens/GoalsScreen.tsx:117",
    "routes": [
     "/goals"
    ],
@@ -38785,7 +39147,7 @@
    "renders": 2
   },
   {
-   "site": "src/screens/GoalsScreen.tsx:121",
+   "site": "src/screens/GoalsScreen.tsx:124",
    "routes": [
     "/goals"
    ],
@@ -38805,7 +39167,7 @@
    "renders": 12
   },
   {
-   "site": "src/screens/GoalsScreen.tsx:155",
+   "site": "src/screens/GoalsScreen.tsx:154",
    "routes": [
     "/goals"
    ],
@@ -38825,7 +39187,7 @@
    "renders": 16
   },
   {
-   "site": "src/screens/GoalsScreen.tsx:158",
+   "site": "src/screens/GoalsScreen.tsx:157",
    "routes": [
     "/goals"
    ],
@@ -38843,7 +39205,7 @@
    "renders": 8
   },
   {
-   "site": "src/screens/GoalsScreen.tsx:164",
+   "site": "src/screens/GoalsScreen.tsx:163",
    "routes": [
     "/goals"
    ],
@@ -38859,7 +39221,7 @@
    "renders": 4
   },
   {
-   "site": "src/screens/GoalsScreen.tsx:220",
+   "site": "src/screens/GoalsScreen.tsx:219",
    "routes": [
     "/goals"
    ],
@@ -38877,7 +39239,7 @@
    "renders": 8
   },
   {
-   "site": "src/screens/GoalsScreen.tsx:256",
+   "site": "src/screens/GoalsScreen.tsx:255",
    "routes": [
     "/goals"
    ],
@@ -38894,7 +39256,7 @@
    "renders": 4
   },
   {
-   "site": "src/screens/GoalsScreen.tsx:257",
+   "site": "src/screens/GoalsScreen.tsx:256",
    "routes": [
     "/goals"
    ],
@@ -38911,7 +39273,7 @@
    "renders": 4
   },
   {
-   "site": "src/screens/GoalsScreen.tsx:325",
+   "site": "src/screens/GoalsScreen.tsx:324",
    "routes": [
     "/goals"
    ],
@@ -38931,7 +39293,7 @@
    "renders": 8
   },
   {
-   "site": "src/screens/GoalsScreen.tsx:327",
+   "site": "src/screens/GoalsScreen.tsx:326",
    "routes": [
     "/goals"
    ],
@@ -39049,7 +39411,7 @@
     "/home|worker"
    ],
    "inside": "HomeScreen",
-   "line": "accessibilityLabel={`This month's cash flow${pace ? `, ${pace.word.replace('✓ ', '')}` : ''}: income ${incomeKnown ? `${takeHomeCalculated ? 'about ' : ''}${spokenMoney(shown.inflow)}` : 'not entered'",
+   "line": "accessibilityLabel={`This month’s cash flow${pace ? `, ${pace.word.replace('✓ ', '')}` : ''}: income ${incomeKnown ? `${takeHomeCalculated ? 'about ' : ''}${spokenMoney(shown.inflow)}` : 'not entered'",
    "values": [
     "$6,400",
     "$0",
@@ -39189,7 +39551,7 @@
    "renders": 7
   },
   {
-   "site": "src/screens/InsightsScreen.tsx:171",
+   "site": "src/screens/InsightsScreen.tsx:173",
    "routes": [
     "/home",
     "/insights"
@@ -39201,7 +39563,7 @@
     "/insights|worker"
    ],
    "inside": "useInsights",
-   "line": "{ label: `Expenses/month (${essentialsLabel})`, value: money(ef.plannedSpendMonthly) },",
+   "line": "{ label: 'Expenses/month at your planned spend', value: money(ef.plannedSpendMonthly) },",
    "values": [
     "$4,520",
     "$4,000"
@@ -39209,7 +39571,7 @@
    "renders": 7
   },
   {
-   "site": "src/screens/InsightsScreen.tsx:181",
+   "site": "src/screens/InsightsScreen.tsx:183",
    "routes": [
     "/home",
     "/insights"
@@ -39221,7 +39583,7 @@
     "/insights|worker"
    ],
    "inside": "useInsights",
-   "line": "{ label: `${IRS_LIMITS.year} 401(k) limit`, value: money(h.limit) }, { label: \"You've contributed\", value: money(h.used) }, { label: 'Room left', value: money(h.remaining) }]; },",
+   "line": "{ label: `${IRS_LIMITS.year} 401(k) limit`, value: money(h.limit) }, { label: \"You’ve contributed\", value: money(h.used) }, { label: 'Room left', value: money(h.remaining) }]; },",
    "values": [
     "$24,500",
     "$9,600",
@@ -39230,7 +39592,7 @@
    "renders": 21
   },
   {
-   "site": "src/screens/InsightsScreen.tsx:186",
+   "site": "src/screens/InsightsScreen.tsx:188",
    "routes": [
     "/home",
     "/insights"
@@ -39273,7 +39635,7 @@
    "renders": 20
   },
   {
-   "site": "src/screens/InsuranceScreen.tsx:65",
+   "site": "src/screens/InsuranceScreen.tsx:68",
    "routes": [
     "/insurance"
    ],
@@ -39294,7 +39656,7 @@
    "renders": 4
   },
   {
-   "site": "src/screens/InsuranceScreen.tsx:70",
+   "site": "src/screens/InsuranceScreen.tsx:73",
    "routes": [
     "/insurance"
    ],
@@ -39314,7 +39676,7 @@
    "renders": 4
   },
   {
-   "site": "src/screens/InsuranceScreen.tsx:71",
+   "site": "src/screens/InsuranceScreen.tsx:74",
    "routes": [
     "/insurance"
    ],
@@ -39334,7 +39696,7 @@
    "renders": 4
   },
   {
-   "site": "src/screens/InsuranceScreen.tsx:72",
+   "site": "src/screens/InsuranceScreen.tsx:75",
    "routes": [
     "/insurance"
    ],
@@ -39355,7 +39717,7 @@
    "renders": 4
   },
   {
-   "site": "src/screens/InsuranceScreen.tsx:73",
+   "site": "src/screens/InsuranceScreen.tsx:76",
    "routes": [
     "/insurance"
    ],
@@ -39376,7 +39738,7 @@
    "renders": 4
   },
   {
-   "site": "src/screens/InsuranceScreen.tsx:74",
+   "site": "src/screens/InsuranceScreen.tsx:77",
    "routes": [
     "/insurance"
    ],
@@ -39397,7 +39759,7 @@
    "renders": 4
   },
   {
-   "site": "src/screens/JobSafetyScreen.tsx:120",
+   "site": "src/screens/JobSafetyScreen.tsx:121",
    "routes": [
     "/jobsafety"
    ],
@@ -39414,7 +39776,7 @@
    "renders": 2
   },
   {
-   "site": "src/screens/JobSafetyScreen.tsx:122",
+   "site": "src/screens/JobSafetyScreen.tsx:123",
    "routes": [
     "/jobsafety"
    ],
@@ -39437,7 +39799,7 @@
    "renders": 9
   },
   {
-   "site": "src/screens/JobSafetyScreen.tsx:135",
+   "site": "src/screens/JobSafetyScreen.tsx:138",
    "routes": [
     "/jobsafety"
    ],
@@ -39447,7 +39809,7 @@
     "/jobsafety|worker"
    ],
    "inside": "JobSafetyScreen",
-   "line": "<Text style={s.baselineNote}>Using {money(monthSpend)}/month — {emergencyFund.essentialsBasis} of your logged expenses — type your own if a typical month differs.</Text>",
+   "line": "<Text style={s.baselineNote}>Using {money(monthSpend)}/month — {emergencyFund.essentialsSource} — type your own if a typical month differs.</Text>",
    "values": [
     "$600",
     "$2,920",
@@ -39456,7 +39818,7 @@
    "renders": 3
   },
   {
-   "site": "src/screens/JobSafetyScreen.tsx:178",
+   "site": "src/screens/JobSafetyScreen.tsx:180",
    "routes": [
     "/jobsafety"
    ],
@@ -39581,7 +39943,7 @@
    "renders": 8
   },
   {
-   "site": "src/screens/PlanHubScreen.tsx:237",
+   "site": "src/screens/PlanHubScreen.tsx:238",
    "routes": [
     "/plan"
    ],
@@ -39596,7 +39958,7 @@
    "renders": 2
   },
   {
-   "site": "src/screens/PlanHubScreen.tsx:277",
+   "site": "src/screens/PlanHubScreen.tsx:278",
    "routes": [
     "/plan"
    ],
@@ -39613,7 +39975,7 @@
    "renders": 2
   },
   {
-   "site": "src/screens/PlanHubScreen.tsx:312",
+   "site": "src/screens/PlanHubScreen.tsx:313",
    "routes": [
     "/plan"
    ],
@@ -39630,7 +39992,7 @@
    "renders": 6
   },
   {
-   "site": "src/screens/PlanHubScreen.tsx:318",
+   "site": "src/screens/PlanHubScreen.tsx:319",
    "routes": [
     "/plan"
    ],
@@ -39646,7 +40008,7 @@
    "renders": 4
   },
   {
-   "site": "src/screens/PlanHubScreen.tsx:320",
+   "site": "src/screens/PlanHubScreen.tsx:321",
    "routes": [
     "/plan"
    ],
@@ -39661,7 +40023,7 @@
    "renders": 2
   },
   {
-   "site": "src/screens/PlanHubScreen.tsx:321",
+   "site": "src/screens/PlanHubScreen.tsx:322",
    "routes": [
     "/plan"
    ],
@@ -39669,14 +40031,14 @@
     "/plan|retiree"
    ],
    "inside": "PlanHubScreen",
-   "line": "<View style={styles.payRow}><View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}><Text style={styles.payL}>+ Draw from savings</Text><InfoDot term=\"safeDraw\" /></View><Text style={styl",
+   "line": "<View style={styles.payRow}><View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}><Text style={styles.payL}>+ Draw from savings</Text><InfoDot term=\"safeDraw\" line={styles.payL} /></Vie",
    "values": [
     "$1,250"
    ],
    "renders": 2
   },
   {
-   "site": "src/screens/PlanHubScreen.tsx:322",
+   "site": "src/screens/PlanHubScreen.tsx:323",
    "routes": [
     "/plan"
    ],
@@ -39691,7 +40053,7 @@
    "renders": 2
   },
   {
-   "site": "src/screens/PlanHubScreen.tsx:331",
+   "site": "src/screens/PlanHubScreen.tsx:332",
    "routes": [
     "/plan"
    ],
@@ -39699,7 +40061,7 @@
     "/plan|retiree"
    ],
    "inside": "PlanHubScreen",
-   "line": "✓ covers your {maskedMoney(planSpend)}/month expenses. You're drawing {maskedMoney(Math.round(drawUsed))}/month",
+   "line": "✓ covers your {maskedMoney(planSpend)}/month expenses. You’re drawing {maskedMoney(Math.round(drawUsed))}/month",
    "values": [
     "$3,800",
     "$300"
@@ -39707,7 +40069,7 @@
    "renders": 4
   },
   {
-   "site": "src/screens/PlanHubScreen.tsx:332",
+   "site": "src/screens/PlanHubScreen.tsx:333",
    "routes": [
     "/plan"
    ],
@@ -39722,7 +40084,7 @@
    "renders": 2
   },
   {
-   "site": "src/screens/RequiredWithdrawalsScreen.tsx:113",
+   "site": "src/screens/RequiredWithdrawalsScreen.tsx:116",
    "routes": [
     "/required-withdrawals"
    ],
@@ -39739,7 +40101,7 @@
    "renders": 2
   },
   {
-   "site": "src/screens/RequiredWithdrawalsScreen.tsx:200",
+   "site": "src/screens/RequiredWithdrawalsScreen.tsx:203",
    "routes": [
     "/required-withdrawals"
    ],
@@ -39762,7 +40124,7 @@
    "renders": 16
   },
   {
-   "site": "src/screens/RequiredWithdrawalsScreen.tsx:202",
+   "site": "src/screens/RequiredWithdrawalsScreen.tsx:205",
    "routes": [
     "/required-withdrawals"
    ],
@@ -39785,7 +40147,7 @@
    "renders": 16
   },
   {
-   "site": "src/screens/RequiredWithdrawalsScreen.tsx:217",
+   "site": "src/screens/RequiredWithdrawalsScreen.tsx:220",
    "routes": [
     "/required-withdrawals"
    ],
@@ -39802,7 +40164,7 @@
    "renders": 2
   },
   {
-   "site": "src/screens/RequiredWithdrawalsScreen.tsx:219",
+   "site": "src/screens/RequiredWithdrawalsScreen.tsx:222",
    "routes": [
     "/required-withdrawals"
    ],
@@ -39819,7 +40181,7 @@
    "renders": 2
   },
   {
-   "site": "src/screens/RetirementCockpit.tsx:1002",
+   "site": "src/screens/RetirementCockpit.tsx:1003",
    "routes": [
     "/retirement"
    ],
@@ -39842,7 +40204,7 @@
    "renders": 14
   },
   {
-   "site": "src/screens/RetirementCockpit.tsx:42",
+   "site": "src/screens/RetirementCockpit.tsx:43",
    "routes": [
     "/retirement"
    ],
@@ -39867,7 +40229,7 @@
    "renders": 66
   },
   {
-   "site": "src/screens/RetirementCockpit.tsx:521",
+   "site": "src/screens/RetirementCockpit.tsx:526",
    "routes": [
     "/retirement"
    ],
@@ -39882,7 +40244,7 @@
    "renders": 2
   },
   {
-   "site": "src/screens/RetirementCockpit.tsx:551",
+   "site": "src/screens/RetirementCockpit.tsx:556",
    "routes": [
     "/retirement"
    ],
@@ -39899,7 +40261,7 @@
    "renders": 6
   },
   {
-   "site": "src/screens/RetirementCockpit.tsx:586",
+   "site": "src/screens/RetirementCockpit.tsx:591",
    "routes": [
     "/retirement"
    ],
@@ -39915,7 +40277,7 @@
    "renders": 4
   },
   {
-   "site": "src/screens/RetirementCockpit.tsx:663",
+   "site": "src/screens/RetirementCockpit.tsx:667",
    "routes": [
     "/retirement"
    ],
@@ -39935,7 +40297,7 @@
    "renders": 10
   },
   {
-   "site": "src/screens/RetirementCockpit.tsx:672",
+   "site": "src/screens/RetirementCockpit.tsx:676",
    "routes": [
     "/retirement"
    ],
@@ -39955,7 +40317,7 @@
    "renders": 10
   },
   {
-   "site": "src/screens/RetirementCockpit.tsx:682",
+   "site": "src/screens/RetirementCockpit.tsx:686",
    "routes": [
     "/retirement"
    ],
@@ -39970,7 +40332,7 @@
    "renders": 2
   },
   {
-   "site": "src/screens/RetirementCockpit.tsx:706",
+   "site": "src/screens/RetirementCockpit.tsx:710",
    "routes": [
     "/retirement"
    ],
@@ -39987,7 +40349,7 @@
    "renders": 4
   },
   {
-   "site": "src/screens/RetirementCockpit.tsx:707",
+   "site": "src/screens/RetirementCockpit.tsx:711",
    "routes": [
     "/retirement"
    ],
@@ -40007,7 +40369,7 @@
    "renders": 10
   },
   {
-   "site": "src/screens/RetirementCockpit.tsx:768",
+   "site": "src/screens/RetirementCockpit.tsx:772",
    "routes": [
     "/retirement"
    ],
@@ -40023,7 +40385,7 @@
    "renders": 4
   },
   {
-   "site": "src/screens/RetirementCockpit.tsx:785",
+   "site": "src/screens/RetirementCockpit.tsx:789",
    "routes": [
     "/retirement"
    ],
@@ -40034,7 +40396,7 @@
     "/retirement|worker"
    ],
    "inside": "RetirementCockpit",
-   "line": "<Text style={styles.note}>You plan to spend <Text style={{ fontWeight: '800', color: Colors.textPrimary }}>{money(planSpend)}/month</Text> in today's dollars → about <Text style={{ fontWeight: '800', ",
+   "line": "<Text style={styles.note}>You plan to spend <Text style={{ fontWeight: '800', color: Colors.textPrimary }}>{money(planSpend)}/month</Text> in today’s dollars → about <Text style={{ fontWeight: '800', ",
    "values": [
     "$5,000",
     "$3,800"
@@ -40042,7 +40404,7 @@
    "renders": 8
   },
   {
-   "site": "src/screens/RetirementCockpit.tsx:807",
+   "site": "src/screens/RetirementCockpit.tsx:808",
    "routes": [
     "/retirement"
    ],
@@ -40060,7 +40422,7 @@
    "renders": 12
   },
   {
-   "site": "src/screens/RetirementCockpit.tsx:809",
+   "site": "src/screens/RetirementCockpit.tsx:810",
    "routes": [
     "/retirement"
    ],
@@ -40077,7 +40439,7 @@
    "renders": 6
   },
   {
-   "site": "src/screens/RetirementCockpit.tsx:824",
+   "site": "src/screens/RetirementCockpit.tsx:825",
    "routes": [
     "/retirement"
    ],
@@ -40085,14 +40447,14 @@
     "/retirement|retiree"
    ],
    "inside": "RetirementCockpit",
-   "line": "? `${money(guarRowMonthly)}/month${claimAge > age && ssIncome > 0 ? ` · Social Security part starts at ${claimAge}` : ''} · today's $${A.ssEligible == null ? ' · from your setup' : ''}`",
+   "line": "? `${money(guarRowMonthly)}/month${claimAge > age && ssIncome > 0 ? ` · Social Security part starts at ${claimAge}` : ''} · today’s $${A.ssEligible == null ? ' · from your setup' : ''}`",
    "values": [
     "$3,500"
    ],
    "renders": 2
   },
   {
-   "site": "src/screens/RetirementCockpit.tsx:997",
+   "site": "src/screens/RetirementCockpit.tsx:998",
    "routes": [
     "/retirement"
    ],
@@ -40115,7 +40477,7 @@
    "renders": 14
   },
   {
-   "site": "src/screens/RothScreen.tsx:102",
+   "site": "src/screens/RothScreen.tsx:104",
    "routes": [
     "/roth"
    ],
@@ -40133,7 +40495,7 @@
    "renders": 6
   },
   {
-   "site": "src/screens/RothScreen.tsx:103",
+   "site": "src/screens/RothScreen.tsx:105",
    "routes": [
     "/roth"
    ],
@@ -40151,7 +40513,7 @@
    "renders": 6
   },
   {
-   "site": "src/screens/RothScreen.tsx:152",
+   "site": "src/screens/RothScreen.tsx:154",
    "routes": [
     "/roth"
    ],
@@ -40168,7 +40530,7 @@
    "renders": 2
   },
   {
-   "site": "src/screens/RothScreen.tsx:159",
+   "site": "src/screens/RothScreen.tsx:161",
    "routes": [
     "/roth"
    ],
@@ -40186,7 +40548,7 @@
    "renders": 6
   },
   {
-   "site": "src/screens/RothScreen.tsx:160",
+   "site": "src/screens/RothScreen.tsx:162",
    "routes": [
     "/roth"
    ],
@@ -40204,7 +40566,7 @@
    "renders": 6
   },
   {
-   "site": "src/screens/RothScreen.tsx:214",
+   "site": "src/screens/RothScreen.tsx:229",
    "routes": [
     "/roth"
    ],
@@ -40220,7 +40582,7 @@
    "renders": 2
   },
   {
-   "site": "src/screens/SsTimingScreen.tsx:103",
+   "site": "src/screens/SsTimingScreen.tsx:104",
    "routes": [
     "/ss-timing"
    ],
@@ -40312,41 +40674,7 @@
    "renders": 9
   },
   {
-   "site": "src/screens/StressTestScreen.tsx:112",
-   "routes": [
-    "/stress-test"
-   ],
-   "states": [
-    "/stress-test|retiree",
-    "/stress-test|rich",
-    "/stress-test|worker"
-   ],
-   "inside": "StressTestScreen",
-   "line": "<Text style={styles.note}>Covering your {money(ess)}/month of essentials ({essLabel}) with no paycheck coming in{rentLine ? `, counting ${rentLine} of rent from your property, which keeps arriving` : ",
-   "values": [
-    "$600",
-    "$2,920",
-    "$3,300"
-   ],
-   "renders": 3
-  },
-  {
-   "site": "src/screens/StressTestScreen.tsx:116",
-   "routes": [
-    "/stress-test"
-   ],
-   "states": [
-    "/stress-test|new"
-   ],
-   "inside": "StressTestScreen",
-   "line": "<Text style={styles.note}>Your essential expenses come to {money(0)}/month.</Text>",
-   "values": [
-    "$0"
-   ],
-   "renders": 1
-  },
-  {
-   "site": "src/screens/StressTestScreen.tsx:128",
+   "site": "src/screens/StressTestScreen.tsx:160",
    "routes": [
     "/stress-test"
    ],
@@ -40355,7 +40683,7 @@
     "/stress-test|worker"
    ],
    "inside": "StressTestScreen",
-   "line": "<Text style={styles.fundTxt}>3 months of essentials{rent > 0 ? ', less the rent that keeps arriving,' : ''} is <Text style={styles.bold}>{money(r.recommendedFund)}</Text>. You're <Text style={[styles.",
+   "line": "<Text style={styles.fundTxt}>3 months of essentials{rent > 0 ? ', less the rent that keeps arriving,' : ''} is <Text style={styles.bold}>{money(r.recommendedFund)}</Text>. You’re <Text style={[styles.",
    "values": [
     "$1,800",
     "$9,900"
@@ -40363,7 +40691,7 @@
    "renders": 4
   },
   {
-   "site": "src/screens/StressTestScreen.tsx:55",
+   "site": "src/screens/StressTestScreen.tsx:63",
    "routes": [
     "/stress-test"
    ],
@@ -40374,7 +40702,7 @@
     "/stress-test|worker"
    ],
    "inside": "StressTestScreen",
-   "line": "const leftWords = `You'd have ${money(r.cashAfter)} left`;   // the hit's answer, said once for both sentences below",
+   "line": "const leftWords = `You’d have ${money(r.cashAfter)} left`;   // the hit's answer, said once for both sentences below",
    "values": [
     "-$3,000",
     "$17,000"
@@ -40382,7 +40710,7 @@
    "renders": 4
   },
   {
-   "site": "src/screens/StressTestScreen.tsx:80",
+   "site": "src/screens/StressTestScreen.tsx:64",
    "routes": [
     "/stress-test"
    ],
@@ -40393,43 +40721,52 @@
     "/stress-test|worker"
    ],
    "inside": "StressTestScreen",
-   "line": "{r.coversIt ? `✓ You could cover a ${money(shock)} hit` : `⚠ A ${money(shock)} hit would put you ${money(Math.abs(r.cashAfter))} in the red`}",
+   "line": "const shortWords = money(Math.abs(r.cashAfter));",
    "values": [
-    "$3,000"
+    "$3,000",
+    "$17,000"
    ],
-   "renders": 7
+   "renders": 4
   },
   {
-   "site": "src/screens/StressTestScreen.tsx:86",
-   "routes": [
-    "/stress-test"
-   ],
-   "states": [
-    "/stress-test|rich"
-   ],
-   "inside": "StressTestScreen",
-   "line": ": `${leftWords}${rentPaysForIt ? ', and rent from your property pays for your essentials' : ` — about ${(r.runwayAfter as number).toFixed(1)} months of essentials`} (${money(ess)}/month — ${essLabel}$",
-   "values": [
-    "$2,920"
-   ],
-   "renders": 1
-  },
-  {
-   "site": "src/screens/StressTestScreen.tsx:87",
+   "site": "src/screens/StressTestScreen.tsx:65",
    "routes": [
     "/stress-test"
    ],
    "states": [
     "/stress-test|new",
     "/stress-test|retiree",
+    "/stress-test|rich",
     "/stress-test|worker"
    ],
    "inside": "StressTestScreen",
-   "line": ": `You'd need ${money(Math.abs(r.cashAfter))} more to absorb it without borrowing.`}",
+   "line": "const essWords = money(ess);",
    "values": [
-    "$3,000"
+    "$600",
+    "$2,920",
+    "$3,300",
+    "$0"
    ],
-   "renders": 3
+   "renders": 4
+  },
+  {
+   "site": "src/screens/StressTestScreen.tsx:66",
+   "routes": [
+    "/stress-test"
+   ],
+   "states": [
+    "/stress-test|new",
+    "/stress-test|retiree",
+    "/stress-test|rich",
+    "/stress-test|worker"
+   ],
+   "inside": "StressTestScreen",
+   "line": "const cashWords = money(cash);",
+   "values": [
+    "$0",
+    "$20,000"
+   ],
+   "renders": 4
   },
   {
    "site": "src/screens/TaxOrganizerScreen.tsx:102",

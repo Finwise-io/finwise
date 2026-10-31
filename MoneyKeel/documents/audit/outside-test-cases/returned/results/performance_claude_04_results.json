@@ -162,7 +162,8 @@
    "difference": "start closes of 2 March (61.90 / 33.00) vs 27 February: 31 Aug less 6 months rolls to 3 March (DEC-3768b)",
    "formula_gives_match": "n/a",
    "note": "",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_04.test.ts › MK-NW-O-007 theLookBack — five cases › complex · Six months back from 31 August lands on a short February"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_04.test.ts › MK-NW-O-007 theLookBack — five cases › complex · Six months back from 31 August lands on a short February",
+   "settled": "SETTLED 2026-10-27 (re-run at 45d680a4 + the fix wave) — FIXED 2026-10-11 by DEC-3768b: 31 Aug less six months is 28 Feb, so the start closes are 27 Feb's: 7,500 × 58.75 ÷ 61.20 = $7,199.75 stayed, 7,500 × 35.42 ÷ 33.10 = $8,025.68 moved, $825.92 between. Held by outside_performance_claude_04.test.ts:98."
   },
   {
    "id": "MK-NW-O-007",
@@ -413,7 +414,8 @@
    "difference": "1.037736 vs 1.10: 31 Mar less 1 month rolls to 3 March (DEC-3768b)",
    "formula_gives_match": "yes — the app gives what the auditor said the formula gives",
    "note": "",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_04.test.ts › MK-PF-F-022 factorOverMonths — five cases › edge · One month before 31 March"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_04.test.ts › MK-PF-F-022 factorOverMonths — five cases › edge · One month before 31 March",
+   "settled": "SETTLED 2026-10-27 (re-run at 45d680a4 + the fix wave) — FIXED 2026-10-11 by DEC-3768b: one month before 31 Mar is 28 Feb, a Saturday, so Friday's $50 close: 55 ÷ 50 = 1.10 (it read 1.0377). Held by outside_performance_claude_04.test.ts:141."
   },
   {
    "id": "MK-PF-F-008",
@@ -547,7 +549,8 @@
    "difference": "212.66 (last item) vs 213.47 (latest date); the one feed always sends oldest first, so this input cannot arrive today; open question: is oldest-first a stated contract?",
    "formula_gives_match": "yes — the app gives what the auditor said the formula gives",
    "note": "",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_04.test.ts › MK-PF-F-009 latestClose — five cases › complex · A feed that sends newest first"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_04.test.ts › MK-PF-F-009 latestClose — five cases › complex · A feed that sends newest first",
+   "settled": "SETTLED 2026-10-27 (re-run at 45d680a4 + the fix wave) — FIXED 2026-10-12 (tenet 1): the latest close is the close on the latest date in any order, $213.47 (it read $212.66, the last in the list); price lists are put oldest first where they enter the app. No ruling needed — the judge's answer is plainly right. Held by outside_performance_claude_04.test.ts:167."
   },
   {
    "id": "MK-PF-F-009",
@@ -574,7 +577,8 @@
    "difference": "0.078431 (from the first day's close) vs 0.10 (from the close of the day before) — DEC-0315",
    "formula_gives_match": "yes — the app gives what the auditor said the formula gives",
    "note": "",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_04.test.ts › MK-PF-F-010 periodReturn — five cases › easy · One month, first day's move included"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_04.test.ts › MK-PF-F-010 periodReturn — five cases › easy · One month, first day's move included",
+   "settled": "SETTLED 2026-10-27 (re-run at 45d680a4 + the fix wave) — FIXED 2026-10-11 by DEC-0315: the beginning is the close of the day before the first day: 110 ÷ 100 − 1 = +10.00% (it read +7.84%). Held by outside_performance_claude_04.test.ts:178."
   },
   {
    "id": "MK-PF-F-010",
@@ -602,7 +606,8 @@
    "formula_gives_match": "n/a",
    "note": "",
    "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_04.test.ts › MK-PF-F-010 periodReturn — five cases › complex · Exactly two years, given as a yearly rate",
-   "recheck_2026_10_21": "BRIEF WRONG since 2026-10-21 (DEC-7217): +17.45% a year over 731 days ÷ 365, the account's own reading"
+   "recheck_2026_10_21": "BRIEF WRONG since 2026-10-21 (DEC-7217): +17.45% a year over 731 days ÷ 365, the account's own reading",
+   "settled": "SETTLED 2026-10-27 (re-run at 45d680a4 + the fix wave) — APP RIGHT (BRIEF WRONG since 2026-10-21) by DEC-7217: 731 days, so (662.39 ÷ 480)^(365 ÷ 731) − 1 = +17.45% a year; the judge's +17.47% (√1.37998 − 1, over exactly two years) is kept failing. Held by outside_performance_claude_04.test.ts:188."
   },
   {
    "id": "MK-PF-F-010",
@@ -916,5 +921,5 @@
    "plain_example": "Asked for 10 Oct 2025; the fund's first close is 2 Mar 2026 at $25.00. Before: $25.00. Ruling needed: nothing (as MK-PF-F-034), or the first price with its date said."
   }
  ],
- "coverage": "45 of 45 cases mapped and run against the app: 38 PASS, 3 FINDING, 0 BRIEF_WRONG, 4 UNCLEAR, 0 BLOCKED. 6 of 6 non-RIGHT formula checks classified; 3 RIGHT verdicts (MK-NW-O-007, MK-PF-F-008, MK-PF-F-034) not re-checked here — MK-NW-O-007 still fails one case through MK-PF-F-022. Judge arithmetic re-done by hand on every numeric case: 0 errors."
+ "coverage": "45 of 45 cases mapped and run against the app: 38 PASS, 3 FINDING, 0 BRIEF_WRONG, 4 UNCLEAR, 0 BLOCKED. 6 of 6 non-RIGHT formula checks classified; 3 RIGHT verdicts (MK-NW-O-007, MK-PF-F-008, MK-PF-F-034) not re-checked here — MK-NW-O-007 still fails one case through MK-PF-F-022. Judge arithmetic re-done by hand on every numeric case: 0 errors. | 2026-10-27 (FX-AUDITS, re-run at 45d680a4 + the fix wave, outside_performance_claude_04.test.ts green): 5 more cases given a settled line — 4 fixed, now right, 1 app right; every case that does not pass as written now carries one, held by outside_audit_results_settled.test.ts."
 }

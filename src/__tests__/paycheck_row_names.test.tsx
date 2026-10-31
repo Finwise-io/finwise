@@ -87,7 +87,7 @@ test('the withdrawal rate sits with the amount being drawn, not with what is lef
   const Plan = require('../screens/PlanHubScreen').default;
   render(<Plan />);
   // the rate is on the paycheck line, right after the draw
-  expect(screen.getByText(/You're drawing/)).toBeOnTheScreen();
+  expect(screen.getByText(/You’re drawing/)).toBeOnTheScreen();   // ’ since 2026-10-27
   expect(screen.getByText(/% of your savings a year/)).toBeOnTheScreen();
   // and it is NOT on the line about money to spare
   const spare = screen.getByText(/to spare/);

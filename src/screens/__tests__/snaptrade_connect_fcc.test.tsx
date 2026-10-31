@@ -50,7 +50,7 @@ test('consent shows the approved copy, then the portal handoff runs the sync on 
   fireEvent.press(screen.getByText('Chase / J.P. Morgan'));
   fireEvent.press(screen.getByText('Continue ›'));
   expect(screen.getByText(/we never see or store your password/)).toBeOnTheScreen();  // CONSENT_COPY
-  fireEvent.press(screen.getByText(/Open Chase \/ J\.P\. Morgan's sign-in/));
+  fireEvent.press(screen.getByText(/Open Chase \/ J\.P\. Morgan’s sign-in/));   // ’ since 2026-10-27
   await waitFor(() => expect(runSnapTradeSync).toHaveBeenCalledWith({ force: true }));
   expect(snaptradeApi.loginUrl).toHaveBeenCalledWith(expect.objectContaining({ broker: 'CHASE' }));
 });

@@ -49,7 +49,7 @@ test('web renders columns: glance LEFT (net worth · gauge · cash flow), chief-
   const right = screen.getByTestId('home-desktop-right');
   expect(within(left).getByText('Net worth')).toBeTruthy();
   expect(within(left).getByText('WILL MY MONEY LAST?')).toBeTruthy();
-  expect(within(left).getByText(/THIS MONTH'S CASH FLOW/)).toBeTruthy();
+  expect(within(left).getByText(/THIS MONTH’S CASH FLOW/)).toBeTruthy();
   expect(within(right).getByText(/CHIEF OF STAFF — WHAT NEEDS YOU/)).toBeTruthy();
   expect(within(right).getByTestId('desktop-invest-table')).toBeTruthy();
   expect(within(within(right).getByTestId('desktop-invest-table')).getByText('See your growth ›')).toBeTruthy();

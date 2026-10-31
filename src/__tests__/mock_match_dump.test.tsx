@@ -312,7 +312,7 @@ describe('appearance audit — rendered styles, not stylesheet definitions', () 
   test('the cash-flow glance is gone from this screen (founder Q3)', () => {
     const NW = require('../screens/NetWorthScreen').default;
     render(<NW />);
-    expect(screen.queryByText("This month's cash flow")).toBeNull();
+    expect(screen.queryByText(/^This month['’]s cash flow$/)).toBeNull();   // either mark: Home prints ’ since 2026-10-30
     expect(screen.getByText('＋ Add an account')).toBeOnTheScreen();   // the add door stays (v08 words)
   });
 

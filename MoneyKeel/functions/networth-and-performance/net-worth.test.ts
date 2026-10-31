@@ -244,8 +244,15 @@ describe('mortgagesByProperty', () => {
   test('mortgages stored before the rule name no property: placed only where there is one honest answer', () => {
     // by its own name — the name the app gives a mortgage typed with a property
     expect(mortgagesByProperty(THREE, [mortgage('m1', 'Lake house mortgage', 1500)]).byProperty[1].mortgage).toBe('Lake house mortgage');
-    // the one mortgage left and the one property left
-    expect(mortgagesByProperty([home('p1', 'Home')], [mortgage('m1', 'Chase', 2400)]).ok).toBe(true);
+    // the one mortgage left and the one property left: NOT placed since 2026-10-27 (the lead's ruling, tenet 5 — the person's word, never
+    // the app's guess; Net worth v08 row of that date). 'Chase' names no property, so it is on none, and Net worth asks which.
+    const left = mortgagesByProperty([home('p1', 'Home')], [mortgage('m1', 'Chase', 2400)]);
+    expect([left.ok, left.unmatched]).toEqual([false, [{ id: 'm1', label: 'Chase' }]]);
+    expect(left.byProperty[0]).toMatchObject({ property: 'Home', mortgageId: null, payment: 0 });
+    // a name written with a hyphen is the same name: 'rental-house mortgage' is the Rental house's
+    expect(mortgagesByProperty([home('r', 'Rental house')], [mortgage('m1', 'rental-house mortgage', 1980)]).byProperty[0].mortgage).toBe('rental-house mortgage');
+    // a name that only begins with the same letters is not: 'Homestead loan' is not Home's
+    expect(mortgagesByProperty([home('p1', 'Home')], [mortgage('m1', 'Homestead loan', 900)]).ok).toBe(false);
     // two properties free and one unnamed mortgage: not guessed
     const c = mortgagesByProperty([home('p1', 'Home'), home('p2', 'Condo')], [mortgage('m1', 'Chase', 2400)]);
     expect([c.ok, c.unmatched.map((u: any) => u.label)]).toEqual([false, ['Chase']]);
@@ -263,4 +270,12 @@ describe('mortgagesByProperty', () => {
     expect(n.mortgageCheck.ok).toBe(true);
     expect(n.mortgageCheck.byProperty[0]).toMatchObject({ property: 'Home', mortgage: 'Chase' });
   });
+});
+
+// THE OLD ANSWER, KEPT (2026-10-27, FX-NW): the one mortgage left over was put on the one property left over by the app itself. Dropped by the
+// lead's ruling under tenet 5 (the person's word outranks the app's guess); it fails now, by design.
+test.failing('mortgagesByProperty · the old answer: "Chase", the one mortgage left, was placed on "Home", the one property left', () => {
+  const h = { asset_id: 'p1', label: 'Home', kind: 'home', tax_bucket: 'PROPERTY', balance: 400000 } as any;
+  const m = { debt_id: 'm1', label: 'Chase', debt_type: 'MORTGAGE', remaining_balance: 300000, interest_rate_apr: 0.06, minimum_monthly_payment: 2400 } as any;
+  expect(require('./net-worth').mortgagesByProperty([h], [m]).ok).toBe(true);
 });

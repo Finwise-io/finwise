@@ -81,7 +81,7 @@ export default function SharpenPlanScreen() {
         </TouchableOpacity>
       ))}
 
-      {pct === 100 && <Text style={styles.allDone}>🎉 Your plan is complete — everything's wired up.</Text>}
+      {pct === 100 && <Text style={styles.allDone}>🎉 Your plan is complete — everything’s wired up.</Text>}
       <View style={{ height: 40 }} />
     </ScrollView>
   );

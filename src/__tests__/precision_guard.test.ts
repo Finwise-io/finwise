@@ -140,6 +140,10 @@ const CARRIED: { file: string; code: string; n: number; verdict: Verdict; displa
   // sale) left 2026-10-20: both are saved at full precision and rounded only where they are shown.
   { file: 'src/screens/NetWorthScreen.tsx', code: 'Math.round(runwayMonths * 10) / 10', n: 1, verdict: 'kept', display_only: true,
     why: 'DISPLAY ONLY, never saved: the emergency fund\'s months as the card prints them, one decimal; the bar and the word beside the months are drawn from this printed figure on purpose, so they can never disagree with it' },
+  // 2026-10-27 (FX-CF-C; drawing stresstest v03, row 3): the Stress test prints the same months with Net worth's word — the same idiom,
+  // for the same reason, so the two screens say "Tight" and "Comfortable" at the same tenth of a month
+  { file: 'src/screens/StressTestScreen.tsx', code: 'Math.round(r.jobLossRunway * 10) / 10', n: 1, verdict: 'kept', display_only: true,
+    why: 'DISPLAY ONLY, never saved: the months as the box prints them, one decimal (MK-NW-M-013\'s own writer prints the same tenth); the word beside them is drawn from this printed figure, as on Net worth, so the word and the figure can never disagree' },
   // ── paid 2026-10-26 (CLEANUP-LEFT, the lead's round 2, item 3): the Retirement cockpit's dials start from the plan's own rates and
   // "Use as my plan" saves them whole; Roth conversion works the tax at the exact rate ($20,000 at 18.75% is $3,750, not $3,800 at
   // 19%). Both print to two decimals. The seven carried lines that stood here are gone because the roundings are. ──

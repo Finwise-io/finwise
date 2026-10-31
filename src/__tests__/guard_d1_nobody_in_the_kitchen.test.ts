@@ -173,7 +173,7 @@ const ARITH_BASELINE: Record<string, number> = {
   'src/screens/InsightsScreen.tsx': 3,
   'src/screens/PlanHubScreen.tsx': 1,
   'src/screens/RetirementCockpit.tsx': 10,
-  'src/screens/RothScreen.tsx': 2,
+  'src/screens/RothScreen.tsx': 1,      // 2 until 2026-10-30: the accounts after a conversion are accountsAfterRothConversion's now (FX-PLAN, DEC-8890)
   'src/screens/SettingsScreen.tsx': 1,
   'src/screens/TipsScreen.tsx': 4,
 };

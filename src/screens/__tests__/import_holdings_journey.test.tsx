@@ -54,7 +54,7 @@ test('#12: an unreadable file shows the friendly error WITH a technical detail (
 
   const { getByText } = render(<ImportHoldingsScreen />);
   fireEvent.press(getByText('Choose a file'));
-  await waitFor(() => expect(getByText(/We couldn't read that file/)).toBeTruthy());
+  await waitFor(() => expect(getByText(/We couldn’t read that file/)).toBeTruthy());
   expect(getByText(/ENOENT: no such file/)).toBeTruthy();   // detail surfaced for support
 });
 

@@ -1,4 +1,5 @@
 // Portfolio Performance — per-holding actual return vs its SAME-period benchmark (ticker-based, lots).
+import { MoneyBox } from '../components/MoneyBox';   // every money box, one component (DEC-8385)
 import React, { useEffect, useMemo, useState } from 'react';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Modal, ActivityIndicator, Alert, RefreshControl, type LayoutChangeEvent, KeyboardAvoidingView, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -586,7 +587,7 @@ export default function PerformanceScreen() {
                   <View style={[styles.catDot, { backgroundColor: (ClassMarkColors as any)[b.key] }]} />
                   <View style={styles.catName}>
                     <Text style={styles.catLabel}>{b.label}</Text>
-                    {b.key === 'cash' && !dayOneView && !nothingEntered && <InfoDot size={13} term="cashInAccount" />}
+                    {b.key === 'cash' && !dayOneView && !nothingEntered && <InfoDot line={styles.catLabel} term="cashInAccount" />}
                   </View>
                   {/* green for money received; $0 in the text colour, as phones 4 and 5 draw it (2026-10-25) */}
                   <Text style={[styles.catV, !dayOneView && b.earned > 0 && { color: Colors.gainText }]}>{fig('MK-PF-M-007', b.earned)}</Text>
@@ -608,7 +609,8 @@ export default function PerformanceScreen() {
               /* one line with a "·" between, as v17 phones 1 and 3 draw it (drawing check 2026-10-12) */
               <NoteLine parts={[
                 { term: 'earnedInWindow', text: 'Earned = dividends + interest received in this window' },
-                { term: 'yearlyPace', text: 'a /year figure is that category’s yearly pace' },
+                // "/year" at 700, as v17 phones 1 and 3 draw it ("a <b>/year</b> figure …"; 2026-10-27, FX-PF, PF-2 — it was 400)
+                { term: 'yearlyPace', text: <>a <Text style={styles.noteStrong}>/year</Text> figure is that category’s yearly pace</> },
               ]} />
             )}
           </View>
@@ -659,6 +661,10 @@ export function HoldingEditor({ open, accounts, existing, onClose, onSave, onDel
 }) {
   // the account the holding is in, shown, not chosen (a holding moves by a sale in one account and a buy in another)
   const investAccts = accounts.filter((a) => a.asset_id === existing.accountId);
+  // ONE NAME PER ACCOUNT (2026-10-27, FX-PF, PF-8; DEC-0083, tenet 4): the chip and the 📊 line say the name the account page, the
+  // trade sheet and the tab say — "Vanguard Brokerage" — from the one writer, never the institution alone ("Vanguard")
+  const editorNames = accountDisplayNames(accounts);
+  const nameOf = (a: AssetAccount) => editorNames.get(a.asset_id) ?? (a.institution?.trim() || a.label);
   const [accountId, setAccountId] = useState<string>('');
   const [ticker, setTicker] = useState('');
   const [label, setLabel] = useState('');
@@ -825,7 +831,7 @@ export function HoldingEditor({ open, accounts, existing, onClose, onSave, onDel
           {lots.map((l, i) => (
             <View key={i} style={styles.lotRow}>
               <View style={styles.lotCell}><Text style={styles.lotL}>{isOption ? 'Contracts' : 'Shares'}</Text><TextInput style={styles.lotIn} keyboardType="decimal-pad" value={lotVal(i, 'shares', l.shares)} onChangeText={(t) => setLotNum(i, 'shares', t)} placeholder="0" placeholderTextColor={Colors.textTertiary} /></View>
-              <View style={styles.lotCell}><Text style={styles.lotL}>Cost / share (opt)</Text><TextInput style={styles.lotIn} keyboardType="decimal-pad" value={lotVal(i, 'cost_per_share', l.cost_per_share)} onChangeText={(t) => setLotNum(i, 'cost_per_share', t)} placeholder="—" placeholderTextColor={Colors.textTertiary} /></View>
+              <View style={styles.lotCell}><Text style={styles.lotL}>Cost / share (opt)</Text><MoneyBox bare style={styles.lotIn} value={lotVal(i, 'cost_per_share', l.cost_per_share)} onChangeText={(t) => setLotNum(i, 'cost_per_share', t)} placeholder="—" /></View>
               <View style={styles.lotCell}><Text style={styles.lotL}>Date (opt)</Text><DateField value={l.purchase_date ?? ''} onChange={(iso) => setLot(i, { purchase_date: iso })} label="purchase date" style={styles.lotIn} maximumDate={new Date()} /></View>
               {lots.length > 1 && <TouchableOpacity hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }} accessibilityRole="button" accessibilityLabel={`Remove lot ${i + 1}`} onPress={() => setLots((ls) => ls.filter((_, j) => j !== i))}><Text style={styles.lotDel}>✕</Text></TouchableOpacity>}
             </View>
@@ -835,8 +841,8 @@ export function HoldingEditor({ open, accounts, existing, onClose, onSave, onDel
             <>
               {/* a bond's or CD's own facts (DEC-0281, DEC-6212) — the same three questions, in the same words, as Add an account */}
               <Text style={styles.fieldL}>Face value (optional)</Text>
-              <TextInput style={styles.input} keyboardType="decimal-pad" value={bondFace} onChangeText={setBondFace} accessibilityLabel="Face value"
-                placeholder="$10,000" placeholderTextColor={Colors.textTertiary} />
+              <MoneyBox bare style={styles.input} value={bondFace} onChangeText={setBondFace} a11y="Face value"
+                placeholder="$10,000" />
               <Text style={styles.fieldL}>Interest rate % (optional)</Text>
               <TextInput style={styles.input} keyboardType="decimal-pad" value={bondRate} onChangeText={setBondRate} accessibilityLabel="Coupon percent"
                 placeholder="4.5" placeholderTextColor={Colors.textTertiary} />
@@ -866,8 +872,8 @@ export function HoldingEditor({ open, accounts, existing, onClose, onSave, onDel
               <Text style={styles.fieldL}>Account</Text>
               <View style={styles.kindWrap}>
                 {investAccts.map((a) => (
-                  <TouchableOpacity key={a.asset_id} style={[styles.kindChip, accountId === a.asset_id && styles.kindChipOn]} accessibilityRole="button" accessibilityLabel={`Account: ${a.institution?.trim() || a.label}`} onPress={() => setAccountId(a.asset_id)}>
-                    <Text style={[styles.kindChipT, accountId === a.asset_id && styles.kindChipTOn]}>{a.institution?.trim() || a.label}</Text>
+                  <TouchableOpacity key={a.asset_id} style={[styles.kindChip, accountId === a.asset_id && styles.kindChipOn]} accessibilityRole="button" accessibilityLabel={`Account: ${nameOf(a)}`} onPress={() => setAccountId(a.asset_id)}>
+                    <Text style={[styles.kindChipT, accountId === a.asset_id && styles.kindChipTOn]}>{nameOf(a)}</Text>
                   </TouchableOpacity>
                 ))}
               </View>
@@ -877,7 +883,7 @@ export function HoldingEditor({ open, accounts, existing, onClose, onSave, onDel
                 // performance only (B-60). A position-derived account is built FROM its holdings.
                 if (!sel || sel.derive_balance === true) return null;
                 return (
-                  <Text style={styles.note} accessibilityLabel={`Tracked for performance — this won’t change ${sel.institution?.trim() || sel.label}’s ${figSaid('MK-NW-M-018', sel.balance)} total. Edit the account total in Net worth.`}>📊 Tracked for performance — this won’t change {sel.institution?.trim() || sel.label}’s {fig('MK-NW-M-018', sel.balance)} total. Edit the account total in Net worth.</Text>
+                  <Text style={styles.note} accessibilityLabel={`Tracked for performance — this won’t change ${nameOf(sel)}’s ${figSaid('MK-NW-M-018', sel.balance)} total. Edit the account total in Net worth.`}>📊 Tracked for performance — this won’t change {nameOf(sel)}’s {fig('MK-NW-M-018', sel.balance)} total. Edit the account total in Net worth.</Text>
                 );
               })()}
             </>
@@ -912,21 +918,21 @@ function Note({ term, children, size = 11 }: { term: GlossaryTerm; children: Rea
   return (
     <View style={styles.noteRow}>
       <SaidText style={[styles.noteT, size === 13 && { fontSize: 13, lineHeight: 18 }]}>{children}</SaidText>
-      <InfoDot size={size} term={term} />
+      <InfoDot line={[styles.noteT, size === 13 && { fontSize: 13 }]} term={term} />
     </View>
   );
 }
 
 /** Two quiet notes on ONE line, each with its ⓘ, a "·" between — "… a yearly rate ⓘ · time-weighted, so … ⓘ"
  *  (Performance v17, phones 1 and 3). The pieces wrap as words do; nothing starts a row of its own. */
-function NoteLine({ parts }: { parts: { term: GlossaryTerm; text: string }[] }) {
+function NoteLine({ parts }: { parts: { term: GlossaryTerm; text: React.ReactNode }[] }) {
   return (
     <View style={[styles.noteRow, { flexWrap: 'wrap' }]}>
       {parts.map((p, i) => (
         <React.Fragment key={p.term}>
           {i > 0 && <Text style={styles.noteT}>·</Text>}
           <SaidText style={styles.noteT}>{p.text}</SaidText>
-          <InfoDot size={11} term={p.term} />
+          <InfoDot line={styles.noteT} term={p.term} />
         </React.Fragment>
       ))}
     </View>
@@ -939,7 +945,7 @@ function NoteLine({ parts }: { parts: { term: GlossaryTerm; text: string }[] }) 
 // THE VALUE LINE now lives in src/components/ValueGraph.tsx, shared with the Account portfolio screen.
 
 // ───────────────────────── The trade sheet: record activity ─────────────────────────
-// Drawn as built, approval pending: MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_trade-sheet_v03.html (held by src/screens/__tests__/sheets_drawn_from_code.test.tsx).
+// Drawn as built, approval pending: MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_trade-sheet_v04.html (held by src/screens/__tests__/sheets_drawn_from_code.test.tsx).
 const TXN_TYPES: { k: TxnType; label: string }[] = [
   { k: 'BUY', label: 'Buy' }, { k: 'SELL', label: 'Sell' }, { k: 'DEPOSIT', label: 'Deposit cash' },
   { k: 'WITHDRAWAL', label: 'Withdraw' }, { k: 'TRANSFER', label: 'Transfer' }, { k: 'DIVIDEND', label: 'Dividend' },
@@ -1099,7 +1105,7 @@ export function TransactionSheet({ open, accounts, onClose, onSave, prefill }: {
 
           {/* available-cash note for spend actions */}
           {(isBuy || type === 'WITHDRAWAL' || isTransfer) && acct && (
-            <Text style={[styles.note, !enough && { color: Colors.red, fontWeight: '700' }]} accessibilityLabel={`Available cash: ${figSaid('MK-PF-M-020', avail)}${!enough ? '. Not enough — deposit or transfer cash in first' : ''}`}>Available cash: {fig('MK-PF-M-020', avail)}{!enough ? '  ⚠ not enough — deposit or transfer cash in first' : ''}</Text>
+            <Text style={[styles.note, !enough && { color: Colors.red, fontWeight: '700' }]} accessibilityLabel={`Available cash: ${figSaid('MK-PF-M-020', avail)}${!enough ? '. Not enough — deposit or transfer cash in first' : ''}`}>Available cash: {fig('MK-PF-M-020', avail)}{!enough ? ' ⚠ not enough — deposit or transfer cash in first' : ''}</Text>
           )}
 
           {isBuy && (<><Text style={styles.fieldL}>Ticker</Text>
@@ -1138,8 +1144,8 @@ export function TransactionSheet({ open, accounts, onClose, onSave, prefill }: {
             {/* a purchase whose share count is not on record: the sale cannot be checked or taken from it, and the line says why
                 (2026-10-25, drawing v03 row 17; DEC-3523 tenets 3 and 5) — it read "You own  shares  ⚠ can’t sell more than you own" */}
             {isSell && ticker !== '' && (ownedShares == null
-              ? <Text style={[styles.note, { color: Colors.red, fontWeight: '700' }]}>You own: {SHARE_COUNT_NOT_STATED}  ⚠ add the share count in Edit holding before recording a sale</Text>
-              : <Text style={[styles.note, !sellOk && { color: Colors.red, fontWeight: '700' }]}>You own {tradedPos ? quantityWithUnit(tradedPos, ownedShares) : `${ownedShares} shares`}{!sellOk ? "  ⚠ can’t sell more than you own" : ''}</Text>)}
+              ? <Text style={[styles.note, { color: Colors.red, fontWeight: '700' }]}>You own: {SHARE_COUNT_NOT_STATED} ⚠ add the share count in Edit holding before recording a sale</Text>
+              : <Text style={[styles.note, !sellOk && { color: Colors.red, fontWeight: '700' }]}>You own {tradedPos ? quantityWithUnit(tradedPos, ownedShares) : `${ownedShares} shares`}{!sellOk ? " ⚠ can’t sell more than you own" : ''}</Text>)}
           </>)}
 
           {isDiv && (
@@ -1152,7 +1158,7 @@ export function TransactionSheet({ open, accounts, onClose, onSave, prefill }: {
           {(isTrade || (isDiv && reinvest)) && (
             <View style={[styles.lotRow, { marginTop: 12 }]}>
               <View style={styles.lotCell}><Text style={styles.lotL}>{inContracts ? 'Contracts' : 'Shares'}</Text><TextInput style={styles.lotIn} keyboardType="decimal-pad" value={shares} onChangeText={setShares} placeholder="0" placeholderTextColor={Colors.textTertiary} /></View>
-              <View style={styles.lotCell}><Text style={styles.lotL}>Price / share</Text><TextInput style={styles.lotIn} keyboardType="decimal-pad" value={price} onChangeText={setPrice} placeholder="0" placeholderTextColor={Colors.textTertiary} /></View>
+              <View style={styles.lotCell}><Text style={styles.lotL}>Price / share</Text><MoneyBox bare style={styles.lotIn} value={price} onChangeText={setPrice} placeholder="0" /></View>
               <View style={styles.lotCell}><Text style={styles.lotL}>Date</Text><DateField value={date} onChange={setDate} label="transaction date" style={styles.lotIn} maximumDate={new Date()} /></View>
             </View>
           )}
@@ -1163,12 +1169,12 @@ export function TransactionSheet({ open, accounts, onClose, onSave, prefill }: {
           {/* the trade's own fee, optional, in the words and the dash the holding editor gives an optional figure (2026-10-23, E2E-58) */}
           {isTrade && (
             <View style={styles.lotRow}>
-              <View style={styles.lotCell}><Text style={styles.lotL}>Fee (opt)</Text><TextInput style={styles.lotIn} keyboardType="decimal-pad" value={fee} onChangeText={setFee} accessibilityLabel="Fee" placeholder="—" placeholderTextColor={Colors.textTertiary} /></View>
+              <View style={styles.lotCell}><Text style={styles.lotL}>Fee (opt)</Text><MoneyBox bare style={styles.lotIn} value={fee} onChangeText={setFee} a11y="Fee" placeholder="—" /></View>
             </View>
           )}
           {(isCash || isTransfer || (isDiv && !reinvest)) && (
             <View style={[styles.lotRow, { marginTop: 12 }]}>
-              <View style={styles.lotCell}><Text style={styles.lotL}>Amount</Text><TextInput style={styles.lotIn} keyboardType="decimal-pad" value={amount} onChangeText={setAmount} placeholder="0" placeholderTextColor={Colors.textTertiary} /></View>
+              <View style={styles.lotCell}><Text style={styles.lotL}>Amount</Text><MoneyBox bare style={styles.lotIn} value={amount} onChangeText={setAmount} placeholder="0" /></View>
               <View style={styles.lotCell}><Text style={styles.lotL}>Date</Text><DateField value={date} onChange={setDate} label="transaction date" style={styles.lotIn} maximumDate={new Date()} /></View>
             </View>
           )}
@@ -1183,7 +1189,7 @@ export function TransactionSheet({ open, accounts, onClose, onSave, prefill }: {
 }
 
 // ───────────────────────── Activity / history ─────────────────────────
-// Drawn as built, approval pending: MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_activity-sheet_v01.html (held by src/screens/__tests__/sheets_drawn_from_code.test.tsx).
+// Drawn as built, approval pending: MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_activity-sheet_v02.html (held by src/screens/__tests__/sheets_drawn_from_code.test.tsx).
 export function HistorySheet({ open, transactions, accounts, onClose, onDelete }: {
   open: boolean; transactions: Transaction[]; accounts: AssetAccount[]; onClose: () => void; onDelete: (id: string) => boolean | void;
 }) {
@@ -1193,7 +1199,9 @@ export function HistorySheet({ open, transactions, accounts, onClose, onDelete }
     if (onDelete(id) === false) Alert.alert('Can\u2019t remove this entry',
       'It was recorded before balance-safe deletes existed, so removing it can\u2019t undo its effect on your balances. Record a correcting entry instead (e.g. a matching deposit or withdrawal).');
   };
-  const acctName = (id?: string) => { const a = accounts.find((x) => x.asset_id === id); return a ? (a.institution?.trim() || a.label) : '—'; };
+  // the one account name (PF-8, DEC-0083; 2026-10-27), as the trade sheet's acctName reads it
+  const historyNames = accountDisplayNames(accounts);
+  const acctName = (id?: string) => { const a = accounts.find((x) => x.asset_id === id); return a ? (historyNames.get(a.asset_id) ?? (a.institution?.trim() || a.label)) : '—'; };
   return (
     <Modal visible={open} transparent animationType={modalAnimation()} onRequestClose={onClose}>
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
@@ -1241,17 +1249,21 @@ const styles = StyleSheet.create({
   // v17: CATEGORY 800, EARNED and RETURN 700, all three in the secondary grey (drawing check 2026-10-12)
   catHeadL: { flex: 1, fontSize: 11, fontWeight: '800', color: Colors.textSecondary, letterSpacing: 0.4 },
   catHeadV: { width: 84, textAlign: 'right', fontSize: 11, fontWeight: '700', color: Colors.textSecondary, letterSpacing: 0.4 },
-  catHeadR: { width: 64, textAlign: 'right', fontSize: 11, fontWeight: '700', color: Colors.textSecondary, letterSpacing: 0.4 },
+  catHeadR: { width: 104, textAlign: 'right', fontSize: 11, fontWeight: '700', color: Colors.textSecondary, letterSpacing: 0.4 },
   catRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 7, gap: 6 },
-  catL: { flex: 1, fontSize: 13, color: Colors.textPrimary },
+  // THE CATEGORY ROWS AT 15 (2026-10-27, FX-PF, PF-1): v17 draws them at 13.5 (.rw), which the one type scale takes UP to 15 — v17
+  // line 129, DEC-0059: "a size between two rounded up". They were 13, a size nothing set. The Return column is 104 wide so a
+  // yearly rate, "+16.24%/year" at 15/700, stays on one line (it was 64). To reverse: 13, and 64.
+  catL: { flex: 1, fontSize: 15, color: Colors.textPrimary },
   catName: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 4 },
-  catLabel: { fontSize: 13, color: Colors.textPrimary },
+  catLabel: { fontSize: 15, color: Colors.textPrimary },
   // a quiet line with its ⓘ at the end of the words (Performance v17)
   noteRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 4, marginTop: 4 },
   // the notes are v17's .mut — the secondary grey (drawing check 2026-10-12; they were tertiary)
   noteT: { flexShrink: 1, fontSize: 11, color: Colors.textSecondary, lineHeight: 15 },
-  catV: { width: 84, textAlign: 'right', fontSize: 13, fontWeight: '700', color: Colors.textPrimary, fontVariant: ['tabular-nums'] },
-  catR: { width: 64, textAlign: 'right', fontSize: 13, fontWeight: '700', color: Colors.textPrimary, fontVariant: ['tabular-nums'] },
+  noteStrong: { fontWeight: '700' },
+  catV: { width: 84, textAlign: 'right', fontSize: 15, fontWeight: '700', color: Colors.textPrimary, fontVariant: ['tabular-nums'] },
+  catR: { width: 104, textAlign: 'right', fontSize: 15, fontWeight: '700', color: Colors.textPrimary, fontVariant: ['tabular-nums'] },
   // v17 draws the date and the trio's labels at 12, which the one type scale takes UP to 13 (DEC-0059); both were 11
   headDate: { fontSize: 13, color: Colors.textSecondary },
   trioRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 16, paddingTop: 4 },

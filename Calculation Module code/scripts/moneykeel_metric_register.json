@@ -1,11 +1,11 @@
 {
  "highest": {
-  "CF-M": 95,
+  "CF-M": 101,
   "HM-M": 4,
   "MN-M": 33,
   "NW-M": 73,
   "PF-M": 27,
-  "PL-M": 37,
+  "PL-M": 45,
   "XS-I": 48,
   "XS-M": 7
  },
@@ -37,6 +37,7 @@
   "CF|M|declared|/base-pay|A month not typed": "MK-CF-M-080",
   "CF|M|declared|/base-pay|The rate in force": "MK-CF-M-081",
   "CF|M|declared|/base-pay|Your employer’s match": "MK-CF-M-079",
+  "CF|M|declared|/cashflow|$X still owed then": "MK-CF-M-096",
   "CF|M|declared|/cashflow|= Planned surplus (this month)": "MK-CF-M-049",
   "CF|M|declared|/cashflow|A ten-year Treasury pays X today": "MK-CF-M-091",
   "CF|M|declared|/cashflow|Rates used — yours, calculated: X on pre-tax draws": "MK-CF-M-084",
@@ -45,6 +46,7 @@
   "CF|M|declared|/cashflow|Your mortgage costs X": "MK-CF-M-090",
   "CF|M|declared|/cashflow|about $X/year at your balance": "MK-CF-M-093",
   "CF|M|declared|/cashflow|around $X better off / worse off": "MK-CF-M-095",
+  "CF|M|declared|/cashflow|each list’s total on Expenses — what its rows add up to": "MK-CF-M-101",
   "CF|M|declared|/cashflow|gains are X of your taxable holdings’ value": "MK-CF-M-088",
   "CF|M|declared|/cashflow|inflation a year": "MK-CF-M-083",
   "CF|M|declared|/cashflow|on gains, X until your taxable income passes $Y": "MK-CF-M-085",
@@ -280,6 +282,13 @@
   "PL|M|YOUR RETIREMENT PAYCHECK — each guaranteed source|g.amount": "MK-PL-M-003",
   "PL|M|Your odds — can't work them out yet. Add <what> below.|door.missing": "MK-PL-M-002",
   "PL|M|Your paycheck $X/mo|paycheckTotal": "MK-PL-M-006",
+  "PL|M|reserved|/roth|how much smaller each required withdrawal is — no orchestrator yet, Q-PL-5 unanswered; the ruling it serves: DEC-8890": "MK-PL-M-043",
+  "PL|M|reserved|/roth|the amount converted, grown to the first required withdrawal — no orchestrator yet, Q-PL-5 unanswered; the ruling it serves: DEC-8890": "MK-PL-M-044",
+  "PL|M|reserved|/roth|the first required withdrawal, after converting — no orchestrator yet, Q-PL-5 unanswered; the ruling it serves: DEC-8890": "MK-PL-M-042",
+  "PL|M|reserved|/roth|the first required withdrawal, as you are — no orchestrator yet, Q-PL-5 unanswered; the ruling it serves: DEC-8890": "MK-PL-M-041",
+  "PL|M|reserved|/roth|your Roth money after converting — no orchestrator yet, Q-PL-5 unanswered; the ruling it serves: DEC-8890": "MK-PL-M-040",
+  "PL|M|reserved|/roth|your Roth money — no orchestrator yet, Q-PL-5 unanswered; the ruling it serves: DEC-8890": "MK-PL-M-039",
+  "PL|M|reserved|/roth|your pre-tax money after converting — no orchestrator yet, Q-PL-5 unanswered; the ruling it serves: DEC-8890": "MK-PL-M-038",
   "PL|M|✓ What you have — already in: N accounts, $X counted|door.credit.total": "MK-PL-M-001",
   "XS|I|Social Security claim age|typed": "MK-XS-I-021",
   "XS|I|Social Security monthly amount|typed from the statement, or a worked example": "MK-XS-I-020",
@@ -337,7 +346,7 @@
   "XS|M|YOUR INVESTMENTS · 📈 INVESTMENTS|investTotal": "MK-XS-M-003",
   "XS|M|▲ up/▼ down $X (Y%) this month · Return · YOUR RETURN|youReturn / shownReturn": "MK-XS-M-004"
  },
- "note": "A metric identifier is issued once against its key and never re-pointed. A number here is never handed to a different figure, even if the figure it was issued to is deleted — the retired block keeps it with the reason. | 2026-09-14: identifiers whose key begins \"declared\" are DECLARED IN THE CODE (founder rule 11) — the door owns them; they are listed here only so no other row is issued the same number.",
+ "note": "A metric identifier is issued once against its key and never re-pointed. A number here is never handed to a different figure, even if the figure it was issued to is deleted — the retired block keeps it with the reason. | 2026-09-14: identifiers whose key begins \"declared\" are DECLARED IN THE CODE (founder rule 11) — the door owns them; they are listed here only so no other row is issued the same number. | 2026-10-31: identifiers whose key begins \"reserved\" name a figure a screen prints that no orchestrator hands yet, so it is not declared (the lead's rulings of 2026-10-26 and 2026-10-31); the key says why and the ruling it serves. The number is held for it.",
  "retired": {
   "CF|M|= Planned surplus|cell.net": "\"= Planned surplus\" (the month's planned in less out), a hand-typed row, was issued MK-CF-M-003 first. On 2026-10-02, when the hand-typed rows became declarations, MK-CF-M-003 was handed to \"= Actual surplus so far\" — against this register's own rule. Settled 2026-10-24 (the lead's decision): MK-CF-M-003 stays with \"= Actual surplus so far\", which the code, the screens, the drawings and his decisions since 2026-10-02 use; this key is retired and never issued again; its figure lives on as MK-CF-M-049 \"= Planned surplus (this month)\".",
   "CF|M|Expected in|cell.inflow": "\"Expected in\" (the month's money in), a hand-typed row, was issued MK-CF-M-001 first. On 2026-10-02, when the hand-typed rows became declarations, MK-CF-M-001 was handed to \"Expenses\" — against this register's own rule. Settled 2026-10-24 (the lead's decision): MK-CF-M-001 stays with \"Expenses\", which the code, the screens, the drawings and his decisions since 2026-10-02 use; this key is retired and never issued again; its figure lives on as MK-CF-M-047 \"Expected inflow\".",
@@ -360,6 +369,7 @@
   "MK-NW-M-003": "\"the trend line\" (how many points the Net worth line is drawn from) — retired 2026-10-14: the line is no longer on the Net worth screen, and its door MK-NW-O-003 theNetWorth stopped taking the monthly and daily history it was drawn from, which none of its eight callers passed (inputs-and-use audit, 2026-10-11, Net worth). The change on the screen is MK-NW-M-001, read from the record by MK-XS-F-005 trendPoints. The number is never reused.",
   "MK-NW-M-069": "\"Your return, past <window>\" on the Holding page — retired 2026-10-22, the day after it was issued: it is the account page's holding Return, MK-PF-M-023 (one holding, one window, one figure; tenet 4). Both pages now print that older identifier from one function, holdingRowsIn (holding.ts). The number is never reused.",
   "MK-PF-M-009": "issued to \"Return (money-weighted, when the record covers it)\" — a true XIRR shown nowhere since approved mock v14 removed that card on 2026-09-25; the row left the declarations on 2026-09-30 (Performance pass 2). The number is never reused.",
+  "MK-PL-M-045": "\"the nest egg at retirement, the middle of 1,000 simulated futures\" (Roth conversion, declared by FX-PLAN on 2026-10-27) — retired 2026-10-30 before it was ever printed under its own number: one nest egg, MK-PL-M-026 \"your nest egg at retirement\", the Retirement cockpit's own figure (MK-PL-F-055 projectNestEgg), on Roth and What-if (the lead's order of that day). This number is never reused.",
   "note 2026-10-02 — MK-CF-M-001 to 004": "Issued on 2026-08-28 to the hand-typed rows \"Expected in\", \"Planned out\", \"= Planned surplus\" and \"Out (spent + debt)\", then given to theMonth's declared rows (Expenses, = Planned surplus, = Actual surplus so far, each row of the month) on 2026-09-27 before the never-re-point rule was written down. They stay with the declared rows; the old hand-typed keys remain here so the history reads true."
  }
 }

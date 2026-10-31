@@ -34,8 +34,13 @@ export function ChangeWalkSheet({ visible, onClose, walk }: {
       <TouchableOpacity accessibilityRole="button" accessibilityLabel="Close" style={s.scrim} activeOpacity={1} onPress={onClose} />
       <View style={s.sheet}>
         <View style={s.grab} />
-        <SectionBand inCard inset={Spacing.base}
-          title={`How ${maskedMoney(Math.round(walk.beginning))} became ${maskedMoney(Math.round(walk.ending))}`} />
+        {/* THE BAR STARTS 10 POINTS UNDER THE HANDLE (v08 frame E, .grab + .walkband; drawing match round 2, NW2-04). The bar's own
+            `inCard` pulls it up by the sheet's padding to meet a card's top edge; under the handle that put it 6 points over the
+            handle, its square corners out past the sheet's round ones. This holder gives the padding back above it. */}
+        <View style={s.bandHolder}>
+          <SectionBand inCard inset={Spacing.base}
+            title={`How ${maskedMoney(Math.round(walk.beginning))} became ${maskedMoney(Math.round(walk.ending))}`} />
+        </View>
         <ScrollView style={{ maxHeight: 400 }}>
           {rows.map((r) => (
             <View key={r.label} style={[s.row, r.indent && s.indent]}>
@@ -61,7 +66,9 @@ export function ChangeWalkSheet({ visible, onClose, walk }: {
 
 const s = StyleSheet.create({
   scrim: { flex: 1, backgroundColor: 'rgba(0,0,0,0.35)' },
-  sheet: { backgroundColor: Colors.white, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: Spacing.base, paddingBottom: 32 },
+  // v08 frame E's .sheet: 10 above the handle, 16 at the sides (NW2-04)
+  sheet: { backgroundColor: Colors.white, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: Spacing.base, paddingTop: 10, paddingBottom: 32 },
+  bandHolder: { paddingTop: Spacing.base },   // the 16 the bar's inCard takes back, so it lands on the handle's 10-point gap
   grab: { width: 36, height: 4, borderRadius: 2, backgroundColor: Colors.bgTertiary, alignSelf: 'center', marginBottom: 10 },
   row: { flexDirection: 'row', alignItems: 'center', paddingVertical: 7 },
   indent: { paddingLeft: 20 },

@@ -399,10 +399,10 @@ const FIGS: Record<string, Fig> = {
   'MK-CF-M-010': F('INC_OK_TAB', /^Rental (property|income)$/, MOCK.cf, MATCH.cf),
   'MK-CF-M-011': F('INC_OK_TAB', 'Social Security · pension', MOCK.cf, MATCH.cf),
   'MK-CF-M-012': F('CF_INC', 'Sep 30 · Salary', MOCK.cf, MATCH.cf),
-  'MK-CF-M-013': F('CF_EXP', 'ACTUAL EXPENSES', MOCK.cf, MATCH.cf),
+  'MK-CF-M-013': F('CF_EXP', 'ACTUAL EXPENSES', MOCK.cf, MATCH.cf, { nowAs: { id: 'MK-CF-M-101', seen: `FX-CF-A, 2026-10-27 (the lead's R5, rows round once): the ACTUAL EXPENSES bar and "= Actual expenses, all sources" are written to the cent and print under MK-CF-M-101, each list's total; MK-CF-M-013 prints on the budget editor and the retired pace line` } }),
   'MK-CF-M-014': F('CF_EXP', '12 Sep · Diner', MOCK.cf, MATCH.cf),
   'MK-CF-M-015': F('CF_EXP', 'PLANNED EXPENSES', MOCK.cf, MATCH.cf),
-  'MK-CF-M-016': F('DRAW_A_EXP', 'BIG-TICKET RADAR', MOCK.cf, MATCH.cf),
+  'MK-CF-M-016': F('DRAW_A_EXP', 'BIG-TICKET RADAR', MOCK.cf, MATCH.cf, { nowAs: { id: 'MK-CF-M-014', seen: `FX-CF-A, 2026-10-27 (R5): a payment logged prints on the radar to the cent, as its row above does, under MK-CF-M-014; a bill or a sum due still prints under MK-CF-M-016` } }),
   'MK-CF-M-020': F('CF', 'Surplus after your budget', MOCK.cf, MATCH.cf),
   'MK-CF-M-021': F('CF', 'Emergency fund · from your Plan', MOCK.cf, MATCH.cf),
   'MK-CF-M-022': F('SAVER', 'YOUR FUTURE PAYCHECK', null, MATCH.card, { drawingNote: PAYCARD }),
@@ -437,7 +437,7 @@ const FIGS: Record<string, Fig> = {
   'MK-CF-M-054': F('CF', 'ACTUAL · SO FAR', MOCK.cf, MATCH.cf, { viaRows: true }),
   'MK-CF-M-055': F('SAVER', 'Draw from savings', null, MATCH.card, { drawingNote: PAYCARD }),
   'MK-CF-M-056': F('CF_BUDGET', /left · of \$1,100 plan$/, MOCK.cf, MATCH.cf),   // $3,400 until FIX-MONTH, 2026-10-25 (the mortgage counted once)
-  'MK-CF-M-057': F('CF_DEBT', /~\$261\/month interest$/, MOCK.cf, MATCH.cf),
+  'MK-CF-M-057': F('CF_DEBT', /~\$180\/month interest$/, MOCK.cf, MATCH.cf, { nowAs: { id: 'MK-CF-M-089', seen: `FX-CF-A, 2026-10-27 (CF2-03): the total line under YOUR DEBT carries the payments only, as frame 6 draws it; each debt's interest is on its own line under MK-CF-M-089 ($180 = 9,000 × 24% ÷ 12) — MK-CF-M-057 is printed nowhere` } }),
   'MK-CF-M-058': F('CF_DEBT', 'debt-free', MOCK.cf, MATCH.cf),
   'MK-CF-M-059': F('CF_DEBT', 'total interest', MOCK.cf, MATCH.cf),
   'MK-CF-M-060': F('BILLS', 'Lowest point $1,800 — Nov.', MOCK.bills, MATCH.bills),
@@ -912,7 +912,8 @@ for (const id of ['MK-CF-M-060', 'MK-CF-M-061', 'MK-CF-M-062', 'MK-CF-M-063']) {
     why: 'Opening the calendar changes nothing entered, and the figures chain from the balance. But a balance the person typed ("Edit it and the End column recalculates") lived only while the screen was open: leave and come back and the auto-fill was back. The lead ruled reading B on 2026-10-25: it is the person\'s figure, kept with its date.',
     fix: 'src/screens/BillCalendarScreen.tsx and src/store/useStore.ts billCalendarStart: a typed cash on hand is kept with its day and the box says "You entered this on <day>; your accounts hold $X". Owner: the bill calendar (MK-CF-O-008 reads it).',
     check: () => { holds5(id); },
-    wrong: () => { const k = typedStartKept(); expect(k.value).toBe('12000'); expect(k.said).toBe(true); },
+    // the box prints its figure as money since 2026-10-27 (every money box is a MoneyBox, DEC-8385); the kept 12000 is the same figure
+    wrong: () => { const k = typedStartKept(); expect(k.value).toBe('$12,000'); expect(k.said).toBe(true); },
     fixed: `${FIXMMA}: a cash on hand typed on the bill calendar is kept with its day — opened again it reads 12000 and "You entered this on …"`,
     was: () => { expect(src('src/screens/BillCalendarScreen.tsx')).toMatch(/const \[startStr, setStartStr\] = useState\(/); } };
 }
@@ -960,9 +961,9 @@ const T6: Record<string, Item> = {
     why: 'His row on the Home box (ways-to-add v10, 2026-10-23) says it shows once anything is added. A person whose first act is to log two expenses saw the first-day doors and no box — Home\'s gate ignored expenses.',
     fix: 'src/screens/HomeScreen.tsx hasMoneyData: an expense or an income logged is data (CF-MMFIX had it in progress).',
     check: () => { expect(L('EXP_ONLY_HOME').length).toBeGreaterThan(3); },
-    wrong: () => { expect(has('EXP_ONLY_HOME', 'THIS MONTH\'S CASH FLOW')).toBe(true); },
+    wrong: () => { expect(has('EXP_ONLY_HOME', 'THIS MONTH’S CASH FLOW')).toBe(true); },
     fixed: `${FIXMMA}: two expenses logged and nothing else bring the box — "Outflow (expenses + debt) $2,812"`,
-    was: () => { expect(has('EXP_ONLY_HOME', 'THIS MONTH\'S CASH FLOW')).toBe(false); } },
+    was: () => { expect(has('EXP_ONLY_HOME', 'THIS MONTH’S CASH FLOW')).toBe(false); } },
   'MK-CF-M-060#6': { cls: 'APP WRONG', mmcf: 'BC-02',
     why: 'On a first day with nothing entered the calendar reads "OK — you stay above zero in all 12 months · Lowest point $0", as the drawing draws it: a verdict on nothing. Tenet 3 outranks tenet 6, so the drawing needs its correction too.',
     fix: 'BillCalendarScreen.tsx and the drawing\'s READ THIS FIRST row: with nothing entered, no verdict — "Nothing entered yet" and the doors (Q48). Owner: MK-CF-O-008.',
@@ -1144,7 +1145,7 @@ const RULE_GROUPS: Record<string, RuleItem> = {
       readingB: 'With a mortgage in Debts and no home placed, the line is taken as that mortgage and stands down: +$3,450.',
       recommend: 'A for the figures, plus a sentence under the rows: "Your Rent / Mortgage line and a mortgage in Debts are both counted — if the line is that mortgage, place the mortgage on your home." Reverse in one word.' },
     check: () => { expect(first('CF', 'MK-CF-M-002')).toBe('$1,150'); expect(first('CF_EXP', 'MK-CF-M-013')).toBe('$2,998'); },
-    wrong: () => { expect(first('CF', 'MK-CF-M-002')).toBe('$3,450'); expect(first('CF_EXP', 'MK-CF-M-013')).toBe('$698');
+    wrong: () => { expect(first('CF', 'MK-CF-M-002')).toBe('$3,450'); expect(first('CF_EXP', 'MK-CF-M-101')).toBe('$698.00');   // to the cent, R5 (FX-CF-A, 2026-10-27)
       expect(text('CF')).toMatch(/Mortgage \| PAID \| −\$2,300/i); expect(first('HOME', 'MK-CF-M-052')).toBe('$3,248');
       expect(text('CF')).toMatch(/Place it on your home in Net worth, so we know they are the same\./); } },
   BUDGET_AVG: { claim: 'Dated budget readers keep own-month bills, but budgetVsActual still uses the annual average', cls: 'APP WRONG',
@@ -1173,7 +1174,7 @@ const RULE_GROUPS: Record<string, RuleItem> = {
     claim: 'A late entry is said only when the record has its saved time', cls: 'APP WRONG',
     why: 'With its saved time, August\'s list says the $150 was "added after August closed" (held). A record with no saved time (an older record, read as \'\' by history.ts) lists the $150 with nothing said: the card reads $1,360, the list $1,510.',
     fix: 'MoneyKeel/functions/cashflow/this-month.ts addedAfterRecord (MK-CF-F-231): with no saved time, the list says "this month\'s record does not say when it was saved — its figures may leave out later entries" when the list and the card differ. Owner: MK-CF-O-003.',
-    check: () => { expect(text('LATE_STAMPED_LIST')).toMatch(/added after August closed/); expect(first('LATE_CARD', 'MK-CF-M-052')).toBe('$1,360'); expect(first('LATE_LIST', 'MK-CF-M-013')).toBe('$1,510'); },
+    check: () => { expect(text('LATE_STAMPED_LIST')).toMatch(/added after August closed/); expect(first('LATE_CARD', 'MK-CF-M-052')).toBe('$1,360'); expect(first('LATE_LIST', 'MK-CF-M-101')).toBe('$1,510.00'); },   // to the cent, R5 (FX-CF-A, 2026-10-27)
     wrong: () => { expect(text('LATE_LIST')).toMatch(/(added after August closed|does not say when)/);
       expect(text('LATE_LIST')).toMatch(/August’s record does not say when it was saved, so it may leave out later entries — this list holds \$150 more than August’s figures\./); } },
   BAND_ONCE: { fixed: FIXINCA, claim: 'Base pay\'s band reads wages while the Income summary reads every source', cls: 'APP WRONG',
@@ -1234,7 +1235,7 @@ const CROSS: Record<string, CrossItem> = {
     wrong: () => { expect(printed('PART_SUM', 'MK-CF-M-039')).toEqual([]); expect(first('PART_PAY', 'MK-CF-M-031')).toBe('$3,799/month'); expect(after('PART_CF', 'Actual inflow (income (take-home))')).toBe('$3,799'); } },
   X4: { verdict: 'HOLDS', agrees: true, appWrong: false, claim: 'A car loan payment logged under Debt payment is counted once',
     why: 'The $250 car loan logged under Debt payment is the "Car loan PAID −$250" row, not an expense — ACTUAL EXPENSES leaves it out. Since FIX-MONTH, 2026-10-25 the $2,300 logged under the stood-down Rent / Mortgage line is the mortgage\'s payment too ("Mortgage PAID −$2,300"): ACTUAL EXPENSES $698, outflow $3,248 = $698 + $2,300 + $250 (it read $2,998 + $250).',
-    check: () => { expect(first('CF_EXP', 'MK-CF-M-013')).toBe('$698'); expect(text('CF')).toMatch(/Car loan \| PAID \| −\$250/i); expect(first('HOME', 'MK-CF-M-052')).toBe('$3,248'); } },
+    check: () => { expect(first('CF_EXP', 'MK-CF-M-101')).toBe('$698.00'); expect(text('CF')).toMatch(/Car loan \| PAID \| −\$250/i); expect(first('HOME', 'MK-CF-M-052')).toBe('$3,248'); } },   // R5 (FX-CF-A, 2026-10-27)
   X5: { fixed: FIXINCA, verdict: 'DOES NOT HOLD', agrees: true, appWrong: true, claim: 'Each earner\'s 401(k) comes off the take-home and the taxed income; the household total is the earners added',
     why: 'Two full-year earners: $1,200 + $400 = $1,600 a month, $19,200 a year, on both screens (held). Six paid months at $1,000: Base pay counts it twelve times ($12,000 behind its band and card), the Income summary six (−$6,000) — and MK-CF-F-188 twelve.', fix: PART_FIX,
     check: () => { expect(printed('PAY', 'MK-CF-M-034')).toContain('$1,600/month'); expect(first('SUM', 'MK-CF-M-077')).toBe('$19,200'); expect(householdPreTaxContributionsAnnual(PART_CALC as any)).toBe(12000); },
@@ -1289,7 +1290,10 @@ const FOUND: { id: string; screen: string; what: string; fix: string; check: () 
     check: () => { expect(text('ONE_RENT_PAY')).toMatch(/add rent, a bonus or a spouse’s wage later/); }, wrong: () => { expect(text('ONE_RENT_PAY')).not.toMatch(/add rent, a bonus or a spouse’s wage later/); } },
   { id: 'F4 a rental loss is left out of This month', screen: 'Cash flow · This month',
     what: 'The rental losing $500 a month: This month\'s inflow is $7,200 and the planned surplus +$1,150 — the $500 a month the property costs is in no row.',
-    fix: RENT_LOSS_FIX, check: () => { expect(first('LOSS_CF', 'MK-CF-M-002')).toBe('$1,150'); }, wrong: () => { expect(first('LOSS_CF', 'MK-CF-M-002')).toBe('$650'); },
+    // the loss is a row of the inflow ($6,700); and since FX-CF-A, 2026-10-27 (the lead's R3) the mortgage the person never placed is counted once, from
+    // Debts, so the Rent / Mortgage line stands down: 6,700 − 2,400 − 250 − 1,100 = +$2,950 (it read +$650; held as test.failing in
+    // cashflow_fix_wave_2026_10_27.test.tsx)
+    fix: RENT_LOSS_FIX, check: () => { expect(first('LOSS_CF', 'MK-CF-M-002')).toBe('$1,150'); }, wrong: () => { expect(first('LOSS_CF', 'MK-CF-M-002')).toBe('$2,950'); },
     fixed: `${FIXINCB}: the dated month table carries the rental's −$500/month (MK-XS-F-004 "Rental (after costs)")` },
   { id: 'F5 the budget editor shows a $0 limit when no budget is set', screen: 'Cash flow · Expenses · Your budget',
     what: 'With no budget set the editor\'s groups read "Fixed $2,300 / $0" and "Flexible $698 / $0" — a $0 limit, as if one were set (tenet 3), beside "— not set" above them.',

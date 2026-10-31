@@ -126,7 +126,7 @@ export default function TaxOrganizerScreen() {
         {org.estTaxRate != null && org.rate != null && (
           <Text style={styles.note}>
             {org.rate.estimated
-              ? `${org.rate.stateWords ? 'Calculated tax' : 'Calculated federal tax'} ≈${(org.estTaxRate * 100).toFixed(2)}% of the year's income — ${org.rate.stateWords ? `federal income tax, plus ${org.rate.stateWords}; assumes` : 'assumes'} you take the standard deduction.`
+              ? `${org.rate.stateWords ? 'Calculated tax' : 'Calculated federal tax'} ≈${(org.estTaxRate * 100).toFixed(2)}% of the year’s income — ${org.rate.stateWords ? `federal income tax, plus ${org.rate.stateWords}; assumes` : 'assumes'} you take the standard deduction.`
               : `Tax · ${org.rate.whose}.`}
             {' '}Figures are your entries/estimates — verify against your official forms.
           </Text>

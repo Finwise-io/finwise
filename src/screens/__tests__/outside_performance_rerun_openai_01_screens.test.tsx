@@ -276,7 +276,11 @@ const RENDERS: Record<string, () => Shot> = {
   NW_NW: () => shoot('networth', H_NW, '2026-09-28'),
   NW_NOBAL_HOME: () => shoot('home', { ...H_NW, assetAccounts: NW_ACCOUNTS.map((a) => (a.asset_id === 'a2' ? { ...a, balance: null } : a)) }, '2026-09-28'),
   NW_NOBAL_NW: () => shoot('networth', { ...H_NW, assetAccounts: NW_ACCOUNTS.map((a) => (a.asset_id === 'a2' ? { ...a, balance: null } : a)) }, '2026-09-28'),
-  NW_NOPAY: () => shoot('networth', { ...H_NW, liabilities: [NW_DEBTS[0], { ...NW_DEBTS[1], minimum_monthly_payment: undefined }] }, '2026-09-28'),
+  // H_NW TYPES NO EXPENSES, so since 2026-10-27 its emergency fund refuses (the lead's ruling R2, NW2-01: the debt payments alone are
+  // never the month — it read 18,000 ÷ 2,650 = 6.8 months). The emergency fund's lines are read on the same household with $1,100/month
+  // of expenses typed: 18,000 ÷ (1,100 + 2,650) = 4.8 months.
+  NW_SPEND: () => shoot('networth', { ...H_NW, onboardingProfile: { ...H_NW.onboardingProfile, monthlySpending: '1100' } }, '2026-09-28'),
+  NW_NOPAY: () => shoot('networth', { ...H_NW, onboardingProfile: { ...H_NW.onboardingProfile, monthlySpending: '1100' }, liabilities: [NW_DEBTS[0], { ...NW_DEBTS[1], minimum_monthly_payment: undefined }] }, '2026-09-28'),
   ACC_NOBAL: () => shoot('account', { ...H_NW, assetAccounts: NW_ACCOUNTS.map((a) => (a.asset_id === 'a2' ? { ...a, balance: null } : a)) }, '2026-09-28', { id: 'a2' }),
   EF_NW: () => shoot('networth', H_EF, '2026-09-28'),
   EF_JOB: () => shoot('jobsafety', H_EF, '2026-09-28'),
@@ -379,12 +383,14 @@ const FIGS: Record<string, Fig> = {
   // At $1,200/month you will put in $14,400 this year — room for $21,350 more. Calculated from the monthly amount you entered —
   // check it against your latest statement." The figure did not move: born 1965, 61 in 2026, $24,500 + $11,250 (60–63) = $35,750;
   // $1,200 × 12 = $14,400; $35,750 − $14,400 = $21,350.
-  'MK-MN-M-003': { main: 'CR_ROOM', text: 'room for $21,350', label: '401(k)', drawing: DRAW.room, estimate: /^At \$1,200\/month you will put in \$14,400 this year — room for \$21,350 more\. Calculated from the monthly amount you entered/,
+  // the label is read as drawn: since 2026-10-27 the box title is on the dark-green bar, in capitals (DEC-8839; contribution-room v02)
+  'MK-MN-M-003': { main: 'CR_ROOM', text: 'room for $21,350', label: '401(K)', drawing: DRAW.room, estimate: /^At \$1,200\/month you will put in \$14,400 this year — room for \$21,350 more\. Calculated from the monthly amount you entered/,
     t2: () => { expect(has('CR_ROOM', /At \$1,200\/month you will put in \$14,400 this year — room for \$21,350 more/)).toBe(true); expect(24500 + 11250).toBe(35750); expect(35750 - 1200 * 12).toBe(21350); },
     t3: () => { expect(R('CR_NOBIRTH').lines.join(' ')).not.toMatch(/\$NaN|undefined/); expect(R('CR_NOBIRTH').lines.join(' ')).not.toMatch(/\(61\)/); },
-    t4: () => { expect(has('CR_HOME', /About \$21,350 of this year's tax-advantaged room looks unused/)).toBe(true); } },
-  'MK-NW-M-012': { main: 'NW_NW', text: '$2,650/month', label: /debt payments you cannot stop/, drawing: DRAW.networth,
-    t2: () => { expect(2400 + 250).toBe(2650); expect(has('NW_NW', 'Both include $2,650/month of debt payments you cannot stop.')).toBe(true); },
+    t4: () => { expect(has('CR_HOME', /About \$21,350 of this year’s tax-advantaged room looks unused/)).toBe(true); } },
+  'MK-NW-M-012': { main: 'NW_SPEND', text: '$2,650/month', label: /debt payments you cannot stop/, drawing: DRAW.networth,
+    t2: () => { expect(2400 + 250).toBe(2650); expect(has('NW_SPEND', 'Both include $2,650/month of debt payments you cannot stop.')).toBe(true);
+      expect(R('NW_NW').lines.join(' ')).not.toMatch(/debt payments you cannot stop/); },   // no expenses typed: the refusal, no months (R2, 2026-10-27)
     t4: () => { const nw = theNetWorth({ accounts: NW_ACCOUNTS, debts: NW_DEBTS, snapshotDays: [], transactions: [], since: '2026-09-28', today: '2026-09-28', uid: 'x' } as any);
       expect(nw.monthlyDebtPayments).toBe(2650); expect(after('CF_CF', 'Mortgage', 2)).toBe('−$2,400'); expect(after('CF_CF', 'Car loan', 2)).toBe('−$250'); } },
   'MK-NW-M-013': { main: 'EF_NW', text: '5.2 months', label: 'EMERGENCY FUND', drawing: DRAW.networth, estimate: /an estimate from your own numbers/,
@@ -518,7 +524,7 @@ function t1(id: string) {
       expect(after('CF_CF', 'Mortgage', 2, 'ACTUAL · SO FAR')).toBe('−$2,300'); return;
     case 'MK-CF-M-053': expect(first('CF_CF', 'MK-CF-M-003')).toBe('$3,952'); expect(after('CF_CF', '= Actual surplus so far')).toBe('+$3,952'); return;
     case 'MK-MN-M-003': expect(has('CR_ROOM', 'room for $21,350')).toBe(true); return;   // "$21,350 left" until FIX-ROOM's words, 2026-10-25
-    case 'MK-NW-M-012': expect(has('NW_NW', 'Both include $2,650/month of debt payments you cannot stop.')).toBe(true); return;
+    case 'MK-NW-M-012': expect(has('NW_SPEND', 'Both include $2,650/month of debt payments you cannot stop.')).toBe(true); return;
     case 'MK-NW-M-013': expect(first('EF_NW', id)).toBe('5.2 months'); expect(has('EF_STRESS', '5.2')).toBe(true); return;
     case 'MK-NW-M-022': expect(first('FID_ACC', id)).toBe('4'); expect(has('FID_ACC', '4 records')).toBe(true); return;
     case 'MK-NW-M-028': expect(printed('B1', id).slice(0, 2)).toEqual(['$23,300', '$23,800']); return;
@@ -666,7 +672,8 @@ const CLASS: Record<string, Item> = {
   'MK-NW-M-013#1': { cls: 'APP WRONG', rowWordsOnly: true,
     why: 'The screen is right: with nothing logged it uses the essentials typed in the plan and says so — "$18,000 cash ÷ $3,470/month essentials — you entered" — his DEC-0251: "the typed plan is the fallback for someone who has logged nothing". The row leaves the fallback out ("the average of what has been logged"), so the reviewer read the worked example as logged history.',
     fix: 'MK-NW-M-013 row decisions (MoneyKeel/functions/networth-and-performance/emergency-fund.ts): add DEC-0251\'s fallback in his words. No figure moves.',
-    check: () => { expect(has('EF_NW', /\$18,000 cash ÷ \$3,470\/month essentials — you entered/)).toBe(true); },
+    // the tag is "calculated" since 2026-10-27 (the lead's ruling R7; v08 row of that date): $700 typed + $2,770 of debt payments is calculated by the app
+    check: () => { expect(has('EF_NW', /\$18,000 cash ÷ \$3,470\/month essentials — calculated/)).toBe(true); },
     wrong: () => { expect((figureSpec('MK-NW-M-013').decisions ?? []).join(' ')).toMatch(/typed plan|fallback/i); },
     fixed: '2026-10-21: the row carries DEC-0251\'s fallback in his words — nothing logged, the typed plan stands in (no figure moves)' },
   'MK-NW-M-013#4': { cls: 'APP WRONG',
@@ -676,7 +683,8 @@ const CLASS: Record<string, Item> = {
     fixed: '2026-10-21: Job safety reads the emergency fund door\'s cash and Net worth\'s Investments, not the old savings log ($18,000 covered, $2,820 still needed; tenet 4)' },
   'MK-NW-M-013#8': { cls: 'REVIEWER WRONG',
     why: 'The screens carry the rent exception: rent that keeps arriving comes off the month (owner 2026-10-04), and with a property\'s rent unknown the line "6.8 months, rent not included. Enter rent to include." sits with the months (DEC-3769; DEC-3836 on Stress test, Job safety, Insights and Home — emergency_fund_rent_dec3836).',
-    check: () => { expect(has('NW_NW', '6.8 months, rent not included. Enter rent to include.')).toBe(true); } },
+    // on H_NW with $1,100/month of expenses typed (it types none, and refuses since 2026-10-27, R2): 18,000 ÷ 3,750 = 4.8
+    check: () => { expect(has('NW_SPEND', '4.8 months, rent not included. Enter rent to include.')).toBe(true); } },
   // SETTLED 2026-10-24: the two 'dividends per account' PASS items (IN_FLIGHT_PASS until today), re-run after DEC-6618 landed
   'MK-NW-M-019#1': { cls: 'AGREES',
     why: 'The reviewer passed it. Re-run 2026-10-24 after the dividends-per-account work landed (DEC-6618: a holding is one ticker in one account, so its page counts only that account\'s records): the Fidelity page reads $825 of dividends — $420 on Jun 20 + $405 on Mar 20 — and still reads $825 when a second account holds VTI and was paid its own $40.',
@@ -695,7 +703,8 @@ const CLASS: Record<string, Item> = {
   'MK-NW-M-024#3': { cls: 'APP WRONG',
     why: 'Coupon missing: the screen does what his A46 says — "not entered · $0/year — coupon rate not entered", no yields (the reviewer is wrong there). Face missing: "4.50%/year · $1,089/year" — the rate on the market value, a guess (the reviewer is right there: a bond pays its coupon on its face — 25,000 × 4.5% = $1,125, not 24,200 × 4.5% = $1,089 — as the coupon\'s own row says, "IT IS PAID ON FACE, NOT ON VALUE"). Re-run 2026-10-24 after the bond value rule landed: it still read $1,089, and "Yield on today\'s value 4.50%" — the rate read back as a yield.',
     fix: 'src/domain/bonds/index.ts yearlyInterest, the rule yearlyInterestNow returns: a bond (or a broker CD) with a maturity date and no face value has no year\'s interest. Account page BOND FACTS: "4.50%/year · $1,089/year" → "4.50%/year · face value not entered", and no "Yield on today\'s value". The same figure on the Bonds screen ("coupon — face value not entered", named under AVG YIELD) and the income sheet ($0, said so): src/screens/__tests__/bond_interest_one_number_2026_10_24.test.tsx.',
-    check: () => { expect(after('B1_NOCOUPON', 'Interest payments')).toBe('not entered · $0/year — coupon rate not entered'); expect(printed('B1_NOCOUPON', 'MK-NW-M-026')).toEqual([]);
+    // no $0 made from an unknown since 2026-10-27 (tenet 3; account-page v01 row 85; NW2-20): it read "not entered · $0/year — coupon rate not entered"
+    check: () => { expect(after('B1_NOCOUPON', 'Interest payments')).toBe('coupon rate not entered'); expect(printed('B1_NOCOUPON', 'MK-NW-M-026')).toEqual([]);
       // the case his ruling DEC-2748c was made for keeps its answer: a CD bought from the bank, no face, $10,000 × 5.05% = $505
       expect(after('B2_NOFACE', 'Interest payments')).toBe('5.05%/year · $505/year'); },
     wrong: () => { expect(after('B1_NOFACE', 'Interest payments')).toBe('4.50%/year · face value not entered'); expect(printed('B1_NOFACE', 'MK-NW-M-056')).toEqual([]);
@@ -782,10 +791,10 @@ const CLASS: Record<string, Item> = {
     // that line in HomeScreen.tsx. The second check holds the base: it is the Performance tab's Ending value, to the dollar.
     check: () => {
       expect(after('PERF_HOME', 'YOUR INVESTMENTS', 2)).toBe('$35,775'); expect(first('PERF_INV', 'MK-PF-M-001')).toBe('$46,600'); expect(has('PERF_HOME', '▲ up $8,200 (21.35%) this month')).toBe(true);
-      expect(has('PERF_HOME', "This month's change is on $46,600: your investment accounts with the cash in them.")).toBe(true);
+      expect(has('PERF_HOME', "This month’s change is on $46,600: your investment accounts with the cash in them.")).toBe(true);   // ’ since 2026-10-27
       expect(printed('PERF_HOME', 'MK-PF-M-001')).toEqual([first('PERF_INV_1M', 'MK-PF-M-001')]);
       // no cash in the accounts, one base: no line (the Net worth household's Home)
-      expect(R('NW_HOME').lines.some((l) => l.startsWith("This month's change is on"))).toBe(false);
+      expect(R('NW_HOME').lines.some((l) => /^This month[’']s change is on/.test(l))).toBe(false);
     } },
   'MK-PF-M-002#1': { cls: 'APP WRONG',
     why: 'His DEC-4439 example: a new account opened with $10,000, worth $10,050 that evening, earned +$50 (+0.50%); worth $9,800, −$200 (−2.00%). The Performance tab reads "Wealth generated $0 · Return +0.00%" for both — the record\'s first evening is taken as the beginning, so the first day is never measured, and Contributions read $0 while the activity list shows the $10,000.',
@@ -1075,7 +1084,7 @@ test('LB_NOPRICE, settled: the waiting line, then the failure line naming BND an
     const r = render(<C />);
     expect(screen.getByText('Getting prices for BND and SPY…')).toBeOnTheScreen();                       // before it settles
     await waitFor(() => expect(stub).toHaveBeenCalledTimes(1));
-    await waitFor(() => expect(screen.getByText("Couldn't refresh prices for BND or SPY, so there is nothing to compare yet. Look back tries again each time it opens.")).toBeOnTheScreen());
+    await waitFor(() => expect(screen.getByText("Couldn’t refresh prices for BND or SPY, so there is nothing to compare yet. Look back tries again each time it opens.")).toBeOnTheScreen());
     expect(screen.queryByText('Getting prices for BND and SPY…')).toBeNull();
     const lines = readLines();
     expect(lines.length).toBeGreaterThanOrEqual(15);                                                       // it read the screen
@@ -1091,4 +1100,12 @@ describe('FIX-MONTH 2026-10-25 — H_CF before the Rent / Mortgage line was the 
   test.failing('MK-CF-M-002: = Planned surplus $1,150', () => { expect(first('CF_CF', 'MK-CF-M-002')).toBe('$1,150'); });
   test.failing('MK-CF-M-052: Expenses entered by hand −$2,998 and the mortgage NOT PAID YET', () => { expect(after('CF_CF', 'Expenses entered by hand')).toBe('−$2,998'); });
   test.failing('MK-CF-M-002#2: + Surplus after your budget +$850', () => { expect(after('CF_PROMISE', 'Surplus after your budget')).toBe('+$850'); });
+});
+
+// THE OLD ANSWERS, KEPT (2026-10-27, FX-NW): replaced by the lead's rulings R2 (no expenses typed, no months) and R7 ("calculated"), and by
+// the account-page row 85 (no $0 made from an unknown). Each fails now, by design.
+describe('FX-NW 2026-10-27 — the answers before R2, R7 and account-page row 85', () => {
+  test.failing('MK-NW-M-013#1: "$18,000 cash ÷ $3,470/month essentials — you entered"', () => { expect(has('EF_NW', /\$18,000 cash ÷ \$3,470\/month essentials — you entered/)).toBe(true); });
+  test.failing('MK-NW-M-024#3: "not entered · $0/year — coupon rate not entered"', () => { expect(after('B1_NOCOUPON', 'Interest payments')).toBe('not entered · $0/year — coupon rate not entered'); });
+  test.failing('MK-NW-M-012: H_NW, no expenses typed, read "Both include $2,650/month…" beside 6.8 months', () => { expect(has('NW_NW', 'Both include $2,650/month of debt payments you cannot stop.')).toBe(true); });
 });

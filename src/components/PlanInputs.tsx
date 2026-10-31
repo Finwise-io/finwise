@@ -5,6 +5,7 @@
 // roof in 2028 — so it writes the moment you change it. A choice is something you are trying on —
 // retire at 67, put $500 more away — so it stays a draft until "Use as my plan". The chips are the
 // tell: FACT on the saved rows, DRAFT on the ones in play.
+import { MoneyBox } from './MoneyBox';   // every money box, one component (DEC-8385)
 import { CountedTaxableLines } from './CountedTaxableLines';   // (DEC-4105, 2026-10-10)
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
@@ -103,9 +104,9 @@ export function PlanInputs({ draft, onDraft, onCommit, committed, missing = [], 
         <Text style={[s.label, needsSpend && s.missingLabel]}>Monthly expenses in retirement{needsSpend ? <Chip kind="missing" /> : <Chip kind="fact" />}</Text>
         <View style={s.moneyIn}>
           <Text style={s.dollar}>$</Text>
-          <TextInput style={s.input} value={spendText} onChangeText={saveSpend} keyboardType="number-pad"
-            placeholder="—" placeholderTextColor={Colors.textTertiary} maxLength={7}
-            accessibilityLabel="Monthly expenses in retirement" />
+          <MoneyBox bare dollarBeside style={s.input} value={spendText} onChangeText={saveSpend}
+            placeholder="—" maxDigits={7}
+            a11y="Monthly expenses in retirement" />
         </View>
       </View>
       {/* NOT COUNTING DEBT — founder ruling, 2026-08-14: "we are telling the user that we will
@@ -121,7 +122,7 @@ export function PlanInputs({ draft, onDraft, onCommit, committed, missing = [], 
       </Text>
       {mortgageMonthly > 0 && (
         <Text style={s.hint}>
-          We're including your {maskedMoney(mortgageMonthly)}/month mortgage until it's paid off in {mortgagePayoffYear}, from your loan.
+          We’re including your {maskedMoney(mortgageMonthly)}/month mortgage until it’s paid off in {mortgagePayoffYear}, from your loan.
         </Text>
       )}
 
@@ -130,12 +131,12 @@ export function PlanInputs({ draft, onDraft, onCommit, committed, missing = [], 
           it (the pot that reaches 80% odds), labelled it "Target nest egg", and never mentioned we
           picked it. Typing here cannot move the odds — the two dials answer different questions. */}
       <View style={[s.field, focus === 'your target nest egg' && s.focused]}>
-        <Text style={s.label}>What's your target nest egg?{targetText ? <Chip kind="fact" /> : null}</Text>
+        <Text style={s.label}>What’s your target nest egg?{targetText ? <Chip kind="fact" /> : null}</Text>
         <View style={s.moneyIn}>
           <Text style={s.dollar}>$</Text>
-          <TextInput style={s.input} value={targetText} onChangeText={saveTarget} keyboardType="number-pad"
-            placeholder={suggestedTarget ? String(suggestedTarget) : '—'} placeholderTextColor={Colors.textTertiary}
-            maxLength={10} accessibilityLabel="Your target nest egg" />
+          <MoneyBox bare dollarBeside style={s.input} value={targetText} onChangeText={saveTarget}
+            placeholder={suggestedTarget ? String(suggestedTarget) : '—'}
+            maxDigits={10} a11y="Your target nest egg" />
         </View>
       </View>
       {/* FILLED IN, AND SAID TO BE OURS (founder, 2026-08-14). A blank target is a worse first
@@ -162,7 +163,7 @@ export function PlanInputs({ draft, onDraft, onCommit, committed, missing = [], 
         const counts = earmarkedAmount(a, carId, homeId) > 0 || (a.retirement_pct ?? earmarkDefault(a, carId, homeId)) > 0;
         return (
           <TouchableOpacity key={a.asset_id} style={s.row} accessibilityRole="button"
-            accessibilityLabel={`${names.get(a.asset_id)}, ${spokenMoney(Math.round(a.balance ?? 0))}. ${counts ? 'Counts toward retirement' : "Doesn't count"}. Tap to change.`}
+            accessibilityLabel={`${names.get(a.asset_id)}, ${spokenMoney(Math.round(a.balance ?? 0))}. ${counts ? 'Counts toward retirement' : "Doesn’t count"}. Tap to change.`}
             onPress={() => store.updateAsset?.(a.asset_id, { retirement_pct: counts ? 0 : 100 })}>
             <Text style={[s.rowLabel, !counts && s.muted]}>{counts ? '✓ ' : '— '}{names.get(a.asset_id)}</Text>
             <Text style={[s.rowValue, !counts && s.muted]}>{maskedMoney(a.balance ?? 0)}</Text>

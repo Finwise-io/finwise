@@ -2,6 +2,7 @@
 // F5 paycheck function. Source-first lines (founder review c4), the draw explainer dot (June's
 // "says who?" finding), the bills subtraction visible in bill months, and the guaranteed-missing
 // prompt instead of a fake $0. The retired lens leads with this card — no flag.
+import { SectionBand } from './SectionBand';
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Modal } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -22,8 +23,9 @@ export function PaycheckCard() {
   if (!year) {
     return (
       <View style={styles.card}>
-        <Text style={styles.kicker}>YOUR PAYCHECK</Text>
-        <Text style={styles.yearNote}>{paycheck.refusal}</Text>
+        {/* a box title on its dark-green bar, edge to edge (his words DEC-8839; the lead's ruling R1 makes it app-wide, 2026-10-27) */}
+        <SectionBand inCard inset={Spacing.md} onRowEdges title="YOUR PAYCHECK" />
+        <Text style={styles.note}>{paycheck.refusal}</Text>
       </View>
     );
   }
@@ -36,7 +38,7 @@ export function PaycheckCard() {
       : `Your paycheck in ${m.label}: an estimate. ${fig('MK-CF-M-078', m.netSafeToSpend)}`}>
       {/* YOUR PAYCHECK, NOT A SURPLUS (2026-10-25, MK-CF-M-078 tenet 8; canon row 25): this is what the month brings to spend —
           everyday expenses and debt payments are paid from it — and Surplus is the one word for what is left after everything */}
-      <Text style={styles.kicker}>YOUR PAYCHECK — {monthName}</Text>
+      <SectionBand inCard inset={Spacing.md} onRowEdges title={`YOUR PAYCHECK — ${monthName}`} />
       {/* c5: a big-bill month that exceeds income shows the real minus WITH the word 'short' and
           the bill named — never smoothed, never clipped to zero (edge-case audit E4) */}
       {m.netSafeToSpend < 0 ? (
@@ -62,12 +64,12 @@ export function PaycheckCard() {
           ))}
           <View style={styles.rowWrap}>
             <Text style={[styles.rowLabel, { fontWeight: '800' }]}>= Guaranteed</Text>
-            <InfoDot term="guaranteedIncome" />
+            <InfoDot term="guaranteedIncome" line={styles.rowLabel} />
             <Text style={[styles.rowValue, { fontWeight: '800' }]}>{maskedMoney(m.guaranteedTotal)}</Text>
           </View>
           <View style={styles.rowWrap}>
             <Text style={styles.rowLabel}>+ Draw from savings</Text>
-            <InfoDot term="safeDraw" />
+            <InfoDot term="safeDraw" line={styles.rowLabel} />
             <Text style={styles.rowValue}>{maskedMoney(m.safeDraw)}</Text>
           </View>
           {m.billsTotal > 0 && <Row label={`− Big bills this month (${m.bills.map((b) => b.label).join(', ')})`} value={maskedMoney(m.billsTotal)} />}
@@ -76,7 +78,7 @@ export function PaycheckCard() {
 
       <Text style={styles.year}>This year ~{maskedMoney(year.thisYear)} <EstimateTag /> <Text style={styles.yearNote}>— varies month to month</Text></Text>
       {/* THE RETURN IT RUNS ON, SAID (2026-10-25, FIX-MONTH; the lead's ruling 2 on CFR-4): the Retirement cockpit's own (paycheckReturn) */}
-      <Text style={styles.yearNote} accessibilityLabel={saidSentence(`The draw assumes ${paycheck.return.said}.`)}>{figWords('MK-CF-M-082', `The draw assumes ${paycheck.return.said}.`)}</Text>
+      <Text style={styles.note} accessibilityLabel={saidSentence(`The draw assumes ${paycheck.return.said}.`)}>{figWords('MK-CF-M-082', `The draw assumes ${paycheck.return.said}.`)}</Text>
       {year.drawRateFlag === 'high' && (
         <Text style={styles.flag}>Heads-up: this draw is {rateBandWords('high')} — the pace itself is the risk.</Text>
       )}
@@ -97,7 +99,6 @@ function Row({ label, value, bold }: { label: string; value: string; bold?: bool
 
 const styles = StyleSheet.create({
   card: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginBottom: Spacing.sm },
-  kicker: { fontSize: 13, fontWeight: '700', color: Colors.textSecondary, letterSpacing: 0.6 },
   hero: { fontSize: 38, fontWeight: '800', color: Colors.textPrimary, marginTop: 2 },
   unit: { fontSize: 15, fontWeight: '500', color: Colors.textSecondary },
   est: { fontSize: 13, color: Colors.textTertiary, marginBottom: Spacing.xs },
@@ -112,6 +113,8 @@ const styles = StyleSheet.create({
   promptT: { color: Colors.primaryDark, fontWeight: '600', fontSize: 15 },
   year: { fontSize: 17, fontVariant: ['tabular-nums'], color: Colors.textPrimary, fontWeight: '600', marginTop: 4 },
   yearNote: { fontWeight: '400', color: Colors.textSecondary },
+  // a line of its own, on the scale: 13 (it carried no size and drew at the phone's 14 — FX-CF-A's drawing match, 2026-10-27)
+  note: { fontSize: 13, fontWeight: '400', color: Colors.textSecondary, marginTop: 4 },
   flag: { fontSize: 15, color: Colors.amber, marginTop: 4 },
   monthsLink: { fontSize: 15, fontWeight: '600', color: Colors.primary, marginTop: 8 },
   modalBg: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'center', padding: Spacing.lg },

@@ -1,5 +1,6 @@
 // Bonds — individual bond management (Phase B). Bonds are AssetAccounts with bond fields, so they
 // already flow into Net worth + the nest egg; here we add/edit them and show bond-specific metrics.
+import { MoneyBox } from '../components/MoneyBox';   // every money box, one component (DEC-8385)
 import { plural } from '../domain/_shared/plural';   // the one list of words and plurals (DEC-4082, 2026-10-10)
 import TopBar from '../components/TopBar';
 import React, { useMemo, useState } from 'react';
@@ -134,7 +135,8 @@ export default function BondsScreen() {
                   <Text style={styles.metric}>yield {fig('MK-NW-M-057', r.currentYield)}</Text>
                   <Text style={styles.metric}>Yield to maturity: {fig('MK-NW-M-058', r.yieldToMaturity)}{r.accruedCaveat ? ' *' : ''}</Text>
                 </View>
-                {!!r.accruedCaveat && <Text style={styles.bondSub}>* {r.accruedCaveat}</Text>}
+                {/* the once-a-year assumption, said after his sentence where Pays interest was never chosen (2026-10-27, NW2-14; Bonds v02 row of that date) */}
+                {!!r.accruedCaveat && <Text style={styles.bondSub}>* {r.accruedCaveat}{r.accruedAssumed ? `. ${r.accruedAssumed}` : ''}</Text>}
               </TouchableOpacity>
             );
           })}
@@ -294,7 +296,7 @@ export function BondEditor({ bond, open, onClose, onSave, onDelete }: {
           <TextInput style={styles.input} value={institution} onChangeText={setInstitution} placeholder="e.g. Chase, Fidelity, Schwab" placeholderTextColor={Colors.textTertiary} />
           <Text style={styles.fieldHint}>Held inside a brokerage or bank account? Add it here — if that account already has a balance, we’ll ask whether this bond is part of it so nothing is double-counted.</Text>
           <Text style={styles.fieldL}>Face (par) value</Text>
-          <TextInput style={styles.input} keyboardType="decimal-pad" value={face} onChangeText={setFace} placeholder="10000" placeholderTextColor={Colors.textTertiary} />
+          <MoneyBox bare style={styles.input} value={face} onChangeText={setFace} placeholder="10000" />
           <Text style={styles.fieldL}>Coupon rate (% per year)</Text>
           <TextInput style={styles.input} keyboardType="decimal-pad" value={coupon} onChangeText={setCoupon} placeholder="4.5" placeholderTextColor={Colors.textTertiary} />
           {!isCd && (
@@ -318,7 +320,7 @@ export function BondEditor({ bond, open, onClose, onSave, onDelete }: {
             </>
           )}
           <Text style={styles.fieldL}>Accrued interest (optional)</Text>
-          <TextInput style={styles.input} keyboardType="decimal-pad" value={accrued} onChangeText={setAccrued} placeholder="interest earned since the last coupon, if you know it" placeholderTextColor={Colors.textTertiary} accessibilityLabel="Accrued interest, optional" />
+          <MoneyBox bare style={styles.input} value={accrued} onChangeText={setAccrued} placeholder="interest earned since the last coupon, if you know it" a11y="Accrued interest, optional" />
           <Text style={styles.fieldHint}>When you enter it, the yield is calculated on the price without it. Left blank, the yield uses the price as you entered it — and says so.</Text>
           <Text style={styles.fieldL}>Maturity date</Text>
           <TouchableOpacity accessibilityRole="button" accessibilityLabel={maturity ? `Maturity date, ${humanDate(maturity)}. Tap to change.` : 'Pick a maturity date'} style={styles.input} activeOpacity={0.7} onPress={openPicker}>
@@ -344,9 +346,9 @@ export function BondEditor({ bond, open, onClose, onSave, onDelete }: {
           )}
           {/* (DEC-0281, 2026-10-20) blank is what was paid, else the face value — the one value rule, said on the label */}
           <Text style={styles.fieldL}>Market value, as your statement shows it — without accrued interest (blank = what you paid, else face value)</Text>
-          <TextInput style={styles.input} keyboardType="decimal-pad" value={value} onChangeText={setValue} placeholder="the value on your statement" placeholderTextColor={Colors.textTertiary} />
+          <MoneyBox bare style={styles.input} value={value} onChangeText={setValue} placeholder="the value on your statement" />
           <Text style={styles.fieldL}>What you paid (optional)</Text>
-          <TextInput style={styles.input} keyboardType="decimal-pad" value={paid} onChangeText={setPaid} placeholder="$9,700" placeholderTextColor={Colors.textTertiary} accessibilityLabel="What you paid, optional" />
+          <MoneyBox bare style={styles.input} value={paid} onChangeText={setPaid} placeholder="$9,700" a11y="What you paid, optional" />
           <Text style={styles.fieldL}>Value as of</Text>
           <DateField value={valueAsOf} onChange={setValueAsOf} label="value as of" style={styles.input} />
           {valid && num(face) > 0 && coupon.trim() !== '' && <Text style={styles.note}>~{figPer('MK-NW-M-056', num(face) * (num(coupon) / 100))} in coupon income.</Text>}
@@ -356,11 +358,12 @@ export function BondEditor({ bond, open, onClose, onSave, onDelete }: {
           ))}</View>
           {bond && (
             <View style={styles.sellBox}>
-              <Text style={styles.sellTitle}>🔻 Sell</Text>
+              {/* the box's sub-title on the light-green bar, edge to edge of the box (2026-10-30, R1, DEC-8839; v02 row of that date) */}
+              <SectionBand light inCard inset={12} title="🔻 Sell" />
               <Text style={styles.fieldHint}>Sold this bond (or part of it) on the secondary market before maturity? Enter the proceeds to lower or close the position. To just re-mark its price, edit “Market value” above.</Text>
               <View style={styles.sellRow}>
-                <TextInput style={[styles.input, { flex: 1 }]} keyboardType="decimal-pad" value={sellAmt} onChangeText={setSellAmt}
-                  placeholder={`amount sold (up to ${fig('MK-NW-M-054', worth)})`} placeholderTextColor={Colors.textTertiary} />
+                <MoneyBox bare style={[styles.input, { flex: 1 }]} value={sellAmt} onChangeText={setSellAmt}
+                  placeholder={`amount sold (up to ${fig('MK-NW-M-054', worth)})`} />
                 <TouchableOpacity accessibilityRole="button" accessibilityLabel="Sell" style={[styles.sellBtn, !(num(sellAmt) > 0) && { opacity: 0.4 }]} disabled={!(num(sellAmt) > 0)} onPress={applySale}>
                   <Text style={styles.sellBtnT}>Record</Text>
                 </TouchableOpacity>
@@ -416,8 +419,7 @@ const styles = StyleSheet.create({
   chipOn: { borderColor: Colors.primary, backgroundColor: Colors.primaryLight },
   chipT: { fontSize: 13, fontWeight: '700', color: Colors.textSecondary },
   chipTOn: { color: Colors.primaryDark },
-  sellBox: { marginTop: 18, padding: 12, borderRadius: Radii.md, backgroundColor: Colors.bgSecondary, borderWidth: 1, borderColor: Colors.border },
-  sellTitle: { fontSize: 13, fontWeight: '800', color: Colors.textPrimary },
+  sellBox: { marginTop: 18, padding: 12, borderRadius: Radii.md, backgroundColor: Colors.bgSecondary, borderWidth: 1, borderColor: Colors.border, overflow: 'hidden' },
   sellRow: { flexDirection: 'row', gap: 8, alignItems: 'center', marginTop: 8 },
   sellBtn: { backgroundColor: Colors.textPrimary, borderRadius: Radii.md, paddingVertical: 12, paddingHorizontal: 16, alignItems: 'center' },
   sellBtnT: { color: Colors.white, fontSize: 15, fontWeight: '800' },

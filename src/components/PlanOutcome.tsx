@@ -72,7 +72,7 @@ export function PlanOutcome({ inputs, chance, band, horizonAge, retireAge, annua
           <Text style={s.pctSub}>{oddsTail(horizonAge)}</Text>
           {band && <Text style={s.band}>range {band.low}–{band.high}% across bad-to-good markets</Text>}
         </View>
-        <InfoDot term="nestEggMath" />
+        <InfoDot term="nestEggMath" line={s.pctSub} />
       </View>
 
       {/* THE SECOND DIAL — their typed target, beside the odds. Two questions, two answers, and
@@ -148,8 +148,8 @@ export function PlanOutcome({ inputs, chance, band, horizonAge, retireAge, annua
         <>
           <Text style={s.bridge}>
             {t.requiredExtraAnnual != null
-              ? <>Reaching {TARGET_ODDS}% by saving alone would take <Text style={s.b}>{maskedMoney(t.requiredExtraAnnual)}/year</Text> — more than you earn. That number is real. Here's what actually moves it:</>
-              : <>Saving alone cannot reach {TARGET_ODDS}% from here. That is real. Here's what actually moves it:</>}
+              ? <>Reaching {TARGET_ODDS}% by saving alone would take <Text style={s.b}>{maskedMoney(t.requiredExtraAnnual)}/year</Text> — more than you earn. That number is real. Here’s what actually moves it:</>
+              : <>Saving alone cannot reach {TARGET_ODDS}% from here. That is real. Here’s what actually moves it:</>}
           </Text>
           <SectionBand inCard quiet title="WHAT ACTUALLY MOVES IT" />
           {levers.map((l) => (

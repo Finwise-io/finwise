@@ -4,7 +4,7 @@ import React from 'react';
 import { render, fireEvent } from '@testing-library/react-native';
 import { RecoveryCodeModal } from '../RecoveryCodeModal';
 
-const CHECKBOX = "I've saved my recovery code somewhere safe";
+const CHECKBOX = "I’ve saved my recovery code somewhere safe";
 
 test('B-L1: states the privacy claim — encrypted + never sent to AI/LLM providers', () => {
   const { getByText } = render(<RecoveryCodeModal visible code="ABCD-1234" onDone={() => {}} />);

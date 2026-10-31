@@ -2,6 +2,7 @@
 // honest wording, explicitly backward-looking: a fact about the past, clearly separated from any
 // forward estimate, never a suggestion to trade now. When prices don't reach back far enough, the
 // screen says so — it never invents a price.
+import { MoneyBox } from '../components/MoneyBox';   // every money box, one component (DEC-8385)
 import TopBar from '../components/TopBar';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useLocalSearchParams } from 'expo-router';
@@ -60,7 +61,7 @@ export default function LookBackScreen() {
   const missingWords = (): string => {
     const missing = [...new Set([from, to])].filter((t) => !priceCache[t]);
     return asking ? `Getting prices for ${missing.join(' and ')}…`
-      : `Couldn't refresh prices for ${missing.join(' or ')}, so there is nothing to compare yet. Look back tries again each time it opens.`;
+      : `Couldn’t refresh prices for ${missing.join(' or ')}, so there is nothing to compare yet. Look back tries again each time it opens.`;
   };
   const result = useMemo(
     () => theLookBack({ amount: amt, fromSeries: priceCache[from], toSeries: priceCache[to], months }),
@@ -86,14 +87,16 @@ export default function LookBackScreen() {
     <TopBar back />
     <ScrollView automaticallyAdjustKeyboardInsets style={s.root} contentContainerStyle={s.content} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
       <Text style={s.pastOnly}>Facts about the PAST only</Text>
-      <Text style={s.h1}>What if I'd moved money {WINDOWS.find((w) => w.m === months)?.label}?</Text>
+      {/* the curly ’ the app writes on every other page (2026-10-27, FX-PF, NW2-26; Look back v01's dated line of that day) */}
+      <Text style={s.h1}>What if I’d moved money {WINDOWS.find((w) => w.m === months)?.label}?</Text>
 
       <View style={s.card}>
         <Text style={s.pickLabel}>Amount</Text>
         <View style={s.amtRow}>
           <Text style={s.amtPrefix}>{currencySymbol()}</Text>
-          <TextInput style={s.amtInput} keyboardType="number-pad" value={grouped(amount)} onChangeText={(t) => setAmount(t.replace(/[^0-9]/g, ''))}
-            accessibilityLabel="Amount to look back on" />
+          {/* every money box, one component (DEC-8385, FX-SHARED 2026-10-27): beside the $ above it reads "20,000", as Look back v01 draws it */}
+          <MoneyBox bare dollarBeside style={s.amtInput} value={amount} onChangeText={(t) => setAmount(t.replace(/[^0-9]/g, ''))}
+            a11y="Amount to look back on" />
         </View>
         <Picker label="From" value={from} onPick={setFrom} exclude={to} choices={fromChoices} />
         <Picker label="To" value={to} onPick={setTo} exclude={from} choices={toChoices} />
@@ -136,7 +139,7 @@ export default function LookBackScreen() {
           <Text style={s.note}>
             {amt <= 0 ? 'Enter an amount to look back on.'
               : !priceCache[from] || !priceCache[to] ? missingWords()
-              : "We don't have prices reaching back that far — open the Performance tab and refresh prices, or pick a shorter window."}
+              : 'We don’t have prices reaching back that far — open the Performance tab and refresh prices, or pick a shorter window.'}
           </Text>
         </View>
       )}
@@ -167,7 +170,8 @@ const s = StyleSheet.create({
   chipTxt: { fontSize: 13, fontWeight: '700', color: Colors.textSecondary },
   chipTxtOn: { color: Colors.primaryDark },
   legLine: { fontSize: 15, color: Colors.textPrimary, lineHeight: 22, marginTop: 6 },
-  strong: { fontWeight: '800' },
+  // the two amounts at 700, as Look back v01 (approved 2026-10-02, DEC-1069) draws them — 800 until 2026-10-27 (FX-PF, PF-6)
+  strong: { fontWeight: '700' },
   diffBox: { backgroundColor: Colors.bgSecondary, borderRadius: Radii.md, padding: 10, marginTop: 10 },
   diffTxt: { fontSize: 20, fontWeight: '800', color: Colors.textPrimary, lineHeight: 26, fontVariant: ['tabular-nums'] },
   note: { fontSize: 13, color: Colors.textSecondary, lineHeight: 18, marginTop: 8 },

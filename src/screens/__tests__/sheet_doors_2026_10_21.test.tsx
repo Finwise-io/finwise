@@ -162,8 +162,10 @@ describe('gap 8 · the Performance tab mounts no sheet it cannot open, and each 
       expect(screen.getByText('Edit holding')).toBeOnTheScreen();
       expect(screen.queryByText('Add a holding')).toBeNull();
       expect(screen.queryByText('＋ New account')).toBeNull();
-      expect(screen.getByLabelText('Account: Fidelity')).toBeOnTheScreen();
-      expect(screen.queryByLabelText('Account: Vanguard')).toBeNull();                 // choosing it saved nothing
+      // the account's one name (2026-10-27, FX-PF, PF-8; DEC-0083): a Fidelity brokerage with no digits on record
+      expect(screen.getByLabelText('Account: Fidelity Brokerage')).toBeOnTheScreen();
+      expect(screen.queryByLabelText('Account: Vanguard Brokerage')).toBeNull();       // choosing it saved nothing
+      expect(screen.queryByLabelText('Account: Vanguard')).toBeNull();
       // DEC-2334: private equity and hedge funds are not offered in this phase
       expect(screen.queryByLabelText('Type: Private equity')).toBeNull();
       expect(screen.queryByLabelText('Type: Hedge funds')).toBeNull();

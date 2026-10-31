@@ -283,7 +283,7 @@ export function reviewTransactions(newOnes: Transaction[], ctx: ReviewContext): 
  * Formula .....
  *     times = round(amount ÷ comparison)
  *     the answer = `your usual withdrawal from this account is about $${math.round(comparison).to locale string()}. this one is ${times} times that.`
- *     `first time we've seen this payee on this account.`   when reason = 'first_time_payee'
+ *     `first time we’ve seen this payee on this account.`   when reason = 'first_time_payee'
  *     `looks like the same charge twice — same amount, same place, within two days. if one was typed by mistake, delete it; if both are real, mark it settled.`   when reason = 'possible_duplicate'
  *
  * Called by ... nothing — it is an entry point, or nothing reaches it
@@ -305,7 +305,7 @@ export function flagComparisonText(f: TxnFlag): string {
     }
     return `This account is new to us, so we look twice at anything over $${LARGE_COLD_START.toLocaleString()}.`;
   }
-  if (f.reason === 'first_time_payee') return `First time we've seen this payee on this account.`;
+  if (f.reason === 'first_time_payee') return `First time we’ve seen this payee on this account.`;
   if (f.reason === 'possible_duplicate') return `Looks like the same charge twice — same amount, same place, within two days. If one was typed by mistake, delete it; if both are real, mark it settled.`;
   return `${f.transaction_ids.length} withdrawals from this account in one day, $${Math.round(f.amount).toLocaleString()} together.`;
 }

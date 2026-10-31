@@ -27,7 +27,7 @@ const renderInputs = (suggested?: number | null) => render(
 
 test('the question is asked in the founder\'s words, and it is a field they can type in', () => {
   renderInputs();
-  expect(screen.getByText(/What's your target nest egg\?/)).toBeOnTheScreen();
+  expect(screen.getByText(/What’s your target nest egg\?/)).toBeOnTheScreen();
   expect(screen.getByLabelText('Your target nest egg')).toBeOnTheScreen();
 });
 
@@ -73,11 +73,11 @@ describe('spending excludes debt, because the app adds it', () => {
   test('and it names the loan it is adding, with the year it stops', () => {
     render(<PlanInputs draft={DRAFT} committed={DRAFT} onDraft={jest.fn()} onCommit={jest.fn()}
       mortgageMonthly={2400} mortgagePayoffYear={2054} />);
-    expect(screen.getByText(/including your \$2,400\/month mortgage until it's paid off in 2054/)).toBeOnTheScreen();
+    expect(screen.getByText(/including your \$2,400\/month mortgage until it’s paid off in 2054/)).toBeOnTheScreen();
   });
 
   test('with no loan on file it says nothing about one', () => {
     renderInputs();
-    expect(screen.queryByText(/mortgage until it's paid off/)).toBeNull();
+    expect(screen.queryByText(/mortgage until it’s paid off/)).toBeNull();
   });
 });

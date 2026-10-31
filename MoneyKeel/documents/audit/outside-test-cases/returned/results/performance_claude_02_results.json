@@ -70,7 +70,8 @@
    "expected": "REFUSES",
    "difference": "40 vs refusal",
    "formula_gives_match": true,
-   "note": "src/domain/performance/index.ts:191 l.shares || 0 (tenet 3)."
+   "note": "src/domain/performance/index.ts:191 l.shares || 0 (tenet 3).",
+   "settled": "SETTLED 2026-10-27 (re-run at 45d680a4 + the fix wave) — FIXED 2026-10-11 (DEC-3523 tenet 3): a purchase with no share count makes the total unknown (it read 40). Held by outside_performance_claude_02.test.ts:57."
   },
   {
    "id": "MK-PF-F-031",
@@ -207,7 +208,8 @@
    "expected": "REFUSES",
    "difference": "900 vs refusal",
    "formula_gives_match": true,
-   "note": "src/domain/performance/index.ts:231 cost_per_share || 0 (tenet 3)."
+   "note": "src/domain/performance/index.ts:231 cost_per_share || 0 (tenet 3).",
+   "settled": "SETTLED 2026-10-27 (re-run at 45d680a4 + the fix wave) — FIXED 2026-10-11 (tenet 3): 10 shares with no cost on record make what was paid unknown (it read $900). Held by outside_performance_claude_02.test.ts:80."
   },
   {
    "id": "MK-PF-F-003",
@@ -346,7 +348,8 @@
    "expected": "REFUSES",
    "difference": "$0 vs refusal",
    "formula_gives_match": true,
-   "note": "src/domain/performance/index.ts:299; feeds buildPerformance rows (src/domain/performance/index.ts:837)."
+   "note": "src/domain/performance/index.ts:299; feeds buildPerformance rows (src/domain/performance/index.ts:837).",
+   "settled": "SETTLED 2026-10-27 (re-run at 45d680a4 + the fix wave) — FIXED 2026-10-11 (tenet 3): 40 shares with no price are worth something unknown (it read $0). Held by outside_performance_claude_02.test.ts:112."
   },
   {
    "id": "MK-PF-F-005",
@@ -413,7 +416,8 @@
    "expected": "REFUSES",
    "difference": "$0 vs refusal",
    "formula_gives_match": true,
-   "note": "src/domain/performance/index.ts:326."
+   "note": "src/domain/performance/index.ts:326.",
+   "settled": "SETTLED 2026-10-27 (re-run at 45d680a4 + the fix wave) — FIXED 2026-10-11 (tenet 3): with no price there is no gain to state (it read $0). Held by outside_performance_claude_02.test.ts:124."
   },
   {
    "id": "MK-PF-F-006",
@@ -507,7 +511,8 @@
    },
    "difference": "short $0 and total $1,320 vs refusals",
    "formula_gives_match": true,
-   "note": "src/domain/performance/index.ts:367 skips a lot with cost not above zero."
+   "note": "src/domain/performance/index.ts:367 skips a lot with cost not above zero.",
+   "settled": "SETTLED 2026-10-27 (re-run at 45d680a4 + the fix wave) — APP RIGHT (re-ruled 2026-10-20) by DEC-6627, under his DEC-4643 (count the part on record, say what is not): long-term 100 × ($55.30 − $42.10) = $1,320; the short part, all without a price paid, refuses; the total counts the same $1,320 and says 100 of 150 shares. The judge's total REFUSES is kept failing. Held by outside_performance_claude_02.test.ts:148."
   },
   {
    "id": "MK-PF-F-006",
@@ -570,7 +575,8 @@
    },
    "difference": "0.1556 vs judge 0.30",
    "formula_gives_match": true,
-   "note": "BRIEF WRONG: totalROI is return on cost, which DEC-1669 itself sets apart (\"'Return on cost' on one holding is a different question and keeps its own name\"); shown beside the gain since purchase (HoldingDetailScreen.tsx:235)."
+   "note": "BRIEF WRONG: totalROI is return on cost, which DEC-1669 itself sets apart (\"'Return on cost' on one holding is a different question and keeps its own name\"); shown beside the gain since purchase (HoldingDetailScreen.tsx:235).",
+   "settled": "SETTLED 2026-10-27 (re-run at 45d680a4 + the fix wave) — APP RIGHT (BRIEF WRONG) by DEC-1669's own carve-out (\"'Return on cost' on one holding … keeps its own name\"): (20 × $260 − $4,500) ÷ $4,500 = +15.56%. The holding's window return is a separate figure. Held by outside_performance_claude_02.test.ts:178."
   },
   {
    "id": "MK-PF-F-007",
@@ -629,7 +635,8 @@
    "difference": null,
    "formula_gives_match": null,
    "note": "",
-   "recheck_2026_10_21": "BRIEF WRONG since 2026-10-21 (DEC-7216, tenet 3): with an undated purchase the first day is not on record"
+   "recheck_2026_10_21": "BRIEF WRONG since 2026-10-21 (DEC-7216, tenet 3): with an undated purchase the first day is not on record",
+   "settled": "SETTLED 2026-10-27 (re-run at 45d680a4 + the fix wave) — APP RIGHT (BRIEF WRONG since 2026-10-21) by DEC-7216 (the lead's, tenet 3): with an undated purchase beside dated ones the first day is not on record, so there is no earliest day; the judge's 2023-08-22 is kept failing. Held by outside_performance_claude_02.test.ts:198."
   },
   {
    "id": "MK-PF-F-012",
@@ -641,7 +648,8 @@
    "difference": null,
    "formula_gives_match": null,
    "note": "",
-   "recheck_2026_10_21": "BRIEF WRONG since 2026-10-21 (DEC-7216, tenet 3): a blank or placeholder date is no date, so the first day is not on record"
+   "recheck_2026_10_21": "BRIEF WRONG since 2026-10-21 (DEC-7216, tenet 3): a blank or placeholder date is no date, so the first day is not on record",
+   "settled": "SETTLED 2026-10-27 (re-run at 45d680a4 + the fix wave) — APP RIGHT (BRIEF WRONG since 2026-10-21) by DEC-7216: a blank or \"pending\" date is no date, so the first day is not on record; the judge's 2022-06-30 is kept failing. Held by outside_performance_claude_02.test.ts:198."
   },
   {
    "id": "MK-PF-F-012",
@@ -745,7 +753,8 @@
    },
    "difference": "4.50 vs 450 (no ×100)",
    "formula_gives_match": true,
-   "note": "src/domain/performance/realized.ts:84 has no contract multiplier (DEC-0274)."
+   "note": "src/domain/performance/realized.ts:84 has no contract multiplier (DEC-0274).",
+   "settled": "SETTLED 2026-10-27 (re-run at 45d680a4 + the fix wave) — FIXED 2026-10-11 by DEC-0274: 2 contracts × 100 × ($5.45 − $3.20) = $450 (it read $4.50). Held by outside_performance_claude_02.test.ts:239."
   },
   {
    "id": "MK-PF-F-028",
@@ -885,7 +894,8 @@
    "expected": "-1 contract",
    "difference": "'-1 contracts' vs '-1 contract'",
    "formula_gives_match": true,
-   "note": "src/domain/performance/index.ts:145 singular only at +1. Low: only if a short position is ever stored."
+   "note": "src/domain/performance/index.ts:145 singular only at +1. Low: only if a short position is ever stored.",
+   "settled": "SETTLED 2026-10-27 (re-run at 45d680a4 + the fix wave) — FIXED 2026-10-12 by DEC-0277: a written call reads \"-1 contract\", singular at one either way (it read \"-1 contracts\"). Held by outside_performance_claude_02.test.ts:285."
   }
  ],
  "formula_checks": [
@@ -967,5 +977,5 @@
    "plain_example": "A written call of −1: before '-1 contracts' → should be '-1 contract'. Low."
   }
  ],
- "coverage": "60 of 60 cases written and run, one test each (BRIEF_WRONG 1, FINDING 8, PASS 50, UNCLEAR 1); 9 of 9 non-RIGHT formula verdicts checked against the code and the decision log; 3 RIGHT verdicts not re-checked beyond their cases."
+ "coverage": "60 of 60 cases written and run, one test each (BRIEF_WRONG 1, FINDING 8, PASS 50, UNCLEAR 1); 9 of 9 non-RIGHT formula verdicts checked against the code and the decision log; 3 RIGHT verdicts not re-checked beyond their cases. | 2026-10-27 (FX-AUDITS, re-run at 45d680a4 + the fix wave, outside_performance_claude_02.test.ts green): 10 more cases given a settled line — 6 fixed, now right, 4 app right; every case that does not pass as written now carries one, held by outside_audit_results_settled.test.ts."
 }

@@ -141,6 +141,17 @@ describe('MK-NW-F-057 annualCoupon — five cases', () => {
   test.failing('complex · Missing rate must disclose zero annual interest', () => {
     expect(annualCoupon(bond(10000, null, '2030-01-01'))).toBe(0);
   });
+  // SETTLED 2026-10-27 (FX-AUDITS, APP RIGHT): the two answers of the app, pinned beside the auditor's kept numbers.
+  test('pin · Unround face and coupon — the app\'s answer: 12,345.67 × 4.25% = 493.8268 + 30.864175 = $524.690975', () => {
+    expect(annualCoupon(bond(12345.67, 0.0425, '2030-01-01'))!).toBeCloseTo(493.8268 + 30.864175, 9);
+  });
+  test('pin · Missing rate — the app\'s answer: no coupon from this helper; the income figure counts $0 and names the bond (DEC-2748c)', () => {
+    refuses(annualCoupon(bond(10000, null, '2030-01-01')));
+    const a = bondAcct({ id: 'n', label: 'Bond A', face: 10000, value: 10000, rate: null, maturity: '2030-01-01' });
+    const page = theBonds({ accounts: [a], today: TODAY });
+    expect({ income: couponIncomeAnnual([a], TODAY), coupon_per_year: page.couponPerYear, named: page.leftOutNoRate })
+      .toEqual({ income: 0, coupon_per_year: 0, named: ['Bond A'] });
+  });
   test('edge · Missing face but known rate', () => { refuses(annualCoupon(bond(null, 0.04, '2030-01-01', 5000))); });
 });
 
@@ -150,6 +161,14 @@ describe('MK-NW-F-058 yearsToMaturity — five cases', () => {
   // SETTLED BY DEC-3279b: anniversaries are counted back from the MATURITY date (Aug 29, which every year has), so a
   // Feb 29 today needs no convention: 2024-08-29 is the first anniversary on or after today → 1 + 182/366.
   test('complex · Leap-year anniversary fraction', () => { expect(yearsToMaturity('2025-08-29', D('2024-02-29'))!).toBeCloseTo(1 + 182 / 366, 12); });
+  // FINDING 2026-10-27 (FX-AUDITS, for FX-NW — the open point in this case's note): a bond maturing on 29 February. In a
+  // year with no 29 February its anniversary is 28 February — the rule the accrued-interest estimate and the long/short
+  // split already use (capGains, "the anniversary is the last day of February"; DEC-3768b for windows). yearsToMaturity
+  // rolls it to 1 March: 2028-02-29 seen 2026-10-09 reads 1 + 143 ÷ 365 = 1.3918 years; right is 1 + 142 ÷ 365 = 1.3890.
+  // FIXED 2026-10-27 (FX-NW): yearsToMaturity reads a day the month does not have as the month's last day, the one anniversary rule.
+  test('pin · a 29 February maturity has its anniversary on 28 February in other years: 1 + 142 ÷ 365', () => {
+    expect(yearsToMaturity('2028-02-29', D('2026-10-09'))!).toBeCloseTo(1 + 142 / 365, 12);
+  });
   test('complex · 4.4 years uses exact anniversaries', () => {
     // whole anniversaries + remaining days ÷ days in that anniversary year: 4 + 146/365 = 4.4, no rounding before display
     expect(yearsToMaturity('2030-05-27', D('2026-01-01'))!).toBeCloseTo(4.4, 12);
@@ -299,6 +318,33 @@ describe('MK-NW-F-064 bondRateSensitivity — five cases', () => {
   // BLOCKED: the raw changes (+$43 / −$37) cannot be handed in. By hand, the app's rule (bonds/index.ts:730, :745) gives
   // step 10 for a $4,250 bond and round(43/10)×10 = 40, round(−37/10)×10 = −40 — the auditor's answer.
   test.skip('complex · Bond under $10k rounds in proportion', () => { /* cannot inject raw changes */ });
+  // SETTLED 2026-10-27 (FX-AUDITS, APP RIGHT): the three cases cannot be handed in as written, so each rule is run on a
+  // real bond and its figures worked by hand (a five-year yearly-coupon bond on its coupon day, accrued interest $0).
+  test('pin · Invalid yield — the yield is solved inside −99%…1,000%, so the range is finite; a −100% price refuses (MK-NW-F-069)', () => {
+    const b = bond(10000, 0.05, '2030-01-01', 9800);
+    const s = bondRateSensitivity(b, D('2026-01-01'))!;
+    expect(approxYTM(b, D('2026-01-01'))!).toBeGreaterThan(-0.99);
+    expect([s.ratesUp.low, s.ratesUp.high, s.ratesDown.low, s.ratesDown.high].every(Number.isFinite)).toBe(true);
+    refuses(priceAtYield(b, -1, D('2026-01-01')));
+  });
+  test('pin · Price change at yield ±1 point — $10,000 at 4% for 5 years, priced at par: −$432.95 → −$400, +$457.97 → +$500 (step $100)', () => {
+    const b = bond(10000, 0.04, '2031-10-09', 10000, 0);
+    expect(approxYTM(b, TODAY)!).toBeCloseTo(0.04, 9);
+    // by hand: 400 × (1 − 1.05⁻⁵) ÷ 0.05 + 10,000 ÷ 1.05⁵ = 1,731.79 + 7,835.26 = 9,567.05; at 3%: 1,831.88 + 8,626.09 = 10,457.97
+    expect(priceAtYield(b, 0.05, TODAY)!).toBeCloseTo(9567.05, 2);
+    expect(priceAtYield(b, 0.03, TODAY)!).toBeCloseTo(10457.97, 2);
+    const s = bondRateSensitivity(b, TODAY)!;
+    expect([s.ratesUp.delta, s.ratesDown.delta]).toEqual([-400, 500]);   // round(−4.33) × 100, round(4.58) × 100
+  });
+  test('pin · Under $10k rounds in proportion — $5,000 face at 4%, worth $4,250 (yield 7.73%): −$176.41 → −$180, +$186.22 → +$190 (step $10)', () => {
+    const b = bond(5000, 0.04, '2031-10-09', 4250, 0);
+    const y = approxYTM(b, TODAY)!;
+    expect(y).toBeCloseTo(0.0773017, 6);
+    expect(priceAtYield(b, y + 0.01, TODAY)! - 4250).toBeCloseTo(-176.41, 2);
+    expect(priceAtYield(b, y - 0.01, TODAY)! - 4250).toBeCloseTo(186.22, 2);
+    const s = bondRateSensitivity(b, TODAY)!;
+    expect([s.ratesUp.delta, s.ratesDown.delta]).toEqual([-180, 190]);   // the auditor's 43 → 40 and −37 → −40 follow the same step
+  });
   test('easy · Missing coupon/rate refuses', () => {
     // value not given; set to face so the refusal comes from the 0% rate, not from a missing value
     refuses(bondRateSensitivity(bond(10000, 0, '2030-01-01', 10000), TODAY));
@@ -431,6 +477,17 @@ describe('MK-NW-F-072 rowOf — five cases', () => {
     expect(r.currentYield!).toBeCloseTo(0.05102040816326531, 12);
     expect(r.yieldToMaturity!).toBeCloseTo(0.055, 4);
   });
+  // SETTLED 2026-10-27 (FX-AUDITS, APP RIGHT by DEC-3390): the yield prices the bond at its full price, $980 + $38.49.
+  test('pin · Basic bond row — the app\'s answer: yield 6.72%, the yield at which the bond is worth $980 + $38.49 accrued = $1,018.49', () => {
+    const a = bondAcct({ institution: 'Vanguard', label: 'Treasury', face: 1000, rate: 0.05, value: 980, maturity: '2028-01-01' });
+    const r = rowOf(a, TODAY);
+    expect({ heading: r.institution, face: r.face, rate: r.couponRate, yearly_interest: r.couponPerYear, value: r.value })
+      .toEqual({ heading: 'Vanguard', face: 1000, rate: 0.05, yearly_interest: 50, value: 980 });
+    expect(r.currentYield!).toBeCloseTo(50 / 980, 12);
+    expect(r.yieldToMaturity!).toBeCloseTo(0.0672268, 6);
+    expect(priceAtYield(bondInfo(a), r.yieldToMaturity!, TODAY)!).toBeCloseTo(980 + (1000 * 0.05 * 281) / 365, 6);   // 281 days since Jan 1
+    expect(priceAtYield(bondInfo(a), 0.055, TODAY)!).toBeCloseTo(1032.46, 2);                                       // too dear at 5.5%
+  });
   test('easy · Missing rate remains blank', () => {
     const r = rowOf(bondAcct({ institution: '', label: 'Bond account', face: 1000, rate: null, value: 980, maturity: '2030-01-01' }), TODAY);
     expect(r.institution).toBe('Bond account'); refuses(r.couponRate); refuses(r.couponPerYear);
@@ -528,6 +585,10 @@ describe('MK-NW-F-090 windowStartKey — five cases', () => {
   // SETTLED 2026-10-12 by DEC-4640 ("1, 2 - approved"): a window name the app does not have gives no start — no figure,
   // never a guessed one. OpenAI's '2025-10-09' recorded the old twelve-months-back guess; the answer is now nothing.
   test('edge · Unknown label defaults to 12 months back', () => { expect(windowStartKey('Lifetime', [], '2026-10-09')).toBeNull(); });
+  // SETTLED 2026-10-27 (FX-AUDITS): the case above was changed in place on 2026-10-12; OpenAI's 2025-10-09 is kept, failing.
+  test.failing('edge · Unknown label defaults to 12 months back — OpenAI\'s 2025-10-09, kept', () => {
+    expect(windowStartKey('Lifetime', [], '2026-10-09')).toBe('2025-10-09');
+  });
 });
 
 describe('MK-NW-F-091 pricedGainOf — five cases', () => {
@@ -626,7 +687,24 @@ describe('MK-NW-F-104 closedWith — five cases', () => {
   // BLOCKED: closedWith takes ONE ending total (performance.ts:286); the case's two per-account endings ($12,000 / $8,000)
   // cannot be handed in. Run with their sum, $20,000, the app writes the whole $20,000 on A and $0 on B (performance.ts:290)
   // — the total, which is all the return reads, is right.
-  test.skip('complex · Several named accounts carry ending values', () => { /* one ending total only */ });
+  // SETTLED 2026-10-27 (FX-AUDITS, APP RIGHT): was test.skip; now run with the sum and kept failing. Every screen (Performance
+  // twice, the account page, Home) hands the accounts in, so today is built from each account's own value and closedWith
+  // is never reached; its one total gives the same return: 20,000 ÷ (11,000 + 7,500) − 1 = +8.11% either way (pinned below).
+  test.failing('complex · Several named accounts carry ending values', () => {
+    const out = closedWith([day('2026-10-08', { A: 11000, B: 7500 })], new Set(['A', 'B']), '2026-10-09', 20000);
+    expect(plain(out).pop()).toEqual({ date: '2026-10-09', values: { A: 12000, B: 8000 } });
+  });
+  test('pin · Several named accounts — on every screen each account is read at its own value; the return is +8.11% by both roads', () => {
+    const at = (id: string, balance: number) => ({ asset_id: id, label: id, kind: 'brokerage', tax_bucket: 'TAXABLE', balance, target_return: 0 });
+    const days = [day('2026-10-01', { A: 11000, B: 7500 }), day('2026-10-08', { A: 11000, B: 7500 })];
+    const screens = thePerformance({ windowStart: '2026-10-02', windowLabel: 'this week', today: '2026-10-09', transactions: [], snapshotDays: days,
+      investmentAccountIds: new Set(['A', 'B']), accounts: [at('A', 12000), at('B', 8000)] as any });
+    const oneTotal = thePerformance({ windowStart: '2026-10-02', windowLabel: 'this week', today: '2026-10-09', transactions: [], ending: 20000,
+      snapshotDays: days, investmentAccountIds: new Set(['A', 'B']) });
+    expect(screens.ret!).toBeCloseTo(20000 / 18500 - 1, 12);
+    expect(oneTotal.ret!).toBeCloseTo(20000 / 18500 - 1, 12);
+    expect([screens.ending, oneTotal.ending]).toEqual([20000, 20000]);
+  });
   // BRIEF WRONG (re-judged 2026-10-20, was UNCLEAR): the card says it in so many words — "The record is returned unchanged
   // when there is no earlier day or it holds none of those accounts" — and the auditor's own expected line repeats it. The
   // latest earlier day (Oct 8) holds only C, none of A, so nothing is added and the $1,000 is not written on anyone

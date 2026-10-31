@@ -113,11 +113,11 @@ describe('3 · brand-new user, day one, finishes onboarding', () => {
 describe('4 · brand-new user who skips everything (just explore)', () => {
   test('Home shows the DOORS in (import · by hand · connect-honestly-coming-soon); no dead end, no fake zeros', () => {
     const home = render(<HomeScreen />);
-    expect(screen.getByText(/Let's get your real numbers in/)).toBeOnTheScreen();
+    expect(screen.getByText(/Let’s get your real numbers in/)).toBeOnTheScreen();
     expect(screen.getByLabelText('Import a file from your brokerage')).toBeOnTheScreen();
     expect(screen.getByLabelText(/Add something by hand/)).toBeOnTheScreen();
     expect(screen.getByLabelText(/Connect your bank/)).toBeOnTheScreen();   // honest, not hidden (founder ruling 2026-09-14: "Connect your bank")
-    expect(screen.getByText(/WHAT YOU'LL SEE HERE/)).toBeOnTheScreen();
+    expect(screen.getByText(/WHAT YOU’LL SEE HERE/)).toBeOnTheScreen();
     expect(screen.queryByText(/\$0/)).toBeNull();                      // never a fake zero
     home.unmount();
     const cf = render(<CashFlowScreen />);
@@ -126,7 +126,7 @@ describe('4 · brand-new user who skips everything (just explore)', () => {
     render(<PlanHubScreen />);
     // 2026-08-12: the questions are ON the tab now — the invitation is the can't-compute box plus
     // the rows themselves, not a door to a second screen
-    expect(screen.getByText(/can't be calculated yet/)).toBeOnTheScreen();
+    expect(screen.getByText(/can’t be calculated yet/)).toBeOnTheScreen();
     expect(screen.getByText(/Sample: 84%/)).toBeOnTheScreen();
   });
 });

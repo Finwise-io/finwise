@@ -82,7 +82,7 @@ const after = (L: string[], label: string, n = 1, anchor?: string): string | und
 };
 const dollars = (s: string | undefined) => (s == null ? NaN : Number(s.replace('−', '-').replace(/[^0-9.\-]/g, '')));
 /** Home's box, from its band to its last cell */
-const homeBox = (L: string[]) => { const i = L.indexOf("THIS MONTH'S CASH FLOW"); expect(i).toBeGreaterThanOrEqual(0); return L.slice(i, i + 12); };
+const homeBox = (L: string[]) => { const i = L.indexOf("THIS MONTH’S CASH FLOW"); expect(i).toBeGreaterThanOrEqual(0); return L.slice(i, i + 12); };
 
 // ── the household (the worked September of MK-CF-O-003 and the re-run's register) ───────────────────────────────────────
 const SEPT: any = { nwSetupChoice: 'self',
@@ -151,7 +151,7 @@ describe('nothing entered: no answer where nothing is known', () => {
     expect(cf).not.toContain('= Actual surplus so far');
     const box = homeBox(shoot('home', NOINCOME, '2026-09-28'));
     // no pace line at all before income — no word, no share spent, and no "day 28 of 30" (2026-10-25, HM-01)
-    expect(box.slice(0, 9)).toEqual(["THIS MONTH'S CASH FLOW", 'Income', '$0', 'Nothing entered yet. Add your income ›',
+    expect(box.slice(0, 9)).toEqual(["THIS MONTH’S CASH FLOW", 'Income', '$0', 'Nothing entered yet. Add your income ›',
       'Outflow (expenses + debt)', '$0', 'Left', '—', box[8]]);
     for (const w of ['Over', '✓ On pace', 'Expenses running fast']) expect(box).not.toContain(w);
     expect(box.some((l) => /% spent/.test(l))).toBe(false);
@@ -171,7 +171,8 @@ describe('last month: the surplus Home offers to assign is the one Cash flow sho
   test('G · September on 3 Oct: Cash flow\'s past-month card reads $3,952, and Home\'s sheet reads "$3,952 of $3,952 left to assign" (it offered $4,202)', () => {
     const cf = shoot('cashflow', OCT, '2026-10-03', () => fireEvent.press(screen.getByLabelText('Previous month')));
     expect(cf.some((l) => /^SEPTEMBER 2026 .*WHAT ACTUALLY HAPPENED$/.test(l))).toBe(true);
-    expect([after(cf, 'Actual inflow'), after(cf, 'Outflow (expenses + debt)'), after(cf, '= Surplus')]).toEqual(['$7,200', '$3,248', '$3,952']);
+    // the card's surplus carries its sign, as This month's does (CF2-07) (2026-10-27, FX-CF-A — cash-flow_v01’s rows of that date; the old answer is held as test.failing in cashflow_fix_wave_2026_10_27.test.tsx)
+    expect([after(cf, 'Actual inflow'), after(cf, 'Outflow (expenses + debt)'), after(cf, '= Surplus')]).toEqual(['$7,200', '$3,248', '+$3,952']);
     const home = shoot('home', OCT, '2026-10-03');
     expect(home).toContain('$3,952 of $3,952 left to assign');
     expect(home.join(' ')).not.toMatch(/\$4,202/);
@@ -334,7 +335,7 @@ describe('a debt counts in a month only if a payment falls in it: This month\'s 
     expect(dollars(after(tm, '= Planned surplus'))).toBe(grid.cells[0].net);
     // the later-month card, one tap on: October's plan, from the grid — the car loan's first payment is in it
     const oct = shoot('cashflow', STARTS, '2026-09-28', () => fireEvent.press(screen.getByLabelText('Next month')));
-    expect(after(oct, '= Planned surplus')).toBe('$3,450');
+    expect(after(oct, '= Planned surplus')).toBe('+$3,450');   // its sign, CF2-07
     expect(grid.cells[1].net).toBe(7_200 - (3_400 - 2_300) - 2_400 - 250);
     expect(dollars(after(oct, '= Planned surplus'))).toBe(grid.cells[1].net);
   });

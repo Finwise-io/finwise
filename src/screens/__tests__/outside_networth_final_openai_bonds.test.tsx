@@ -26,7 +26,7 @@ const seed = (accounts: any[]) => {
 const dayFromToday = (n: number) => { const d = new Date(); d.setDate(d.getDate() + n); return isoLocalDate(d); };
 beforeEach(() => { mockParams = {}; });
 
-test('M-024 · BOND FACTS stand with no coupon rate: face and maturity shown, rate "not entered", $0 a year said so', () => {
+test('M-024 · BOND FACTS stand with no coupon rate: face and maturity shown, "coupon rate not entered", no year\'s interest', () => {
   seed([{ asset_id: 'b', label: 'Treasury note', kind: 'fixed_income', asset_class: 'bonds', tax_bucket: 'TAXABLE',
     balance: 9800, face_value: 10000, maturity_date: '2031-06-01' }]);
   mockParams = { id: 'b' };
@@ -36,7 +36,9 @@ test('M-024 · BOND FACTS stand with no coupon rate: face and maturity shown, ra
   expect(screen.getAllByText(/\$10,000/).length).toBeGreaterThan(0);
   expect(screen.getByText('Matures')).toBeOnTheScreen();
   expect(screen.getByText(/Jun 1, 2031/)).toBeOnTheScreen();   // the date in words, through dateShown (2026-10-19)
-  expect(screen.getByText('not entered · $0/year — coupon rate not entered')).toBeOnTheScreen();
+  // the reason and no $0 made from an unknown since 2026-10-27 (tenet 3; account-page v01 row 85; NW2-20); it read "not entered · $0/year — coupon rate not entered"
+  expect(screen.getByText('coupon rate not entered')).toBeOnTheScreen();
+  expect(screen.queryByText(/\$0\/year/)).toBeNull();
   // yields that need a rate stay refused
   expect(screen.queryByText('Yield if held to maturity')).toBeNull();
   expect(screen.queryByText("Yield on today's value")).toBeNull();
@@ -60,4 +62,13 @@ test('DEC-2748d · the Bonds screen COUPON /year leaves out a bond that matured 
   expect(screen.getByText('COUPON /year')).toBeOnTheScreen();
   expect(screen.getByText('$80')).toBeOnTheScreen();
   expect(screen.queryByText('$580')).toBeNull();
+});
+
+// THE OLD ANSWER, KEPT (2026-10-27, FX-NW; account-page v01 row 85): it fails now, by design
+test.failing('M-024 · the old answer: "not entered · $0/year — coupon rate not entered"', () => {
+  seed([{ asset_id: 'b', label: 'Treasury note', kind: 'fixed_income', asset_class: 'bonds', tax_bucket: 'TAXABLE',
+    balance: 9800, face_value: 10000, maturity_date: '2031-06-01' }]);
+  mockParams = { id: 'b' };
+  render(<AccountPortfolioScreen />);
+  expect(screen.getByText('not entered · $0/year — coupon rate not entered')).toBeOnTheScreen();
 });

@@ -48,19 +48,10 @@ export interface InsightInput {
  * Formula .....
  *     the answer = round(d × 100) followed by '%'
  *
- * Called by ... MK-HM-F-006 money0
+ * Called by ... MK-HM-F-007 percent2
  *
- * Reaches ..... 386 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
- *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
- *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
- *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
- *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
- *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
- *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
- *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
- *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 368 more — the full list is on functions_from_code
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-HM-F-007 percent2
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -71,7 +62,7 @@ export interface InsightInput {
  * Changed ..... not in git yet (—)
  */
 const pctTxt = (d: number) => `${Math.round(d * 100)}%`;
-/* ─ MK-HM-F-006 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+/* ─ MK-HM-F-006 ──────────────────────────────────────────────────────────────────── 1 · ACTION
  * money0
  *
  * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
@@ -79,9 +70,9 @@ const pctTxt = (d: number) => `${Math.round(d * 100)}%`;
  * Formula .....
  *     the answer = '$' + round(n) with thousands separators
  *
- * Called by ... MK-CF-O-001 basePay
+ * Called by ... MK-CF-O-001 basePay · MK-HM-F-007 percent2
  *
- * Reaches ..... 385 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 439 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -91,7 +82,28 @@ const pctTxt = (d: number) => `${Math.round(d * 100)}%`;
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 367 more — the full list is on functions_from_code
+ *               … and 421 more — the full list is on functions_from_code
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Decides .....
+ *     · Rounds the answer to a whole number.
+ *
+ * Formula also on the master file · functions_from_code · MK-HM-F-006
+ * Changed ..... not in git yet (—)
+ */
+const money0 = (n: number) => `$${Math.round(n).toLocaleString()}`;
+// A SHARE OF A WHOLE, PRINTED ONCE TO TWO DECIMALS (2026-10-27, FX-PF; his precision order Q49, MK-PF-F-015): the concentration
+// notices printed a whole percent, "(55%)", where 60,000 ÷ 110,000 is 54.55%. The share arrives at full precision.
+/* ─ MK-HM-F-007 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+ * percent2
+ *
+ * Answers ..... A SHARE OF A WHOLE, PRINTED ONCE TO TWO DECIMALS (2026-10-27, FX-PF; his precision order Q49, MK-PF-F-015): the concentration notices printed a whole percent, "(55%)", where 60,000 ÷ 110,000 is 54.55%.
+ *
+ * Formula .....
+ *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-024 logged expenses
@@ -99,12 +111,13 @@ const pctTxt = (d: number) => `${Math.round(d * 100)}%`;
  *
  * Decides .....
  *     · Rounds the answer to a whole number.
+ *     · Shows 2 decimal places.
  *     · Shows 1 decimal place.
  *
- * Formula also on the master file · functions_from_code · MK-HM-F-006
+ * Formula also on the master file · functions_from_code · MK-HM-F-007
  * Changed ..... not in git yet (—)
  */
-const money0 = (n: number) => `$${Math.round(n).toLocaleString()}`;
+const percent2 = (pct: number) => `${pct.toFixed(2)}%`;
 
 type RawInsight = Omit<Insight, 'theme'>;   // rules return everything but the theme; buildInsights attaches it
 type Rule = (i: InsightInput) => RawInsight | null;
@@ -121,10 +134,10 @@ const RULES: Rule[] = [
   (i) => i.rmdDue ? { id: 'rmd-due', priority: 1, icon: '📌', title: 'Required withdrawal due', body: `${money0(i.rmdDue.amount)} must come out of your pre-tax retirement accounts by Dec 31 — the IRS requires it from age 73.`, route: '/required-withdrawals' } : null,
   (i) => i.toxicDebt ? { id: 'toxic-debt', priority: 1, icon: '🔥', title: 'Tackle high-interest debt first', body: `${i.toxicDebt.label} is at ${pctTxt(i.toxicDebt.apr)} APR — paying it down beats almost any investment return.`, route: '/(tabs)/goals' } : null,
   // B-44: a robotic "0.0 months" alarms a user with plenty in investments; word the no-cash case plainly.
-  (i) => (i.cashMonths != null && i.cashMonths < 3) ? { id: 'runway', priority: 1, icon: '🛟', title: 'Build your emergency fund', body: i.cashMonths < 0.1 ? `You have no cash set aside for emergencies — most planners use 3–6 months of expenses as the range (investments aren't counted here).` : `Your cash covers about ${i.cashMonths.toFixed(1)} months of expenses — most planners' range is 3–6.`, route: '/(tabs)/goals' } : null,
+  (i) => (i.cashMonths != null && i.cashMonths < 3) ? { id: 'runway', priority: 1, icon: '🛟', title: 'Build your emergency fund', body: i.cashMonths < 0.1 ? `You have no cash set aside for emergencies — most planners use 3–6 months of expenses as the range (investments aren’t counted here).` : `Your cash covers about ${i.cashMonths.toFixed(1)} months of expenses — most planners' range is 3–6.`, route: '/(tabs)/goals' } : null,
   (i) => (i.retireChance != null && i.retireChance < 60) ? { id: 'retire-offtrack', priority: 1, icon: '🏖️', title: 'Your retirement plan needs attention', body: `Only a ${i.retireChance}% odds it lasts — adjust savings, age, or expenses in the scenario.`, route: '/retirement' } : null,
   // B-48: a 401(k) needs earned income — don't nudge a retiree / no-wage user to contribute.
-  (i) => (i.k401Remaining > 1000 && i.hasEarnedIncome) ? { id: 'k401-room', priority: 2, icon: '💼', title: 'Room left in your 401(k)', body: `About ${money0(i.k401Remaining)} of this year's tax-advantaged room looks unused — an estimate from what you entered you contribute, not from your payroll.`, route: '/contribution-room' } : null,
+  (i) => (i.k401Remaining > 1000 && i.hasEarnedIncome) ? { id: 'k401-room', priority: 2, icon: '💼', title: 'Room left in your 401(k)', body: `About ${money0(i.k401Remaining)} of this year’s tax-advantaged room looks unused — an estimate from what you entered you contribute, not from your payroll.`, route: '/contribution-room' } : null,
   (i) => (i.beatBy != null && i.beatBy < -0.02) ? { id: 'behind-bench', priority: 2, icon: '📉', title: 'Trailing your benchmark', body: `Your portfolio is ${Math.abs(Math.round(i.beatBy * 100))} pts behind its benchmark — review your holdings.`, route: '/performance' } : null,
   // Cash drag CUT by the founder 2026-08-20 (brief §C, Q24): an opinion multiplied by an assumed
   // return. Months-of-cash (the runway rule above) is the kept cash fact.
@@ -132,15 +145,15 @@ const RULES: Rule[] = [
   // ONE HOLDING, NOT ONE STOCK (2026-10-25, the Performance drawing check MM-PF): this read "on one stock (VTI)", and VTI is a fund.
   // The app's word for one ticker in an account, whatever it is — a stock, a fund, a bond — is Holding (the canon, row 11), the
   // word the Holding page and Performance use. To reverse: put "stock" back in the title and the body.
-  (i) => i.topHolding ? { id: 'holding-concentration', priority: 2, icon: '🎯', title: 'A lot rides on one holding', body: `${i.topHolding.value != null ? `${money0(i.topHolding.value)} (${i.topHolding.pct}%) of your invested money rides` : `${i.topHolding.pct}% of your invested money is`} on one holding (${i.topHolding.ticker}) — a fact worth knowing, not advice.`, route: '/(tabs)/invest' } : null,
+  (i) => i.topHolding ? { id: 'holding-concentration', priority: 2, icon: '🎯', title: 'A lot rides on one holding', body: `${i.topHolding.value != null ? `${money0(i.topHolding.value)} (${percent2(i.topHolding.pct)}) of your invested money rides` : `${percent2(i.topHolding.pct)} of your invested money is`} on one holding (${i.topHolding.ticker}) — a fact worth knowing, not advice.`, route: '/(tabs)/invest' } : null,
   // B-45: this measures the largest ACCOUNT, not a single ticker — word it honestly.
   // walk row 9: a FACT, not an instruction (the audit flagged the old imperative wording)
-  (i) => i.topAccountPct > 40 ? { id: 'concentration', priority: 2, icon: '🎯', title: 'Concentrated in one account', body: `${i.topAccountAmount != null ? `${money0(i.topAccountAmount)} (${Math.round(i.topAccountPct)}%) of your invested money sits` : `${Math.round(i.topAccountPct)}% of your invested money is`} in a single account — spreading across accounts lowers risk.`, route: '/performance' } : null,
+  (i) => i.topAccountPct > 40 ? { id: 'concentration', priority: 2, icon: '🎯', title: 'Concentrated in one account', body: `${i.topAccountAmount != null ? `${money0(i.topAccountAmount)} (${percent2(i.topAccountPct)}) of your invested money sits` : `${percent2(i.topAccountPct)} of your invested money is`} in a single account — spreading across accounts lowers risk.`, route: '/performance' } : null,
   // B-52: this is contributions/gross — name it "investing" so it doesn't collide with the budget's
   // "savings rate" (take-home not spent), which is a different number.
-  (i) => (i.investRate != null && i.investRate < 0.1) ? { id: 'invest-rate', priority: 2, icon: '📈', title: 'Nudge up your investing', body: `You're investing about ${pctTxt(i.investRate)} of your gross income toward retirement — even +1% compounds over time.`, route: '/(tabs)/goals' } : null,
+  (i) => (i.investRate != null && i.investRate < 0.1) ? { id: 'invest-rate', priority: 2, icon: '📈', title: 'Nudge up your investing', body: `You’re investing about ${pctTxt(i.investRate)} of your gross income toward retirement — even +1% compounds over time.`, route: '/(tabs)/goals' } : null,
   // r12 (pre-48 audit C4a): a dated goal funded at a pace that misses its date — said in months, no instruction
-  (i) => i.goalOffTrack ? { id: 'goal-offtrack', priority: 2, icon: '🗓️', title: 'A goal is running behind its date', body: `${i.goalOffTrack.label} is about ${plural(i.goalOffTrack.monthsBehind, 'month')} behind at this month's funding pace — the date, the amount, or the pace can move. Your call.`, route: '/(tabs)/goals' } : null,
+  (i) => i.goalOffTrack ? { id: 'goal-offtrack', priority: 2, icon: '🗓️', title: 'A goal is running behind its date', body: `${i.goalOffTrack.label} is about ${plural(i.goalOffTrack.monthsBehind, 'month')} behind at this month’s funding pace — the date, the amount, or the pace can move. Your call.`, route: '/(tabs)/goals' } : null,
   // FCC: goals need more per month than the plan frees up — a quantified fact, no instruction.
   (i) => (i.goalsGap != null && i.goalsGap > 0) ? { id: 'goals-gap', priority: 2, icon: '🎯', title: 'Your goals outpace your surplus', body: `Hitting every goal on time needs about ${money0(i.goalsGap)}/month more than your plan frees up — see the trade-offs in Plan.`, route: '/(tabs)/goals' } : null,
   // FCC: the Social Security claim decision is live and no timing has been adopted — logistics, no opinion.

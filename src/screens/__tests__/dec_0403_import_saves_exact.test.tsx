@@ -42,8 +42,9 @@ test('DEC-0403 — a goal held exact opens in its editor to the cent, never as a
   const GoalsScreen = require('../GoalsScreen').default;
   useStore.setState({ goals: [{ id: 'g1', label: 'Trip', icon: '✈️', target: 1000, saved: 100 / 3, color: '#000' }] } as any);
   const sc = render(<GoalsScreen />);
-  fireEvent.press(sc.getByText('Trip'));
-  expect(sc.getByDisplayValue('33.33')).toBeTruthy();
-  expect(sc.getByDisplayValue('1000')).toBeTruthy();
+  fireEvent.press(sc.getByText(/Trip$/));   // the goal's name rides its card's light bar with its icon since 2026-10-27
+  // the boxes print their figure as money since 2026-10-27 (DEC-8385, every money box is a MoneyBox): the figure is the same cent
+  expect(sc.getByDisplayValue('$33.33')).toBeTruthy();
+  expect(sc.getByDisplayValue('$1,000')).toBeTruthy();
   expect(sc.queryByDisplayValue(/33\.3333/)).toBeNull();
 });

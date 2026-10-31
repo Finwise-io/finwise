@@ -53,15 +53,16 @@ export default function FirstRunScreen() {
   if (step === 'intro') {
     return (
       <ScrollView style={s.root} contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
-        <Image source={require('../../assets/brand/mark.png')} style={s.introMark} accessible={false} />
+        <Image source={require('../../assets/brand/mark.png')} style={s.introMark} resizeMode="contain" accessible={false} />
         {/* B45 founder finding: the name was typed in black here — no screen types the name; this is
-            the designed logo art (Money teal · Keel navy), the same asset sign-in and the top bar use. */}
+            the designed logo art, the same asset sign-in and the top bar use: since 2026-10-30 the
+            founder's own lettering ("change the logo to attached"; drawing brand-wordmark v02). */}
         <Image source={require('../../assets/brand/wordmark.png')} style={s.introWordmark} resizeMode="contain" accessibilityLabel="MoneyKeel" />
         <Text style={s.introH1} accessibilityRole="header">Your finance command center.</Text>
         <View style={s.introCard}>
           {([
             ['All your assets and debts in one place', 'accounts (investment, 401k, checking, savings), your home and other property, and every debt (mortgage, cards, loans) — one live view.'],
-            ['Stay on top of your cash flow', "every dollar in and out — and what's surplus."],
+            ['Stay on top of your cash flow', "every dollar in and out — and what’s surplus."],
             ['See what needs attention', 'specific priorities with real dollar amounts.'],
             ['Honest odds on the big question', 'how long your money will last, told straight.'],
           ] as const).map(([lead, body]) => (
@@ -147,8 +148,10 @@ const s = StyleSheet.create({
   skipBtn: { minHeight: 46, alignItems: 'center', justifyContent: 'center', marginTop: 4 },
   skipTxt: { fontSize: 15, fontWeight: '700', color: Colors.textSecondary },
   introCard: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginTop: Spacing.sm },
-  introMark: { width: 92, height: 92, alignSelf: 'center', marginBottom: Spacing.sm },
-  introWordmark: { width: 170, height: 34, alignSelf: 'center', marginBottom: Spacing.sm },
+  // brand-wordmark v02 (2026-10-30): the lettering keeps its 170 width at the art's 4.9 : 1; the mark keeps the size it
+  // has beside the lettering in the founder's full logo (0.6 of its width) at the mark's 2.04 : 1 — it was a square 92
+  introMark: { width: 101, height: 49.6, alignSelf: 'center', marginBottom: Spacing.sm },
+  introWordmark: { width: 170, height: 34.7, alignSelf: 'center', marginBottom: Spacing.sm },
   introH1: { fontSize: 20, fontWeight: '800', color: Colors.textPrimary, textAlign: 'center', lineHeight: 33, marginBottom: Spacing.md },
   introRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 10, paddingVertical: 7 },
   introCheck: { width: 22, height: 22, borderRadius: 11, backgroundColor: Colors.primary, alignItems: 'center', justifyContent: 'center', marginTop: 2 },

@@ -1211,11 +1211,11 @@
    "status": "WAITING ON YOU",
    "ref": "src/components/TopBar.tsx · app/_layout.tsx · mock v10",
    "date": "2026-09-14",
-   "comments": "",
+   "comments": "2026-10-31: Contribution room and the Stress test now show the MoneyKeel bar with ‹ Back (DEC-8970); his DEC-0218 and DEC-0354 rule it, so the standard’s WAITING ON YOU on this (line 69) is recorded for removal on its own row.",
    "key": "66d6399baa",
    "_written": {
     "status": "WAITING ON YOU",
-    "comments": ""
+    "comments": "2026-10-31: Contribution room and the Stress test now show the MoneyKeel bar with ‹ Back (DEC-8970); his DEC-0218 and DEC-0354 rule it, so the standard’s WAITING ON YOU on this (line 69) is recorded for removal on its own row."
    }
   },
   {
@@ -1366,13 +1366,13 @@
   {
    "task": "Two word collisions found building v08: Cash flow's 'Add by hand' adds an EXPENSE (the same words as the account door), and Settings still says 'Disconnect' beside 'Linked accounts'",
    "todo": "Founder: say whether Cash flow's door should read differently (for example 'Add an expense by hand') and whether Disconnect becomes 'Unlink'.",
-   "status": "WAITING ON YOU",
+   "status": "DONE 2026-10-27 — Cash flow’s expense door reads ‘Log an expense’ / ‘＋ Expense’, and Settings says ‘Unlink’ beside a linked account (canon rows 27 and 18)",
    "ref": "src/screens/CashFlowScreen.tsx · src/screens/SettingsScreen.tsx",
    "date": "2026-09-14",
-   "comments": "",
+   "comments": "2026-10-31: closed by FX-CF-A and FX-SHARED under DEC-8964, DEC-8929, decided without asking him (his order of 2026-09-30). Tests: src/screens/__tests__/settings_unlink_canon_row18.test.tsx · src/screens/__tests__/cashflow_fix_wave_2026_10_27.test.tsx.",
    "_written": {
-    "status": "WAITING ON YOU",
-    "comments": ""
+    "status": "DONE 2026-10-27 — Cash flow’s expense door reads ‘Log an expense’ / ‘＋ Expense’, and Settings says ‘Unlink’ beside a linked account (canon rows 27 and 18)",
+    "comments": "2026-10-31: closed by FX-CF-A and FX-SHARED under DEC-8964, DEC-8929, decided without asking him (his order of 2026-09-30). Tests: src/screens/__tests__/settings_unlink_canon_row18.test.tsx · src/screens/__tests__/cashflow_fix_wave_2026_10_27.test.tsx."
    }
   },
   {
@@ -1657,10 +1657,10 @@
    "status": "CODED, NOT VERIFIED",
    "ref": "src/__tests__/guard_bands_edge_to_edge.test.ts · 15 screen files",
    "date": "2026-09-26",
-   "comments": "B-107. The guard reads each band's enclosing card and its padding. | 2026-10-25: the guard was rebuilt to read whole tags and count every bar — 144 of 144, 72 inside cards — and 8 more short bars now run edge to edge (DEC-8352); a second guard, guard_band_never_beside_title.test.ts, reads 137 bars (DEC-8335). Still waits for his phone check.",
+   "comments": "B-107. The guard reads each band's enclosing card and its padding. | 2026-10-25: the guard was rebuilt to read whole tags and count every bar — 144 of 144, 72 inside cards — and 8 more short bars now run edge to edge (DEC-8352); a second guard, guard_band_never_beside_title.test.ts, reads 137 bars (DEC-8335). Still waits for his phone check. | 2026-10-31: the bars are app-wide by the lead’s ruling R1 (DEC-8915); guard_box_titles_on_bars.test.ts reads 1,744 texts and 140 bars in 48 files, 0 headings off a bar. Still waits for his phone check.",
    "_written": {
     "status": "CODED, NOT VERIFIED",
-    "comments": "B-107. The guard reads each band's enclosing card and its padding. | 2026-10-25: the guard was rebuilt to read whole tags and count every bar — 144 of 144, 72 inside cards — and 8 more short bars now run edge to edge (DEC-8352); a second guard, guard_band_never_beside_title.test.ts, reads 137 bars (DEC-8335). Still waits for his phone check."
+    "comments": "B-107. The guard reads each band's enclosing card and its padding. | 2026-10-25: the guard was rebuilt to read whole tags and count every bar — 144 of 144, 72 inside cards — and 8 more short bars now run edge to edge (DEC-8352); a second guard, guard_band_never_beside_title.test.ts, reads 137 bars (DEC-8335). Still waits for his phone check. | 2026-10-31: the bars are app-wide by the lead’s ruling R1 (DEC-8915); guard_box_titles_on_bars.test.ts reads 1,744 texts and 140 bars in 48 files, 0 headings off a bar. Still waits for his phone check."
    }
   },
   {
@@ -2854,13 +2854,13 @@
   {
    "task": "OpenAI final audit of the whole Net worth module (2026-10-09): 505 cases on 101 cards, run against the app",
    "todo": "Run all 505 cases (done: 433 pass, 16 app errors, 15 OpenAI slips, 35 open, 6 cannot be mapped — tests outside_networth_final_openai_part1..4, results in returned/results/). Fixed under his existing rules: matured bond pays $0 everywhere (DEC-2748d), category return start-weighted (DEC-1669/3035b), class sweep keeps the person's class and reads maturity before name and never a property name (DEC-2748h/2484r/2484i/3035o), Gold holding stays Alternatives, 'government' not a Treasury word (DEC-3035g), one property-use reading (DEC-3035p), missing balance left out with no NaN and row 'not entered', debt with no balance named in the amber box (DEC-3279e), bond with no rate keeps its facts card (DEC-2748b/c), Plan screens told the home and the car (DEC-2747e/2746b), impossible dates, unpriced itemise refused. Still to decide: the 'open' points (rent data unknown vs none, '2k' read as $2, month before Mar 31, CD with balance only, MK-NW-F-091 gain on a hand-typed CD).",
-   "status": "IN PROGRESS — 16 app errors fixed or held; open points to decide",
+   "status": "DONE 2026-10-27 — 43 of 43 open cases settled (12 fixed earlier, 30 app right, 1 decided from the decision log, 0 app wrong); every Net worth case that does not pass as written carries a settled line, 128 of 128",
    "ref": "MoneyKeel/documents/audit/outside-test-cases/returned/ (moneykeel_nw_part1..4_audit.json, results/)",
    "date": "2026-10-09",
-   "comments": "Not pushed. MK-NW-F-091 held: making an unknown gain 'unknown' blanks two states of the approved account page (v17 frame 2) for any hand-typed CD or bond. | NOTE 2026-10-20: left open — the UNCLEAR outside cases still to decide are being classified now, one by one; the row closes when each is settled. Done so far: open points settled by DEC-3656, DEC-3657, DEC-3768b, DEC-3768c, DEC-3769, DEC-3837, DEC-4036b–k, DEC-4059b–d, DEC-4082, DEC-4105; re-run parts 1–4 (51a1fa67, 0f7adefa, 0e12a591); 10 cases classified in 7268efb4.",
+   "comments": "Not pushed. MK-NW-F-091 held: making an unknown gain 'unknown' blanks two states of the approved account page (v17 frame 2) for any hand-typed CD or bond. | NOTE 2026-10-20: left open — the UNCLEAR outside cases still to decide are being classified now, one by one; the row closes when each is settled. Done so far: open points settled by DEC-3656, DEC-3657, DEC-3768b, DEC-3768c, DEC-3769, DEC-3837, DEC-4036b–k, DEC-4059b–d, DEC-4082, DEC-4105; re-run parts 1–4 (51a1fa67, 0f7adefa, 0e12a591); 10 cases classified in 7268efb4. | 2026-10-31: closed by FX-AUDITS. Test: MoneyKeel/functions/networth-and-performance/outside_audit_results_settled.test.ts (reads 730 cases). MK-NW-F-035 keeps the weighted average under his DEC-4082 (park for now); the 29 February maturity fixed (DEC-8943). Row #231 stays parked.",
    "_written": {
-    "status": "IN PROGRESS — 16 app errors fixed or held; open points to decide",
-    "comments": "Not pushed. MK-NW-F-091 held: making an unknown gain 'unknown' blanks two states of the approved account page (v17 frame 2) for any hand-typed CD or bond. | NOTE 2026-10-20: left open — the UNCLEAR outside cases still to decide are being classified now, one by one; the row closes when each is settled. Done so far: open points settled by DEC-3656, DEC-3657, DEC-3768b, DEC-3768c, DEC-3769, DEC-3837, DEC-4036b–k, DEC-4059b–d, DEC-4082, DEC-4105; re-run parts 1–4 (51a1fa67, 0f7adefa, 0e12a591); 10 cases classified in 7268efb4."
+    "status": "DONE 2026-10-27 — 43 of 43 open cases settled (12 fixed earlier, 30 app right, 1 decided from the decision log, 0 app wrong); every Net worth case that does not pass as written carries a settled line, 128 of 128",
+    "comments": "Not pushed. MK-NW-F-091 held: making an unknown gain 'unknown' blanks two states of the approved account page (v17 frame 2) for any hand-typed CD or bond. | NOTE 2026-10-20: left open — the UNCLEAR outside cases still to decide are being classified now, one by one; the row closes when each is settled. Done so far: open points settled by DEC-3656, DEC-3657, DEC-3768b, DEC-3768c, DEC-3769, DEC-3837, DEC-4036b–k, DEC-4059b–d, DEC-4082, DEC-4105; re-run parts 1–4 (51a1fa67, 0f7adefa, 0e12a591); 10 cases classified in 7268efb4. | 2026-10-31: closed by FX-AUDITS. Test: MoneyKeel/functions/networth-and-performance/outside_audit_results_settled.test.ts (reads 730 cases). MK-NW-F-035 keeps the weighted average under his DEC-4082 (park for now); the 29 February maturity fixed (DEC-8943). Row #231 stays parked."
    }
   },
   {
@@ -2902,13 +2902,13 @@
   {
    "task": "Claude's outside audit of Performance (4 batches, 225 cases, 45 functions incl. the time-weighted-return engine)",
    "todo": "Run every case against the app; fix what his existing rules settle; bring the rest to him one at a time — AFTER Net worth is launch-ready (his order, 2026-10-11).",
-   "status": "IN PROGRESS — his answers of 2026-10-12 built (DEC-4640 … DEC-4646): the 6 decision points and the two dividend questions are closed — unknown window name refuses, prices starting late are measured and named, six unused functions removed, a partly matched sale counted once, the typed-balance case was the judge's double count (withdrawn), a holding's return carries its dividends once, the market figure's record corrected, option shares per contract",
+   "status": "DONE 2026-10-27 — 49 of 49 settled (29 fixed earlier, 20 app right, 0 app wrong); every Performance case that does not pass as written carries a settled line, 81 of 81",
    "ref": "MoneyKeel/documents/audit/outside-test-cases/returned/results/performance_claude_0{1..4}_results.json",
    "date": "2026-10-11",
-   "comments": "Briefs v02 in to-send/moneykeel_brief_performance_0N_claude-code_v02.md. 2026-10-12: 35 outside cases settled or removed (1 + 3 + 25 removed + 5 re-pointed + 1 + 1 + 1 brief wrong); results files carry a 'settled' line on each. Not committed. | 2026-10-22 STATE: 32 of 225 cases still carry no settled line (file 01: 11, 02: 7, 03: 10, 04: 4); the OpenAI re-run of 2026-10-21 covered the same functions and PF-A and PF-B fixed most of them. Five cases marked BRIEF WRONG and one superseded on 2026-10-22. Marking the 32 one by one is the next records job.",
+   "comments": "Briefs v02 in to-send/moneykeel_brief_performance_0N_claude-code_v02.md. 2026-10-12: 35 outside cases settled or removed (1 + 3 + 25 removed + 5 re-pointed + 1 + 1 + 1 brief wrong); results files carry a 'settled' line on each. Not committed. | 2026-10-22 STATE: 32 of 225 cases still carry no settled line (file 01: 11, 02: 7, 03: 10, 04: 4); the OpenAI re-run of 2026-10-21 covered the same functions and PF-A and PF-B fixed most of them. Five cases marked BRIEF WRONG and one superseded on 2026-10-22. Marking the 32 one by one is the next records job. | 2026-10-31: closed by FX-AUDITS. Test: MoneyKeel/functions/networth-and-performance/outside_audit_results_settled.test.ts. MK-PF-F-014’s +15.56% is app right (DEC-8980); MK-PF-F-015 keeps the share whole (DEC-8953).",
    "_written": {
-    "status": "IN PROGRESS — his answers of 2026-10-12 built (DEC-4640 … DEC-4646): the 6 decision points and the two dividend questions are closed — unknown window name refuses, prices starting late are measured and named, six unused functions removed, a partly matched sale counted once, the typed-balance case was the judge's double count (withdrawn), a holding's return carries its dividends once, the market figure's record corrected, option shares per contract",
-    "comments": "Briefs v02 in to-send/moneykeel_brief_performance_0N_claude-code_v02.md. 2026-10-12: 35 outside cases settled or removed (1 + 3 + 25 removed + 5 re-pointed + 1 + 1 + 1 brief wrong); results files carry a 'settled' line on each. Not committed. | 2026-10-22 STATE: 32 of 225 cases still carry no settled line (file 01: 11, 02: 7, 03: 10, 04: 4); the OpenAI re-run of 2026-10-21 covered the same functions and PF-A and PF-B fixed most of them. Five cases marked BRIEF WRONG and one superseded on 2026-10-22. Marking the 32 one by one is the next records job."
+    "status": "DONE 2026-10-27 — 49 of 49 settled (29 fixed earlier, 20 app right, 0 app wrong); every Performance case that does not pass as written carries a settled line, 81 of 81",
+    "comments": "Briefs v02 in to-send/moneykeel_brief_performance_0N_claude-code_v02.md. 2026-10-12: 35 outside cases settled or removed (1 + 3 + 25 removed + 5 re-pointed + 1 + 1 + 1 brief wrong); results files carry a 'settled' line on each. Not committed. | 2026-10-22 STATE: 32 of 225 cases still carry no settled line (file 01: 11, 02: 7, 03: 10, 04: 4); the OpenAI re-run of 2026-10-21 covered the same functions and PF-A and PF-B fixed most of them. Five cases marked BRIEF WRONG and one superseded on 2026-10-22. Marking the 32 one by one is the next records job. | 2026-10-31: closed by FX-AUDITS. Test: MoneyKeel/functions/networth-and-performance/outside_audit_results_settled.test.ts. MK-PF-F-014’s +15.56% is app right (DEC-8980); MK-PF-F-015 keeps the share whole (DEC-8953)."
    }
   },
   {
@@ -3610,25 +3610,25 @@
   {
    "task": "Holding editor: changing or removing an existing purchase does not change its purchase record",
    "todo": "An existing purchase changed or removed in the holding editor should change its record, as an added one writes one.",
-   "status": "TO DO",
+   "status": "DONE 2026-10-27 — 10 VTI at $90 changed to $95 now reads $95 on its record; a removed purchase removes its record",
    "ref": "MK-CF-F-224 openingRecordsOf · addAsset, updateAsset, updatePosition (src/store/useStore.ts)",
    "date": "2026-10-23",
-   "comments": "Found by JA, 2026-10-23 (limit of DEC-7601). Example: 10 VTI at $90.00 added on Jan 5, 2026 writes a record at $90.00; its price changed later in the editor leaves the record at $90.00, and a sale reads its gain from that.",
+   "comments": "Found by JA, 2026-10-23 (limit of DEC-7601). Example: 10 VTI at $90.00 added on Jan 5, 2026 writes a record at $90.00; its price changed later in the editor leaves the record at $90.00, and a sale reads its gain from that. | 2026-10-31: closed by FX-PF under DEC-8946. Test: src/screens/__tests__/fxpf_fixes_2026_10_27.test.tsx.",
    "_written": {
-    "status": "TO DO",
-    "comments": "Found by JA, 2026-10-23 (limit of DEC-7601). Example: 10 VTI at $90.00 added on Jan 5, 2026 writes a record at $90.00; its price changed later in the editor leaves the record at $90.00, and a sale reads its gain from that."
+    "status": "DONE 2026-10-27 — 10 VTI at $90 changed to $95 now reads $95 on its record; a removed purchase removes its record",
+    "comments": "Found by JA, 2026-10-23 (limit of DEC-7601). Example: 10 VTI at $90.00 added on Jan 5, 2026 writes a record at $90.00; its price changed later in the editor leaves the record at $90.00, and a sale reads its gain from that. | 2026-10-31: closed by FX-PF under DEC-8946. Test: src/screens/__tests__/fxpf_fixes_2026_10_27.test.tsx."
    }
   },
   {
    "task": "Import holdings: a re-import keeps the first file's purchase records for a holding that already has them",
    "todo": "A second file for the same holding should be read against the records the first file wrote.",
-   "status": "TO DO",
+   "status": "DONE 2026-10-27 — a re-import of 100 VTI at $90 after a file at $80 rewrites to $9,000; a buy of 10 between files makes a 110-share file write 100",
    "ref": "MK-CF-F-224 openingRecordsOf · src/domain/import/holdingsImport.ts",
    "date": "2026-10-23",
-   "comments": "Found by JA, 2026-10-23 (limit of DEC-7601; it writes records only for holdings with none, so a purchase is never counted twice). Example: Import 100 VTI at cost $8,000, then a second file for the same matched account: the realized gain still reads from the first file's $8,000.",
+   "comments": "Found by JA, 2026-10-23 (limit of DEC-7601; it writes records only for holdings with none, so a purchase is never counted twice). Example: Import 100 VTI at cost $8,000, then a second file for the same matched account: the realized gain still reads from the first file's $8,000. | 2026-10-31: closed by FX-PF under DEC-8947. Test: src/screens/__tests__/fxpf_fixes_2026_10_27.test.tsx.",
    "_written": {
-    "status": "TO DO",
-    "comments": "Found by JA, 2026-10-23 (limit of DEC-7601; it writes records only for holdings with none, so a purchase is never counted twice). Example: Import 100 VTI at cost $8,000, then a second file for the same matched account: the realized gain still reads from the first file's $8,000."
+    "status": "DONE 2026-10-27 — a re-import of 100 VTI at $90 after a file at $80 rewrites to $9,000; a buy of 10 between files makes a 110-share file write 100",
+    "comments": "Found by JA, 2026-10-23 (limit of DEC-7601; it writes records only for holdings with none, so a purchase is never counted twice). Example: Import 100 VTI at cost $8,000, then a second file for the same matched account: the realized gain still reads from the first file's $8,000. | 2026-10-31: closed by FX-PF under DEC-8947. Test: src/screens/__tests__/fxpf_fixes_2026_10_27.test.tsx."
    }
   },
   {
@@ -3817,10 +3817,10 @@
    "status": "TO DO — the lead's decision of 2026-10-24: not now",
    "ref": "Calculation Module code/scripts/moneykeel_functions.py · moneykeel_inputs.py",
    "date": "2026-10-24",
-   "comments": "PF-TOOLS proposal, 2026-10-24. Example: today MK-CF-F-225 to 228 (useCashflowModel, datedGridOf, thisMonthInputs, useThisMonthInputs) are numbered by hand with hand-written headers; the sweep would also number useNetWorthInputs, prefersReducedMotion and modalAnimation, each needing a rule or a calculates-nothing record.",
+   "comments": "PF-TOOLS proposal, 2026-10-24. Example: today MK-CF-F-225 to 228 (useCashflowModel, datedGridOf, thisMonthInputs, useThisMonthInputs) are numbered by hand with hand-written headers; the sweep would also number useNetWorthInputs, prefersReducedMotion and modalAnimation, each needing a rule or a calculates-nothing record. | 2026-10-31, PF-TOOLS (the lead's instruction): a second example — MK-XS-I-079, the year a Roth conversion is made (rothConversionYear), reads \"NOT FOUND IN THE CODE AT ALL\" on the master's inputs tab, because its one reader, MK-CF-F-226 datedGridOf, sits in src/hooks/useCashflowModel.ts, which the sweep does not read. The sweep reading src/hooks would list it.",
    "_written": {
     "status": "TO DO — the lead's decision of 2026-10-24: not now",
-    "comments": "PF-TOOLS proposal, 2026-10-24. Example: today MK-CF-F-225 to 228 (useCashflowModel, datedGridOf, thisMonthInputs, useThisMonthInputs) are numbered by hand with hand-written headers; the sweep would also number useNetWorthInputs, prefersReducedMotion and modalAnimation, each needing a rule or a calculates-nothing record."
+    "comments": "PF-TOOLS proposal, 2026-10-24. Example: today MK-CF-F-225 to 228 (useCashflowModel, datedGridOf, thisMonthInputs, useThisMonthInputs) are numbered by hand with hand-written headers; the sweep would also number useNetWorthInputs, prefersReducedMotion and modalAnimation, each needing a rule or a calculates-nothing record. | 2026-10-31, PF-TOOLS (the lead's instruction): a second example — MK-XS-I-079, the year a Roth conversion is made (rothConversionYear), reads \"NOT FOUND IN THE CODE AT ALL\" on the master's inputs tab, because its one reader, MK-CF-F-226 datedGridOf, sits in src/hooks/useCashflowModel.ts, which the sweep does not read. The sweep reading src/hooks would list it."
    }
   },
   {
@@ -3937,10 +3937,10 @@
    "status": "TO DO — on the next device build",
    "ref": "the Debts tab mortgage comparison (src/screens/BudgetScreen.tsx) · src/screens/RequiredWithdrawalsScreen.tsx",
    "date": "2026-10-24",
-   "comments": "Found by CJB, 2026-10-24 (DEC-7948). Example: the mortgage comparison on the Debts tab ended its last sentence with the dot; the dot now sits beside the sentence and is said About How we calculate your odds — the layout moves a little, and no test can see it. | 2026-10-25: one info dot on every screen (DEC-8339) — the same phone check covers it.",
+   "comments": "Found by CJB, 2026-10-24 (DEC-7948). Example: the mortgage comparison on the Debts tab ended its last sentence with the dot; the dot now sits beside the sentence and is said About How we calculate your odds — the layout moves a little, and no test can see it. | 2026-10-25: one info dot on every screen (DEC-8339) — the same phone check covers it. | 2026-10-31: the dot now takes its line’s size and colour on every screen, with two named exceptions (DEC-8926); the same phone check covers it.",
    "_written": {
     "status": "TO DO — on the next device build",
-    "comments": "Found by CJB, 2026-10-24 (DEC-7948). Example: the mortgage comparison on the Debts tab ended its last sentence with the dot; the dot now sits beside the sentence and is said About How we calculate your odds — the layout moves a little, and no test can see it. | 2026-10-25: one info dot on every screen (DEC-8339) — the same phone check covers it."
+    "comments": "Found by CJB, 2026-10-24 (DEC-7948). Example: the mortgage comparison on the Debts tab ended its last sentence with the dot; the dot now sits beside the sentence and is said About How we calculate your odds — the layout moves a little, and no test can see it. | 2026-10-25: one info dot on every screen (DEC-8339) — the same phone check covers it. | 2026-10-31: the dot now takes its line’s size and colour on every screen, with two named exceptions (DEC-8926); the same phone check covers it."
    }
   },
   {
@@ -3949,22 +3949,22 @@
    "status": "TO DO",
    "ref": "src/components/UI.tsx (the info dot)",
    "date": "2026-10-24",
-   "comments": "Found by CJB, 2026-10-24 (DEC-7948). Example: its spoken label changed today from the glyph to About and its subject on every screen, and only a guard in one test file reads the 36 dots; the component itself is in no register.",
+   "comments": "Found by CJB, 2026-10-24 (DEC-7948). Example: its spoken label changed today from the glyph to About and its subject on every screen, and only a guard in one test file reads the 36 dots; the component itself is in no register. | 2026-10-31: InfoDot (src/components/UI.tsx) gained a `line` prop (DEC-8926); its identifier is PF-TOOLS’s numbering, named in FX-SHARED’s report.",
    "_written": {
     "status": "TO DO",
-    "comments": "Found by CJB, 2026-10-24 (DEC-7948). Example: its spoken label changed today from the glyph to About and its subject on every screen, and only a guard in one test file reads the 36 dots; the component itself is in no register."
+    "comments": "Found by CJB, 2026-10-24 (DEC-7948). Example: its spoken label changed today from the glyph to About and its subject on every screen, and only a guard in one test file reads the 36 dots; the component itself is in no register. | 2026-10-31: InfoDot (src/components/UI.tsx) gained a `line` prop (DEC-8926); its identifier is PF-TOOLS’s numbering, named in FX-SHARED’s report."
    }
   },
   {
    "task": "Sign-up's \"average monthly expenses\" question can count a yearly bill twice",
    "todo": "The question's words would say whether a yearly bill belongs in the average; a change of words goes through a drawing first, which is his to approve.",
-   "status": "TO DO — mock-first, his call",
+   "status": "DONE 2026-10-27 — $2,000 typed and a $1,200 December bill: Uncategorized $2,000, Surplus $1,900, the recap $2,100 — they agree",
    "ref": "src/onboarding/modules.tsx (What are your average monthly expenses?) · MK-CF-F-002",
    "date": "2026-10-24",
-   "comments": "Found by CF-FIX, 2026-10-24 (DEC-7951). Example: someone who averages a $1,200 yearly bill into the answer and also dates that bill counts it twice, $100 a month.",
+   "comments": "Found by CF-FIX, 2026-10-24 (DEC-7951). Example: someone who averages a $1,200 yearly bill into the answer and also dates that bill counts it twice, $100 a month. | 2026-10-31: closed by FX-CF-B under DEC-8966 (the dated bill on top, DEC-7951). Test: src/screens/__tests__/income_fixes_fx_cf_b_2026_10_27.test.tsx (the #322 cases, 4, and the old answer kept as test.failing).",
    "_written": {
-    "status": "TO DO — mock-first, his call",
-    "comments": "Found by CF-FIX, 2026-10-24 (DEC-7951). Example: someone who averages a $1,200 yearly bill into the answer and also dates that bill counts it twice, $100 a month."
+    "status": "DONE 2026-10-27 — $2,000 typed and a $1,200 December bill: Uncategorized $2,000, Surplus $1,900, the recap $2,100 — they agree",
+    "comments": "Found by CF-FIX, 2026-10-24 (DEC-7951). Example: someone who averages a $1,200 yearly bill into the answer and also dates that bill counts it twice, $100 a month. | 2026-10-31: closed by FX-CF-B under DEC-8966 (the dated bill on top, DEC-7951). Test: src/screens/__tests__/income_fixes_fx_cf_b_2026_10_27.test.tsx (the #322 cases, 4, and the old answer kept as test.failing)."
    }
   },
   {
@@ -4273,10 +4273,10 @@
    "status": "RECORDED 2026-10-26 — a breach of the mock-first order, named row by row in the comments",
    "ref": "MoneyKeel/documents/cashflow/ (cash-flow_v01, bill-calendar_v02, monthly-income_v02, income-end-to-end_v07, filing-status-question_v03) · MoneyKeel/documents/home-screen/moneykeel_pres_mock_ways-to-add-an-account_v10.html",
    "date": "2026-10-26",
-   "comments": "CF-MMFIX-A, 2026-10-25, after the code: 15 rows on cash-flow v01 — the budget editor’s rows add up; the day read where the person is; PLANNED EXPENSES by category; no sub-lines with no budget; YOUR SOURCES at $0; a person who has entered nothing; the Debts rows; ≈ on a calculated take-home; the appearance; the drawing errors kept as built; a later month with no budget; a payment above the minimum; guaranteed income; the future paycheck card; the budget editor with no limit — plus 2 on bill-calendar v02 (In, Out and End at 800; the first day), 1 on monthly-income v02 (the first day’s boxes) and 1 on ways-to-add v10 (Home’s box). FIX-TAX, 2026-10-25, after the code: 2 rows on income v07 (the Tax organizer’s How you file; Interest & dividends’ payout dated after today), 1 paragraph on filing-status v03 (the Tax organizer’s How you file) and 1 row on cash-flow v01 (the draw sheet’s gains); its follow-up row on v07 (the interest basis, the rate words, the vest line) just before the code. FIX-BUDGET: the lead named its earlier rows; the one FIX-BUDGET drawing found, stresstest v02, says on its face it was drawn before the code, and no other row of FIX-BUDGET’s is on any drawing. Every later round wrote its rows first. | 2026-10-26, CLEANUP-LEFT round 2: three new drawings were drawn from the build after the code, because no drawing existed — roth-conversion v01, required-withdrawals v01 and retirement-cockpit v01 (two phones). Its Goals percent row and its income v07 recap row were written before the code.",
+   "comments": "CF-MMFIX-A, 2026-10-25, after the code: 15 rows on cash-flow v01 — the budget editor’s rows add up; the day read where the person is; PLANNED EXPENSES by category; no sub-lines with no budget; YOUR SOURCES at $0; a person who has entered nothing; the Debts rows; ≈ on a calculated take-home; the appearance; the drawing errors kept as built; a later month with no budget; a payment above the minimum; guaranteed income; the future paycheck card; the budget editor with no limit — plus 2 on bill-calendar v02 (In, Out and End at 800; the first day), 1 on monthly-income v02 (the first day’s boxes) and 1 on ways-to-add v10 (Home’s box). FIX-TAX, 2026-10-25, after the code: 2 rows on income v07 (the Tax organizer’s How you file; Interest & dividends’ payout dated after today), 1 paragraph on filing-status v03 (the Tax organizer’s How you file) and 1 row on cash-flow v01 (the draw sheet’s gains); its follow-up row on v07 (the interest basis, the rate words, the vest line) just before the code. FIX-BUDGET: the lead named its earlier rows; the one FIX-BUDGET drawing found, stresstest v02, says on its face it was drawn before the code, and no other row of FIX-BUDGET’s is on any drawing. Every later round wrote its rows first. | 2026-10-26, CLEANUP-LEFT round 2: three new drawings were drawn from the build after the code, because no drawing existed — roth-conversion v01, required-withdrawals v01 and retirement-cockpit v01 (two phones). Its Goals percent row and its income v07 recap row were written before the code. | 2026-10-31: the breach of 2026-10-27/30 has its own row, dated 2026-10-31.",
    "_written": {
     "status": "RECORDED 2026-10-26 — a breach of the mock-first order, named row by row in the comments",
-    "comments": "CF-MMFIX-A, 2026-10-25, after the code: 15 rows on cash-flow v01 — the budget editor’s rows add up; the day read where the person is; PLANNED EXPENSES by category; no sub-lines with no budget; YOUR SOURCES at $0; a person who has entered nothing; the Debts rows; ≈ on a calculated take-home; the appearance; the drawing errors kept as built; a later month with no budget; a payment above the minimum; guaranteed income; the future paycheck card; the budget editor with no limit — plus 2 on bill-calendar v02 (In, Out and End at 800; the first day), 1 on monthly-income v02 (the first day’s boxes) and 1 on ways-to-add v10 (Home’s box). FIX-TAX, 2026-10-25, after the code: 2 rows on income v07 (the Tax organizer’s How you file; Interest & dividends’ payout dated after today), 1 paragraph on filing-status v03 (the Tax organizer’s How you file) and 1 row on cash-flow v01 (the draw sheet’s gains); its follow-up row on v07 (the interest basis, the rate words, the vest line) just before the code. FIX-BUDGET: the lead named its earlier rows; the one FIX-BUDGET drawing found, stresstest v02, says on its face it was drawn before the code, and no other row of FIX-BUDGET’s is on any drawing. Every later round wrote its rows first. | 2026-10-26, CLEANUP-LEFT round 2: three new drawings were drawn from the build after the code, because no drawing existed — roth-conversion v01, required-withdrawals v01 and retirement-cockpit v01 (two phones). Its Goals percent row and its income v07 recap row were written before the code."
+    "comments": "CF-MMFIX-A, 2026-10-25, after the code: 15 rows on cash-flow v01 — the budget editor’s rows add up; the day read where the person is; PLANNED EXPENSES by category; no sub-lines with no budget; YOUR SOURCES at $0; a person who has entered nothing; the Debts rows; ≈ on a calculated take-home; the appearance; the drawing errors kept as built; a later month with no budget; a payment above the minimum; guaranteed income; the future paycheck card; the budget editor with no limit — plus 2 on bill-calendar v02 (In, Out and End at 800; the first day), 1 on monthly-income v02 (the first day’s boxes) and 1 on ways-to-add v10 (Home’s box). FIX-TAX, 2026-10-25, after the code: 2 rows on income v07 (the Tax organizer’s How you file; Interest & dividends’ payout dated after today), 1 paragraph on filing-status v03 (the Tax organizer’s How you file) and 1 row on cash-flow v01 (the draw sheet’s gains); its follow-up row on v07 (the interest basis, the rate words, the vest line) just before the code. FIX-BUDGET: the lead named its earlier rows; the one FIX-BUDGET drawing found, stresstest v02, says on its face it was drawn before the code, and no other row of FIX-BUDGET’s is on any drawing. Every later round wrote its rows first. | 2026-10-26, CLEANUP-LEFT round 2: three new drawings were drawn from the build after the code, because no drawing existed — roth-conversion v01, required-withdrawals v01 and retirement-cockpit v01 (two phones). Its Goals percent row and its income v07 recap row were written before the code. | 2026-10-31: the breach of 2026-10-27/30 has its own row, dated 2026-10-31."
    }
   },
   {
@@ -4330,25 +4330,25 @@
   {
    "task": "A mortgage’s interest rate is never asked when it is added with its property",
    "todo": "Ask it on the property form, drawing first; until then the screens read rate not entered.",
-   "status": "TO DO — the next Net worth round, drawing first",
+   "status": "DONE 2026-10-27 — the box ‘Mortgage interest rate % (optional)’: 6.5 typed is 6.5%, a blank is not entered, 0 is 0%",
    "ref": "src/screens/AddAccountScreen.tsx · MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_add-account-by-hand_v02.html",
    "date": "2026-10-26",
-   "comments": "Found by NW-MMFIX, 2026-10-25; the screens no longer show 0.00% for it (DEC-8462).",
+   "comments": "Found by NW-MMFIX, 2026-10-25; the screens no longer show 0.00% for it (DEC-8462). | 2026-10-31: closed by FX-NW under DEC-8940; the add-account v02 row came before the code. Test: src/screens/__tests__/networth_fxnw_2026_10_27.test.tsx.",
    "_written": {
-    "status": "TO DO — the next Net worth round, drawing first",
-    "comments": "Found by NW-MMFIX, 2026-10-25; the screens no longer show 0.00% for it (DEC-8462)."
+    "status": "DONE 2026-10-27 — the box ‘Mortgage interest rate % (optional)’: 6.5 typed is 6.5%, a blank is not entered, 0 is 0%",
+    "comments": "Found by NW-MMFIX, 2026-10-25; the screens no longer show 0.00% for it (DEC-8462). | 2026-10-31: closed by FX-NW under DEC-8940; the add-account v02 row came before the code. Test: src/screens/__tests__/networth_fxnw_2026_10_27.test.tsx."
    }
   },
   {
    "task": "Net worth rows are built at 44 points where the screen standard asks 52",
    "todo": "Measure it against the drawing of v08 and settle it there.",
-   "status": "TO DO — the next Net worth round",
+   "status": "DONE 2026-10-27 — 44 stands: v08, approved 2026-10-01, draws no 52-point row, and the standard now says at least 44 (line 144, checklist item 12)",
    "ref": "src/screens/NetWorthScreen.tsx · moneykeel_pres_spec_screen-design-standard_v01.md",
    "date": "2026-10-26",
-   "comments": "Found by MM-NW, 2026-10-25, outside the drawings.",
+   "comments": "Found by MM-NW, 2026-10-25, outside the drawings. | 2026-10-31: closed by FX-NW and FX-PLAN under DEC-8941. Test: src/screens/__tests__/networth_fxnw_2026_10_27.test.tsx.",
    "_written": {
-    "status": "TO DO — the next Net worth round",
-    "comments": "Found by MM-NW, 2026-10-25, outside the drawings."
+    "status": "DONE 2026-10-27 — 44 stands: v08, approved 2026-10-01, draws no 52-point row, and the standard now says at least 44 (line 144, checklist item 12)",
+    "comments": "Found by MM-NW, 2026-10-25, outside the drawings. | 2026-10-31: closed by FX-NW and FX-PLAN under DEC-8941. Test: src/screens/__tests__/networth_fxnw_2026_10_27.test.tsx."
    }
   },
   {
@@ -4390,49 +4390,49 @@
   {
    "task": "Transaction labels other than Buy and Dividend are on no drawing of record",
    "todo": "Draw them from the build first; no approval of them is on record.",
-   "status": "TO DO — the next Performance round, drawing first",
+   "status": "DONE 2026-10-30 — activity-sheet v02 (state C) and edit-record-sheet v03 (states D to J) draw every label, from the build, no approval on record",
    "ref": "MK-CF-F-117 txnLabel · account-page_v01",
    "date": "2026-10-26",
-   "comments": "Found by CFR-3, 2026-10-25 (MK-CF-F-117 blocked).",
+   "comments": "Found by CFR-3, 2026-10-25 (MK-CF-F-117 blocked). | 2026-10-31: closed by FX-PF; v01 and v02 archived 2026-10-30. Test: src/screens/__tests__/sheets_drawn_from_code.test.tsx.",
    "_written": {
-    "status": "TO DO — the next Performance round, drawing first",
-    "comments": "Found by CFR-3, 2026-10-25 (MK-CF-F-117 blocked)."
+    "status": "DONE 2026-10-30 — activity-sheet v02 (state C) and edit-record-sheet v03 (states D to J) draw every label, from the build, no approval on record",
+    "comments": "Found by CFR-3, 2026-10-25 (MK-CF-F-117 blocked). | 2026-10-31: closed by FX-PF; v01 and v02 archived 2026-10-30. Test: src/screens/__tests__/sheets_drawn_from_code.test.tsx."
    }
   },
   {
    "task": "The trade sheet’s type question and its Not stated sale are described in rows, not drawn",
    "todo": "Draw both states from the build on the trade sheet drawing.",
-   "status": "TO DO — the next Performance round, drawn from the build, not approved",
+   "status": "DONE 2026-10-30 — trade-sheet v04 draws states M, N and O from the build, no approval on record",
    "ref": "MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_trade-sheet_v03.html (rows 16–18)",
    "date": "2026-10-26",
-   "comments": "FIX-TRADES, 2026-10-25 (DEC-8423, DEC-8425).",
+   "comments": "FIX-TRADES, 2026-10-25 (DEC-8423, DEC-8425). | 2026-10-31: closed by FX-PF; v03 archived 2026-10-30. Test: src/screens/__tests__/sheets_drawn_from_code.test.tsx.",
    "_written": {
-    "status": "TO DO — the next Performance round, drawn from the build, not approved",
-    "comments": "FIX-TRADES, 2026-10-25 (DEC-8423, DEC-8425)."
+    "status": "DONE 2026-10-30 — trade-sheet v04 draws states M, N and O from the build, no approval on record",
+    "comments": "FIX-TRADES, 2026-10-25 (DEC-8423, DEC-8425). | 2026-10-31: closed by FX-PF; v03 archived 2026-10-30. Test: src/screens/__tests__/sheets_drawn_from_code.test.tsx."
    }
   },
   {
    "task": "The retired This month is on no drawing of record",
    "todo": "Draw it from the build; no approval of it is on record.",
-   "status": "TO DO — the next Cash flow round, drawn from the build",
+   "status": "DONE 2026-10-27 — cash-flow-retired v01 drawn from the build, no approval on record; the legend’s promised tap is gone and the empty states say what to add",
    "ref": "src/screens/CashFlowScreen.tsx (RetiredMain) · MK-CF-M-070 · MK-CF-M-078 · MK-CF-M-024",
    "date": "2026-10-26",
-   "comments": "Found by CFR-5 (tenet 6 checks). Its card was renamed YOUR PAYCHECK on 2026-10-25 (DEC-8370).",
+   "comments": "Found by CFR-5 (tenet 6 checks). Its card was renamed YOUR PAYCHECK on 2026-10-25 (DEC-8370). | 2026-10-31: closed by FX-CF-A under DEC-8962. Test: src/screens/__tests__/cashflow_fix_wave_2026_10_27.test.tsx.",
    "_written": {
-    "status": "TO DO — the next Cash flow round, drawn from the build",
-    "comments": "Found by CFR-5 (tenet 6 checks). Its card was renamed YOUR PAYCHECK on 2026-10-25 (DEC-8370)."
+    "status": "DONE 2026-10-27 — cash-flow-retired v01 drawn from the build, no approval on record; the legend’s promised tap is gone and the empty states say what to add",
+    "comments": "Found by CFR-5 (tenet 6 checks). Its card was renamed YOUR PAYCHECK on 2026-10-25 (DEC-8370). | 2026-10-31: closed by FX-CF-A under DEC-8962. Test: src/screens/__tests__/cashflow_fix_wave_2026_10_27.test.tsx."
    }
   },
   {
    "task": "Contribution room: a combined IRA and HSA family cover have no input",
    "todo": "Add the inputs, drawing first; the cases stay blocked until then.",
-   "status": "TO DO — the next Cash flow input round, drawing first",
+   "status": "DONE 2026-10-27 — one IRA amount ($450 a month leaves $3,200 of room) and the HSA cover (family, born 1971: up to $9,750); the outside case O-005-C03 decided",
    "ref": "MK-CF-O-005 theContributionRoom · MoneyKeel/functions/cashflow/outside_cashflow_openai_part13.test.ts (O-005-C03)",
    "date": "2026-10-26",
-   "comments": "Found by CFR-4, 2026-10-25: only a Roth IRA amount exists, and HSA cover is always self-only.",
+   "comments": "Found by CFR-4, 2026-10-25: only a Roth IRA amount exists, and HSA cover is always self-only. | 2026-10-31: closed by FX-CF-C under DEC-8973, DEC-8974, DEC-8975; contribution-room v02 drawn first. Tests: MoneyKeel/functions/cashflow/contribution-room.test.ts (the row-361 cases) · src/screens/__tests__/contribution_room_drawing_v02.test.tsx · MoneyKeel/functions/cashflow/outside_cashflow_openai_part13.test.ts (C03).",
    "_written": {
-    "status": "TO DO — the next Cash flow input round, drawing first",
-    "comments": "Found by CFR-4, 2026-10-25: only a Roth IRA amount exists, and HSA cover is always self-only."
+    "status": "DONE 2026-10-27 — one IRA amount ($450 a month leaves $3,200 of room) and the HSA cover (family, born 1971: up to $9,750); the outside case O-005-C03 decided",
+    "comments": "Found by CFR-4, 2026-10-25: only a Roth IRA amount exists, and HSA cover is always self-only. | 2026-10-31: closed by FX-CF-C under DEC-8973, DEC-8974, DEC-8975; contribution-room v02 drawn first. Tests: MoneyKeel/functions/cashflow/contribution-room.test.ts (the row-361 cases) · src/screens/__tests__/contribution_room_drawing_v02.test.tsx · MoneyKeel/functions/cashflow/outside_cashflow_openai_part13.test.ts (C03)."
    }
   },
   {
@@ -4450,13 +4450,13 @@
   {
    "task": "The Bill calendar’s typed cash on hand is not checked against the cloud copy",
    "todo": "Check the new stored field round-trips through sync.",
-   "status": "TO DO — the lead (sync)",
+   "status": "DONE 2026-10-27 — billCalendarStart goes to the cloud copy; the round trip is tested (stored ‘12000’, the box shows ‘$12,000’)",
    "ref": "billCalendarStart (src/store/useStore.ts)",
    "date": "2026-10-26",
-   "comments": "CF-MMFIX-A, 2026-10-25 (DEC-8371).",
+   "comments": "CF-MMFIX-A, 2026-10-25 (DEC-8371). | 2026-10-31: closed by FX-CF-A under DEC-8963; the lead checked the stored value does not change. Test: src/screens/__tests__/cashflow_fix_wave_2026_10_27.test.tsx.",
    "_written": {
-    "status": "TO DO — the lead (sync)",
-    "comments": "CF-MMFIX-A, 2026-10-25 (DEC-8371)."
+    "status": "DONE 2026-10-27 — billCalendarStart goes to the cloud copy; the round trip is tested (stored ‘12000’, the box shows ‘$12,000’)",
+    "comments": "CF-MMFIX-A, 2026-10-25 (DEC-8371). | 2026-10-31: closed by FX-CF-A under DEC-8963; the lead checked the stored value does not change. Test: src/screens/__tests__/cashflow_fix_wave_2026_10_27.test.tsx."
    }
   },
   {
@@ -4541,6 +4541,366 @@
    "_written": {
     "status": "DONE 2026-10-27 — 9 of 9 carried: 4 to MK-CF-M-052 and MK-CF-M-051, 4 to MK-NW-M-049 and MK-NW-M-050, 1 to the Reference tab; the final master build proves the placing",
     "comments": "Why each row was gone, from the metric register’s retired record: MK-CF-M-018 and 019 retired 2026-10-02 as the same figures as MK-CF-M-051 and 052; MK-MN-M-022 and 023 retired 2026-10-01 and re-issued as MK-NW-M-049 and 050 (Alternatives is a Net worth screen); MK-NW-M-003 retired 2026-10-14 with no successor (the trend line left the screen). One entry is his: the 2026-08-27 worked example, already on MK-CF-M-052 word for word since 2026-10-24, so it prints once with a note naming MK-CF-M-019. The rows were absent from the committed master too: an older gap, not this round’s. Backup: scratchpad pfr/backup/moneykeel_overrides_before_carry.json."
+   }
+  },
+  {
+   "task": "Contribution room and the Stress test redrawn to the standard design (his feedback of 2026-10-27, DEC-8839)",
+   "todo": "Draw contribution-room v02 and stresstest v03 to the screen-design standard — box titles in a dark-green bar, sub-titles in a light-green bar, edge to edge — with one plain line on each card that counts the cash before the $3,000 spend; archive the old versions with today’s date; check the four Plan drawings made from the build for the same bars; then code and tests to the new drawings; then his approval.",
+   "status": "DONE 2026-10-27 — contribution-room v02 and stresstest v03 drawn first, then built and tested; the two drawings go to him with the pre-build checklist",
+   "ref": "MoneyKeel/documents/other/moneykeel_pres_mock_stresstest-mock_v02.html · MoneyKeel/documents/cashflow/moneykeel_pres_mock_contribution-room_v01.html · src/screens/StressTestScreen.tsx · src/screens/ContributionRoomScreen.tsx · MK-CF-F-010 · MK-CF-O-005",
+   "date": "2026-10-27",
+   "comments": "His words, 2026-10-27, are on DEC-8839 word for word. Checked against the drawing and the code the same day: phone A’s 4.3 months is ($18,000 − $3,000) ÷ $3,470, after the spend; its 5.2 months is $18,000 ÷ $3,470, the cash before it, and so is the emergency fund card’s at least 3 months. | 2026-10-31: DEC-8839 is TESTED: src/screens/__tests__/contribution_room_drawing_v02.test.tsx · src/screens/__tests__/stress_test_drawing_v03.test.tsx; carried to every screen by the lead’s ruling R1 (DEC-8915), held by src/__tests__/guard_box_titles_on_bars.test.ts. The Stress test’s card reads ‘$18,000 ÷ $3,470/month — your cash today, before the $3,000 expense.’ (DEC-8918).",
+   "_written": {
+    "status": "DONE 2026-10-27 — contribution-room v02 and stresstest v03 drawn first, then built and tested; the two drawings go to him with the pre-build checklist",
+    "comments": "His words, 2026-10-27, are on DEC-8839 word for word. Checked against the drawing and the code the same day: phone A’s 4.3 months is ($18,000 − $3,000) ÷ $3,470, after the spend; its 5.2 months is $18,000 ÷ $3,470, the cash before it, and so is the emergency fund card’s at least 3 months. | 2026-10-31: DEC-8839 is TESTED: src/screens/__tests__/contribution_room_drawing_v02.test.tsx · src/screens/__tests__/stress_test_drawing_v03.test.tsx; carried to every screen by the lead’s ruling R1 (DEC-8915), held by src/__tests__/guard_box_titles_on_bars.test.ts. The Stress test’s card reads ‘$18,000 ÷ $3,470/month — your cash today, before the $3,000 expense.’ (DEC-8918)."
+   }
+  },
+  {
+   "task": "Goals redrawn from Build 53 and the approved Plan v4 (his feedback of 2026-10-27, DEC-8889)",
+   "todo": "Start from Plan v4’s Goals frames and the Build 53 screen; list every difference from today’s Goals; draw goals v02 with the screen’s name, Retire and Prepare at the top (Add goal too, opening inside Goals), the typical figure saying it is the 12-month average of planned surplus, and debt payoff as a goal to enter; archive v01 with today’s date; then code and tests; then his approval.",
+   "status": "TO DO — goals v03 drawn 2026-10-30; it goes to him with the pre-build checklist (the lead); no Goals code until he approves it",
+   "ref": "August 14th Design/design_handoff_net_worth/Plan.dc.html (Goals — populated; Goals — empty) · Build 53 (4fcde07d, 9c17b46a) · src/screens/GoalsScreen.tsx · src/components/PlanGoals.tsx · MK-PL-F-016",
+   "date": "2026-10-27",
+   "comments": "His words, 2026-10-27, are on DEC-8889 word for word. goals v01 was drawn from today’s code, against the order to start from the last approved design. | 2026-10-31: goals v02, drawn from the code at 14:28 on 2026-10-27, was the wrong start and is archived; goals v03 is drawn from Plan v4 and Build 53, three phones, every difference listed first (DEC-8889 updated). Found while drawing: the Plan tab’s Goals view listed no goal since Build 53 — fixed (DEC-8978).",
+   "_written": {
+    "status": "TO DO — goals v03 drawn 2026-10-30; it goes to him with the pre-build checklist (the lead); no Goals code until he approves it",
+    "comments": "His words, 2026-10-27, are on DEC-8889 word for word. goals v01 was drawn from today’s code, against the order to start from the last approved design. | 2026-10-31: goals v02, drawn from the code at 14:28 on 2026-10-27, was the wrong start and is archived; goals v03 is drawn from Plan v4 and Build 53, three phones, every difference listed first (DEC-8889 updated). Found while drawing: the Plan tab’s Goals view listed no goal since Build 53 — fixed (DEC-8978)."
+   }
+  },
+  {
+   "task": "Roth conversion redrawn: bars end to end, What it buys made clear, the odds before and after (his feedback of 2026-10-27, DEC-8890)",
+   "todo": "Draw roth-conversion v02: every dark-green bar end to end; WHAT IT BUYS LATER designed so it is clear; WILL MY MONEY LAST? with the current odds of lasting to the target age, the nest egg and odds after the move, and that the decision is about taxes, not the odds; archive v01 with today’s date; then code and tests; then his approval.",
+   "status": "DONE 2026-10-27 — roth-conversion v02 drawn first, then built and tested; the drawing goes to him with the pre-build checklist",
+   "ref": "MoneyKeel/documents/plan/moneykeel_pres_mock_roth-conversion_v01.html · src/screens/RothScreen.tsx",
+   "date": "2026-10-27",
+   "comments": "His words, 2026-10-27, are on DEC-8890 word for word. | 2026-10-31: DEC-8890 is TESTED: src/screens/__tests__/plan_drawings_from_build_2026_10_26.test.tsx. Bars 0 points from the edges; What it buys row by row; ‘Today, the odds that your $523,000 lasts to age 90 are 35.3%.’ … 36.2%, the nest egg $813,149 → $809,588, the cockpit’s own (DEC-8977); one conversion this year (DEC-8976).",
+   "_written": {
+    "status": "DONE 2026-10-27 — roth-conversion v02 drawn first, then built and tested; the drawing goes to him with the pre-build checklist",
+    "comments": "His words, 2026-10-27, are on DEC-8890 word for word. | 2026-10-31: DEC-8890 is TESTED: src/screens/__tests__/plan_drawings_from_build_2026_10_26.test.tsx. Bars 0 points from the edges; What it buys row by row; ‘Today, the odds that your $523,000 lasts to age 90 are 35.3%.’ … 36.2%, the nest egg $813,149 → $809,588, the cockpit’s own (DEC-8977); one conversion this year (DEC-8976)."
+   }
+  },
+  {
+   "task": "Never send him a screen blind — every review opens with what he approved before (his standing order of 2026-10-27, DEC-8891)",
+   "todo": "Each drawing sent for his review opens with what he approved before (date and DEC), his feedback on it, and exactly what is new; written from the decision log and the design record; and the order goes into the screen-design standard.",
+   "status": "DONE 2026-10-30 — in the screen-design standard (beside the bar ruling and in section 3, step 8); every drawing of the fix wave opens with it",
+   "ref": "MoneyKeel/documents/standards/moneykeel_pres_spec_screen-design-standard_v01.md · MoneyKeel/documents/standards/moneykeel_pres_spec_design-each-screen-was-built-from_v01.md",
+   "date": "2026-10-27",
+   "comments": "His question answered on DEC-8891: he approved account-page v01 on 2026-10-19 (DEC-6457), with DEC-6212, DEC-6323, DEC-5847 and DEC-6412; only row 70 (DEC-7594) was put to him since. | 2026-10-31: DEC-8891 carries the standard. Every new drawing and dated row of 2026-10-27/30 opens with what he approved before (date and DEC), his feedback in his words, and what is new.",
+   "_written": {
+    "status": "DONE 2026-10-30 — in the screen-design standard (beside the bar ruling and in section 3, step 8); every drawing of the fix wave opens with it",
+    "comments": "His question answered on DEC-8891: he approved account-page v01 on 2026-10-19 (DEC-6457), with DEC-6212, DEC-6323, DEC-5847 and DEC-6412; only row 70 (DEC-7594) was put to him since. | 2026-10-31: DEC-8891 carries the standard. Every new drawing and dated row of 2026-10-27/30 opens with what he approved before (date and DEC), his feedback in his words, and what is new."
+   }
+  },
+  {
+   "task": "The Plan tab’s target dial says the nest egg at retirement a third way",
+   "todo": "Make the dial’s on track for at retirement read the one nest egg, MK-PL-F-055 projectNestEgg, as Roth and the cockpit now do; drawing row first.",
+   "status": "TO DO — the Plan module round",
+   "ref": "src/domain/planning/target.ts → PlanOutcome · MK-PL-F-055 projectNestEgg",
+   "date": "2026-10-31",
+   "comments": "Found by FX-PLAN, 2026-10-30: Roth and the cockpit print one nest egg, $813,149 for the drawn household (DEC-8977); the dial still uses the simulation’s middle future.",
+   "_written": {
+    "status": "TO DO — the Plan module round",
+    "comments": "Found by FX-PLAN, 2026-10-30: Roth and the cockpit print one nest egg, $813,149 for the drawn household (DEC-8977); the dial still uses the simulation’s middle future."
+   }
+  },
+  {
+   "task": "The desktop sidebar still shows a typed K tile beside MoneyKeel",
+   "todo": "Draw the desktop sidebar with his mark on a white tile first; then put assets/brand/mark.png there.",
+   "status": "TO DO — a desktop drawing first (the desktop is web only, outside the phone build)",
+   "ref": "desktop/platform/DesktopSidebar.tsx line 26 · desktop/mockups/shell-home-plan-desktop-v1-2026-08-03.html",
+   "date": "2026-10-31",
+   "comments": "LOGO, 2026-10-30 (his DEC-8914): his mark is dark green and the sidebar is dark green, so the mark needs its own tile and drawing. The desktop drawing carries its dated row.",
+   "_written": {
+    "status": "TO DO — a desktop drawing first (the desktop is web only, outside the phone build)",
+    "comments": "LOGO, 2026-10-30 (his DEC-8914): his mark is dark green and the sidebar is dark green, so the mark needs its own tile and drawing. The desktop drawing carries its dated row."
+   }
+  },
+  {
+   "task": "The Android notification icon is the full-colour icon",
+   "todo": "Make a white outline of his mark for the notification icon, as Android expects, and point app.config.js at it.",
+   "status": "TO DO — the lead, before the device build",
+   "ref": "app.config.js (notification icon) · assets/icon.png · scripts/render-brand-assets.py",
+   "date": "2026-10-31",
+   "comments": "LOGO, 2026-10-30 (his DEC-8914): the notification icon still uses assets/icon.png, as before the logo changed.",
+   "_written": {
+    "status": "TO DO — the lead, before the device build",
+    "comments": "LOGO, 2026-10-30 (his DEC-8914): the notification icon still uses assets/icon.png, as before the logo changed."
+   }
+  },
+  {
+   "task": "The app icon is soft: his mark file is 460 pixels wide",
+   "todo": "Rebuild the icons from his mark as an SVG, or a mark PNG at least 1024 pixels wide, with scripts/render-brand-assets.py.",
+   "status": "TO DO — the lead, with the pre-build checklist",
+   "ref": "assets/icon.png · assets/adaptive-icon.png · MoneyKeel/documents/other/brand-source-2026-10-30/",
+   "date": "2026-10-31",
+   "comments": "LOGO, 2026-10-30, measured: the 1024 iPhone icon stretches his mark 1.77 times, its edges blur over 2.37 pixels (0.85 when drawn at 1024); unseen on a home screen at 180 pixels, seen on the App Store’s full-size icon. The Oct 19 zip holds the same three files.",
+   "_written": {
+    "status": "TO DO — the lead, with the pre-build checklist",
+    "comments": "LOGO, 2026-10-30, measured: the 1024 iPhone icon stretches his mark 1.77 times, its edges blur over 2.37 pixels (0.85 when drawn at 1024); unseen on a home screen at 180 pixels, seen on the App Store’s full-size icon. The Oct 19 zip holds the same three files."
+   }
+  },
+  {
+   "task": "Screen-design standard, line 7 and section 6: the WAITING ON YOU marker and its section",
+   "todo": "Take out the legend’s WAITING ON YOU class and the section headed Waiting on you; settle each of its three items on its own row; item 3, approving ways-to-add v10, goes with the drawings in the pre-build checklist.",
+   "status": "TO DO — the lead decides it from the record and takes the marker out (never a question in a file he opens)",
+   "ref": "MoneyKeel/documents/standards/moneykeel_pres_spec_screen-design-standard_v01.md line 7 · section 6",
+   "date": "2026-10-31",
+   "comments": "Found by FX-PLAN, 2026-10-30, after line 87’s question was replaced by his bar ruling (DEC-8839). Section 6 asks him to say yes or name a size, which his order of 2026-09-30 forbids.",
+   "_written": {
+    "status": "TO DO — the lead decides it from the record and takes the marker out (never a question in a file he opens)",
+    "comments": "Found by FX-PLAN, 2026-10-30, after line 87’s question was replaced by his bar ruling (DEC-8839). Section 6 asks him to say yes or name a size, which his order of 2026-09-30 forbids."
+   }
+  },
+  {
+   "task": "Screen-design standard, line 69 (section 6, item 1): MoneyKeel at the top of screens opened from another screen",
+   "todo": "Write the ruling in place of the marker — DEC-0218 (his yes, MoneyKeel at the top of every screen) and DEC-0354 — and what is built today, screen by screen.",
+   "status": "TO DO — the lead decides it from the record and takes the marker out (never a question in a file he opens)",
+   "ref": "MoneyKeel/documents/standards/moneykeel_pres_spec_screen-design-standard_v01.md line 69 · section 6 item 1",
+   "date": "2026-10-31",
+   "comments": "The row says Not built; Add an account, Bonds, Alternatives, Holding detail, Itemize and Look back draw the MoneyKeel bar with ‹ Back, and Contribution room and the Stress test got it on 2026-10-27 (DEC-8970).",
+   "_written": {
+    "status": "TO DO — the lead decides it from the record and takes the marker out (never a question in a file he opens)",
+    "comments": "The row says Not built; Add an account, Bonds, Alternatives, Holding detail, Itemize and Look back draw the MoneyKeel bar with ‹ Back, and Contribution room and the Stress test got it on 2026-10-27 (DEC-8970)."
+   }
+  },
+  {
+   "task": "Screen-design standard, line 80: a screen opened by a door is titled with the door’s words",
+   "todo": "Settle it from his one door, one term rule (DEC-0215) and ways-to-add v10’s section 9, apply it, and write the settled rule in place of the marker.",
+   "status": "TO DO — the lead decides it from the record and takes the marker out (never a question in a file he opens)",
+   "ref": "MoneyKeel/documents/standards/moneykeel_pres_spec_screen-design-standard_v01.md line 80 · MoneyKeel/documents/home-screen/moneykeel_pres_mock_ways-to-add-an-account_v10.html section 9",
+   "date": "2026-10-31",
+   "comments": "A PROPOSED rule drawn in mock v10, marked WAITING ON YOU (mock v10). What is new against DEC-8964, which names Cash flow’s expense door Log an expense: this row is about the title of the screen any door opens.",
+   "_written": {
+    "status": "TO DO — the lead decides it from the record and takes the marker out (never a question in a file he opens)",
+    "comments": "A PROPOSED rule drawn in mock v10, marked WAITING ON YOU (mock v10). What is new against DEC-8964, which names Cash flow’s expense door Log an expense: this row is about the title of the screen any door opens."
+   }
+  },
+  {
+   "task": "Screen-design standard, line 93: the heading above a set of doors",
+   "todo": "Write the design in place of the marker: v08’s frame G, approved 2026-10-01 (DEC-0644), draws the add sheet’s title How do you want to add an account? at 20 points weight 800.",
+   "status": "TO DO — the lead decides it from the record and takes the marker out (never a question in a file he opens)",
+   "ref": "MoneyKeel/documents/standards/moneykeel_pres_spec_screen-design-standard_v01.md line 93 · MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_net-worth-quiet-instrument_v08.html frame G",
+   "date": "2026-10-31",
+   "comments": "The quiet label it was drawn with is retired (DEC-8915).",
+   "_written": {
+    "status": "TO DO — the lead decides it from the record and takes the marker out (never a question in a file he opens)",
+    "comments": "The quiet label it was drawn with is retired (DEC-8915)."
+   }
+  },
+  {
+   "task": "Screen-design standard, line 94 (section 6, item 2): one size for a sheet title",
+   "todo": "Settle each sheet’s title size from v08’s frames F (17) and G (20), apply it, and write it in place of the marker.",
+   "status": "TO DO — the lead decides it from the record and takes the marker out (never a question in a file he opens)",
+   "ref": "MoneyKeel/documents/standards/moneykeel_pres_spec_screen-design-standard_v01.md line 94 · section 6 item 2",
+   "date": "2026-10-31",
+   "comments": "Since 2026-10-30 a sheet that adds an account or a debt is titled at 20, as frame G (DEC-8931); the fix sheet keeps frame F’s 17; section 6 item 2 lists the others still at 17.",
+   "_written": {
+    "status": "TO DO — the lead decides it from the record and takes the marker out (never a question in a file he opens)",
+    "comments": "Since 2026-10-30 a sheet that adds an account or a debt is titled at 20, as frame G (DEC-8931); the fix sheet keeps frame F’s 17; section 6 item 2 lists the others still at 17."
+   }
+  },
+  {
+   "task": "Mock-first not kept in order, 2026-10-27/30: drawing rows written after the code, and screens changed with no drawing or to an archived one",
+   "todo": "Say it plainly, by name. The rows match what is built; the standing order is that the drawing row comes first.",
+   "status": "RECORDED 2026-10-31 — a breach of the mock-first order, named row by row in the comments",
+   "ref": "the drawings named in the comments · the screen-design standard section 3",
+   "date": "2026-10-31",
+   "comments": "FX-NW, after the code: Net worth v08’s MK-NW-F-106 row, minutes after (DEC-8944); add-account-by-hand v02’s 44-point choices row (DEC-8941); account page v01 row 88, quantities (DEC-8945); update-value-sheet v02’s row on its two titles (DEC-8915). FX-PF, after the code: trade-sheet v03 row 20, holding-editor v02 row 18 and activity-sheet v01 row 12 — the account’s full name, 5,000 shares, the option in contracts (DEC-8951, DEC-8948); holding-detail v02’s two rows, the full name with the quantity comma and Your return, this year (DEC-8951, DEC-8952). FX-CF-B: income-end-to-end v07’s percents row, the same day (DEC-8967). FX-SHARED: the money-box rows for the unowned tool screens (DEC-8930) and the apostrophe rows on ways-to-add v10 and brand-wordmark v01 (DEC-8932). No drawing at all: Job safety’s and Insights’ words changed 2026-10-30 (DEC-8925). To an archived drawing: GoalsScreen’s bars were built on 2026-10-27 to goals v02, which was drawn from the code and archived the same day as the wrong start; they stay until v03 is approved (DEC-8889).",
+   "_written": {
+    "status": "RECORDED 2026-10-31 — a breach of the mock-first order, named row by row in the comments",
+    "comments": "FX-NW, after the code: Net worth v08’s MK-NW-F-106 row, minutes after (DEC-8944); add-account-by-hand v02’s 44-point choices row (DEC-8941); account page v01 row 88, quantities (DEC-8945); update-value-sheet v02’s row on its two titles (DEC-8915). FX-PF, after the code: trade-sheet v03 row 20, holding-editor v02 row 18 and activity-sheet v01 row 12 — the account’s full name, 5,000 shares, the option in contracts (DEC-8951, DEC-8948); holding-detail v02’s two rows, the full name with the quantity comma and Your return, this year (DEC-8951, DEC-8952). FX-CF-B: income-end-to-end v07’s percents row, the same day (DEC-8967). FX-SHARED: the money-box rows for the unowned tool screens (DEC-8930) and the apostrophe rows on ways-to-add v10 and brand-wordmark v01 (DEC-8932). No drawing at all: Job safety’s and Insights’ words changed 2026-10-30 (DEC-8925). To an archived drawing: GoalsScreen’s bars were built on 2026-10-27 to goals v02, which was drawn from the code and archived the same day as the wrong start; they stay until v03 is approved (DEC-8889)."
+   }
+  },
+  {
+   "task": "The Plan tab’s Goals view listed no goal: it read field names the app never saves goals under",
+   "todo": "Read saved goals through one reader that takes both shapes.",
+   "status": "DONE 2026-10-30 — the Goals view lists Emergency fund · $10,000 by 2027 and New car · $28,000 by 2027; a goal with no date shows no year",
+   "ref": "src/domain/goals/index.ts (planGoalRows) · src/screens/PlanHubScreen.tsx",
+   "date": "2026-10-31",
+   "comments": "Found by FX-PLAN, 2026-10-27 (DEC-8978): since Build 53 every goal read $0 and the tab showed Nothing here yet. Readers checked 8 of 8; 1 fixed. Test: src/screens/__tests__/plan_goals_tab_reads_saved_goals.test.tsx, the old answer kept as test.failing.",
+   "_written": {
+    "status": "DONE 2026-10-30 — the Goals view lists Emergency fund · $10,000 by 2027 and New car · $28,000 by 2027; a goal with no date shows no year",
+    "comments": "Found by FX-PLAN, 2026-10-27 (DEC-8978): since Build 53 every goal read $0 and the tab showed Nothing here yet. Readers checked 8 of 8; 1 fixed. Test: src/screens/__tests__/plan_goals_tab_reads_saved_goals.test.tsx, the old answer kept as test.failing."
+   }
+  },
+  {
+   "task": "Debt-to-income and the student-loan outlook move from Goals to Cash flow · Debts",
+   "todo": "Build them on the Debts tab once goals v03 is approved; Debts does not have them yet.",
+   "status": "TO DO — after his approval of goals v03 (the Cash flow and Plan rounds)",
+   "ref": "src/screens/BudgetScreen.tsx (Debts) · src/screens/GoalsScreen.tsx · MoneyKeel/documents/plan/moneykeel_pres_mock_goals_v03.html",
+   "date": "2026-10-31",
+   "comments": "Drawn in goals v03, 2026-10-30 (DEC-8979).",
+   "_written": {
+    "status": "TO DO — after his approval of goals v03 (the Cash flow and Plan rounds)",
+    "comments": "Drawn in goals v03, 2026-10-30 (DEC-8979)."
+   }
+  },
+  {
+   "task": "Goals’ Extra / month box printed $ $100",
+   "todo": "Print the $ once beside a box that already prints one.",
+   "status": "DONE 2026-10-30 — 21 boxes print the $ once ($ 100); 3 beside a %/$ toggle print digits only",
+   "ref": "src/components/MoneyBox.tsx · src/screens/GoalsScreen.tsx",
+   "date": "2026-10-31",
+   "comments": "Found by FX-PLAN, 2026-10-27; fixed by FX-SHARED (DEC-8930), typography only under DEC-8889. Test: src/__tests__/every_money_box_is_moneybox.test.tsx.",
+   "_written": {
+    "status": "DONE 2026-10-30 — 21 boxes print the $ once ($ 100); 3 beside a %/$ toggle print digits only",
+    "comments": "Found by FX-PLAN, 2026-10-27; fixed by FX-SHARED (DEC-8930), typography only under DEC-8889. Test: src/__tests__/every_money_box_is_moneybox.test.tsx."
+   }
+  },
+  {
+   "task": "Phone check: Performance’s category rows at 15 points and the 104-wide Return column",
+   "todo": "On a 390-point phone: does Cash in this account wrap at 15 points, and does +16.24%/year fit on one line?",
+   "status": "TO DO — on the next device build",
+   "ref": "src/screens/PerformanceScreen.tsx",
+   "date": "2026-10-31",
+   "comments": "FX-PF, 2026-10-30 (DEC-8949).",
+   "_written": {
+    "status": "TO DO — on the next device build",
+    "comments": "FX-PF, 2026-10-30 (DEC-8949)."
+   }
+  },
+  {
+   "task": "Phone check: Contribution room and the Stress test at larger text and in contrast",
+   "todo": "Open both at the largest text setting and check every bar’s words and contrast.",
+   "status": "TO DO — on the next device build",
+   "ref": "src/screens/ContributionRoomScreen.tsx · src/screens/StressTestScreen.tsx",
+   "date": "2026-10-31",
+   "comments": "FX-CF-C, 2026-10-27: not checked on a device.",
+   "_written": {
+    "status": "TO DO — on the next device build",
+    "comments": "FX-CF-C, 2026-10-27: not checked on a device."
+   }
+  },
+  {
+   "task": "Phone check: his logo on the icon, the launch screen and the 84-point top-bar lettering",
+   "todo": "On a TestFlight build: the home-screen icon, the launch screen light and dark, and the lettering in the top bar.",
+   "status": "TO DO — on the next device build (the build gate holds it)",
+   "ref": "assets/icon.png · assets/splash.png · src/components/TopBar.tsx",
+   "date": "2026-10-31",
+   "comments": "LOGO, 2026-10-30 (his DEC-8914; status TESTED, NOT VERIFIED). The local ios/ folder still holds the old K icon; EAS rebuilds it from app.config.js.",
+   "_written": {
+    "status": "TO DO — on the next device build (the build gate holds it)",
+    "comments": "LOGO, 2026-10-30 (his DEC-8914; status TESTED, NOT VERIFIED). The local ios/ folder still holds the old K icon; EAS rebuilds it from app.config.js."
+   }
+  },
+  {
+   "task": "Phone check: what the Net worth drawing match could not see (round 2)",
+   "todo": "Open the change walk (the handle and the bar’s corners); ruler on Net worth A and the account page A and D for the one right edge; zoom on each card’s top corners; weights 600/700/800, the ⓘ, emoji and the lettering against each drawing; Save’s fade and the keyboard over tall sheets; date pickers and alerts.",
+   "status": "TO DO — on the next device build",
+   "ref": "MoneyKeel/documents/networth-and-performance/",
+   "date": "2026-10-31",
+   "comments": "MM2-NW, 2026-10-27: named under Could not check.",
+   "_written": {
+    "status": "TO DO — on the next device build",
+    "comments": "MM2-NW, 2026-10-27: named under Could not check."
+   }
+  },
+  {
+   "task": "Net worth drawing match, round 2 (MM2-NW) and its fixes (FX-NW)",
+   "todo": "Compare every Net worth drawing with the build, word by word and look by look; fix each defect in the app or on its drawing.",
+   "status": "DONE 2026-10-30 — 77 of 77 drawn states compared, 26 defects; FX-NW fixed 18 of 18 of its own plus #353, #354 and 7 added items, 27 of 27; three drawings drawn from the build",
+   "ref": "src/screens/__tests__/networth_fxnw_2026_10_27.test.tsx · src/screens/__tests__/drawn_from_build_nw_2026_10_27.test.tsx",
+   "date": "2026-10-31",
+   "comments": "Decisions DEC-8918, DEC-8924, DEC-8925, DEC-8933, DEC-8934, DEC-8935, DEC-8936, DEC-8937, DEC-8938, DEC-8939, DEC-8940, DEC-8941, DEC-8942, DEC-8943, DEC-8944, DEC-8945. Worst defect: the emergency fund read 7.5 months · Comfortable ✓ from a mortgage alone; it refuses now.",
+   "_written": {
+    "status": "DONE 2026-10-30 — 77 of 77 drawn states compared, 26 defects; FX-NW fixed 18 of 18 of its own plus #353, #354 and 7 added items, 27 of 27; three drawings drawn from the build",
+    "comments": "Decisions DEC-8918, DEC-8924, DEC-8925, DEC-8933, DEC-8934, DEC-8935, DEC-8936, DEC-8937, DEC-8938, DEC-8939, DEC-8940, DEC-8941, DEC-8942, DEC-8943, DEC-8944, DEC-8945. Worst defect: the emergency fund read 7.5 months · Comfortable ✓ from a mortgage alone; it refuses now."
+   }
+  },
+  {
+   "task": "Performance drawing match, round 2 (MM2-PF) and its fixes (FX-PF)",
+   "todo": "Compare every Performance drawing with the build and close PF-1 to PF-10, G-1 and G-2.",
+   "status": "DONE 2026-10-30 — PF 20 of 20; v17 phone 4 reads +9.86% (it read +10.00%); three sheet drawings drawn from the build",
+   "ref": "src/screens/__tests__/fxpf_fixes_2026_10_27.test.tsx · MoneyKeel/functions/networth-and-performance/fxpf_bought_inside_and_cd_rate_2026_10_27.test.ts · src/screens/__tests__/sheets_drawn_from_code.test.tsx",
+   "date": "2026-10-31",
+   "comments": "Decisions DEC-8920, DEC-8921, DEC-8946, DEC-8947, DEC-8948, DEC-8949, DEC-8950, DEC-8951, DEC-8952, DEC-8953.",
+   "_written": {
+    "status": "DONE 2026-10-30 — PF 20 of 20; v17 phone 4 reads +9.86% (it read +10.00%); three sheet drawings drawn from the build",
+    "comments": "Decisions DEC-8920, DEC-8921, DEC-8946, DEC-8947, DEC-8948, DEC-8949, DEC-8950, DEC-8951, DEC-8952, DEC-8953."
+   }
+  },
+  {
+   "task": "Cash flow drawing match, round 2 (MM2-CF) and its fixes (FX-CF-A, FX-CF-B, FX-CF-C)",
+   "todo": "Close CF2-01 to 13, IN2-01 to 13, BC2-01/02, MI2-01 and REC2-01 to 06, and redraw Contribution room and the Stress test to his words.",
+   "status": "DONE 2026-10-27 — CF-A 20 of 20, CF-B 17 of 17, CF-C 13 of 13; the mortgage counted once, +$2,950 (it read +$650)",
+   "ref": "src/screens/__tests__/cashflow_fix_wave_2026_10_27.test.tsx · src/screens/__tests__/income_fixes_fx_cf_b_2026_10_27.test.tsx · src/screens/__tests__/contribution_room_drawing_v02.test.tsx · src/screens/__tests__/stress_test_drawing_v03.test.tsx",
+   "date": "2026-10-31",
+   "comments": "Decisions DEC-8919, DEC-8922, DEC-8923, DEC-8954, DEC-8955, DEC-8956, DEC-8957, DEC-8958, DEC-8959, DEC-8960, DEC-8961, DEC-8962, DEC-8963, DEC-8964 (A); DEC-8965, DEC-8966, DEC-8967, DEC-8968, DEC-8969 (B); DEC-8970, DEC-8971, DEC-8972, DEC-8973, DEC-8974, DEC-8975 (C).",
+   "_written": {
+    "status": "DONE 2026-10-27 — CF-A 20 of 20, CF-B 17 of 17, CF-C 13 of 13; the mortgage counted once, +$2,950 (it read +$650)",
+    "comments": "Decisions DEC-8919, DEC-8922, DEC-8923, DEC-8954, DEC-8955, DEC-8956, DEC-8957, DEC-8958, DEC-8959, DEC-8960, DEC-8961, DEC-8962, DEC-8963, DEC-8964 (A); DEC-8965, DEC-8966, DEC-8967, DEC-8968, DEC-8969 (B); DEC-8970, DEC-8971, DEC-8972, DEC-8973, DEC-8974, DEC-8975 (C)."
+   }
+  },
+  {
+   "task": "The four Plan drawings from the build checked against his bar words, and Roth redrawn to his feedback (FX-PLAN)",
+   "todo": "Redraw Roth, Required withdrawals and the cockpit to the standard and build them; draw Goals v03 only.",
+   "status": "DONE 2026-10-30 — PLAN 9 of 9; Roth, Required withdrawals and the cockpit built to v02; Goals v03 drawn, waiting for his approval; one nest egg on Roth and the cockpit",
+   "ref": "src/screens/__tests__/plan_drawings_from_build_2026_10_26.test.tsx · src/__tests__/guard_box_titles_on_bars.test.ts",
+   "date": "2026-10-31",
+   "comments": "Decisions DEC-8915, DEC-8917, DEC-8916, DEC-8976, DEC-8977, DEC-8978, DEC-8979. The standard’s line 87 carries the bar ruling and DEC-8891.",
+   "_written": {
+    "status": "DONE 2026-10-30 — PLAN 9 of 9; Roth, Required withdrawals and the cockpit built to v02; Goals v03 drawn, waiting for his approval; one nest egg on Roth and the cockpit",
+    "comments": "Decisions DEC-8915, DEC-8917, DEC-8916, DEC-8976, DEC-8977, DEC-8978, DEC-8979. The standard’s line 87 carries the bar ruling and DEC-8891."
+   }
+  },
+  {
+   "task": "The shared chrome brought onto the standard: tab bar, top bar, info dot, money boxes, apostrophes, Unlink (FX-SHARED)",
+   "todo": "Close PF-3, PF-7, NW2-07, NW2-10, NW2-19, NW2-24, MI2-01 and the apostrophe class.",
+   "status": "DONE 2026-10-30 — SHARED 5 of 5 and 22 of 22 follow-ups; about 50 dated rows on 26 drawings",
+   "ref": "src/__tests__/every_money_box_is_moneybox.test.tsx · src/__tests__/curly_apostrophe_everywhere.test.ts · src/__tests__/info_dot_takes_its_line.test.tsx · src/components/__tests__/chrome_bars_as_designed.test.tsx · src/screens/__tests__/settings_unlink_canon_row18.test.tsx",
+   "date": "2026-10-31",
+   "comments": "Decisions DEC-8926, DEC-8927, DEC-8928, DEC-8929, DEC-8930, DEC-8931, DEC-8932.",
+   "_written": {
+    "status": "DONE 2026-10-30 — SHARED 5 of 5 and 22 of 22 follow-ups; about 50 dated rows on 26 drawings",
+    "comments": "Decisions DEC-8926, DEC-8927, DEC-8928, DEC-8929, DEC-8930, DEC-8931, DEC-8932."
+   }
+  },
+  {
+   "task": "His logo in every place the app shows one (his instruction of 2026-10-30)",
+   "todo": "Drawing first, then the pictures from his three files, the sizes, the guard; then a dated row on every drawing that drew the old brand.",
+   "status": "DONE 2026-10-30 — 10 of 10 placements; 29 of 29 drawings carry a dated logo row; 30 pictures re-pointed; VERIFIED waits for a TestFlight build",
+   "ref": "src/__tests__/brand_logo_guard.test.ts · MoneyKeel/documents/other/moneykeel_pres_mock_brand-wordmark_v02.html",
+   "date": "2026-10-31",
+   "comments": "His decision DEC-8914; the lead’s cut and sizes DEC-9003. The guard reads 703 files and 36 drawings.",
+   "_written": {
+    "status": "DONE 2026-10-30 — 10 of 10 placements; 29 of 29 drawings carry a dated logo row; 30 pictures re-pointed; VERIFIED waits for a TestFlight build",
+    "comments": "His decision DEC-8914; the lead’s cut and sizes DEC-9003. The guard reads 703 files and 36 drawings."
+   }
+  },
+  {
+   "task": "Closing round: every red test in the full suite (CLEANUP-TESTS)",
+   "todo": "Decide every red in the full suite and fix the app code a red test shows is wrong.",
+   "status": "DONE 2026-10-31 — 21 of 21 reds decided (14 fixed, 7 routed); the last full run 10,665 of 10,698 pass, 31 skipped, 2 red that are not its own",
+   "ref": "src/__tests__/curly_apostrophe_everywhere.test.ts · src/components/__tests__/chrome_bars_as_designed.test.tsx · src/__tests__/photograph_figures.test.tsx",
+   "date": "2026-10-31",
+   "comments": "Decisions DEC-9070, DEC-9071, DEC-9072. Nine drawing rows came before their code; the standard says the type floor is 11 (line 102, item 5).",
+   "_written": {
+    "status": "DONE 2026-10-31 — 21 of 21 reds decided (14 fixed, 7 routed); the last full run 10,665 of 10,698 pass, 31 skipped, 2 red that are not its own",
+    "comments": "Decisions DEC-9070, DEC-9071, DEC-9072. Nine drawing rows came before their code; the standard says the type floor is 11 (line 102, item 5)."
+   }
+  },
+  {
+   "task": "Closing round: identifiers and tooling (PF-TOOLS)",
+   "todo": "Number every new function, input and figure; re-read the rules; set the headers, the guards’ floors and ratchets and the trace tables to their true counts.",
+   "status": "DONE 2026-10-31 — 41 of 41 numbering items: 25 functions, 3 inputs, 9 figure numbers reserved; headers 906 of 906; cards 495 of 495 with 0 stops",
+   "ref": "Calculation Module code/scripts/moneykeel_function_register.json · Calculation Module code/scripts/moneykeel_metric_register.json · src/domain/planning/roth_worked_examples_2026_10_31.test.ts",
+   "date": "2026-10-31",
+   "comments": "The Roth screen’s twelve figures keep reserved numbers until a Plan orchestrator hands them (DEC-9117); MK-PL-M-045 retired, replaced by MK-PL-M-026; MK-PL-F-097 retired. Row #310 carries MK-XS-I-079 as its second example.",
+   "_written": {
+    "status": "DONE 2026-10-31 — 41 of 41 numbering items: 25 functions, 3 inputs, 9 figure numbers reserved; headers 906 of 906; cards 495 of 495 with 0 stops",
+    "comments": "The Roth screen’s twelve figures keep reserved numbers until a Plan orchestrator hands them (DEC-9117); MK-PL-M-045 retired, replaced by MK-PL-M-026; MK-PL-F-097 retired. Row #310 carries MK-XS-I-079 as its second example."
+   }
+  },
+  {
+   "task": "Plan v06, Mark 5: the mortgage consequence has no figure — it needs a second full simulation",
+   "todo": "Work the mortgage consequence with a second full run of the 1,000 futures, drawing row first, so Plan v06’s Mark 5 carries a number instead of saying the screen does not put one on it.",
+   "status": "TO DO — the Plan module round",
+   "ref": "MoneyKeel/documents/plan/moneykeel_pres_mock_plan_v06.html (What is still open, Mark 5)",
+   "date": "2026-10-31",
+   "comments": "Found by the PFS sweep, 2026-10-31: the block asks it in the drawing with no row in this plan. Mark 7, the cockpit computing its own odds, is row #103.",
+   "_written": {
+    "status": "TO DO — the Plan module round",
+    "comments": "Found by the PFS sweep, 2026-10-31: the block asks it in the drawing with no row in this plan. Mark 7, the cockpit computing its own odds, is row #103."
    }
   }
  ]

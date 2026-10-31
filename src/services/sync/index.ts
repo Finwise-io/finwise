@@ -141,6 +141,6 @@ export const CONSENT_COPY = [
   // describe its data-sharing program broadly, including trading. Say the truth where the worry is.
   'Your brokerage’s page may mention trading access — MoneyKeel registers every connection read-only, and this app has no trading commands at all.',
   // Walk row 16 (founder decision 2026-07-28, audit Home·NW #17): ONE promise everywhere — the
-  // user CHOOSES on disconnect. This sentence must match Settings' actual disconnect choices.
-  'Disconnect any time in Settings — you choose: keep your numbers as a by-hand account, or delete the connection’s data.',
+  // user CHOOSES on unlinking. This sentence must match Settings' Unlink choices (canon row 18, 2026-10-27: Unlink, not the retired word).
+  'Unlink any time in Settings — you choose: keep your numbers as a by-hand account, or delete the connection’s data.',
 ] as const;

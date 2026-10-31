@@ -36,7 +36,7 @@ test('AUDIT C — 10 flows', () => {
   render(<PlanHubScreen />);
   check('C1', 'day one: all seven questions, each asked ONCE, no fake zero', () => {
     // the seven live in one component; asking any of them twice is the defect this check exists for
-    expect(screen.getAllByText(/What's your target nest egg\?/).length).toBe(1);
+    expect(screen.getAllByText(/What’s your target nest egg\?/).length).toBe(1);
     expect(screen.getByLabelText('Your age in years')).toBeOnTheScreen();
     expect(screen.getByLabelText('Monthly expenses in retirement')).toBeOnTheScreen();
     expect(screen.getByLabelText('Your target nest egg')).toBeOnTheScreen();

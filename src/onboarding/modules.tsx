@@ -1,8 +1,10 @@
+import { MoneyBox } from '../components/MoneyBox';   // every money box, one component (DEC-8385)
 import { plural } from '../domain/_shared/plural';   // the one list of words and plurals (DEC-4082, 2026-10-10)
 import React from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Modal, ScrollView, Share } from 'react-native';
 import Svg, { Circle, G } from 'react-native-svg';
 import { Card } from '../components/UI';
+import { SectionBand } from '../components/SectionBand';   // box titles on the dark bar, sub-titles on the light (DEC-8839, R1; 2026-10-27)
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { Status, Track, StepId, incomeSourceOptionsFor } from './steps';
 import Mascot from './Mascot';
@@ -77,7 +79,7 @@ function MoneyRow({ ctx, k, label, ph }: { ctx: StepCtx; k: string; label?: stri
   return (
     <View style={{ marginBottom: Spacing.sm }}>
       {!!label && <Text style={s.label}>{label}</Text>}
-      <TextInput style={s.input} keyboardType="decimal-pad" placeholderTextColor={Colors.textTertiary}
+      <MoneyBox bare style={s.input} a11y={label}
         placeholder={ph ?? `${currencySymbol()}0`} value={ctx.answers[k] ?? ''} onChangeText={(t) => ctx.setAnswer(k, t)} />
     </View>
   );
@@ -92,7 +94,7 @@ function MoneyCadenceRow({ ctx, k, label }: { ctx: StepCtx; k: string; label: st
   return (
     <View style={{ marginBottom: Spacing.md }}>
       <Text style={s.label}>{label}</Text>
-      <TextInput style={s.input} keyboardType="decimal-pad" placeholder={`${currencySymbol()}0`} placeholderTextColor={Colors.textTertiary}
+      <MoneyBox bare style={s.input} placeholder={`${currencySymbol()}0`} a11y={label}
         value={ctx.answers[k] ?? ''} onChangeText={(t) => ctx.setAnswer(k, t)} />
       <View style={{ flexDirection: 'row', gap: 6, marginTop: 6 }}>
         {CAD_OPTS.map((o) => {
@@ -128,9 +130,13 @@ function HeroAmount({ ctx, k, label, ph, kind = 'money' }: {
   return (
     <>
       {!!label && <Text style={s.heroLabel}>{label}</Text>}
-      <TextInput style={s.heroInput} keyboardType={kind === 'number' ? 'number-pad' : 'decimal-pad'}
-        placeholder={ph ?? (kind === 'number' ? '0' : `${currencySymbol()}0`)} placeholderTextColor={Colors.textTertiary}
-        value={ctx.answers[k] ?? ''} onChangeText={(t) => ctx.setAnswer(k, t)} />
+      {kind === 'number'
+        ? <TextInput style={s.heroInput} keyboardType="number-pad"
+            placeholder={ph ?? '0'} placeholderTextColor={Colors.textTertiary}
+            value={ctx.answers[k] ?? ''} onChangeText={(t) => ctx.setAnswer(k, t)} />
+        : <MoneyBox bare style={s.heroInput} a11y={label}
+            placeholder={ph ?? `${currencySymbol()}0`}
+            value={ctx.answers[k] ?? ''} onChangeText={(t) => ctx.setAnswer(k, t)} />}
     </>
   );
 }
@@ -230,7 +236,7 @@ function AmountUnitRow({ ctx, k, modeK, label, units, ph }: {
     <View style={{ marginBottom: Spacing.sm }}>
       {!!label && <Text style={s.label}>{label}</Text>}
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-        <TextInput style={[s.input, { flex: 1 }]} keyboardType="decimal-pad" placeholderTextColor={Colors.textTertiary}
+        <MoneyBox bare share={mode !== 'dollar'} style={[s.input, { flex: 1 }]} a11y={label}
           placeholder={ph ?? (mode === 'pct' ? '50' : `${currencySymbol()}0`)} value={ctx.answers[k] ?? ''} onChangeText={(t) => ctx.setAnswer(k, t)} />
         {opts.map((o) => {
           const on = mode === o.value;
@@ -390,7 +396,7 @@ export function retirementMonthlyIncome(a: Record<string, any>): number {
 }
 import { employerMatchMonthly, rentEntryMonthly } from '../domain/income/onboarding';
 import { hasMonthlySalaryTable, salaryCalendarYear, salaryYearFromCells, salaryMonths } from '../domain/income/salary-months';
-import { FilingStatusQuestions } from '../screens/FilingStatusScreen';
+import { FilingStatusQuestions, over65Shown } from '../screens/FilingStatusScreen';
 import { incomeFromAccounts } from '../domain/income/from-accounts';
 import { assetClassOf } from '../domain/assets';
 import BasePayScreen from '../screens/BasePayScreen';
@@ -409,6 +415,22 @@ export function fv(principal: number, monthly: number, years: number, rate = 0.0
   return balanceGrownTo(principal, monthly, rate, years * 12);
 }
 
+/** The line under "What are your average monthly expenses?" — what the figure holds, so a yearly bill is counted once (#322). */
+/* ─ MK-CF-F-294 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * MONTHLY_SPENDING_LINE
+ *
+ * Answers ..... The line under "What are your average monthly expenses?" in sign-up: what the figure holds, so a yearly bill is counted once, as a twelfth ($1,200/year is $100/month), and a bill given its own month is left out; words only, it calculates nothing.
+ *
+ * Called by ... renderStep (sign-up, the expenses step)
+ *
+ * Numbered by hand 2026-10-30 (PF-TOOLS, the lead's instruction): the scan that issues identifiers reads functions in the
+ *               calculation folders only, so this constant has no generated record; this one is written by hand in the generated form,
+ *               as MK-NW-F-145's is
+ * Changed ..... not in git yet (—)
+ */
+export const MONTHLY_SPENDING_LINE = 'Roughly what leaves your account each month, a yearly bill counted as a twelfth ($1,200/year is $100/month). '
+  + 'A bill you give its own month in your budget is counted in that month instead — leave it out of this figure.';
+
 // Debt payoff snapshot from the debts answers — shared by the debts screen + its recap.
 export function debtPayoff(a: Record<string, any>): { bal: number; pay: number; rate: number; months: number; interestOnly: boolean } {
   const bal = num(a.debtBalance), pay = num(a.debtPayment), rate = num(a.debtRate) / 100;
@@ -418,6 +440,21 @@ export function debtPayoff(a: Record<string, any>): { bal: number; pay: number; 
   const interestOnly = clears === null;
   return { bal, pay, rate, months: clears ?? 0, interestOnly };
 }
+
+/** A card that opens with a bar is square, so the bar runs edge to edge with square corners (DEC-0079, DEC-8839; 2026-10-27). */
+/* ─ MK-XS-F-207 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * BANDED_CARD
+ *
+ * Answers ..... The look of a sign-up card that opens with a bar: square corners, so the bar runs edge to edge (DEC-0079, DEC-8839); a style only, it calculates nothing.
+ *
+ * Called by ... IncomeRecap · SavingsEditor · RetireOutlook · SavePlanScreen · SpendingEditor (sign-up)
+ *
+ * Numbered by hand 2026-10-30 (PF-TOOLS, the lead's instruction): the scan that issues identifiers reads functions in the
+ *               calculation folders only, so this constant has no generated record; this one is written by hand in the generated form,
+ *               as MK-NW-F-145's is
+ * Changed ..... not in git yet (—)
+ */
+const BANDED_CARD = { borderRadius: 0 } as const;
 
 // ── must-have validation ────────────────────────────────────────────────────
 const REQUIRED: Partial<Record<StepId, (a: Record<string, any>) => boolean>> = {
@@ -478,7 +515,10 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
       const picked: string[] = Array.isArray(a.incomeSources) ? a.incomeSources : [];
       const toggle = (v: string) => ctx.setAnswer('incomeSources', picked.includes(v) ? picked.filter((x) => x !== v) : [...picked, v]);
       return (<>
-        <Header emoji="💰" title="Where does your money come from?" sub="Pick everything that applies. We’ll only ask about what you choose." />
+        {/* THE QUESTION AS PHONE 1 DRAWS IT (IN2-07, 2026-10-27; a dated row on income-end-to-end_v07): its title and line, no coin
+            and no 💰 above them — the title and line Your base pay and the filing question print in sign-up */}
+        <Text style={s.drawnTitle}>Where does your money come from?</Text>
+        <Text style={s.drawnSub}>Pick everything that applies. We’ll only ask about what you choose.</Text>
         {incomeSourceOptionsFor(ctx.status).map((o) => {
           const on = picked.includes(o.value);
           return (
@@ -503,7 +543,7 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
           <Text style={s.label}>How often?</Text>
           <Segmented ctx={ctx} k="seFreq" defaultValue="monthly" options={[{ value: 'monthly', label: 'Per month' }, { value: 'annual', label: 'Per year' }]} />
           <Text style={s.heroLabel}>About how much ({freq === 'annual' ? 'per year' : 'per month'})</Text>
-          <TextInput style={s.heroInput} keyboardType="decimal-pad" placeholder={`${currencySymbol()}0`} placeholderTextColor={Colors.textTertiary}
+          <MoneyBox bare style={s.heroInput} placeholder={`${currencySymbol()}0`}
             value={a.seAmount ?? ''} onChangeText={(t) => ctx.setAnswer('seAmount', t)} />
           <Text style={s.hint}>Enter the surplus after business costs, before income tax. A rough number is fine.</Text>
         </Card>
@@ -553,7 +593,7 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
         )}
         <Card>
           <Text style={s.heroLabel}>{worked.lines.length > 0 ? 'Change it if that is not right' : 'How much'}</Text>
-          <TextInput style={s.heroInput} keyboardType="decimal-pad" placeholder={`${currencySymbol()}0`} placeholderTextColor={Colors.textTertiary}
+          <MoneyBox bare style={s.heroInput} placeholder={`${currencySymbol()}0`}
             value={a.invAmount ?? a.invAnnual ?? ''} onChangeText={setAmt} />
           <View style={{ flexDirection: 'row', gap: 6, marginTop: 8, justifyContent: 'center' }}>
             {CAD_OPTS.map((o) => { const on = freq === o.v; return (
@@ -602,7 +642,7 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
             })}
           </View>
           <Text style={s.heroLabel}>Total benefits per month</Text>
-          <TextInput style={s.heroInput} keyboardType="decimal-pad" placeholder={`${currencySymbol()}0`} placeholderTextColor={Colors.textTertiary}
+          <MoneyBox bare style={s.heroInput} placeholder={`${currencySymbol()}0`}
             value={a.benefitMonthly ?? ''} onChangeText={(t) => ctx.setAnswer('benefitMonthly', t)} />
           {num(a.benefitMonthly) > 0 && (() => {
             const someMonths = Array.isArray(a.benefitMonths) && a.benefitMonths.length > 0;
@@ -615,7 +655,7 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
                   <Text style={[s.segTxt, someMonths && s.segTxtOn]}>Certain months</Text></TouchableOpacity>
               </View>
               {someMonths && (<>
-                <Text style={s.dueLabel}>Pick the months you'll receive benefits (e.g. unemployment after a job ends)</Text>
+                <Text style={s.dueLabel}>Pick the months you’ll receive benefits (e.g. unemployment after a job ends)</Text>
                 <MonthMultiSelect value={a.benefitMonths} onChange={(v) => ctx.setAnswer('benefitMonths', v.length ? v : undefined)} />
               </>)}
             </>);
@@ -635,8 +675,8 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
           {/* the unemployment part, when it is not the only kind chosen (unemploymentMonthly): until it is typed, all of it is counted */}
           {types.includes('unemployment') && types.length > 1 && num(a.benefitMonthly) > 0 && (<>
             <Text style={[s.label, { marginTop: 10 }]}>How much of that is unemployment, per month?</Text>
-            <TextInput style={s.input} keyboardType="decimal-pad" placeholder={`${currencySymbol()}0`} placeholderTextColor={Colors.textTertiary}
-              value={a.unemploymentMonthly ?? ''} onChangeText={(t) => ctx.setAnswer('unemploymentMonthly', t)} accessibilityLabel="How much of that is unemployment, per month?" />
+            <MoneyBox bare style={s.input} placeholder={`${currencySymbol()}0`}
+              value={a.unemploymentMonthly ?? ''} onChangeText={(t) => ctx.setAnswer('unemploymentMonthly', t)} a11y="How much of that is unemployment, per month?" />
             {String(a.unemploymentMonthly ?? '').trim() === '' && <Text style={s.hint}>Not entered yet — until it is, all {money(unemploymentMonthly(a))}/month is counted as taxed.</Text>}
           </>)}
         </Card>
@@ -648,7 +688,7 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
         <Header emoji="👪" title="Child support or alimony" sub="Support payments you receive." />
         <Card>
           <Text style={s.heroLabel}>How much per month</Text>
-          <TextInput style={s.heroInput} keyboardType="decimal-pad" placeholder={`${currencySymbol()}0`} placeholderTextColor={Colors.textTertiary}
+          <MoneyBox bare style={s.heroInput} placeholder={`${currencySymbol()}0`}
             value={a.supportMonthly ?? ''} onChangeText={(t) => ctx.setAnswer('supportMonthly', t)} />
           <Text style={s.hint}>Enter what you actually receive in a typical month.</Text>
         </Card>
@@ -679,7 +719,7 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
               })}
             </View>
             <Text style={s.heroLabel}>How much ({(row.freq ?? 'annual') === 'monthly' ? 'per month' : 'per year'})</Text>
-            <TextInput style={s.heroInput} keyboardType="decimal-pad" placeholder={`${currencySymbol()}0`} placeholderTextColor={Colors.textTertiary}
+            <MoneyBox bare style={s.heroInput} placeholder={`${currencySymbol()}0`}
               value={row.amount ?? ''} onChangeText={(t) => setRow(i, { amount: t })} />
             {(row.freq ?? 'annual') !== 'monthly' && num(row.amount) > 0 && (
               <>
@@ -691,7 +731,7 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
           </Card>
         ))}
         <TouchableOpacity onPress={() => setList([...list, { label: '', amount: '', freq: 'annual' }])}><Text style={s.addAnother}>＋ Add another scholarship</Text></TouchableOpacity>
-        <Text style={s.hint}>Count money you receive to live on. We won't tax this.</Text>
+        <Text style={s.hint}>Count money you receive to live on. We won’t tax this.</Text>
       </>);
     }
 
@@ -712,7 +752,7 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
             <Text style={s.label}>Name (optional)</Text>
             <TextInput style={s.input} value={row.label ?? ''} onChangeText={(t) => setRow(i, { label: t })} placeholder="e.g. Federal subsidized, private" placeholderTextColor={Colors.textTertiary} />
             <Text style={s.heroLabel}>How much (this disbursement)</Text>
-            <TextInput style={s.heroInput} keyboardType="decimal-pad" placeholder={`${currencySymbol()}0`} placeholderTextColor={Colors.textTertiary}
+            <MoneyBox bare style={s.heroInput} placeholder={`${currencySymbol()}0`}
               value={row.amount ?? ''} onChangeText={(t) => setRow(i, { amount: t })} />
             {num(row.amount) > 0 && (
               <>
@@ -754,7 +794,7 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
             </View>
           ) : null;
         })()}
-        <Text style={s.hint}>This is borrowed money — it shows as cash arriving in your bill calendar, and you'll repay it later.</Text>
+        <Text style={s.hint}>This is borrowed money — it shows as cash arriving in your bill calendar, and you’ll repay it later.</Text>
       </>);
     }
 
@@ -773,7 +813,7 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
           <Text style={s.label}>How often?</Text>
           <Segmented ctx={ctx} k="otherFreq" defaultValue="monthly" options={[{ value: 'monthly', label: 'Per month' }, { value: 'annual', label: 'Per year' }, { value: 'onetime', label: 'One time' }]} />
           <Text style={s.heroLabel}>How much ({freqLabel})</Text>
-          <TextInput style={s.heroInput} keyboardType="decimal-pad" placeholder={`${currencySymbol()}0`} placeholderTextColor={Colors.textTertiary}
+          <MoneyBox bare style={s.heroInput} placeholder={`${currencySymbol()}0`}
             value={a.otherAmount ?? ''} onChangeText={(t) => ctx.setAnswer('otherAmount', t)} />
           {freq === 'onetime' && num(a.otherAmount) > 0 && (
             <>
@@ -806,8 +846,8 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
             <>
               <Text style={[s.label, { marginTop: 10 }]}>Is it taxable income?</Text>
               <Segmented ctx={ctx} k="otherTaxable" defaultValue="yes" options={[
-                { value: 'yes', label: 'Taxable' }, { value: 'no', label: "No — it's a gift" }]} />
-              {a.otherTaxable === 'no' && <Text style={s.hint}>Personal gifts aren't taxable income to you — we'll count this money without taxing it.</Text>}
+                { value: 'yes', label: 'Taxable' }, { value: 'no', label: "No — it’s a gift" }]} />
+              {a.otherTaxable === 'no' && <Text style={s.hint}>Personal gifts aren’t taxable income to you — we’ll count this money without taxing it.</Text>}
             </>
           )}
         </Card>
@@ -853,7 +893,7 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
         <Card>
           <AmountUnitRow ctx={ctx} k="employerMatchValue" modeK="employerMatchMode" label="Match (% of your contribution, or a flat amount per month)" />
           {matchMode === 'pct' && num(a.c_401k) <= 0 && (
-            <Text style={s.hint}>You haven't set a contribution yet, so a % match counts as {currencySymbol()}0 — enter a flat amount instead, or go back and add your contribution.</Text>
+            <Text style={s.hint}>You haven’t set a contribution yet, so a % match counts as {currencySymbol()}0 — enter a flat amount instead, or go back and add your contribution.</Text>
           )}
         </Card>
         {/* the year is the months the wage is paid (MK-CF-F-178 × payrollMonths; 2026-10-26, FIX-INCOME-A): $500/month of match
@@ -920,7 +960,7 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
           op={a}
           status={(a.filingStatus as any) ?? (a.hasPartner === 'yes' ? 'married' : 'single')}
           onStatus={(v) => ctx.setAnswer('filingStatus', v)}
-          over65={(a.over65Who as any) ?? null}
+          over65={over65Shown(a)}   /* "Just me" for someone 65 or older with no answer yet, as phone 14 draws it (IN2-10, 2026-10-27) */
           onOver65={(v) => ctx.setAnswer('over65Who', v)} />
       );
 
@@ -964,12 +1004,17 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
     case 'monthlySpending': {
       const spend = num(a.monthlySpending);
       const inc = monthlyIncome(a) || retirementMonthlyIncome(a);
-      const pct = inc > 0 ? Math.round((spend / inc) * 100) : 0;
-      return (<><Header emoji="🧾" title={retired ? 'Your monthly expenses' : "What are your average monthly expenses?"}
-        sub="Roughly what leaves your account each month." />
+      // a share, kept whole and printed to two decimals (Q49; 2026-10-27, FX-CF-B, a dated row on income-end-to-end_v07)
+      const pct = inc > 0 ? (spend / inc) * 100 : 0;
+      // A YEARLY BILL IS COUNTED ONCE (2026-10-27, FX-CF-B; workplan #322, a dated row on income-end-to-end_v07; DEC-7951): the
+      // figure typed is every month's, a yearly bill in it as a twelfth — and a bill given its own month in the budget is added in
+      // that month on top of it (MK-CF-F-221), so the line says to leave that one out. It said only "each month", and someone who
+      // put a $1,200 bill in as $100 and also gave it December was counted $100/month twice.
+      return (<><Header emoji="🧾" title={retired ? 'Your monthly expenses' : 'What are your average monthly expenses?'}
+        sub={MONTHLY_SPENDING_LINE} />
         <Card><HeroAmount ctx={ctx} k="monthlySpending" label="Per month" /></Card>
-        {spend > 0 && inc > 0 && <Callout text={`That's ${pct}% of your monthly income`}
-          sub={pct <= 80 ? `You keep ${100 - pct}% to save & invest — healthy.` : `Leaves ${Math.max(0, 100 - pct)}% to save — we'll help you stretch it.`}
+        {spend > 0 && inc > 0 && <Callout text={`That’s ${pct.toFixed(2)}% of your monthly income`}
+          sub={pct <= 80 ? `You keep ${(100 - pct).toFixed(2)}% to save & invest — healthy.` : `Leaves ${Math.max(0, 100 - pct).toFixed(2)}% to save — we’ll help you stretch it.`}
           warn={pct > 100} />}
       </>);
     }
@@ -991,7 +1036,7 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
       // #8: capture Traditional (pre-tax) and Roth (after-tax) SEPARATELY — they're taxed differently in
       // retirement, so the nest-egg/tax math needs them apart, not lumped into one number.
       return (<><Header emoji="🏦" title="Your 401(k) & retirement savings"
-        sub="Split by how it's taxed. Brokerage and other investments are excluded — we ask about those separately." />
+        sub="Split by how it’s taxed. Brokerage and other investments are excluded — we ask about those separately." />
         <Card>
           <MoneyRow ctx={ctx} k="currentRetirementSavings" label="Traditional / pre-tax — 401(k), Traditional IRA, 403(b), 457, TSP" />
           <MoneyRow ctx={ctx} k="currentRetirementSavingsRoth" label="Roth / after-tax — Roth 401(k), Roth IRA" />
@@ -1004,20 +1049,20 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
       const tgt = num(a.targetRetirementAge), age = ageOrDefault(a), yrs = tgt - age;
       return (<><Header emoji="🏖️" title="When do you hope to retire?" sub="Your target age." />
         <Card><HeroAmount ctx={ctx} k="targetRetirementAge" label="Target age" ph="65" kind="number" /></Card>
-        {tgt > 0 && a.birthYear && yrs > 0 && <Callout text={`${yrs} years from now`} sub="That's your runway to save and invest." />}
+        {tgt > 0 && a.birthYear && yrs > 0 && <Callout text={`${yrs} years from now`} sub="That’s your runway to save and invest." />}
         {tgt > 0 && num(a.birthYear) > 0 && yrs <= 0 && <Callout warn
-          text={`Retiring at ${tgt} is in the past — you're ${age} now`}
-          sub={`Pick an age above ${age}. (We calculated ${age} from your birth year, ${num(a.birthYear)} — if that's a typo, go Back to fix it.)`} />}
+          text={`Retiring at ${tgt} is in the past — you’re ${age} now`}
+          sub={`Pick an age above ${age}. (We calculated ${age} from your birth year, ${num(a.birthYear)} — if that’s a typo, go Back to fix it.)`} />}
         {tgt >= 100 && <Callout warn text="Pick a target age below 100" />}
       </>);
     }
 
     case 'expectedRetirementSpending': {
       const rs = num(a.expectedRetirementSpending), now = num(a.monthlySpending);
-      return (<><Header emoji="💸" title="Expected expenses in retirement" sub="Per month, in today's dollars." />
+      return (<><Header emoji="💸" title="Expected expenses in retirement" sub="Per month, in today’s dollars." />
         <Card><HeroAmount ctx={ctx} k="expectedRetirementSpending" label="Monthly (retirement)" /></Card>
         {rs > 0 && <Callout text={now > 0 ? `${Math.round((rs / now) * 100)}% of what you spend today` : `${money(rs * 12)}/year`}
-          sub={`About ${money(rs * 12)}/year in today's dollars.`} />}
+          sub={`About ${money(rs * 12)}/year in today’s dollars.`} />}
       </>);
     }
 
@@ -1048,7 +1093,7 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
           <MoneyCadenceRow ctx={ctx} k="ri_pension" label="Pension" />
           <MoneyCadenceRow ctx={ctx} k="ri_withdrawals" label="401(k) / IRA withdrawals" />
           <MoneyCadenceRow ctx={ctx} k="ri_rmd" label="Required Minimum Distributions (RMDs)" />
-          <Text style={[s.hint, { marginTop: -8, marginBottom: 8 }]}>An RMD is a withdrawal — if it's already counted in the row above, leave this blank so it isn't counted twice.</Text>
+          <Text style={[s.hint, { marginTop: -8, marginBottom: 8 }]}>An RMD is a withdrawal — if it’s already counted in the row above, leave this blank so it isn’t counted twice.</Text>
           <MoneyCadenceRow ctx={ctx} k="ri_annuities" label="Annuities" />
           {(() => {
             // dividends/rental get their own screens when those sources are picked — don't double-count
@@ -1057,9 +1102,9 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
             // always "Other Income"; the sub-text lists what counts (incl. interest) and keeps the
             // don't-double-count guidance when dividends/rental are captured on their own screens.
             const hint = div && rent
-              ? 'Interest and any other income. Dividends and rental are asked on their own screens — don\'t repeat them here.'
-              : div ? 'Interest, rental and any other income. Dividends are asked on their own screen — don\'t repeat them here.'
-              : rent ? 'Dividends, interest and any other income. Rental is asked on its own screen — don\'t repeat it here.'
+              ? 'Interest and any other income. Dividends and rental are asked on their own screens — don’t repeat them here.'
+              : div ? 'Interest, rental and any other income. Dividends are asked on their own screen — don’t repeat them here.'
+              : rent ? 'Dividends, interest and any other income. Rental is asked on its own screen — don’t repeat it here.'
               : 'Dividends, Interest, Rental or other income.';
             return (<>
               <MoneyCadenceRow ctx={ctx} k="ri_other" label="Other Income" />
@@ -1069,7 +1114,7 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
         </Card>
         {startAge > 0 && (
           <Callout
-            text={age >= startAge ? `You're past your RMD age (${startAge}) — RMDs are required` : `Your RMDs begin at age ${startAge}`}
+            text={age >= startAge ? `You’re past your RMD age (${startAge}) — RMDs are required` : `Your RMDs begin at age ${startAge}`}
             sub={age >= startAge
               ? `Traditional 401(k)/IRA balances must be drawn down yearly (Roth is exempt). Add yours above.`
               : `Born ${by < 1960 ? '1951–1959 → 73' : '1960 or later → 75'}. Traditional 401(k)/IRA will require yearly withdrawals then; Roth is exempt.`} />
@@ -1091,19 +1136,19 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
     case 'retLocation': {
       const loc = String(a.retLocation ?? '').trim();
       const col = colFactor(loc);
-      const pct = Math.round(Math.abs(1 - col.factor) * 100);
+      const pct = (Math.abs(1 - col.factor) * 100).toFixed(2);   // printed to two decimals (Q49; 2026-10-27)
       return (<><Header emoji="🌍" title={retired ? 'Where do you live in retirement?' : 'Where do you plan to retire?'} sub="We adjust your retirement expenses to local living costs (optional)." />
         <Card><TextRow ctx={ctx} k="retLocation" label="Country / region" ph="e.g. Portugal" /></Card>
         {col.name && col.factor !== 1 && <Callout
           text={`${col.name}: about ${pct}% ${col.factor < 1 ? 'cheaper' : 'pricier'} than the US average`}
           sub={`We scale the retirement expenses you enter by this — a rough planning adjustment, not a quote.`} />}
         {col.name && col.factor === 1 && <Callout text={`${col.name}: similar to the US average`} sub="No adjustment applied to your retirement expenses." />}
-        {!col.name && loc.length > 2 && <Text style={s.hint}>We don't have living-cost data for "{loc}" yet — no adjustment applied.</Text>}
+        {!col.name && loc.length > 2 && <Text style={s.hint}>We don’t have living-cost data for "{loc}" yet — no adjustment applied.</Text>}
       </>);
     }
 
     case 'travelBudget':
-      return (<><Header emoji="✈️" title="Travel budget (optional)" sub="Extra you'd budget for travel in retirement." />
+      return (<><Header emoji="✈️" title="Travel budget (optional)" sub="Extra you’d budget for travel in retirement." />
         <Card><HeroAmount ctx={ctx} k="travelBudget" label="Per year" /></Card></>);
 
     case 'medicalBudget':
@@ -1117,7 +1162,7 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
           { value: 'same', title: 'About the same' }, { value: 'less', title: 'Less' }, { value: 'more', title: 'More' }]} /></Card></>);
 
     case 'investObjective':
-      return (<><Header emoji="📈" title="What's your investing goal?" sub="Pick any that apply." />
+      return (<><Header emoji="📈" title="What’s your investing goal?" sub="Pick any that apply." />
         <Card><MultiChoice ctx={ctx} k="investObjective" options={[
           { value: 'pnl', title: 'Monitor performance', sub: 'Gains & losses — sold and still on paper' },
           { value: 'networth', title: 'Everything in one place', sub: 'Net worth, MoM / YoY change' }]} /></Card></>);
@@ -1140,8 +1185,8 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
     case 'networthIntro':
       return (<><Header emoji="🧮" title="Your net worth lives in the Net worth tab" sub="Everything you own minus what you owe — kept up to date automatically." />
         <Card>
-          <Text style={s.note}>Once you've finished setup, head to the <Text style={{ fontWeight: '800' }}>Net worth</Text> tab (top-right chip or the ▦ menu) to add your accounts and debts — cash, investments, retirement, home, car, loans, credit cards. As you add them, your net worth total updates everywhere.</Text>
-          <Text style={[s.hint, { marginTop: 10 }]}>No rush — there's nothing to do here right now. You can add accounts anytime after setup.</Text>
+          <Text style={s.note}>Once you’ve finished setup, head to the <Text style={{ fontWeight: '800' }}>Net worth</Text> tab (top-right chip or the ▦ menu) to add your accounts and debts — cash, investments, retirement, home, car, loans, credit cards. As you add them, your net worth total updates everywhere.</Text>
+          <Text style={[s.hint, { marginTop: 10 }]}>No rush — there’s nothing to do here right now. You can add accounts anytime after setup.</Text>
         </Card></>);
 
     case 'whatYouNeed': {
@@ -1208,7 +1253,7 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
           <NumRow ctx={ctx} k="debtRate" decimal label="Interest rate %" ph="6.5" />
           <MoneyRow ctx={ctx} k="debtPayment" label="Monthly payment" /></Card>
         {bal > 0 && pay > 0 && (interestOnly
-          ? <Callout warn text="Your payment barely covers the interest" sub="At this rate the balance won't go down — worth paying more." />
+          ? <Callout warn text="Your payment barely covers the interest" sub="At this rate the balance won’t go down — worth paying more." />
           : <Callout text={`Paid off in ~${payoff}`} sub={`At ${money(pay)}/month and ${(rate * 100).toFixed(2)}% interest.`} />)}
       </>);
     }
@@ -1216,7 +1261,7 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
     case 'legacyTarget':
       return (<><Header emoji="🎁" title="What would you like to leave?" sub="A target for your estate / heirs." />
         <Card><HeroAmount ctx={ctx} k="legacyTarget" label="Legacy target" />
-          <Text style={s.hint}>We'll hold your plan to this on top of your own expenses. The full estate checklist — will, beneficiaries, healthcare proxy — lives in Goals & Debt → Estate.</Text></Card></>);
+          <Text style={s.hint}>We’ll hold your plan to this on top of your own expenses. The full estate checklist — will, beneficiaries, healthcare proxy — lives in Goals & Debt → Estate.</Text></Card></>);
 
     // ── recaps ──
     case 'recap_spend':
@@ -1246,11 +1291,11 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
                 const horizon = num(a.horizonAge || 90);
                 const targetYears = Math.max(1, horizon - startAge);
                 const monthlyLever = Math.max(0, (netDraw - pool / targetYears) / 12);   // cut to make it last to the horizon
-                return <Callout text={`Your ${money(pool)} covers ~${money(netDraw)}/year of drawdown for about ${Math.round(lastsYears)} years (you're ${startAge}).`}
+                return <Callout text={`Your ${money(pool)} covers ~${money(netDraw)}/year of drawdown for about ${Math.round(lastsYears)} years (you’re ${startAge}).`}
                   sub={ok ? `That reaches your plan-to age of ${horizon}.`
                     : `Short of age ${horizon} — trim about ${money(monthlyLever)}/month of expenses (or add that much income) to get there.`} warn={!ok} />;
               })()
-            : <Callout text={`Your income covers your expenses — you're not drawing down your ${money(pool)} portfolio yet.`} />}
+            : <Callout text={`Your income covers your expenses — you’re not drawing down your ${money(pool)} portfolio yet.`} />}
         </>);
       }
       return <RetireOutlook ctx={ctx} />;
@@ -1304,10 +1349,10 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
         })}</Card>
         {capMo > 0
           ? <Callout text={`You have about ${money(capMo)}/month for goals`}
-              sub={`That's the surplus of your income after taxes, expenses, your 401(k)${investMo > 0 ? `, and the ${money(investMo * 12)}/year you're investing` : ''}. Timelines fund one goal at a time, in this order.`} />
+              sub={`That’s the surplus of your income after taxes, expenses, your 401(k)${investMo > 0 ? `, and the ${money(investMo * 12)}/year you’re investing` : ''}. Timelines fund one goal at a time, in this order.`} />
           : investMo > 0
             ? <Callout warn text="There is no surplus for these goals right now"
-                sub={`Your investing plan (${money(investMo * 12)}/year) uses all your free cash. To fund goals, dial the investing number down — it's the same pot of money.`} />
+                sub={`Your investing plan (${money(investMo * 12)}/year) uses all your free cash. To fund goals, dial the investing number down — it’s the same pot of money.`} />
             : <Callout warn text="No free cash for these goals yet"
                 sub="After taxes, expenses and your 401(k), nothing is left this year. The goals stay on your list — fund them when your cash flow allows." />}
       </>);
@@ -1356,7 +1401,7 @@ export function RsuEditor({ ctx }: { ctx: StepCtx }) {
   const cols = isOpt
     ? [{ key: 'shares', label: 'Options', ph: '100', kb: 'number-pad' as const }, { key: 'date', label: 'Vest date', ph: 'YYYY-MM', kb: 'default' as const }]
     : [{ key: 'shares', label: 'Shares', ph: '100', kb: 'number-pad' as const },
-       { key: 'price', label: "Today's price", ph: `${currencySymbol()}0`, kb: 'decimal-pad' as const },
+       { key: 'price', label: "Today’s price", ph: `${currencySymbol()}0`, kb: 'decimal-pad' as const },
        { key: 'date', label: 'Vest date', ph: 'YYYY-MM', kb: 'default' as const }];
 
   const visible = Math.max(3, rows.length + 1) + extra;
@@ -1387,12 +1432,12 @@ export function RsuEditor({ ctx }: { ctx: StepCtx }) {
         <View style={{ flexDirection: 'row', gap: Spacing.sm, marginTop: Spacing.sm }}>
           <View style={{ flex: 1 }}>
             <Text style={s.label}>Strike price</Text>
-            <TextInput style={s.input} keyboardType="decimal-pad" placeholder={`${currencySymbol()}0`} placeholderTextColor={Colors.textTertiary}
+            <MoneyBox bare style={s.input} placeholder={`${currencySymbol()}0`}
               value={a.optStrike ?? ''} onChangeText={(t) => ctx.setAnswer('optStrike', t)} />
           </View>
           <View style={{ flex: 1 }}>
             <Text style={s.label}>Market price</Text>
-            <TextInput style={s.input} keyboardType="decimal-pad" placeholder={`${currencySymbol()}0`} placeholderTextColor={Colors.textTertiary}
+            <MoneyBox bare style={s.input} placeholder={`${currencySymbol()}0`}
               value={a.optMarket ?? ''} onChangeText={(t) => ctx.setAnswer('optMarket', t)} />
           </View>
         </View>
@@ -1412,6 +1457,9 @@ export function RsuEditor({ ctx }: { ctx: StepCtx }) {
           <View key={i} style={s.schedRow}>
             {cols.map((c) => (c.key === 'date'
               ? <MonthYearCell key={c.key} value={r.date} onChange={(v) => setCell(i, 'date', v)} style={[s.schedCell, { flex: 1, justifyContent: 'center' }]} />
+              : c.key === 'price'
+              ? <MoneyBox bare key={c.key} style={[s.schedCell, { flex: 1 }]} placeholder={c.ph} a11y={c.label}
+                  value={r[c.key] ?? ''} onChangeText={(t) => setCell(i, c.key, t)} />
               : <TextInput key={c.key} style={[s.schedCell, { flex: 1 }]} keyboardType={c.kb}
                   placeholder={c.ph} placeholderTextColor={Colors.textTertiary}
                   value={r[c.key] ?? ''} onChangeText={(t) => setCell(i, c.key, t)} />
@@ -1543,7 +1591,7 @@ function IncomeRecap({ ctx }: { ctx: StepCtx }) {
   const maxHigh = highMo.length ? Math.max(...highMo.map((o) => o.x)) : 0;
 
   return (<>
-    <Header emoji="📊" title="Your income" sub="Here's what you actually have to work with." />
+    <Header emoji="📊" title="Your income" sub="Here’s what you actually have to work with." />
 
     {/* hero — what you actually have to use */}
     <View style={s.heroCard}>
@@ -1566,14 +1614,14 @@ function IncomeRecap({ ctx }: { ctx: StepCtx }) {
     })()}
 
     {/* full breakdown — every source adds up to the total */}
-    <Card>
-      <Text style={s.sectionLabel}>WHERE IT COMES FROM</Text>
+    <Card style={BANDED_CARD}>
+      <SectionBand inCard inset={Spacing.base} title="Where it comes from" />
       {lines.map((l) => (
         <RecapStat key={l.label} plain label={l.label} value={`${money(l.value)}${l.once ? ' once' : '/year'}`} />
       ))}
       <RecapBox label="Total income /year" value={money(total)} />
 
-      <Text style={[s.sectionLabel, { marginTop: Spacing.md }]}>WHAT'S TAKEN OUT</Text>
+      <View style={{ marginTop: Spacing.base + Spacing.md }}><SectionBand inCard light inset={Spacing.base} title="What’s taken out" /></View>
       {taxNotFromPay !== 0
         ? <RecapStat plain label="Tax taken out of your pay" value={`-${money(tax - taxNotFromPay)}`} color={Colors.amber} />
         : <RecapStat plain label={`Tax (~${fig('MK-CF-M-081', rate)} on taxable income)`} value={`-${fig('MK-CF-M-044', tax)}`} color={Colors.amber} />}
@@ -1623,7 +1671,7 @@ function IncomeRecap({ ctx }: { ctx: StepCtx }) {
         if (num(a.bonusAnnual) > 0) why.push(`a bonus lands in ${MONTHS3[Math.min(11, Math.max(0, (num(a.bonusMonth) || 12) - 1))]}`);
         if (num(a.signingOnetime) > 0 || (ex.onetimeTaxable ?? 0) + (ex.onetimeNontax ?? 0) > 0) why.push('one-time payments land in their month');
         if ((rsuAnnual(a) ?? 0) > 0) why.push('equity follows your vesting months');
-        if (Array.isArray(a.scholarships) && a.scholarships.some((x: any) => num(x?.amount) > 0 && x?.freq !== 'monthly')) why.push('scholarships land when they\'re disbursed');
+        if (Array.isArray(a.scholarships) && a.scholarships.some((x: any) => num(x?.amount) > 0 && x?.freq !== 'monthly')) why.push('scholarships land when they’re disbursed');
         return why.length ? `Some months differ because ${why.join('; ')}.` : 'Your income is the same every month.';
       })()}</Text>
     </Card>
@@ -1704,10 +1752,11 @@ function CashflowRecap({ ctx }: { ctx: StepCtx }) {
   const saveYr = cf.saveYr;                                                   // FREE to save — === Σ savingsByMonth
   const totalSaveYr = saveYr + k401Yr;            // all savings incl. 401(k) — a deficit NETS against it (no floor)
   const keep = grossYr > 0 ? Math.round((netYr / grossYr) * 100) : 0;        // take-home per $100
-  const taxPct = grossYr > 0 ? Math.round((taxYr / grossYr) * 100) : 0;       // effective tax rate
-  const savePctGross = grossYr > 0 ? Math.max(0, Math.round((totalSaveYr / grossYr) * 100)) : 0;
+  // each share kept whole and printed to two decimals, rounded once where it is shown (Q49; 2026-10-27, FX-CF-B)
+  const taxPct = (grossYr > 0 ? (taxYr / grossYr) * 100 : 0).toFixed(2);       // the tax as a share of gross
+  const savePctGross = (grossYr > 0 ? Math.max(0, (totalSaveYr / grossYr) * 100) : 0).toFixed(2);
   const C401 = Colors.primaryDark;
-  const spendPct = grossYr > 0 ? Math.round((spendYr / grossYr) * 100) : 0;
+  const spendPct = (grossYr > 0 ? (spendYr / grossYr) * 100 : 0).toFixed(2);
   const grossGrid = incomeMonthlyGrid(a, 'gross');
   const netGrid = incomeMonthlyGrid(a, 'net');    // per-month net → per-month tax is EXACT, not rate×gross
   const maxG = Math.max(...grossGrid.map((m) => m.amount), 1);
@@ -1800,7 +1849,7 @@ function SavingsEditor({ ctx }: { ctx: StepCtx }) {
   const annual = months.reduce((t, m) => t + m.amount, 0);
   const avg = annual / 12;
   const net = domainTakeHomeMonthly(a);   // "% of take-home" must use true take-home (after 401k), same as every other screen
-  const pct = net > 0 ? Math.round((avg / net) * 100) : 0;
+  const pct = (net > 0 ? (avg / net) * 100 : 0).toFixed(2);   // printed to two decimals (Q49; 2026-10-27)
   const maxA = Math.max(...months.map((m) => m.amount), 1);
 
   const setMonth = (i: number, val: string) => {
@@ -1841,8 +1890,8 @@ function SavingsEditor({ ctx }: { ctx: StepCtx }) {
     </Card>
 
     {/* keep the suggested amounts, or edit any month */}
-    <Card>
-      <Text style={s.sectionLabel}>MONTHLY PLAN</Text>
+    <Card style={BANDED_CARD}>
+      <SectionBand inCard inset={Spacing.base} title="Monthly plan" />
       <View style={{ marginTop: 6, marginBottom: 4 }}>
         <Segmented ctx={{ ...ctx, answers: { sm: mode }, setAnswer: (_, v) => ctx.setAnswer('savingsMode', v) }} k="sm"
           options={[{ value: 'auto', label: 'Use suggested' }, { value: 'custom', label: 'Customize' }]} />
@@ -1851,7 +1900,7 @@ function SavingsEditor({ ctx }: { ctx: StepCtx }) {
         <View key={m.label} style={s.savingsRow}>
           <Text style={s.savingsMonth}>{m.label}</Text>
           {mode === 'custom'
-            ? <TextInput style={s.savingsInput} keyboardType="decimal-pad" placeholder={money(suggested[i].amount)} placeholderTextColor={Colors.textTertiary}
+            ? <MoneyBox bare style={s.savingsInput} placeholder={money(suggested[i].amount)}
                 value={overrides[i] ?? ''} onChangeText={(t) => setMonth(i, t)} />
             : <Text style={[s.savingsVal, m.amount < 0 && { color: Colors.red }]}>{money(m.amount)}</Text>}
         </View>
@@ -1953,7 +2002,7 @@ function RetireOutlook({ ctx }: { ctx: StepCtx }) {
   const retireStart = num(a.currentRetirementSavings) + num(a.currentRetirementSavingsRoth);   // #8: Traditional + Roth
   const projected = fv(retireStart + otherSavings, monthlyContrib, years, realAcc);
   const gap = projected - need.needed;
-  return (<><Header emoji="🏖️" title="Your retirement outlook" sub="In today's dollars — here's the math, line by line." />
+  return (<><Header emoji="🏖️" title="Your retirement outlook" sub="In today’s dollars — here’s the math, line by line." />
     <Card>
       <RecapStat label={`Needed at ${rAge} (to age ${horizon})`} value={money(need.needed)} />
       <RecapStat label={`Projected by ${rAge}`} value={money(projected)} color={Colors.primary} />
@@ -1968,8 +2017,8 @@ function RetireOutlook({ ctx }: { ctx: StepCtx }) {
         {otherSavings <= 0 ? " It does NOT include other investments, property, or accounts not captured yet — add them in Net worth and this updates." : ''}
       </Text>
     </Card>
-    <Card>
-      <Text style={s.sectionLabel}>HOW "NEEDED" IS CALCULATED</Text>
+    <Card style={BANDED_CARD}>
+      <SectionBand inCard inset={Spacing.base} title="How “needed” is calculated" />
       <WfRow label="Expenses in retirement" value={`${money(num(a.expectedRetirementSpending))}/month`} />
       <WfRow label="Guaranteed income (Social Security, pension)" onPress={() => setGiOpen(true)}
         value={guaranteedMo > 0 ? `−${money(guaranteedMo)}/month` : 'Set it'} />
@@ -1990,7 +2039,7 @@ function RetireOutlook({ ctx }: { ctx: StepCtx }) {
       <TouchableOpacity style={s.modalBg} activeOpacity={1} onPress={() => setGiOpen(false)}>
         <View style={s.modalCard} onStartShouldSetResponder={() => true}>
           <Text style={s.cap}>Guaranteed retirement income</Text>
-          <Text style={[s.hint, { marginBottom: 8 }]}>Monthly amounts, today's dollars. Every dollar here lowers what your savings must cover.</Text>
+          <Text style={[s.hint, { marginBottom: 8 }]}>Monthly amounts, today’s dollars. Every dollar here lowers what your savings must cover.</Text>
           <MoneyRow ctx={ctx} k="ri_ss" label="Social Security (your estimate from ssa.gov)" />
           <MoneyRow ctx={ctx} k="ri_pension" label="Pension" />
           <MoneyRow ctx={ctx} k="ri_annuities" label="Annuity / other" />
@@ -2031,7 +2080,7 @@ function SavePlanScreen({ ctx }: { ctx: StepCtx }) {
 
   return (<>
     <Header emoji="📥" title="What you can save — and invest"
-      sub="Your free cash month by month, and how much of it you'll invest each year." />
+      sub="Your free cash month by month, and how much of it you’ll invest each year." />
     {hasCashflow && (<>
       <View style={s.heroCard}>
         <Text style={s.heroCardLabel}>Surplus / year</Text>
@@ -2069,10 +2118,10 @@ function SavePlanScreen({ ctx }: { ctx: StepCtx }) {
         <Text style={s.note2}>Net of tax, 401(k), and expenses — each in the month it actually happens (a gift month spikes, months without pay dip).</Text>
       </Card>
     </>)}
-    <Card>
-      <Text style={s.sectionLabel}>HOW MUCH WILL YOU INVEST PER YEAR?</Text>
+    <Card style={BANDED_CARD}>
+      <SectionBand inCard inset={Spacing.base} title="How much will you invest per year?" />
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 6 }}>
-        <TextInput style={[s.input, { flex: 1 }]} keyboardType="decimal-pad" placeholderTextColor={Colors.textTertiary}
+        <MoneyBox bare share={unit === 'pct'} style={[s.input, { flex: 1 }]}
           placeholder={unit === 'pct' ? 'e.g. 80' : `${currencySymbol()}0 /year`} value={String(raw)} onChangeText={(t) => setVal(t, unit)} />
         {base > 0 && [{ v: 'dollar', l: `${currencySymbol()}/year` }, { v: 'pct', l: '%' }].map((o) => {
           const on = unit === o.v;
@@ -2086,7 +2135,7 @@ function SavePlanScreen({ ctx }: { ctx: StepCtx }) {
       {num(raw) > 0 && (unit === 'pct'
         ? <Text style={s.hint}>{num(raw)}% of your yearly free cash = {money(investMo * 12)}/year (≈ {money(investMo)}/month)</Text>
         : <Text style={s.hint}>≈ {money(investMo)}/month</Text>)}
-      <Text style={s.hint}>What's left funds your goals and cash buffer. The Roth-vs-brokerage split comes later — the Retirement tab walks you through the tax-smart way.</Text>
+      <Text style={s.hint}>What’s left funds your goals and cash buffer. The Roth-vs-brokerage split comes later — the Retirement tab walks you through the tax-smart way.</Text>
     </Card>
     {investMo > 0 && (() => {
       const investYr = investMo * 12;
@@ -2095,7 +2144,7 @@ function SavePlanScreen({ ctx }: { ctx: StepCtx }) {
       // GENUINELY over the year's net free cash → the only case where "less" is the answer
       if (investYr > annualSave) {
         return <Callout warn text={`${money(investYr)}/year is more than your ${money(annualSave)} of free cash`}
-          sub="The year doesn't generate that much after expenses — this plan spends down savings. Lower it to fit." />;
+          sub="The year doesn’t generate that much after expenses — this plan spends down savings. Lower it to fit." />;
       }
       // Funded over the year — lean months are a TIMING note, not a shortfall
       if (leanIdx.length > 0) {
@@ -2166,7 +2215,7 @@ function WhenField({ day, year, onDay, onYear }: { day?: string; year?: string; 
         <TextInput style={[s.input, { flex: 1 }]} keyboardType="number-pad" placeholder="Year (e.g. 2027)" placeholderTextColor={Colors.textTertiary}
           value={year ?? ''} onChangeText={onYear} maxLength={4} />
       </View>
-      <Text style={s.hint}>Add the day so we can tell you exactly how much to have — and ask for — before it's due.</Text>
+      <Text style={s.hint}>Add the day so we can tell you exactly how much to have — and ask for — before it’s due.</Text>
     </View>
   );
 }
@@ -2198,9 +2247,16 @@ function SpendingEditor({ ctx }: { ctx: StepCtx }) {
   const critT = tierTotal('critical'), impT = tierTotal('important'), flexT = tierTotal('flex');
   const totalMo = critT + impT + flexT;
   const estimated = num(a.monthlySpending);                 // the single number from the prior screen
-  const uncategorized = Math.max(0, estimated - totalMo);   // estimate not yet broken into categories
-  const spend = totalMo + uncategorized;                    // = max(itemized, estimate) — don't ignore the estimate
-  const pctOfNet = net > 0 ? Math.round((spend / net) * 100) : 0;
+  // A BILL GIVEN ITS MONTH IS COUNTED IN THAT MONTH, ON TOP OF THE FIGURE TYPED (2026-10-27, FX-CF-B; workplan #322; DEC-7951):
+  // the month's expenses are the figure typed, or the categories that cover it, plus each dated bill in its month — the year
+  // every Cash flow month and the recap read (MK-CF-F-221), here ÷ 12 (MK-CF-F-002). This step took a dated bill out of the
+  // figure typed: $2,000 typed and a $1,200 December bill read Uncategorized $1,900 and expenses $2,000, while the recap read
+  // $2,100. Worked by hand: 11 × $2,000 + $3,200 = $25,200 ÷ 12 = $2,100; Uncategorized $2,100 − $100 = $2,000.
+  const datedMo = spendBuckets(a).dated;                    // MK-CF-F-004: the bills given their own months, a month's twelfth
+  const coversTyped = totalMo - datedMo;                    // what the categories put in every month
+  const spend = plannedMonthlySpend(a);                     // MK-CF-F-002, the one planned monthly figure
+  const uncategorized = Math.max(0, spend - totalMo);       // the figure typed not yet broken into categories
+  const pctOfNet = (net > 0 ? (spend / net) * 100 : 0).toFixed(2);   // printed to two decimals (Q49; 2026-10-27)
   const save = net - spend;
   const denom = Math.max(net, spend, 1);
   const seg = (v: number): any => `${(v / denom) * 100}%`;
@@ -2221,7 +2277,7 @@ function SpendingEditor({ ctx }: { ctx: StepCtx }) {
             ? <TextInput style={[s.spendName, s.spendNameInput]} placeholder="Category" placeholderTextColor={Colors.textTertiary}
                 value={e.label ?? ''} onChangeText={(t) => upsert(cat.id, { label: t }, seed)} />
             : <Text style={s.spendName} numberOfLines={1}>{cat.icon}  {cat.label}{isNonMonthly ? <Text style={s.perYr}>  /year</Text> : null}</Text>}
-          <TextInput style={s.spendAmt} keyboardType="decimal-pad" placeholder={unit === 'pct' ? '0' : `${currencySymbol()}0`} placeholderTextColor={Colors.textTertiary}
+          <MoneyBox bare unitBeside style={s.spendAmt} placeholder={unit === 'pct' ? '0' : `${currencySymbol()}0`}
             value={e.amount ?? ''} onChangeText={(t) => upsert(cat.id, { amount: t }, seed)} />
           <TouchableOpacity style={s.unitToggle} onPress={() => upsert(cat.id, { unit: unit === 'pct' ? 'dollar' : 'pct' }, seed)}>
             <Text style={s.unitToggleTxt}>{unit === 'pct' ? '%' : currencySymbol()}</Text>
@@ -2242,6 +2298,12 @@ function SpendingEditor({ ctx }: { ctx: StepCtx }) {
           <View style={{ marginLeft: 2, marginTop: 2 }}>
             <Text style={s.dueLabel}>When is it due? (pick the months)</Text>
             <MonthMultiSelect value={months} onChange={(v) => upsert(cat.id, { months: v }, seed)} />
+            {/* the bill is counted in its months, on top of the monthly figure typed — so it says to leave it out of that (#322) */}
+            {months.length > 0 && (
+              <Text style={s.hint}>{estimated > 0
+                ? `Counted in ${monthRanges(months.map((m) => m - 1), MONTHS3)} — leave it out of the monthly expenses you entered earlier.`
+                : `Counted in ${monthRanges(months.map((m) => m - 1), MONTHS3)}, in its own month.`}</Text>
+            )}
             {months.length > 0 && (
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: Spacing.sm, marginTop: 8 }}>
                 <Text style={s.dueLabel}>Due day (optional)</Text>
@@ -2256,7 +2318,7 @@ function SpendingEditor({ ctx }: { ctx: StepCtx }) {
   };
 
   return (<>
-    <Header emoji="🪣" title="Your budget" sub="Add what you spend by category — we'll budget it for you." />
+    <Header emoji="🪣" title="Your budget" sub="Add what you spend by category — we’ll budget it for you." />
 
     {/* running total — spectrum bar across the three buckets + the surplus to save */}
     <Card>
@@ -2281,13 +2343,14 @@ function SpendingEditor({ ctx }: { ctx: StepCtx }) {
       </View>
       {estimated > 0 && (
         <Text style={s.note2}>
-          You estimated {money(estimated)}/month earlier — {totalMo === 0
-            ? 'itemize it below (we\'re counting the full estimate until you do).'
-            : Math.abs(totalMo - estimated) <= 50
+          {/* measured against what the categories put in every month — a bill with its own month is on top of the estimate (#322) */}
+          You estimated {money(estimated)}/month earlier — {coversTyped === 0
+            ? 'itemize it below (we’re counting the full estimate until you do).'
+            : Math.abs(coversTyped - estimated) <= 50
               ? 'your categories match nicely.'
-              : totalMo < estimated
-                ? `${money(uncategorized)}/month still to categorize — counted in "Uncategorized" for now.`
-                : `${money(totalMo - estimated)}/month over your estimate.`}
+              : coversTyped < estimated
+                ? `${money(uncategorized)}/month still to categorize — counted in “Uncategorized” for now.`
+                : `${money(coversTyped - estimated)}/month over your estimate.`}
         </Text>
       )}
     </Card>
@@ -2295,18 +2358,15 @@ function SpendingEditor({ ctx }: { ctx: StepCtx }) {
     {/* green insight, right under the bar */}
     {totalMo > 0 && <Callout text={net > 0 ? `${pctOfNet}% of your take-home is spoken for` : `${money(totalMo)}/month total expenses`}
       sub={net > 0
-        ? `${money(Math.max(0, save))}/month left to save${save < 0 ? ' — you\'re over by ' + money(-save) : ''}.`
+        ? `${money(Math.max(0, save))}/month left to save${save < 0 ? ' — you’re over by ' + money(-save) : ''}.`
         : `About ${money(totalMo * 12)}/year.`}
       warn={net > 0 && save < 0} />}
 
     {TIERS.map((tk) => {
       const tot = tierTotal(tk.key);
       return (
-        <Card key={tk.key}>
-          <View style={s.dotRow}>
-            <View style={[s.dot, { backgroundColor: TIER_COLOR[tk.key] }]} />
-            <Text style={s.sectionLabel}>{tk.title.toUpperCase()} · {tk.note}</Text>
-          </View>
+        <Card key={tk.key} style={BANDED_CARD}>
+          <SectionBand inCard inset={Spacing.base} title={`${tk.title} · ${tk.note}`} />
           {SPEND_CATS.filter((c) => c.tier === tk.key && (!c.stages || c.stages.includes(ctx.status as Status))).map((c) => renderRow(c, false))}
           {cats.filter((c) => c.custom && tierOf(c) === tk.key).map((c) => renderRow(c, true))}
           <TouchableOpacity style={s.addRow} onPress={() => addCustom(tk.key)}><Text style={s.addRowTxt}>+ Add {tk.title.toLowerCase()}</Text></TouchableOpacity>
@@ -2383,12 +2443,12 @@ export function RentalEditor({ ctx }: { ctx: StepCtx }) {
         <View style={{ flexDirection: 'row', gap: Spacing.sm, marginTop: Spacing.sm }}>
           <View style={{ flex: 1 }}>
             <Text style={s.label}>{(r.type ?? 'long') === 'short' ? 'Avg rent /month' : 'Rent /month'}</Text>
-            <TextInput style={s.input} keyboardType="decimal-pad" placeholder={`${currencySymbol()}0`} placeholderTextColor={Colors.textTertiary}
+            <MoneyBox bare style={s.input} placeholder={`${currencySymbol()}0`}
               value={r.income ?? ''} onChangeText={(t) => setProp(i, 'income', t)} />
           </View>
           <View style={{ flex: 1 }}>
             <Text style={s.label}>Operating expense /month</Text>
-            <TextInput style={s.input} keyboardType="decimal-pad" placeholder={`${currencySymbol()}0`} placeholderTextColor={Colors.textTertiary}
+            <MoneyBox bare style={s.input} placeholder={`${currencySymbol()}0`}
               value={r.expenses ?? ''} onChangeText={(t) => setProp(i, 'expenses', t)} />
           </View>
         </View>
@@ -2424,7 +2484,9 @@ export function RentalEditor({ ctx }: { ctx: StepCtx }) {
       <TouchableOpacity accessibilityRole="button" accessibilityLabel="Add the property first"
         onPress={() => router.push('/add-account?cls=property&from=onboarding' as any)}
         style={{ minHeight: 44, justifyContent: 'center', marginTop: Spacing.sm }}>
-        <Text style={{ fontSize: 14, fontWeight: '700', color: Colors.primary }}>Add the property first ›</Text>
+        {/* 13/700 primary, the same door on the Income screen (IncomeManagerScreen s.link); it was 14, off the scale (2026-10-30,
+            add-account-by-hand v02 row of that day; DEC-0059) */}
+        <Text style={{ fontSize: 13, fontWeight: '700', color: Colors.primary }}>Add the property first ›</Text>
       </TouchableOpacity>
     )}
     <TouchableOpacity style={s.addBtn} onPress={addProp}><Text style={s.addBtnT}>+ Add property</Text></TouchableOpacity>
@@ -2454,18 +2516,18 @@ function InvitePartner({ ctx }: { ctx: StepCtx }) {
       if (!code) ctx.setAnswer('inviteCode', c);
       await shareCode(c);
     } catch {
-      setErr("Couldn't create the invite — check your connection and try again.");
+      setErr("Couldn’t create the invite — check your connection and try again.");
     } finally { setBusy(false); }
   };
   return (<>
-    <Header emoji="✉️" title="Invite your spouse (optional)" sub="They'll see and manage the same accounts, plans and goals as you." />
+    <Header emoji="✉️" title="Invite your spouse (optional)" sub="They’ll see and manage the same accounts, plans and goals as you." />
     <Card>
       {code ? (<>
         <Text style={s.heroLabel}>Their invite code</Text>
         <Text style={{ fontSize: 30, fontWeight: '800', textAlign: 'center', letterSpacing: 6, color: Colors.textPrimary, paddingVertical: 8 }}>{code}</Text>
         <Text style={[s.hint, { textAlign: 'center' }]}>They enter this on the sign-up screen. Re-share it anytime.</Text>
       </>) : (
-        <Text style={s.note}>We'll create a one-time code your spouse enters when they sign up — no email needed, share it however you like.</Text>
+        <Text style={s.note}>We’ll create a one-time code your spouse enters when they sign up — no email needed, share it however you like.</Text>
       )}
       <TouchableOpacity style={[s.addBtn, busy && { opacity: 0.5 }]} disabled={busy}
         onPress={code ? () => shareCode(code) : createAndShare}>
@@ -2492,24 +2554,24 @@ function VerifyEmail({ ctx }: { ctx: StepCtx }) {
       const v = await refreshEmailVerified();
       setVerified(v);
       if (!v) setNote('Not verified yet — open the link in your email (check spam), then tap this again.');
-    } catch { setNote("Couldn't check just now — try again in a moment."); }
+    } catch { setNote("Couldn’t check just now — try again in a moment."); }
     finally { setBusy(false); }
   };
   const resend = async () => {
     setNote(''); setBusy(true);
     try { await resendVerification(); setNote(`Sent! Check ${email ?? 'your inbox'} (and spam).`); }
-    catch { setNote("Couldn't resend — check your connection."); }
+    catch { setNote("Couldn’t resend — check your connection."); }
     finally { setBusy(false); }
   };
   return (<>
     <Header emoji="📧" title="Verify your email" sub="Confirm your email so you can recover your account and sign in on any device." />
     <Card>
       {verified ? (
-        <Text style={[s.note, { color: Colors.primary, fontWeight: '700', textAlign: 'center' }]}>✓ Your email is verified — you're all set.</Text>
+        <Text style={[s.note, { color: Colors.primary, fontWeight: '700', textAlign: 'center' }]}>✓ Your email is verified — you’re all set.</Text>
       ) : (<>
         <Text style={s.note}>We sent a verification link to <Text style={{ fontWeight: '800' }}>{email ?? 'your email'}</Text>. Open it, then come back and tap the button below.</Text>
         <TouchableOpacity style={[s.addBtn, busy && { opacity: 0.5 }]} disabled={busy} onPress={check}>
-          <Text style={s.addBtnT}>{busy ? 'Checking…' : "I've clicked the link — check"}</Text>
+          <Text style={s.addBtnT}>{busy ? 'Checking…' : "I’ve clicked the link — check"}</Text>
         </TouchableOpacity>
         <TouchableOpacity disabled={busy} onPress={resend}>
           <Text style={[s.hint, { textAlign: 'center', marginTop: 10, textDecorationLine: 'underline' }]}>Resend the link</Text>
@@ -2537,9 +2599,9 @@ function GoalsEditor({ ctx }: { ctx: StepCtx }) {
   return (<><Header emoji="🎯" title="What are you saving for?" sub="Add a goal — target amount and when." />
     {investMo0 > 0 && (goalCap > 0
       ? <Callout text={`You have about ${money(goalCap)}/month for goals`}
-          sub={`What's left of your income after taxes, expenses, your 401(k), and the ${money(investMo0 * 12)}/year you're investing.`} />
+          sub={`What’s left of your income after taxes, expenses, your 401(k), and the ${money(investMo0 * 12)}/year you’re investing.`} />
       : <Callout warn text="There is no surplus for goals right now"
-          sub={`Your investing plan (${money(investMo0 * 12)}/year) uses all your free cash — goals here would need that number dialed down. It's one pot of money.`} />)}
+          sub={`Your investing plan (${money(investMo0 * 12)}/year) uses all your free cash — goals here would need that number dialed down. It’s one pot of money.`} />)}
     <Card>
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: Spacing.sm }}>
         {GOAL_STARTERS.filter((g) => !goals.some((x) => x.label === g)).map((g) => {
@@ -2550,7 +2612,7 @@ function GoalsEditor({ ctx }: { ctx: StepCtx }) {
       </View>
       <TextInput style={s.input} placeholder="Goal (e.g. House down payment)" placeholderTextColor={Colors.textTertiary} value={label} onChangeText={setLabel} />
       <View style={{ flexDirection: 'row', gap: Spacing.sm, marginTop: Spacing.sm }}>
-        <TextInput style={[s.input, { flex: 1 }]} placeholder={`${currencySymbol()} target`} keyboardType="decimal-pad" placeholderTextColor={Colors.textTertiary} value={target} onChangeText={setTarget} />
+        <MoneyBox bare style={[s.input, { flex: 1 }]} placeholder={`${currencySymbol()} target`} value={target} onChangeText={setTarget} />
         <TextInput style={[s.input, { flex: 1 }]} placeholder="By year" keyboardType="number-pad" placeholderTextColor={Colors.textTertiary} value={year} onChangeText={setYear} />
       </View>
       <TouchableOpacity style={[s.addBtn, !canAdd && { opacity: 0.4 }]} disabled={!canAdd} onPress={add}><Text style={s.addBtnT}>+ Add goal</Text></TouchableOpacity>
@@ -2563,6 +2625,9 @@ function GoalsEditor({ ctx }: { ctx: StepCtx }) {
 
 const s = StyleSheet.create({
   head: { alignItems: 'center', marginBottom: Spacing.lg },
+  // a drawn question's title and line, as Your base pay prints them (income-end-to-end_v07 phone 1; IN2-07, 2026-10-27)
+  drawnTitle: { fontSize: 20, fontWeight: '800', color: Colors.textPrimary },
+  drawnSub: { fontSize: 13, color: Colors.textSecondary, marginTop: 2, marginBottom: 14 },
   title: { fontSize: 24, fontWeight: '800', color: Colors.textPrimary, textAlign: 'center' },
   sub: { fontSize: 15, color: Colors.primaryDark, textAlign: 'center', marginTop: 6 },
   label: { fontSize: 13, fontWeight: '600', color: Colors.textSecondary, marginBottom: 6, marginTop: 4 },

@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Roth conversion v02</title>
+<style>
+  :root{--primary:#178F6B;--primaryDark:#0F6E56;--primaryDeep:#085041;--primaryLight:#E1F5EE;--primaryMid:#9FE1CB;--onDeepTint:#BEE7D8;
+        --amber:#854F0B;--amberLight:#FAEEDA;--red:#A32D2D;--bg2:#F6F7F5;--bg3:#EEEEE9;--card:#FFFFFF;--t1:#1A1A18;--t2:#6B6B66;--t3:#76766F;
+        --border:rgba(0,0,0,0.10);--gain:#006300}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:-apple-system,'SF Pro Text','Segoe UI',Roboto,sans-serif;background:#ECEBE4;color:var(--t1);padding:22px}
+  .wrap{max-width:1500px}
+  .row{display:flex;gap:22px;flex-wrap:wrap;align-items:flex-start}
+  .phone{width:375px;background:#000;border-radius:44px;padding:10px;box-shadow:0 16px 36px rgba(0,0,0,.24)}
+  .screen{background:var(--bg2);border-radius:35px;overflow:hidden;display:flex;flex-direction:column}
+  .sbar{display:flex;justify-content:space-between;padding:12px 22px 4px;font-size:14px;font-weight:700}
+  .nav{display:flex;align-items:center;min-height:44px;background:var(--bg2)}
+  .back{font-size:16px;color:var(--primary);font-weight:600;padding:8px 16px}
+  .topbar{display:flex;align-items:center;justify-content:space-between;padding:6px 20px 10px;background:var(--bg2)}
+  .menuBtn{display:flex;align-items:center;gap:6px;height:38px;padding:0 13px;border-radius:12px;background:var(--card);border:1px solid var(--border);font-size:13px;font-weight:700;color:var(--t2)}
+  .wordmark{font-size:15px;font-weight:800;letter-spacing:-.2px}.wordmark .m{color:#178F6B}.wordmark .k{color:#1F3A5F}
+  .tright{display:flex;gap:8px}
+  .ico{width:38px;height:38px;border-radius:19px;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:15px;color:var(--t2)}
+  .tabbar{display:flex;justify-content:space-around;background:var(--card);border-top:.5px solid var(--border);height:84px;padding:6px 0 20px}
+  .tb{width:56px;display:flex;flex-direction:column;align-items:center;font-size:10.5px;font-weight:700;color:var(--t3)}
+  .tb i{display:block;height:3px;width:22px;margin-bottom:5px}
+  .tb b{font-size:20px;font-weight:400;line-height:23px;color:var(--t3)}
+  .band{background:var(--primaryDeep);padding:8px 12px;margin-bottom:4px;color:#fff;font-size:11px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;border-radius:0}
+  .new{outline:2px dashed #185FA5;outline-offset:2px}
+  .adv{text-decoration:underline dotted #185FA5;text-underline-offset:3px}
+  .cap{font-size:12px;color:#4a4a45;max-width:375px;margin-top:9px;line-height:1.5}
+  .note-doc{max-width:1100px;margin:0 0 14px;padding:12px 14px;border:2px solid #0B5D3B;border-radius:12px;font-size:13px;line-height:1.5;background:#fff;color:#111}
+  .note-doc table{border-collapse:collapse;margin-top:8px;font-size:12.5px}
+  .note-doc td,.note-doc th{padding:4px 8px;border:1px solid #ccc;vertical-align:top;text-align:left}
+
+  .content{padding:24px 20px 20px}
+  .h1{font-size:20px;font-weight:800;color:var(--t1)}
+  .sub{font-size:15px;color:var(--t2);margin-bottom:12px;line-height:20px}
+  .tryBanner{font-size:13px;font-weight:700;color:var(--primaryDark);background:var(--primaryLight);border-radius:12px;padding:10px;margin-bottom:8px}
+  .saveLink{min-height:44px;display:flex;align-items:center;margin-bottom:8px;font-size:13px;font-weight:700;color:var(--primary)}
+  /* each box runs edge to edge of the phone, square corners, so its dark bar runs end to end across the screen (2026-10-27) */
+  .card{background:var(--card);border-radius:0;padding:20px;margin:0 -20px 12px}
+  .card > .band{margin:-20px -20px 4px}
+  .newb{box-shadow:inset 0 0 0 2px #185FA5}
+  .lrow{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:7px 0;border-top:1px solid var(--bg3)}
+  .lk{font-size:15px;color:var(--t2);flex:1}
+  .lv{font-size:15px;color:var(--t1);font-variant-numeric:tabular-nums;text-align:right}
+  .lv.b{font-weight:800}
+  .amtInput{background:var(--bg2);border-radius:12px;border:1px solid var(--border);padding:12px;font-size:24px;font-weight:800;color:var(--t1)}
+  .note{font-size:13px;color:var(--t3);margin-top:8px;line-height:17px}
+  .chipRow{display:flex;gap:8px;margin-top:8px}
+  .chip{background:var(--bg3);border-radius:12px;padding:0 14px;min-height:44px;display:flex;align-items:center;font-size:13px;font-weight:700;color:var(--primaryDark)}
+  .bigLine{font-size:17px;font-weight:800;color:var(--t1)}
+  .link{font-size:15px;font-weight:700;color:var(--primaryDark);margin-top:4px;padding:12px 0;min-height:44px}
+  .line{font-size:15px;color:var(--t1);margin-top:4px;line-height:21px}
+  .strong{font-weight:800}
+  .primaryBtn{background:var(--primary);border-radius:16px;min-height:50px;display:flex;align-items:center;justify-content:center;margin-top:4px;color:#fff;font-size:17px;font-weight:800}
+</style></head>
+<body><div class="wrap">
+
+<div class="note-doc">
+<b>READ THIS FIRST — 2026-10-27. Roth conversion, version 02, opened the way he asked (DEC-8891: what he approved before, his words, what is new). This drawing waits on his approval; the screen is built to it today so he can see it on a phone.</b>
+<table>
+<tr><th style="width:24%">What he approved before for this screen</th><td><b>Nothing approved; drawn from the build of 2026-10-26</b> (v01, now <span style="font-family:ui-monospace,monospace">archive/2026-10-27_moneykeel_pres_mock_roth-conversion_v01.html</span>).</td></tr>
+<tr><th>His feedback on it so far, word for word</th><td>2026-10-27, on v01 (DEC-8890, as the decision log records it): <i>“Roth Conversion - dark green bar should be end to end across the screen. What it buys section does not make any sense. Design properly and make it clear. Same this with Will my Money last? "35.3% → 35.9% — little change. This decision is about taxes, not the odds.' - Add more information - Current odds of your money "xxx" lasting till target age of yy is 35.3%. Moving $20K/year to Roth will increase nest egg to and increase odds to 35.9%. This decision is about taxes, not the odds.”</i><br>2026-10-27, of every screen (DEC-8839): <i>“the standard design says box titles in dark green bar, and sub-titles in light green bar”</i>.</td></tr>
+<tr><th>What is new for him to look at</th><td>
+1. <b>Every dark bar runs end to end across the screen.</b> Each box now runs from one edge of the phone to the other with square corners — the Cash flow pattern — so its bar does too. They stopped 20 points short of each edge.<br>
+2. <b>WHAT IT BUYS LATER, redesigned to be followed line by line:</b> one sentence on what converting does, then four rows — pre-tax $415,000 → $395,000; tax-free (Roth) $88,000 → $108,000; the first required withdrawal at 75, ~$50,737 → ~$48,292; smaller each year by about $2,445 — and one line on how the $2,445 is worked. It read as two loose lines.<br>
+3. <b>WILL MY MONEY LAST?, in his shape:</b> ‘Today, the odds that your $523,000 lasts to age 90 are 35.3%.’ · ‘Converting $20,000 this year changes your nest egg at 65 to about $809,588 (from $813,149) and the odds to 36.2%.’ · ‘This decision is about taxes, not the odds.’ · and how both are worked.<br>
+4. <b>The odds now count the conversion itself: 36.2%, not 35.9%.</b> v01’s second run took the $3,750 tax out of the cash and left the $20,000 in the pre-tax account, so the odds missed that more of the money now comes out tax-free. The second run now moves the $20,000 from the IRA to the Roth as well.<br>
+5. <b>Two places the engine answers differently from his sentence, said plainly:</b> the screen converts once, this year — it has no ‘per year’ plan of conversions; and the nest egg at 65 is <b>smaller</b>, by $3,562, because the $3,750 is paid now — the odds still rise because more of what is left comes out tax-free.
+</td></tr>
+<tr><td style="padding:4px 8px;border:1px solid #ccc;vertical-align:top;white-space:nowrap">2026-10-27</td><td style="padding:4px 8px;border:1px solid #ccc;vertical-align:top"><b>Approved before:</b> nothing — this drawing was drawn from the build; no approval of it is on record. Its amount box prints a typed figure plain. <b>His feedback:</b> None on these boxes. He approved the income drawing on 2026-08-27 (DEC-0177: “yes”), which draws a money box with its figure as money, ‘$7,000’. <b>New:</b> Every money box on this screen shows its figure the way a figure is printed, while it is typed — ‘$1,000’ where a box was drawn ‘1000’, ‘$192.50’ where ‘192.5’; where the screen prints its own $ just before the box, the box reads ‘1,000’, so the $ is printed once — and it stores the plain amount, so no figure moves. The box keeps its look. A typed letter is refused whole (DEC-3768c). Shares, contracts, rates, days and years keep their plain digits. The phones are not redrawn.</td><td style="padding:4px 8px;border:1px solid #ccc;vertical-align:top">One figure, one form (tenet 4, DEC-3523): the money boxes of the income screens already show ‘$7,000’ (DEC-8385), and one component, MoneyBox, now draws every money box in the app — src/__tests__/every_money_box_is_moneybox.test.tsx counts them all. Not a decision of his: the lead’s ruling of 2026-10-27, made without asking him, as his order of 2026-09-30 says. To reverse: print the plain figure in the box again.</td><td style="padding:4px 8px;border:1px solid #ccc;vertical-align:top">DEC-8385 · DEC-0177 · DEC-3768c · DEC-3523</td><td style="padding:4px 8px;border:1px solid #ccc;vertical-align:top">In the code since 2026-10-27</td></tr>
+<tr><td style="padding:4px 8px;border:1px solid #ccc;vertical-align:top;white-space:nowrap">2026-10-30</td><td style="padding:4px 8px;border:1px solid #ccc;vertical-align:top"><b>Approved before:</b> nothing — no approval of this drawing is on record; it was drawn from the build. <b>His feedback:</b> His words, 2026-08-04 (DEC-0059): “make sure font size and color and overall design are same across all screens.” <b>New:</b> The one apostrophe inside a word that printed straight now prints as ’: ‘you’d do the conversion with your brokerage’. No word and no figure moves. The phones are not redrawn.</td><td style="padding:4px 8px;border:1px solid #ccc;vertical-align:top">One sentence, spelled one way (tenet 4, DEC-3523): the lead’s rule of 2026-10-25 (DEC-8336), carried to every screen on 2026-10-27 and held by src/__tests__/curly_apostrophe_everywhere.test.ts, which now carries no debt for this screen. Not a decision of his: the lead’s ruling of 2026-10-30, made without asking him, as his order of 2026-09-30 says; built by CLEANUP-TESTS. One word from him reverses it. To reverse: type a straight ' in these strings again.</td><td style="padding:4px 8px;border:1px solid #ccc;vertical-align:top">DEC-8336 · DEC-3523 · DEC-0059</td><td style="padding:4px 8px;border:1px solid #ccc;vertical-align:top">In the code since 2026-10-30</td></tr>
+</table>
+<br><b>Checked before sending</b> (the screen standard, section 5): every box title on a dark bar running end to end across the phone, square corners · no sub-titles on this screen · sizes on the scale (13 · 15 · 17 · 20 · 24), nothing under 10.5 · the words on the canon (‘Will my money last’, ‘simulated futures’) · every figure worked by the engine in <span style="font-family:ui-monospace,monospace">src/screens/__tests__/plan_drawings_from_build_2026_10_26.test.tsx</span>, and by hand below the phone · one phone, $20,000 typed.
+<br><b>2026-10-30, a line on this drawing:</b> the amount box shows what is typed as money, ‘$20,000’ — every box that takes money in the app is one component since DEC-8385 (the shared money box, built by FX-SHARED); the phone shows it so. Nothing else moves.<br><b>2026-10-30, a line on this drawing — one nest egg (the lead’s order; one concept, one number):</b> the nest egg at 65 is now the Retirement cockpit’s own figure, worked by the one function both use (MK-PL-F-055 projectNestEgg, printed under MK-PL-M-026, the nest egg before and after a decision): <b>$813,149 as you are, $809,588 converted</b>. It read the middle of the 1,000 simulated futures, $789,749 → $783,830 — a second number for the same thing, beside the cockpit’s $813K. The odds stay the simulation’s, 35.3% → 36.2%, and the line under them says which number is which. Drawn before the code.<br><br><b>The screen’s history, kept:</b>
+<table>
+<tr><th>Dated</th><th>What changed on the screen today</th><th>Why · how to reverse</th><th>Record</th><th>State</th></tr>
+<tr><td style="white-space:nowrap">2026-10-27</td><td><b>Checked against his words of today, and it already meets them: nothing on the screen moves.</b> His words (DEC-8839): <i>“the standard design says box titles in dark green bar, and sub-titles in light green bar”</i>. Each box’s title — CONVERT THIS YEAR, THE COST NOW, WHAT IT BUYS LATER and WILL MY MONEY LAST? — is a dark-green bar, white capitals, square corners, running from one edge of its card to the other; the screen has no sub-titles. The screen’s one title at 20 points, every size on the scale, nothing under 10.5. No new version is drawn.</td><td>The check his ruling asks for (DEC-8839, step 2: the four Plan drawings made from the build). Done by FX-PLAN, the lead’s ruling R1. Held by the bar guard, <span style="font-family:ui-monospace,monospace">src/__tests__/guard_box_titles_on_bars.test.ts</span>.</td><td>DEC-8839</td><td>Checked 2026-10-27</td></tr>
+
+<tr><td style="white-space:nowrap">2026-10-26</td><td><b>The tax is worked at the exact rate.</b> ‘Tax bill next April: about $3,750’ and ‘Rate used: 18.75% (calculated from your income)’. It read ‘about $3,800’ and ‘19%’: the rate was rounded to a whole percent before the tax was worked from it.</td><td>Not a decision of his: the lead’s, made without asking him, as his order of 2026-09-30 says; built by CLEANUP-LEFT. One word from him reverses it. His Q49: every calculation at full precision, rounded once, when printed; percents to two decimals. To reverse: round the rate to a whole percent again.</td><td>MK-PL-F-032 rothConversionCost · Q49</td><td>In the code</td></tr>
+<tr><td style="white-space:nowrap">2026-10-26</td><td><b>The tax stands on what the year is taxed on — the Income summary’s figure.</b> $70,000 of wages less the $10,000 into a 401(k) = $60,000, with the accounts’ interest and dividends in it, typed or not. It stood on $70,000, the 401(k) left in, and read about $4,400 at 22%.</td><td>Not a decision of his: the lead’s, made without asking him, as his order of 2026-09-30 says; built by CLEANUP-LEFT. One word from him reverses it. His DEC-0283 (income before tax is gross less the 401(k)) and tenet 4 (one figure, one number). To reverse: stand the tax on the year’s whole gross again.</td><td>MK-CF-M-041 · MK-CF-O-004 · DEC-0283</td><td>In the code</td></tr>
+<tr><td style="white-space:nowrap">2026-10-26</td><td><b>The growth to the first required withdrawal is the Plan’s one return, and the screen says which.</b> ‘Growth used until 75: 7.62%/year — the blended benchmark.’ It was a flat 5.50%, not stated: ‘about $1,815/year smaller’, now $2,445.</td><td>Not a decision of his: the lead’s, made without asking him, as his order of 2026-09-30 says; built by CLEANUP-LEFT. One word from him reverses it. The lead’s ruling 2 of 2026-10-25 (one plan, one return) and tenet 1. To reverse: grow at 5.50% again.</td><td>MK-CF-M-082 · MK-CF-F-279 paycheckReturn</td><td>In the code</td></tr>
+<tr><td style="white-space:nowrap">2026-10-26</td><td><b>A loss is never projected forward, and the line says so.</b> Not drawn (this household’s rate is the benchmark): with the 12-month return chosen and the last 12 months at −4.20%, the line reads ‘Growth used until 75: 0.00%/year — your last 12 months were −4.20%; we don’t project a loss forward.’ Until today a negative return was stated as it was while the balance grew at 0%.</td><td>Not a decision of his: the lead’s, made without asking him, as his order of 2026-09-30 says; built by CLEANUP-LEFT. One word from him reverses it. Tenet 1 (DEC-3523): the rate stated is the rate used. To reverse: state the negative return and grow at 0% silently.</td><td>growthUsed (src/domain/paycheck) · MK-CF-M-082</td><td>In the code</td></tr>
+<tr><td style="white-space:nowrap">2026-10-26</td><td><b>The odds read the year’s interest the way the Income summary does</b> — the year’s records, then the figure typed, then calculated from the accounts’ rates. No drawn figure moves for this household.</td><td>Not a decision of his: the lead’s, made without asking him, as his order of 2026-09-30 says; built by CLEANUP-LEFT. One word from him reverses it. Tenet 4. To reverse: hand the plan no records.</td><td>MK-PL-F-067 willItLastInputs</td><td>In the code</td></tr>
+</table>
+</div>
+
+<div class="row">
+<div>
+<div class="phone"><div class="screen">
+  <div class="sbar"><span>9:41</span><span>▮▮▮ ◔ ▮</span></div>
+  <div class="nav"><span class="back">← Back</span></div>
+  <div class="content" id="roth-content">
+    <div class="h1">Roth conversion</div>
+    <div class="sub">Pay some tax now, in a low-tax year, so more of later life is tax-free. Estimates — you decide.</div>
+    <div class="tryBanner">Trying it out — nothing changes until you tap Use as my plan.</div>
+    <div class="saveLink">Save this scenario — compare it later on the Plan hub ›</div>
+    <div class="card">
+      <div class="band newb">CONVERT THIS YEAR</div>
+      <div class="amtInput">$20,000</div>
+      <div class="note">from your pre-tax $415,000</div>
+      <div class="chipRow"><span class="chip">$10,000</span><span class="chip">$25,000</span><span class="chip">$50,000</span></div>
+    </div>
+    <div class="card">
+      <div class="band newb">THE COST NOW</div>
+      <div class="bigLine">Tax bill next April: about $3,750</div>
+      <div class="link">Rate used: 18.75% (calculated from your income) · change it ›</div>
+      <div class="note">Estimate — your tax preparer has the exact number.</div>
+    </div>
+    <div class="card">
+      <div class="band newb">WHAT IT BUYS LATER</div>
+      <div class="line newb">Converting moves $20,000 out of the money the law makes you take out from 75, into money that comes out tax-free.</div>
+      <div class="lrow newb"><span class="lk">Pre-tax (IRA, 401(k))</span><span class="lv">$415,000 → $395,000</span></div>
+      <div class="lrow newb"><span class="lk">Tax-free (Roth)</span><span class="lv">$88,000 → $108,000</span></div>
+      <div class="lrow newb"><span class="lk">First required withdrawal, 2041 (age 75)</span><span class="lv">~$50,737 → ~$48,292</span></div>
+      <div class="lrow newb"><span class="lk">Smaller each year by</span><span class="lv b">about $2,445</span></div>
+      <div class="note newb">How: the $20,000 would grow at 7.62%/year — the blended benchmark — for 15 years, to $60,151. ÷ 24.6, the IRS factor at 75 = $2,445/year less you must take out, and less income to pay tax on then.</div>
+      <div class="note">Roth money is never required out, and comes out tax-free.</div>
+    </div>
+    <div class="card">
+      <div class="band newb">WILL MY MONEY LAST?</div>
+      <div class="line newb">Today, the odds that your $523,000 lasts to age 90 are 35.3%.</div>
+      <div class="line newb">Converting $20,000 this year changes your nest egg at 65 to about $809,588 (from $813,149) and the odds to 36.2%.</div>
+      <div class="line newb"><span class="strong">This decision is about taxes, not the odds.</span></div>
+      <div class="note newb">How: the nest egg at 65 is the Retirement cockpit’s — today’s money grown at the plan’s return, with what you add each year; converted, it starts $3,750 smaller. The odds count 1,000 simulated futures, run twice — as you are, and with $20,000 moved from pre-tax to Roth and the $3,750 tax paid from your cash: more of the money then comes out tax-free.</div>
+    </div>
+    <div class="primaryBtn">Use as my plan</div>
+    <div class="note">Nothing moves by itself — you'd do the conversion with your brokerage; this records the numbers.</div>
+    <span id="roth-content-end"></span>
+  </div>
+</div></div>
+<div class="cap"><b>The household, on 27 October 2026 (v01’s).</b> Born 1966 (60 this year), single; $70,000 of wages, $10,000 of it into a 401(k); Checking $20,000, a Fidelity IRA $415,000, a Roth IRA $88,000; spending $4,500/month; retire at 65, plan to 90 (the Plan’s defaults). $20,000 typed to convert.<br><b>The figures, by hand.</b> The tax: the year is taxed on $70,000 − $10,000 = $60,000; federal tax on $60,000 − $16,100 = $43,900 → $1,240 + 12% × $31,500 = $5,020; on $80,000: $63,900 → $1,240 + $4,560 + 22% × $13,500 = $8,770; the conversion costs $8,770 − $5,020 = $3,750, 18.75% of $20,000. What it buys: pre-tax $415,000 − $20,000 = $395,000; Roth $88,000 + $20,000 = $108,000. The return: ($415,000 × 7.90% + $88,000 × 7.90% + $20,000 × 0.50%) ÷ $523,000 = 7.617%. In 15 years (to 75, born 1966): $415,000 × 1.07617¹⁵ = $1,248,137 ÷ 24.6 = $50,737; $395,000 × 1.07617¹⁵ = $1,187,986 ÷ 24.6 = $48,292; $50,737 − $48,292 = $2,445, which is also $20,000 × 1.07617¹⁵ = $60,151 ÷ 24.6. The odds: the nest egg the odds run on is $20,000 + $415,000 + $88,000 = $523,000; after the tax, $523,000 − $3,750 = $519,250 (Checking $16,250, IRA $395,000, Roth $108,000). 1,000 simulated futures each time: 35.3% as you are, 36.2% converted. The nest egg at 65, the cockpit’s own figure: $523,000 grown 5 years at 7.617% with $10,000 added at the end of each year = $813,149 (the cockpit’s $813K); converted, $519,250 grown at 7.668% — less cash in the mix: ($395,000 × 7.90% + $108,000 × 7.90% + $16,250 × 0.50%) ÷ $519,250 — with the same $10,000 a year = $809,588; $3,562 less.</div>
+</div>
+</div>
+
+</div></body></html>

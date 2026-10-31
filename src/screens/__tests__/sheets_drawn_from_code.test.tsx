@@ -2,11 +2,11 @@
  *
  *  Five sheets had no drawing (DEC-0470: every state is drawn). Each is now drawn from the code, approval pending, in
  *  MoneyKeel/documents/networth-and-performance/:
- *    moneykeel_pres_mock_trade-sheet_v03.html ............ the trade sheet, 12 states (Record activity; v03 2026-10-23, its fee)
+ *    moneykeel_pres_mock_trade-sheet_v04.html ............ the trade sheet, 15 states (Record activity; v03 2026-10-23, its fee; v04 2026-10-30, M–O)
  *    moneykeel_pres_mock_holding-editor_v02.html ......... the holding editor, 9 states (Edit holding)
- *    moneykeel_pres_mock_activity-sheet_v01.html ......... the activity sheet, 2 states
+ *    moneykeel_pres_mock_activity-sheet_v02.html ......... the activity sheet, 3 states (v02 2026-10-30, C)
  *    moneykeel_pres_mock_record-activity-sheet_v01.html .. the account page's recorder, 9 states
- *    moneykeel_pres_mock_edit-record-sheet_v02.html ...... the edit sheet for a record you entered, 3 states
+ *    moneykeel_pres_mock_edit-record-sheet_v03.html ...... the edit sheet for a record you entered, 10 states (v03 2026-10-30, D–J)
  *  Each state — its accounts, records, prices, page and taps — is src/testing/sheetStates.tsx, the one list the drawing
  *  was drawn from, so the drawing and this test cannot be of two different states.
  *
@@ -30,6 +30,7 @@ import * as path from 'path';
 import { useStore } from '../../store/useStore';
 import { Colors } from '../../utils/theme';
 import { SHEETS, SHEET_DAY, type Sheet, type SheetState } from '../../testing/sheetStates';
+import { amountInBox } from '../../components/MoneyBox';
 
 let mockParams: Record<string, string | undefined> = {};
 jest.mock('expo-router', () => ({
@@ -46,13 +47,19 @@ beforeAll(() => {
 afterAll(() => jest.useRealTimers());
 
 const DIR = path.join(__dirname, '..', '..', '..', 'MoneyKeel', 'documents', 'networth-and-performance');
-type Line = { t: string; sheet: boolean; size?: number; weight?: string; color?: string; opacity: number };
+type Line = { t: string; sheet: boolean; size?: number; weight?: string; color?: string; opacity: number; typed?: boolean };
 const decode = (s: string) => s.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&amp;/g, '&');
 /** THE ONE READING OF A DRAWING'S WORDS (2026-10-25): a drawing whose READ THIS FIRST row of that date says its apostrophes are
  *  drawn straight, copied from the code, is read with ’ inside a word — the app prints ’. The app side is held as printed, and a
  *  drawing that draws a straight one without the row goes red below. */
 const APOSTROPHE_ROW = /<tr><td>\d+<\/td><td>2026-10-25 · Every apostrophe inside a word is drawn straight here/;
 const curled = (t: string) => t.replace(/([A-Za-z])'([A-Za-z])/g, '$1’$2');
+/** ONE NAME PER ACCOUNT (2026-10-27, FX-PF, PF-8; DEC-0083): a drawing whose row of that date says so is read with the account's one
+ *  name where it draws the institution alone — the holding editor's chip and its 📊 line, the Holding page's 'in …', the activity
+ *  line's '· …'. The app side is held as printed. */
+const NAME_ROW = /<tr><td>\d+<\/td><td>2026-10-27 · (?:(?!<\/td>)[\s\S])*One name per account\./;
+const oneName = (t: string) => (t === 'Fidelity' ? 'Fidelity Brokerage' : t === 'in Fidelity' ? 'in Fidelity Brokerage'
+  : t.replace('won’t change Fidelity’s', 'won’t change Fidelity Brokerage’s').replace(/ · Fidelity$/, ' · Fidelity Brokerage'));
 const clean = (s: string) => s.replace(/\s+/g, ' ').trim();
 const norm = (c?: string) => (c == null ? undefined : String(c).replace(/\s+/g, '').toUpperCase());
 const SKIP = new Set(['sbar', 'state', 'peek']);   // the phone's own parts, not the app's
@@ -90,7 +97,7 @@ function readDrawing(file: string) {
     if (close) {
       const el = stack.pop();
       if (el?.cls.includes('state')) { const t = clean(label ?? ''); states.push({ key: t.charAt(6), label: t, lines: [] }); label = null; }
-      if (cur && stack.length === cur.depth) { cur.line.t = clean(cur.line.t); if (cur.line.t) states[states.length - 1].lines.push(cur.line); cur = null; }
+      if (cur && stack.length === cur.depth) { cur.line.t = clean(cur.line.t); if (NAME_ROW.test(html)) cur.line.t = oneName(cur.line.t); if (cur.line.t) states[states.length - 1].lines.push(cur.line); cur = null; }
       continue;
     }
     if (tag === 'i' && /style=/.test(attrs) && stack.some((e) => e.cls.includes('sb'))) continue;   // the status bar's battery: no closing problem, it is skipped
@@ -143,7 +150,7 @@ function builtLines(): Line[] {
     if (n.type === 'TextInput') {
       const st = flat(p.style);
       const t = clean(String(p.value || p.placeholder || ''));
-      if (t) out.push({ t, sheet, size: st.fontSize, weight: st.fontWeight, color: norm(p.value ? st.color : p.placeholderTextColor), opacity });
+      if (t) out.push({ t, sheet, size: st.fontSize, weight: st.fontWeight, color: norm(p.value ? st.color : p.placeholderTextColor), opacity, typed: !!p.value });
       return;
     }
     if (n.type === 'Image' && p.accessibilityLabel === 'MoneyKeel') { out.push({ t: '[wordmark MoneyKeel]', sheet, opacity: 1 }); return; }
@@ -174,6 +181,21 @@ const firstDifference = (drawn: string[], built: string[]): string | null => {
   return null;
 };
 
+/** THE DATED ROW OF 2026-10-27 ON EACH SHEET'S DRAWING (DEC-8385, FX-SHARED): "Every money box on this screen shows its figure the way a
+ *  figure is printed, while it is typed — ‘$1,000’ where a box was drawn ‘1000’ …; where the screen prints its own $ just before the box,
+ *  the box reads ‘1,000’". Applied here exactly as written, and only where the drawing carries it: a box drawn with a plain figure reads
+ *  that same figure in money form on the screen. A box whose figure differs, a line that is not a typed box, or a drawing without the
+ *  row is compared as drawn. */
+const MONEY_BOX_ROW = 'Every money box on this screen shows its figure the way a figure is printed';
+function moneyBoxRow(html: string, dSheet: Line[], bSheet: Line[]): Line[] {
+  if (!html.includes(MONEY_BOX_ROW)) return dSheet;
+  return dSheet.map((d, j) => {
+    const b = bSheet[j];
+    if (!b?.typed || !/^\d+(\.\d+)?$/.test(d.t)) return d;
+    return b.t === amountInBox(d.t) || b.t === amountInBox(d.t, false) ? { ...d, t: b.t } : d;
+  });
+}
+
 const REPORT: string[] = [];
 afterAll(() => {
   // eslint-disable-next-line no-console
@@ -202,7 +224,8 @@ describe.each(SHEETS.map((s) => [s.file, s] as [string, Sheet]))('%s', (_file, s
     renderState(st);
     const built = builtLines();
     const drawn = D.states[i].lines;
-    const dSheet = drawn.filter((l) => l.sheet), bSheet = built.filter((l) => l.sheet);
+    const bSheet = built.filter((l) => l.sheet);
+    const dSheet = moneyBoxRow(D.html, drawn.filter((l) => l.sheet), bSheet);
     const dPage = drawn.filter((l) => !l.sheet), bPage = built.filter((l) => !l.sheet).slice(0, dPage.length);
     const diff = firstDifference(dSheet.map((l) => l.t), bSheet.map((l) => l.t)) ?? firstDifference(dPage.map((l) => l.t), bPage.map((l) => l.t));
     REPORT.push(`${sheet.id} ${k}: sheet ${dSheet.length} of ${bSheet.length} lines drawn; page ${dPage.length} lines drawn above it${diff ? ` — ${diff}` : ', identical'}`);
@@ -244,19 +267,30 @@ describe('the dark-green bar and the button that waits', () => {
       // ONE FADE (2026-10-22): 40%, as the approved drawings draw a button that waits (Add an account v02, Itemize v02)
       for (const s of D.states) for (const l of s.lines) if (l.sheet && l.opacity < 1) { waiting++; expect(l.opacity).toBe(0.4); }
     }
-    // trade A (nothing typed), C (more than the cash), E (more than held), J, K, L (nothing typed) · holding editor H (no share
-    // count) · recorder A, E, F, H, I (no amount) · edit record B (amount cleared)
-    expect(waiting).toBe(13);
+    // trade A (nothing typed), C (more than the cash), E (more than held), J, K, L (nothing typed), M (no type chosen), O (a share count
+    // not on record; 2026-10-30) · holding editor H (no share count) · recorder A, E, F, H, I (no amount) · edit record B (amount cleared)
+    expect(waiting).toBe(15);
   });
 });
 
+test('a sheet drawing that draws an account by its institution alone says so in its row of 2026-10-27 — and only those do (PF-8)', () => {
+  const files = ['moneykeel_pres_mock_trade-sheet_v04.html', 'moneykeel_pres_mock_holding-editor_v02.html', 'moneykeel_pres_mock_activity-sheet_v02.html',
+    'moneykeel_pres_mock_record-activity-sheet_v01.html', 'moneykeel_pres_mock_edit-record-sheet_v03.html'];
+  const alone = files.filter((f) => {
+    const html = fs.readFileSync(path.join(DIR, f), 'utf8');
+    return /in Fidelity<|>Fidelity<|· Fidelity<|change Fidelity(’|&#39;|')s/.test(html.slice(html.indexOf('<div class="phone">'), html.indexOf('<div class="side">')));
+  });
+  expect(alone).toEqual(['moneykeel_pres_mock_trade-sheet_v04.html', 'moneykeel_pres_mock_holding-editor_v02.html', 'moneykeel_pres_mock_activity-sheet_v02.html']);
+  for (const f of files) expect(NAME_ROW.test(fs.readFileSync(path.join(DIR, f), 'utf8'))).toBe(alone.includes(f));
+});
+
 test('a sheet drawing that draws a straight apostrophe inside a word says so in its row of 2026-10-25 — and only those do', () => {
-  const files = ['moneykeel_pres_mock_trade-sheet_v03.html', 'moneykeel_pres_mock_holding-editor_v02.html', 'moneykeel_pres_mock_activity-sheet_v01.html',
-    'moneykeel_pres_mock_record-activity-sheet_v01.html', 'moneykeel_pres_mock_edit-record-sheet_v02.html'];
+  const files = ['moneykeel_pres_mock_trade-sheet_v04.html', 'moneykeel_pres_mock_holding-editor_v02.html', 'moneykeel_pres_mock_activity-sheet_v02.html',
+    'moneykeel_pres_mock_record-activity-sheet_v01.html', 'moneykeel_pres_mock_edit-record-sheet_v03.html'];
   const straight = files.filter((f) => {
     const html = fs.readFileSync(path.join(DIR, f), 'utf8');
     return /[A-Za-z](?:'|&#39;)[A-Za-z]/.test(html.slice(html.indexOf('<div class="phone">'), html.indexOf('<div class="side">')).replace(/<[^>]+>/g, ' '));
   });
-  expect(straight).toEqual(['moneykeel_pres_mock_trade-sheet_v03.html', 'moneykeel_pres_mock_holding-editor_v02.html', 'moneykeel_pres_mock_record-activity-sheet_v01.html']);
+  expect(straight).toEqual(['moneykeel_pres_mock_trade-sheet_v04.html', 'moneykeel_pres_mock_holding-editor_v02.html', 'moneykeel_pres_mock_record-activity-sheet_v01.html']);
   for (const f of files) expect(APOSTROPHE_ROW.test(fs.readFileSync(path.join(DIR, f), 'utf8'))).toBe(straight.includes(f));
 });

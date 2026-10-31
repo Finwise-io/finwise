@@ -449,6 +449,15 @@ describe('formula verdicts (WRONG / INCOMPLETE / CANNOT TELL) and rules NOT HELD
       debts: [{ debt_id: 'd1', label: 'Car loan', debt_type: 'AUTO', remaining_balance: 14000, interest_rate_apr: 0.069, minimum_monthly_payment: 250 }] as any });
     expect(door.essentialsMonthly).toBeCloseTo(2250, 6);   // 2,000 typed + the $250 minimum, once
     expect(door.debtMinimums).toBeCloseTo(250, 6);
+    // $2,000 typed + $250 the app adds is "calculated" since 2026-10-27 (the lead's ruling R7; canon rows 4 and 0b; Net worth v08 row of that
+    // date); the $2,000 alone, with no debt, is still "you entered" — C02 above holds that
+    expect(door.essentialsBasis).toBe('calculated');
+    expect(theEmergencyFund({ accounts: [], expenses: [], profile: { monthlySpending: 2000 }, debts: [] }).essentialsBasis).toBe('you entered');
+  });
+  // THE OLD ANSWER, KEPT (2026-10-27): before R7 the door tagged $2,000 typed + $250 of debt payment "you entered". It fails now, by design.
+  test.failing('MK-CF-F-009 · the old answer: $2,000 typed + the $250 minimum tagged "you entered" (replaced 2026-10-27 by R7)', () => {
+    const door = theEmergencyFund({ accounts: [], expenses: [], profile: { monthlySpending: 2000 },
+      debts: [{ debt_id: 'd1', label: 'Car loan', debt_type: 'AUTO', remaining_balance: 14000, interest_rate_apr: 0.069, minimum_monthly_payment: 250 }] as any });
     expect(door.essentialsBasis).toBe('you entered');
   });
   // F-010 WRONG — APP WRONG: $0 essentials → 0 months (the function), and a handed-in $0 is replaced by another estimate.

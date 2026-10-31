@@ -37,7 +37,7 @@ test('pick two → the side-by-side shows dials AND re-run outcomes, differences
   fireEvent.press(screen.getByLabelText('Compare two scenarios side by side'));
   fireEvent.press(screen.getByLabelText('Retire 65: not picked for comparison'));
   fireEvent.press(screen.getByLabelText('Retire 68: not picked for comparison'));
-  expect(screen.getByText(/Side by side — re-run on today's balances/)).toBeOnTheScreen();
+  expect(screen.getByText(/Side by side — re-run on today’s balances/)).toBeOnTheScreen();
   expect(screen.getByLabelText(/Retire at: 65 versus 68 — different/)).toBeOnTheScreen();
   expect(screen.getByLabelText(/Saving \/ month: \$1,200 versus \$1,500 — different/)).toBeOnTheScreen();
   expect(screen.getByLabelText(/Odds it lasts: \d+(?:\.\d+)?% versus \d+(?:\.\d+)?%/)).toBeOnTheScreen();     // real re-run, not the cached chip

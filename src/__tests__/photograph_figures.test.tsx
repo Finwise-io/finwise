@@ -9,6 +9,13 @@
  *  byte-identical; a difference is a number that changed, and a difference has no winner — it stops
  *  the work and goes to the founder. Update the photograph only with `jest -u` and a ruling.
  *
+ *  UPDATED 2026-10-30 (CLEANUP-TESTS; checked by hand, line by line): two changes, each under a ruling, and no dollar figure moved.
+ *  (1) His precision order Q49 (percents to two decimals; FX-PF, 2026-10-27, src/domain/insights percent2): Home's concentration
+ *  notice reads "$300,000 (100.00%)" for the worker and "$400,000 (100.00%)" for the retiree — one account holds all of each
+ *  person's invested money, $300,000 ÷ $300,000 and $400,000 ÷ $400,000 — where it read "(100%)". (2) The apostrophe rule DEC-8336
+ *  carried to Home and the cockpit: "This month’s cash flow" (spoken, both people), "today’s $320K alone gets there by 72" (worker's
+ *  cockpit), "today’s $ · from your setup" (retiree's cockpit) and Home's 401(k) notice "this year’s tax-advantaged room" (worker)
+ *  print ’ where they printed '. Every number is unchanged.
  *  UPDATED 2026-10-25 (CF-MMFIX-B; the income drawing check IN-03, rule 9 — an estimate says so): the retiree's Income summary
  *  prints her Social Security after the CALCULATED rate as "≈$2,361" — the row, the total and the band — where it printed
  *  "$2,361". The figure did not move; only the ≈ that says it is the app's estimate. Every other figure is unchanged.

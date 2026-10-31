@@ -3,7 +3,7 @@ import { View, Platform } from 'react-native';
 import { useWindowDimensions } from 'react-native';
 import { DesktopSidebar } from '../../desktop/platform/DesktopSidebar';   // approved desktop shell (web only)
 import { Ionicons } from '@expo/vector-icons';
-import { Colors } from '../../src/utils/theme';
+import { Colors, Typography } from '../../src/utils/theme';
 import TopBar from '../../src/components/TopBar';
 import { useStore } from '../../src/store/useStore';
 import { resolveLens, tabOrder } from '../../src/domain/profile/lens';
@@ -69,7 +69,10 @@ export default function TabLayout() {
           paddingBottom: 20,
           paddingTop: 6,
         },
-        tabBarLabelStyle: { fontSize: 10.5, fontWeight: '700' },
+        // THE BAR THE APP DRAWS IS THE DESIGN (the lead's ruling R9, 2026-10-27): the approved Net worth v08 (DEC-0644) draws these
+        // names, colours and the green bar; the picked tab is brand green #178F6B (UX design v1.2, the screen standard §2.5). The
+        // names sit at 11, the scale's smallest step (DEC-0059) — they were 10.5, the one size in the app off the scale.
+        tabBarLabelStyle: { fontSize: Typography.sizes.xs, fontWeight: '700' },
         header: () => <TopBar />,
       }}
     >

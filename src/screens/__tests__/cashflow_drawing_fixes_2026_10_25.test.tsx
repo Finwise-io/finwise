@@ -32,6 +32,8 @@ const lines = () => builtLines(screen.toJSON());
 const tab = (t: string) => fireEvent.press(screen.getByLabelText(new RegExp(`^${t} tab`)));
 const block = (L: string[], from: string, to: string) => { const i = L.indexOf(from), j = L.indexOf(to, i + 1); expect([from, i >= 0, to, j > i]).toEqual([from, true, to, true]); return L.slice(i, j + 1); };
 const flat = (n: any) => StyleSheet.flatten(n?.props?.style) ?? {};
+/** a box title's words, their colour, and the fill of the bar they sit on (R1, DEC-8839 — 2026-10-27) */
+const onBar = (t: string) => { const n: any = screen.getByText(t); let p = n.parent; let fill: any; while (p && !fill) { fill = flat(p).backgroundColor; p = p.parent; } return [t, flat(n).color, fill]; };
 
 // ── CF-21 · THE WHOLE CLASS OF READING A STORED DAY ───────────────────────────────────────────────────────────────────────────
 describe('CF-21 · a stored day is read where the person is', () => {
@@ -98,7 +100,13 @@ describe('CF-20 · CF-21 · CF-22 · the budget editor in the drawing’s househ
 // ── CF-16 · CF-17 · CF-18 · CF-19 · A PERSON WHO HAS ENTERED NOTHING ─────────────────────────────────────────────────────────
 describe('CF-16 to CF-19 · a brand-new person: one line and its door, never $0 dressed as an answer (DEC-0260, DEC-0431)', () => {
   const tabOf = (t: string) => { H.householdBrandNew(); render(<CashFlowScreen />); tab(t); const L = lines(); screen.unmount(); return L.slice(L.indexOf('Debts') + 1); };
-  test('CF-19 · This month: the two steps under a quiet label, not a dark-green bar', () => {
+  // every box title on a dark-green bar (his words, DEC-8839; the lead's R1) (2026-10-27, FX-CF-A — cash-flow_v01’s rows of that date; the old answer is kept beside it as test.failing)
+  test('CF-19 · This month: the two steps under their box title, on its dark-green bar (R1)', () => {
+    H.householdBrandNew();
+    render(<CashFlowScreen />);
+    expect(onBar('SET UP YOUR MONTH — 2 STEPS')).toEqual(['SET UP YOUR MONTH — 2 STEPS', Colors.white, Colors.primaryDeep]);
+  });
+  test.failing('CF-19 · the old answer, kept: a quiet grey label, not a dark-green bar', () => {
     H.householdBrandNew();
     render(<CashFlowScreen />);
     const label = screen.getByText('SET UP YOUR MONTH — 2 STEPS');
@@ -161,7 +169,7 @@ describe('CF-09 · CF-11 · CF-12 · CF-23 · CF-24', () => {
     const HomeScreen = require('../HomeScreen').default;
     render(<HomeScreen />);
     L = lines();
-    expect(L[L.indexOf('Income', L.indexOf("THIS MONTH'S CASH FLOW")) + 1]).toBe('≈$6,196');
+    expect(L[L.indexOf('Income', L.indexOf("THIS MONTH’S CASH FLOW")) + 1]).toBe('≈$6,196');
     screen.unmount();
     H.householdWithData();
     render(<CashFlowScreen />);
@@ -178,9 +186,9 @@ describe('HM-01 · HM-02 · Home’s THIS MONTH’S CASH FLOW box', () => {
     const HomeScreen = require('../HomeScreen').default;
     render(<HomeScreen />);
     const L = lines();
-    const i = L.indexOf("THIS MONTH'S CASH FLOW");
+    const i = L.indexOf("THIS MONTH’S CASH FLOW");
     expect(i).toBeGreaterThanOrEqual(0);
-    expect(L.slice(i, i + 8)).toEqual(["THIS MONTH'S CASH FLOW", 'Income', '$0', 'Nothing entered yet. Add your income ›', 'Outflow (expenses + debt)', '$40', 'Left', '—']);
+    expect(L.slice(i, i + 8)).toEqual(["THIS MONTH’S CASH FLOW", 'Income', '$0', 'Nothing entered yet. Add your income ›', 'Outflow (expenses + debt)', '$40', 'Left', '—']);
     expect(L.some((l) => /^day \d+ of \d+$|% spent/.test(l))).toBe(false);
   });
 });
@@ -235,14 +243,21 @@ describe('appearance, as drawn', () => {
     edges = new Set(rightInsets().filter(money).map((r) => r.right));
     expect([...edges]).toHaveLength(1);                                     // $2,250 · $2,000 · $2,100 · $500 and every row under them
   });
-  test('CF-02 · CF-03 · CF-05 · CF-06 · CF-07 · CF-14 · the Debts tab as frame 6 draws it', () => {
+  test.failing('CF-02 · the old answer, kept: YOUR DEBT, YOUR DEBTS and PROGRESS as quiet grey labels', () => {
     H.householdDebts();
     render(<CashFlowScreen />);
     tab('Debts');
     for (const k of ['YOUR DEBT', 'YOUR DEBTS', 'PROGRESS']) {
       const t = flat(screen.getByText(k));
-      expect([k, t.color, t.backgroundColor, t.fontWeight]).toEqual([k, Colors.textSecondary, undefined, '800']);   // quiet grey labels
+      expect([k, t.color, t.backgroundColor, t.fontWeight]).toEqual([k, Colors.textSecondary, undefined, '800']);
     }
+  });
+  test('CF-02 · CF-03 · CF-05 · CF-06 · CF-07 · CF-14 · the Debts tab as frame 6 draws it', () => {
+    H.householdDebts();
+    render(<CashFlowScreen />);
+    tab('Debts');
+    // the three box titles on dark-green bars (R1, DEC-8839) (2026-10-27, FX-CF-A — cash-flow_v01’s rows of that date; the old answer is kept beside it as test.failing) — they were quiet grey labels
+    for (const k of ['YOUR DEBT', 'YOUR DEBTS', 'PROGRESS']) expect(onBar(k)).toEqual([k, Colors.white, Colors.primaryDeep]);
     // the bar, filled to the share paid down: 4,100 ÷ 17,100 = 23.98%
     const fills = screen.UNSAFE_root.findAll((n: any) => n.type === 'View' && /%$/.test(String(flat(n).width ?? '')));
     expect(fills.map((f: any) => Number(String(flat(f).width).replace('%', '')).toFixed(2))).toContain('23.98');
@@ -261,7 +276,7 @@ describe('appearance, as drawn', () => {
     expect([imp.backgroundColor, imp.color]).toEqual([Colors.bgTertiary, Colors.sepDot]);
     expect(screen.getAllByText('$5,000').map((t) => flat(t).fontWeight)).toEqual(['700', '700']);   // the inflow rows, the drawing's <b>
     tab('Expenses');
-    const more = flat(screen.getByText('Show all 9 · $195 more ›'));
+    const more = flat(screen.getByText('Show all 9 · $195.00 more ›'));
     expect([more.color, more.fontWeight]).toEqual([Colors.primaryDark, '800']);
   });
   test('CF-15 · a sub-tab’s corner is 12 (DEC-0231); each card runs edge to edge with square corners', () => {
@@ -317,7 +332,7 @@ describe('the outside measurement’s Cash flow screen items', () => {
     render(<CashFlowScreen />);
     tab('Debts');
     const L = lines();
-    expect(L.find((l) => l.startsWith('across 2 debts'))).toBe('across 2 debts · $550/month in payments · ~$261/month interest');   // 180 + 80.50 = 260.50 → $261
+    expect(L.find((l) => l.startsWith('across 2 debts'))).toBe('across 2 debts · $550/month in payments');   // the interest is on each line (CF2-03) (2026-10-27, FX-CF-A — cash-flow_v01’s rows of that date; the old answer is kept beside it as test.failing)
     expect(L).toContain('24.00% — the costliest · $300/month · your payment · ~$180/month interest');
     expect(L.join(' ')).not.toMatch(/\$300\/month min/);
   });
@@ -341,7 +356,8 @@ describe('the outside measurement’s Cash flow screen items', () => {
     const p = futurePaycheck({ op: st.onboardingProfile, accounts: st.assetAccounts, assumptions: st.retirementAssumptions, inflationRate: st.inflationRate, employmentStatus: st.employmentStatus });
     render(<CashFlowScreen />);
     // the line prints the projection's own figures, as the precision standard writes a percent
-    expect(lines()).toContain(`In today’s dollars · assumes a ${(p.assumes.yearlyReturn * 100).toFixed(2)}% return and ${(p.assumes.yearlyInflation * 100).toFixed(2)}% inflation a year`);
+    // each rate with "/year", the canon's way (canon row 14; CF2-09) (2026-10-27, FX-CF-A — cash-flow_v01’s rows of that date; the old answer is kept beside it as test.failing)
+    expect(lines()).toContain(`In today’s dollars · assumes a ${(p.assumes.yearlyReturn * 100).toFixed(2)}%/year return and ${(p.assumes.yearlyInflation * 100).toFixed(2)}%/year inflation`);
     expect(p.assumes.yearlyReturn).toBeGreaterThan(0);
   });
   test('MK-CF-M-078 · retired: the card is YOUR PAYCHECK — OCT, and the pace line spends “your paycheck”, never a surplus (canon row 26)', () => {
@@ -363,7 +379,7 @@ describe('the outside measurement’s Cash flow screen items', () => {
     expect((useStore.getState() as any).billCalendarStart).toEqual({ amount: '3000', date: '2026-08-20' });
     screen.unmount();
     render(<BillCalendarScreen />);
-    expect(screen.getByLabelText('Cash on hand now, editable').props.value).toBe('3000');
+    expect(screen.getByLabelText('Cash on hand now, editable').props.value).toBe('$3,000');   // the money form since 2026-10-27 (DEC-8385); stored 3000 above
     expect(lines().some((l) => l.startsWith('You entered this on Aug 20, 2026; your accounts hold $0.'))).toBe(true);
   });
   test('HM-02 · two expenses logged and no answers at all: Home shows its box', () => {
@@ -374,7 +390,7 @@ describe('the outside measurement’s Cash flow screen items', () => {
     const HomeScreen = require('../HomeScreen').default;
     render(<HomeScreen />);
     const L = lines();
-    const i = L.indexOf("THIS MONTH'S CASH FLOW");
+    const i = L.indexOf("THIS MONTH’S CASH FLOW");
     expect(i).toBeGreaterThanOrEqual(0);
     expect(L.slice(i + 4, i + 6)).toEqual(['Outflow (expenses + debt)', '$65']);   // 40 + 25
   });
@@ -402,7 +418,7 @@ describe('2026-10-26 · the Bill calendar’s start, the payoff horizon and one 
     useStore.setState({ onboardingProfile: PAY, assetAccounts: [{ asset_id: 'chk', label: 'Checking', kind: 'checking', tax_bucket: 'TAXABLE', balance: 0, asset_class: 'cash' }] } as any);
     const BillCalendarScreen = require('../BillCalendarScreen').default;
     render(<BillCalendarScreen />);
-    expect(screen.getByLabelText('Cash on hand now, editable').props.value).toBe('0');
+    expect(screen.getByLabelText('Cash on hand now, editable').props.value).toBe('$0');   // a $0 balance is an answer, in the money form since 2026-10-27
     const L = lines();
     expect(L.some((l) => l.startsWith('Careful — short in Aug'))).toBe(true);
     expect(L).not.toContain('No balance to start from — nothing is projected.');

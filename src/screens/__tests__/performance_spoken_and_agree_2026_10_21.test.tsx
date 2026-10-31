@@ -281,7 +281,7 @@ describe('C · row 32 — every Performance figure printed on two or more screen
 
   test('MK-PF-M-001 — the Performance tab\'s month Ending value is the base Home names for its month ($52,000, the account whole)', () => {
     expect(shown(INV(), 'MK-PF-M-001')[0]).toBe('$52,000');
-    expect(HOME().lines).toContain("This month's change is on $52,000: your investment accounts with the cash in them.");
+    expect(HOME().lines).toContain("This month’s change is on $52,000: your investment accounts with the cash in them.");
   });
 
   test('MK-PF-M-004, 013, 015 and 016 — the account\'s walk and return on its Performance card are its own page\'s, line for line', () => {
@@ -375,7 +375,7 @@ describe('A · row 29 — the history sheet says each record and its amount', ()
   };
   test('a deposit and a buy: the record, its day, and its amount with the sign said in words', () => {
     const h = sayHistory(false);
-    expect(h).toContain('Deposit, Fidelity, Aug 2, 2026');
+    expect(h).toContain('Deposit, Fidelity Brokerage, Aug 2, 2026');   // the account's one name (PF-8, DEC-0083; 2026-10-27)
     expect(h).toContain('plus $500');
     expect(h).toContain('Buy, VTI, 2 shares at $250.10, Aug 3, 2026');
     expect(h).toContain('−$500');
@@ -491,14 +491,14 @@ describe('G · Home\'s hero card is heard line by line, in printed order', () =>
   test('worked by hand: what the card prints, said in the same order', () => {
     // H_PERF: $35,775 invested (the $10,825 of cash is on Net worth's Cash line), up $8,200 = 21.35% on the $46,600 the month is on
     expect(inOrder(heroLabel(shoot('home', H_PERF, '2026-09-28'))!, ['Your investments: $35,775', 'up $8,200, 21.35 percent this month',
-      "This month's change is on $46,600: your investment accounts with the cash in them", 'prices ', 'See your growth.'])).toBe('in order');
-    expect(inOrder(heroLabel(shoot('home', H_LEFT, TODAY_C))!, ['Your investments: $50,000', 'this month', "This month's change is on $52,000",
+      "This month’s change is on $46,600: your investment accounts with the cash in them", 'prices ', 'See your growth.'])).toBe('in order');
+    expect(inOrder(heroLabel(shoot('home', H_LEFT, TODAY_C))!, ['Your investments: $50,000', 'this month', "This month’s change is on $52,000",
       'Return is on the $40,000 with a price history. Treasury 2031 ($10,000) has no price history'])).toBe('in order');
     expect(heroLabel(shoot('home', WITH_MARKET, TODAY_C))).toMatch(/you plus \d+\.\d\d% \(including dividends and interest\), market plus 2\.00%, (ahead|behind) by \d+\.\d\d%/);
     expect(heroLabel(shoot('home', STALE, '2026-09-28'))).toMatch(/Fidelity part as of Sep 20, \d+ days old, pull to refresh\. See your growth\.$/);
     expect(heroLabel(shoot('home', SAVINGS_ONLY, TODAY_C))).toMatch(/^Your investments: \$0\. Nothing entered yet\. Add your accounts\. nothing invested yet/);
     // hidden: the dollars are "hidden", the percents stay (a rate is not a balance)
-    expect(inOrder(heroLabel(shoot('home', { ...H_LEFT, hideBalances: true }, TODAY_C))!, ['Your investments: hidden', 'up hidden', "This month's change is on hidden",
+    expect(inOrder(heroLabel(shoot('home', { ...H_LEFT, hideBalances: true }, TODAY_C))!, ['Your investments: hidden', 'up hidden', "This month’s change is on hidden",
       'Return is on the hidden with a price history. Treasury 2031 (hidden)'])).toBe('in order');
   });
 });

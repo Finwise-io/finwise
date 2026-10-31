@@ -43,7 +43,7 @@ export function buildGlanceRows(args: {
     { key: 'retire', question: 'When do you want to retire?', value: String(retireAge ?? defaults.retireAge), ours: retireAge == null, onPress: press('retire') },
     { key: 'horizon', question: 'How long should the money last?', value: String(horizonAge ?? defaults.horizonAge), ours: horizonAge == null, onPress: press('horizon') },
     { key: 'spend',  question: 'What will you spend each month in retirement?', value: spendMonthly ? maskedMoney(spendMonthly) : null, cta: 'Add', onPress: press('spend') },
-    { key: 'target', question: "What's your target nest egg?", value: targetNestEgg ? maskedMoney(targetNestEgg) : null, cta: 'Add', onPress: press('target') },
+    { key: 'target', question: "What’s your target nest egg?", value: targetNestEgg ? maskedMoney(targetNestEgg) : null, cta: 'Add', onPress: press('target') },
     { key: 'counts', question: 'What counts toward retirement?', value: counted ? maskedMoney(counted) : null, cta: 'Link', onPress: press('counts') },
     // "None" is an answer, not a fake zero — nobody is being told they have nothing
     { key: 'costs',  question: 'What big one-time costs are coming?', value: bigCosts ? maskedMoney(bigCosts) : 'None', onPress: press('costs') },

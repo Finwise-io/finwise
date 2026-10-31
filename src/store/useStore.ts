@@ -7,7 +7,7 @@ import { secureStorage } from './secureStorage';
 import { assetsFromOnboarding, isRealAsset, holdingClassOf, holdingTagFor, type AssetAccount } from '../domain/assets';
 import { settleBondValue } from '../../MoneyKeel/functions/networth-and-performance/bonds';   // the one value rule, through the bonds door (DEC-0281)
 import { benchmarkTicker, marketValue, latestCloseLookup, closeOnOrBefore, paidOnRecord, type Position, type PriceSeries } from '../domain/performance';
-import { applyTransaction, makeTransaction, undoSnapshot, restoreUndo, inverseOf, openingRecordsOf, tradeMultiplierOf, type Transaction } from '../domain/transactions';
+import { applyTransaction, makeTransaction, undoSnapshot, restoreUndo, inverseOf, openingRecordsOf, tradeMultiplierOf, purchaseRecordsFollowEdit, purchaseRecordsAfterHoldingRemoved, purchaseRecordsFollowReimport, optionTradesOnTheWayIn, type Transaction } from '../domain/transactions';
 import { reviewTransactions, type TxnFlag } from '../domain/transactions/flags';
 import { fetchPriceSeries } from '../services/marketData';
 
@@ -31,8 +31,9 @@ import { fetchPriceSeries } from '../services/marketData';
  *
  * Called by ... MK-CF-F-136 bumpCash · MK-ST-F-027 accountId
  *               MK-ST-F-028 buildDayFromAccounts · MK-XS-F-199 profileOnTheWayIn
+ *               MK-XS-F-205 recordsOnTheWayIn
  *
- * Reaches ..... 385 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 438 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -42,7 +43,7 @@ import { fetchPriceSeries } from '../services/marketData';
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 367 more — the full list is on functions_from_code
+ *               … and 420 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
@@ -617,17 +618,17 @@ const DEFAULT_BADGES: Badge[] = [
  *               MK-XS-F-138 deriveKeyFromSecret · MK-XS-F-139 wrapWithSecret
  *               MK-XS-F-199 profileOnTheWayIn
  *
- * Reaches ..... 56 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-082 NW · MK-NW-F-040 assetsFromOnboarding
- *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
- *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
- *               MK-PL-F-011 buildGoalsState · MK-CF-F-049 buildIncomeState
- *               MK-NW-F-065 buildNetWorth · MK-PL-F-053 buildRetirementState
- *               MK-XS-F-031 buildSnapshot · MK-CF-F-186 convertTakeHomeMode
- *               MK-CF-F-038 debtsFromOnboarding · MK-XS-F-072 deleteAccount
- *               MK-XS-F-138 deriveKeyFromSecret · MK-CF-F-041 getDebtState
- *               MK-CF-F-052 getIncomeState · MK-XS-F-023 getProfileReadModel
- *               … and 38 more — the full list is on functions_from_code
+ * Reaches ..... 438 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
+ *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
+ *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-F-241 M
+ *               … and 420 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -639,6 +640,40 @@ const DEFAULT_BADGES: Badge[] = [
  */
 function uid() {
   return Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
+}
+
+/** RECORDS ON THEIR WAY INTO THE STORE — the once-only moves of the records and the accounts they moved, from the phone's own copy
+ *  or the cloud copy (2026-10-27, FX-PF, NW2-18): an option bought or sold before 2026-10-23 takes its shares per contract, and its
+ *  account's cash the difference it should have moved (optionTradesOnTheWayIn). Nothing when there is nothing to move. */
+/* ─ MK-XS-F-205 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+ * recordsOnTheWayIn
+ *
+ * Answers ..... RECORDS ON THEIR WAY INTO THE STORE — the once-only moves of the records and the accounts they moved, from the phone's own copy or the cloud copy (2026-10-27, FX-PF, NW2-18): an option bought or sold before 2026-10-23 takes its shares per contract, and its account's cash the difference it should have moved (optionTradesOnTheWayIn).
+ *
+ * Formula .....
+ *     {}   when d is missing (or !array.is array(transactions) (or !array.is array(asset accounts) when missing or zero) when missing or zero)
+ *     r = option trades on the way in(transactions, asset accounts)
+ *     the answer:
+ *     transactions = transactions
+ *     asset accounts = recompute balances(accounts, price cache ?? {})   if changed
+ *     {}   otherwise
+ *
+ * Called by ... MK-XS-F-199 profileOnTheWayIn
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-XS-F-199 profileOnTheWayIn
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-024 logged expenses
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-205
+ * Changed ..... not in git yet (—)
+ */
+function recordsOnTheWayIn(d: any): { transactions?: Transaction[]; assetAccounts?: AssetAccount[] } {
+  if (!d || !Array.isArray(d.transactions) || !Array.isArray(d.assetAccounts)) return {};
+  const r = optionTradesOnTheWayIn(d.transactions, d.assetAccounts);
+  // an account built from its holdings adds its cash and its holdings up again (recomputeBalances), as after any record
+  return r.changed ? { transactions: r.transactions, assetAccounts: recomputeBalances(r.accounts, d.priceCache ?? {}) } : {};
 }
 
 /** A PROFILE ON ITS WAY INTO THE STORE — the one set of once-only moves, wherever it comes from: a save, the phone's own copy
@@ -893,7 +928,7 @@ export const useStore = create<AppState>()(
         assetAccounts: s.assetAccounts.map((a) => (a.asset_id === assetId ? { ...a, kind, tax_bucket: taxBucket, wrapper_confirmed: true } : a)),
         wrapperConfirmQueue: (s.wrapperConfirmQueue ?? []).filter((id) => id !== assetId),
       })),
-      // Disconnecting: the user chooses — keep the rows as frozen manual copies, or remove them.
+      // Unlinking (Settings › Unlink): the user chooses — keep the rows as frozen manual copies, or remove them.
       removeConnectionAccounts: (connectionId, keepAsManual) => set((s) => {
         const connIds = new Set(s.assetAccounts.filter((a) => a.connection_id === connectionId).map((a) => a.asset_id));
         return {
@@ -911,11 +946,12 @@ export const useStore = create<AppState>()(
         // HOLDINGS HANDED IN AGAIN (Import holdings into an account it matched, 2026-10-23, F3): a holding the account has no
         // purchase record of gets its records; one it already has keeps them, so a file imported twice never counts its
         // purchases twice
+        // A SECOND FILE IS READ AGAINST THE RECORDS THE FIRST WROTE (2026-10-27, FX-PF, workplan #294): a holding with opening records
+        // has them rewritten from the new file, less the shares its recorded trades explain — never counted twice, and the new file's
+        // price paid is the one a sale reads (it kept the first file's $8,000 where the second said $9,000)
         const after = assetAccounts.find((x) => x.asset_id === id);
-        const recorded = new Set(s.transactions.filter((t) => t.account_id === id && (t.type === 'BUY' || t.type === 'OPENING_POSITION')).map((t) => String(t.ticker ?? '').trim().toUpperCase()));
-        const txns = u.positions && after && after.source !== 'connected'
-          ? u.positions.filter((p) => !recorded.has(String(p.ticker ?? '').trim().toUpperCase())).flatMap((p) => openingRecordsOf(id, p)) : [];
-        return { assetAccounts, ...typedValueDatedBack(s, u, after), ...(txns.length ? { transactions: [...txns, ...s.transactions] } : {}) };
+        const transactions = u.positions && after && after.source !== 'connected' ? purchaseRecordsFollowReimport(s.transactions, id, u.positions as Position[]) : s.transactions;
+        return { assetAccounts, ...typedValueDatedBack(s, u, after), ...(transactions !== s.transactions ? { transactions } : {}) };
       }),
       deleteAsset:    (id) => set((s) => ({ assetAccounts: s.assetAccounts.filter((x) => x.asset_id !== id) })),
       addPosition: (accountId, position) => set((s) => {
@@ -949,16 +985,20 @@ export const useStore = create<AppState>()(
           ? { ...a, positions: (a.positions ?? []).map((p) => p.position_id === positionId ? { ...p, ...stamped } : p) } : a);
         // A PURCHASE ADDED IN THE HOLDING EDITOR IS RECORDED (2026-10-23, F3): a lot the holding did not have gets its record, as
         // addPosition writes one, so a later sale finds what was paid for it
+        // …AND ONE CHANGED OR REMOVED THERE CHANGES OR REMOVES ITS RECORD (2026-10-27, FX-PF, workplan #293): 10 VTI at $90.00, changed to
+        // $95.00 in the editor, reads $95.00 on its record, so a later sale's gain is read from what the holding now says was paid
         const before = (s.assetAccounts.find((a) => a.asset_id === accountId)?.positions ?? []).find((p) => p.position_id === positionId);
-        const had = new Set((before?.lots ?? []).map((l) => l.lot_id));
-        const added = before && patch.lots ? patch.lots.filter((l) => !had.has(l.lot_id)) : [];
-        const txns = added.length ? openingRecordsOf(accountId, { ...before!, ...stamped } as Position, added) : [];
-        return { assetAccounts: recomputeBalances(accounts, s.priceCache), ...(txns.length ? { transactions: [...txns, ...s.transactions] } : {}) };
+        const transactions = before && patch.lots ? purchaseRecordsFollowEdit(s.transactions, accountId, before, { ...before, ...stamped } as Position) : s.transactions;
+        return { assetAccounts: recomputeBalances(accounts, s.priceCache), ...(transactions !== s.transactions ? { transactions } : {}) };
       }),
       deletePosition: (accountId, positionId) => set((s) => {
         const accounts = s.assetAccounts.map((a) => a.asset_id === accountId
           ? { ...a, positions: (a.positions ?? []).filter((p) => p.position_id !== positionId) } : a);
-        return { assetAccounts: recomputeBalances(accounts, s.priceCache) };
+        // its opening records go with it; records of its trades stay (2026-10-27, FX-PF, workplan #293)
+        const was = (s.assetAccounts.find((a) => a.asset_id === accountId)?.positions ?? []).find((p) => p.position_id === positionId);
+        const left = (accounts.find((a) => a.asset_id === accountId)?.positions ?? []) as Position[];
+        const transactions = was ? purchaseRecordsAfterHoldingRemoved(s.transactions, accountId, was, left) : s.transactions;
+        return { assetAccounts: recomputeBalances(accounts, s.priceCache), ...(transactions.length !== s.transactions.length ? { transactions } : {}) };
       }),
       recordTransaction: (partial) => set((s) => {
         const t = makeTransaction(partial);
@@ -1431,6 +1471,7 @@ export const useStore = create<AppState>()(
       loadFromCloud: (data) => set((s) => ({
         ...s,
         ...data,
+        ...recordsOnTheWayIn(data),   // an option bought before 2026-10-23 carries its shares per contract (NW2-18)
         ...(data?.onboardingProfile ? { onboardingProfile: profileOnTheWayIn(data.onboardingProfile) } : {}),   // the take-home too (IN-09)
         user: s.user,
       })),
@@ -1442,7 +1483,7 @@ export const useStore = create<AppState>()(
       // figure becomes a rent entry with no property (DEC-4059d — not rent until a property is picked), so no
       // function reads the old field again (inputs-and-use audit, 2026-10-11, MK-NW-O-004 theEmergencyFund).
       merge: (persisted: any, current) => {
-        const p = { ...current, ...(persisted ?? {}) } as typeof current;
+        const p = { ...current, ...(persisted ?? {}), ...recordsOnTheWayIn(persisted) } as typeof current;
         return p.onboardingProfile
           ? { ...p, onboardingProfile: profileOnTheWayIn(p.onboardingProfile) }   // the take-home too (IN-09, 2026-10-25)
           : p;

@@ -290,7 +290,8 @@
    "difference": "app returns the known totals, not a refusal; the account is named in the amber box",
    "formula_gives_match": "formula_gives",
    "note": "Expected REFUSES contradicts DEC-3279e (a missing balance is left out of the total and the amber box names the account) and DEC-2747f (no count of no-value accounts on the total). assetAllocation index.ts:1743; dataGaps gaps/index.ts:166.",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part2.test.ts › MK-NW-F-029 assetAllocation — five cases › edge · Missing split cannot certify complete total"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part2.test.ts › MK-NW-F-029 assetAllocation — five cases › edge · Missing split cannot certify complete total",
+   "settled": "SETTLED 2026-10-27 (re-run at 45d680a4 + the fix wave) — APP RIGHT (BRIEF WRONG) by DEC-3279e and DEC-2747f: the split counts the known classes only — $0 in every class here — and the amber box names \"Brokerage has no balance\"; the total carries no count. Held by outside_networth_final_openai_part2.test.ts:184."
   },
   {
    "id": "MK-NW-F-030",
@@ -364,7 +365,8 @@
    "difference": "told nothing, B (not the home) is set at 0% instead of 100%",
    "formula_gives_match": "formula_gives",
    "note": "Decided by DEC-2747e (first-entered property is the home, the others count) — so the RULE UNCLEAR is settled. index.ts:1806 returns 0 for every property with no stated use when told nothing. Callers that tell it nothing: RetirementCockpit.tsx:161,165,173,672,673,959 (the Plan donut and its rows), decumulation/index.ts:43, index.ts:185-192, 2172. The same callers count the car driven at 100% (earmarkedAmount of a $30,000 car told nothing = $30,000).",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part2.test.ts › MK-NW-F-030 earmarkDefault — five cases › complex · First property default home versus “told nothing”"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part2.test.ts › MK-NW-F-030 earmarkDefault — five cases › complex · First property default home versus “told nothing”",
+   "settled": "SETTLED 2026-10-27 (re-run at 45d680a4 + the fix wave) — APP RIGHT by DEC-2747e (entered first is the home): handed the household's home, A (entered first, $300,000) is 0% and B 100% — $200,000 of $500,000 counts. Every caller that sees a property hands the home in (RetirementCockpit.tsx:182 and :991, PlanInputs.tsx:162, assets index.ts:2330 and :2397); told nothing, one property alone is the home (DEC-0100). Held by outside_networth_final_openai_part2.test.ts:219."
   },
   {
    "id": "MK-NW-F-030",
@@ -806,7 +808,8 @@
    "difference": "expected 0.0 needs a correlation the app has no input for",
    "formula_gives_match": "formula_gives",
    "note": "No table of how classes move together exists (index.ts:2038-2041). See the F-035 formula check.",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part2.test.ts › MK-NW-F-035 blendedVolatility — five cases › complex · Weighted average is not true portfolio volatility"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part2.test.ts › MK-NW-F-035 blendedVolatility — five cases › complex · Weighted average is not true portfolio volatility",
+   "settled": "SETTLED 2026-10-27 (re-run at 45d680a4 + the fix wave) — NEEDS A RULING, decided by his DEC-4082 (\"6 - let's park for now\"): the risk swing waits for the Plan module (workplan #231); no Build 55 screen shows it. The auditor's 0% needs a correlation of −1, an input the app lacks; the app gives (50,000 × 20% + 50,000 × 20%) ÷ 100,000 = 20%. Now run, kept failing. Held by outside_networth_final_openai_part2.test.ts:362."
   },
   {
    "id": "MK-NW-F-035",
@@ -845,7 +848,8 @@
    "difference": "period '—' where expected '' (blank); everything else matches",
    "formula_gives_match": null,
    "note": "index.ts:2101 (edited) / 2098 (no record) return '—'; the card says 'the period is blank'. A file/code disagreement on the empty-period mark (low severity).",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part2.test.ts › MK-NW-F-036 benchmarkInfo — five cases › easy · Custom zero is labelled estimate"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part2.test.ts › MK-NW-F-036 benchmarkInfo — five cases › easy · Custom zero is labelled estimate",
+   "settled": "SETTLED 2026-10-27 (re-run at 45d680a4 + the fix wave) — FIXED 2026-10-13 by DEC-0264 (the dash is a screen's mark, never the calculation's): a custom 0% now reads rate 0, \"Your custom estimate\", period blank, estimate — the auditor's answer. Held by outside_networth_final_openai_part2.test.ts:378."
   },
   {
    "id": "MK-NW-F-036",
@@ -889,7 +893,8 @@
    "difference": "period '—' where expected '' (blank); everything else matches",
    "formula_gives_match": null,
    "note": "index.ts:2101 (edited) / 2098 (no record) return '—'; the card says 'the period is blank'. A file/code disagreement on the empty-period mark (low severity).",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part2.test.ts › MK-NW-F-036 benchmarkInfo — five cases › complex · Custom nonzero hides benchmark period"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part2.test.ts › MK-NW-F-036 benchmarkInfo — five cases › complex · Custom nonzero hides benchmark period",
+   "settled": "SETTLED 2026-10-27 (re-run at 45d680a4 + the fix wave) — FIXED 2026-10-13 by DEC-0264: a custom 8.25% reads \"Your custom estimate\" with the period blank — the auditor's answer. Held by outside_networth_final_openai_part2.test.ts:391."
   },
   {
    "id": "MK-NW-F-036",
@@ -911,7 +916,8 @@
    "difference": "period '—' where expected '' (blank); everything else matches",
    "formula_gives_match": null,
    "note": "index.ts:2101 (edited) / 2098 (no record) return '—'; the card says 'the period is blank'. A file/code disagreement on the empty-period mark (low severity).",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part2.test.ts › MK-NW-F-036 benchmarkInfo — five cases › complex · Unknown kind generic fallback disclosed"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part2.test.ts › MK-NW-F-036 benchmarkInfo — five cases › complex · Unknown kind generic fallback disclosed",
+   "settled": "SETTLED 2026-10-27 (re-run at 45d680a4 + the fix wave) — FIXED 2026-10-13 by DEC-0264: a kind with no record reads 6%, \"Generic blended estimate\", period blank — the auditor's answer. Held by outside_networth_final_openai_part2.test.ts:398."
   },
   {
    "id": "MK-NW-F-036",
@@ -933,7 +939,8 @@
    "difference": "period '—' where expected '' (blank); everything else matches",
    "formula_gives_match": null,
    "note": "index.ts:2101 (edited) / 2098 (no record) return '—'; the card says 'the period is blank'. A file/code disagreement on the empty-period mark (low severity).",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part2.test.ts › MK-NW-F-036 benchmarkInfo — five cases › edge · Custom rate exactly zero must not be treated as absent"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part2.test.ts › MK-NW-F-036 benchmarkInfo — five cases › edge · Custom rate exactly zero must not be treated as absent",
+   "settled": "SETTLED 2026-10-27 (re-run at 45d680a4 + the fix wave) — FIXED 2026-10-13 by DEC-0264: a custom rate of exactly 0% is a rate, not absent — 0, \"Your custom estimate\", period blank. Held by outside_networth_final_openai_part2.test.ts:403."
   },
   {
    "id": "MK-NW-F-037",
@@ -1655,7 +1662,8 @@
    "difference": "expected 18.3 and a sentence; right is nothing to say (history 2025-04-01 starts before the period 2026-01-01), and 18.2 on a period it does not cover",
    "formula_gives_match": null,
    "note": "Their working contradicts itself (18.2, then 18.3); 18 + 8/31 = 18.258 rounded DOWN = 18.2 (DEC-2746f, DEC-3035l).",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part2.test.ts › MK-NW-F-046 historyCoverage — five cases › complex · 18 whole months plus part month is not rounded up"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part2.test.ts › MK-NW-F-046 historyCoverage — five cases › complex · 18 whole months plus part month is not rounded up",
+   "settled": "SETTLED 2026-10-27 (re-run at 45d680a4 + the fix wave) — APP RIGHT (BRIEF WRONG) by DEC-2746f and DEC-3035l: history from Apr 1, 2025 starts before the period's first day (Jan 1, 2026), so there is nothing to say. On a period it does not cover: 18 whole months + 8 ÷ 31 = 18.258, rounded down to 18.2, \"1 year 6 months of history (from Apr 1, 2025)\". Held by outside_networth_final_openai_part2.test.ts:550."
   },
   {
    "id": "MK-NW-F-046",
@@ -1676,7 +1684,8 @@
    "difference": "expected 11.9 and a sentence; right is nothing to say for their inputs (history 2025-10-10 starts before the period 2026-01-01); on an uncovered period the app gives exactly 11.9 / 11 months",
    "formula_gives_match": null,
    "note": "Arithmetic right, inputs inconsistent with the card's covered-period rule.",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part2.test.ts › MK-NW-F-046 historyCoverage — five cases › complex · One day short of year never rounds up"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part2.test.ts › MK-NW-F-046 historyCoverage — five cases › complex · One day short of year never rounds up",
+   "settled": "SETTLED 2026-10-27 (re-run at 45d680a4 + the fix wave) — APP RIGHT (BRIEF WRONG): history from Oct 10, 2025 covers the period (Jan 1, 2026), so nothing to say. Uncovered: 11 whole months + 29 ÷ 30 = 11.967, rounded down to 11.9, \"11 months of history (from Oct 10, 2025)\" — never 12. Held by outside_networth_final_openai_part2.test.ts:566."
   },
   {
    "id": "MK-NW-F-046",
@@ -2333,7 +2342,8 @@
    "difference": "a holding with no value becomes a $0 account, and a $6,000 cash account is made as if the remainder were final",
    "formula_gives_match": "formula_gives",
    "note": "Settled by DEC-3279e (a missing balance is never $0) and DEC-3279f (no-value holdings left out; remainder not final). itemize.ts:193 (balance: (h.value || 0)), itemize.ts:210-211. Latent: ItemizeScreen.tsx:72 does not let a holding without a value be added.",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part2.test.ts › MK-NW-F-052 buildItemizedAccounts — five cases › complex · Missing holding value stays missing"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part2.test.ts › MK-NW-F-052 buildItemizedAccounts — five cases › complex · Missing holding value stays missing",
+   "settled": "SETTLED 2026-10-27 (re-run at 45d680a4 + the fix wave) — APP RIGHT (re-judged BRIEF WRONG) by DEC-3279e and DEC-3279f: with a holding of no value the app builds nothing and keeps the $10,000 account as it was. The auditor's way would make \"Chase cash\" $10,000 − $4,000 = $6,000 that is partly bond — a wrong cash figure. Held by outside_networth_final_openai_part2.test.ts:716."
   },
   {
    "id": "MK-NW-F-052",
@@ -2498,7 +2508,8 @@
    "difference": "stored class stays Stocks / Funds, 0 changes; expected Alternatives, 1",
    "formula_gives_match": "formula_gives",
    "note": "reclassify.ts:112 writes any non-bond, non-cash evidence as 'stock_etf'. The screens still file this holding Alternatives only because holdingClassOf reads the name before the stored tag for an unclassed holding (index.ts:1427-1428).",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part2.test.ts › MK-NW-F-054 reclassifyAccounts — five cases › complex · Gold holding must become Alternatives, not Stocks / Funds"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part2.test.ts › MK-NW-F-054 reclassifyAccounts — five cases › complex · Gold holding must become Alternatives, not Stocks / Funds",
+   "settled": "SETTLED 2026-10-27 (re-run at 45d680a4 + the fix wave) — FIXED 2026-10-09 (DEC-2162: a gold fund is an alternative): Gold filed Stocks / Funds is re-filed Alternatives, 1 change — the auditor's answer. Held by outside_networth_final_openai_part2.test.ts:773."
   },
   {
    "id": "MK-NW-F-054",
@@ -2713,5 +2724,5 @@
    "plain_example": "Does a Gold holding become Stocks / Funds? Its STORED class, yes: 'Gold' stored Alternatives → 'stock_etf', 1 change (proof run). For a holding nobody classed the screens still show Alternatives, because holdingClassOf reads the name before the stored tag (index.ts:1427-1428). For a Gold holding the PERSON classed Alternatives (class_source 'user') the sweep writes Stocks / Funds and holdingClassOf then files it Stocks / Funds everywhere (index.ts:1425) → should stay Alternatives, 0 changes. Same for a person's Stocks / Funds on 'Treasury ETF' → re-filed Bonds & CDs."
   }
  ],
- "coverage": "130 of 130 cases run (129 executed, 1 skipped as BLOCKED); 109 PASS, 7 FINDING, 3 BRIEF_WRONG, 10 UNCLEAR, 1 BLOCKED. Formula checks: 15 of 15 non-RIGHT checks classified (11 RIGHT not repeated)."
+ "coverage": "130 of 130 cases run (129 executed, 1 skipped as BLOCKED); 109 PASS, 7 FINDING, 3 BRIEF_WRONG, 10 UNCLEAR, 1 BLOCKED. Formula checks: 15 of 15 non-RIGHT checks classified (11 RIGHT not repeated). | 2026-10-27 (FX-AUDITS, re-run at 45d680a4 + the fix wave, outside_networth_final_openai_part2.test.ts green): 11 more cases given a settled line — 5 app right, 1 decided from the decision log, 5 fixed, now right; every case that does not pass as written now carries one, held by outside_audit_results_settled.test.ts."
 }

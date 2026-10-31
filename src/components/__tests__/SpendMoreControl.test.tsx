@@ -58,7 +58,7 @@ test('the banned words are absent from the whole row, at every position', () => 
 
 test('the draw-and-spend link is said once, because she cannot infer it', () => {
   show();
-  expect(screen.getByText(/Your Social Security and pension don't change, so anything extra comes out of savings\./)).toBeOnTheScreen();
+  expect(screen.getByText(/Your Social Security and pension don’t change, so anything extra comes out of savings\./)).toBeOnTheScreen();
 });
 
 test('the steppers are 44pt and disable at their ends rather than doing nothing', () => {

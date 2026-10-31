@@ -192,6 +192,14 @@ const clean = (s: string) => s.replace(/\s+/g, ' ').trim();
 const norm = (s: string) => s;
 const GROUP_OF_CLASS: Record<string, string> = { card: 'card', warnb: 'warn', segbar: 'segbar', btnrow: 'btnrow' };
 
+/** THE DRAWING'S OWN CORRECTIONS OF 2026-10-27 — rows 84 and 85 of its READ THIS FIRST box (drawing match round 2, NW2-21 and NW2-20). The
+ *  phones are not redrawn; each drawn line below reads as the row says, and the rows themselves are held on the drawing's face below. */
+const ROW_WORDS: Record<string, Record<string, string>> = {
+  // row 84: two of state A's seven hidden records are dated Apr 2, 2026, the day of the last record shown
+  A: { 'See all activity (older than Apr 2, 2026) ›': 'See all activity (Apr 2, 2026 and older) ›', '7 more records below this date': '7 more records below' },
+  // row 85: no rate, no year's interest to state — never a $0 made from an unknown (tenet 3)
+  B: { 'not entered · $0/year — coupon rate not entered': 'coupon rate not entered' },
+};
 function drawnStates(): { key: string; label: string; lines: Line[] }[] {
   const phone = HTML.slice(HTML.indexOf('<div class="phone">'), HTML.indexOf('<div class="side">'))
     .replace(/<span class="pn">[^<]*<\/span>/g, '')            // the orange change marks: the drawing's, not the app's
@@ -224,6 +232,7 @@ function drawnStates(): { key: string; label: string; lines: Line[] }[] {
     if (kind && tag === 'div') { counters[kind] = (counters[kind] ?? 0) + 1; g = `${kind}#${counters[kind]}`; }
     stack.push({ cls: cls.join(' '), g });
   }
+  for (const st of out) for (const l of st.lines) { const w = ROW_WORDS[st.key]?.[l.t]; if (w) l.t = w; }
   return out;
 }
 
@@ -320,6 +329,17 @@ const KNOWN_ROWS: [keyof typeof KNOWN | 'amberBox' | 'totalWeight', number, RegE
 ];
 
 const DRAWN = drawnStates();
+describe('the rows of 2026-10-27 (84, 85) are on the drawing, and each line they correct was read', () => {
+  test('rows 84 and 85, with their words', () => {
+    const text = HTML.replace(/<[^>]+>/g, '').replace(/&amp;/g, '&');
+    expect(text).toMatch(/84 ?2026-10-27 · DRAWING ERROR, state A — ‘See all activity \(older than Apr 2, 2026\) ›’ and ‘7 more records below this date’ should read ‘See all activity \(Apr 2, 2026 and older\) ›’ and ‘7 more records below’/);
+    expect(text).toMatch(/85 ?2026-10-27 · State B, BOND FACTS — ‘Interest payments: not entered · \$0\/year — coupon rate not entered’ should read ‘Interest payments: coupon rate not entered’/);
+  });
+  test('each corrected line is a line the drawing draws (3 of 3), so no correction is applied blind', () => {
+    const corrected = Object.entries(ROW_WORDS).flatMap(([k, m]) => Object.values(m).map((w) => DRAWN.find((d) => d.key === k)!.lines.filter((l) => l.t === w).length));
+    expect(corrected).toEqual([1, 1, 1]);
+  });
+});
 /** The coverage line of every state, written for the audit (the runner cuts console output). */
 const REPORT: Record<string, string> = {};
 
@@ -474,8 +494,8 @@ describe('APPEARANCE: colours, sizes and weights as rendered, against the drawin
     expect(parentStyleOf('Add a contribution or withdrawal ›')).toMatchObject({ backgroundColor: Colors.primaryDeep, borderRadius: 12, minHeight: 44, paddingHorizontal: 14 });
     expect(styleOf('Add a buy or sale ›')).toMatchObject({ fontSize: 13, fontWeight: '800', color: Colors.primaryDeep });
     expect(parentStyleOf('Add a buy or sale ›')).toMatchObject({ borderWidth: 1.5, borderColor: Colors.primaryDeep, borderRadius: 12, minHeight: 44 });
-    expect(styleOf('See all activity (older than Apr 2, 2026) ›')).toMatchObject({ fontSize: 15, fontWeight: '700', color: Colors.primary });   // .seeall
-    expect(styleOf('7 more records below this date')).toMatchObject({ fontSize: 11, color: Colors.textTertiary });
+    expect(styleOf('See all activity (Apr 2, 2026 and older) ›')).toMatchObject({ fontSize: 15, fontWeight: '700', color: Colors.primary });   // .seeall (row 84)
+    expect(styleOf('7 more records below')).toMatchObject({ fontSize: 11, color: Colors.textTertiary });
     // .card: white, 16 round, 12 in, 10 at its foot, 8 apart, the theme's card shadow
     const cards = nodes().filter(({ n }) => groupKind(n) === 'card');
     expect(cards.length).toBe(4);
@@ -494,7 +514,7 @@ describe('APPEARANCE: colours, sizes and weights as rendered, against the drawin
     expect(styleOf('Edit')).toMatchObject({ fontSize: 15, fontWeight: '700', color: Colors.textPrimary });
     expect(parentStyleOf('Edit')).toMatchObject({ borderWidth: 1.5, borderColor: Colors.border, borderRadius: 16, minHeight: 44, paddingHorizontal: 18, backgroundColor: Colors.cardBg });
     // .ch2 / .fr
-    expect(styleOf('BOND FACTS')).toMatchObject({ fontSize: 11, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.5 });
+    expect(styleOf('BOND FACTS')).toMatchObject({ fontSize: 11, fontWeight: '800', color: Colors.white, letterSpacing: 0.5 });   // on the bar (row 87)
     expect(styleOf('Face value')).toMatchObject({ fontSize: 15, color: Colors.textSecondary });
     expect(styleOf('$10,000', 0)).toMatchObject({ fontSize: 15, fontWeight: '700', color: Colors.textPrimary, textAlign: 'right' });
     // .bn / .fr2
@@ -531,7 +551,7 @@ describe('APPEARANCE: colours, sizes and weights as rendered, against the drawin
 
   test('state E — IF INTEREST RATES MOVE: the title and its dot, the estimate tag, the two lines and the note', () => {
     renderState(STATES[4]);
-    expect(styleOf('IF INTEREST RATES MOVE')).toMatchObject({ fontSize: 11, fontWeight: '800', color: Colors.textTertiary });       // .ch2
+    expect(styleOf('IF INTEREST RATES MOVE')).toMatchObject({ fontSize: 11, fontWeight: '800', color: Colors.white });       // on the bar (row 87)
     expect(styleOf('estimate')).toMatchObject({ fontSize: 13, fontWeight: '600', color: Colors.textTertiary });                      // .est
     expect(styleOf(/^Rates rise 1% →/)).toMatchObject({ fontSize: 13, color: Colors.textPrimary, lineHeight: 20, marginTop: 4 });    // .bl
     expect(styleOf(/^Held to maturity, \$10,000 comes back/)).toMatchObject({ fontSize: 13, color: Colors.textSecondary, lineHeight: 18, marginTop: 6 });   // .bn
@@ -975,6 +995,7 @@ describe('APPEARANCE · every line of every state, F included: size, weight and 
       if (cls.includes('state')) inLabel = true;
       stack.push({ tag, cls });
     }
+    for (const l of out) { const w = ROW_WORDS[key]?.[l.t]; if (w) l.t = w; }   // the rows of 2026-10-27 (84, 85), as drawnStates reads them
     return out;
   };
   const drawnF = drawnStyled('F');
@@ -1005,8 +1026,15 @@ describe('APPEARANCE · every line of every state, F included: size, weight and 
   });
 
   /** the KNOWN differences of appearance, each the app's one shared rule (see KNOWN at the top of this file) */
-  const known = (k: string, d: { t: string; chain: El[] }, w: string, g: string) =>
-    (d.t === 'ⓘ' && w.replace(` · ${KNOWN.infoDotWeight.drawing} · `, ` · ${KNOWN.infoDotWeight.app} · `) === g)
+  /** ROW 87 (2026-10-30; the lead's ruling R1, his words DEC-8839): a card's title the drawing writes in grey capitals (.ch2) is on the
+   *  dark-green bar — white, the same 11 · 800 — and the dot beside IF INTEREST RATES MOVE is white on that bar */
+  const ON_BAR = new Set(['BOND FACTS', 'IF INTEREST RATES MOVE', 'ABOUT THIS HOLDING', 'HISTORIC 12-MONTH RETURN']);
+  const row87 = (d: { t: string; chain: El[] }, w: string, g: string, prev?: string) =>
+    (ON_BAR.has(d.t) && w.endsWith(` · ${Colors.textTertiary.toUpperCase()}`) && g === w.replace(Colors.textTertiary.toUpperCase(), Colors.white.toUpperCase()))
+    || (d.t === 'ⓘ' && prev === 'IF INTEREST RATES MOVE' && g === `11 · ${KNOWN.infoDotWeight.app} · ${Colors.white.toUpperCase()}`);
+  const known = (k: string, d: { t: string; chain: El[] }, w: string, g: string, prev?: string) =>
+    row87(d, w, g, prev)
+    || (d.t === 'ⓘ' && w.replace(` · ${KNOWN.infoDotWeight.drawing} · `, ` · ${KNOWN.infoDotWeight.app} · `) === g)
     || (k === 'D' && d.chain[d.chain.length - 1].cls.includes('sm') && w.replace(/^12 /, `${KNOWN.smallDoorText.app} `) === g);
   test.each(['A', 'B', 'C', 'D', 'E', 'F'])('state %s · every line: the size, weight and colour the drawing\'s CSS gives it are the ones the screen renders', (k) => {
     renderState(STATES['ABCDEF'.indexOf(k)]);
@@ -1017,13 +1045,14 @@ describe('APPEARANCE · every line of every state, F included: size, weight and 
       const want = resolve(d.chain); const got = built[i];
       const w = `${want.size} · ${want.weight} · ${want.color}`; const g = `${got.size} · ${got.weight} · ${got.color}`;
       if (w === g) return;
-      if (known(k, d, w, g)) { knownSeen++; return; }
+      if (known(k, d, w, g, drawn[i - 1]?.t)) { knownSeen++; return; }
       diffs.push(`«${d.t}» drawn ${w} (.${d.chain[d.chain.length - 1].cls.join('.') || d.chain[d.chain.length - 1].tag}) · rendered ${g}`);
     });
     expect(diffs).toEqual([]);
     // the guard looked: every line compared, and the known ones are the ones it expects to meet
     expect(drawn.length).toBeGreaterThanOrEqual({ A: 120, B: 60, C: 75, D: 80, E: 60, F: 55 }[k]!);
-    expect(knownSeen).toBe(drawn.filter((d) => d.t === 'ⓘ').length + (k === 'D' ? 2 : 0));   // the dots, and state D's two small doors
+    // the dots, state D's two small doors, and the card titles row 87 puts on the bar
+    expect(knownSeen).toBe(drawn.filter((d) => d.t === 'ⓘ').length + (k === 'D' ? 2 : 0) + drawn.filter((d) => ON_BAR.has(d.t)).length);
   });
 
   test('state F\'s cards are the page\'s cards, and its three dark-green bars run edge to edge with square corners', () => {
@@ -1032,8 +1061,9 @@ describe('APPEARANCE · every line of every state, F included: size, weight and 
     expect(cards.length).toBe((HTML.slice(HTML.indexOf('STATE F ·')).match(/<div class="card">/g) ?? []).length);
     for (const { n } of cards) expect(flat(n.props.style)).toMatchObject({ backgroundColor: Colors.cardBg, borderRadius: 16, padding: 12, paddingBottom: 10, marginBottom: 8, ...Shadows.card });
     const bars = nodes().filter(({ n }) => n.type === 'View' && flat(n.props.style).backgroundColor === Colors.primaryDeep && !(flat(n.props.style).minHeight >= 44));
-    expect(bars.length).toBe((HTML.slice(HTML.indexOf('STATE F ·')).match(/<div class="band">/g) ?? []).length);   // THIS ACCOUNT, HOW … BECAME, ACTIVITY
-    expect(bars.length).toBe(3);
+    // THIS ACCOUNT, HOW … BECAME, ACTIVITY as drawn, and BOND FACTS and HISTORIC 12-MONTH RETURN on the bar by row 87 (2026-10-30)
+    expect(bars.length).toBe((HTML.slice(HTML.indexOf('STATE F ·')).match(/<div class="band">/g) ?? []).length + 2);
+    expect(bars.length).toBe(5);
     for (const { n } of bars) {
       const st = flat(n.props.style);
       expect([st.borderRadius ?? 0, st.borderTopLeftRadius ?? 0, st.borderTopRightRadius ?? 0]).toEqual([0, 0, 0]);

@@ -118,17 +118,41 @@ export function incomeSourceOptionsFor(status: Status | null): { value: IncomeSo
     support:           { value: 'support',           icon: '👪', title: 'Child support or alimony',     sub: 'Support payments you receive' },
     investment_income: { value: 'investment_income', icon: '💵', title: 'Interest & dividends',         sub: 'Money your savings or investments pay you' },
     rental:            { value: 'rental',            icon: '🏠', title: 'Rent from a property',         sub: 'You rent out a place you own' },
-    retirement_income: { value: 'retirement_income', icon: '🏖️', title: 'Retirement income',            sub: 'Social Security, pension, 401(k)/IRA withdrawals' },
+    retirement_income: { value: 'retirement_income', icon: '📨', title: 'Retirement income',            sub: 'Social Security, pension, 401(k)/IRA withdrawals' },   // 📨 as drawn (phone 1, IN2-07)
     other_income:      { value: 'other_income',      icon: '🧾', title: 'Something else',               sub: 'Gifts, a one-time payment, anything else' },
   };
-  const ORDER: Record<Status, IncomeSourceKey[]> = {
+  // WHICH SOURCES: the ones that fit the person — his DEC-1560 (2026-10-04, "Rest - keep it": "the sources that fit the person
+  // (eight for someone employed), not all ten").
+  const OFFERED: Record<Status, IncomeSourceKey[]> = {
     student:  ['employment', 'scholarship', 'loans', 'self_employment', 'support', 'benefits', 'investment_income', 'other_income'],
     employed: ['employment', 'self_employment', 'investment_income', 'rental', 'benefits', 'support', 'loans', 'other_income'],
     partial:  ['employment', 'self_employment', 'retirement_income', 'benefits', 'investment_income', 'rental', 'support', 'loans', 'other_income'],
     retired:  ['retirement_income', 'investment_income', 'rental', 'benefits', 'support', 'other_income'],
   };
-  return (status ? ORDER[status] : ORDER.employed).map((k) => O[k]);
+  // IN WHAT ORDER: the drawing's, one order for everyone (income-end-to-end_v07 phone 1, and the order the Income manager's
+  // "Anything else?" lists them in; IN2-07, 2026-10-27, a dated row on v07). It ordered each list by life stage, so someone
+  // employed read Interest & dividends before Rent, and a student Scholarships and Student loans second and third.
+  const offered = new Set(OFFERED[status ?? 'employed']);
+  return DRAWN_SOURCE_ORDER.filter((k) => offered.has(k)).map((k) => O[k]);
 }
+
+/** The ten sources in the order income-end-to-end_v07 phone 1 draws them — the one order every picker list follows. */
+/* ─ MK-XS-F-206 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * DRAWN_SOURCE_ORDER
+ *
+ * Answers ..... The ten income sources in the order income-end-to-end_v07 phone 1 draws them — the one order every picker list follows (sign-up and the Income manager's "Anything else?"); words only, it calculates nothing.
+ *
+ * Called by ... incomeSourceOptionsFor
+ *
+ * Numbered by hand 2026-10-30 (PF-TOOLS, the lead's instruction): the scan that issues identifiers reads functions in the
+ *               calculation folders only, so this constant has no generated record; this one is written by hand in the generated form,
+ *               as MK-NW-F-145's is
+ * Changed ..... not in git yet (—)
+ */
+export const DRAWN_SOURCE_ORDER: IncomeSourceKey[] = [
+  'employment', 'self_employment', 'rental', 'investment_income', 'retirement_income',
+  'benefits', 'support', 'scholarship', 'loans', 'other_income',
+];
 
 // Which selected sources are taxable (drive whether we show the tax screen + count toward the tax base).
 const TAXABLE_SOURCES: IncomeSourceKey[] = ['employment', 'self_employment', 'investment_income', 'rental', 'retirement_income', 'other_income'];

@@ -3,6 +3,7 @@
 // screen didn't exist). Two numbers a retiree knows by heart, ~20 seconds, no bank login.
 // Writes the ri_* fields the F5 paycheck function reads — LOCKED guaranteed set: ss / pension /
 // annuities / other (withdrawals & required minimums live elsewhere; the draw from savings replaces them).
+import { MoneyBox } from '../components/MoneyBox';   // every money box, one component (DEC-8385)
 import { retirementIncomeMonthly } from '../domain/income/onboarding';
 import TopBar from '../components/TopBar';
 import { InfoDot } from '../components/UI';
@@ -114,7 +115,7 @@ export default function MonthlyIncomeScreen() {
       <Text style={styles.sub}>The money that arrives no matter what markets do. This builds your paycheck — no bank login needed.</Text>
 
       <View style={styles.card}>
-        <SectionBand inCard quiet title="Social Security" />
+        <SectionBand inCard onRowEdges inset={Spacing.base} title="Social Security" />
         <View style={styles.row}>
           <TouchableOpacity accessibilityRole="radio" accessibilityState={{ selected: ssReceiving }}
             style={[styles.chip, ssReceiving && styles.chipOn]} onPress={() => setSsReceiving(true)}>
@@ -128,8 +129,8 @@ export default function MonthlyIncomeScreen() {
         {ssReceiving ? (
           <>
             <Text style={styles.label}>Each month</Text>
-            <TextInput style={styles.input} keyboardType="decimal-pad" value={ss} onChangeText={setSs}
-              placeholder="—" accessibilityLabel="Social Security amount each month" />
+            <MoneyBox bare style={styles.input} value={ss} onChangeText={setSs}
+              placeholder="—" a11y="Social Security amount each month" />
             <Text style={styles.label}>Arrives on day (optional)</Text>
             <TextInput style={styles.inputSm} keyboardType="number-pad" value={ssDay} onChangeText={setSsDay}
               placeholder="—" accessibilityLabel="day of month Social Security arrives" />
@@ -142,31 +143,31 @@ export default function MonthlyIncomeScreen() {
       </View>
 
       <View style={styles.card}>
-        <SectionBand inCard quiet title="Pension" />
+        <SectionBand inCard onRowEdges inset={Spacing.base} title="Pension" />
         <Text style={styles.label}>Amount {pensionFreq === 'monthly' ? 'each month' : pensionFreq === 'quarterly' ? 'each quarter' : 'each year'}</Text>
-        <TextInput style={styles.input} keyboardType="decimal-pad" value={pension} onChangeText={setPension}
-          placeholder="—" accessibilityLabel="pension amount" />
+        <MoneyBox bare style={styles.input} value={pension} onChangeText={setPension}
+          placeholder="—" a11y="pension amount" />
         {rhythmChips(pensionFreq, setPensionFreq, pensionMonth, setPensionMonth, 'pension')}
       </View>
 
       <View style={styles.card}>
-        <SectionBand inCard quiet title="Annuity" />
-        <TextInput style={styles.input} keyboardType="decimal-pad" value={annuity} onChangeText={setAnnuity}
-          placeholder="—" accessibilityLabel="annuity amount" />
+        <SectionBand inCard onRowEdges inset={Spacing.base} title="Annuity" />
+        <MoneyBox bare style={styles.input} value={annuity} onChangeText={setAnnuity}
+          placeholder="—" a11y="annuity amount" />
         {rhythmChips(annuityFreq, setAnnuityFreq, annuityMonth, setAnnuityMonth, 'annuity')}
       </View>
 
       <View style={styles.card}>
-        <SectionBand inCard quiet title="Other steady income" />
+        <SectionBand inCard onRowEdges inset={Spacing.base} title="Other steady income" />
         <Text style={styles.label}>Each month (rental, part-time, anything regular)</Text>
-        <TextInput style={styles.input} keyboardType="decimal-pad" value={other} onChangeText={setOther}
-          placeholder="—" accessibilityLabel="other steady income each month" />
+        <MoneyBox bare style={styles.input} value={other} onChangeText={setOther}
+          placeholder="—" a11y="other steady income each month" />
       </View>
 
       <View style={styles.totalCard}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
           <Text style={styles.totalLabel}>Your guaranteed income</Text>
-          <InfoDot term="guaranteedIncome" />
+          <InfoDot term="guaranteedIncome" line={styles.totalLabel} />
         </View>
         <Text style={styles.totalV} accessibilityLabel={`guaranteed income ${figSaid('MK-CF-M-069', guaranteedMonthly)}`}>
           {figPer('MK-CF-M-069', guaranteedMonthly)}
@@ -184,7 +185,9 @@ export default function MonthlyIncomeScreen() {
 const styles = StyleSheet.create({
   h1: { fontSize: 20, fontWeight: '800', color: Colors.textPrimary, marginBottom: 4 },
   sub: { fontSize: 15, color: Colors.textSecondary, marginBottom: Spacing.md },
-  card: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginBottom: Spacing.sm },
+  // each box's title on a dark-green bar running to its edges, so the box is square and white, its rows 16 in (his words, DEC-8839;
+  // the lead's R1, 2026-10-27; monthly-income_v02's row of that date) — it was rounded, 12 in, under a quiet label
+  card: { backgroundColor: Colors.cardBg, padding: Spacing.base, marginBottom: Spacing.sm },
   section: { fontSize: 17, fontWeight: '700', color: Colors.textPrimary, marginBottom: Spacing.xs },
   label: { fontSize: 13, color: Colors.textSecondary, marginTop: Spacing.xs, marginBottom: 4 },
   input: { borderWidth: 1, borderColor: Colors.border, borderRadius: Radii.md, padding: 12, fontSize: 17, color: Colors.textPrimary, backgroundColor: Colors.bgSecondary },
