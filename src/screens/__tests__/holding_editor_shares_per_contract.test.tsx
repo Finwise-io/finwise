@@ -83,7 +83,7 @@ describe('(b) Save stays off for a figure that is not a real number', () => {
 
   test('the shares or the price paid typed as 309 digits: Save is off', () => {
     let onSave = open({ ...OPTION, kind: 'stocks_etf', multiplier: undefined });
-    fireEvent.changeText(screen.getAllByPlaceholderText('0')[0], NINES);
+    fireEvent.changeText(screen.getAllByLabelText(/^(Shares|Contracts|Price per share|Amount)$/)[0], NINES);   // the boxes by name — their grey ‘0’ is gone (R16, 2026-11-01)
     saveIsOff();
     fireEvent.press(screen.getByLabelText('Save holding'));
     expect(onSave).not.toHaveBeenCalled();

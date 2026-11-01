@@ -7,10 +7,10 @@ import { displayOdds } from '../domain/retirement/willItLast';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Alert, Platform } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useStore } from '../store/useStore';
-import { Colors, Spacing, Radii } from '../utils/theme';
+import { Colors, Spacing, Radii, Tap } from '../utils/theme';
 import { money } from '../domain/_shared/num';
 import { resolveNetWorthRows } from '../domain/snapshot';
-import { selectWillItLast } from '../domain/retirement/willItLast';
+import { selectWillItLast, planRetireAgeOf } from '../domain/retirement/willItLast';   // one retirement age (R10)
 import { resolveLens } from '../domain/profile/lens';
 import { rmdStartAgeFor, withdrawalPlan, rateBandWords, type RateBand } from '../domain/decumulation';
 import { retirementIncomeMonthly } from '../domain/income';
@@ -30,7 +30,6 @@ import { SpendMoreControl } from '../components/SpendMoreControl';
 import { ClaimAgeRow } from '../components/ClaimAgeRow';
 import { retirementEarmarkedValue } from '../domain/assets';
 import { PlanGoals } from '../components/PlanGoals';
-import { planGoalRows } from '../domain/goals';   // the goals as the app saves them (2026-10-30)
 import { PlanPrepare } from '../components/PlanPrepare';
 import { targetAtRetirement } from '../domain/planning/target';
 import { onCourseSentence, planDoor, nextDecision, shortfallAgeFromBand, oddsLine, sampleOddsLine, SS_DECISION_FROM, SS_DECISION_TO } from '../domain/planning/hub';
@@ -50,11 +49,13 @@ const prettySavedDate = (v: any) => { const d = new Date(String(v ?? '')); retur
 export default function PlanHubScreen() {
   // Plan's three sub-tabs (founder, 2026-08-02). Local state, not routes: they are one tab's
   // interior, and a person switching between them has not navigated anywhere.
-  const [subTab, setSubTab] = useState<PlanSubTab>('retire');
   const router = useRouter();
   // Home and Net worth deep-link here with the answer they were missing (founder ruling: one screen,
   // reached three ways — it used to be a separate /plan-answers route, which drifted)
-  const { focus } = (useLocalSearchParams?.() ?? {}) as { focus?: string };
+  // GOALS IS A SUB-TAB OF PLAN, EVERY WAY IN (2026-10-31, FX-PLAN; goals v03, his DEC-8889: "When I click on "Add goal" same - other
+  // tabs missing"): the Menu's Goals and every 'Add a goal ›' arrive here as ?sub=goals (and &add=1 opens the form under the bar)
+  const { focus, sub, add } = (useLocalSearchParams?.() ?? {}) as { focus?: string; sub?: string; add?: string };
+  const [subTab, setSubTab] = useState<PlanSubTab>(sub === 'goals' || sub === 'prepare' ? sub : 'retire');
   const focusParam = typeof focus === 'string' ? focus : null;
   const store = useStore() as any;
   const op = store.onboardingProfile ?? {};
@@ -76,7 +77,7 @@ export default function PlanHubScreen() {
   // the draft is what the person is trying on. The outcome above always reflects the DRAFT, so a
   // stepper moves the answer in front of them — and nothing is written until they say so.
   const committed: PlanDraft = useMemo(() => ({
-    retireAge: Math.round(Number(A.retireAge ?? op.targetRetirementAge ?? (lens === 'retired' ? age ?? 65 : 65))),
+    retireAge: Math.round(planRetireAgeOf({ assumptions: A, op, retiredNow: lens === 'retired', age }).age),   // one retirement age (R10, 2026-10-31)
     horizonAge: Math.round(Number(A.horizonAge ?? op.horizonAge ?? 90)),
     extraMonthly: Math.round(Number(A.contribMonthly ?? 0)),
   }), [A.retireAge, A.horizonAge, A.contribMonthly, op.targetRetirementAge, op.horizonAge, lens, age]);
@@ -124,13 +125,15 @@ export default function PlanHubScreen() {
   const ssIsLive = !alreadyClaiming && age != null && age >= SS_DECISION_FROM && age <= SS_DECISION_TO;
 
   // ── mock v9 (founder-approved 2026-08-01): the if-clause, the door, the one next decision ──
-  const planRetire = Math.round(Number(A.retireAge ?? op.targetRetirementAge ?? 67));
+  // ONE RETIREMENT AGE (R10, 2026-10-31; NW3-01): the plan's own age — it fell back to 67 here while the odds were worked at 65
+  const planRetireOf = planRetireAgeOf({ assumptions: A, op, retiredNow: lens === 'retired', age });
+  const planRetire = Math.round(planRetireOf.age);
   const planSave = Number(A.contribMonthly ?? 0);
   const planSpend = Number(A.spendMonthly ?? op.monthlySpending ?? 0);
   // approved-words numbers (founder 2026-08-04): pot at retirement day + median left at plan-to age
   const simFull = useMemo(() => (wil.inputs ? simulate({ ...wil.inputs, with_band: true }) : null), [wil.inputs]);
   const onCourse = onCourseSentence({
-    lens, chance: wil.chance, retireAge: planRetire, horizonAge: wil.horizonAge,
+    lens, chance: wil.chance, retireAge: planRetire, retireAgeOurs: planRetireOf.ours, horizonAge: wil.horizonAge,
     potAtRetire: simFull?.projected_at_retirement ?? null,
     leftoverAtHorizon: simFull?.band?.length ? simFull.band[simFull.band.length - 1].p50 : null,
     shortfallAge: shortfallAgeFromBand(simFull?.band),
@@ -246,6 +249,7 @@ export default function PlanHubScreen() {
           {/* the inputs live HERE, on the tab (founder 2026-08-12) — not behind a link */}
           <PlanInputs draft={draft} committed={committed} onDraft={setDraft} onCommit={commitDraft}
             suggestedTarget={A?.targetNestEgg == null ? suggestedTarget : null}
+            assumed={{ retireAge: planRetireOf.ours, horizonAge: A?.horizonAge == null }}   // the age the odds run on, marked ours when nobody entered one (R10, 2026-10-31)
             mortgageMonthly={mortgage?.monthly ?? 0} mortgagePayoffYear={mortgage?.payoffYear}
             onOpenDoor={(r) => router.push(r as any)} />
           {/* a single line of text is a ~20pt target; fingers miss it, and this audience is the
@@ -285,7 +289,7 @@ export default function PlanHubScreen() {
             <PlanInputs draft={draft} committed={committed} onDraft={setDraft} onCommit={commitDraft}
               missing={door.missing} focus={focusParam} onOpenDoor={(r) => router.push(r as any)}
               suggestedTarget={A?.targetNestEgg == null ? suggestedTarget : null}
-              assumed={{ retireAge: A?.retireAge == null, horizonAge: A?.horizonAge == null }}
+              assumed={{ retireAge: planRetireOf.ours, horizonAge: A?.horizonAge == null }}   // ours only when nobody entered one (R10): an age typed in sign-up is theirs
               mortgageMonthly={mortgage?.monthly ?? 0} mortgagePayoffYear={mortgage?.payoffYear} />
           </View>
           <View style={[styles.nextCard, { opacity: 0.5 }]} accessible
@@ -459,7 +463,7 @@ export default function PlanHubScreen() {
                   <Text style={styles.rowTitle}>{s.name}</Text>
                   <Text style={styles.rowSub}>{s.chance != null ? `${s.chance}% when saved` : 'open to re-run'} · {prettySavedDate(s.createdAt)}</Text>
                 </TouchableOpacity>
-                <TouchableOpacity accessibilityRole="button" onPress={() => deleteScenario(s)} hitSlop={{ top: 14, bottom: 14, left: 14, right: 14 }}
+                <TouchableOpacity accessibilityRole="button" onPress={() => deleteScenario(s)} hitSlop={Tap.slop}
                   accessibilityLabel={`Delete scenario ${s.name}`}>
                   <Text style={styles.deleteTxt}>✕</Text>
                 </TouchableOpacity>
@@ -532,9 +536,6 @@ export default function PlanHubScreen() {
     return Math.max(0, Math.round((payMonth.safeDraw ?? 0) - usingFromSavings));
   }, [payMonth, planSpend, lens]);
 
-  // THE GOALS AS SAVED (2026-10-30, FX-PLAN): the rows read goal_id, target_amount and target_year, names the app never saves a goal
-  // under, so every goal read $0 and the tab showed 'Nothing here yet' with goals entered. One reader, both shapes (src/domain/goals).
-  const goalRows = planGoalRows(store.goals);
 
   return (
     <ScrollView style={styles.root} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
@@ -544,7 +545,7 @@ export default function PlanHubScreen() {
       {/* CHROME, not content — the bar sits on every state including day one and age-missing, so
           Goals and Prepare are always reachable (brief §3.0). */}
       <PlanSubTabs active={subTab} onChange={setSubTab} />
-      {subTab === 'goals' ? <PlanGoals goals={goalRows} />
+      {subTab === 'goals' ? <PlanGoals initialAdd={add === '1'} />
         : subTab === 'prepare' ? <PlanPrepare />
         : (<>
             {verdictBlock}

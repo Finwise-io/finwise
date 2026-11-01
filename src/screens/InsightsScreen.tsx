@@ -1,6 +1,7 @@
 // Insights — the centralized function's ranked results, GROUPED BY THEME, each with a provenance drill-down
 // (which accounts + the math) so a number is never a mystery. useInsights() computes the inputs AND the
 // per-insight detail breakdowns from the store + domain.
+import { SHEET_FRAME, SHEET_HANDLE } from '../components/sheetFrame';   // one sheet frame (NW3-18, 2026-10-31)
 import React, { useMemo, useState } from 'react';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Modal, Alert } from 'react-native';
 import { SectionBand } from '../components/SectionBand';
@@ -112,7 +113,7 @@ export function useInsights(limit?: number): Insight[] {
     const ssLive = age >= SS_DECISION_FROM && age <= SS_DECISION_TO && A.ssClaimAge == null && num(op.ri_ss) === 0;
     const ssWindow = !ssLive ? null : age < EARLIEST_CLAIM_AGE ? 'approaching' as const : 'open' as const;
     // Goals vs surplus: what every active goal needs per month, minus what the plan frees up.
-    const activeGoals = ((store.goals ?? []) as any[]).filter((g) => (g.saved || 0) < (g.target || 0));
+    const activeGoals = ((store.goals ?? []) as any[]).filter((g) => g.kind !== 'debt' && (g.saved || 0) < (g.target || 0));   // saving goals only (2026-10-31): a debt goal is not saved toward
     const needed = activeGoals.reduce((t, g) => t + (requiredMonthly(g) ?? 0), 0);
     const freed = Math.max(0, monthlySavings(op, liabilities));
     const goalsGap = activeGoals.length > 0 && needed > 0 ? Math.round(needed - freed) : null;
@@ -227,7 +228,7 @@ export default function InsightsScreen() {
         <View style={styles.card}><Text style={styles.empty}>🎉 Nothing urgent — your plan looks healthy. Keep it up.</Text></View>
       ) : order.filter((t) => insights.some((i) => i.theme === t)).map((t) => (
         <View key={t}>
-          <SectionBand title={`${THEME_META[t].icon}  ${THEME_META[t].label.toUpperCase()}`} />
+          <SectionBand title={`${THEME_META[t].icon} ${THEME_META[t].label.toUpperCase()}`} />
           {insights.filter((i) => i.theme === t).map((i) => (
             <TouchableOpacity key={i.id} accessibilityRole="button" accessibilityLabel={spokenDollars(i.title)} accessibilityHint="Shows where this number comes from" style={[styles.card, styles.row]} onPress={() => setOpen(i)}>
               <Text style={styles.icon}>{i.icon}</Text>
@@ -267,7 +268,7 @@ export default function InsightsScreen() {
             {open && (<>
               {/* Walk row 3 (audit PRD #6): the pop-up masks like every other surface —
                   the card was masked but this sheet leaked the plain dollars. */}
-              <Text style={styles.sheetTitle}>{open.icon}  {maskDollars(open.title)}</Text>
+              <Text style={styles.sheetTitle}>{open.icon} {maskDollars(open.title)}</Text>
               <Text style={styles.sheetBody}>{maskDollars(open.body)}</Text>
               {open.rentNotKnownMonths && <RentNotKnownLine months={open.rentNotKnownMonths} onPress={() => { setOpen(null); router.push('/income-manager?open=rental' as any); }} />}
               {open.details && open.details.length > 0 && (
@@ -309,8 +310,8 @@ const styles = StyleSheet.create({
   arrow: { fontSize: 24, color: Colors.textTertiary },
   empty: { fontSize: 15, color: Colors.textSecondary, lineHeight: 20 },
   backdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.45)', justifyContent: 'flex-end' },
-  sheet: { backgroundColor: Colors.bgSecondary, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: Spacing.lg, paddingBottom: 32 },
-  grip: { width: 38, height: 4, borderRadius: 2, backgroundColor: Colors.border, alignSelf: 'center', marginBottom: Spacing.md },
+  sheet: { ...SHEET_FRAME, padding: Spacing.lg, paddingBottom: 32 },
+  grip: { ...SHEET_HANDLE },
   sheetTitle: { fontSize: 17, fontWeight: '800', color: Colors.textPrimary },
   sheetBody: { fontSize: 13, color: Colors.textSecondary, marginTop: 6, lineHeight: 19 },
   detailBox: { backgroundColor: Colors.cardBg, borderRadius: Radii.md, padding: Spacing.md, marginTop: Spacing.md },

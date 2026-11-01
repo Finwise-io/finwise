@@ -48,7 +48,7 @@ describe('the Income manager', () => {
       rentals: [{ type: 'long', income: 1000, expenses: 1500, property_id: 'rh' }] }, assetAccounts: [HOUSE] });
     render(<Manager />);
     const ls = lines();
-    expect(ls).toContain('2 sources');
+    expect(ls).toContain('2 SOURCES');   // the bar's words in capitals, the count too (IN3-05, 2026-10-31)
     expect(ls).toContain('Rent');
     expect(ls).toContain('One property · −$500/month net');     // $1,000 − $1,500
     expect(ls).not.toContain('Rent from a property');
@@ -57,7 +57,7 @@ describe('the Income manager', () => {
     setup({ onboardingProfile: { equityType: 'rsu', rsuGrants: [{ shares: 25, price: 400, date: '2026-12-15' }] } });   // 25 × $400
     render(<Manager />);
     const ls = lines();
-    expect(ls).toContain('1 source');
+    expect(ls).toContain('1 SOURCE');   // (IN3-05, 2026-10-31)
     expect(ls).toContain('Bonus and stock');
     expect(ls.some((l) => /^\$10,000\/year/.test(l))).toBe(true);
   });
@@ -133,13 +133,27 @@ describe('sign-up', () => {
     step('income_benefits', { benefitTypes: ['snap'], benefitMonthly: '300' });
     expect(lines().join(' ')).toMatch(/We won’t tax this income\./);
   });
-  test('Bonuses: a signing bonus asks its month — "Date not entered" until one is picked; October stores 2026-10', () => {
+  // ON ITS OWN DAY (2026-11-01, FX-CF-B): the chip stores the next time a month comes, so the test reads the clock it was written on —
+  // on 2026-10-25 October is this year's; it went red on 2026-11-01, when the next October is 2027's, which is also right (below)
+  const onDay = (d: Date, fn: () => void) => {
+    jest.useFakeTimers({ doNotFake: ['nextTick', 'setImmediate', 'queueMicrotask', 'setTimeout', 'setInterval', 'clearTimeout', 'clearInterval'] });
+    jest.setSystemTime(d);
+    try { fn(); } finally { jest.useRealTimers(); }
+  };
+  test('Bonuses: a signing bonus asks its month — "Date not entered" until one is picked; October stores 2026-10', () => onDay(new Date(2026, 9, 25, 12), () => {
     const ctx = step('income_bonus', { signingOnetime: '7311.17' });
     expect(lines()).toContain('Which month is it paid?');
     expect(lines()).toContain('Date not entered — it is not counted until you pick its month.');
     fireEvent.press(screen.getByLabelText('Signing bonus paid in Oct 2026'));
     expect(ctx.setAnswer).toHaveBeenCalledWith('signingDate', '2026-10');
-  });
+  }));
+  test('Bonuses, read on 2026-11-01: October has passed, so its chip stores the next October, 2027-10', () => onDay(new Date(2026, 10, 1, 12), () => {
+    const ctx = step('income_bonus', { signingOnetime: '7311.17' });
+    fireEvent.press(screen.getByLabelText('Signing bonus paid in Oct 2027'));
+    expect(ctx.setAnswer).toHaveBeenCalledWith('signingDate', '2027-10');
+    fireEvent.press(screen.getByLabelText('Signing bonus paid in Nov 2026'));      // this month is still this year's
+    expect(ctx.setAnswer).toHaveBeenCalledWith('signingDate', '2026-11');
+  }));
 });
 
 // ── follow-up (2026-10-25, the lead): the Income tab prints incomeSources' rows; the one-time step asks month and year ──

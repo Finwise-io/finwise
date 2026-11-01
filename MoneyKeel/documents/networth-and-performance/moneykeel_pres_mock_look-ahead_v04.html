@@ -1,4 +1,4 @@
-<title>MoneyKeel — Look ahead v4: everything on one screen (for approval)</title>
+<title>MoneyKeel — Look ahead v4: everything on one screen (not approved)</title>
 <meta charset="utf-8">
 <style>
   :root{ --bg:#e8ece9; --ink:#1a1a18; --ink2:#585d59; --line:rgba(20,40,30,.14); --accent:#178F6B; }
@@ -62,7 +62,7 @@
 <ul style="padding-left:20px;margin:6px 0 0">
 <li><b>The dial reads <span style="font-family:ui-monospace,monospace">+$750/month</span></b>, not <span style="font-family:ui-monospace,monospace">+$750/mo</span> (canon row 14).</li>
 <li><b>The back arrow says <span style="font-family:ui-monospace,monospace">‹ Performance</span></b>, not <span style="font-family:ui-monospace,monospace">‹ Invest</span>. There is no Invest tab: investments live on Performance and Net worth (canon row 9), and the five tabs are Home · Net worth · Cash flow · Plan · Menu.</li>
-<li><b>The one empty-state door.</b> "Connect or add an account ›" was this screen's own wording; the door for accounts is <b>Add your accounts ›</b> in <span style="font-family:ui-monospace,monospace">src/constants/doors.ts</span> — the one list every screen reads (founder, "one door, one term").</li>
+<li><b>The one empty-state door.</b> ‘Connect or add an account ›’ was this screen's own wording; the door for accounts is <b>Add your accounts ›</b> in <span style="font-family:ui-monospace,monospace">src/constants/doors.ts</span> — the one list every screen reads (founder, "one door, one term").</li>
 </ul>
 <b>Nothing else moved.</b> The sliders, the +$243,000, the $1.31M → $1.55M, the 84% → 89%, both ⓘ dots and all three notes are v03 as drawn.
 </div>
@@ -116,9 +116,9 @@
 
     <div>
       <ul class="legend">
-        <li><span class="dot">1</span><div><b>Sliders, saved once, used everywhere.</b> Age writes your birth year; "Retire at" writes the SAME plan field the Plan tab edits — one source of truth, zero duplicate fields (documented in detailed design v1.2). Prefilled when known; big 44pt thumbs; values in 20pt.</div></li>
-        <li><span class="dot">2</span><div><b>Both ⓘ dots you asked for.</b> On the $243,000 delta AND on "Projected nest egg" — text below. The payoff recomputes live as any slider or the dial moves.</div></li>
-        <li><span class="dot">3</span><div><b>Friction gone:</b> the "answer the plan questions elsewhere" empty state disappears for this case — the questions ARE the screen. Only the no-accounts state remains ("Add your accounts ›").</div></li>
+        <li><span class="dot">1</span><div><b>Sliders, saved once, used everywhere.</b> Age writes your birth year; ‘Retire at’ writes the SAME plan field the Plan tab edits — one source of truth, zero duplicate fields (documented in detailed design v1.2). Prefilled when known; big 44pt thumbs; values in 20pt.</div></li>
+        <li><span class="dot">2</span><div><b>Both ⓘ dots you asked for.</b> On the $243,000 delta AND on ‘Projected nest egg’ — text below. The payoff recomputes live as any slider or the dial moves.</div></li>
+        <li><span class="dot">3</span><div><b>Friction gone:</b> the ‘answer the plan questions elsewhere’ empty state disappears for this case — the questions ARE the screen. Only the no-accounts state remains (‘Add your accounts ›’).</div></li>
       </ul>
       <div class="glossbox">
         <b>ⓘ on $243,000 / Projected nest egg — the explanation (tap either):</b><br><br>

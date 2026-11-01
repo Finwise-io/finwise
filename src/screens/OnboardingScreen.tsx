@@ -1,3 +1,4 @@
+import { SectionBand } from '../components/SectionBand';
 import React, { useState, useEffect, useRef } from 'react';
 import {
   View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Alert,
@@ -6,7 +7,7 @@ import {
 import { useRouter } from 'expo-router';
 import { useStore } from '../store/useStore';
 import { Button, Card, ProgressBar } from '../components/UI';
-import { Colors, Spacing, Radii } from '../utils/theme';
+import { Colors, Spacing, Radii, Tap } from '../utils/theme';
 import {
   Status, Track, STATUS_OPTIONS, goalOptionsFor, goalGroupsFor, buildSteps, isOptional, PRE_ANSWERED_STEPS,
 } from '../onboarding/steps';
@@ -232,7 +233,9 @@ export default function OnboardingScreen() {
           <Header emoji="🎯" title="What brings you to MoneyKeel?" sub="Pick anything that fits — you can change this later." />
           {groups.map(group => (
             <View key={group.title}>
-              <Text style={styles.groupHeader}>{group.title.toUpperCase()}</Text>
+              {/* a group's name is a sub-title: a light-green bar, edge to edge of the phone (DEC-8839, R1; SU3-04, 2026-10-31) — it was
+                  grey capitals */}
+              <View style={styles.groupBleed}><SectionBand light title={group.title} /></View>
               {group.items.map(opt => {
                 const on = tracks.includes(opt.value);
                 return (
@@ -323,8 +326,8 @@ const styles = StyleSheet.create({
   headWrap: { alignItems: 'center', marginBottom: Spacing.lg },
   heading: { fontSize: 20, fontWeight: '800', color: Colors.textPrimary, textAlign: 'center' },
   sub: { fontSize: 15, color: Colors.textSecondary, textAlign: 'center', marginTop: 6 },
-  groupHeader: { fontSize: 11, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.5, marginTop: Spacing.md, marginBottom: 6 },
-  choice: { flexDirection: 'row', alignItems: 'center', backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginBottom: Spacing.sm, borderWidth: 2, borderColor: 'transparent' },
+  groupBleed: { marginHorizontal: -Spacing.lg, marginTop: Spacing.md, marginBottom: 6 },   // the page's margins taken back
+  choice: { minHeight: Tap.min, justifyContent: 'center', flexDirection: 'row', alignItems: 'center', backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginBottom: Spacing.sm, borderWidth: 2, borderColor: 'transparent' },
   choiceOn: { borderColor: Colors.primary, backgroundColor: Colors.primaryLight },
   choiceIcon: { fontSize: 24, marginRight: Spacing.md },
   choiceTitle: { fontSize: 17, fontWeight: '600', color: Colors.textPrimary },

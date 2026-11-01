@@ -248,7 +248,7 @@ export default function HomeScreen() {
 
   // ── will-it-last strip: the ONE selector's number (same seeded run as the Plan hub) ──
   const wil = useMemo(
-    () => selectWillItLast({ op, accounts: resolvedRows.accounts, assumptions: store.retirementAssumptions ?? {}, inflationRate: store.inflationRate, employmentStatus: store.employmentStatus, transactions: store.transactions ?? [] }),
+    () => selectWillItLast({ op, accounts: resolvedRows.accounts, assumptions: store.retirementAssumptions ?? {}, employmentStatus: store.employmentStatus, transactions: store.transactions ?? [] }),   // no feed: the plan's one inflation (DEC-0259)
     [op, resolvedRows.accounts, store.retirementAssumptions, store.inflationRate, store.employmentStatus, store.transactions]);
   useEffect(() => { if (wil.chance != null) store.setLastRetireChance?.(wil.chance); }, [wil.chance]);
 
@@ -322,9 +322,9 @@ export default function HomeScreen() {
         )}
 
         <SectionBand title={"WHAT YOU’LL SEE HERE"} />
-        <Text style={styles.promiseLine}>·  Your whole money picture in one place</Text>
-        <Text style={styles.promiseLine}>·  What needs your attention — with dollar amounts</Text>
-        <Text style={styles.promiseLine}>·  Whether your money will last — as honest odds</Text>
+        <Text style={styles.promiseLine}>· Your whole money picture in one place</Text>
+        <Text style={styles.promiseLine}>· What needs your attention — with dollar amounts</Text>
+        <Text style={styles.promiseLine}>· Whether your money will last — as honest odds</Text>
       </ScrollView>
     );
   }

@@ -25,6 +25,10 @@ export interface AlternativesOutlook {
   estimatedGrowthPerYear: number | null;
   /** The TOTAL the rows add to — the figure above them on the screen. */
   totalValue: number;
+  /** THAT TOTAL'S SHARE OF THE INVESTABLE MONEY (MK-NW-M-074, 2026-10-31): totalValue ÷ the Investments figure Net worth shows, as a
+   *  decimal. Null with no investable money, or when the caller hands no investable figure in. Worked here, once — the screen worked
+   *  it to one decimal by itself (drawing match round 3, NW3-06). */
+  shareOfInvestable: number | null;
   /** (DEC-4036h, 2026-10-10) Money in the total that no priced holding or option explains. The rate and the growth
    *  leave it out. 0 when every dollar is classified. */
   notClassifiedValue: number;
@@ -66,6 +70,7 @@ export interface AlternativeRow {
  * Formula .....
  *     accounts = input.accounts (or none when missing)
  *     s = alternatives summary(accounts)
+ *     investable = input.investable (or nothing when missing)
  *
  * Called by ... MK-NW-F-076 ALT
  *
@@ -73,17 +78,20 @@ export interface AlternativeRow {
  *               MK-NW-F-076 ALT
  *
  * Serves ...... MK-NW-M-050 · MK-NW-M-051 · MK-NW-M-052 · MK-NW-M-072
+ *               MK-NW-M-074
  * Reads ....... MK-XS-I-003 institution name
  *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
  *
  * Formula also on the master file · functions_from_code · MK-NW-O-005
  * Changed ..... not in git yet (—)
  */
-export function theAlternativesOutlook(input: { accounts: AssetAccount[] }): AlternativesOutlook {
+export function theAlternativesOutlook(input: { accounts: AssetAccount[]; investable?: number | null }): AlternativesOutlook {
   const accounts = input.accounts ?? [];
   const s = alternativesSummary(accounts);
+  const investable = input.investable ?? null;
   return {
     count: s.count,
+    shareOfInvestable: investable != null && investable > 0 ? s.totalValue / investable : null,
     expectedReturn: s.blendedReturn,
     // nothing held is not a forecast of nothing — it is no forecast at all
     estimatedGrowthPerYear: s.count > 0 && s.totalValue > 0 ? s.estAnnualGrowth : null,
@@ -171,6 +179,7 @@ const GIVEN = '$9,000 of gold and $6,000 of bitcoin — $15,000 of other investm
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
+ *               MK-XS-I-048 the person’s own asset-class answer
  *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
  *               MK-XS-I-064 the unit beside a quantity — shares, coins, contracts, ounces or units
  *
@@ -208,6 +217,23 @@ export const ALTERNATIVES_OUTLOOK_FIGURES = declareFigures({
       given: GIVEN,
       answer: '8.12%',
       run: () => ALT().expectedReturn,
+    },
+  },
+  // DECLARED 2026-10-31 (drawing match round 3, NW3-06): the screen worked this share itself, to one decimal, with no identifier.
+  // The number 074 is the next after the register's highest Net worth figure (73); PF-TOOLS issues it there.
+  'MK-NW-M-074': {
+    label: 'X% of your investable assets', unit: 'percent-2dp', screens: ['/other-investments'],
+    grain: 'the household',
+    answers: 'How much of your investable money — your cash and investments — sits in alternatives.',
+    formula: 'the alternatives total (MK-NW-M-052\'s rows, added up) ÷ Investments on Net worth (MK-NW-O-003 theNetWorth, its investable figure)',
+    inputs: ['MK-XS-I-001 account balance'],
+    decisions: ['TWO DECIMALS, as every percent (his ruling Q49): $61,500 of $501,500 is 12.26%, which the screen printed as 12.3%.'],
+    refusal: 'No investable money — no share is stated, never 0%.',
+    ruled: '2026-10-31',
+    worked: {
+      given: GIVEN + ' Investable money: $125,000.',
+      answer: '12.00%',
+      run: () => theAlternativesOutlook({ accounts: EXAMPLE, investable: 125_000 }).shareOfInvestable,   // 15,000 ÷ 125,000
     },
   },
   'MK-NW-M-052': {

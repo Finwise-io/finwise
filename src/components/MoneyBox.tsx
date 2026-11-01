@@ -31,6 +31,29 @@ export function plainAmount(v: string): string {
   return dot < 0 ? digits : digits.slice(0, dot + 1) + digits.slice(dot + 1).replace(/\./g, '');
 }
 
+/** A SAVED PRICE OR AMOUNT, AS A BOX OPENS ON IT (2026-10-31, FX-PF, NW3-03 / PF3-5; Q49: a price per share and cents have two
+ *  decimals; the money-box rows of 2026-10-27, DEC-8930: ‘$192.50’ where ‘192.5’). A figure saved with one decimal opens with two —
+ *  192.5 → "192.50" — so the box reads "$192.50", as the page under it and the activity sheet print it. A whole figure stays whole
+ *  ("168"), and one with more decimals is handed over as saved (amountInBox shows it to the cent; nothing stored is rounded).
+ *  Nothing saved: empty. It calculates nothing. */
+/* ─ MK-XS-F-210 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * savedAmountForBox
+ *
+ * Answers ..... A saved price or amount as a money box opens on it: one decimal opens with two (192.5 → "192.50"), a whole figure stays whole, more decimals are handed over as saved, nothing saved is empty; it calculates nothing.
+ *
+ * Called by ... AccountPortfolioScreen · PerformanceScreen
+ *
+ * Numbered by hand 2026-11-01 (PF-TOOLS, the lead's instruction): the scan that issues identifiers reads functions in the
+ *               calculation folders only, so this screen helper has no generated record; this one is written by hand in the generated form,
+ *               as MK-NW-F-145's is
+ * Changed ..... not in git yet (—)
+ */
+export function savedAmountForBox(n: number | null | undefined): string {
+  if (n == null || !Number.isFinite(n)) return '';
+  const s = String(n);
+  return /\.\d$/.test(s) ? `${s}0` : s;
+}
+
 /** A stored amount as the box shows it: "$" and the thousands marks, the decimals kept as typed ("1850." → "$1,850.").
  *  Empty stays empty, so the box's placeholder shows. No rounding: the box shows what was typed, digit for digit. */
 /* ─ MK-XS-F-201 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED

@@ -262,7 +262,7 @@ describe('E2E-57 · Record a buy from the account page: tap "Add a buy or sale",
     open('account', { id: 'van', period: '1M' });
     press(/^Add a buy or sale for /);
     fireEvent.changeText(screen.getByPlaceholderText('e.g. AAPL'), 'VTI');
-    const [shares, price] = screen.getAllByPlaceholderText('0');
+    const [shares, price] = screen.getAllByLabelText(/^(Shares|Contracts|Price per share|Amount)$/);   // the boxes by name — their grey ‘0’ is gone (R16, 2026-11-01)
     fireEvent.changeText(shares, '50'); fireEvent.changeText(price, '100');
     expect(readLines(true)).toContain('Available cash: $5,000');                 // 50 × $100 = $5,000: enough
     expect(screen.getByLabelText('Record buy').props.accessibilityState?.disabled).toBeFalsy();
@@ -287,7 +287,7 @@ describe('E2E-57 · Record a buy from the account page: tap "Add a buy or sale",
     expect(screen.getByText('Record activity')).toBeOnTheScreen();
     expect(readLines(true)).toContain('Available cash: not entered');   // its cash was never entered: shown so, never refused on
     fireEvent.changeText(screen.getByPlaceholderText('e.g. AAPL'), 'VTI');
-    const [shares, price] = screen.getAllByPlaceholderText('0');
+    const [shares, price] = screen.getAllByLabelText(/^(Shares|Contracts|Price per share|Amount)$/);
     fireEvent.changeText(shares, '10'); fireEvent.changeText(price, '100');
     press('Record buy');
     screen.unmount();
@@ -367,7 +367,7 @@ describe('E2E-57 · Record a buy from the account page: tap "Add a buy or sale",
     press(/^Add a buy or sale for /);
     expect(readLines(true)).toContain('Available cash: $18,700');
     fireEvent.changeText(screen.getByPlaceholderText('e.g. AAPL'), 'VTI');
-    const [shares, price] = screen.getAllByPlaceholderText('0');
+    const [shares, price] = screen.getAllByLabelText(/^(Shares|Contracts|Price per share|Amount)$/);
     fireEvent.changeText(shares, '4'); fireEvent.changeText(price, '411.50');
     press('Record buy');
     const page = readLines();
@@ -437,7 +437,7 @@ describe('E2E-58 · Record a sale with a $5 fee from the Holding page: the fee c
     press('Transaction type: Sell');
     expect(flat(screen.getByLabelText('Holding: VTI').props.style).backgroundColor).toBe(Colors.primaryLight);   // VTI, chosen
     expect(readLines(true)).toContain('You own 100 shares');
-    const [shares, price] = screen.getAllByPlaceholderText('0');
+    const [shares, price] = screen.getAllByLabelText(/^(Shares|Contracts|Price per share|Amount)$/);
     fireEvent.changeText(shares, '10'); fireEvent.changeText(price, '98');
     type('Fee', '5');
     pickDay(2026, 9, 15);
@@ -481,7 +481,7 @@ describe('E2E-58 · Record a sale with a $5 fee from the Holding page: the fee c
     open('holding', { account: 'fid', position: 'vti', period: '1M' });
     press('Record a buy or sell for VTI');
     press('Transaction type: Sell');
-    const [shares, price] = screen.getAllByPlaceholderText('0');
+    const [shares, price] = screen.getAllByLabelText(/^(Shares|Contracts|Price per share|Amount)$/);
     fireEvent.changeText(shares, '10'); fireEvent.changeText(price, '98');
     type('Fee', '5');
     pickDay(2026, 9, 15);
@@ -510,7 +510,7 @@ describe('E2E-59 · Sell a holding in full inside the window: the page closes, t
     open('holding', { account: 'fid', position: 'vti', period: '1M' });
     press('Record a buy or sell for VTI');
     press('Transaction type: Sell');
-    const [shares, price] = screen.getAllByPlaceholderText('0');
+    const [shares, price] = screen.getAllByLabelText(/^(Shares|Contracts|Price per share|Amount)$/);
     fireEvent.changeText(shares, '100'); fireEvent.changeText(price, '98');
     pickDay(2026, 9, 15);
     press('Record sell');
@@ -557,7 +557,7 @@ describe('E2E-60 · A purchase with no share count and one with no price paid: b
     open('holding', { account: 'van', position: 'vti', period: '1M' });
     press('Edit this holding');
     press('Add another lot');
-    const boxes = screen.getAllByPlaceholderText('0');
+    const boxes = screen.getAllByLabelText(/^(Shares|Contracts|Price per share|Amount)$/);
     fireEvent.changeText(boxes[boxes.length - 1], '10');          // shares; the price paid left as it opens, blank
     press('Save holding');
     screen.unmount();
@@ -644,7 +644,7 @@ describe('E2E-61 · Edit a record (its price) from the ✎, then delete a record
     open('account', { id: 'fid', period: '1M' });
     press(/^Add a buy or sale for /);
     fireEvent.changeText(screen.getByPlaceholderText('e.g. AAPL'), 'VTI');
-    const [shares, price] = screen.getAllByPlaceholderText('0');
+    const [shares, price] = screen.getAllByLabelText(/^(Shares|Contracts|Price per share|Amount)$/);
     fireEvent.changeText(shares, '10'); fireEvent.changeText(price, '100');
     pickDay(2026, 9, 15);
     press('Record buy');
@@ -798,7 +798,7 @@ describe('E2E-58 B · a sale\'s realized gain reads what was paid, for a holding
     open('holding', { account: a.asset_id, position: pos, period: '1M' });
     press('Record a buy or sell for VTI');
     press('Transaction type: Sell');
-    const [shares, price] = screen.getAllByPlaceholderText('0');
+    const [shares, price] = screen.getAllByLabelText(/^(Shares|Contracts|Price per share|Amount)$/);
     fireEvent.changeText(shares, '10'); fireEvent.changeText(price, '98');
     pickDay(2026, 9, 15);
     press('Record sell');
@@ -822,7 +822,7 @@ describe('E2E-58 B · a sale\'s realized gain reads what was paid, for a holding
     open('holding', { account: 'fid', position: 'vti', period: '1M' });
     press('Edit this holding');
     press('Add another lot');
-    const sharesBoxes = screen.getAllByPlaceholderText('0');
+    const sharesBoxes = screen.getAllByLabelText(/^(Shares|Contracts|Price per share|Amount)$/);
     fireEvent.changeText(sharesBoxes[sharesBoxes.length - 1], '10');
     const costBoxes = screen.getAllByPlaceholderText('—');
     fireEvent.changeText(costBoxes[costBoxes.length - 1], '90');
@@ -837,7 +837,7 @@ describe('E2E-58 B · a sale\'s realized gain reads what was paid, for a holding
     // sell 105 at $100.00 today: the 100 bought Mar 3, 2025 first, then 5 of the 10 of Jan 5
     press('Record a buy or sell for VTI');
     press('Transaction type: Sell');
-    const [shares, price] = screen.getAllByPlaceholderText('0');
+    const [shares, price] = screen.getAllByLabelText(/^(Shares|Contracts|Price per share|Amount)$/);
     fireEvent.changeText(shares, '105'); fireEvent.changeText(price, '100');
     press('Record sell');
     const page = { printed: [], lines: readLines() };
@@ -853,7 +853,7 @@ describe('E2E-58 B · a sale\'s realized gain reads what was paid, for a holding
     press(/^Add a buy or sale for /);
     fireEvent.changeText(screen.getByPlaceholderText('e.g. AAPL'), 'AAA');
     press('Type: Stocks / Funds');   // a ticker the account does not hold yet is asked its type (2026-10-25, trade-sheet v03 row 16)
-    const [shares, price] = screen.getAllByPlaceholderText('0');
+    const [shares, price] = screen.getAllByLabelText(/^(Shares|Contracts|Price per share|Amount)$/);
     fireEvent.changeText(shares, '10'); fireEvent.changeText(price, '90');
     press('Record buy');
     // its row on the account page opens its page
@@ -865,7 +865,7 @@ describe('E2E-58 B · a sale\'s realized gain reads what was paid, for a holding
     open('holding', { account: 'fid', position: pos, period: '1M' });
     press('Record a buy or sell for AAA');
     press('Transaction type: Sell');
-    const [s2, p2] = screen.getAllByPlaceholderText('0');
+    const [s2, p2] = screen.getAllByLabelText(/^(Shares|Contracts|Price per share|Amount)$/);
     fireEvent.changeText(s2, '5'); fireEvent.changeText(p2, '100');
     press('Record sell');
     // 5 × ($100 − $90) = +$50, the sale matched to the purchase of the same day
@@ -893,7 +893,7 @@ describe('E2E-57 D · an option contract bought and sold by hand moves 100 share
     });
     open('holding', { account: 'fid', position: 'opt', period: '1M' });
     press(`Record a buy or sell for ${CALL}`);
-    const [shares, price] = screen.getAllByPlaceholderText('0');
+    const [shares, price] = screen.getAllByLabelText(/^(Shares|Contracts|Price per share|Amount)$/);
     fireEvent.changeText(shares, '1'); fireEvent.changeText(price, '2.5');
     press('Record buy');
     expect((useStore.getState().transactions as any[])[0]).toMatchObject({ type: 'BUY', ticker: CALL, shares: 1, price: 2.5, multiplier: 100 });
@@ -908,7 +908,7 @@ describe('E2E-57 D · an option contract bought and sold by hand moves 100 share
     // the sale
     press(`Record a buy or sell for ${CALL}`);
     press('Transaction type: Sell');
-    const [s2, p2] = screen.getAllByPlaceholderText('0');
+    const [s2, p2] = screen.getAllByLabelText(/^(Shares|Contracts|Price per share|Amount)$/);
     fireEvent.changeText(s2, '1'); fireEvent.changeText(p2, '3');
     press('Record sell');
     expect(acct('fid').cash_balance).toBe(1_050);                     // $750 + 1 × 100 × $3.00
@@ -943,14 +943,14 @@ describe('E2E-57 E · a VTI bought on the trade sheet lists under Stocks / Funds
     // trade-sheet v03 row 16; DEC-2160) — the class is the person's answer, never the classifier's default
     expect(screen.getByLabelText('Record buy').props.accessibilityState?.disabled).toBe(true);
     press('Type: Stocks / Funds');
-    const [shares, price] = screen.getAllByPlaceholderText('0');
+    const [shares, price] = screen.getAllByLabelText(/^(Shares|Contracts|Price per share|Amount)$/);
     fireEvent.changeText(shares, '10'); fireEvent.changeText(price, '100');
     press('Record buy');
     // the dividend, from the same door: Dividend, VTI, $5.00 paid as cash
     press(/^Add a buy or sale for /);
     press('Transaction type: Dividend');
     press('Holding: VTI');
-    fireEvent.changeText(screen.getAllByPlaceholderText('0')[0], '5');
+    fireEvent.changeText(screen.getAllByLabelText(/^(Shares|Contracts|Price per share|Amount)$/)[0], '5');
     press('Record dividend');
     const page = readLines();
     screen.unmount();

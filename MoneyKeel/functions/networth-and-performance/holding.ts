@@ -109,6 +109,7 @@ export interface HoldingAnswer {
  *               MK-NW-M-037 · MK-NW-M-059 · MK-NW-M-060 · MK-NW-M-061
  *               MK-NW-M-067 · MK-NW-M-068 · MK-NW-M-070 · MK-NW-M-071
  * Reads ....... MK-XS-I-004 holding quantity (shares)
+ *               MK-XS-I-005 holding price
  *               MK-XS-I-007 purchase price and date (per lot)
  *               MK-XS-I-009 transaction date
  *               MK-XS-I-024 logged expenses
@@ -135,6 +136,9 @@ export function theHolding(input: {
   now?: Date;
   /** The recent daily closes, oldest first. Two are enough for the day's change. */
   recentCloses?: number[];
+  /** The same closes with their days (2026-10-31, FX-PF, NW3-04): where they are handed over, the day's change is printed only when
+   *  the last two are a market day apart. */
+  recentDatedCloses?: { date: string; close: number }[];
 }): HoldingAnswer {
   const now = input.now ?? new Date();
   const p = input.position;
@@ -202,7 +206,19 @@ export function theHolding(input: {
       costPerShare: lotCostOnRecord(l) ? l.cost_per_share : null,
     })),
     dayChange: (() => {
-      const c = input.recentCloses ?? [];
+      // A DAY'S MOVE IS BETWEEN TWO CLOSES A MARKET DAY APART (2026-10-31, FX-PF, NW3-04; tenet 2; Holding detail v02's row of that day):
+      // at most 4 calendar days, so Friday to Tuesday over a holiday Monday still counts. Closes on Jul 1 and Sep 30 read
+      // "▲ up $30.00 (60.00%) today" — a quarter's move called a day's. Months apart, no day's move is known: none. To reverse: drop
+      // the gap test.
+      const dated = [...(input.recentDatedCloses ?? [])].filter((x) => x && Number.isFinite(x.close) && /^\d{4}-\d{2}-\d{2}/.test(String(x.date)))
+        .sort((x, y) => String(x.date).localeCompare(String(y.date)));
+      if (input.recentDatedCloses) {
+        if (dated.length < 2) return null;
+        const [a, b] = [dated[dated.length - 2], dated[dated.length - 1]];
+        const gap = (Date.parse(`${String(b.date).slice(0, 10)}T00:00:00Z`) - Date.parse(`${String(a.date).slice(0, 10)}T00:00:00Z`)) / 86_400_000;
+        if (!(gap >= 1 && gap <= 4)) return null;
+      }
+      const c = input.recentDatedCloses ? dated.map((x) => x.close) : (input.recentCloses ?? []);
       if (c.length < 2) return null;
       const last = c[c.length - 1], prev = c[c.length - 2];
       // a previous close of zero cannot be divided by, and a share of nothing is not a move
@@ -491,7 +507,7 @@ const HOLD = () => theHolding({ position: EXAMPLE_POSITION, accountId: 'a2', pri
  *               MK-PF-F-070 holdingPath · MK-PF-F-077 eventPath
  *               MK-XS-F-192 typedValueDatedBack
  *
- * Reaches ..... 439 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 444 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -500,8 +516,8 @@ const HOLD = () => theHolding({ position: EXAMPLE_POSITION, accountId: 'a2', pri
  *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
- *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 421 more — the full list is on functions_from_code
+ *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
+ *               … and 426 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance

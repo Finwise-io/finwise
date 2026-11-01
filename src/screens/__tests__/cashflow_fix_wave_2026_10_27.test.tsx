@@ -14,9 +14,10 @@ import { builtLines, drawingLines, normExact, firstDifference } from '../../test
 import * as H from '../../testing/cashflowDrawing';
 import { encryptWithKey, decryptWithKey } from '../../services/dataCrypto';
 
+let mockParams: Record<string, string> = {};
 jest.mock('expo-router', () => ({
   useRouter: () => ({ back: jest.fn(), push: jest.fn(), replace: jest.fn(), setParams: jest.fn(), canGoBack: () => true }),
-  useLocalSearchParams: () => ({}), useSegments: () => [],
+  useLocalSearchParams: () => mockParams, useSegments: () => [],
   useFocusEffect: (cb: () => void) => { const R = require('react'); R.useEffect(() => { cb(); }, []); },
   router: { push: jest.fn(), replace: jest.fn(), back: jest.fn() }, Link: ({ children }: any) => children,
 }));
@@ -24,7 +25,7 @@ jest.mock('../../services/sync/snaptradeSync', () => ({ runSnapTradeSync: jest.f
 
 const ROOT = path.join(__dirname, '..', '..', '..');
 const CLOCK = ['nextTick', 'setImmediate', 'queueMicrotask', 'setTimeout', 'setInterval', 'clearTimeout', 'clearInterval'] as const;
-afterEach(() => jest.useRealTimers());
+afterEach(() => { jest.useRealTimers(); mockParams = {}; });
 const on = (day: string) => jest.useFakeTimers({ now: new Date(`${day}T12:00:00`), doNotFake: [...CLOCK] });
 const set = (state: any) => { useStore.getState().resetAll(); useStore.setState({ onboardingComplete: true, hideBalances: false, ...state } as any); };
 const show = (name = 'CashFlowScreen') => { const C = require(`../${name}`).default; render(<C />); };
@@ -354,5 +355,223 @@ describe('Workplan row 360 · Cash flow when retired, drawn from the build (cash
     expect(L).toContain('Nothing entered yet. Add your accounts ›');
     expect(L).toContain('Nothing entered yet. Add your guaranteed income ›');
     expect(L.join(' ')).not.toMatch(/tap a month for detail/);
+  });
+});
+
+// ════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+// ROUND 3, 2026-10-31 (FX-CF-A) — BC3-01 (R12), CF3-01 to CF3-08. Dated rows: cash-flow_v01 and bill-calendar_v02, 2026-10-31.
+// ════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+describe('BC3-01 (R12) · nothing projected from a $0 nobody typed', () => {
+  // $7,200 in at 0% and $4,220 out a month, and NO cash account: the box is empty
+  const PLAN = { onboardingProfile: { status: 'employed', incomeSources: ['employment'], baseSalary: '7200', salaryMode: 'takehome', salaryFreq: 'monthly', taxMode: 'manual', manualTaxRate: '0', monthlySpending: '4220' } };
+  const months = () => { const L = lines(); const at = L.indexOf('Oct'); return L.slice(at, at + 4); };
+  test('box empty: October In +$7,200 · Out −$4,220 · End “—”; no month flagged short; the refusal is said', () => {
+    on('2026-10-02'); set(PLAN); show('BillCalendarScreen');
+    expect(screen.getByLabelText('Cash on hand now, editable').props.value).toBe('');
+    expect(months()).toEqual(['Oct', '+$7,200', '−$4,220', '—']);
+    expect(lines().filter((l) => /^\$[\d,]+$/.test(l))).toEqual([]);                 // not one End printed
+    expect(lines().join(' ')).not.toMatch(/ short|IF YOU CAN/);
+    expect(lines()).toContain('No balance to start from — nothing is projected.');
+  });
+  test.failing('the old answer, kept: Ends projected from the empty box — October $2,980 (0 + 7,200 − 4,220)', () => {
+    on('2026-10-02'); set(PLAN); show('BillCalendarScreen');
+    expect(months()).toEqual(['Oct', '+$7,200', '−$4,220', '$2,980']);
+  });
+  test('a $0 typed is an answer: 0 + 7,200 − 4,220 = $2,980, then $5,960 in November', () => {
+    on('2026-10-02'); set(PLAN); show('BillCalendarScreen');
+    fireEvent.changeText(screen.getByLabelText('Cash on hand now, editable'), '0');
+    const L = lines();
+    expect(months()).toEqual(['Oct', '+$7,200', '−$4,220', '$2,980']);
+    expect(L.slice(L.indexOf('Nov'), L.indexOf('Nov') + 4)).toEqual(['Nov', '+$7,200', '−$4,220', '$5,960']);
+  });
+});
+
+describe('CF3-01, CF3-02, CF3-03, CF3-08 · the budget editor', () => {
+  const editor = () => { const Budget = require('../BudgetScreen').default; render(<Budget embedded initialTab="Budget" />); return lines(); };
+  test('frame A: the card under This month’s bar, “PLANNED · AUGUST +$350”; the surplus 15/800 in the gain green; $300 left in the gain green', () => {
+    on('2026-08-20'); H.householdWithData();
+    const L = editor();
+    expect(after(L, 'PLANNED · AUGUST')).toBe('+$350');                                 // 5,000 − 2,000 − 2,650
+    expect(L).not.toContain('YOUR BUDGET');
+    const plus = screen.getAllByText('+$350').map((n: any) => flat(n));
+    expect(plus).toHaveLength(2);                                                       // the bar's total and the closing row
+    const total = plus.find((st: any) => st.color !== '#FFFFFF')!;
+    expect([total.fontSize, total.fontWeight, total.color]).toEqual([15, '800', '#006300']);
+    const left = screen.getByText(/left · of \$2,000 plan$/);
+    expect([String(left.props.children).length > 0, flat(left).color]).toEqual([true, '#006300']);
+    expect(L.some((l) => /^\$300 left · of \$2,000 plan$/.test(l))).toBe(true);        // 2,000 − 500 − 1,200
+  });
+  test('the register household: the $2,300 Rent / Mortgage line that stood down says so, in This month’s words', () => {
+    on('2026-09-28'); set(REGISTER);
+    const L = editor();
+    expect(after(L, '− Expenses (plan)')).toBe('$1,100');                              // 700 + 400
+    expect(L).toContain('Your Rent / Mortgage budget line is not counted here: your mortgage, Mortgage, is in Debts and is counted from there. Place it on your home in Net worth, so we know they are the same.');
+  });
+  test('DEBT THIS MONTH: “$2,000/month min”, no space before /month', () => {
+    on('2026-08-20'); H.householdWithData();
+    const L = editor();
+    expect(L).toContain('$2,000/month min');
+    expect(L.join(' ')).not.toMatch(/ \/month min/);
+  });
+});
+
+describe('CF3-04, CF3-05 · the expense sheet', () => {
+  test('the amount box opens empty; the button reads “Log an expense”, then “Log $6.50”', () => {
+    on('2026-08-20'); H.householdWithData(); show();
+    fireEvent.press(screen.getByLabelText('Log an expense from any tab'));
+    const box = screen.getByLabelText('Expense amount');
+    expect([box.props.value, box.props.placeholder]).toEqual(['', undefined]);
+    expect(lines().filter((l) => l === 'Log an expense')).toHaveLength(2);           // the title and the button
+    expect(lines().join(' ')).not.toMatch(/Add expense/);
+    fireEvent.changeText(box, '6.50');
+    expect(lines()).toContain('Log $6.50');
+  });
+});
+
+describe('CF3-06 · the budget editor’s sheets are titled at 20/800', () => {
+  test('“Monthly limits”, opened by “Set your budget ›”', () => {
+    on('2026-08-20'); H.householdWithData();
+    const Budget = require('../BudgetScreen').default; render(<Budget embedded initialTab="Budget" />);
+    fireEvent.press(screen.getByText('Set your budget ›'));
+    const t = flat(screen.getByText('Monthly limits'));
+    expect([t.fontSize, t.fontWeight]).toEqual([20, '800']);
+  });
+});
+
+describe('CF3-07 · YOUR FUTURE PAYCHECK: one space after the colon', () => {
+  test('“At 67: ~$…/month”', () => {
+    on('2026-09-28'); set(REGISTER); show();
+    // an age nobody entered carries the Plan tab's words for it since 2026-10-31 (R10, cash-flow v01's row of that date) — one space after the colon still
+    const line = lines().find((l) => /^At \d+( \(ours until you change it\))?:/.test(l))!;
+    expect(line).toMatch(/^At \d+( \(ours until you change it\))?: ~\$[\d,]+\/month$/);
+  });
+});
+
+// ════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+// ONE INFLATION ON THE FUTURE PAYCHECK (2026-10-31, FX-CF-A; found by BRIEF-94). The card was handed the store's economic feed, 3.2%,
+// while the simulation behind it ran at 2.5%. The single source, by his DEC-0259 ("inflation defaults to the dated 30-year average,
+// adjustable; no feed"), is inflationRateInForce: the Plan's own rate, else 2.5%. The card's sentence, its figures and the simulation
+// must name that one rate.
+// ════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+describe('the future paycheck states the inflation its simulation ran on (BRIEF-94)', () => {
+  const { futurePaycheck } = require('../../../MoneyKeel/functions/cashflow/future-paycheck');
+  const { willItLastInputs } = require('../../domain/retirement/willItLast');
+  const { inflationRateInForce } = require('../../domain/retirement/inflation');
+  // born 1981 (45 in 2026), retiring at 67; $200,000 in a 401(k); $2,000/month of Social Security from 67; nothing more saved
+  const SAVER = { onboardingProfile: { status: 'employed', birthYear: 1981, targetRetirementAge: 67, ri_ss: '2000', ri_ss_receiving: 'no', ri_ss_freq: 'monthly', monthlySpending: 3000,
+      incomeSources: ['employment'], baseSalary: '6000', salaryMode: 'takehome', salaryFreq: 'monthly', taxMode: 'manual', manualTaxRate: '0' },
+    assetAccounts: [{ asset_id: 'k', label: '401(k)', kind: '401k', tax_bucket: 'PRE_TAX', balance: 200_000, target_return: 0.06, retirement_pct: 100 }],
+    retirementAssumptions: { expectedReturn: 0.06 }, inflationRate: 3.2 };   // the store's feed, as the app holds it
+  const run = (A: any, feed?: number) => futurePaycheck({ op: SAVER.onboardingProfile, accounts: SAVER.assetAccounts, assumptions: A, inflationRate: feed, employmentStatus: null, transactions: [] });
+  const sim = (A: any) => willItLastInputs({ op: SAVER.onboardingProfile, accounts: SAVER.assetAccounts, assumptions: A, employmentStatus: null, transactions: [] });
+
+  test('no rate set: card, simulation and the one reader all read 2.50% — the 3.2% feed is never used', () => {
+    on('2026-09-28');
+    const p = run(SAVER.retirementAssumptions, 3.2);
+    expect(p.assumes.yearlyInflation).toBe(0.025);
+    expect(sim(SAVER.retirementAssumptions).inflation).toBe(0.025);
+    expect(inflationRateInForce(null).rate).toBe(0.025);
+    expect(run(SAVER.retirementAssumptions, undefined)).toEqual(p);                    // handing the feed in or not changes nothing
+    // the paycheck, by hand: what lands is Social Security plus the level draw, in today's dollars
+    expect(p.monthly).toBe(p.guaranteed + p.draw);
+    expect(p.guaranteed).toBe(2000);
+    // the pot it draws from, by hand: $200,000 grown 22 years (45 → 67) at the blended 7.90% with its 11% swing has a median of
+    // 200,000 × e^(22 × (ln 1.079 − 0.11² ÷ 2)) = 200,000 × e^1.53966 = $932,604; the seeded 1,000-path run the card draws from lands
+    // within 2% of it, at the same 2.50%
+    const i = sim(SAVER.retirementAssumptions);
+    expect([i.mean_return, i.vol_return, i.retire_age - i.current_age, i.inflation]).toEqual([0.079, 0.11, 22, 0.025]);
+    const byHand = Math.round(200_000 * Math.exp(22 * (Math.log(1.079) - 0.11 ** 2 / 2)));
+    expect(byHand).toBe(932_604);
+    const { simulate } = require('../../domain/retirement');
+    const pot = simulate(i).projected_at_retirement;
+    expect(Math.abs(pot - byHand) / byHand).toBeLessThan(0.02);
+  });
+  test('a rate set on the Plan, 3.20%: the card says it and the simulation runs on it', () => {
+    on('2026-09-28');
+    const A = { ...SAVER.retirementAssumptions, inflation: 0.032 };
+    expect(run(A, 3.2).assumes.yearlyInflation).toBe(0.032);
+    expect(sim(A).inflation).toBe(0.032);
+  });
+  test('on Cash flow, with the store holding the 3.2% feed, the card prints 2.50%/year — the rate its odds ran on', () => {
+    on('2026-09-28'); set(SAVER); show();
+    const line = lines().find((l) => /^In today’s dollars · assumes/.test(l))!;
+    expect(line).toMatch(/ 2\.50%\/year inflation$/);
+    expect(line).not.toMatch(/3\.20%/);
+    const L = lines();
+    const at = L.findIndex((l) => /^At 67: ~\$[\d,]+\/month$/.test(l));
+    expect(at).toBeGreaterThan(0);
+  });
+});
+
+// ════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+// 2026-11-01 (FX-CF-A) — DEBT-TO-INCOME and STUDENT LOAN OUTLOOK on Debts, moved from Goals with their figures unchanged; and the door
+// that opens Cash flow on Debts. cash-flow_v01's row of 2026-11-01.
+// ════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+describe('Debts: what the debts ask of the income (moved from Goals, 2026-11-01)', () => {
+  const debtsTab = (extra: any = {}) => { on('2026-08-20'); H.householdDebts(); useStore.setState(extra as any); show(); tab('Debts'); return lines(); };
+  test('frame 6: $110 + $300 = $410 of minimums on $5,000 a month → 8.20%, healthy for a renter', () => {
+    const L = debtsTab();
+    const at = L.indexOf('DEBT-TO-INCOME');
+    expect(at).toBeGreaterThan(L.indexOf('PROGRESS'));
+    expect(L.slice(at, at + 5)).toEqual(['DEBT-TO-INCOME', '8.20%', 'Healthy', '$410/month in minimum debt payments ÷ $5,000/month income',
+      'Aim for 20% or less (renters; rent isn’t counted). You’re in good shape.']);
+    expect(flat(screen.getByText('DEBT-TO-INCOME')).color).toBe('#FFFFFF');            // the title on its dark-green bar
+    expect(L).not.toContain('STUDENT LOAN OUTLOOK');                                    // no student loan entered: no box
+  });
+  test('the obligation, not the payment chosen: a $110 Visa minimum paid at $300 still counts $110 (DEC-0641)', () => {
+    const st = useStore.getState() as any;
+    on('2026-08-20'); H.householdDebts();
+    useStore.setState({ liabilities: (useStore.getState() as any).liabilities.map((d: any) => (d.debt_id === 'v' ? { ...d, monthly_payment: 300 } : d)) } as any);
+    show(); tab('Debts');
+    expect(lines()).toContain('$410/month in minimum debt payments ÷ $5,000/month income');
+    void st;
+  });
+  test('no income entered: no ratio, and the box says why', () => {
+    on('2026-08-20'); H.householdDebts();
+    useStore.setState({ onboardingProfile: { status: 'employed', incomeSources: [], monthlySpending: '2000' } } as any);
+    show(); tab('Debts');
+    const L = lines();
+    expect(L[L.indexOf('DEBT-TO-INCOME') + 1]).toBe('Your income is not entered, so there is no debt-to-income figure — we won’t guess one.');
+  });
+  test('student loans: $30,000 at 5.50% over 10 years → $325.58 a month ($326), $9,069.46 of interest, 6.51% of $5,000', () => {
+    on('2026-08-20'); H.householdDebts();
+    const op = (useStore.getState() as any).onboardingProfile;
+    useStore.setState({ onboardingProfile: { ...op, loans: [{ label: 'Student loan', amount: 30000, apr: 5.5, termYears: 10 }] } } as any);
+    show(); tab('Debts');
+    const L = lines();
+    const at = L.indexOf('STUDENT LOAN OUTLOOK');
+    expect(at).toBeGreaterThan(L.indexOf('DEBT-TO-INCOME'));
+    expect(L.slice(at, at + 4)).toEqual(['STUDENT LOAN OUTLOOK', '$30,000 borrowed', '≈ $326/month once you’re repaying · $9,069 total interest',
+      'That’s ~6.51% of today’s income — keeping total debt under 20% keeps you comfortable.']);
+  });
+  test('a student loan with no rate or term: what to add, no repayment guessed', () => {
+    on('2026-08-20'); H.householdDebts();
+    const op = (useStore.getState() as any).onboardingProfile;
+    useStore.setState({ onboardingProfile: { ...op, loans: [{ label: 'Student loan', amount: 12000 }] } } as any);
+    show(); tab('Debts');
+    const L = lines();
+    const at = L.indexOf('STUDENT LOAN OUTLOOK');
+    expect(L.slice(at, at + 3)).toEqual(['STUDENT LOAN OUTLOOK', '$12,000 borrowed', 'Add an interest rate and term to each loan (in setup) to see the monthly repayment.']);
+  });
+  test('the same figures the Goals screen printed: its functions, run on the same household', () => {
+    const { debtToIncome, minimumDebtService, loanPayment } = require('../../domain/debt');
+    const debts = [{ debt_id: 'v', debt_type: 'CREDIT_CARD', remaining_balance: 3200, minimum_monthly_payment: 110 }, { debt_id: 'c', debt_type: 'AUTO', remaining_balance: 9800, minimum_monthly_payment: 300 }];
+    expect(debtToIncome(minimumDebtService(debts as any), 5000, false).ratio).toBeCloseTo(0.082, 12);
+    const p = loanPayment(30000, 5.5, 10);
+    expect([p.monthly.toFixed(2), p.totalInterest.toFixed(2), (p.monthly / 5000 * 100).toFixed(2)]).toEqual(['325.58', '9069.46', '6.51']);
+  });
+});
+
+describe('the door “Your debts … are on Cash flow, under Debts ›” opens the Debts tab (2026-11-01)', () => {
+  test('/(tabs)/cashflow?tab=debts lands on Debts, not This month', () => {
+    mockParams = { tab: 'debts' };
+    on('2026-08-20'); H.householdDebts(); show();
+    expect(screen.getByLabelText('Debts tab, selected')).toBeTruthy();
+    expect(lines()).toContain('YOUR DEBT');
+    expect(lines()).not.toContain('PLANNED · AUGUST');
+  });
+  test('with no tab named, Cash flow opens on This month as before', () => {
+    on('2026-08-20'); H.householdDebts(); show();
+    expect(screen.getByLabelText('This month tab, selected')).toBeTruthy();
   });
 });

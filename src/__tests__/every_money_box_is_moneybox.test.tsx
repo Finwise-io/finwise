@@ -40,13 +40,14 @@ function tags(text: string, name: string): { at: number; tag: string }[] {
   return out;
 }
 
-/** THE NUMBER BOXES THAT ARE NOT MONEY, each with its reason — read from the disk on 2026-10-27: 45 names in 23 files. */
+/** THE NUMBER BOXES THAT ARE NOT MONEY, each with its reason — read from the disk on 2026-10-27: 45 names in 23 files; 47 in 24 on 2026-11-01. */
 const NOT_MONEY: Record<string, [string, string][]> = {
   'src/components/DebtEditorSheet.tsx': [['value={dueDate}', 'a month and year'], ['value={apr}', 'a rate, %'], ['value={due}', 'a day of the month'],
     ['value={endBy}', 'a month and year'], ['value={startsOn}', 'a month and year']],
   'src/components/InputModal.tsx': [['keyboardType={keyboardType}', 'the box for words; an amount is the MoneyBox branch (money)']],
   'src/components/PlanInputs.tsx': [['value={ageText}', 'an age']],
-  'src/onboarding/modules.tsx': [["placeholder={ph ?? '0'}", 'an age (HeroAmount, kind number); money is the MoneyBox branch'],
+  'src/components/PlanGoals.tsx': [['value={form.month}', 'a month'], ['value={form.year}', 'a year']],   // Goals built to v03, 2026-10-31 (FX-PLAN)
+  'src/onboarding/modules.tsx': [['style={s.heroInput} keyboardType="number-pad"', 'an age (HeroAmount, kind number); money is the MoneyBox branch (anchored on its style since R16 emptied its placeholder, 2026-11-01)'],
     ["keyboardType={decimal ? 'decimal-pad' : 'number-pad'}", 'a rate, a birth month or year (NumRow)'], ["value={row.apr ?? ''}", 'a rate, %'],
     ["value={row.termYears ?? ''}", 'years'], ['keyboardType={c.kb}', 'a count of shares or options; the price column is a MoneyBox'],
     ["value={day ?? ''}", 'a day'], ["value={year ?? ''}", 'a year'], ["value={e.dueDay ?? ''}", 'a day'], ['value={year}', 'a year']],

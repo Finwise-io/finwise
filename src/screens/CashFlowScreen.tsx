@@ -13,13 +13,13 @@ import { theBudgetCounted, expensesAsCounted } from '../../MoneyKeel/functions/c
 import { theMonth } from '../../MoneyKeel/functions/cashflow/the-month';
 import { futurePaycheck } from '../../MoneyKeel/functions/cashflow/future-paycheck';
 import { receivedInMonth } from '../../MoneyKeel/functions/cashflow/whats-coming';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { ScrollView, View, Text, StyleSheet, TouchableOpacity, Modal, TextInput, KeyboardAvoidingView, Platform, Alert } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useStore } from '../store/useStore';
 import { useIncomeProfile } from '../hooks/useIncomeProfile';   // the one profile income figures read (2026-10-26)
 import { SectionBand } from '../components/SectionBand';
-import { Colors, Typography, Spacing, Radii } from '../utils/theme';
+import { Colors, Typography, Spacing, Radii, Tap } from '../utils/theme';
 import { budgetVsActual, plannedMonthlySpend } from '../domain/budget';
 import { retirementIncomeMonthly } from '../domain/income';
 import { incomeSummary } from '../../MoneyKeel/functions/cashflow/income-summary';
@@ -80,13 +80,20 @@ export default function CashFlowScreen() {
 
   // will-it-last strip mirrors Plan (the one selector — identical seeded run)
   const wil = useMemo(
-    () => selectWillItLast({ op, accounts, assumptions: store.retirementAssumptions ?? {}, inflationRate: store.inflationRate, employmentStatus: store.employmentStatus, transactions: store.transactions ?? [] }),
-    [op, accounts, store.retirementAssumptions, store.inflationRate, store.employmentStatus, store.transactions]);
+    // no feed handed in: the plan's own inflation, else the dated default (DEC-0259; 2026-10-31, BRIEF-94)
+    () => selectWillItLast({ op, accounts, assumptions: store.retirementAssumptions ?? {}, employmentStatus: store.employmentStatus, transactions: store.transactions ?? [] }),
+    [op, accounts, store.retirementAssumptions, store.employmentStatus, store.transactions]);
 
   const header = `${MONTHS_LONG[now.getMonth()]} ${now.getFullYear()}`;
 
   // ── v1.3 CASH FLOW SURFACE (FINAL mock approved 2026-07-19): four tabs, one month switcher ──
-  const [surfTab, setSurfTab] = useState<'This month' | 'Income' | 'Expenses' | 'Debts'>('This month');
+  // A DOOR CAN OPEN A TAB (2026-11-01, the lead's ruling; cash-flow_v01's row of that date): "/(tabs)/cashflow?tab=debts" opens Debts —
+  // Goals v03's "Your debts … are on Cash flow, under Debts ›" landed on This month. Read where a test's router has no params too.
+  const params = (typeof useLocalSearchParams === 'function' ? useLocalSearchParams() : {}) as { tab?: string };
+  const TABS: Record<string, 'This month' | 'Income' | 'Expenses' | 'Debts'> = { 'this-month': 'This month', income: 'Income', expenses: 'Expenses', debts: 'Debts' };
+  const [surfTab, setSurfTab] = useState<'This month' | 'Income' | 'Expenses' | 'Debts'>(TABS[String(params?.tab ?? '').toLowerCase()] ?? 'This month');
+  // the tab screen stays mounted, so a door used while Cash flow is open moves the tab too
+  useEffect(() => { const t = TABS[String(params?.tab ?? '').toLowerCase()]; if (t) setSurfTab(t); }, [params?.tab]);
   const [surfOffset, setSurfOffset] = useState(0);           // 0 = current · negative past · positive future
   const selDate = new Date(now.getFullYear(), now.getMonth() + surfOffset, 1);
   const selYm = `${selDate.getFullYear()}-${String(selDate.getMonth() + 1).padStart(2, '0')}`;
@@ -806,14 +813,16 @@ function WorkingMain({ grid, bva, op, budgetProfile, liabilities, store, budgetS
   // estimate label is mandatory copy. Null is an answer: no pot, or past retirement age — no card.
   const A = store.retirementAssumptions ?? {};
   const projection = useMemo(() => futurePaycheck({
-    op: incomeOp, accounts: store.assetAccounts ?? [], assumptions: A, bigCosts: store.bigCosts, inflationRate: store.inflationRate, employmentStatus: store.employmentStatus,
+    // ONE INFLATION, THE PLAN'S (2026-10-31, FX-CF-A; BRIEF-94; his DEC-0259 "inflation defaults to the dated 30-year average, adjustable; no feed"): the
+    // store's economic feed (3.2%) is not handed in — the simulation never read it, and the card states the rate it ran on
+    op: incomeOp, accounts: store.assetAccounts ?? [], assumptions: A, bigCosts: store.bigCosts, employmentStatus: store.employmentStatus,
     transactions: store.transactions ?? [],
-  }), [incomeOp, store.assetAccounts, A, store.inflationRate, store.employmentStatus, store.transactions]);
+  }), [incomeOp, store.assetAccounts, A, store.employmentStatus, store.transactions]);
   // his ONE wording for the odds (DEC-0104, DEC-0109): the horizon travels with the chance
   const wil = useMemo(() => selectWillItLast({
-    op: incomeOp, accounts: store.assetAccounts ?? [], assumptions: A, inflationRate: store.inflationRate, employmentStatus: store.employmentStatus,
+    op: incomeOp, accounts: store.assetAccounts ?? [], assumptions: A, employmentStatus: store.employmentStatus,
     transactions: store.transactions ?? [],
-  }), [incomeOp, store.assetAccounts, A, store.inflationRate, store.employmentStatus, store.transactions]);
+  }), [incomeOp, store.assetAccounts, A, store.employmentStatus, store.transactions]);
 
   return (
     <>
@@ -868,10 +877,10 @@ function WorkingMain({ grid, bva, op, budgetProfile, liabilities, store, budgetS
       </View>
       {projection && (
         <TouchableOpacity accessibilityRole="button" style={styles.projCard} activeOpacity={0.85} onPress={() => router.push('/(tabs)/plan')}
-          accessibilityLabel={`Your future paycheck — a projection, an estimate, not a promise. At ${projection.retireAge}: about ${figSaid('MK-CF-M-022', projection.monthly)}.`}>
+          accessibilityLabel={`Your future paycheck — a projection, an estimate, not a promise. At ${projection.retireAge}${projection.retireAgeOurs ? ', ours until you change it,' : ''}: about ${figSaid('MK-CF-M-022', projection.monthly)}.`}>
           <SectionBand inCard onRowEdges inset={16} title="YOUR FUTURE PAYCHECK" />
           <Text style={styles.projTag}>PROJECTION — an estimate, not a promise</Text>
-          <Text style={styles.projHero}>At {projection.retireAge}:  ~{fig('MK-CF-M-022', projection.monthly)}/month</Text>
+          <Text style={styles.projHero}>At {projection.retireAge}{projection.retireAgeOurs ? ' (ours until you change it)' : ''}: ~{fig('MK-CF-M-022', projection.monthly)}/month</Text>   {/* one space (CF3-07) */}
           {/* WHAT IT IS IN, AND WHAT IT ASSUMES (2026-10-25, MK-CF-M-022 and 023 tenets 2 and 4): his rules — the figure is what it buys
               today (DEC-2164) and an explanation names every figure it assumes (DEC-0088). The figures are futurePaycheck's own. */}
           {/* each rate prints under its own number (2026-10-26, PF-TOOLS): MK-CF-M-082 the return the paycheck runs on, MK-CF-M-083 the
@@ -984,7 +993,7 @@ const styles = StyleSheet.create({
   switchToday: { fontSize: 13, fontWeight: '700', color: Colors.primary },
   subTabs: { flexDirection: 'row', gap: 6, marginBottom: 10 },
   // a choice's corner is 12 (DEC-0231; the drawing's square chips corrected by its 2026-10-25 row — CF-15)
-  subTab: { minHeight: 40, justifyContent: 'center', paddingHorizontal: 12, borderRadius: Radii.md, borderWidth: 1.5, borderColor: Colors.border },
+  subTab: { minHeight: Tap.min, justifyContent: 'center', paddingHorizontal: 12, borderRadius: Radii.md, borderWidth: 1.5, borderColor: Colors.border },
   subTabOn: { borderColor: Colors.primary, backgroundColor: Colors.primaryLight },
   subTabT: { fontSize: 13, fontWeight: '700', color: Colors.textSecondary },
   subTabTOn: { color: Colors.primaryDark, fontWeight: '800' },

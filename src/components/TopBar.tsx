@@ -1,6 +1,7 @@
 // Top bar (FCC M4, decided 2026-07-12): ☰ Menu (the long-tail escape hatch) on the left; the right
 // keeps only MODES — hide-balances eye + settings gear. The net-worth chip is REMOVED (it duplicated
 // Home's line and the Net worth tab). Rendered as the shared header for all bottom-tab screens.
+import { SHEET_FRAME, SHEET_HANDLE } from './sheetFrame';   // one sheet frame (NW3-18, 2026-10-31)
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Modal, Alert, ScrollView, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
@@ -189,8 +190,8 @@ const s = StyleSheet.create({
   menuTxt: { fontSize: 13, fontWeight: '700', color: Colors.textSecondary },
   brandImg: { width: 84, height: 17.1 },   // the founder's lettering, 4.9 : 1 (brand-wordmark v02, 2026-10-30)
   backdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end' },
-  sheet: { backgroundColor: Colors.bgSecondary, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: Spacing.lg, paddingBottom: 32 },
-  grip: { width: 38, height: 4, borderRadius: 2, backgroundColor: Colors.border, alignSelf: 'center', marginBottom: Spacing.md },
+  sheet: { ...SHEET_FRAME, padding: Spacing.lg, paddingBottom: 32 },
+  grip: { ...SHEET_HANDLE },
   sTitle: { fontSize: 13, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.5, marginBottom: Spacing.xs },
   groupHdr: { fontSize: 11, fontWeight: '800', color: Colors.textSecondary, letterSpacing: 0.5 },
   groupHdrRow: { flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: Spacing.md + 2, marginBottom: Spacing.sm },

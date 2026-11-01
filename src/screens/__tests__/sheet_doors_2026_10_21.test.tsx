@@ -68,7 +68,7 @@ describe('gap 7 · "Add a buy or sale ›" on the account page opens the trade s
     expect(flat(screen.getByLabelText('Transaction type: Buy')).backgroundColor).toBe(Colors.primaryLight);   // a buy, ready
     fireEvent.changeText(screen.getByPlaceholderText('e.g. AAPL'), 'VTI');
     fireEvent.press(screen.getByLabelText('Type: Stocks / Funds'));   // not held here yet: its type is asked (2026-10-25, trade-sheet v03 row 16)
-    const [shares, price] = screen.getAllByPlaceholderText('0');
+    const [shares, price] = screen.getAllByLabelText(/^(Shares|Contracts|Price per share|Amount)$/);   // the boxes by name — their grey ‘0’ is gone (R16, 2026-11-01)
     fireEvent.changeText(shares, '10');
     fireEvent.changeText(price, '100');
     fireEvent.press(screen.getByLabelText('Record buy'));

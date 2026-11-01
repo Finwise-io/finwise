@@ -2,6 +2,7 @@
 // onboarding answers (+ live economic data). One synchronous source for the cockpit,
 // so the UI never waits on per-module Firestore round-trips. Each module's pure
 // onboarding-mapper + calc is reused, so the snapshot can't drift from the modules.
+import { RETIRE_AGE_ASSUMED } from './retirement/willItLast';   // the one assumed retirement age (R10)
 import type { UserId } from './_shared/ids';
 import { inflationRateInForce } from './retirement/inflation';
 import { toNum } from './_shared/num';
@@ -136,7 +137,6 @@ export function effectiveAnnualContribution(op: Record<string, any> | null): num
  *
  * Decides .....
  *     · If current age is missing it uses 35.
- *     · If target retirement age is missing it uses 65.
  *     · If plan to age is missing it uses 90.
  *     · If monthly expenses is missing it uses 0.
  *
@@ -177,7 +177,7 @@ export function buildSnapshot(
 
   const retirement = buildRetirementState(uid, {
     current_age: profile.current_age ?? 35,
-    retire_age: profile.target_retirement_age ?? 65,
+    retire_age: profile.target_retirement_age ?? RETIRE_AGE_ASSUMED,   // the one assumed age (R10, 2026-10-31)
     horizon_age: profile.plan_to_age ?? 90,
     // B-49: nest egg = retirement-earmarked value (excludes property, partial cash) — the same basis
     // the Retirement cockpit uses. Identical to total_asset_value for onboarding-derived accounts

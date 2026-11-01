@@ -102,7 +102,9 @@ test('a doc header claims the number the register issued to the function beneath
   // moved back over their functions); + 19 the scan numbered, + 5 numbered by hand (MK-CF-F-293, 294, MK-XS-F-206 to 208)
   // 920 on 2026-10-31: MK-PL-F-097 rothWorked, the Roth examples' helper, was removed with the Roth declarations (the lead's
   // ruling that day) and retired on the register — a retirement lowers the floor by its true number, one
-  expect(pairs).toBeGreaterThanOrEqual(920);       // it read this many headers, not zero (895 at the end of 2026-10-26)
+  // 931 on 2026-11-01 (PF-TOOLS): the round-3 functions (MK-CF-F-295, 296, MK-PL-F-098 to 102, MK-ST-F-100) and three by hand
+  // (MK-XS-F-209 figPerAsTyped, MK-XS-F-210 savedAmountForBox, MK-PL-F-103 RETIRE_AGE_ASSUMED); the 917 read mid-round was headers not yet written
+  expect(pairs).toBeGreaterThanOrEqual(931);       // it read this many headers, not zero (895 at the end of 2026-10-26)
   expect([...new Set(offences)]).toEqual([]);
 });
 

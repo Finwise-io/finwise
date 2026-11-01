@@ -49,9 +49,9 @@ const ACCOUNTS = [
 ];
 /** what each screen should print for each bond's year of interest */
 const WANT: Record<string, { page: string; bonds: string; income: [string, string] }> = {
-  'US Treasury 2029': { page: '4.50%/year · $1,125/year', bonds: '$1,125/year coupon', income: ['4.5% coupon on $25,000 face', '$1,125'] },
+  'US Treasury 2029': { page: '4.50%/year · $1,125/year', bonds: '$1,125/year coupon', income: ['4.50% coupon on $25,000 face', '$1,125'] },   // the rate to two decimals, as the page prints it (IN3-04, 2026-10-31)
   'US Treasury 2031': { page: '4.50%/year · face value not entered', bonds: 'coupon — face value not entered',
-    income: ['4.5% coupon — face value not entered, so counted as $0 until it is', '$0'] },
+    income: ['4.50% coupon — face value not entered, so counted as $0 until it is', '$0'] },
   'Ally 12-month CD': { page: '5.05%/year · $505/year', bonds: '$505/year coupon', income: ['5.05% on $10,000', '$505'] },
   'Corp 2026': { page: '4.00%/year · $0/year', bonds: '$0/year coupon', income: ['matured Jun 30, 2026 — it pays no more interest', '$0'] },
 };

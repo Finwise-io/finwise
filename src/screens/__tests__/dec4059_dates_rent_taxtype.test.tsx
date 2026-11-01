@@ -68,7 +68,7 @@ describe('DEC-4036f — no form saves Taxable when the person chose nothing', ()
     openAddSheet(true);
     fireEvent.press(screen.getByLabelText('Quick add'));
     fireEvent.changeText(screen.getByPlaceholderText('Name (e.g. My Robinhood)'), 'My Robinhood');
-    fireEvent.changeText(screen.getByPlaceholderText('0'), '5000');
+    fireEvent.changeText(screen.getByLabelText('Value'), '5000'); // by its name: the box opens empty (R16, 2026-10-31)
     fireEvent.press(screen.getByLabelText('Add account'));
     const a = st().assetAccounts.find((x: any) => x.label === 'My Robinhood');
     expect(a.tax_bucket).toBeUndefined();
@@ -78,7 +78,7 @@ describe('DEC-4036f — no form saves Taxable when the person chose nothing', ()
     openAddSheet(true);
     fireEvent.press(screen.getByLabelText('Stocks / Funds'));
     fireEvent.changeText(screen.getByPlaceholderText('Institution / name (e.g. Chase)'), 'Schwab');
-    fireEvent.changeText(screen.getByPlaceholderText('0'), '1000');
+    fireEvent.changeText(screen.getByLabelText('Value'), '1000');
     fireEvent.press(screen.getByLabelText('Add account'));
     expect(st().assetAccounts.find((x: any) => x.institution === 'Schwab').tax_bucket).toBeUndefined();
   });
@@ -86,7 +86,7 @@ describe('DEC-4036f — no form saves Taxable when the person chose nothing', ()
     openAddSheet(true);
     fireEvent.press(screen.getByLabelText('Retirement (401k / IRA / HSA)'));
     expect(screen.getByText('Pick which kind of retirement account it is.')).toBeOnTheScreen();
-    fireEvent.changeText(screen.getByPlaceholderText('0'), '1000');
+    fireEvent.changeText(screen.getByLabelText('Value'), '1000');
     expect(screen.getByLabelText('Add account').props.accessibilityState).toMatchObject({ disabled: true });   // nothing saves untapped
     expect(st().assetAccounts).toHaveLength(0);
     fireEvent.press(screen.getByLabelText('Roth IRA'));
@@ -101,8 +101,8 @@ describe('DEC-4036f — no form saves Taxable when the person chose nothing', ()
     // the choice is headed Held in and offers the one list of six since 2026-10-20 (DEC-2441): none of the six is picked
     for (const w of ['Taxable', '401(k)', 'Traditional IRA', 'Roth IRA', 'Roth 401(k)', 'HSA']) expect(screen.getByLabelText(`Held in ${w}`).props.accessibilityState).toEqual({ selected: false });
     fireEvent.changeText(screen.getByPlaceholderText('e.g. US Treasury 2030, Apple Corp 4.5%'), 'US Treasury 2030');
-    fireEvent.changeText(screen.getByPlaceholderText('10000'), '10000');
-    fireEvent.changeText(screen.getByPlaceholderText('4.5'), '4');
+    fireEvent.changeText(screen.getByLabelText('Face (par) value'), '10000');
+    fireEvent.changeText(screen.getByLabelText('Coupon rate, percent a year'), '4');
     fireEvent.press(screen.getByLabelText('Pick a maturity date'));
     fireEvent.press(screen.getByText('Add bond'));
     expect(onSave.mock.calls[0][0].tax_bucket).toBeUndefined();
@@ -112,7 +112,7 @@ describe('DEC-4036f — no form saves Taxable when the person chose nothing', ()
     const onSave = jest.fn();
     render(<AltEditor item={null} open onClose={() => {}} onSave={onSave} />);
     fireEvent.changeText(screen.getByPlaceholderText('e.g. Bitcoin, Fund III, Gold'), 'Bitcoin');
-    fireEvent.changeText(screen.getByPlaceholderText('0'), '6000');
+    fireEvent.changeText(screen.getByLabelText('Current value'), '6000');
     fireEvent.press(screen.getByText('Add'));
     expect(onSave.mock.calls[0][0].tax_bucket).toBeUndefined();
   });

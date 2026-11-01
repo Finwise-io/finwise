@@ -129,9 +129,9 @@ const GIVEN =
  *     income summary(EXAMPLE)
  *
  * Called by ... MK-CF-F-024 totalDebtMonthly · MK-CF-F-207 SOURCE
- *               MK-PL-F-010 drawOrderOutcome
+ *               MK-CF-F-296 LOAD · MK-PL-F-010 drawOrderOutcome
  *
- * Reaches ..... 438 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 443 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -140,8 +140,8 @@ const GIVEN =
  *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
- *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 420 more — the full list is on functions_from_code
+ *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
+ *               … and 425 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -183,7 +183,7 @@ const SOURCES_GIVEN =
  *
  * Called by ... MK-CF-F-201 INCOME · MK-CF-O-016 incomeSources
  *
- * Reaches ..... 438 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 443 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -192,8 +192,8 @@ const SOURCES_GIVEN =
  *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
- *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 420 more — the full list is on functions_from_code
+ *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
+ *               … and 425 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
@@ -536,7 +536,7 @@ export interface IncomeSource {
  *
  * Called by ... MK-CF-F-207 SOURCE · MK-CF-O-004 incomeSummary
  *
- * Reaches ..... 438 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 443 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -545,8 +545,8 @@ export interface IncomeSource {
  *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
- *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 420 more — the full list is on functions_from_code
+ *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
+ *               … and 425 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-022 pension monthly amount
@@ -666,7 +666,7 @@ export function incomeSources(op: Record<string, any> | null): IncomeSource[] {
  * Called by ... MK-CF-F-201 INCOME · MK-CF-F-207 SOURCE
  *               MK-NW-O-004 theEmergencyFund
  *
- * Reaches ..... 438 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 443 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -675,8 +675,8 @@ export function incomeSources(op: Record<string, any> | null): IncomeSource[] {
  *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
- *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 420 more — the full list is on functions_from_code
+ *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
+ *               … and 425 more — the full list is on functions_from_code
  *
  * Serves ...... MK-CF-M-006 · MK-CF-M-007 · MK-CF-M-008 · MK-CF-M-009
  *               MK-CF-M-010 · MK-CF-M-011 · MK-CF-M-024 · MK-CF-M-027
@@ -917,7 +917,7 @@ export interface IncomeManager {
  *
  * Called by ... MK-CF-F-207 SOURCE
  *
- * Reaches ..... 438 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 443 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -926,8 +926,8 @@ export interface IncomeManager {
  *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
- *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 420 more — the full list is on functions_from_code
+ *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
+ *               … and 425 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-023 salary and other income

@@ -86,8 +86,9 @@ export function scopeFiles(): string[] {
 
 // ── READING ONE FILE ─────────────────────────────────────────────────────────────────────────────────────────────────────────
 type Style = Record<string, string>;
-export type Heading = { at: string; file: string; shape: 'quiet' | 'capitals' | 'named' | 'SectionHeader' | 'page bar short'; style: string; words: string };
-const NAMED = /(section|heading|header|hdr|kicker|eyebrow|divider|title|^lik$)/i;
+export type Heading = { at: string; file: string; shape: 'quiet' | 'capitals' | 'named' | 'SectionHeader' | 'page bar short' | 'opens a card'; style: string; words: string };
+// `cap` (2026-10-31, FX-CF-B, SU3-04): sign-up's bold black card titles were `s.cap`, a name this list did not hold, so six read green
+const NAMED = /(section|heading|header|hdr|kicker|eyebrow|divider|title|^cap$|^lik$)/i;
 const SIZE: Record<string, number> = { xs: 11, sm: 13, base: 15, md: 17, lg: 20, xl: 24, xxl: 30, hero: 38 };
 const SPACE: Record<string, number> = { xs: 4, sm: 8, md: 12, base: 16, lg: 20, xl: 24, xxl: 32 };
 const pts = (v: string | undefined, scale: Record<string, number>): number => {
@@ -163,6 +164,12 @@ export function readFile(f: string): { headings: Heading[]; texts: number; texts
         const caps = capsLook(styles[nm]) || /uppercase/.test(inline) || (/[A-Z]{3,}/.test(written) && !/[a-z]/.test(written));
         if (caps) headings.push({ at, file: rel(f), shape: 'capitals', style: nm || '(inline)', words });
         else if (nm && NAMED.test(nm)) headings.push({ at, file: rel(f), shape: 'named', style: nm, words });
+        // 6. WHAT OPENS A SIGN-UP CARD (2026-10-31, FX-CF-B, SU3-04): in src/onboarding, a <Text> that is the first thing inside a <Card>
+        //    is a heading candidate whatever its style is named — a card's title there was bold black words under a name that says
+        //    nothing (`cap`, `label`), so the shapes above could not see it. Each style found is given its role below.
+        else if (/^src\/onboarding\//.test(rel(f)) && ts.isJsxElement(n.parent) && n.parent.openingElement.tagName.getText(sf) === 'Card'
+          && n.parent.children.find((c) => ts.isJsxElement(c) || ts.isJsxSelfClosingElement(c)) === n)
+          headings.push({ at, file: rel(f), shape: 'opens a card', style: nm || '(inline)', words });
       }
     }
     ts.forEachChild(n, visit);
@@ -214,6 +221,9 @@ export const ROLE: Record<string, Role> = {
   'BillCalendarScreen#hCell': 'column header', 'BillCalendarScreen#verdictTitle': 'notice',
   // IncomeManagerScreen#band and modules#sectionLabel came off 2026-10-27 (FX-CF-B): their seven box titles are on bars now
   'IncomeDetailScreen#heroK': 'figure label',
+  // modules#cap came off 2026-10-31 (FX-CF-B, SU3-04): its six card titles are on bars; what opens the other sign-up cards (shape 6),
+  // and the two pop-ups' own titles:
+  'modules#label': 'field label', 'modules#heroLabel': 'field label', 'modules#note': 'notice', 'modules#sheetTitle': 'sheet title',
   'modules#choiceTitle': 'row name', 'modules#srcTitle': 'row name', 'modules#title': 'screen title', 'modules#drawnTitle': 'screen title',
   // PaycheckCard#kicker (YOUR PAYCHECK, twice) and MoneySheets#catHdr, #allocSectionHdr (EVERYDAY · ONCE IN A WHILE · BILLS & FIXED · MORE,
   // GOALS, ACCOUNTS / INVESTING) came off 2026-10-30 (FX-SHARED): the box titles on dark bars, the sub-titles on light bars
@@ -237,15 +247,15 @@ export const ROLE: Record<string, Role> = {
   'HomeScreen#doorTitle': 'row name', 'HomeScreen#heroKicker': 'figure label', 'HomeScreen#needTitle': 'row name',
   'ImportHoldingsScreen#cardTitle': 'BOX TITLE',
   'InsightsScreen#detailHdr': 'SUB-TITLE', 'InsightsScreen#sheetTitle': 'sheet title', 'InsightsScreen#title': 'row name',
-  'OnboardingScreen#choiceTitle': 'row name', 'OnboardingScreen#groupHeader': 'SUB-TITLE', 'OnboardingScreen#heading': 'screen title',
-  'PlanGoals#emptyTitle': 'notice', 'PlanGoals#title': 'row name', 'PlanPrepare#title': 'row name',
+  'OnboardingScreen#choiceTitle': 'row name', 'OnboardingScreen#heading': 'screen title',
+  'PlanPrepare#title': 'row name',   // PlanGoals' two came off 2026-10-31: the Goals sub-tab is built to goals v03, every heading on a bar (FX-PLAN)
   'PlanHubScreen#nextKicker': 'tag', 'PlanHubScreen#nextTitle': 'row name', 'PlanHubScreen#rowDue': 'tag', 'PlanHubScreen#rowTitle': 'row name',
   'RewardsScreen#sectionTitle': 'BOX TITLE', 'RewardsScreen#subsection': 'SUB-TITLE',
   'SettingsScreen#delTitle': 'sheet title', 'SettingsScreen#modalTitle': 'sheet title', 'SettingsScreen#feedbackTitle': 'row name',
   'SettingsScreen#disclaimerTitle': 'BOX TITLE', 'SettingsScreen#sectionTitle': 'BOX TITLE',
   'SharpenPlanScreen#doorTitle': 'row name', 'SnapTradeConnect#kicker': 'BOX TITLE',
   'SsTimingScreen#th': 'column header', 'SsTimingScreen#label#Effect on will-my-money-last': 'BOX TITLE', 'SsTimingScreen#label': 'field label',
-  'Summary#badgeTxt': 'tag', 'Summary#heroTitle': 'screen title', 'Summary#kicker': 'tag', 'Summary#modTitle': 'row name', 'Summary#section': 'BOX TITLE',
+  'Summary#badgeTxt': 'tag', 'Summary#heroTitle': 'screen title', 'Summary#kicker': 'tag', 'Summary#modTitle': 'row name',
   'TipsScreen#sectionTitle': 'BOX TITLE', 'TipsScreen#summaryTitle': 'BOX TITLE', 'TipsScreen#aiTitle': 'BOX TITLE', 'TipsScreen#nudgeTitle': 'BOX TITLE',
   'TipsScreen#tipTitle': 'row name',
   'TopBar#groupHdr': 'SUB-TITLE', 'TopBar#sTitle': 'sheet title',
@@ -283,7 +293,8 @@ test('the scope is the disk’s: every screen that prints a Net worth, Performan
   const inScope = new Set(Object.values(SCOPE).flat());
   expect([...printed].filter((s) => !inScope.has(s) && !WAITS[s]).sort()).toEqual([]);
   // the one route the register names that no route file draws: /networth, the Net worth tab's old name (the tab is /analytics)
-  expect([...new Set(unmapped.map((u) => u.split(' ')[1]))]).toEqual(['/networth']);
+  // (/goals left the register 2026-11-01: no figure names it since its route file only sends a person to Plan · Goals, goals v03)
+  expect([...new Set(unmapped.map((u) => u.split(' ')[1]))].sort()).toEqual(['/networth']);
   // A GUARD MUST PROVE IT LOOKED: the register was read, and the scope reaches what it prints
   expect(printed.size).toBeGreaterThanOrEqual(20);
   expect(Object.values(SCOPE).flat()).toHaveLength(23);
@@ -334,19 +345,16 @@ test.each(PARTS)('%s: every box title on a dark bar, every sub-title on a light 
  *  by his order of 2026-10-03; the rest are screens outside Build 55. A file fixed comes off this list in the same change; a file
  *  that gains one fails. 2026-10-27: 57 in 22 files. */
 export const OWED: Record<string, number> = {
-  'src/components/PlanGoals.tsx': 1,            // Plan: WHAT YOU'RE SAVING FOR (quiet)
   'src/components/PlanInputs.tsx': 2,           // Plan: FACTS — SAVE AS YOU GO · CHOICES — TRY THEM, NOTHING CHANGES YET (quiet)
   'src/components/PlanOutcome.tsx': 2,          // Plan: WILL MY MONEY LAST? · WHAT ACTUALLY MOVES IT (quiet)
   'src/components/PlanPrepare.tsx': 1,          // Plan: GETTING YOUR AFFAIRS IN ORDER (quiet)
   'src/components/TopBar.tsx': 3,               // Menu: the menu sheet's three groups (grey capitals)
-  'src/onboarding/Summary.tsx': 2,              // sign-up: WHAT'S ACTIVE — TAP TO OPEN · UNLOCK NEXT
   'src/screens/ConnectFlowScreen.tsx': 2,       // Just as good, no login: · Rather not connect?
   'src/screens/CreditScreen.tsx': 3,            // Credit utilization · Your credit score · WHAT MOVES YOUR SCORE short of the edges
   'src/screens/HomeScreen.tsx': 1,              // Home: WHAT YOU'LL SEE HERE short of the edges
   'src/screens/ImportHoldingsScreen.tsx': 3,    // What we look for · REVIEW YOUR HOLDINGS ×2 short of the edges
   'src/screens/InsightsScreen.tsx': 2,          // Menu: a theme's bar short of the edges · Where this comes from
   'src/screens/MultiGoalScreen.tsx': 1,         // TRY THESE TOGETHER short of the edges
-  'src/screens/OnboardingScreen.tsx': 1,        // sign-up: a group's name in grey capitals
   'src/screens/PlanHubScreen.tsx': 4,           // Plan: four quiet labels
   'src/screens/RewardsScreen.tsx': 5,           // How to earn points · Badges earned · Locked · Savings goals · New goal
   'src/screens/SettingsScreen.tsx': 9,          // seven bars 16 points short of the edges · Financial Disclaimer · Danger zone
@@ -364,7 +372,7 @@ test('the ratchet: every other screen that does not meet his rule yet, each name
   for (const h of headings) if (!inScope.has(path.join(ROOT, h.file)) && breaks(h)) owed[h.file] = (owed[h.file] ?? 0) + 1;
   expect(owed).toEqual(OWED);
   const total = Object.values(owed).reduce((a, b) => a + b, 0);
-  expect(total).toBe(57);
+  expect(total).toBe(53);   // 2026-10-31: less sign-up's last step (2) and its first step's group names (1), on bars (FX-CF-B, SU3-04); less Plan · Goals' quiet label (1), on its bar (FX-PLAN, goals v03)
   // A GUARD MUST PROVE IT LOOKED: the files outside the scope were read too
   expect(ALL.length - inScope.size).toBeGreaterThanOrEqual(90);
 });
@@ -382,6 +390,14 @@ test('the reader sees each shape it is built to catch (it would go quiet, not re
   expect(probe(`${S} const x = <View><Text style={s.title}>401(k)</Text></View>;`)).toEqual(['named title']);   // Contribution room's shape
   expect(probe(`${S} const x = <View><Text>WHAT YOU HAVE</Text></View>;`)).toEqual(['capitals (inline)']);
   expect(probe(`${S} const x = <SectionHeader title="Spending" />;`)).toEqual(['SectionHeader SectionHeader']);
+  // 6. what opens a sign-up card (2026-10-31): read in src/onboarding only, whatever its style is named
+  const probeSignUp = (code: string) => {
+    const f = path.join(ROOT, 'src', 'onboarding', '__probe__.tsx');
+    fs.writeFileSync(f, code);
+    try { return readFile(f).headings.map((h) => `${h.shape} ${h.style}`); } finally { fs.unlinkSync(f); }
+  };
+  expect(probeSignUp(`${S} const x = <Card><Text style={s.kick2}>Surplus by month</Text><Text style={s.kick2}>a line</Text></Card>;`)).toEqual(['opens a card kick2']);
+  expect(probe(`${S} const x = <Card><Text style={s.kick2}>Surplus by month</Text></Card>;`)).toEqual([]);   // outside sign-up: not this shape
   // a dark bar on a page with 20-point margins: short unless the margins are taken back; inside a card it is the edge guard's
   expect(probe(`${S} const x = <ScrollView contentContainerStyle={s.page}><SectionBand title="B" /></ScrollView>;`)).toEqual(['page bar short ']);
   expect(probe(`${S} const x = <ScrollView contentContainerStyle={s.page}><View style={s.bleed}><SectionBand title="B" /></View></ScrollView>;`)).toEqual([]);

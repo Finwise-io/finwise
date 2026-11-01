@@ -137,12 +137,21 @@ const FIGURES_MOVED_ON_PURPOSE: Record<string, { id: string; was: string; now: s
 };
 /** A FIGURE NOW PRINTED WITH ITS IDENTIFIER WHERE THE RECORD HAS IT BARE — the value did not move; it is now written by its one
  *  writer, so it joins the figures read, after the ones the record holds. */
-const FIGURES_NOW_DECLARED: Record<string, { id: string; now: string; why: string }[]> = {
+const FIGURES_NOW_DECLARED: Record<string, { id: string; now: string; why: string; after?: string }[]> = {   // after: it is printed right after that figure
   // 2026-10-27 (FX-CF-C; drawing stresstest v03, row 3): the months print as Net worth prints them, MK-NW-M-013 — "5.6 months" where
   // the record has a bare "5.6". $31,489 ÷ ($7,420 − $1,800 rent) = 5.60: the same number, the same place.
   'Stress test': [{ id: 'MK-NW-M-013', now: '5.6 months', why: 'the months, written by the figure\'s one writer, as on Net worth' }],
+  // 2026-10-31 (FX-NW, NW3-06; Alternatives v02 row of that date): the share of investable assets under the total is worked once,
+  // by the Alternatives door, as MK-NW-M-074, to two decimals (Q49). The screen worked it itself to one decimal: "1.9" then "%".
+  // By hand: investable = every account not a property — $12,400 + $18,250.55 cash + $214,838 Vanguard + $186,000 401(k) +
+  // $24,200 E*TRADE + $9,000 Bitcoin = $464,688.55 (the CD has no value, the homes and the car are property); $9,000 ÷ $464,688.55
+  // = 1.9368% → 1.94%. The same investable as before (theNetWorth's), so the number moved only by its second decimal.
+  Alternatives: [{ id: 'MK-NW-M-074', now: '1.94%', why: 'the share of investable assets, now declared and to two decimals', after: 'MK-NW-M-049' }],
 };
 const MOVED_ON_PURPOSE: Record<string, { at: number; was: string; now: string | string[] | null; why: string }[]> = {   // now: null — a number no longer on the screen; a list — a number now read in more than one place
+  // 2026-10-31 (FX-NW, NW3-06): '1 holding · 1.9% of your investable assets' reads '1.94%' — $9,000 ÷ $464,688.55, worked by hand
+  // under FIGURES_NOW_DECLARED above; one string now, so the reader takes the % with it
+  Alternatives: [{ at: 2, was: '1.9', now: '1.94%', why: 'the share of investable assets, to two decimals' }],
   // 2026-10-22 (W-A11Y): the figure did not move — the punctuation after it did. Home's hero card's spoken label said
   // "Your investments: $433,200, prices updated …", and this file's number reader takes a trailing comma with the digits; the
   // label now says each printed line as its own sentence ("Your investments: $433,200. …"), so the same figure reads clean
@@ -218,6 +227,16 @@ const MOVED_ON_PURPOSE: Record<string, { at: number; was: string; now: string | 
   ],
 };
 
+// THE OLD ANSWER, KEPT (2026-10-31, NW3-06): the Alternatives share read one decimal, worked on the screen — "1.9" then "%"
+test.failing('the old answer: Alternatives reads its share of investable assets as 1.9%', () => {
+  useStore.getState().resetAll();
+  useStore.setState(HOUSEHOLD() as any);
+  mockParams = {};
+  SCREENS.find((x) => x.name === 'Alternatives')!.open();
+  expect(screen.getByText(/of your investable assets/)).toBeOnTheScreen();   // the line is there: the failure below is its figure
+  expect(numbers()[2]).toBe('1.9');
+});
+
 describe('DEC-0345 — every Net worth figure reads the same as before the inputs were built once', () => {
   const recorded: Record<string, Reading> = {};
   for (const s of SCREENS) {
@@ -239,7 +258,11 @@ describe('DEC-0345 — every Net worth figure reads the same as before the input
         expect([m.id, m.was, at.length > 0]).toEqual([m.id, m.was, true]);
         for (const f of at) f[1] = m.now;
       }
-      for (const m of FIGURES_NOW_DECLARED[s.name] ?? []) wantFigures.push([m.id, m.now]);
+      for (const m of FIGURES_NOW_DECLARED[s.name] ?? []) {
+        const i = m.after ? wantFigures.findIndex(([id]) => id === m.after) : -1;
+        if (m.after) expect([m.id, m.after, i >= 0]).toEqual([m.id, m.after, true]);   // the figure it follows is in the record
+        if (i >= 0) wantFigures.splice(i + 1, 0, [m.id, m.now]); else wantFigures.push([m.id, m.now]);
+      }
       expect(now.figures).toEqual(wantFigures);
       const expected = [...before.numbers];
       const shown: (string | string[] | null)[] = [...expected];

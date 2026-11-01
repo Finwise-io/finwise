@@ -140,7 +140,7 @@ export interface IncomeWithoutAmount { date: string; accountId: string; kind: 'I
  *
  * Called by ... MK-ST-F-081 timeWeightedReturn
  *
- * Reaches ..... 438 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 443 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -149,8 +149,8 @@ export interface IncomeWithoutAmount { date: string; accountId: string; kind: 'I
  *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
- *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 420 more — the full list is on functions_from_code
+ *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
+ *               … and 425 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -190,7 +190,7 @@ const SAME = 0.005;
  *
  * Called by ... MK-NW-O-003 theNetWorth · MK-NW-O-008 thePerformance
  *
- * Reaches ..... 438 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 443 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -199,8 +199,8 @@ const SAME = 0.005;
  *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
- *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 420 more — the full list is on functions_from_code
+ *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
+ *               … and 425 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
@@ -354,7 +354,7 @@ export function timeWeightedReturn(a: TimeWeightedInput): TimeWeightedVerdict {
  * Called by ... MK-NW-O-003 theNetWorth · MK-NW-O-008 thePerformance
  *               MK-ST-F-012 toLedgerRow
  *
- * Reaches ..... 438 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 443 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -363,8 +363,8 @@ export function timeWeightedReturn(a: TimeWeightedInput): TimeWeightedVerdict {
  *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
- *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 420 more — the full list is on functions_from_code
+ *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
+ *               … and 425 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)

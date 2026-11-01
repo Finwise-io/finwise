@@ -280,6 +280,11 @@ describe('E2E-75 · the tab tour in the founder\'s household (cash-flow_v01 fram
     expect(order.map((d) => ls.slice(ls.indexOf(d)).find((l) => /^−\$[\d,]+ ›$/.test(l)))).toEqual(['−$3,200 ›', '−$20,000 ›', '−$9,800 ›', '−$300,000 ›']);
     // PROGRESS: January's month-end owed $340,000 → 340,000 − 333,000 = $7,000 paid down; 7,000 ÷ 340,000 = 2.06% → 2%
     expect(after('PROGRESS', 1, ls)).toBe('$7,000 paid down since January — 2% of where you started');
+    // DEBT-TO-INCOME, moved here from Goals (cash-flow_v01, 2026-11-01): the minimums 2,000 + 250 + 200 + 200 = $2,650 on $60,000 a
+    // year, $5,000 a month: 2,650 ÷ 5,000 = 53.00%. With the mortgage the guide is 36%, and 53% is past 36 × 1.4 = 50.4%, so: High
+    const d = ls.indexOf('DEBT-TO-INCOME');
+    expect(ls.slice(d, d + 5)).toEqual(['DEBT-TO-INCOME', '53.00%', 'High', '$2,650/month in minimum debt payments ÷ $5,000/month income',
+      'Aim for 36% or less (homeowners, incl. mortgage). Paying debt down lowers this.']);
   });
 
   test('E2E-75 · the Debts tab, reached by the same tour, is frame 6 word for word in the household frame 6 draws', () => {
@@ -511,7 +516,7 @@ describe('E2E-77 · a brand-new person enters their pay', () => {
     ]));
     // YOUR FUTURE PAYCHECK follows the two cards wherever there is a pot to project from (his ruling of 2026-09-08 on its arithmetic;
     // not drawn; its figures are held by cashflow_fcc) — taken out here by its own words and nothing else
-    const got = normExact(tabLines()).replace(/ your future paycheck projection — an estimate, not a promise at \d+: ~\$[\d,]+\/month in today's dollars assumes an? [\d.]+%\/year return and [\d.]+%\/year inflation draw from savings ~\$[\d,]+/, '');   // "/year", canon row 14 (CF2-09)
+    const got = normExact(tabLines()).replace(/ your future paycheck projection — an estimate, not a promise at \d+(?: \(ours until you change it\))?: ~\$[\d,]+\/month in today's dollars assumes an? [\d.]+%\/year return and [\d.]+%\/year inflation draw from savings ~\$[\d,]+/, '');   // "/year", canon row 14 (CF2-09)
     expect(want.split(' ').length).toBeGreaterThan(30);
     expect(firstDifference(want, got)).toBe('');
     ls = lines();
@@ -618,7 +623,7 @@ describe('E2E-78 · hide balances on the Cash flow tabs and Home\'s box, heard b
     const tabs = ['This month tab, selected', 'Income tab', 'Expenses tab', 'Debts tab'];
     expect(markHeard()).toEqual([]);
     let b = buttons();
-    for (const door of [...tabs, 'Previous month', 'Next month', 'Add expense', 'Menu', 'Hide balances', 'Expenses, your budget, −$2,000. Opens your budget.']) expect(b).toContain(door);
+    for (const door of [...tabs, 'Previous month', 'Next month', 'Log an expense from any tab', 'Menu', 'Hide balances', 'Expenses, your budget, −$2,000. Opens your budget.']) expect(b).toContain(door);
     expect(heard()).toContain('Planned surplus, +$350');                       // a total is not heard as "equals"
     tab('Income');
     expect(markHeard()).toEqual([]);
@@ -720,7 +725,10 @@ describe('E2E-79 · filing status, and the comparison it shows', () => {
   // $8,000 gross a month, $1,000 into the 401(k): $96,000 a year, taxed on 96,000 − 12,000 = $84,000 (DEC-0283) — the drawing's own $84,000
   const PAY = { status: 'employed', incomeSources: ['employment'], birthYear: '1981', baseSalary: '8000', salaryFreq: 'monthly', c_401k: '1000' };
   const V07 = drawingLines('MoneyKeel/documents/cashflow/moneykeel_pres_mock_income-end-to-end_v07.html', [/<svg[\s\S]*?<\/svg>/g]);
-  const v07phone = (first: string, last: string) => { const i = V07.indexOf(first, V07.indexOf('4a · they said “just me”')); const j = V07.indexOf(last, i); expect(j).toBeGreaterThan(i + 3); return V07.slice(i, j + 1); };
+  // the frame's heading is found by its words, whatever marks quote them (2026-10-31: the drawing's screen words moved to single
+  // marks, R17 — curly double quotes are his words only)
+  const frame4a = V07.findIndex((l) => /^4a · they said .just me.$/.test(l));
+  const v07phone = (first: string, last: string) => { expect(frame4a).toBeGreaterThan(0); const i = V07.indexOf(first, frame4a); const j = V07.indexOf(last, i); expect(j).toBeGreaterThan(i + 3); return V07.slice(i, j + 1); };
   /** the base-pay card and the Income summary, read for the four figures that move */
   const basePay = () => { const ls = lines(); return [after('what your next dollar costs', 1, ls), after('assumes you take the standard deduction', 1, ls), after('= Take-home', 1, ls)]; };
   const summary = () => { const ls = lines(); const b = ls.indexOf('Federal tax bracket');
@@ -907,22 +915,23 @@ describe('E2E-80 · the bill calendar: one bill changed, its month moves and no 
     open('/(tabs)/cashflow');
     tab('Expenses');
     const alert = jest.spyOn(Alert, 'alert').mockImplementation(() => {});
-    fireEvent.press(screen.getByLabelText('Add expense'));
+    fireEvent.press(screen.getByLabelText('Log an expense from any tab'));   // the corner button, said as its door (CF3-05)
     fireEvent.press(screen.getByLabelText('Add something else — a dated bill, an account, or one-time money in'));
     const [title, , choices] = alert.mock.calls[0] as any[];
     expect([title, choices.map((c: any) => c.text)]).toEqual(['Add something else', ['A dated bill', 'An account', 'Inflow (one-time income)', 'Cancel']]);
     act(() => { choices.find((c: any) => c.text === 'A dated bill').onPress(); });
     expect(follow()).toBe('/bill-calendar');
 
-    // THE CALENDAR: from $0 on hand, each month +6,000 in; Oct −900 → End 5,100; Nov −900 → 10,200; Dec −2,100 → 14,100; Jan −900 → 19,200
-    expect(calendarRows()).toEqual([['Oct', '+$6,000', '−$900', '$5,100'], ['Nov', '+$6,000', '−$900', '$10,200'], ['Dec', '+$6,000', '−$2,100', '$14,100'], ['Jan ’27', '+$6,000', '−$900', '$19,200']]);
+    // THE CALENDAR: each month +6,000 in; Oct −900, Nov −900, Dec −2,100, Jan −900 — and with no cash on record the box is empty and no
+    // End is projected (R12, 2026-10-31 — bill-calendar_v02’s row of that date: no cash on record, nothing projected; the old Ends are held as test.failing in cashflow_fix_wave_2026_10_27.test.tsx)
+    expect(calendarRows()).toEqual([['Oct', '+$6,000', '−$900', '—'], ['Nov', '+$6,000', '−$900', '—'], ['Dec', '+$6,000', '−$2,100', '—'], ['Jan ’27', '+$6,000', '−$900', '—']]);
     expect(lines()).toContain('Car insurance · $1,200 due Dec 15, 2026');
     // the span says each year once, as the one date writer writes a month (FIXED 2026-10-24: "Oct 2026 – Sep ’27 2027")
     expect(lines()).toContain('Oct 2026 – Sep 2027 · when money lands, when bills are due, and the surplus.');
-    expect(heard()).toContain('Jan 2027: in $6,000 a month, out $900 a month, ending balance $19,200.');
+    expect(heard()).toContain('Jan 2027: in $6,000 a month, out $900 a month, no ending balance — nothing is projected.');
     // no month row says it opens anything (FIXED 2026-10-24: each said "Opens the month's detail.", and none had a tap)
     expect(heard().filter((l) => /Opens the month's detail|Tap any row/.test(l))).toEqual([]);
-    expect(heard()).toContain('Dec 2026: in $6,000 a month, out $2,100 a month, ending balance $14,100.');
+    expect(heard()).toContain('Dec 2026: in $6,000 a month, out $2,100 a month, no ending balance — nothing is projected.');
 
     // the bill, on its day → its editor → $1,500 → Save
     fireEvent.press(screen.getByLabelText(/^Car insurance, \$1,200 due Dec 15, 2026\. .* Opens the editor\.$/));
@@ -930,8 +939,8 @@ describe('E2E-80 · the bill calendar: one bill changed, its month moves and no 
     expect(screen.getByLabelText('Bill amount').props.value).toBe('$1,200');   // the money form since 2026-10-27 (DEC-8385); the bill is the same $1,200
     fireEvent.changeText(screen.getByLabelText('Bill amount'), '1500');
     fireEvent.press(screen.getByLabelText('Save this bill'));
-    // the calendar moves in December only: Dec −2,400 → End 10,200 + 6,000 − 2,400 = 13,800; January's End follows, 13,800 + 5,100
-    expect(calendarRows()).toEqual([['Oct', '+$6,000', '−$900', '$5,100'], ['Nov', '+$6,000', '−$900', '$10,200'], ['Dec', '+$6,000', '−$2,400', '$13,800'], ['Jan ’27', '+$6,000', '−$900', '$18,900']]);
+    // the calendar moves in December only: Dec −2,400; no End projected with the box empty (R12)
+    expect(calendarRows()).toEqual([['Oct', '+$6,000', '−$900', '—'], ['Nov', '+$6,000', '−$900', '—'], ['Dec', '+$6,000', '−$2,400', '—'], ['Jan ’27', '+$6,000', '−$900', '—']]);
     expect(lines()).toContain('Car insurance · $1,500 due Dec 15, 2026');
     back('/(tabs)/cashflow');
     screen.unmount();

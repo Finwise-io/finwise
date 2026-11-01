@@ -39,11 +39,13 @@ function write(spec: FigureSpec, value: number | null, hidden: boolean, spoken: 
   return writeFigure(spec, value);
 }
 
-function print(id: string, raw: number | null, spoken: boolean, withPeriod: boolean, perOverride?: 'month' | 'year'): string {
+function print(id: string, raw: number | null, spoken: boolean, withPeriod: boolean, perOverride?: 'month' | 'year', asTyped?: boolean): string {
   // a value that is not a real number (NaN, Infinity) is a refused figure, exactly like null — it
   // never reaches the screen as "NaN" or a number. (outside review OpenAI final, 2026-10-09, DEC-3523)
   const value = raw != null && Number.isFinite(raw) ? raw : null;
-  const spec = figureSpec(id);
+  const declared = figureSpec(id);
+  // AS TYPED (2026-10-31, CR3-01): an amount the person typed with cents keeps them; typed whole, it prints whole
+  const spec = asTyped && value != null && !Number.isInteger(value) && declared.unit === 'money' ? { ...declared, unit: 'money-cents' as const } : declared;
   const hidden = useStore.getState().hideBalances;
   let text = write(spec, value, hidden, spoken);
   const per = perOverride ?? spec.per;   // a figure that is yearly only sometimes names its period here (2026-10-21)
@@ -73,6 +75,24 @@ export const figWords = (id: string, text: string): string => {
 /** The figure with its period after it — "$108,000/year". Use where the number stands on its own.
  *  The wording comes from the declaration, so the canon (cluster 14) is applied once, not remembered. */
 export const figPer = (id: string, value: number | null): string => print(id, value, false, true);
+/** AN AMOUNT THE PERSON TYPED, SHOWN AS TYPED, WITH ITS PERIOD (2026-10-31, FX-CF-C; CR3-01, the lead's ruling R13; tenets 2 and 4).
+ *  Typed whole, it prints whole ("$1,200/month", as Base pay's approved drawing income-end-to-end v07 draws it); typed with cents, it
+ *  prints to the cent ("$3,333.33/month"), so the year beside it adds up as printed — $3,333.33 × 12 = $39,999.96, shown $40,000.
+ *  Used by Contribution room (MK-MN-M-032). Base pay's card keeps its 401(k)s to the dollar (MK-CF-M-034): its own sentence, gross − tax −
+ *  401(k)s = take-home, adds up to the dollar, and tenet 2 outranks tenet 4. Typed whole, the two screens read the same. */
+/* ─ MK-XS-F-209 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * figPerAsTyped
+ *
+ * Answers ..... An amount the person typed, printed as typed with its period: typed whole it prints whole ("$1,200/month"), typed with cents it prints to the cent ("$3,333.33/month"); it calculates nothing.
+ *
+ * Called by ... ContributionRoomScreen
+ *
+ * Numbered by hand 2026-11-01 (PF-TOOLS, the lead's instruction): the scan that issues identifiers reads functions in the
+ *               calculation folders only, so this screen helper has no generated record; this one is written by hand in the generated form,
+ *               as MK-NW-F-145's is
+ * Changed ..... not in git yet (—)
+ */
+export const figPerAsTyped = (id: string, value: number | null): string => print(id, value, false, true, undefined, true);
 /** The figure as a screen reader says it — with the label, so it is a sentence and not a bare number. */
 export const figSpoken = (id: string, value: number | null): string => `${figureSpec(id).label}: ${print(id, value, true, true)}`;
 /** THE FIGURE AS A SCREEN READER SAYS IT, WITHOUT ITS LABEL — for the middle of a sentence.

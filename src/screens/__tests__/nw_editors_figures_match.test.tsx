@@ -86,10 +86,12 @@ function align(a: Fig[], b: Fig[]): Step[] {
 }
 const REPORT: string[] = [];
 /** One phone: the drawn figures, with its rows applied, must be the shown figures exactly, in order. */
-function compare(phone: string, drawnLines: string[], shown_: string[], floor: number, known: Known[]) {
+function compare(phone: string, drawnLines: string[], shown_: string[], floor: number, known: Known[], shownFloor = floor) {
   const drawn = figures(drawnLines), shown = figures(shown_);
   expect(drawn.length).toBeGreaterThanOrEqual(floor);           // the guard proves it looked: the drawing's figures were read
-  expect(shown.length).toBeGreaterThanOrEqual(floor);           // and the screen's
+  // and the screen's: its own true count where the screen shows fewer than the phone draws — since R16 (2026-10-31) a box
+  // nobody filled shows no grey example, so the boxes drawn holding one add figures the drawing has and the screen has not
+  expect(shown.length).toBeGreaterThanOrEqual(shownFloor);
   const mine = known.filter((k) => k[0] === phone);
   let want = drawn.map((x) => x.f);
   for (const [, from, to, row] of mine) {
@@ -179,6 +181,11 @@ const HOLDING_TTM = 'Holding detail v02 READ THIS FIRST 2026-10-21 (Q35 · canon
   + '(trailing twelve months), the window spelled out; the drawn (12 mo) carried a figure, 12, the built label does not';
 const HOLDING_LAST_CLOSE = 'Holding detail v02 READ THIS FIRST 2026-10-21 (DEC-3523 tenets 1, 2, 7 · MK-NW-M-029 · MK-ST-F-078 dateShown): phones A and C — '
   + 'the band above the price, drawn as the current price, live, names the price as the last close, then that close\u2019s date written the app\u2019s one way';
+// THE ROWS OF 2026-10-31 (R16, NW3-07): a box nobody filled opens empty, so the grey examples the phones draw in their boxes are
+// not on the screen; and NW3-06: the share of investable assets is worked once, to two decimals
+const R16_ROW = (d: string) => `${d} READ THIS FIRST 2026-10-31 (R16 · DEC-0296 · DEC-3523 · NW3-07): a box nobody filled opens empty — no grey example in it`;
+const BONDS_R16_PHONE3 = 'Bonds v02 READ THIS FIRST 2026-11-01 (R16 · NW3-07), correcting the row of 2026-10-31: on phone 3 too, What you paid (undrawn there, the row of 2026-10-20) opens empty — it showed ‘$9,700’';
+const ALTS_SHARE = 'Alternatives v02 READ THIS FIRST 2026-10-31 (Q49 · DEC-0346 · MK-NW-M-074 · NW3-06): ‘3 holdings · 12.00% of your investable assets’ — $61,500 ÷ $512,500, to two decimals';
 const ADD_PAID = 'Add an account v02 READ THIS FIRST 2026-10-20 (DEC-0281 · DEC-2748b · MK-XS-I-067): Bonds (phone 3): "a box for what you paid, marked optional, under the face value"';
 // the three bonds of phone 1, as drawn: name figure, value, face, coupon, maturity, years left, coupon a year, yield, YTM
 const TSY = ['2027', '$24,650', '$25,000', '4.25%', 'jun 30, 2027', '2', '$1,063', '4.31%', '4.95%'];
@@ -240,7 +247,25 @@ const KNOWN: Known[] = [
   ['add 3', ['$10,000', '4.5'], ['$10,000', '$9,700', '4.5'], ADD_PAID],
   ['add 3', ['401'], ['401', '401'], HELD_IN('Add an account v02')],
   ['add 4', ['401'], ['401', '401'], HELD_IN('Add an account v02')],
+  // 2026-10-31: the boxes open empty (R16). Each run is what the phone draws in a box nobody filled, after the rows above.
+  ['bonds 3', ['$9,700'], [], BONDS_R16_PHONE3],                                     // the paid box's grey example
+  ['alternatives 1', ['12%'], ['12.00%'], ALTS_SHARE],
+  ['alternatives 1 (PE)', ['12%'], ['12.00%'], ALTS_SHARE],
+  ['itemize 1', ['0'], [], R16_ROW('Itemize v02')],                                  // the amount box's ‘0’ (the next 0 is ‘replace with 0 holdings’)
+  ['itemize 2', ['0'], [], R16_ROW('Itemize v02')],
+  ['itemize 3', ['0'], [], R16_ROW('Itemize v02')],
+  ['add 1', ['$0', '0.0'], [], R16_ROW('Add an account v02')],                       // the balance and the cash rate
+  ['add 2', ['$0'], [], R16_ROW('Add an account v02')],                              // the balance
+  ['add 2', ['100'], [], R16_ROW('Add an account v02')],                             // the retirement earmark
+  ['add 3', ['$0', '$10,000', '$9,700', '4.5'], [], R16_ROW('Add an account v02')],  // the balance, the face, what was paid, the rate
+  ['add 3', ['100'], [], R16_ROW('Add an account v02')],
+  ['add 4', ['$0'], [], R16_ROW('Add an account v02')],
+  ['add 4', ['100'], [], R16_ROW('Add an account v02')],
+  ['add 5', ['$0', '$0'], [], R16_ROW('Add an account v02')],                        // the value and the mortgage balance
+  ['add 6', ['$0', '7.0', '$150'], [], R16_ROW('Add an account v02')],               // the balance, the rate, the minimum
 ];
+// THE OLD ANSWER, KEPT: before 2026-10-31 the boxes showed their grey examples and the share read a whole percent
+const KNOWN_BEFORE_R16: Known[] = KNOWN.filter((k) => !/READ THIS FIRST 2026-1[01]-[03][01] \((R16|Q49 · DEC-0346)/.test(k[3]));
 test('the rows\' own arithmetic: each figure KNOWN puts in place of a drawn one is worked by hand from the drawn data', () => {
   const day = (iso: string) => Date.UTC(+iso.slice(0, 4), +iso.slice(5, 7) - 1, +iso.slice(8, 10));
   const daysFrom = (a: string, b: string) => (day(b) - day(a)) / 86_400_000;
@@ -262,6 +287,8 @@ test('the rows\' own arithmetic: each figure KNOWN puts in place of a drawn one 
   expect(Math.round(28000 * 0.08 + 25000 * 0.05 + 8500 * 0.082)).toBe(4187);
   expect(((28000 * 0.08 + 25000 * 0.13 + 8500 * 0.082) / 61500 * 100).toFixed(2)).toBe('10.06');
   expect(Math.round(28000 * 0.08 + 25000 * 0.13 + 8500 * 0.082)).toBe(6187);
+  // Alternatives (the row of 2026-10-31, NW3-06): $61,500 of investable assets $61,500 + $451,000 = $512,500, to two decimals
+  expect((61500 / (61500 + 451000) * 100).toFixed(2)).toBe('12.00');
   // Holding detail (the row of 2026-10-11): 100 × ($241.84 − $168.00) and 40 × ($241.84 − $192.50)
   expect(Math.round(100 * (241.84 - 168))).toBe(7384);
   expect(Math.round(40 * (241.84 - 192.5))).toBe(1974);
@@ -318,12 +345,20 @@ describe('Bonds v02 — every figure and date (Oct 1, 2026)', () => {
     expect(shown.join(' ')).toContain('$25,000');   // the setup reached the editor: the failure below is the money box, nothing else
     compare('bonds 3', upTo(P[2], /^Sold the whole position/), shown, 7, KNOWN_BEFORE_MONEY_BOX);
   });
+  // the old answer, kept: before 2026-10-31 the paid box showed a grey $9,700 (R16)
+  test.failing('before 2026-10-31, kept · phone 3 showed $9,700 in the empty paid box', () => {
+    show(BondsScreen, { assetAccounts: BONDS.map((x) => (x.asset_id === 'b1' ? { ...x, accrued_interest: undefined } : x)) });
+    fireEvent.press(screen.getByText('US Treasury 2027'));
+    const shown = fromLine(shownLines(), 'Edit bond');
+    expect(shown.join(' ')).toContain('$25,000');   // the setup reached the editor: the failure below is the paid box, nothing else
+    compare('bonds 3', upTo(P[2], /^Sold the whole position/), shown, 7, KNOWN_BEFORE_R16);
+  });
 });
 
 // THE OLD ANSWER, KEPT (the fix wave's rule: a changed expected value keeps the old one as test.failing). Until 2026-10-27 the editors'
 // money boxes printed the plain figure — the face box 25000, the value box 24650 — so phone 3 matched with no money-box row. It fails now
 // because the boxes print $25,000 and $24,650 (DEC-8385); the day it passes again, a box has gone back to a plain figure.
-const KNOWN_BEFORE_MONEY_BOX: Known[] = KNOWN.filter((k) => !/2026-10-27 \(DEC-8385/.test(k[3]))
+const KNOWN_BEFORE_MONEY_BOX: Known[] = KNOWN_BEFORE_R16.filter((k) => !/2026-10-27 \(DEC-8385/.test(k[3]))
   .map((k): Known => (k[0] === 'bonds 3' && k[3] === BONDS_FIELDS ? ['bonds 3', k[1], ['jun 30, 2027', '24650', '$9,700', '~$1,063'], k[3]] : k));
 // ═══ ALTERNATIVES v02 — Oct 1, 2026 ════════════════════════════════════════════════════════════════════════════════
 describe('Alternatives v02 — every figure and date (Oct 1, 2026)', () => {
@@ -347,6 +382,12 @@ describe('Alternatives v02 — every figure and date (Oct 1, 2026)', () => {
     const shown = show(OtherInvestmentsScreen, { assetAccounts: ALTS('private_equity') });
     compare('alternatives 1 (PE)', upTo(P[0], /not guarantees\.$/), shown, 11, KNOWN);
   });
+  // the old answer, kept: before 2026-10-31 the share read a whole percent, ‘12%’ (NW3-06)
+  test.failing('before 2026-10-31, kept · phone 1 read 12%', () => {
+    const shown = show(OtherInvestmentsScreen, { assetAccounts: ALTS() });
+    expect(shown.join(' ')).toContain('3 holdings');
+    compare('alternatives 1', upTo(P[0], /not guarantees\.$/), shown, 11, KNOWN_BEFORE_R16);
+  });
   test('phone 2 · the first day', () => {
     const shown = show(OtherInvestmentsScreen, { assetAccounts: [] });
     compare('alternatives 2', upTo(P[1], /^＋ Add an investment$/), shown, 1, KNOWN);
@@ -368,7 +409,7 @@ describe('Itemize v02 — every figure and date', () => {
   const place = (kind: string, placeholder: string, name: string, amount: string, matures?: Date) => {
     fireEvent.press(screen.getByLabelText(kind));
     fireEvent.changeText(screen.getByPlaceholderText(placeholder), name);
-    fireEvent.changeText(screen.getByPlaceholderText('0'), amount);
+    fireEvent.changeText(screen.getByLabelText('Amount'), amount);   // by its name: the box opens empty (R16, 2026-10-31)
     if (matures) {   // the bond's maturity is picked, never typed (DEC-4059b): open the picker and choose the drawn day
       fireEvent.press(screen.getByLabelText('Pick a maturity date'));
       fireEvent(screen.UNSAFE_getByType(DateTimePicker), 'onChange', { type: 'set' }, matures);
@@ -385,17 +426,23 @@ describe('Itemize v02 — every figure and date', () => {
   test('the drawing has its three phones', () => { expect(P).toHaveLength(3); });
   test('phone 1 · nothing placed', () => {
     const shown = start();
-    compare('itemize 1', upTo(P[0], /^Done — replace with 0 holdings$/), shown, 6, KNOWN);
+    compare('itemize 1', upTo(P[0], /^Done — replace with 0 holdings$/), shown, 6, KNOWN, 5);   // the screen's true 5: the empty box has no 0
+  });
+  // the old answer, kept: before 2026-10-31 the amount box showed a grey 0 (R16)
+  test.failing('before 2026-10-31, kept · phone 1 showed 0 in the empty amount box', () => {
+    const shown = start();
+    expect(shown.join(' ')).toContain('Done — replace with 0 holdings');
+    compare('itemize 1', upTo(P[0], /^Done — replace with 0 holdings$/), shown, 6, KNOWN_BEFORE_R16, 5);
   });
   test('phone 2 · three holdings placed, $11,600 left over', () => {
     start(); three(); fireEvent.press(screen.getByLabelText('Stock / Fund'));
     const shown = shownLines();
-    compare('itemize 2', upTo(P[1], /^Done — replace with 3 holdings$/), shown, 13, KNOWN);
+    compare('itemize 2', upTo(P[1], /^Done — replace with 3 holdings$/), shown, 13, KNOWN, 12);
   });
   test('phone 3 · NVDA $14,200 more: $50,600 of $48,000, $2,600 over', () => {
     start(); three(); place('Stock / Fund', 'Ticker or name (e.g. AAPL)', 'NVDA', '14200'); fireEvent.press(screen.getByLabelText('Bond'));
     const shown = shownLines();
-    compare('itemize 3', upTo(P[2], /^Done — replace with 4 holdings$/), shown, 16, KNOWN);
+    compare('itemize 3', upTo(P[2], /^Done — replace with 4 holdings$/), shown, 16, KNOWN, 15);
   });
 });
 
@@ -490,12 +537,21 @@ describe('Add an account v02 — every figure and date, the hints in its boxes i
   const AddAccountScreen = require('../AddAccountScreen').default;
   beforeEach(() => at('2026-09-14'));
   test('the drawing has its six phones', () => { expect(P).toHaveLength(6); });
-  test.each([[1, 'Cash', 3], [2, 'Stocks / Funds', 4], [3, 'Bonds', 6], [4, 'Alternatives', 4], [5, 'Real estate', 3], [6, 'Debt', 4]] as [number, string, number][])(
-    'phone %i · %s', (n, kind, floor) => {
+  // the last number is the screen's true count since 2026-10-31: the boxes open empty (R16), so only the Held-in chips and the date are figures
+  test.each([[1, 'Cash', 3, 1], [2, 'Stocks / Funds', 4, 3], [3, 'Bonds', 6, 3], [4, 'Alternatives', 4, 3], [5, 'Real estate', 3, 1], [6, 'Debt', 4, 1]] as [number, string, number, number][])(
+    'phone %i · %s', (n, kind, floor, shownFloor) => {
       const k = n - 1;
       show(AddAccountScreen, { assetAccounts: [] });
       fireEvent.press(screen.getAllByText(kind)[0]);
       const shown = upTo(shownLines(), /^Save$/);
-      compare(`add ${k + 1}`, upTo(P[k], /^Save$/), shown, floor, KNOWN);
+      compare(`add ${k + 1}`, upTo(P[k], /^Save$/), shown, floor, KNOWN, shownFloor);
     });
+  // the old answer, kept: before 2026-10-31 phone 3's boxes showed $0, $10,000, $9,700, 4.5 and 100 in grey (R16)
+  test.failing('before 2026-10-31, kept · phone 3 showed the grey examples', () => {
+    show(AddAccountScreen, { assetAccounts: [] });
+    fireEvent.press(screen.getAllByText('Bonds')[0]);
+    const shown = upTo(shownLines(), /^Save$/);
+    expect(shown.join(' ')).toContain('Face value (optional)');
+    compare('add 3', upTo(P[2], /^Save$/), shown, 6, KNOWN_BEFORE_R16, 3);
+  });
 });

@@ -44,7 +44,7 @@ test('the editor saves a price paid left blank as not on record — never $0', (
   render(<HoldingDetailScreen />);
   fireEvent.press(screen.getByLabelText('Edit this holding'));
   fireEvent.press(screen.getByLabelText('Add another lot'));
-  const shares = screen.getAllByPlaceholderText('0');
+  const shares = screen.getAllByLabelText(/^(Shares|Contracts|Price per share|Amount)$/);   // the boxes by name — their grey ‘0’ is gone (R16, 2026-11-01)
   expect(shares).toHaveLength(2);                          // the two purchases' share boxes — the second is the new one
   fireEvent.changeText(shares[1], '10');                   // its price paid is left blank
   fireEvent.press(screen.getByLabelText('Save holding'));
@@ -57,7 +57,7 @@ test('a price paid typed and then cleared is not on record too', () => {
   render(<HoldingDetailScreen />);
   fireEvent.press(screen.getByLabelText('Edit this holding'));
   fireEvent.press(screen.getByLabelText('Add another lot'));
-  fireEvent.changeText(screen.getAllByPlaceholderText('0')[1], '10');
+  fireEvent.changeText(screen.getAllByLabelText(/^(Shares|Contracts|Price per share|Amount)$/)[1], '10');
   const cost = screen.getAllByPlaceholderText('—')[1];
   fireEvent.changeText(cost, '95');
   fireEvent.changeText(cost, '');

@@ -166,6 +166,8 @@ export default function HoldingDetailScreen() {
     position, accountId: String(account.asset_id), price: row?.price ?? null,
     transactions: (store.transactions ?? []) as any[],
     recentCloses: (series?.points ?? []).map((pt: any) => pt.close),
+    // with their days, so a day's move is printed only between two closes a market day apart (2026-10-31, NW3-04)
+    recentDatedCloses: (series?.points ?? []).map((pt: any) => ({ date: String(pt.date), close: pt.close })),
   });
   const dayChange = withCloses.dayChange
     ? { d: withCloses.dayChange.amount, p: withCloses.dayChange.share } : null;

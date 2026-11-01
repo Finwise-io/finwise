@@ -237,7 +237,7 @@ export function walkShown(w: Omit<WalkLines, 'wealthGenerated'> & { wealthGenera
  * Called by ... MK-CF-F-255 spendByMonthByCategory · MK-CF-F-256 budgetEditorBuckets
  *               MK-XS-F-195 monthShown · MK-XS-F-204 centsShown
  *
- * Reaches ..... 440 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 445 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -246,8 +246,8 @@ export function walkShown(w: Omit<WalkLines, 'wealthGenerated'> & { wealthGenera
  *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
- *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 422 more — the full list is on functions_from_code
+ *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
+ *               … and 427 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -287,7 +287,7 @@ export function partsShown(parts: number[]): { parts: number[]; total: number } 
  *
  * Called by ... MK-CF-F-204 line
  *
- * Reaches ..... 438 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 443 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -296,8 +296,8 @@ export function partsShown(parts: number[]): { parts: number[]; total: number } 
  *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
- *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 420 more — the full list is on functions_from_code
+ *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
+ *               … and 425 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -514,15 +514,15 @@ export type FigureDeclaration = Record<string, FigureSpec>;
  * Called by ... MK-CF-F-107 buildPaycheckYear · MK-CF-F-199 ROOM
  *               MK-CF-F-200 LINE · MK-CF-F-202 TAX
  *               MK-CF-F-204 line · MK-CF-F-207 SOURCE
- *               MK-CF-F-211 DEBTS · MK-CF-F-212 receivedInMonth
- *               MK-CF-F-240 PAY_LANDS_TYPED · MK-CF-F-242 workedLineAmount
+ *               MK-CF-F-212 receivedInMonth · MK-CF-F-240 PAY_LANDS_TYPED
+ *               MK-CF-F-242 workedLineAmount · MK-CF-F-296 LOAD
  *               MK-CF-O-017 futurePaycheck · MK-NW-F-075 ACC
  *               MK-NW-F-076 ALT · MK-NW-F-079 EF
  *               MK-NW-F-081 LB · MK-NW-F-088 BENCH
  *               MK-NW-F-167 COMPARE · MK-NW-F-179 balanceWithBondTakenOut
  *               MK-NW-F-185 valueChanged · MK-PL-F-083 inflationRateInForce
  *
- * Reaches ..... 440 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 445 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -532,7 +532,7 @@ export type FigureDeclaration = Record<string, FigureSpec>;
  *               MK-CF-F-237 LATER · MK-NW-F-081 LB
  *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
  *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
- *               … and 422 more — the full list is on functions_from_code
+ *               … and 427 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

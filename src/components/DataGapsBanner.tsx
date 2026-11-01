@@ -3,6 +3,7 @@
 // complete. When something is missing it appears INLINE (never a pop-up), counts the gaps, and
 // names each one; tapping opens a bottom sheet where every row carries what's missing, what we're
 // honestly doing meanwhile, and a button that lands on the exact cure.
+import { SHEET_FRAME, SHEET_HANDLE } from './sheetFrame';   // one sheet frame (NW3-18, 2026-10-31)
 import { plural } from '../domain/_shared/plural';   // the one list of words and plurals (DEC-4082, 2026-10-10)
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Modal, ScrollView } from 'react-native';
@@ -16,6 +17,10 @@ import { gapsHeadline, type DataGap } from '../domain/gaps';
  *  the gap as the page says it and what the app does meanwhile, and the doors sit in the box: each gap's own cure once,
  *  then "Sync now" for a linked account. `onFix` performs a cure the page owns (true = handled), such as opening its own
  *  dividend recorder; any other cure goes where the gap's route says. */
+/** A line ends in one full stop: a gap's title that already ends in one (the history-depth gap, "…figures before that aren’t counted.")
+ *  is not given a second (2026-10-31, drawing match round 3, NW3-11 — it read "…aren’t counted.. Figures for…", spoken too). */
+const sentence = (t: string) => (/[.!?]$/.test(t.trim()) ? t.trim() : `${t.trim()}.`);
+
 export interface OnPage { sync: boolean; onFix?: (g: DataGap) => boolean }
 
 /** Run the sync in place and say what it did — one handler for the sheet's rows and the page's door.
@@ -62,14 +67,14 @@ export function DataGapsBanner({ gaps, onPage }: { gaps: DataGap[]; onPage?: OnP
       {onPage ? (
         <View style={s.banner} testID="gaps-on-page">
           <TouchableOpacity accessibilityRole="button" activeOpacity={0.85} onPress={() => setOpen(true)}
-            accessibilityLabel={`${headline}. ${gaps.map((g) => g.onItsPage ?? g.title).join('. ')}. Opens how to fix them.`}>
+            accessibilityLabel={`${headline}. ${gaps.map((g) => sentence(g.onItsPage ?? g.title)).join(' ')} Opens how to fix them.`}>
             <Text style={[s.head, s.headOnPage]}>⚠ {headline} ›</Text>
           </TouchableOpacity>
           {/* THE BULLETS HANG (DEC-6078): the dot in its own column, the words on one left edge */}
           {gaps.slice(0, 3).map((g, i) => (
             <View key={i} style={[s.lineRow, s.lineRowOnPage]} testID="gap-line">
               <Text style={[s.line, s.lineOnPage]}>·</Text>
-              <Text style={[s.line, s.lineOnPage, s.lineText]}>{g.onItsPage ?? g.title}. {g.meanwhile}</Text>
+              <Text style={[s.line, s.lineOnPage, s.lineText]}>{sentence(g.onItsPage ?? g.title)} {g.meanwhile}</Text>
             </View>
           ))}
           {gaps.length > 3 && (
@@ -185,8 +190,8 @@ const s = StyleSheet.create({
   pageDoorTxtFill: { color: Colors.white },
   pageDoorTxtLine: { color: Colors.primaryDeep },
   scrim: { flex: 1, backgroundColor: 'rgba(0,0,0,0.35)' },
-  sheet: { backgroundColor: Colors.bgSecondary, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: Spacing.base, paddingBottom: 32 },
-  grab: { width: 36, height: 4, borderRadius: 2, backgroundColor: Colors.bgTertiary, alignSelf: 'center', marginBottom: 10 },
+  sheet: { ...SHEET_FRAME, padding: Spacing.base, paddingBottom: 32 },
+  grab: { ...SHEET_HANDLE },
   sheetTitle: { fontSize: 17, fontWeight: '800', color: Colors.textPrimary },
   sheetSub: { fontSize: 13, color: Colors.textSecondary, marginBottom: 8 },
   // the drawing's one card ring (Net worth v08, state F, .gapcard: box-shadow 0 0 0 1px at 5% black) — a 1px line in RN,

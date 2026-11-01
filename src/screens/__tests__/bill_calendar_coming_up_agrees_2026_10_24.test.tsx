@@ -168,9 +168,9 @@ describe('E2E-81 · the COMING UP line and the month table move together', () =>
     fireEvent.press(screen.getByLabelText('Add debt account'));
     fireEvent.changeText(screen.getByPlaceholderText('Lender / name (e.g. Chase Sapphire)'), 'Store card');
     // the sheet opens over the tab, which has boxes of its own: the sheet's are the last on the screen
-    const inSheet = (placeholder: string) => screen.getAllByPlaceholderText(placeholder).slice(-1)[0];
-    fireEvent.changeText(inSheet('0'), '1500');                     // what you owe
-    fireEvent.changeText(inSheet('$0'), '100');                     // Min payment /month
+    // the sheet's boxes are found by their names: they open empty, with no example (R16, 2026-10-31), and no box on the tab shares them
+    fireEvent.changeText(screen.getByLabelText('Balance'), '1500');                     // what you owe
+    fireEvent.changeText(screen.getByLabelText('Minimum payment a month'), '100');                     // Min payment /month
     fireEvent.press(screen.getByLabelText('Add debt'));
     expect((useStore.getState() as any).liabilities.map((d: any) => d.label)).toContain('Store card');
     expect(lines()).toContain('Store card');                        // the Debts tab lists it, where the person just added it

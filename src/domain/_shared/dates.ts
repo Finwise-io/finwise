@@ -20,7 +20,7 @@
  *               MK-PF-F-022 factorOverMonths · MK-ST-F-096 localDay
  *               MK-XS-F-192 typedValueDatedBack · MK-XS-F-199 profileOnTheWayIn
  *
- * Reaches ..... 446 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 451 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -30,7 +30,7 @@
  *               MK-CF-F-237 LATER · MK-NW-F-081 LB
  *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
  *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
- *               … and 428 more — the full list is on functions_from_code
+ *               … and 433 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -69,7 +69,7 @@ export function isoLocalDate(d: Date): string {
  *               MK-CF-F-212 receivedInMonth · MK-CF-F-220 pastMonthFlow
  *               MK-CF-F-286 monthBeforeAnyRecord · MK-ST-F-097 localMoment
  *
- * Reaches ..... 440 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 445 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -78,8 +78,8 @@ export function isoLocalDate(d: Date): string {
  *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
- *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 422 more — the full list is on functions_from_code
+ *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
+ *               … and 427 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -153,7 +153,7 @@ const MONTH_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Se
  *               MK-NW-F-144 beforeTheRecordSentence · MK-NW-F-148 lastCloseLabel
  *               MK-NW-O-008 thePerformance · MK-PF-F-045 priceHistoryShortSentence
  *
- * Reaches ..... 439 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 444 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -162,8 +162,8 @@ const MONTH_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Se
  *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
- *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 421 more — the full list is on functions_from_code
+ *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
+ *               … and 426 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -219,7 +219,7 @@ export function monthYearShown(year: number, month1to12: number): string {
  *               MK-PF-F-061 firstClose · MK-PF-F-062 calendarDay
  *               MK-ST-F-011 classifyHoldingClass
  *
- * Reaches ..... 438 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 443 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -228,8 +228,8 @@ export function monthYearShown(year: number, month1to12: number): string {
  *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
- *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 420 more — the full list is on functions_from_code
+ *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
+ *               … and 425 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-013 bond maturity date
@@ -305,7 +305,7 @@ export function daysInMonth(year: number, month1to12: number): number {
  * Called by ... MK-CF-F-063 rowVestYear · MK-CF-F-258 equityVests
  *               MK-CF-F-270 landsOnce
  *
- * Reaches ..... 447 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 452 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -314,8 +314,8 @@ export function daysInMonth(year: number, month1to12: number): number {
  *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
- *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 429 more — the full list is on functions_from_code
+ *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
+ *               … and 434 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

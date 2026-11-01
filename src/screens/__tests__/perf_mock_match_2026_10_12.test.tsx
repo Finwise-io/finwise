@@ -614,14 +614,16 @@ describe('PF-4 · v17 phone 4: the CD bought today counts at its cost, 0% — Re
 
 // ── FX-PF, 2026-10-27 · PF-1 and PF-2 (the drawing match of 2026-10-27, round 2) ─────────────────────────────────────────────
 describe('PF-1 · PF-2 · the category rows at 15 and the bold /year (v17 .rw 13.5 → 15 on the one scale, DEC-0059; "a <b>/year</b> figure")', () => {
-  test.each([[1], [3], [4], [5]] as [1 | 3 | 4 | 5][])('phone %i: every category name, Earned, Return and All categories at 15 — none at 13', (n) => {
+  test.each([[1], [3], [4], [5]] as [1 | 3 | 4 | 5][])('phone %i: every category name, Earned, Return and All categories at 15; a return not known, "—", at 13, 700, secondary (PF3-1)', (n) => {
     const r = open(n);
     const at = idx(r, 'WHAT EACH CATEGORY EARNED');
     const end = idx(r, 'All categories', at);
     expect(end).toBeGreaterThan(at);
     const rows = r.slice(idx(r, 'RETURN', at) + 1, end + 2).filter((x) => x.t !== 'ⓘ');
     expect(rows.length).toBeGreaterThanOrEqual(2 * 3 + 2);           // the guard looked: two categories at least (phone 1 draws two), and the total
-    for (const x of rows) expect(`${x.t} ${x.size}`).toBe(`${x.t} 15`);
+    // the "—" as v17 phones 4 and 5 draw it (12 → 13 on the scale, 700, #6B6B66; the row of 2026-10-31); every other line at 15
+    for (const x of rows) expect(`${x.t} ${x.size}${x.t === '—' ? ` ${x.weight} ${x.color}` : ''}`).toBe(x.t === '—' ? `— 13 700 ${Colors.textSecondary}` : `${x.t} 15`);
+    if (n >= 4) expect(rows.filter((x) => x.t === '—').length).toBe(3);                 // phones 4 and 5: three dashes each
   });
   test('phones 1 and 3: "/year" in the note is 700, the rest of the line 400', () => {
     for (const n of [1, 3] as const) {

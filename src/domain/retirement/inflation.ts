@@ -32,7 +32,8 @@ export interface InflationInForce { rate: number; basis: 'entered' | 'default'; 
  *     the answer = { rate: entered, basis 'entered', label 'you entered' }   when entered exists
  *                  { rate: 2.5%, basis 'default', label '2.5% — the 30-year average of consumer prices (Bureau of Labor Statistics, 1996–2025)' }   otherwise
  *
- * Called by ... MK-PL-F-067 willItLastInputs · MK-XS-F-031 buildSnapshot
+ * Called by ... MK-CF-O-017 futurePaycheck · MK-PL-F-067 willItLastInputs
+ *               MK-XS-F-031 buildSnapshot
  *
  * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
  *               MK-XS-F-031 buildSnapshot · MK-CF-O-017 futurePaycheck

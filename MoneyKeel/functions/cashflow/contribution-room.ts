@@ -303,10 +303,14 @@ export const CONTRIBUTION_ROOM_FIGURES = declareFigures({
     worked: { given: GIVEN, answer: '$35,750', run: () => ROOM().k401.limit },
   },
   'MK-MN-M-032': {
+    // AS TYPED (2026-10-31, FX-CF-C; CR3-01, the lead's ruling R13; tenets 2 and 4; contribution-room v02, row 7): printed by figPerAsTyped —
+    // whole when typed whole ("$1,200/month", as Base pay prints the same 401(k), MK-CF-M-034), to the cent when typed with cents, so the year
+    // beside it adds up as printed: $3,333.33 × 12 = $39,999.96, shown $40,000. It printed $3,333 beside $40,000 (3,333 × 12 = 39,996).
     label: 'At $M/month', unit: 'money', per: 'month', screens: ['/contribution-room'], grain: 'one account',
     answers: 'The monthly amount the person entered for this account — what the year at the monthly amount is worked from.',
     formula: 'the amount entered a month for the account, as entered; for the IRAs, one amount for Traditional and Roth together, typed on the IRA card — until it is typed, the Roth amount sign-up stored',
     inputs: ['MK-XS-I-043 their own retirement contribution', 'MK-XS-I-080 what goes into IRAs a month — Traditional and Roth together'],
+    decisions: ['AS TYPED (2026-10-31, CR3-01; the lead\u2019s ruling R13, made without asking him; tenets 2 and 4): an amount typed whole prints whole, as Base pay prints the same 401(k) (MK-CF-M-034); an amount typed with cents prints to the cent, so the year beside it adds up as printed. Base pay keeps a cents amount to the dollar, because its card\u2019s own sum (gross − tax − 401(k)s = take-home) adds up to the dollar: tenet 2 outranks tenet 4. At $3,333.33 a month the card reads "At $3,333.33/month you will put in $40,000 this year" ($39,999.96, a total, shown to the dollar); it read "$3,333/month", and 3,333 × 12 = 39,996. To reverse: whole dollars always, and the year as 12 times the printed month.'],
     refusal: 'Nothing entered — the card reads "up to" the limit and names no monthly amount.',
     ruled: '2026-10-26',   // the lead's decision, made without asking him (decide, apply, report); its decision row is PF-RECORDS'
     worked: { given: GIVEN, answer: '$1,200/month', run: () => ROOM().k401.monthly },

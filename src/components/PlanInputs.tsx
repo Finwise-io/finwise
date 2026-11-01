@@ -176,7 +176,7 @@ export function PlanInputs({ draft, onDraft, onCommit, committed, missing = [], 
       {DOORS.map((d) => (
         <TouchableOpacity key={d.route} style={s.row} accessibilityRole="button" accessibilityLabel={d.title.replace(' ›', '')}
           onPress={() => onOpenDoor?.(d.route)}>
-          <Text style={s.rowLabel}>{d.icon}  {d.title}</Text>
+          <Text style={s.rowLabel}>{d.icon} {d.title}</Text>
         </TouchableOpacity>
       ))}
 

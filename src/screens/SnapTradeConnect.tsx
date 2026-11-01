@@ -127,11 +127,11 @@ export default function SnapTradeConnect({ reconnectId }: { reconnectId?: string
         <SectionBand title={broker.name} />
         <View style={s.card}>
           <SectionBand inCard title={`WHAT ${broker.name.toUpperCase()} SHARES`} />
-          {broker.shares.map((line) => <Text key={line} style={s.body}>·  {line}</Text>)}
+          {broker.shares.map((line) => <Text key={line} style={s.body}>· {line}</Text>)}
           {broker.cantShare.length > 0 && (
             <>
               <Text style={[s.kicker, { marginTop: 10 }]}>WHAT IT CAN’T SHARE</Text>
-              {broker.cantShare.map((line) => <Text key={line} style={s.body}>·  {line}</Text>)}
+              {broker.cantShare.map((line) => <Text key={line} style={s.body}>· {line}</Text>)}
               <Text style={s.note}>Anything you add by hand stays and counts — nothing gets overwritten.</Text>
             </>
           )}
@@ -153,7 +153,7 @@ export default function SnapTradeConnect({ reconnectId }: { reconnectId?: string
       <ScrollView showsVerticalScrollIndicator={false}>
         <Text style={s.h2}>What happens to your data</Text>
         <View style={s.card}>
-          {CONSENT_COPY.map((line) => <Text key={line} style={s.body}>·  {line}</Text>)}
+          {CONSENT_COPY.map((line) => <Text key={line} style={s.body}>· {line}</Text>)}
         </View>
         <TouchableOpacity accessibilityRole="button" style={s.primaryBtn} disabled={busy} onPress={openPortal}
           accessibilityLabel={`Open ${broker.name}’s own sign-in`}>

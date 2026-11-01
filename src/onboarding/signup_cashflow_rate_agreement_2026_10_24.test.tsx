@@ -84,7 +84,7 @@ describe('the rate: sign-up and Cash flow give one person one rate', () => {
     const L = signUp('recap_income');
     expect(L[L.indexOf('Take-home / year') + 1]).toBe(money(50_756));
     expect(L).toContain(`≈ ${money(4_229.67)}/month average`);
-    expect(L[L.indexOf('Tax (~7.41% on taxable income)') + 1]).toBe(`-${money(4_444)}`);
+    expect(L[L.indexOf('Tax (~7.41% of your gross)') + 1]).toBe(money(-(4_444)));
     expect(L[L.indexOf('Available /year') + 1]).toBe(money(50_756));
   });
   test('Cash flow\'s income summary, same person: take-home $4,230 a month and calculated tax ≈$4,444 a year — sign-up\'s two figures', () => {
@@ -94,7 +94,7 @@ describe('the rate: sign-up and Cash flow give one person one rate', () => {
     expect(L[L.indexOf('TAKE-HOME EACH MONTH') + 1]).toBe(`≈${money(4_229.67)}`);
     expect(L[L.indexOf('Calculated federal tax') + 2]).toBe(`≈${money(4_444)}/year`);
     const S = signUp('recap_income');
-    expect(S[S.indexOf('Tax (~7.41% on taxable income)') + 1]).toBe(`-${money(4_444)}`);
+    expect(S[S.indexOf('Tax (~7.41% of your gross)') + 1]).toBe(money(-(4_444)));
     expect(S).toContain(`≈ ${money(4_229.67)}/month average`);
   });
 });
@@ -157,7 +157,7 @@ describe('sign-up\'s Taxes step reads the income and the bracket Cash flow reads
   });
   test('the income recap of the same household reads the same rate: tax ~7% on what it is taxed on', () => {
     const S = signUpWith(WITH_BENEFITS, 'recap_income');
-    expect(S[S.indexOf('Tax (~7.41% on taxable income)') + 1]).toBe(`-${money(4_444)}`);
+    expect(S[S.indexOf('Tax (~7.41% of your gross)') + 1]).toBe(money(-(4_444)));
   });
 });
 
@@ -284,4 +284,10 @@ describe('the Income summary shows what it is taxed on being made, and a calcula
     expect([L[L.indexOf('= Gross /year') + 1], L[L.indexOf('= What it is taxed on') + 1]]).toEqual([money(169_200), money(169_200)]);
     expect(L[L.indexOf('Your 401(k)s') + 1]).toBe(money(0));   // a real $0, no sign
   });
+});
+
+// THE OLD ANSWER, KEPT (the fix wave's rule): until 2026-10-31 sign-up typed a hyphen before a money figure, "-$4,444". One money formatter
+// writes the minus sign "−" now (SU3-02); this fails because no hyphen is printed. The day it passes, a hyphen has come back.
+test.failing('before 2026-10-31, kept · a money figure taken out was written with a hyphen', () => {
+  expect(money(-1)).toBe(`-${money(1)}`);
 });

@@ -3,6 +3,7 @@
 // amount, what's already taken (from the ONE ledger), the deadline, a year-by-year schedule
 // (clearly labeled estimates), and a getting-ready checklist for the run-up to 73.
 // Logistics and reminders — the decision of WHEN in the year to take it stays with the user.
+import { SHEET_FRAME, SHEET_HANDLE } from '../components/sheetFrame';   // one sheet frame (NW3-18, 2026-10-31)
 import { MoneyBox } from '../components/MoneyBox';   // every money box, one component (DEC-8385)
 import { CountedTaxableLines } from '../components/CountedTaxableLines';   // (DEC-4105, 2026-10-10)
 import React, { useMemo, useState } from 'react';
@@ -242,7 +243,7 @@ export default function RequiredWithdrawalsScreen() {
                 <TouchableOpacity accessibilityRole="radio" key={a.asset_id} style={[s.pickRow, on && s.pickOn]}
                   onPress={() => setMarkAcct(a.asset_id)} accessibilityState={{ selected: on }}
                   accessibilityLabel={`From ${a.label}`}>
-                  <Text style={s.pickTxt}>{on ? '◉' : '○'}  {a.institution?.trim() || a.label}</Text>
+                  <Text style={s.pickTxt}>{on ? '◉' : '○'} {a.institution?.trim() || a.label}</Text>
                 </TouchableOpacity>
               );
             })}
@@ -301,7 +302,7 @@ const s = StyleSheet.create({
   acctLabel: { flex: 1, fontSize: 15, fontWeight: '600', color: Colors.textPrimary },
   acctBal: { fontSize: 15, color: Colors.textSecondary, fontVariant: ['tabular-nums'] },
   scrim: { flex: 1, backgroundColor: 'rgba(0,0,0,0.35)' },
-  sheet: { backgroundColor: Colors.cardBg, borderTopLeftRadius: Radii.xl, borderTopRightRadius: Radii.xl, padding: Spacing.lg, paddingBottom: Spacing.xl },
+  sheet: { ...SHEET_FRAME, padding: Spacing.lg, paddingBottom: Spacing.xl },
   sheetT: { fontSize: 17, fontWeight: '800', color: Colors.textPrimary, marginBottom: 4 },
   input: { backgroundColor: Colors.bgSecondary, borderRadius: Radii.md, borderWidth: 1, borderColor: Colors.border, padding: Spacing.md, fontSize: 17, color: Colors.textPrimary, marginTop: Spacing.md },
   pickRow: { borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radii.md, padding: Spacing.md, marginTop: 8, minHeight: 48, justifyContent: 'center' },

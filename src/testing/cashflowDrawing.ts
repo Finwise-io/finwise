@@ -196,6 +196,10 @@ export const AS_BUILT: Record<'A' | 'B' | 'C' | 'D' | 'E' | 'F', () => string[]>
     { why: KEPT, replace: ['6.40% · 3 years left', '6.40% · 3 years left · $300/month min · ~$52/month interest'] },
     // "+ Add debt account" under the list, as DEC-1560 keeps it (2026-10-27, CF2-05: it was after PROGRESS); no edit hint (CF2-04)
     { why: KEPT, insertAfter: ['Log a payment ›', ['+ Add debt account']] },
+    // DEBT-TO-INCOME under PROGRESS, moved from Goals with its figures unchanged (cash-flow_v01 READ THIS FIRST, 2026-11-01): $110 + $300 =
+    // $410 of minimums on $5,000/month = 8.20%, healthy for a renter (no student loan in this household, so no outlook box)
+    { why: 'cash-flow_v01 READ THIS FIRST, 2026-11-01 — DEBT-TO-INCOME and STUDENT LOAN OUTLOOK on Debts', insertAfter: ['$4,100 paid down since January — 24% of where you started',
+      ['DEBT-TO-INCOME', '8.20%', 'Healthy', '$410/month in minimum debt payments ÷ $5,000/month income', 'Aim for 20% or less (renters; rent isn’t counted). You’re in good shape.']] },
     { why: KEPT, append: ['＋ Expense'] },
   ]),
 };

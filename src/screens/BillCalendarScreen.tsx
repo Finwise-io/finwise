@@ -118,7 +118,7 @@ export default function BillCalendarScreen() {
     );
   }
 
-  const short = grid.shortMonths.length > 0;
+  const short = startGiven && grid.shortMonths.length > 0;   // no balance given, no month is short (R12, 2026-10-31)
   const lowestCell = grid.cells.reduce((m, c) => (c.runningBalance < m.runningBalance ? c : m), grid.cells[0]);
   // the biggest cause, named in one sentence (r43): the largest bill in the first short month
   const shortCause = short ? (() => {
@@ -176,13 +176,15 @@ export default function BillCalendarScreen() {
           <Text style={[styles.hCell, styles.numCell]}>End</Text>
         </View>
         {grid.cells.map((c, slot) => {
-          const neg = c.runningBalance < 0;
+          // NOTHING PROJECTED FROM A $0 NOBODY ENTERED (2026-10-31, the lead's R12 on BC3-01; DEC-0296): with the box empty the End column
+          // reads "—" and no month is flagged short — it projected $2,980 … $32,160 from an empty box, and the first day twelve "$0" Ends
+          const neg = startGiven && c.runningBalance < 0;
           // EACH END IS THE END BEFORE IT, PLUS IN, LESS OUT, AS PRINTED (chainShown, 2026-10-24 — tenet 2): each was rounded alone
           const p = shownRows[slot];
           return (
             <View key={`${c.label}${c.year}`} style={styles.mRow} accessible
               // said as printed: a month with nothing in or out is "—", never "$0" (2026-10-25, BC-02)
-              accessibilityLabel={`${monthYearShown(c.year, c.calendarMonth)}: in ${c.inflow > 0 ? figSaid('MK-CF-M-051', p.inflow) : '—'}, out ${c.outflow > 0 ? figSaid('MK-CF-M-052', p.outflow) : '—'}, ending balance ${figSaid('MK-CF-M-061', p.end)}${neg ? ' — short' : ''}.`}>
+              accessibilityLabel={`${monthYearShown(c.year, c.calendarMonth)}: in ${c.inflow > 0 ? figSaid('MK-CF-M-051', p.inflow) : '—'}, out ${c.outflow > 0 ? figSaid('MK-CF-M-052', p.outflow) : '—'}, ${startGiven ? `ending balance ${figSaid('MK-CF-M-061', p.end)}` : 'no ending balance — nothing is projected'}${neg ? ' — short' : ''}.`}>
               {/* A MONTH ROW OPENS NOTHING (2026-10-24, Cash flow journey E2E-80): month detail was retired on 2026-10-02 and this
                   row has no tap, so it no longer says "Opens the month's detail" — nor the foot line, "Tap any row …" */}
               <Text style={[styles.mLabel, { flex: 1 }]}>{c.label}{neg ? ' !' : ''}</Text>
@@ -190,7 +192,7 @@ export default function BillCalendarScreen() {
                   and Out regular with no colour of its own */}
               <Text style={[styles.mNum, styles.numCell, styles.mNumDrawn]}>{c.inflow > 0 ? '+' + fig('MK-CF-M-051', p.inflow) : '—'}</Text>
               <Text style={[styles.mNum, styles.numCell, styles.mNumDrawn]}>{c.outflow > 0 ? '−' + fig('MK-CF-M-052', p.outflow) : '—'}</Text>
-              <Text style={[styles.mNum, styles.numCell, { fontWeight: '800', color: neg ? Colors.red : Colors.textPrimary }]}>{fig('MK-CF-M-061', p.end)}{neg ? ' short' : ''}</Text>
+              <Text style={[styles.mNum, styles.numCell, { fontWeight: '800', color: neg ? Colors.red : Colors.textPrimary }]}>{startGiven ? fig('MK-CF-M-061', p.end) : '—'}{neg ? ' short' : ''}</Text>
             </View>
           );
         })}

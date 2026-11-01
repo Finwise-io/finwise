@@ -17,13 +17,14 @@
 // 2026-10-27 (FX-CF-B, the drawing check IN2-01 to IN2-03, IN2-05, IN2-06): row labels are ink; every money figure one size, a
 // total bold at the rows' size under the drawn rule (DEC-0093); December's row on phone 9 is a plain row with its figure green;
 // a hint is the darker grey and a closed line the lighter; phone 11's first sentence is bold, in one box with the second.
+import { SHEET_FRAME, SHEET_HANDLE } from '../components/sheetFrame';   // one sheet frame (NW3-18, 2026-10-31)
 import { plural } from '../domain/_shared/plural';   // the one list of words and plurals (DEC-4082, 2026-10-10)
 import TopBar from '../components/TopBar';
 import React, { useState } from 'react';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Modal, KeyboardAvoidingView, Platform, Alert } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useStore } from '../store/useStore';
-import { Colors, Spacing, Radii } from '../utils/theme';
+import { Colors, Spacing, Radii, Tap } from '../utils/theme';
 import { EmptyNote } from '../components/UI';
 import { SectionBand } from '../components/SectionBand';
 import { MoneyBox } from '../components/MoneyBox';   // the money box as drawn — "$12,000" while it is typed (IN-06, 2026-10-25)
@@ -98,7 +99,9 @@ export default function IncomeManagerScreen() {
         )}
         {(m.entered.length > 0 || stockOnly) && (
         <View style={s.group}>
-        <SectionBand inCard inset={Spacing.base} onRowEdges title="You entered about" value={plural(m.entered.length + (stockOnly ? 1 : 0), 'source')} />
+        {/* the bar's words in capitals, its count too — "3 SOURCES", as drawn (phone 12; IN3-05, 2026-10-31) */}
+        <SectionBand inCard inset={Spacing.base} onRowEdges title="You entered about" value={plural(m.entered.length + (stockOnly ? 1 : 0), 'source').toUpperCase()}
+          valueSaid={plural(m.entered.length + (stockOnly ? 1 : 0), 'source')} />
         {m.entered.map((x) => {
           const isJob = x.key === 'employment';
           const expanded = isJob && jobOpen;
@@ -279,7 +282,7 @@ function BonusAndStock({ op, set, onDone }: { op: any; set: (p: Record<string, a
                     </TouchableOpacity>
                   </>
                 ) : (
-                  <Money label="Stock that vests, a year" hint="Leave blank if you have none." placeholder={fig('MK-CF-M-009', 0)}
+                  <Money label="Stock that vests, a year" hint="Leave blank if you have none."
                     value={num(op.rsuShares) * num(op.rsuPrice) || ''} onChangeText={(v) => set({ rsuShares: v, rsuPrice: '1' })} />
                 )}
                 {/* SHARES ARE NOT MONEY TO SPEND unless sold when they vest (2026-10-25, the lead's ruling, like DEC-0179 and DEC-0198's
@@ -461,7 +464,7 @@ function InterestAndDividends({ op, set, onDone }: { op: any; set: (p: Record<st
         <SectionBand inCard light inset={Spacing.base} onRowEdges title={paid ? 'This reaches your bank' : 'This does not reach your bank'} />
         {/* one box, its first sentence bold, as phone 11 draws it (IN2-06, 2026-10-27) */}
         <Text style={s.info}>
-          <Text style={{ fontWeight: '800' }}>{paid ? 'Interest and dividends are counted as income you are taxed on, and as money you can spend.'
+          <Text style={{ fontWeight: '700' }}>{paid ? 'Interest and dividends are counted as income you are taxed on, and as money you can spend.'
                 : 'Interest and dividends are counted as income you are taxed on, not money you can spend.'}</Text>{' '}
           They are normally reinvested where they are earned, so they never reach your bank account. If you actually take them as cash, tell us and we will count them.
         </Text>
@@ -500,7 +503,7 @@ function AskedBefore({ source, onDone }: { source: ManagedSource['key']; onDone:
                     <Text style={s.whoSub}>{dateShown(i.date)}{i.notes ? ` · ${i.notes}` : ''}</Text>
                   </View>
                   <Text style={s.rowV}>{fig('MK-CF-M-012', i.amount)}</Text>
-                  <TouchableOpacity accessibilityRole="button" accessibilityLabel={`Delete ${i.source || i.type}`} hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+                  <TouchableOpacity accessibilityRole="button" accessibilityLabel={`Delete ${i.source || i.type}`} hitSlop={Tap.slop}
                     onPress={() => Alert.alert('Delete this income?', `${i.source || i.type} · ${fig('MK-CF-M-012', i.amount)}`, [
                       { text: 'Cancel', style: 'cancel' },
                       { text: 'Delete', style: 'destructive', onPress: () => store.deleteIncome(i.id) },
@@ -536,7 +539,7 @@ function AddIncome({ open, onClose, onSave }: { open: boolean; onClose: () => vo
           <Text style={s.q}>What was it?</Text>
           <TextInput style={s.input} value={source} onChangeText={setSource} placeholder="e.g. Gift, stock sale, freelance" placeholderTextColor={Colors.textTertiary} accessibilityLabel="What was it?" />
           <Text style={s.q}>Amount</Text>
-          <MoneyBox bare style={s.input} value={amount} onChangeText={setAmount} placeholder="0" a11y="Amount" />
+          <MoneyBox bare style={s.input} value={amount} onChangeText={setAmount} a11y="Amount" />
           <TouchableOpacity accessibilityRole="button" accessibilityLabel="Add" style={[s.cta, (num(amount) <= 0 || !source.trim()) && { opacity: 0.4 }]}
             disabled={num(amount) <= 0 || !source.trim()} onPress={() => onSave(source.trim(), num(amount))}>
             <Text style={s.ctaT}>Add</Text>
@@ -610,6 +613,6 @@ const s = StyleSheet.create({
   cta: { backgroundColor: Colors.primary, borderRadius: Radii.md, minHeight: 52, justifyContent: 'center', alignItems: 'center', marginTop: 24 },
   ctaT: { fontSize: 17, fontWeight: '800', color: Colors.white },
   scrim: { position: 'absolute', inset: 0, backgroundColor: 'rgba(0,0,0,0.3)' } as any,
-  sheet: { position: 'absolute', left: 0, right: 0, bottom: 0, backgroundColor: Colors.white, borderTopLeftRadius: 22, borderTopRightRadius: 22, padding: 18, paddingBottom: 28 },
+  sheet: { ...SHEET_FRAME, position: 'absolute', left: 0, right: 0, bottom: 0, padding: 18, paddingBottom: 28 },
   sheetWrap: { flex: 1, backgroundColor: Colors.bgSecondary, paddingTop: 48 },
 });

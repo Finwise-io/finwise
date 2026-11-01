@@ -149,6 +149,21 @@ const noteOf = (file: string) => {
 const boxesShown = (): string[] => screen.UNSAFE_root.findAll((n: any) => n.type === 'TextInput')
   .map((n: any) => String(n.props?.value || n.props?.placeholder || '').trim()).filter(Boolean);
 const inOrder = (want: string[], got: string[]) => { let k = 0; for (const g of got) if (g === want[k]) k += 1; return want.slice(k); };
+/** EVERY TEXT AND EVERY BOX ON SCREEN, IN ORDER, a box as what it shows in brackets (2026-10-31, FX-PF, NW3-32 / NW3-33): so an editor is
+ *  compared whole — every line, every figure and every box — and not as a subset with its figures masked. */
+const formLines = (): string[] => {
+  const out: string[] = [];
+  const text = (n: any): string => (n == null ? '' : typeof n === 'string' ? n : Array.isArray(n) ? n.map(text).join('') : (n.children ?? []).map(text).join(''));
+  const walk = (n: any) => {
+    if (n == null || typeof n === 'string') return;
+    if (Array.isArray(n)) { n.forEach(walk); return; }
+    if (n.type === 'TextInput') { const t = String(n.props?.value || n.props?.placeholder || '').trim(); if (t) out.push(`[${t}]`); return; }
+    if (n.type === 'Text') { const t = text(n).replace(/\s+/g, ' ').trim(); if (t) out.push(t); return; }
+    (n.children ?? []).forEach(walk);
+  };
+  walk(screen.toJSON());
+  return out;
+};
 const SIX = ['Taxable', '401(k)', 'Traditional IRA', 'Roth IRA', 'Roth 401(k)', 'HSA'];   // 19: the one list, in its order
 const flatStyle = (node: any) => require('react-native').StyleSheet.flatten(node.props.style);
 
@@ -194,13 +209,17 @@ describe('Bill calendar v02', () => {
       .replace(/ ok — you stay above zero in all 12 months lowest point \$0 — oct\./, '')
       // and its row of 2026-10-26: with no cash balance on record the line under the box says so (it said "Auto-filled … ($0)")
       .replace("auto-filled from your accounts ($0) — the starting balance the table carries forward. edit it and the end column recalculates from there.",
-        'no cash balance on record yet — enter what you have, and the table starts from it.');
+        'no cash balance on record yet — enter what you have, and the table starts from it.')
+      // and its row of 2026-10-31 (R12, BC3-01 — DRAWING ERROR, phone 2): with no cash on record no End is projected, so each drawn
+      // "$0" End reads "—"; the twelve are counted, so the edit found every one
+      .replace(/(\b(?:oct|nov|dec|jan '27|feb '27|mar '27|apr '27|may '27|jun '27|jul '27|aug '27|sep '27) — — )\$0\b/g, '$1—');
     expect(want.split(' ').length).toBeGreaterThan(100);
     expect(want).not.toMatch(/ok — you stay above zero|auto-filled/);   // both named changes found their drawn lines
+    expect((normExact(upTo(P[1], /^A forward plan, not a promise/)).match(/ — — \$0\b/g) ?? []).length).toBe(12);   // the drawn Ends it replaced
     expect(firstDifference(want, normExact(built))).toBe('');
-    // twelve months, each — in, — out, $0 at the end: nothing behind them (Q48)
-    expect(built.filter((l) => l === '$0')).toHaveLength(12);
-    expect(built.filter((l) => l === '—')).toHaveLength(24);
+    // twelve months, each — in, — out, — at the end: nothing behind them (Q48), and nothing projected (R12)
+    expect(built.filter((l) => l === '$0')).toHaveLength(0);
+    expect(built.filter((l) => l === '—')).toHaveLength(36);
   });
 });
 
@@ -304,13 +323,18 @@ describe('Add an account, by hand v02', () => {
       // 17: HIS RULING, 2026-10-06 — the drawn "Private stake" chip is not offered in this phase
       // 18: DEC-4529 — the drawn chip "Annuity" reads "Annuities" (the drawing's READ THIS FIRST line of 2026-10-20)
       // NW2-25 (2026-10-27, FX-PF): the drawn boxes, read against the boxes on screen, in order — they were stripped and never read
-      const drawnBoxes = BOXES[k];
+      // THE ROW OF 2026-10-31 (R16, NW3-07, FX-NW): a box nobody filled opens empty, so the grey figures the phones draw are not on screen —
+      // '$0', '0.0', '100', '$10,000', '4.5', '7.0', '$150'; the named examples ('Chase checking', 'Chase', 'Car loan') stay
+      const R16 = new Set(['$0', '0.0', '100', '$10,000', '4.5', '7.0', '$150']);
+      const drawnBoxes = BOXES[k].filter((b) => !R16.has(b));
       expect(drawnBoxes.length).toBeGreaterThanOrEqual(1);
       expect(inOrder(drawnBoxes, boxesShown())).toEqual([]);
+      expect(boxesShown().filter((b) => R16.has(b) || /^\$?[\d,.]+$/.test(b))).toEqual([]);   // and no figure stands in an empty box
       // and every drawn word and figure, exact (normExact; it was norm(), "$#" for every figure)
       const want = normExact(upTo(P[k], /^Save$/)).replace('debt balance (optional)', 'mortgage balance (optional)').replace(' private stake', '').replace(' annuity ', ' annuities ')   // 15, 17, 18
         .replace(' held in taxable 401(k) / ira roth ', ` held in ${normExact(SIX)} `)                                                       // 19
-        .replace('face value (optional) interest rate % (optional) matures', 'face value (optional) what you paid (optional) interest rate % (optional) pays interest once a year twice a year matures');   // 20, 21
+        .replace('face value (optional) interest rate % (optional) matures', 'face value (optional) what you paid (optional) interest rate % (optional) pays interest once a year twice a year matures')   // 20, 21
+        .replace(' annuities other held in', ' annuities options other held in');   // the one list of five kinds (the row of 2026-10-31, NW3-08, FX-NW)
       expect(want.split(' ').length).toBeGreaterThan(20);
       // 16: HIS RULE, 2026-10-04 (DEC-1926) — the form asks the one thing nothing else can tell it: which
       // property is the home lived in. Everything else about a property's use is read from the rent entered.
@@ -327,7 +351,8 @@ test('Add an account · the Alternatives kinds are the list of kinds\' own words
   const built = builtLines(screen.toJSON());
   const from = built.indexOf('What kind?');
   expect(from).toBeGreaterThan(0);
-  expect(built.slice(from + 1, from + 5)).toEqual(['Crypto', 'Gold / commodities', 'Annuities', 'Other']);
+  // the one list of five (the row of 2026-10-31 on Add an account v02, NW3-08, FX-NW): Options joins, in the editor's order
+  expect(built.slice(from + 1, from + 6)).toEqual(['Crypto', 'Gold / commodities', 'Annuities', 'Options', 'Other']);
   expect(built).not.toContain('Annuity');
   // the Alternatives editor offers the same word for the same kind
   const OtherInvestmentsScreen = require('../OtherInvestmentsScreen').default;
@@ -336,7 +361,7 @@ test('Add an account · the Alternatives kinds are the list of kinds\' own words
   expect(builtLines(screen.toJSON())).toContain('Annuities');
   // and the drawing says so on its face, dated
   const note = require('fs').readFileSync(require('path').join(__dirname, '..', '..', '..', 'MoneyKeel/documents/' + NW + 'add-account-by-hand_v02.html'), 'utf8');
-  expect(note).toMatch(/the chip “Annuity” should read <b>“Annuities”<\/b>[\s\S]*Line added 2026-10-20\./);
+  expect(note).toMatch(/the chip [“‘]Annuity[”’] should read <b>[“‘]Annuities[”’]<\/b>[\s\S]*Line added 2026-10-20\./);   // either mark (R17, 2026-10-31)
 });
 
 describe('Bonds v02', () => {
@@ -440,6 +465,44 @@ describe('Bonds v02', () => {
     expect(form[at('Market value, as your statement shows it — without accrued interest (blank = what you paid, else face value)') + 1]).toBe('What you paid (optional)');
     expect(form.slice(at('Held in') + 1, at('Held in') + 7)).toEqual(SIX);                                                               // 19
   });
+
+  // THE EDITOR WHOLE, EVERY LINE, FIGURE AND BOX (2026-10-31, FX-PF, NW3-32 / NW3-33): the drawn phone with each dated row applied, in
+  // its place, compared both ways, exact. A box is in brackets as it shows: the money boxes per the row of 2026-10-27 (DEC-8385),
+  // ‘$25,000’ where ‘25000’; the face value, the coupon rate and the market value as the Treasury holds them (25,000; 4.25%; $24,650).
+  test('phone 3 · the editor, whole — every line, every figure and every box, exact, both ways', () => {
+    show(BondsScreen, { assetAccounts: BONDS.map((b) => (b.asset_id === 'b1' ? (({ accrued_interest: _typed, ...rest }) => rest)(b) : b)) });
+    fireEvent.press(screen.getByText('US Treasury 2027'));
+    const rows = noteOf(NW + 'bonds_v02.html').rows;
+    const ROW: [RegExp, string][] = [
+      [/the form also asks Institution \/ account \(optional\) and Value as of, and ends in Save \(Add bond for a new bond\) and Delete bond/, 'Institution, Value as of, Save, Delete bond (2026-10-25)'],
+      [/one line the phone does not draw: ‘Held inside a brokerage or bank account\?/, 'the line under Institution (2026-10-27)'],
+      [/a Pays interest choice under the coupon rate, Once a year or Twice a year/, 'Pays interest (2026-10-20)'],
+      [/Every money box on this screen shows its figure the way a figure is printed/, 'money boxes (2026-10-27)'],
+    ];
+    for (const [r, what] of ROW) expect(r.test(rows) ? what : `NO ROW: ${what}`).toBe(what);
+    const sentence = (from: string, to: string, d: string[]) => d.slice(d.indexOf(from), d.indexOf(to) + 1).join(' ');
+    const d = upTo(P[2], /^Sold the whole position/);
+    const designed = [
+      'Edit bond', 'Name / issuer', '[US Treasury 2027]',
+      'Institution / account (optional)', '[e.g. Chase, Fidelity, Schwab]',
+      'Held inside a brokerage or bank account? Add it here — if that account already has a balance, we’ll ask whether this bond is part of it so nothing is double-counted.',
+      'Face (par) value', '[$25,000]', 'Coupon rate (% per year)', '[4.25]', 'Pays interest', 'Once a year', 'Twice a year',
+      'Accrued interest (optional)', `[${d[d.indexOf('Accrued interest (optional)') + 1]}]`, sentence('When you enter', 'as you entered it — and says so.', d),
+      'Maturity date', 'Jun 30, 2027',
+      // 20 (DEC-3390, DEC-0281): the market value box, blank meaning what you paid, then what you paid; Value as of (2026-10-25)
+      'Market value, as your statement shows it — without accrued interest (blank = what you paid, else face value)', '[$24,650]', 'What you paid (optional)',
+      'Value as of', 'Tap to pick a date',
+      '~$1,063/year in coupon income.',                                                                                         // 25,000 × 4.25%
+      'Held in', ...SIX,                                                                                                          // 19
+      '🔻 Sell', sentence('Sold this bond', 'close the position. To just re-mark its price, edit “Current value” above.', d).replace('edit “Current value” above.', 'edit “Market value” above.'),   // 25
+      `[${d[d.indexOf('Record') - 1]}]`, 'Record', 'Sold the whole position →',
+      'Save', 'Delete bond',
+    ];
+    expect(designed).toContain('[amount sold (up to $24,650)]');                                                                // the drawn box, read from the drawing
+    const form = formLines(); const from = form.indexOf('Edit bond');
+    expect(from).toBeGreaterThan(0);
+    expect(firstDifference(normExact(designed), normExact(form.slice(from)))).toBe('');
+  });
 });
 
 // 26: THE TITLE, THEN THE BAR, EDGE TO EDGE, THE DOT WHITE INSIDE IT — read off each drawing's own CSS and the rendered styles.
@@ -520,12 +583,14 @@ describe('Alternatives v02', () => {
     const built = show(OtherInvestmentsScreen, { assetAccounts: ALTS });
     const fix: [string, string][] = [['exp. return 7.32% est. growth /year $4,502', 'exp. return 10.06% est. growth /year $6,187'],
       ['crypto ~9.00%/year expected', 'crypto ~8.00%/year expected'], ['private equity ~7.00%/year expected', 'private equity ~13.00%/year expected'],
-      ['commodities ~3.50%/year expected', 'gold / commodities ~8.20%/year expected']];                                       // 7, 18
+      ['commodities ~3.50%/year expected', 'gold / commodities ~8.20%/year expected'],                                        // 7, 18
+      // the share to two decimals, worked by the door (the row of 2026-10-31, NW3-06, FX-NW): $61,500 ÷ $512,500 = 12.00%
+      ['3 holdings 12% of your investable assets', '3 holdings 12.00% of your investable assets']];   // as normExact reads it: lower case, no ·
     let want = normExact(upTo(P[0], /not guarantees\.$/));
     for (const [d, w] of fix) { expect(want.includes(d) ? d : `NOT FOUND: ${d}`).toBe(d); want = want.split(d).join(w); }
     expect(want.split(' ').length).toBeGreaterThan(45);
     expect(firstDifference(want, normExact(built))).toBe('');
-    expect(built).toEqual(expect.arrayContaining(['$61,500', '3 holdings · 12% of your investable assets', '$28,000', '$25,000', '$8,500']));   // $28,000 + $25,000 + $8,500; ÷ $512,500
+    expect(built).toEqual(expect.arrayContaining(['$61,500', '3 holdings · 12.00% of your investable assets', '$28,000', '$25,000', '$8,500']));   // $28,000 + $25,000 + $8,500; ÷ $512,500 = 12.00%
   });
 
   test('phone 2 · the first day', () => {
@@ -571,6 +636,34 @@ describe('Alternatives v02', () => {
       'Bitcoin, Ether', 'and the rest — held at the value you set. ~9.00%/year historical benchmark.',
     ]);
   });
+
+  // THE EDITOR WHOLE, EVERY LINE, FIGURE AND BOX (2026-10-31, FX-PF, NW3-32 / NW3-33): the drawn phone with each ruling and dated row
+  // applied in its place, compared both ways, exact — it was held as a subset with its figures masked.
+  test('phone 3 · the editor, whole — every line, every figure and every box, exact, both ways', () => {
+    show(OtherInvestmentsScreen, { assetAccounts: ALTS });
+    fireEvent.press(screen.getByText('Bitcoin'));
+    const rows = noteOf(NW + 'alternatives_v02.html').rows;
+    for (const [r, what] of [[/DEC-1560 keeps the kinds and the line under the kind/, 'the kinds and the hint (DEC-1560)'],
+      [/Held in and offer the app’s one list of six/, 'Held in (19)'], [/the form also asks Value as of, and ends in Save \(Add for a new holding\) and Delete/, 'Value as of, Save, Delete (2026-10-25)'],
+      [/Every money box on this screen shows its figure the way a figure is printed/, 'money boxes (2026-10-27)']] as [RegExp, string][]) expect(r.test(rows) ? what : `NO ROW: ${what}`).toBe(what);
+    const d = upTo(P[2], /^Sold all of it/);
+    const sentence = d.slice(d.indexOf('Sold this (or'), d.indexOf('lower or close the position. To re-mark its price, edit “Current value” above.') + 1).join(' ');
+    const designed = [
+      'Edit investment', 'Type',
+      // 9 (DEC-1560, "Rest - keep it"): the kinds the app offers — crypto, then Gold / commodities (7) and Annuities (18) as the list of
+      // kinds names them, Options and Other; no Private equity (DEC-2334) — and the app's own line under the kind, with crypto's 8.00%
+      'Crypto', 'Gold / commodities', 'Annuities', 'Options', 'Other', 'Highly volatile — size it accordingly. ~8.00%/year historical benchmark.',
+      'Name', '[Bitcoin]', 'Where it’s held (institution)', '[Coinbase]', 'Current value', '[$28,000]',
+      'Value as of', 'Tap to pick a date',                                                                                    // 2026-10-25
+      'Held in', ...SIX,                                                                                                      // 19
+      '🔻 Sell', sentence, `[${d[d.indexOf('Record') - 1]}]`, 'Record', 'Sold all of it →',
+      'Save', 'Delete',                                                                                                       // 2026-10-25
+    ];
+    expect(designed).toContain('[amount sold (up to $28,000)]');                                                            // the drawn box
+    const form = formLines(); const from = form.indexOf('Edit investment');
+    expect(from).toBeGreaterThan(0);
+    expect(firstDifference(normExact(designed), normExact(form.slice(from)))).toBe('');
+  });
 });
 
 /** ITEMIZE v02, FIGURE FOR FIGURE, ITS BOXES READ, ITS BOND'S MATURITY PICKED (2026-10-27, FX-PF; the round-2 drawing match NW2-25). It
@@ -607,7 +700,7 @@ describe('Itemize v02', () => {
     fireEvent.press(screen.getByLabelText(kind));
     fireEvent.changeText(screen.getByPlaceholderText(placeholder), name);
     if (maturity) pickMaturity(...maturity);
-    fireEvent.changeText(screen.getByPlaceholderText('0'), amount);
+    fireEvent.changeText(screen.getByLabelText('Amount'), amount);   // the box opens empty, found by its label (R16, 2026-10-31)
     fireEvent.press(screen.getByLabelText('Add this holding'));
   };
   const three = () => {
@@ -617,7 +710,9 @@ describe('Itemize v02', () => {
   };
   /** 11: no ✕ beside the title (the build closes with Back); the maturity in words (the row of 2026-10-19); 10: an empty date box reads
    *  "Tap to pick a date". Each must find its drawn words. */
-  const KNOWN: [string, string][] = [['itemize chase ✕ add what', 'itemize chase add what'], ['bond matures 2032-05-15', 'bond matures may 15, 2032']];
+  const KNOWN: [string, string][] = [['itemize chase ✕ add what', 'itemize chase add what'], ['bond matures 2032-05-15', 'bond matures may 15, 2032'],
+    // R16 (the row of 2026-10-31 on Itemize v02, NW3-07, FX-NW): the amount box opens empty — the phones draw a grey 0 in it
+    ['$ 0 add holding', '$ add holding']];
   const asDesigned = (drawn: string, extra: [string, string][] = []) => {
     let w = drawn;
     for (const [d, b] of [...KNOWN, ...extra]) { expect(w.includes(d) ? d : `NOT FOUND: ${d}`).toBe(d); w = w.split(d).join(b); }
@@ -627,14 +722,17 @@ describe('Itemize v02', () => {
     const { html } = noteOf(NW + 'itemize_v02.html');
     expect(html).toMatch(/READ THIS FIRST \(2026-10-25, DEC-0651\):<\/b> this drawing was taken as the design on 2026-10-01 on my decision, not his/);
     expect(html).toMatch(/the screen has no ✕, and in every state it closes with the top bar’s ‹ Back/);
-    expect(html).toMatch(/an empty date box reads “Tap to pick a date”, as it does on Add an account/);
+    expect(html).toMatch(/an empty date box reads [“‘]Tap to pick a date[”’], as it does on Add an account/);   // screen words in single marks since 2026-10-31 (R17)
   });
   test('the drawing has its three phones', () => { expect(P).toHaveLength(3); });
 
   test('phone 1 · nothing placed — the whole balance is unallocated and Done waits — every figure and box as drawn', () => {
     start();
-    expect(firstDifference(normExact(upTo(P[0], /^Done — replace with 0 holdings$/)), normExact(withBoxes()))).toBe('');
-    expect(withBoxes()).toEqual(expect.arrayContaining(['$48,000', '$0 of $48,000 itemized', 'Ticker or name (e.g. AAPL)', '0']));
+    const drawn1 = normExact(upTo(P[0], /^Done — replace with 0 holdings$/));
+    expect(drawn1.includes('$ 0 add holding')).toBe(true);                                     // the drawn grey 0, which R16 empties (2026-10-31)
+    expect(firstDifference(drawn1.split('$ 0 add holding').join('$ add holding'), normExact(withBoxes()))).toBe('');
+    expect(withBoxes()).toEqual(expect.arrayContaining(['$48,000', '$0 of $48,000 itemized', 'Ticker or name (e.g. AAPL)']));
+    expect(withBoxes()).not.toContain('0');                                                     // no grey 0 in the empty amount box
   });
 
   test('phone 2 · three holdings placed, money left over — the maturity picked and printed, every figure and box as drawn', () => {
@@ -678,7 +776,32 @@ describe('Holding detail v02', () => {
   beforeEach(() => jest.useFakeTimers({ now: new Date('2026-09-30T12:00:00'),
     doNotFake: ['nextTick', 'setImmediate', 'queueMicrotask', 'setTimeout', 'setInterval', 'clearTimeout', 'clearInterval'] }));
   afterEach(() => jest.useRealTimers());
-  const SPY = { ticker: 'SPY', points: [{ date: '2024-09-27', close: 420 }, { date: '2025-09-28', close: 500 }, { date: '2025-09-29', close: 500 }, { date: '2026-01-08', close: 540 }, { date: '2026-09-29', close: 610 }, { date: '2026-09-30', close: 612 }] };
+  /** A CLOSE ON EVERY DAY (2026-10-31, FX-PF; the round-3 note N-3): the household held six closes, so This year and 1M read from a
+   *  close months old — "Your return, this year" printed the past year's +38.19%. Each day's close lies on a straight line between the
+   *  drawing's own closes (the evening before the past year began, Jan 8, Sep 29 and Sep 30), so every drawn figure stands. */
+  const ANCHOR_AAPL: [string, number][] = [['2024-09-27', 150], ['2025-09-29', 175], ['2026-01-08', 192.5], ['2026-09-29', 239.53], ['2026-09-30', 241.84]];
+  const ANCHOR_SPY: [string, number][] = [['2024-09-27', 420], ['2025-09-29', 500], ['2026-01-08', 540], ['2026-09-29', 610], ['2026-09-30', 612]];
+  const dayMs = 86_400_000, t0 = (d: string) => Date.parse(`${d}T00:00:00Z`);
+  const closeAt = (anchors: [string, number][], d: string) => {
+    for (let i = 0; i + 1 < anchors.length; i += 1) {
+      const [d0, v0] = anchors[i], [d1, v1] = anchors[i + 1];
+      if (d >= d0 && d <= d1) return v0 + (v1 - v0) * (t0(d) - t0(d0)) / (t0(d1) - t0(d0));
+    }
+    return anchors[anchors.length - 1][1];
+  };
+  const daily = (ticker: string, anchors: [string, number][]) => {
+    const points: { date: string; close: number }[] = [];
+    for (let t = t0(anchors[0][0]); t <= t0(anchors[anchors.length - 1][0]); t += dayMs) { const d = new Date(t).toISOString().slice(0, 10); points.push({ date: d, close: closeAt(anchors, d) }); }
+    return { ticker, points };
+  };
+  const SPY = daily('SPY', ANCHOR_SPY);
+  const AAPL_HOUSE = (period?: string) => [{ ...live,
+    assetAccounts: [{ asset_id: 'fid', label: 'Fidelity', institution: 'Fidelity', kind: 'brokerage', tax_bucket: 'TAXABLE', balance: 0, derive_balance: true,
+      positions: [{ position_id: 'p1', ticker: 'AAPL', label: 'Apple Inc.', kind: 'stocks_etf', lots: [
+        { lot_id: 'l1', shares: 100, cost_per_share: 168, purchase_date: '2023-03-14' }, { lot_id: 'l2', shares: 40, cost_per_share: 192.5, purchase_date: '2026-01-09' }] }] }],
+    priceCache: { AAPL: daily('AAPL', ANCHOR_AAPL), SPY },
+    transactions: [{ id: 'd1', account_id: 'fid', type: 'DIVIDEND', ticker: 'AAPL', amount: 134.4, date: '2026-08-01' }],
+  }, { account: 'fid', position: 'p1', ...(period ? { period } : {}) }] as const;
   const live = { pricesFetchedAt: '2026-09-30T11:00:00Z' };
   /** [drawn, built, the row that says so] — every drawn piece must be found, or the test fails rather than going quiet */
   const apply = (drawn: string, known: [string, string, string][]) => {
@@ -692,14 +815,7 @@ describe('Holding detail v02', () => {
   test('the drawing has its three phones', () => { expect(P).toHaveLength(3); });
 
   test('phone 1 · a priced holding — price, position, the market beside it, what was bought, and the tax if sold today — every figure as drawn', () => {
-    const built = show(HoldingDetailScreen, { ...live,
-      assetAccounts: [{ asset_id: 'fid', label: 'Fidelity', institution: 'Fidelity', kind: 'brokerage', tax_bucket: 'TAXABLE', balance: 0, derive_balance: true,
-        positions: [{ position_id: 'p1', ticker: 'AAPL', label: 'Apple Inc.', kind: 'stocks_etf', lots: [
-          { lot_id: 'l1', shares: 100, cost_per_share: 168, purchase_date: '2023-03-14' }, { lot_id: 'l2', shares: 40, cost_per_share: 192.5, purchase_date: '2026-01-09' }] }] }],
-      priceCache: { AAPL: { ticker: 'AAPL', points: [{ date: '2024-09-27', close: 150 }, { date: '2025-09-28', close: 175 }, { date: '2025-09-29', close: 175 },
-        { date: '2026-01-08', close: 192.5 }, { date: '2026-09-29', close: 239.53 }, { date: '2026-09-30', close: 241.84 }] }, SPY },
-      transactions: [{ id: 'd1', account_id: 'fid', type: 'DIVIDEND', ticker: 'AAPL', amount: 134.4, date: '2026-08-01' }],
-    }, { account: 'fid', position: 'p1' });
+    const built = show(HoldingDetailScreen, ...AAPL_HOUSE());
     const want = apply(normExact(upTo(P[0], /^Activity$/)), [
       NAME('fidelity'), CLOSE,
       ['(1.0%) today', '(0.96%) today', '12 · 2026-10-21, fifteen figures: a percent to two decimals'],
@@ -717,6 +833,22 @@ describe('Holding detail v02', () => {
     expect(firstDifference(want, normExact(built))).toBe('');
     expect(built).toContain('Your return, past year'); expect(built).toContain('+38.19%'); expect(built).toContain('+22.40%');
     expect(built).toContain('ahead by 15.79 points');
+  });
+
+  // THIS YEAR AND 1M, BY HAND FROM THE DAILY CLOSES (N-3). This year measures from Dec 31, 2025: AAPL then 175 + 17.50 × 93 ÷ 101 =
+  // $191.14 (93 of the 101 days from Sep 29 to Jan 8), and its 40 bought Jan 9 at $192.50 count from that day, so
+  // (100 × 192.50 ÷ 100 × 191.14) × (140 × 241.84 ÷ (19,250 + 7,700)) − 1; the market 612 ÷ (500 + 40 × 93 ÷ 101) − 1. 1M measures
+  // from Aug 29, 2026 (the close of the day before Aug 30, N-2): 140 shares held through it, 241.84 ÷ AAPL's Aug 29 close − 1.
+  test.each([['YTD', 'Your return, this year', '2025-12-31'], ['1M', 'Your return, past month', '2026-08-29']])('phone 1 on %s: %s, worked by hand from the closes', (period, label, eve) => {
+    const built = show(HoldingDetailScreen, ...AAPL_HOUSE(period));
+    const a = closeAt(ANCHOR_AAPL, eve), m = closeAt(ANCHOR_SPY, eve);
+    const yours = period === 'YTD' ? (192.5 / a) * ((140 * 241.84) / (100 * 192.5 + 7_700)) - 1 : 241.84 / a - 1;
+    const market = 612 / m - 1;
+    const pct = (x: number) => `${x >= 0 ? '+' : '−'}${Math.abs(x * 100).toFixed(2)}%`;
+    const at = built.indexOf(label);
+    expect(at).toBeGreaterThan(0);
+    expect([built[at + 1], built[built.indexOf('The market, same dates') + 1]]).toEqual([pct(yours), pct(market)]);
+    expect(built[at + 1]).not.toBe('+38.19%');                                           // it read the past year's figure
   });
 
   test('phone 2 · no live price — it shows what was paid, and says so — every figure as drawn', () => {
@@ -801,12 +933,12 @@ describe('the drawings say, on their face and dated, what the forms now show (19
       /2026-10-20 Editor \(phone 3\), for a bond and not a CD: a Pays interest choice under the coupon rate, Once a year or Twice a year/]],
     ['bonds_v02.html', [/2026-10-25 Phones 1 and 2 — the title Bonds stands on its own line and the dark-green BONDS &amp; CDS bar runs under it, edge to edge with square corners/,
       /2026-10-25 DRAWING ERROR, phones 1 and 2 — the info dot inside the bar is drawn as a 10-point i in a 15-point ring/,
-      /2026-10-25 Editor \(phone 3\): the Sell box’s sentence names the value box by the label it now has — it ends: To just re-mark its price, edit “Market value” above\./,
-      /2026-10-25 First day \(phone 2\): under Total value \$0 the card reads “Nothing entered yet\. Add a bond ›”[\s\S]*DEC-0260/,
+      /2026-10-25 Editor \(phone 3\): the Sell box’s sentence names the value box by the label it now has — it ends: To just re-mark its price, edit [“‘]Market value[”’] above\./,
+      /2026-10-25 First day \(phone 2\): under Total value \$0 the card reads [“‘]Nothing entered yet\. Add a bond ›[”’][\s\S]*DEC-0260/,
       /2026-10-25 Editor \(phone 3\): the form also asks Institution \/ account \(optional\) and Value as of, and ends in Save \(Add bond for a new bond\) and Delete bond/,
       /2026-10-25 DRAWING ERROR, every phone — the top bar’s buttons are drawn 32 points tall\. The app draws them 38 points tall/]],
     ['alternatives_v02.html', [/2026-10-25 Phones 1 and 2 — the title Alternatives stands on its own line and the dark-green ALTERNATIVES bar runs under it/,
-      /2026-10-25 First day \(phone 2\): under Total value \$0 the card reads “Nothing entered yet\. Add an investment ›”[\s\S]*DEC-0260/,
+      /2026-10-25 First day \(phone 2\): under Total value \$0 the card reads [“‘]Nothing entered yet\. Add an investment ›[”’][\s\S]*DEC-0260/,
       /2026-10-25 Editor \(phone 3\): the form also asks Value as of, and ends in Save \(Add for a new holding\) and Delete/,
       /2026-10-25 DRAWING ERROR, every phone — the top bar’s buttons are drawn 32 points tall/]],
     ['add-account-by-hand_v02.html', [/2026-10-25 DRAWING ERROR, every phone — the top bar’s buttons are drawn 32 points tall/,
@@ -1022,4 +1154,15 @@ test.failing('Bonds v02 · the old answer: Apple Corp’s note is his sentence a
   const built = show(require('../BondsScreen').default, { assetAccounts: [
     { asset_id: 'b2', label: 'Apple Corp 4.5%', kind: 'bond', tax_bucket: 'TAXABLE', balance: 19530, face_value: 20000, coupon_rate: 0.045, maturity_date: '2030-03-15' }] });
   expect(built.some((l: string) => /^\* Added estimated \$[\d,]+ in accrued interest .* enter actual accrued interest$/.test(l))).toBe(true);
+});
+
+// THE OLD ANSWER, KEPT (2026-10-31, FX-NW; Alternatives v02 row of that date, NW3-06): the share printed as the screen rounded it, a whole
+// or one-decimal percent. It fails now, by design.
+test.failing('Alternatives v02 · the old answer: "3 holdings · 12% of your investable assets"', () => {
+  const built = show(require('../OtherInvestmentsScreen').default, { assetAccounts: [
+    { asset_id: 'a1', label: 'Bitcoin', institution: 'Coinbase', kind: 'crypto', tax_bucket: 'TAXABLE', balance: 28000 },
+    { asset_id: 'a2', label: 'Fund III', kind: 'private_equity', tax_bucket: 'TAXABLE', balance: 25000 },
+    { asset_id: 'a3', label: 'Gold', kind: 'commodities', tax_bucket: 'TAXABLE', balance: 8500 },
+    { asset_id: 'k', label: 'Brokerage', kind: 'brokerage', tax_bucket: 'TAXABLE', balance: 451000 }] });
+  expect(built).toContain('3 holdings · 12% of your investable assets');
 });

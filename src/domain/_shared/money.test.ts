@@ -45,7 +45,10 @@ describe('formatMoney', () => {
     expect(formatMoney(2460137)).toBe('$2,460,137');
   });
 
-  test('negative amounts keep the sign', () => {
+  test('negative amounts keep the sign — the minus sign "−" (SU3-02, 2026-10-31)', () => {
+    expect(formatMoney(-1500)).toBe('−$1,500');
+  });
+  test.failing('before 2026-10-31, kept · a negative carried the hyphen', () => {
     expect(formatMoney(-1500)).toMatch(/-\$?1,500|\$-1,500|-\$1,500/);
   });
 
@@ -81,7 +84,11 @@ describe('moneyCompact', () => {
     expect(moneyCompact(950)).toBe('$950');
   });
 
-  test('negatives carry the sign in front of the symbol', () => {
+  test('negatives carry the sign in front of the symbol — the minus sign "−", one writer (SU3-02, 2026-10-31)', () => {
+    expect(moneyCompact(-1200000)).toBe('−$1.2MM');
+  });
+  // the old answer, kept (the fix wave's rule): the hyphen the number formatter gave, until 2026-10-31
+  test.failing('before 2026-10-31, kept · the sign was the hyphen "-"', () => {
     expect(moneyCompact(-1200000)).toBe('-$1.2MM');
   });
 

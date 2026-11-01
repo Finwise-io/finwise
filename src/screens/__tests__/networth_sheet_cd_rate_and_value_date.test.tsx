@@ -44,13 +44,22 @@ const addChaseCd = (rate?: string) => {
   fireEvent.press(screen.getByLabelText('CD'));
   expect(screen.getByText('Interest rate % (optional)')).toBeOnTheScreen();
   const box = screen.getByLabelText('Coupon percent');
-  expect(box.props.placeholder).toBe('4.5');                             // Add an account's box, word for word
+  // Add an account's box, word for word: since R16 (2026-10-31, NW3-07) both open empty, with no example rate; they showed 4.5
+  expect(box.props.placeholder ?? '').toBe('');
   if (rate != null) fireEvent.changeText(box, rate);
   fireEvent.changeText(screen.getByPlaceholderText('Institution / name (e.g. Chase)'), 'Chase');
-  fireEvent.changeText(screen.getByPlaceholderText('0'), '10000');
+  fireEvent.changeText(screen.getByLabelText('Value'), '10000');          // by its name: the box opens empty (R16)
   fireEvent.press(screen.getByLabelText('Add account'));
   return st().assetAccounts.find((a: any) => a.institution === 'Chase');
 };
+
+// THE OLD ANSWER, KEPT (R16, 2026-10-31): the rate box showed a grey 4.5 as its example; it opens empty now
+test.failing('the old answer: the CD rate box shows the example 4.5', () => {
+  render(<NetWorthScreen />);
+  fireEvent.press(screen.getByLabelText('Add to Cash'));
+  fireEvent.press(screen.getByLabelText('CD'));
+  expect(screen.getByLabelText('Coupon percent').props.placeholder).toBe('4.5');
+});
 
 test('Cash → CD with 4.2 typed: saved at 4.2%, and a bank CD\'s yield to maturity is its rate — 4.20%, not "not entered"', () => {
   const cd = addChaseCd('4.2');
@@ -90,7 +99,7 @@ test('a cash kind that is not a CD is never asked a rate here, and saves none', 
   fireEvent.press(screen.getByLabelText('Savings'));
   expect(screen.queryByLabelText('Coupon percent')).toBeNull();
   fireEvent.changeText(screen.getByPlaceholderText('Institution / name (e.g. Chase)'), 'Ally');
-  fireEvent.changeText(screen.getByPlaceholderText('0'), '5000');
+  fireEvent.changeText(screen.getByLabelText('Value'), '5000');
   fireEvent.press(screen.getByLabelText('Add account'));
   expect(st().assetAccounts.find((a: any) => a.institution === 'Ally').coupon_rate).toBeUndefined();
 });
@@ -112,7 +121,7 @@ test('editing a balance from $8,000 (as of 49 days ago) to $8,400: the account p
     tax_bucket: 'CASH', balance: 8000, target_return: 0, value_as_of: was, source: 'manual' }] } as any);
   mockParams = { edit: 'chk' };
   render(<NetWorthScreen />);
-  fireEvent.changeText(screen.getByPlaceholderText('0'), '8400');
+  fireEvent.changeText(screen.getByLabelText('Value'), '8400');
   fireEvent.press(screen.getByLabelText('Save account'));
   expect(st().assetAccounts[0]).toMatchObject({ balance: 8400, value_as_of: today });
   screen.unmount();
@@ -137,7 +146,7 @@ test('a save that does not change the value keeps its date; a balance never ente
   screen.unmount();
   mockParams = { edit: 'cd' };
   render(<NetWorthScreen />);
-  expect(screen.getByPlaceholderText('0').props.value).toBe('');      // it read "undefined" before, saved as $0
+  expect(screen.getByLabelText('Value').props.value).toBe('');      // it read "undefined" before, saved as $0
   fireEvent.press(screen.getByLabelText('Save account'));
   const cd = st().assetAccounts.find((a: any) => a.asset_id === 'cd');
   expect(cd.balance).toBeUndefined();                                  // still "Value not entered" (DEC-3657), never $0

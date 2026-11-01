@@ -300,6 +300,8 @@ const FUNCTIONS: [string, string, string][] = [
   ['MK-CF-F-292', 'src/domain/transactions/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
   ['MK-CF-F-293', 'src/screens/FilingStatusScreen.tsx', 'src/screens/__tests__/filing_matches_v07.test.tsx'],
   ['MK-CF-F-294', 'src/onboarding/modules.tsx', 'src/__tests__/take_home_one_producer.test.tsx'],
+  ['MK-CF-F-295', 'MoneyKeel/functions/cashflow/the-debts.ts', 'MoneyKeel/functions/cashflow/outside_cashflow_openai_part09.test.ts'],
+  ['MK-CF-F-296', 'MoneyKeel/functions/cashflow/the-debts.ts', 'MoneyKeel/functions/cashflow/outside_cashflow_openai_part09.test.ts'],
 ];
 
 /** Every MK-CF-F record in the code, read from the code: the header rule the header writer prints directly above each function
@@ -335,8 +337,8 @@ describe('every Cash flow function traces to its proof in one hop (step 3.c)', (
     // 2026-10-26, the 39 functions written in the 2026-10-25 fix wave numbered (MK-CF-F-243 to 281, PF-TOOLS)
     // 266 the same day: growthUsed (CLEANUP-LEFT), and three numbered by hand — PLANNED_GROUP_WORDS, federalBracketForComparison,
     // accountIncomeIn (the lead's instruction)
-    expect(code.size).toBeGreaterThanOrEqual(275);   // 275 on 2026-10-30 (PF-TOOLS: MK-CF-F-286 to 294, the fix wave's nine)
-    expect(FUNCTIONS.length).toBeGreaterThanOrEqual(275);
+    expect(code.size).toBeGreaterThanOrEqual(277);   // 277 on 2026-11-01 (PF-TOOLS: MK-CF-F-295 debtLoad, 296 its example helper); 275 on 2026-10-30 (PF-TOOLS: MK-CF-F-286 to 294, the fix wave's nine)
+    expect(FUNCTIONS.length).toBeGreaterThanOrEqual(277);
     expect(new Set(FUNCTIONS.map((r) => r[0])).size).toBe(FUNCTIONS.length);
     const table = new Set(FUNCTIONS.map((r) => r[0]));
     expect([...code.keys()].filter((id) => !table.has(id)).sort()).toEqual([]);   // in the code, missing from the table

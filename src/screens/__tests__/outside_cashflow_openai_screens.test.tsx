@@ -616,8 +616,10 @@ const CLASS: Record<string, Item> = {
   'MK-CF-M-027#1': { fixed: FIXINCB, cls: 'APP WRONG',
     why: 'The income manager counts a source as entered only when its amount is above $0: the rental losing $500 a month is listed under ANYTHING ELSE? as "Rent from a property", and "YOU ENTERED ABOUT 1 source".',
     fix: RENT_LOSS_FIX,
-    check: () => { expect(has('LOSS_MGR', '1 source')).toBe(true); },
-    wrong: () => { expect(has('LOSS_MGR', '2 sources')).toBe(true); } },
+    // by hand (2026-10-31, FX-CF-B): the job (a $7,200 take-home) and the rental (−$500/month net) are both entered — 2; the bar
+    // prints its count in capitals since 2026-10-31, as phone 12 draws it ('YOU ENTERED ABOUT · 3 SOURCES'; IN3-05)
+    check: () => { expect(has('LOSS_MGR', '1 SOURCE')).toBe(true); },
+    wrong: () => { expect(has('LOSS_MGR', '2 SOURCES')).toBe(true); } },
   'MK-CF-M-027#3': { fixed: FIXINCB, cls: 'APP WRONG', why: 'Same: theIncomeManager\'s `entered: amount > 0` reads an entered loss as nothing entered (tenet 3 — what is entered is not "not entered").',
     fix: RENT_LOSS_FIX,
     check: () => { expect(has('LOSS_MGR', 'Rent from a property')).toBe(true); },

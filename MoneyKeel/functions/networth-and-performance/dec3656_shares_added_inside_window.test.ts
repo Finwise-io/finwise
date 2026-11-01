@@ -199,10 +199,19 @@ describe('5 · DEC-3656 — a holding that sold shares inside the window starts 
   test('what it gained: $1,210 − $2,000 + $1,100 = $310 (from today\'s 10 shares it read $210)', () => {
     near(pricedGainOf([soldRow()] as any, 1), 1210 - 2000 + 1100, 6);
   });
-  test('MK-NW-O-008 thePerformance, no daily record, the $1,100 kept as cash: Beginning $2,000 (it read $2,100), Wealth generated $310, Return +21.00%', () => {
+  // THE ACCOUNT'S RETURN IS ITS WALK'S OWN CHANGE (2026-10-31, FX-PF, NW3-02; the lead's ruling R11 under DEC-1669): its total is typed
+  // ($2,310: the 10 still held and the $1,100 the sale left in it), it sold inside the window, so the account — not X alone — is
+  // measured: $2,000 → $2,310 with no money in or out, 2,310 ÷ 2,000 − 1 = +15.50%. X's own +21.00% stands on its row (above); the
+  // $1,100 sat idle in the account from Apr 1. The old answer is kept below as test.failing.
+  test('MK-NW-O-008 thePerformance, no daily record, the $1,100 kept as cash: Beginning $2,000 (it read $2,100), Wealth generated $310, Return +15.50%, the walk\'s own', () => {
     const p = thePerformance({ windowStart: windowStartKey('1Y', [], TODAY), windowLabel: 'the past year', today: TODAY, snapshotDays: [],
       investmentAccountIds: new Set(['k']), transactions: [SALE], accounts: ACCT([XS], 1210 + 1100) as any, holdings: [soldRow()] as any });
-    near(p.walk!.beginning, 2310 - 310, 6); near(p.walk!.wealthGenerated, 310, 6); near(p.cumulative, 0.21, 12);
+    near(p.walk!.beginning, 2310 - 310, 6); near(p.walk!.wealthGenerated, 310, 6); near(p.cumulative, 2310 / 2000 - 1, 12);
+  });
+  test.failing('the answer until 2026-10-31, kept (no longer the app\'s): the account\'s Return read X\'s own +21.00% beside a walk of $2,000 → $2,310', () => {
+    const p = thePerformance({ windowStart: windowStartKey('1Y', [], TODAY), windowLabel: 'the past year', today: TODAY, snapshotDays: [],
+      investmentAccountIds: new Set(['k']), transactions: [SALE], accounts: ACCT([XS], 1210 + 1100) as any, holdings: [soldRow()] as any });
+    near(p.cumulative, 0.21, 12);
   });
   test('sold out and bought again inside the window: 10 held at $100, sold Mar 1 at $110, 10 bought Apr 1 at $105, $121 now → gained $260 from a beginning of $1,000', () => {
     const XR = pos('pr', 'X', [lot(10, 105, '2026-04-01')]);

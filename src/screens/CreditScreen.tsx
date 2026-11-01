@@ -49,11 +49,11 @@ export default function CreditScreen() {
         <View style={styles.inRow}>
           <View style={{ flex: 1 }}>
             <Text style={styles.fieldL}>Card balance</Text>
-            <MoneyBox bare style={styles.input} placeholder="$0" value={balStr} onChangeText={setBalStr} />
+            <MoneyBox bare style={styles.input} value={balStr} onChangeText={setBalStr} a11y="Card balance" />
           </View>
           <View style={{ flex: 1 }}>
             <Text style={styles.fieldL}>Total credit limit</Text>
-            <MoneyBox bare style={styles.input} placeholder="$0" value={limStr} onChangeText={setLimStr} />
+            <MoneyBox bare style={styles.input} value={limStr} onChangeText={setLimStr} a11y="Total credit limit" />
           </View>
         </View>
         {lim > 0 ? (

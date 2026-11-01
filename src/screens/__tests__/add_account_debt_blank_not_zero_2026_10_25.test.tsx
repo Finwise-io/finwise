@@ -72,13 +72,22 @@ describe('a card added by hand with its balance and payment left blank', () => {
     const nw = look('networth');
     expect(nw.join(' ')).not.toMatch(/Visa card/);
     const at = nw.indexOf('DEBTS');   // the Debts bar reads $0 and the one empty line, as on a first day (DEC-4528)
-    expect(nw.slice(at, at + 4)).toEqual(['DEBTS', 'ⓘ', '$0', 'Nothing entered yet. Add your debts ›']);
+    // since 2026-10-31 (NW3-10) in frame C's shape: the line, then the door row with its › (it was one line with the door inline)
+    expect(nw.slice(at, at + 6)).toEqual(['DEBTS', 'ⓘ', '$0', 'Nothing entered yet.', 'Add your debts', '›']);
     const dt = look('debts');
     expect(dt.join(' ')).not.toMatch(/Visa card|\$0\/month in payments/);
     expect(dt).toContain('Nothing entered yet. Add your debts ›');
     expect(look('month').join(' ')).not.toMatch(/Visa card/);
   });
 
+  // THE OLD ANSWER, KEPT (NW3-10, 2026-10-31): Net worth's empty Debts was one line with the door inline
+  test.failing('the old answer: Net worth reads DEBTS $0, then "Nothing entered yet. Add your debts ›" on one line', () => {
+    setup([]);
+    const nw = look('networth');
+    const at = nw.indexOf('DEBTS');
+    expect(at).toBeGreaterThan(0);
+    expect(nw.slice(at, at + 4)).toEqual(['DEBTS', 'ⓘ', '$0', 'Nothing entered yet. Add your debts ›']);
+  });
   test('the rate left blank: Save waits too — it was saved as 0% — and with all three typed the card is saved as typed', () => {
     setup([]);
     render(<AddAccount />);
@@ -100,12 +109,22 @@ describe('a mortgage added with its property, its payment left blank', () => {
     const r = render(<AddAccount />);
     fireEvent.press(screen.getByLabelText('Real estate'));
     type('Account name', 'Lake house'); type('Balance', '400000'); type('Amount still owed', '300000');
-    expect(screen.getByPlaceholderText('$2,400')).toBeTruthy();         // the box's example, not "$0" (the drawing's row of 2026-10-25)
+    // the box opens empty: no "$0", and since R16 (2026-10-31, the Add an account v02 row of that date) no example either; it showed $2,400
+    expect(screen.getByLabelText('Monthly mortgage payment').props.placeholder ?? '').toBe('');
     if (payment != null) type('Monthly mortgage payment', payment);
     fireEvent.press(screen.getByLabelText('Save this account'));
     r.unmount();
     return debts().find((d) => d.debt_type === 'MORTGAGE');
   };
+
+  // THE OLD ANSWER, KEPT (R16, 2026-10-31): the payment box showed a grey $2,400 as its example; it opens empty now
+  test.failing('the old answer: the monthly mortgage payment box shows the example $2,400', () => {
+    setup();
+    render(<AddAccount />);
+    fireEvent.press(screen.getByLabelText('Real estate'));
+    type('Account name', 'Lake house'); type('Balance', '400000'); type('Amount still owed', '300000');
+    expect(screen.getByPlaceholderText('$2,400')).toBeTruthy();
+  });
 
   test('it is saved as not entered — never $0 — and every screen that reads it says “payment not entered”', () => {
     const m = addLakeHouse(null);

@@ -54,6 +54,8 @@ const isoInMonths = (months: number, now: Date): string => {
   return `${Math.floor(idx / 12)}-${String((idx % 12) + 1).padStart(2, '0')}-01`;
 };
 
+// EMPTY MEANS EMPTY (2026-10-31, the lead's ruling R16; drawing match round 3, NW3-07): a box nobody filled opens empty — no grey '0', '$0',
+// '6.5', '19.99' or '0%' that reads as an answer, and a date box says 'mm/yyyy', not '03/2047' (which sat above "paid off by April 2049").
 export function DebtEditorSheet({ state, onClose }: { state: { open: boolean; edit?: Debt }; onClose: () => void }) {
   const store = useStore() as any;
   const editing = state.edit;
@@ -198,7 +200,7 @@ export function DebtEditorSheet({ state, onClose }: { state: { open: boolean; ed
           )}
         </>
       )}
-      <View style={sh.amtRow}><Text style={sh.amtPre}>{currencySymbol()}</Text><MoneyBox bare dollarBeside style={sh.amtIn} placeholder="0" value={bal} onChangeText={setBal} /></View>
+      <View style={sh.amtRow}><Text style={sh.amtPre}>{currencySymbol()}</Text><MoneyBox bare dollarBeside a11y="Balance" style={sh.amtIn} value={bal} onChangeText={setBal} /></View>
 
       <Text style={sh.lbl}>How is it repaid?</Text>
       <View style={sh.segRow}>
@@ -211,20 +213,20 @@ export function DebtEditorSheet({ state, onClose }: { state: { open: boolean; ed
 
       {shape === 'due_in_full' ? (<>
         <View style={{ flexDirection: 'row', gap: Spacing.sm }}>
-          <View style={{ flex: 1 }}><Text style={sh.lbl}>Due date (month/year)</Text><TextInput style={sh.input} keyboardType="numbers-and-punctuation" placeholder="12/2026" placeholderTextColor={Colors.textTertiary} value={dueDate} onChangeText={setDueDate} /></View>
-          <View style={{ flex: 1 }}><Text style={sh.lbl}>Interest rate % (optional)</Text><TextInput style={sh.input} keyboardType="decimal-pad" placeholder="0%" placeholderTextColor={Colors.textTertiary} value={apr} onChangeText={setApr} /></View>
+          <View style={{ flex: 1 }}><Text style={sh.lbl}>Due date (month/year)</Text><TextInput style={sh.input} accessibilityLabel="Due date, month and year" keyboardType="numbers-and-punctuation" placeholder="mm/yyyy" placeholderTextColor={Colors.textTertiary} value={dueDate} onChangeText={setDueDate} /></View>
+          <View style={{ flex: 1 }}><Text style={sh.lbl}>Interest rate % (optional)</Text><TextInput style={sh.input} accessibilityLabel="Interest rate percent, optional" keyboardType="decimal-pad" value={apr} onChangeText={setApr} /></View>
         </View>
         {amt > 0 && dueIso
           ? <Text style={sh.derived}>✓ lands as a {money(amt)} big-ticket in {fmtMonthYear(dueIso)}’s cash flow and on the bill calendar{monthsToDue != null && monthsToDue > 0 ? ` — ${plural(monthsToDue, 'month')} of warning` : ''}, not a surprise</Text>
           : <Text style={sh.derivedMuted}>Enter the amount and its due date — no monthly payment to track.</Text>}
       </>) : shape === 'installment' ? (<>
         <View style={{ flexDirection: 'row', gap: Spacing.sm }}>
-          <View style={{ flex: 1 }}><Text style={sh.lbl}>Interest rate %</Text><TextInput style={sh.input} keyboardType="decimal-pad" placeholder="6.5" placeholderTextColor={Colors.textTertiary} value={apr} onChangeText={setApr} /></View>
-          <View style={{ flex: 1 }}><Text style={sh.lbl}>Due day</Text><TextInput style={sh.input} keyboardType="number-pad" placeholder="1–31" placeholderTextColor={Colors.textTertiary} value={due} onChangeText={setDue} /></View>
+          <View style={{ flex: 1 }}><Text style={sh.lbl}>Interest rate %</Text><TextInput style={sh.input} accessibilityLabel="Interest rate percent" keyboardType="decimal-pad" value={apr} onChangeText={setApr} /></View>
+          <View style={{ flex: 1 }}><Text style={sh.lbl}>Due day</Text><TextInput style={sh.input} accessibilityLabel="Due day" keyboardType="number-pad" placeholder="1–31" placeholderTextColor={Colors.textTertiary} value={due} onChangeText={setDue} /></View>
         </View>
         <View style={{ flexDirection: 'row', gap: Spacing.sm }}>
-          <View style={{ flex: 1 }}><Text style={sh.lbl}>Monthly payment (what you pay)</Text><MoneyBox bare style={sh.input} placeholder="$0" value={monthly} onChangeText={(t) => { setMonthly(t); setDrives('payment'); }} /></View>
-          <View style={{ flex: 1 }}><Text style={sh.lbl}>Or: paid off by</Text><TextInput style={sh.input} keyboardType="numbers-and-punctuation" placeholder="03/2047" placeholderTextColor={Colors.textTertiary} value={endBy} onChangeText={(t) => { setEndBy(t); setDrives('date'); }} /></View>
+          <View style={{ flex: 1 }}><Text style={sh.lbl}>Monthly payment (what you pay)</Text><MoneyBox bare a11y="Monthly payment, what you pay" style={sh.input} value={monthly} onChangeText={(t) => { setMonthly(t); setDrives('payment'); }} /></View>
+          <View style={{ flex: 1 }}><Text style={sh.lbl}>Or: paid off by</Text><TextInput style={sh.input} accessibilityLabel="Or paid off by, month and year" keyboardType="numbers-and-punctuation" placeholder="mm/yyyy" placeholderTextColor={Colors.textTertiary} value={endBy} onChangeText={(t) => { setEndBy(t); setDrives('date'); }} /></View>
         </View>
         {derivedLine
           ? <Text style={derivedLine.startsWith('⚠') ? sh.derivedWarn : sh.derived}>{derivedLine}</Text>
@@ -233,12 +235,12 @@ export function DebtEditorSheet({ state, onClose }: { state: { open: boolean; ed
         <TextInput style={sh.input} keyboardType="numbers-and-punctuation" placeholder="already paying" placeholderTextColor={Colors.textTertiary} value={startsOn} onChangeText={setStartsOn} />
       </>) : (<>
         <View style={{ flexDirection: 'row', gap: Spacing.sm }}>
-          <View style={{ flex: 1 }}><Text style={sh.lbl}>Interest rate %</Text><TextInput style={sh.input} keyboardType="decimal-pad" placeholder="19.99" placeholderTextColor={Colors.textTertiary} value={apr} onChangeText={setApr} /></View>
-          <View style={{ flex: 1 }}><Text style={sh.lbl}>Due day</Text><TextInput style={sh.input} keyboardType="number-pad" placeholder="1–31" placeholderTextColor={Colors.textTertiary} value={due} onChangeText={setDue} /></View>
+          <View style={{ flex: 1 }}><Text style={sh.lbl}>Interest rate %</Text><TextInput style={sh.input} accessibilityLabel="Interest rate percent" keyboardType="decimal-pad" value={apr} onChangeText={setApr} /></View>
+          <View style={{ flex: 1 }}><Text style={sh.lbl}>Due day</Text><TextInput style={sh.input} accessibilityLabel="Due day" keyboardType="number-pad" placeholder="1–31" placeholderTextColor={Colors.textTertiary} value={due} onChangeText={setDue} /></View>
         </View>
         <View style={{ flexDirection: 'row', gap: Spacing.sm }}>
-          <View style={{ flex: 1 }}><Text style={sh.lbl}>Min payment /month</Text><MoneyBox bare style={sh.input} placeholder="$0" value={pay} onChangeText={setPay} /></View>
-          <View style={{ flex: 1 }}><Text style={sh.lbl}>You pay /month</Text><MoneyBox bare style={sh.input} placeholder="≥ min" value={monthly} onChangeText={setMonthly} /></View>
+          <View style={{ flex: 1 }}><Text style={sh.lbl}>Min payment /month</Text><MoneyBox bare a11y="Minimum payment a month" style={sh.input} value={pay} onChangeText={setPay} /></View>
+          <View style={{ flex: 1 }}><Text style={sh.lbl}>You pay /month</Text><MoneyBox bare a11y="You pay a month" style={sh.input} placeholder="≥ min" value={monthly} onChangeText={setMonthly} /></View>
         </View>
         {cardMonths != null
           ? <Text style={sh.derived}>✓ clear in {plural(cardMonths, 'month')} at {money(cardPay)}/month</Text>

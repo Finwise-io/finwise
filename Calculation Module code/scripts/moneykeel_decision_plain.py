@@ -35,6 +35,17 @@ import re
 # Keyed by a distinctive phrase from the source row. The value is what the decision IS, in words he
 # would use, numbered when the row holds more than one. These always win over the raw text.
 HAND_WRITTEN = {
+ # 2026-11-01, PF-RECORDS: five rulings of his found in drawings and missing from the log (DRAW-HYGIENE, round 3)
+ "work on fixing all 5+4 findings":
+  "Fix all nine findings of the outside review of Net worth file 1: its five smaller points and the four found while fixing them. All nine were fixed on 2026-10-04.",
+ "give both numbers. · What about credit card debt, HELOC, car loan":
+  "The emergency fund gives both numbers: the months your cash covers at your essentials, and at your planned level of expenses. Both count the debt payments you cannot stop — a credit card, a HELOC, a car loan — and the card says how much of each month they are.",
+ "use mortgage and car for both planned and actual":
+  "On This month a debt has one name in the planned block and the actual block — Mortgage, Car loan — never two. The drawing is corrected without asking him again.",
+ "Can the prior history be not used to display 1 month or 1 year":
+  "His question: may price history from before the daily record be used for 1M, 1Y and 2Y, or only for the return over the whole history? He settled it on 2026-10-13 (DEC-5291): price history counts, and each window that starts before the daily record is worked back from each holding's prices.",
+ "anyone who files a return knows what these mean":
+  "The four filing-status options carry no small print: anyone who files a return knows them, and explaining them reads as talking down. The over-65 line keeps its explanation.",
  "unless rental income is added on the income screen, assume property is":
   "A property is a second or vacation home unless rental income is entered for it on the Income screen. With rental income entered, it is a rental.",
  "Once user enters mortgage or any debt - the app deduct it directly to ":

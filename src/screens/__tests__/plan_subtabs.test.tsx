@@ -70,9 +70,21 @@ test('Goals with goals set leads with "Can I afford it all?" — the real questi
   render(<PlanHubScreen />);
   fireEvent.press(screen.getByLabelText('Goals'));
   expect(screen.getByText('Can I afford it all?')).toBeOnTheScreen();
+  // v4's own words under it since 2026-10-31 (goals v03, built under his DEC-9228); each goal's name carries its icon
+  expect(screen.getByText('with more than one goal')).toBeOnTheScreen();
+  expect(screen.getByText(/New car$/)).toBeOnTheScreen();
+  expect(screen.getByText(/College — one child$/)).toBeOnTheScreen();
+});
+
+test.failing('Goals until 2026-10-31, pinned: "Can I afford it all?" read "all of them together, not one at a time", not v4\'s words (FIXED 2026-10-31)', () => {
+  seedWorking();
+  useStore.setState({ goals: [
+    { goal_id: 'g1', label: 'New car', target_amount: 28000, saved: 4000, target_year: 2027 },
+    { goal_id: 'g2', label: 'College — one child', target_amount: 120000, saved: 10000, target_year: 2029 },
+  ] } as any);
+  render(<PlanHubScreen />);
+  fireEvent.press(screen.getByLabelText('Goals'));
   expect(screen.getByText('all of them together, not one at a time')).toBeOnTheScreen();
-  expect(screen.getByText('New car')).toBeOnTheScreen();
-  expect(screen.getByText('College — one child')).toBeOnTheScreen();
 });
 
 test('switching sub-tabs swaps the panel and nothing else — Retire content is gone, not stacked', () => {

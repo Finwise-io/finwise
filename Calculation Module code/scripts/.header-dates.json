@@ -979,5 +979,13 @@
 "src/domain/transactions/index.ts::openingRecordsHeld": "not in git yet|\u2014",
 "src/domain/transactions/index.ts::isRecordOfLot": "not in git yet|\u2014",
 "src/store/useStore.ts::recordsOnTheWayIn": "not in git yet|\u2014",
-"src/domain/planning/rothConversion.ts::rothWorked": "not in git yet|\u2014"
+"src/domain/planning/rothConversion.ts::rothWorked": "not in git yet|\u2014",
+"MoneyKeel/functions/cashflow/the-debts.ts::LOAD": "not in git yet|\u2014",
+"MoneyKeel/functions/cashflow/the-debts.ts::debtLoad": "not in git yet|\u2014",
+"src/domain/_shared/money.ts::withMinus": "not in git yet|\u2014",
+"src/domain/goals/planGoals.ts::debtGoalPlan": "not in git yet|\u2014",
+"src/domain/goals/planGoals.ts::monthsFrom": "not in git yet|\u2014",
+"src/domain/goals/planGoals.ts::monthYear": "not in git yet|\u2014",
+"src/domain/goals/planGoals.ts::goalsCapacity": "not in git yet|\u2014",
+"src/domain/retirement/retireAge.ts::planRetireAgeOf": "not in git yet|\u2014"
 }

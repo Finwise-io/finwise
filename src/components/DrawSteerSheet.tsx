@@ -6,6 +6,7 @@
 // Honesty rules: if a reorder barely moves the answer we say 'about the same' instead of
 // inventing precision; and the will-it-last PERCENT is deliberately not re-run per order —
 // the odds model isn't order-aware, and a faked shift would be a trust bug.
+import { SHEET_FRAME, SHEET_HANDLE } from './sheetFrame';   // one sheet frame (NW3-18, 2026-10-31)
 import { CountedTaxableLines } from './CountedTaxableLines';   // (DEC-4105, 2026-10-10)
 import React, { useMemo, useState } from 'react';
 import { Modal, View, Text, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
@@ -209,7 +210,7 @@ export function DrawSteerSheet({ visible, onClose, projectionMode }: {
 
 const s = StyleSheet.create({
   scrim: { flex: 1, backgroundColor: 'rgba(0,0,0,0.35)' },
-  sheet: { backgroundColor: Colors.cardBg, borderTopLeftRadius: Radii.xl, borderTopRightRadius: Radii.xl, padding: Spacing.lg, maxHeight: '88%' },
+  sheet: { ...SHEET_FRAME, padding: Spacing.lg, maxHeight: '88%' },
   title: { fontSize: 20, fontWeight: '800', color: Colors.textPrimary },
   sub: { fontSize: 13, color: Colors.textSecondary, marginTop: 2, marginBottom: Spacing.md, lineHeight: 19 },
   projBanner: { fontSize: 13, fontWeight: '700', color: Colors.amber, backgroundColor: Colors.amberLight, borderRadius: Radii.md, padding: Spacing.sm, marginBottom: Spacing.sm },

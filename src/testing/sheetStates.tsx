@@ -58,6 +58,8 @@ export type Sheet = { id: string; file: string; title: string; states: SheetStat
 const press = (label: string | RegExp) => fireEvent.press(screen.getByLabelText(label));
 const pressText = (text: string) => fireEvent.press(screen.getByText(text));
 const typeIn = (placeholder: string, value: string, nth = 0) => fireEvent.changeText(screen.getAllByPlaceholderText(placeholder)[nth], value);
+/** a figure box by its name (2026-11-01, R16): a box nobody filled opens empty, so the grey ‘0’ it was found by is gone */
+const typeBox = (value: string, nth = 0) => fireEvent.changeText(screen.getAllByLabelText(/^(Shares|Contracts|Price per share|Amount)$/)[nth], value);
 const typeLabel = (label: string, value: string) => fireEvent.changeText(screen.getByLabelText(label), value);
 const account = (id: string, accounts: any[], extra: Record<string, any> = {}) => ({
   page: 'account' as const, params: { id }, store: { assetAccounts: accounts, transactions: [], snapshotDays: [], priceCache: PRICES, ...extra } });
@@ -72,21 +74,21 @@ export const TRADE_SHEET: Sheet = {
   states: [
     { key: 'A', label: 'Opened from the account page: Buy, Vanguard chosen, nothing typed yet', ...account('van', HOUSEHOLD), steps: openTrade },
     { key: 'B', label: 'Buy 10 VTI at $100.00: $1,000 of the $5,000 cash', ...account('van', HOUSEHOLD),
-      steps: () => { openTrade(); typeIn('e.g. AAPL', 'VTI'); typeIn('0', '10', 0); typeIn('0', '100', 1); } },
+      steps: () => { openTrade(); typeIn('e.g. AAPL', 'VTI'); typeBox('10', 0); typeBox('100', 1); } },
     { key: 'C', label: 'Buy 100 VTI at $100.00: more than the $5,000 cash', ...account('van', HOUSEHOLD),
-      steps: () => { openTrade(); typeIn('e.g. AAPL', 'VTI'); typeIn('0', '100', 0); typeIn('0', '100', 1); } },
+      steps: () => { openTrade(); typeIn('e.g. AAPL', 'VTI'); typeBox('100', 0); typeBox('100', 1); } },
     { key: 'D', label: 'Sell: the holdings to choose from, VTI picked, 10 at $100.00', ...account('van', HOUSEHOLD),
-      steps: () => { openTrade(); press('Transaction type: Sell'); press('Holding: VTI'); typeIn('0', '10', 0); typeIn('0', '100', 1); } },
+      steps: () => { openTrade(); press('Transaction type: Sell'); press('Holding: VTI'); typeBox('10', 0); typeBox('100', 1); } },
     { key: 'E', label: 'Sell 150 VTI: more than the 100 held', ...account('van', HOUSEHOLD),
-      steps: () => { openTrade(); press('Transaction type: Sell'); press('Holding: VTI'); typeIn('0', '150', 0); typeIn('0', '100', 1); } },
+      steps: () => { openTrade(); press('Transaction type: Sell'); press('Holding: VTI'); typeBox('150', 0); typeBox('100', 1); } },
     { key: 'F', label: 'Deposit cash: $500', ...account('van', HOUSEHOLD),
-      steps: () => { openTrade(); press('Transaction type: Deposit cash'); typeIn('0', '500'); } },
+      steps: () => { openTrade(); press('Transaction type: Deposit cash'); typeBox('500'); } },
     { key: 'G', label: 'Transfer $1,000 from Vanguard to Ally Savings', ...account('van', HOUSEHOLD),
-      steps: () => { openTrade(); press('Transaction type: Transfer'); press(/^To account: Ally/); typeIn('0', '1000'); } },
+      steps: () => { openTrade(); press('Transaction type: Transfer'); press(/^To account: Ally/); typeBox('1000'); } },
     { key: 'H', label: 'Dividend from VTI, paid as cash: $120', ...account('van', HOUSEHOLD),
-      steps: () => { openTrade(); press('Transaction type: Dividend'); press('Holding: VTI'); typeIn('0', '120'); } },
+      steps: () => { openTrade(); press('Transaction type: Dividend'); press('Holding: VTI'); typeBox('120'); } },
     { key: 'I', label: 'Dividend from VTI, reinvested: 1.2 shares at $100.00', ...account('van', HOUSEHOLD),
-      steps: () => { openTrade(); press('Transaction type: Dividend'); press('Holding: VTI'); press('Dividend reinvested'); typeIn('0', '1.2', 0); typeIn('0', '100', 1); } },
+      steps: () => { openTrade(); press('Transaction type: Dividend'); press('Holding: VTI'); press('Dividend reinvested'); typeBox('1.2', 0); typeBox('100', 1); } },
     { key: 'J', label: 'A fresh account (nothing held, no cash entered): Buy', ...account('new', [FRESH]), steps: () => openTrade('Schwab Brokerage') },
     { key: 'K', label: 'A fresh account: Sell — nothing to sell', ...account('new', [FRESH]),
       steps: () => { openTrade('Schwab Brokerage'); press('Transaction type: Sell'); } },
@@ -96,7 +98,7 @@ export const TRADE_SHEET: Sheet = {
     { key: 'M', label: 'A buy of a ticker the account does not hold yet: its type asked, nothing chosen for you', ...account('van', HOUSEHOLD),
       steps: () => { openTrade(); typeIn('e.g. AAPL', 'UNKNOWN123'); } },
     { key: 'N', label: 'The type answered, Options: 1 contract at $2.50, 100 shares a contract — $250 of the $5,000 cash', ...account('van', HOUSEHOLD),
-      steps: () => { openTrade(); typeIn('e.g. AAPL', 'SPX'); press('Type: Options'); typeIn('0', '1', 0); typeIn('0', '2.50', 1); } },
+      steps: () => { openTrade(); typeIn('e.g. AAPL', 'SPX'); press('Type: Options'); typeBox('1', 0); typeBox('2.50', 1); } },
     { key: 'O', label: 'Sell, when a purchase of the holding has no share count on record: not stated, and Record sell waits', ...account('van', [{ ...VANGUARD,
       positions: [{ ...VANGUARD.positions[0], lots: [...VANGUARD.positions[0].lots, { lot_id: 'l2', cost_per_share: 90, purchase_date: '2025-06-02' }] }] }, ALLY, TSY]),
       steps: () => { openTrade(); press('Transaction type: Sell'); press('Holding: VTI'); } },

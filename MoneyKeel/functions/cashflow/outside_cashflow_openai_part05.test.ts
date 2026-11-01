@@ -357,8 +357,19 @@ describe('MK-CF-F-210 annualOfSource — RETIRED 2026-10-25; each case read from
 });
 
 describe('MK-CF-F-182 asPercent — five cases (its own text)', () => {
-  for (const id of ['C01', 'C02', 'C03', 'C04', 'C05']) {
+  for (const id of ['C03', 'C04']) {
     kase(`MK-CF-F-182-${id}`, 'AGREE', (c) => { expect(asPercent(X(c.inputs.rate))).toBe(c.expected); });
+  }
+  // CHANGED 2026-10-31 (FX-CF-B, IN3-04; his Q49 and DEC-0221 "Return on cash - use 2 decimals"; v07 row of that day): a rate prints with
+  // two decimals always, so three of the reviewer's answers — worked to the function's old text, "at most two decimals" — are the old
+  // form. By hand: 0.24 × 100 = 24 → "24.00%"; 0.038 × 100 = 3.8 → "3.80%"; 0 → "0.00%". The reviewer's answers are pinned below.
+  const TWO: Record<string, string> = { C01: '24.00%', C02: '3.80%', C05: '0.00%' };
+  for (const id of ['C01', 'C02', 'C05']) {
+    kase(`MK-CF-F-182-${id}`, 'AGREE', (c) => { expect(asPercent(X(c.inputs.rate))).toBe(TWO[id]); },
+      `CHANGED 2026-10-31: two decimals always (Q49, DEC-0221) — ${TWO[id]}, where the reviewer worked the old text`);
+    test.failing(`MK-CF-F-182-${id} · the reviewer's answer to the old text, pinned (now failing): two decimals at most`, () => {
+      expect(asPercent(X(C(`MK-CF-F-182-${id}`).inputs.rate))).toBe(C(`MK-CF-F-182-${id}`).expected);
+    });
   }
 });
 
@@ -426,7 +437,7 @@ describe('MK-CF-F-184 incomeFromAccounts — five cases (live: Interest & divide
     const r = incomeFromAccounts([cash(a.id, a.balance, a.rate)] as any, [{ type: 'INTEREST', amount: X(rec.amount), account_id: rec.account, date: rec.date }], NOW);
     expect(r.lines[0].why).not.toBe('paid out over the trailing twelve months');
     money(r.annual, c.expected.forward_estimate);
-    expect(r.lines[0].why).toBe('5% on $10,000');
+    expect(r.lines[0].why).toBe('5.00% on $10,000');   // two decimals (FX-CF-B 2026-10-31, IN3-04; the figure is unchanged)
   }, 'FIXED 2026-10-25: the payout dated tomorrow is not paid; the $500 estimate shows (it read $1,000 as paid)');
   test.failing('MK-CF-F-184-C05 · what the app gave before the fix (pinned, now failing): $1,000 "paid out over the trailing twelve months"', () => {
     const c = C('MK-CF-F-184-C05');
@@ -609,7 +620,7 @@ describe('formula verdicts (WRONG / INCOMPLETE / CANNOT TELL) and rules NOT HELD
       { asset_id: 'A', label: 'Paid', kind: 'savings', asset_class: 'cash', balance: 10000, coupon_rate: 0.05 },
       { asset_id: 'B', label: 'Est', kind: 'savings', asset_class: 'cash', balance: 10000, coupon_rate: 0.04 },
     ] as any, [{ type: 'INTEREST', amount: 300, account_id: 'A', date: '2026-05-01' }], NOW);
-    expect(r.lines.map((l) => l.why)).toEqual(['paid out over the trailing twelve months', '4% on $10,000']);
+    expect(r.lines.map((l) => l.why)).toEqual(['paid out over the trailing twelve months', '4.00% on $10,000']);   // two decimals (IN3-04, 2026-10-31)
     money(r.annual, 700);                                                                         // $300 paid + $400 estimated, in one total
     const SCREEN = fs.readFileSync(path.join(__dirname, '../../../src/screens/IncomeManagerScreen.tsx'), 'utf8');
     expect(SCREEN).toContain('label="= We calculate"');

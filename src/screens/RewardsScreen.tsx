@@ -73,7 +73,6 @@ export default function RewardsScreen() {
         visible={modalVisible}
         title="Add to goal"
         message="How much are you adding today?"
-        placeholder="$0.00"
         money
         confirmLabel="Add"
         onConfirm={handleAddToGoal}
@@ -197,7 +196,7 @@ export default function RewardsScreen() {
             style={styles.input}
             value={goalTarget}
             onChangeText={setGoalTarget}
-            placeholder="5000"
+            a11y="Target amount"
           />
           <View style={{ flexDirection: 'row', gap: Spacing.sm, marginTop: Spacing.md }}>
             <Button label="Cancel" onPress={() => setShowAddGoal(false)} variant="secondary" style={{ flex: 1 }} size="md" />

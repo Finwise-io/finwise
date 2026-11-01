@@ -1,5 +1,6 @@
 // Goals & Debt — save-by-date goals with progress, and an avalanche/snowball debt-payoff plan.
 // The pre-retirement (30yo) home for "what am I working toward and how do I kill my debt".
+import { SHEET_FRAME, SHEET_HANDLE } from '../components/sheetFrame';   // one sheet frame (NW3-18, 2026-10-31)
 import { MoneyBox } from '../components/MoneyBox';   // every money box, one component (DEC-8385)
 import { plural } from '../domain/_shared/plural';   // the one list of words and plurals (DEC-4082, 2026-10-10)
 import { fig } from '../components/figure';   // a figure prints with its identifier (rule 11; MK-CF-M-096, 2026-10-26)
@@ -10,7 +11,7 @@ import { useRouter } from 'expo-router';
 import { useStore, type Goal } from '../store/useStore';
 import { useIncomeProfile } from '../hooks/useIncomeProfile';   // the one profile income figures read (2026-10-26)
 import { SectionBand } from '../components/SectionBand';
-import { Colors, Spacing, Radii } from '../utils/theme';
+import { Colors, Spacing, Radii, Tap } from '../utils/theme';
 import { money } from '../domain/_shared/num';
 import { moneyCompact } from '../domain/_shared/money';
 import { payoffPlan, minimumDebtService, debtToIncome, loanPayment, type PayoffMethod, type Debt } from '../domain/debt';
@@ -435,7 +436,7 @@ const styles = StyleSheet.create({
   addLink: { fontSize: 13, fontWeight: '700', color: Colors.primary, marginTop: 2 },
 
   segRow: { flexDirection: 'row', gap: 8 },
-  seg: { flex: 1, borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radii.md, paddingVertical: 9, alignItems: 'center' },
+  seg: { minHeight: Tap.min, justifyContent: 'center', flex: 1, borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radii.md, paddingVertical: 9, alignItems: 'center' },
   segOn: { borderColor: Colors.primary, backgroundColor: Colors.primaryLight },
   segT: { fontSize: 13, fontWeight: '800', color: Colors.textSecondary },
   segTOn: { color: Colors.primaryDark },
@@ -455,11 +456,11 @@ const styles = StyleSheet.create({
   orderMo: { fontSize: 11, color: Colors.textTertiary },
 
   scrim: { position: 'absolute', inset: 0, backgroundColor: 'rgba(0,0,0,0.3)' } as any,
-  sheet: { position: 'absolute', left: 0, right: 0, bottom: 0, backgroundColor: Colors.white, borderTopLeftRadius: 22, borderTopRightRadius: 22, padding: 18, paddingBottom: 28 },
-  grab: { width: 38, height: 5, borderRadius: 3, backgroundColor: Colors.border, alignSelf: 'center', marginBottom: 12 },
+  sheet: { ...SHEET_FRAME, position: 'absolute', left: 0, right: 0, bottom: 0, padding: 18, paddingBottom: 28 },
+  grab: { ...SHEET_HANDLE },
   sheetT: { fontSize: 17, fontWeight: '800', color: Colors.textPrimary, marginBottom: 8 },
   iconWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 4 },
-  iconChip: { width: 40, height: 40, borderRadius: 10, borderWidth: 1.5, borderColor: Colors.border, alignItems: 'center', justifyContent: 'center' },
+  iconChip: { width: Tap.min, height: Tap.min, borderRadius: 10, borderWidth: 1.5, borderColor: Colors.border, alignItems: 'center', justifyContent: 'center' },
   iconChipOn: { borderColor: Colors.primary, backgroundColor: Colors.primaryLight },
   fieldL: { fontSize: 13, fontWeight: '700', color: Colors.textSecondary, marginTop: 14, marginBottom: 5 },
   input: { borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radii.md, padding: 12, fontSize: 17, color: Colors.textPrimary },

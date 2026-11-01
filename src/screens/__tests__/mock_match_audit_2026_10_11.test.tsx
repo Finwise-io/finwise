@@ -186,6 +186,17 @@ describe('7 · DEBTS with nothing entered shows $0 (Q48 frame 1; v08 state C)', 
     render(<NetWorth />);
     const lines = builtLines(screen.toJSON());
     const at = lines.indexOf('DEBTS');
+    // NW3-10 (2026-10-31): the empty Debts section takes frame C's shape (Net worth v08, approved 2026-10-01, DEC-0644) — the line
+    // 'Nothing entered yet.' and under it the door row 'Add your debts' with its › in the arrow column; it was one note line with the link inline
+    expect(lines.slice(at, at + 6)).toEqual(['DEBTS', 'ⓘ', '$0', 'Nothing entered yet.', 'Add your debts', '›']);
+  });
+  // THE OLD ANSWER, KEPT (NW3-10, 2026-10-31): one note line with the door inline
+  test.failing('the old answer: DEBTS $0, then one line "Nothing entered yet. Add your debts ›"', () => {
+    setup({ assetAccounts: [HOUSEHOLD().assetAccounts[0]], liabilities: [], transactions: [], snapshotDays: [], nwDaily: {} });
+    render(<NetWorth />);
+    const lines = builtLines(screen.toJSON());
+    const at = lines.indexOf('DEBTS');
+    expect(at).toBeGreaterThan(0);
     expect(lines.slice(at, at + 4)).toEqual(['DEBTS', 'ⓘ', '$0', 'Nothing entered yet. Add your debts ›']);
   });
 });
@@ -246,10 +257,14 @@ describe('11 · DEC-4528: every empty Debts door reads "Add your debts ›" (DEC
     expect(lines[lines.indexOf('Add your debts', at) + 1]).toBe('›');
     expect(lines.join('\n')).not.toMatch(/mortgage, card, or loan|Add a debt/);
   });
-  test('with accounts and no debts: "Nothing entered yet. Add your debts ›"', () => {
+  test('with accounts and no debts: "Nothing entered yet." and the door "Add your debts ›"', () => {
     setup({ liabilities: [] });
     render(<NetWorth />);
-    expect(builtLines(screen.toJSON())).toContain('Nothing entered yet. Add your debts ›');
+    const lines = builtLines(screen.toJSON());
+    // NW3-10 (2026-10-31): the empty Debts section takes frame C's shape (Net worth v08, approved 2026-10-01, DEC-0644) — the line
+    // 'Nothing entered yet.' and under it the door row 'Add your debts' with its › in the arrow column; it was one note line with the link inline
+    const at = lines.indexOf('DEBTS');
+    expect(lines.slice(at + 3, at + 6)).toEqual(['Nothing entered yet.', 'Add your debts', '›']);
   });
   test('the step-by-step walk\'s Debts step reads "Add your debts ›", not "Add a debt →"', () => {
     useStore.getState().resetAll(); mockParams = {};

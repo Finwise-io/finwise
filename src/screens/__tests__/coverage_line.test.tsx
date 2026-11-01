@@ -126,7 +126,9 @@ describe('BEGINNING VALUES COME FROM THE RECORD', () => {
     // only a REAL refusal speaks: having no record yet is an em-dash, not a sentence
     // …and a record that begins too late says so, naming its first day (second-round review, 2026-10-07);
     // with no record at all, still nothing
-    expect(src).toMatch(/sentence: covered \? whyNoReturn\(verdict\) : cannotReach/);
+    // R11 (2026-10-31, FX-PF, NW3-02): a typed-total account that sold inside the window and moved money in or out refuses
+    // with the movement-day sentence; every other uncovered case still falls to cannotReach
+    expect(src).toMatch(/sentence: covered \? whyNoReturn\(verdict\) : walkReturn === null && flowDay\s*\? whyNoReturn\(\{ rate: null, refused: 'MOVEMENT_DAY_NOT_RECORDED', day: flowDay \} as any\) : cannotReach/);
     expect(src).toMatch(/measured == null && theirDays\.length > 0/);
     // mock v17's mark 16 — a money-weighted rate per year standing in — is gone from the door and the screen
     const screen = read('PerformanceScreen.tsx');

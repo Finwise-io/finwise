@@ -33,7 +33,7 @@ import { fetchPriceSeries } from '../services/marketData';
  *               MK-ST-F-028 buildDayFromAccounts · MK-XS-F-199 profileOnTheWayIn
  *               MK-XS-F-205 recordsOnTheWayIn
  *
- * Reaches ..... 438 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 443 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -42,8 +42,8 @@ import { fetchPriceSeries } from '../services/marketData';
  *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
- *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 420 more — the full list is on functions_from_code
+ *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
+ *               … and 425 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
@@ -221,6 +221,10 @@ export type Goal = {
   savingsPercent?: number;
   fundedByMonth?: Record<string, number>;   // 'YYYY-MM' → $ actually allocated to THIS goal that month (drives on-track/behind)
   origin?: 'onboarding';  // seeded from onboarding goals; cleared on restart, kept-distinct from user goals
+  /** PAY OFF A DEBT IS A GOAL A PERSON ENTERS (2026-10-31, FX-PLAN; his DEC-8889; goals v03): 'debt' names one of the debts on
+   *  Cash flow · Debts by its debt_id; its figures are worked from that debt as it stands, never from a copy. Absent = saving. */
+  kind?: 'save' | 'debt';
+  debtId?: string;
 };
 
 export type Badge = {
@@ -618,7 +622,7 @@ const DEFAULT_BADGES: Badge[] = [
  *               MK-XS-F-138 deriveKeyFromSecret · MK-XS-F-139 wrapWithSecret
  *               MK-XS-F-199 profileOnTheWayIn
  *
- * Reaches ..... 438 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 443 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -627,8 +631,8 @@ const DEFAULT_BADGES: Badge[] = [
  *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
- *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 420 more — the full list is on functions_from_code
+ *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
+ *               … and 425 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

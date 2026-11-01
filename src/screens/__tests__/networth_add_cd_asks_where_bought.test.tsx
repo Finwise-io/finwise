@@ -40,7 +40,7 @@ const addChaseCd = (answer?: 'CD bought from the bank' | 'CD bought through a br
   expect(screen.getByLabelText('CD bought from the bank').props.accessibilityState).toEqual({ selected: true });   // not answered = bank
   if (answer) fireEvent.press(screen.getByLabelText(answer));
   fireEvent.changeText(screen.getByPlaceholderText('Institution / name (e.g. Chase)'), 'Chase');
-  fireEvent.changeText(screen.getByPlaceholderText('0'), '10000');
+  fireEvent.changeText(screen.getByLabelText('Value'), '10000'); // by its name: the box opens empty (R16, 2026-10-31)
   fireEvent.press(screen.getByLabelText('Add account'));
   return st().assetAccounts.find((a: any) => a.institution === 'Chase');
 };
@@ -77,7 +77,7 @@ test('a cash kind that is not a CD is never asked, and saves no answer', () => {
   fireEvent.press(screen.getByLabelText('Savings'));
   expect(screen.queryByText(QUESTION)).toBeNull();
   fireEvent.changeText(screen.getByPlaceholderText('Institution / name (e.g. Chase)'), 'Ally');
-  fireEvent.changeText(screen.getByPlaceholderText('0'), '5000');
+  fireEvent.changeText(screen.getByLabelText('Value'), '5000');
   fireEvent.press(screen.getByLabelText('Add account'));
   expect(st().assetAccounts.find((a: any) => a.institution === 'Ally').cd_bought).toBeUndefined();
 });

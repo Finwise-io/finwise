@@ -93,10 +93,10 @@ describe('USER WALK · 10 common flows', () => {
   test('W4 · log a $6.50 coffee on Cash flow — two taps, exact cents on the button', () => {
     useStore.setState({ onboardingProfile: WORKER, onboardingComplete: true } as any);
     render(<CashFlowScreen />);
-    fireEvent.press(screen.getByLabelText('Add expense'));
-    fireEvent.changeText(screen.getByPlaceholderText('0'), '6.50');
+    fireEvent.press(screen.getByLabelText('Log an expense from any tab'));
+    fireEvent.changeText(screen.getByLabelText('Expense amount'), '6.50');
     fireEvent.press(screen.getByText(/Dining/));
-    fireEvent.press(screen.getByText(/^Add \$6\.50$/));
+    fireEvent.press(screen.getByText(/^Log \$6\.50$/));
     expect((useStore.getState() as any).expenses).toHaveLength(1);
   });
 

@@ -183,14 +183,14 @@ describe('E2E-69 · a $6.50 coffee logged from ＋ Expense moves This month, the
 
     open('/(tabs)/cashflow');
     asDrawn(1);                                                                     // This month is frame A, word for word
-    press('Add expense');                                                           // the floating "＋ Expense"
-    expect(readLines()).toContain('Add expense');
-    fireEvent.changeText(screen.getByPlaceholderText('0'), '6.50');
+    press('Log an expense from any tab');                                                        // the floating "＋ Expense", said as its door (canon row 27, CF3-05)
+    expect(readLines()).toContain('Log an expense');                               // the sheet's button, before an amount (it read "Add expense")
+    fireEvent.changeText(screen.getByLabelText('Expense amount'), '6.50');           // the box opens empty — no grey "0" (R16, CF3-04)
     fireEvent.press(screen.getByLabelText('Dining out'));
     fireEvent.changeText(screen.getByPlaceholderText('Where? (optional)'), 'Starbucks');
     expect(readLines()).toContain('Dining out → Flexible budget');
     expect(readLines()).toContain('✓ today');
-    fireEvent.press(screen.getByText('Add $6.50'));                                 // the button says exactly what is saved
+    fireEvent.press(screen.getByText('Log $6.50'));                                 // the button says exactly what is saved
     const saved = (useStore.getState() as any).expenses[0];
     expect([saved.amount, saved.category, saved.store, saved.date]).toEqual([6.5, 'Dining out', 'Starbucks', TODAY]);
 
@@ -271,7 +271,7 @@ describe('E2E-70 · a one-time $2,000 bonus lands in its own month, taxed at the
     expect(readLines()).toContain('Other income');
     fireEvent.changeText(screen.getByPlaceholderText('e.g. tutoring, a gift'), 'Bonus');
     fireEvent.press(screen.getByText('One time'));
-    fireEvent.changeText(screen.getByPlaceholderText('$0'), '2000');
+    fireEvent.changeText(screen.getByLabelText('Other income amount'), '2000');   // by name: its grey ‘$0’ is gone (R16, 2026-11-01)
     expect(readLines()).toContain('Which month does it land?');
     fireEvent.press(screen.getByText('Sep'));
     // the year is asked too, and nothing is picked for him (2026-10-25, FIX-INCOME-B; the lead; DEC-0447): until both are given it
@@ -473,7 +473,7 @@ describe('E2E-72 · a $1,200 December bill: September reads without it, December
     open('/(tabs)/cashflow');
     expect(after(readLines(), 'Expenses', 2, 'PLANNED · SEPTEMBER')).toBe('−$800');
     chooseInAlert('A dated bill');
-    press('Add expense');
+    press('Log an expense from any tab');
     press('Add something else — a dated bill, an account, or one-time money in');
     expect(mockNav.pushes).toEqual(['/bill-calendar']);
     screen.unmount();
@@ -580,7 +580,8 @@ describe('E2E-72 · a $1,200 December bill: September reads without it, December
     expect([after(cf, 'Expenses', 2, 'PLANNED · SEPTEMBER'), after(cf, '= Planned surplus')]).toEqual(['−$700', '+$4,100']);
     // the calendar's September: in $7,200, out $700 + $2,400 = $3,100, End $4,100 — it read out $5,400, End $1,800
     const C = look('/bill-calendar');
-    expect(block(C, 'Sep', 'Oct', -1)).toEqual(['Sep', '+$7,200', '−$3,100', '$4,100']);
+    // with no cash on record no End is projected (R12, 2026-10-31 — bill-calendar_v02’s row of that date: no cash on record, nothing projected; the old Ends are held as test.failing in cashflow_fix_wave_2026_10_27.test.tsx)
+    expect(block(C, 'Sep', 'Oct', -1)).toEqual(['Sep', '+$7,200', '−$3,100', '—']);
   });
 });
 
@@ -705,7 +706,7 @@ describe('E2E-74 · a car-loan payment: the Debts tab, This month (expenses + de
     open('/(tabs)/cashflow');
     tab('Debts');
     press('Log a payment');                                                         // one debt: no question which
-    const amount = screen.UNSAFE_getAllByType(require('react-native').TextInput).find((t: any) => t.props.autoFocus && t.props.placeholder === '0');
+    const amount = screen.UNSAFE_getAllByType(require('react-native').TextInput).find((t: any) => t.props.autoFocus && t.props.accessibilityLabel === 'Amount');   // by name: its grey ‘0’ is gone (R16, 2026-11-01)
     expect(amount?.props.value).toBe('386.42');
     expect(readLines()).toContain('Adds a “Debt payment” to your activity and lowers this balance. New balance: $13,614.');   // $13,613.58
     fireEvent.press(screen.getByText('Log'));

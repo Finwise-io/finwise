@@ -7,7 +7,8 @@
 // 12-MONTH RETURN; ACTIVITY · <window> with its three doors. Held word for word, state by state, by
 // src/screens/__tests__/account_page_drawing_states.test.tsx. Every figure comes from one door (MK-NW-O-002 theAccount,
 // MK-NW-O-008 thePerformance); the screen calculates nothing.
-import { MoneyBox } from '../components/MoneyBox';   // every money box, one component (DEC-8385)
+import { SHEET_FRAME, SHEET_HANDLE } from '../components/sheetFrame';   // one sheet frame (NW3-18, 2026-10-31)
+import { MoneyBox, savedAmountForBox } from '../components/MoneyBox';   // every money box, one component (DEC-8385)
 import { plural, withArticle } from '../domain/_shared/plural';   // the one list of words and plurals (DEC-4082, 2026-10-10), and the one article rule
 import React, { useMemo, useRef, useState } from 'react';
 import { ScrollView, View, Text, StyleSheet, TouchableOpacity, TextInput, Modal, KeyboardAvoidingView, Platform, Alert } from 'react-native';
@@ -17,7 +18,7 @@ import { SectionBand } from '../components/SectionBand';
 import { fig, figSaid, figWords, walkShown, saidSentence } from '../components/figure';   // rule 11: a figure prints with its identifier
 import { SaidText } from '../components/SaidText';   // a line of figures said through the one spoken writer: "a year", "hidden" (2026-10-22)
 import { percentDigits } from '../../MoneyKeel/functions/_figure-spec';   // the one writer of a percent's digits (DEC-6212)
-import { Colors, Spacing, Radii, ClassMarkColors, Shadows } from '../utils/theme';
+import { Colors, Spacing, Radii, ClassMarkColors, Shadows, Tap } from '../utils/theme';
 import { currencySymbol } from '../domain/_shared/money';
 import { periodReturnSince, priceHistoryShortSentence, isIndividualBondOrCD, latestCloseLookup, quantityWithUnit, heldQuantity, type Period, type Position, type PerformanceRow } from '../domain/performance';
 import { DateLink } from '../components/DateField';   // (DEC-4059c, 2026-10-10)
@@ -869,7 +870,7 @@ export default function AccountPortfolioScreen() {
           <TouchableOpacity accessibilityRole="button" style={s.itemizeDoor}
             accessibilityLabel={`Itemize ${pageName} into holdings`}
             onPress={() => router.push(`/itemize?accountId=${account.asset_id}` as any)}>
-            <Text style={s.itemizeDoorT}>🧩  Itemize into holdings →</Text>
+            <Text style={s.itemizeDoorT}>🧩 Itemize into holdings →</Text>
             <Text style={s.itemizeDoorS}>Nothing is recorded inside this account yet. Break it into
               what it actually holds and the total stays {fig('MK-NW-M-018', account.balance || 0)}.</Text>
           </TouchableOpacity>
@@ -982,12 +983,12 @@ export default function AccountPortfolioScreen() {
           <TouchableOpacity accessibilityRole="button" style={s.maturedOpt}
             accessibilityLabel="Paid out to my bank — records the payout"
             onPress={() => { store.recordTransaction?.({ type: 'SELL', account_id: account.asset_id, amount: account.balance || 0, date: iso(new Date()), note: 'Matured — paid out' }); }}>
-            <Text style={s.maturedOptTxt}>💵  Paid out to my bank ›</Text>
+            <Text style={s.maturedOptTxt}>💵 Paid out to my bank ›</Text>
           </TouchableOpacity>
           <TouchableOpacity accessibilityRole="button" style={s.maturedOpt}
             accessibilityLabel="Rolled into a new bond or CD — opens the bonds page"
             onPress={() => router.push('/bonds' as any)}>
-            <Text style={s.maturedOptTxt}>🔁  Rolled into a new bond/CD ›</Text>
+            <Text style={s.maturedOptTxt}>🔁 Rolled into a new bond/CD ›</Text>
           </TouchableOpacity>
           <Text style={s.maturedWait}>Still waiting? Leave it — this banner stays until you record it.</Text>
         </View>
@@ -1437,7 +1438,8 @@ function RecordActivitySheet({ account, kinds, onClose }: { account: AssetAccoun
           )}
           <View style={s.amtRow}>
             <Text style={s.amtPrefix}>{currencySymbol()}</Text>
-            <MoneyBox bare dollarBeside style={s.amtInput} placeholder="0"
+            {/* EMPTY MEANS EMPTY (2026-11-01, R16, DEC-0296; record-activity v01's row of that date): the box opens empty — it held a grey ‘0’ */}
+            <MoneyBox bare dollarBeside style={s.amtInput}
               value={amount} onChangeText={setAmount} autoFocus a11y="Amount" />
           </View>
           {action === 'TRANSFER' && (
@@ -1500,8 +1502,8 @@ function UpdateValueSheet({ account, visible, onClose }: { account: AssetAccount
           <Text style={s.sheetTitle}>Update value — {accountDisplayNames((store.assetAccounts ?? []) as AssetAccount[]).get(account.asset_id) ?? account.label}</Text>
           <View style={s.amtRow}>
             <Text style={s.amtPrefix}>{currencySymbol()}</Text>
-            <MoneyBox bare dollarBeside style={s.amtInput} placeholder="0"
-              value={amount} onChangeText={setAmount} autoFocus a11y="Current value" />
+            <MoneyBox bare dollarBeside style={s.amtInput}
+              value={amount} onChangeText={setAmount} autoFocus a11y="Current value" />   {/* empty when cleared (R16, 2026-10-31; Update value v02 row of that date) */}
           </View>
           <Text style={s.preview}>Stamped “Value as of {dateShown(iso(new Date()))}” — the amount is yours to set.</Text>
           <TouchableOpacity accessibilityRole="button" style={[s.primaryBtn, amt <= 0 && { opacity: 0.4 }]} disabled={amt <= 0} onPress={save}
@@ -1624,8 +1626,8 @@ const s = StyleSheet.create({
   secondaryBtn: { backgroundColor: Colors.cardBg, borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radii.lg, minHeight: 44, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 18 },
   secondaryTxt: { fontSize: 15, fontWeight: '700', color: Colors.textPrimary },
   backdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end' },
-  sheet: { backgroundColor: Colors.bgSecondary, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: Spacing.lg, paddingBottom: 32 },
-  handle: { width: 40, height: 4, borderRadius: 2, backgroundColor: Colors.border, alignSelf: 'center', marginBottom: Spacing.md },
+  sheet: { ...SHEET_FRAME, padding: Spacing.lg, paddingBottom: 32 },
+  handle: { ...SHEET_HANDLE },
   sheetTitle: { fontSize: 17, fontWeight: '800', color: Colors.textPrimary, textAlign: 'center' },
   sheetNote: { fontSize: 13, color: Colors.textSecondary, textAlign: 'center', marginTop: 6, lineHeight: 18 },
   amtRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: Spacing.md },
@@ -1640,7 +1642,7 @@ const s = StyleSheet.create({
   destTxt: { fontSize: 15, fontWeight: '600', color: Colors.textPrimary },   // sentence case, as written (2026-10-22)
   dayRow: { flexDirection: 'row', gap: 8, marginTop: Spacing.sm, justifyContent: 'center' },
   // rounded corners, not semicircle ends — the one shape of a choice (DEC-0231, 2026-09-25; corrected 2026-10-20)
-  dayChip: { paddingHorizontal: 16, paddingVertical: 8, borderRadius: Radii.md, borderWidth: 1.5, borderColor: Colors.border, backgroundColor: Colors.cardBg, minHeight: 40, justifyContent: 'center' },
+  dayChip: { paddingHorizontal: 16, paddingVertical: 8, borderRadius: Radii.md, borderWidth: 1.5, borderColor: Colors.border, backgroundColor: Colors.cardBg, minHeight: Tap.min, justifyContent: 'center' },
   preview: { fontSize: 13, fontWeight: '600', color: Colors.textSecondary, textAlign: 'center', marginTop: Spacing.sm },
   estTag: { fontSize: 11, fontWeight: '800', color: Colors.amber, letterSpacing: 0.3, marginBottom: 4 },
   factRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 5, gap: 10 },
@@ -1672,8 +1674,9 @@ function EditRecordSheet({ row, onClose }: { row: Transaction | null; onClose: (
   const [fee, setFee] = useState('');
   React.useEffect(() => {
     if (!row) return;
-    setAmount(String(Math.abs(Number(row.amount) || 0)));
-    setShares(row.shares != null ? String(row.shares) : ''); setPrice(row.price != null ? String(row.price) : ''); setFee(row.fee != null ? String(row.fee) : '');
+    // a saved price, fee or amount opens with its cents — "$192.50", never "$192.5" (savedAmountForBox, 2026-10-31, FX-PF, NW3-03)
+    setAmount(savedAmountForBox(Math.abs(Number(row.amount) || 0)));
+    setShares(row.shares != null ? String(row.shares) : ''); setPrice(savedAmountForBox(row.price)); setFee(savedAmountForBox(row.fee));
   }, [row?.id]);
   if (!row) return null;
   const read = (v: string) => parseFloat(String(v).replace(/[^0-9.]/g, ''));
@@ -1719,10 +1722,11 @@ function EditRecordSheet({ row, onClose }: { row: Transaction | null; onClose: (
           {trade ? (
             <>
               <Text style={sh.note}>{dateShown(row.date)} · correcting it reverses the old record and records the new one, so your balance stays right.</Text>
-              {/* the trade sheet's own three figures, in its words (Shares, Price / share, and the fee as an optional figure) */}
+              {/* the trade sheet's own three figures, in its words (Shares, Price / share, and the fee as an optional figure); a box the person
+                  empties stays empty, with no grey ‘0’ (2026-11-01, R16, DEC-0296; edit-record v03's row of that date) */}
               <View style={sh.tradeRow}>
-                <View style={sh.tradeCell}><Text style={sh.tradeL}>{inContracts ? 'Contracts' : 'Shares'}</Text><TextInput style={sh.tradeIn} keyboardType="decimal-pad" value={shares} onChangeText={setShares} accessibilityLabel={inContracts ? 'Contracts' : 'Shares'} placeholder="0" placeholderTextColor={Colors.textTertiary} /></View>
-                <View style={sh.tradeCell}><Text style={sh.tradeL}>Price / share</Text><MoneyBox bare style={sh.tradeIn} value={price} onChangeText={setPrice} a11y="Price per share" placeholder="0" /></View>
+                <View style={sh.tradeCell}><Text style={sh.tradeL}>{inContracts ? 'Contracts' : 'Shares'}</Text><TextInput style={sh.tradeIn} keyboardType="decimal-pad" value={shares} onChangeText={setShares} accessibilityLabel={inContracts ? 'Contracts' : 'Shares'} /></View>
+                <View style={sh.tradeCell}><Text style={sh.tradeL}>Price / share</Text><MoneyBox bare style={sh.tradeIn} value={price} onChangeText={setPrice} a11y="Price per share" /></View>
                 <View style={sh.tradeCell}><Text style={sh.tradeL}>Fee (opt)</Text><MoneyBox bare style={sh.tradeIn} value={fee} onChangeText={setFee} a11y="Fee" placeholder="—" /></View>
               </View>
             </>
@@ -1740,7 +1744,7 @@ function EditRecordSheet({ row, onClose }: { row: Transaction | null; onClose: (
             onPress={save} accessibilityLabel="Save this correction">
             <Text style={sh.saveTxt}>Save</Text>
           </TouchableOpacity>
-          <TouchableOpacity accessibilityRole="button" onPress={remove} accessibilityLabel="Delete this record">
+          <TouchableOpacity accessibilityRole="button" onPress={remove} accessibilityLabel="Delete this record" hitSlop={Tap.slop}>
             <Text style={sh.deleteLink}>Delete this record</Text>
           </TouchableOpacity>
         </View>
@@ -1751,8 +1755,8 @@ function EditRecordSheet({ row, onClose }: { row: Transaction | null; onClose: (
 
 const sh = StyleSheet.create({
   backdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end' },
-  sheet: { backgroundColor: Colors.bgSecondary, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: Spacing.lg, paddingBottom: 34 },
-  grip: { width: 40, height: 4, borderRadius: 2, backgroundColor: Colors.border, alignSelf: 'center', marginBottom: Spacing.md },
+  sheet: { ...SHEET_FRAME, padding: Spacing.lg, paddingBottom: 34 },
+  grip: { ...SHEET_HANDLE },
   title: { fontSize: 17, fontWeight: '800', color: Colors.textPrimary, textAlign: 'center' },
   note: { fontSize: 13, color: Colors.textSecondary, textAlign: 'center', marginTop: 6, lineHeight: 18 },
   amtRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, marginTop: Spacing.md },

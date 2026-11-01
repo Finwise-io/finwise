@@ -1965,7 +1965,8 @@
     "T1 · reviewer FAIL (specification_issue) · APP WRONG · what holds",
     "T1 · reviewer FAIL (specification_issue) · APP WRONG · the right answer (test.failing)"
    ],
-   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-B): \"2 sources\" — the rental with its loss is entered."
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-B): \"2 sources\" — the rental with its loss is entered.",
+   "changed_2026_10_31": "2026-10-31 (FX-CF-B, IN3-05): the count on the Your income bar prints in capitals, as phone 12 draws it — the right answer reads '2 SOURCES' (by hand: the job, a $7,200 take-home, and the rental losing $500/month: 2 entered); the old answer is pinned as '1 SOURCE'. The count is unchanged."
   },
   {
    "part": "18",

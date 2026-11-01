@@ -211,7 +211,7 @@ describe('the sheets', () => {
     render(<TransactionSheet open accounts={[ACCT]} onClose={() => {}} onSave={() => {}} prefill={{ accountId: 'van', ticker: 'VTI' }} />);
     fireEvent.press(screen.getByLabelText('Transaction type: Sell'));
     fireEvent.press(screen.getByLabelText('Holding: VTI'));
-    fireEvent.changeText(screen.getAllByPlaceholderText('0')[0], '12');   // the Shares box, the first of the two
+    fireEvent.changeText(screen.getAllByLabelText(/^(Shares|Contracts|Price per share|Amount)$/)[0], '12');   // the Shares box, the first of the two
     const line = texts().map((x) => x.t).find((x) => x.startsWith('You own'));
     expect(line).toBe('You own 10 shares ⚠ can’t sell more than you own');
   });

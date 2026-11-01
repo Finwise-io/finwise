@@ -1,6 +1,7 @@
 // Shared money bottom-sheets, extracted from the old HomeScreen so Home and Cash flow reuse ONE
 // implementation (FCC M4: one habit, one spot): QuickAddExpense (the '+ Expense' sheet), IncomeSheet,
 // AllocateSavings (month-end surplus prompt), DebtPaySheet, plus the ExpenseFab floating button.
+import { SHEET_FRAME, SHEET_HANDLE } from './sheetFrame';   // one sheet frame (NW3-18, 2026-10-31)
 import { MoneyBox } from './MoneyBox';
 import { SectionBand } from './SectionBand';   // every money box, one component (DEC-8385)
 import React, { useEffect, useState } from 'react';
@@ -48,7 +49,9 @@ function GridChip({ icon, label, on, onPress }: { icon: string; label: string; o
 export function ExpenseFab({ onPress }: { onPress: () => void }) {
   return (
     <TouchableOpacity style={fab.btn} activeOpacity={0.9} onPress={onPress}
-      accessibilityRole="button" accessibilityLabel="Add expense" accessibilityHint="Opens the quick add-expense form">
+      // said in the door's own words (canon row 27; 2026-10-31, CF3-05): it was heard as "Add expense"
+      // its own spoken words, so it is never confused with the Expenses tab's own "Log an expense" door (2026-11-01, DRAW-HYGIENE)
+      accessibilityRole="button" accessibilityLabel="Log an expense from any tab" accessibilityHint="Opens the expense sheet">
       <Text style={fab.txt}>＋ Expense</Text>
     </TouchableOpacity>
   );
@@ -148,7 +151,8 @@ export function QuickAddExpense({ visible, onClose, customCats, isCurrentMonth, 
 
             <View style={sh.amtRow}>
               <Text style={sh.amtPrefix}>{currencySymbol()}</Text>
-              <MoneyBox bare dollarBeside style={sh.amtInput} placeholder="0"
+              {/* empty until typed — no grey "0", which reads as an amount entered (R16, 2026-10-31; CF3-04, DEC-0296) */}
+              <MoneyBox bare dollarBeside style={sh.amtInput} a11y="Expense amount"
                 value={amount} onChangeText={setAmount} autoFocus />
             </View>
             <Text style={sh.bucketHint}>{finalCat ? `${finalCat} → ${bucket} budget` : 'Pick a category'}</Text>
@@ -191,7 +195,8 @@ export function QuickAddExpense({ visible, onClose, customCats, isCurrentMonth, 
 
             <TouchableOpacity accessibilityRole="button" style={[sh.save, !ready && { opacity: 0.4 }]} disabled={!ready} onPress={save}>
               {/* show cents when the user typed cents — the button must say exactly what will be saved */}
-              <Text style={sh.saveTxt}>Add {amt > 0 ? (amt % 1 ? money2(amt) : money(amt)) : 'expense'}</Text>
+              {/* the door's own words on its button (canon row 27; 2026-10-31, CF3-05): "Log an expense", "Log $6.50" — it read "Add expense" */}
+              <Text style={sh.saveTxt}>{amt > 0 ? `Log ${amt % 1 ? money2(amt) : money(amt)}` : 'Log an expense'}</Text>
             </TouchableOpacity>
           </View>
         </ScrollView>
@@ -230,7 +235,7 @@ export function DebtPaySheet({ state, onClose }: { state: { open: boolean; debt?
           <Text style={sh.bucketHint}>{money(d?.remaining_balance ?? 0)} balance · {d?.due_day ? `due ${ordinal(d.due_day)}` : 'no due date'}</Text>
           <View style={sh.amtRow}>
             <Text style={sh.amtPrefix}>{currencySymbol()}</Text>
-            <MoneyBox bare dollarBeside style={sh.amtInput} placeholder="0" value={amount} onChangeText={setAmount} autoFocus />
+            <MoneyBox bare dollarBeside style={sh.amtInput} a11y="Payment amount" value={amount} onChangeText={setAmount} autoFocus />
           </View>
           <View style={sh.dayRow}>
             {(['today', 'yesterday'] as const).map((dd) => (
@@ -255,7 +260,7 @@ export function AllocateSavings({ state, onClose }: { state: { open: boolean; ym
   const store = useStore() as any;
   const accounts = (store.assetAccounts ?? []) as any[];
   // B-71: fund GOALS from the same surplus, alongside accounts — active goals only (not yet fully funded)
-  const goals = ((store.goals ?? []) as any[]).filter((g) => (g.saved || 0) < (g.target || 0));
+  const goals = ((store.goals ?? []) as any[]).filter((g) => g.kind !== 'debt' && (g.saved || 0) < (g.target || 0));   // a debt goal is paid on its debt, not funded from surplus (2026-10-31)
   const [amounts, setAmounts] = useState<Record<string, string>>({});
   const [goalAmts, setGoalAmts] = useState<Record<string, string>>({});
   const [units, setUnits] = useState<Record<string, 'dollar' | 'pct'>>({});
@@ -300,7 +305,7 @@ export function AllocateSavings({ state, onClose }: { state: { open: boolean; ym
                   <Text style={sh.allocName}>{g.label}</Text>
                   <Text style={sh.allocSub}>{money(g.saved || 0)} of {money(g.target || 0)}</Text>
                 </View>
-                <MoneyBox bare style={sh.allocInput} placeholder={`${currencySymbol()}0`}
+                <MoneyBox bare style={sh.allocInput}
                   value={goalAmts[g.id] || ''} onChangeText={(t) => setGoalAmts((m) => ({ ...m, [g.id]: t }))}
                   a11y={`Amount toward ${g.label}`} />
               </View>
@@ -317,7 +322,7 @@ export function AllocateSavings({ state, onClose }: { state: { open: boolean; ym
                     <Text style={sh.allocName}>{a.label}</Text>
                     <Text style={sh.allocSub}>{assetKind(a.kind)?.label ?? a.tax_bucket}{unit === 'pct' && parse(amounts[a.asset_id]) > 0 ? ` · = ${money(d)}` : (a.institution ? ` · ${a.institution}` : '')}</Text>
                   </View>
-                  <MoneyBox bare unitBeside style={sh.allocInput} placeholder={unit === 'pct' ? '0%' : `${currencySymbol()}0`}
+                  <MoneyBox bare unitBeside style={sh.allocInput} a11y={`Amount into ${a.label}`}
                     value={amounts[a.asset_id] || ''} onChangeText={(t) => setAmounts((m) => ({ ...m, [a.asset_id]: t }))} />
                   <TouchableOpacity accessibilityRole="button" style={sh.unitToggle} onPress={() => setUnits((u) => ({ ...u, [a.asset_id]: unit === 'pct' ? 'dollar' : 'pct' }))}>
                     <Text style={sh.unitToggleTxt}>{unit === 'pct' ? '%' : currencySymbol()}</Text>
@@ -410,7 +415,7 @@ export function IncomeSheet({ visible, onClose, op, isCurrentMonth, baseDate, mo
                 <Text style={sh.bucketHint}>A one-time for {isCurrentMonth ? 'this month' : monthLabel} — gift, stock sale, refund…</Text>
                 <View style={sh.amtRow}>
                   <Text style={sh.amtPrefix}>{currencySymbol()}</Text>
-                  <MoneyBox bare dollarBeside style={sh.amtInput} placeholder="0" value={amount} onChangeText={setAmount} autoFocus />
+                  <MoneyBox bare dollarBeside style={sh.amtInput} a11y="Income amount" value={amount} onChangeText={setAmount} autoFocus />
                 </View>
                 <View style={sh.catGrid}>
                   {INCOME_SOURCES.map((c) => (
@@ -448,7 +453,7 @@ export function IncomeSheet({ visible, onClose, op, isCurrentMonth, baseDate, mo
                 </View>
                 <View style={sh.amtRow}>
                   <Text style={sh.amtPrefix}>{currencySymbol()}</Text>
-                  <MoneyBox bare dollarBeside style={sh.amtInput} placeholder="0" value={baseAmt} onChangeText={setBaseAmt} />
+                  <MoneyBox bare dollarBeside style={sh.amtInput} a11y="Pay amount" value={baseAmt} onChangeText={setBaseAmt} />
                 </View>
                 <View style={sh.freqRow}>
                   {FREQS.map((f) => (
@@ -475,8 +480,8 @@ const sh = StyleSheet.create({
   // Sheet family type comes from the official ladder only (11/13/15/17/20/44-hero) —
   // approved mock 2026-07-16; selection is always ✓ + weight, never tint alone.
   backdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end' },
-  card: { backgroundColor: Colors.bgSecondary, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: Spacing.lg, paddingBottom: 32 },
-  handle: { width: 40, height: 4, borderRadius: 2, backgroundColor: Colors.border, alignSelf: 'center', marginBottom: Spacing.md },
+  card: { ...SHEET_FRAME, padding: Spacing.lg, paddingBottom: 32 },
+  handle: { ...SHEET_HANDLE },
   title: { fontSize: 20, fontWeight: '800', color: Colors.textPrimary, textAlign: 'center' },
   tabRow: { flexDirection: 'row', backgroundColor: Colors.bgTertiary, borderRadius: Radii.md, padding: 3, marginBottom: 4 },
   tab: { flex: 1, paddingVertical: 10, borderRadius: Radii.sm, alignItems: 'center', minHeight: 44, justifyContent: 'center' },

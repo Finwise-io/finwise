@@ -43,7 +43,7 @@ export default function EducationScreen() {
       <View style={styles.inputRow}>
         {/* a $ figure is a money box — it prints "$30,000" itself, so its $ is not repeated after it (DEC-8385, 2026-10-27) */}
         {suffix === '$'
-          ? <MoneyBox bare style={styles.input} value={v} onChangeText={set} placeholder="$0" a11y={label} />
+          ? <MoneyBox bare style={styles.input} value={v} onChangeText={set} a11y={label} />
           : <TextInput style={styles.input} keyboardType="decimal-pad" value={v} onChangeText={set} placeholderTextColor={Colors.textTertiary} />}
         {suffix && suffix !== '$' ? <Text style={styles.suffix}>{suffix}</Text> : null}
       </View>

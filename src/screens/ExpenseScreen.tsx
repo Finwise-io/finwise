@@ -10,7 +10,7 @@ import { DateField } from '../components/DateField';
 import { useStore, RecurringExpense } from '../store/useStore';
 import { Button, Card, TipCard, ProgressBar, SegmentedControl } from '../components/UI';
 import { money, money2 } from '../domain/_shared/num';
-import { Colors, Typography, Spacing, Radii } from '../utils/theme';
+import { Colors, Typography, Spacing, Radii, Tap } from '../utils/theme';
 // B-L1: on-device OCR (ML Kit) — the receipt image never leaves the device (was Google Cloud Vision).
 import { ocrReceipt } from '../services/receiptScan';
 import { format, addDays, addMonths } from 'date-fns';
@@ -224,7 +224,7 @@ export default function ExpenseScreen() {
                   </Text>
                 </View>
                 <View style={{ alignItems: 'flex-end' }}>
-                  <Text style={styles.entryAmt}>-{money2((item as any).amount)}</Text>
+                  <Text style={styles.entryAmt}>{money2(-(item as any).amount)}</Text>
                   <Text style={styles.entryEdit}>Tap to edit</Text>
                 </View>
               </TouchableOpacity>
@@ -260,7 +260,7 @@ export default function ExpenseScreen() {
                 style={styles.bigInput}
                 value={amount}
                 onChangeText={setAmount}
-                placeholder="$0.00"
+                a11y="Amount"
                 returnKeyType="done"
                 onSubmitEditing={handleSave}
                 autoFocus={!editId}
@@ -359,7 +359,7 @@ export default function ExpenseScreen() {
                       <Text style={styles.entryLabel}>{r.store}</Text>
                       <Text style={styles.entryDate}>{r.category} · {money2(r.amount)} · {r.frequency}</Text>
                     </View>
-                    <TouchableOpacity onPress={() => handleDeleteRecurring(r.id)} style={{ padding: 8 }}>
+                    <TouchableOpacity onPress={() => handleDeleteRecurring(r.id)} style={{ padding: 8 }} hitSlop={Tap.slop}>
                       <Text style={{ color: Colors.red, fontSize: 17 }}>✕</Text>
                     </TouchableOpacity>
                   </View>
@@ -390,7 +390,7 @@ export default function ExpenseScreen() {
                 placeholder="e.g. Netflix, PG&E, Rent" placeholderTextColor={Colors.textTertiary} />
 
               <Text style={styles.inputLabel}>Amount ($)</Text>
-              <MoneyBox bare style={styles.input} value={recurAmount} onChangeText={setRecurAmount} placeholder="99.99" />
+              <MoneyBox bare style={styles.input} value={recurAmount} onChangeText={setRecurAmount} a11y="Amount" />
 
               <Text style={styles.inputLabel}>Frequency</Text>
               <View style={{ flexDirection: 'row', gap: Spacing.sm, marginBottom: Spacing.sm }}>

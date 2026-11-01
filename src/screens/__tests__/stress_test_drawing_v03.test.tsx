@@ -43,6 +43,9 @@ const PHONES_STATES: [string, any][] = [
   ['D · short of the fund: $8,000', { assetAccounts: [checking(8000)], onboardingProfile: ESS }],
 ];
 const PHONES = phoneBlocks(MOCK);
+/** THE DRAWING'S DATED CORRECTION ROW OF 2026-10-31, APPLIED (ST3-01, the lead's ruling R16, DEC-0296): phone C's cash box, nothing typed,
+ *  is drawn holding a grey "$0"; the box is empty, so that line is not on the screen. The phones are not redrawn (DEC-4529). */
+const asCorrected = (lines: string[]) => lines.filter((l) => l !== '$0');
 const openStress = (extra: any) => {
   seed(extra);
   const C = require('../StressTestScreen').default;
@@ -67,7 +70,7 @@ test('the drawing holds four phones, and its READ THIS FIRST is dated 2026-10-27
 describe.each(PHONES_STATES.map(([name, extra], i) => [name, extra, i] as const))('%s', (name, extra, i) => {
   test('every line, word for word and in order, both ways: nothing drawn is missing, nothing rendered is extra', () => {
     openStress(extra);
-    const drawn = drawnLines(PHONES[i]);
+    const drawn = asCorrected(drawnLines(PHONES[i]));   // the phone as drawn, with its dated row of 2026-10-31 applied
     const built = levelSharedFooter(renderedLines(screen.toJSON()));
     expect(drawn.length).toBeGreaterThanOrEqual(17);   // a guard proves it looked: top bar to footer
     expect(drawn[0]).toBe('‹ Back');
@@ -90,6 +93,27 @@ describe.each(PHONES_STATES.map(([name, extra], i) => [name, extra, i] as const)
     const tinted = screen.UNSAFE_root.findAll((n: any) => typeof n.type === 'string' && n.type === 'View'
       && [Colors.redLight].includes(Object.assign({}, ...[n.props.style].flat(Infinity).filter(Boolean)).backgroundColor));
     expect(tinted).toEqual([]);
+  });
+});
+
+describe('round 3 — ST3-01 (2026-10-31): a box nobody filled opens empty', () => {
+  test('the drawing carries the dated row naming phone C\'s grey "$0" and the empty box', () => {
+    const html = fs.readFileSync(path.join(ROOT, MOCK), 'utf8');
+    expect(html).toMatch(/2026-10-31<\/td>[^<]{0,0}<td[^>]*><b>Approved before:<\/b>[^]{0,400}\(ST3-01\)/);
+    expect(html).toContain('A box nobody filled opens <b>empty</b>');
+  });
+  test('the first day: the cash box is empty — no value, no placeholder — and the expense box cleared is empty too', () => {
+    openStress(PHONES_STATES[2][1]);
+    const cash = screen.getByLabelText('Cash you could tap today');
+    expect([cash.props.value, cash.props.placeholder ?? '']).toEqual(['', '']);
+    fireEvent.changeText(screen.getByLabelText('The surprise expense'), '');
+    const shock = screen.getByLabelText('The surprise expense');
+    expect([shock.props.value, shock.props.placeholder ?? '']).toEqual(['', '']);
+    expect(renderedLines(screen.toJSON())).not.toContain('$0');
+  });
+  test.failing('the screen until 2026-10-31, pinned: the first day\'s cash box held a grey "$0" (FIXED 2026-10-31, ST3-01)', () => {
+    openStress(PHONES_STATES[2][1]);
+    expect(screen.getByLabelText('Cash you could tap today').props.placeholder).toBe('$0');
   });
 });
 

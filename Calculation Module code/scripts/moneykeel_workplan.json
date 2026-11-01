@@ -4438,13 +4438,13 @@
   {
    "task": "The next outside package must carry what CFR-5 could not see",
    "todo": "Send the renders, the store before and after, each drawing and its match test, and the simulation contract.",
-   "status": "TO DO — the lead, with the next package",
+   "status": "DONE 2026-10-31 — the Cash flow evidence package: 94 of 94 cases with their evidence; 33 settled, 61 for the reviewer",
    "ref": "MoneyKeel/documents/audit/outside-test-cases/",
    "date": "2026-10-26",
-   "comments": "CFR-5, 2026-10-25: 94 of 197 FAILs were evidence gaps.",
+   "comments": "CFR-5, 2026-10-25: 94 of 197 FAILs were evidence gaps. | 2026-11-01: built by BRIEF-94 from a clean copy of abf936de — MoneyKeel/documents/audit/outside-test-cases/to-send/MoneyKeel_CashFlow_Evidence_Package_v01/ and its .zip; the script build-cf-evidence-package.py rebuilds it at the fix commit (--at <commit>), which happens before it is sent. Self-check: 5 of 5 planted faults caught.",
    "_written": {
-    "status": "TO DO — the lead, with the next package",
-    "comments": "CFR-5, 2026-10-25: 94 of 197 FAILs were evidence gaps."
+    "status": "DONE 2026-10-31 — the Cash flow evidence package: 94 of 94 cases with their evidence; 33 settled, 61 for the reviewer",
+    "comments": "CFR-5, 2026-10-25: 94 of 197 FAILs were evidence gaps. | 2026-11-01: built by BRIEF-94 from a clean copy of abf936de — MoneyKeel/documents/audit/outside-test-cases/to-send/MoneyKeel_CashFlow_Evidence_Package_v01/ and its .zip; the script build-cf-evidence-package.py rebuilds it at the fix commit (--at <commit>), which happens before it is sent. Self-check: 5 of 5 planted faults caught."
    }
   },
   {
@@ -4546,37 +4546,37 @@
   {
    "task": "Contribution room and the Stress test redrawn to the standard design (his feedback of 2026-10-27, DEC-8839)",
    "todo": "Draw contribution-room v02 and stresstest v03 to the screen-design standard — box titles in a dark-green bar, sub-titles in a light-green bar, edge to edge — with one plain line on each card that counts the cash before the $3,000 spend; archive the old versions with today’s date; check the four Plan drawings made from the build for the same bars; then code and tests to the new drawings; then his approval.",
-   "status": "DONE 2026-10-27 — contribution-room v02 and stresstest v03 drawn first, then built and tested; the two drawings go to him with the pre-build checklist",
+   "status": "DONE 2026-10-27 — contribution-room v02 and stresstest v03 drawn first, then built and tested; his TestFlight review approves the screens (DEC-9228)",
    "ref": "MoneyKeel/documents/other/moneykeel_pres_mock_stresstest-mock_v02.html · MoneyKeel/documents/cashflow/moneykeel_pres_mock_contribution-room_v01.html · src/screens/StressTestScreen.tsx · src/screens/ContributionRoomScreen.tsx · MK-CF-F-010 · MK-CF-O-005",
    "date": "2026-10-27",
-   "comments": "His words, 2026-10-27, are on DEC-8839 word for word. Checked against the drawing and the code the same day: phone A’s 4.3 months is ($18,000 − $3,000) ÷ $3,470, after the spend; its 5.2 months is $18,000 ÷ $3,470, the cash before it, and so is the emergency fund card’s at least 3 months. | 2026-10-31: DEC-8839 is TESTED: src/screens/__tests__/contribution_room_drawing_v02.test.tsx · src/screens/__tests__/stress_test_drawing_v03.test.tsx; carried to every screen by the lead’s ruling R1 (DEC-8915), held by src/__tests__/guard_box_titles_on_bars.test.ts. The Stress test’s card reads ‘$18,000 ÷ $3,470/month — your cash today, before the $3,000 expense.’ (DEC-8918).",
+   "comments": "His words, 2026-10-27, are on DEC-8839 word for word. Checked against the drawing and the code the same day: phone A’s 4.3 months is ($18,000 − $3,000) ÷ $3,470, after the spend; its 5.2 months is $18,000 ÷ $3,470, the cash before it, and so is the emergency fund card’s at least 3 months. | 2026-10-31: DEC-8839 is TESTED: src/screens/__tests__/contribution_room_drawing_v02.test.tsx · src/screens/__tests__/stress_test_drawing_v03.test.tsx; carried to every screen by the lead’s ruling R1 (DEC-8915), held by src/__tests__/guard_box_titles_on_bars.test.ts. The Stress test’s card reads ‘$18,000 ÷ $3,470/month — your cash today, before the $3,000 expense.’ (DEC-8918). | 2026-10-31: no drawing is put to him for approval now; he reviews the built screens on TestFlight, and the screens he passes are marked approved with their drawings (DEC-9228).",
    "_written": {
-    "status": "DONE 2026-10-27 — contribution-room v02 and stresstest v03 drawn first, then built and tested; the two drawings go to him with the pre-build checklist",
-    "comments": "His words, 2026-10-27, are on DEC-8839 word for word. Checked against the drawing and the code the same day: phone A’s 4.3 months is ($18,000 − $3,000) ÷ $3,470, after the spend; its 5.2 months is $18,000 ÷ $3,470, the cash before it, and so is the emergency fund card’s at least 3 months. | 2026-10-31: DEC-8839 is TESTED: src/screens/__tests__/contribution_room_drawing_v02.test.tsx · src/screens/__tests__/stress_test_drawing_v03.test.tsx; carried to every screen by the lead’s ruling R1 (DEC-8915), held by src/__tests__/guard_box_titles_on_bars.test.ts. The Stress test’s card reads ‘$18,000 ÷ $3,470/month — your cash today, before the $3,000 expense.’ (DEC-8918)."
+    "status": "DONE 2026-10-27 — contribution-room v02 and stresstest v03 drawn first, then built and tested; his TestFlight review approves the screens (DEC-9228)",
+    "comments": "His words, 2026-10-27, are on DEC-8839 word for word. Checked against the drawing and the code the same day: phone A’s 4.3 months is ($18,000 − $3,000) ÷ $3,470, after the spend; its 5.2 months is $18,000 ÷ $3,470, the cash before it, and so is the emergency fund card’s at least 3 months. | 2026-10-31: DEC-8839 is TESTED: src/screens/__tests__/contribution_room_drawing_v02.test.tsx · src/screens/__tests__/stress_test_drawing_v03.test.tsx; carried to every screen by the lead’s ruling R1 (DEC-8915), held by src/__tests__/guard_box_titles_on_bars.test.ts. The Stress test’s card reads ‘$18,000 ÷ $3,470/month — your cash today, before the $3,000 expense.’ (DEC-8918). | 2026-10-31: no drawing is put to him for approval now; he reviews the built screens on TestFlight, and the screens he passes are marked approved with their drawings (DEC-9228)."
    }
   },
   {
    "task": "Goals redrawn from Build 53 and the approved Plan v4 (his feedback of 2026-10-27, DEC-8889)",
    "todo": "Start from Plan v4’s Goals frames and the Build 53 screen; list every difference from today’s Goals; draw goals v02 with the screen’s name, Retire and Prepare at the top (Add goal too, opening inside Goals), the typical figure saying it is the 12-month average of planned surplus, and debt payoff as a goal to enter; archive v01 with today’s date; then code and tests; then his approval.",
-   "status": "TO DO — goals v03 drawn 2026-10-30; it goes to him with the pre-build checklist (the lead); no Goals code until he approves it",
+   "status": "DONE 2026-10-31 — Goals built to goals v03 (the Plan tab with Goals selected); he judges it on TestFlight (DEC-9228)",
    "ref": "August 14th Design/design_handoff_net_worth/Plan.dc.html (Goals — populated; Goals — empty) · Build 53 (4fcde07d, 9c17b46a) · src/screens/GoalsScreen.tsx · src/components/PlanGoals.tsx · MK-PL-F-016",
    "date": "2026-10-27",
-   "comments": "His words, 2026-10-27, are on DEC-8889 word for word. goals v01 was drawn from today’s code, against the order to start from the last approved design. | 2026-10-31: goals v02, drawn from the code at 14:28 on 2026-10-27, was the wrong start and is archived; goals v03 is drawn from Plan v4 and Build 53, three phones, every difference listed first (DEC-8889 updated). Found while drawing: the Plan tab’s Goals view listed no goal since Build 53 — fixed (DEC-8978).",
+   "comments": "His words, 2026-10-27, are on DEC-8889 word for word. goals v01 was drawn from today’s code, against the order to start from the last approved design. | 2026-10-31: goals v02, drawn from the code at 14:28 on 2026-10-27, was the wrong start and is archived; goals v03 is drawn from Plan v4 and Build 53, three phones, every difference listed first (DEC-8889 updated). Found while drawing: the Plan tab’s Goals view listed no goal since Build 53 — fixed (DEC-8978). | 2026-10-31: no drawing is put to him for approval now; he reviews the built screens on TestFlight, and the screens he passes are marked approved with their drawings (DEC-9228). | 2026-11-01: held by src/screens/__tests__/goals_drawing_v03.test.tsx, 3 of 3 states both ways; dates DEC-9308, debt goals DEC-9309, figures reserved DEC-9310. DEC-8889 updated.",
    "_written": {
-    "status": "TO DO — goals v03 drawn 2026-10-30; it goes to him with the pre-build checklist (the lead); no Goals code until he approves it",
-    "comments": "His words, 2026-10-27, are on DEC-8889 word for word. goals v01 was drawn from today’s code, against the order to start from the last approved design. | 2026-10-31: goals v02, drawn from the code at 14:28 on 2026-10-27, was the wrong start and is archived; goals v03 is drawn from Plan v4 and Build 53, three phones, every difference listed first (DEC-8889 updated). Found while drawing: the Plan tab’s Goals view listed no goal since Build 53 — fixed (DEC-8978)."
+    "status": "DONE 2026-10-31 — Goals built to goals v03 (the Plan tab with Goals selected); he judges it on TestFlight (DEC-9228)",
+    "comments": "His words, 2026-10-27, are on DEC-8889 word for word. goals v01 was drawn from today’s code, against the order to start from the last approved design. | 2026-10-31: goals v02, drawn from the code at 14:28 on 2026-10-27, was the wrong start and is archived; goals v03 is drawn from Plan v4 and Build 53, three phones, every difference listed first (DEC-8889 updated). Found while drawing: the Plan tab’s Goals view listed no goal since Build 53 — fixed (DEC-8978). | 2026-10-31: no drawing is put to him for approval now; he reviews the built screens on TestFlight, and the screens he passes are marked approved with their drawings (DEC-9228). | 2026-11-01: held by src/screens/__tests__/goals_drawing_v03.test.tsx, 3 of 3 states both ways; dates DEC-9308, debt goals DEC-9309, figures reserved DEC-9310. DEC-8889 updated."
    }
   },
   {
    "task": "Roth conversion redrawn: bars end to end, What it buys made clear, the odds before and after (his feedback of 2026-10-27, DEC-8890)",
    "todo": "Draw roth-conversion v02: every dark-green bar end to end; WHAT IT BUYS LATER designed so it is clear; WILL MY MONEY LAST? with the current odds of lasting to the target age, the nest egg and odds after the move, and that the decision is about taxes, not the odds; archive v01 with today’s date; then code and tests; then his approval.",
-   "status": "DONE 2026-10-27 — roth-conversion v02 drawn first, then built and tested; the drawing goes to him with the pre-build checklist",
+   "status": "DONE 2026-10-27 — roth-conversion v02 drawn first, then built and tested; his TestFlight review approves the screen (DEC-9228)",
    "ref": "MoneyKeel/documents/plan/moneykeel_pres_mock_roth-conversion_v01.html · src/screens/RothScreen.tsx",
    "date": "2026-10-27",
-   "comments": "His words, 2026-10-27, are on DEC-8890 word for word. | 2026-10-31: DEC-8890 is TESTED: src/screens/__tests__/plan_drawings_from_build_2026_10_26.test.tsx. Bars 0 points from the edges; What it buys row by row; ‘Today, the odds that your $523,000 lasts to age 90 are 35.3%.’ … 36.2%, the nest egg $813,149 → $809,588, the cockpit’s own (DEC-8977); one conversion this year (DEC-8976).",
+   "comments": "His words, 2026-10-27, are on DEC-8890 word for word. | 2026-10-31: DEC-8890 is TESTED: src/screens/__tests__/plan_drawings_from_build_2026_10_26.test.tsx. Bars 0 points from the edges; What it buys row by row; ‘Today, the odds that your $523,000 lasts to age 90 are 35.3%.’ … 36.2%, the nest egg $813,149 → $809,588, the cockpit’s own (DEC-8977); one conversion this year (DEC-8976). | 2026-10-31: no drawing is put to him for approval now; he reviews the built screens on TestFlight, and the screens he passes are marked approved with their drawings (DEC-9228).",
    "_written": {
-    "status": "DONE 2026-10-27 — roth-conversion v02 drawn first, then built and tested; the drawing goes to him with the pre-build checklist",
-    "comments": "His words, 2026-10-27, are on DEC-8890 word for word. | 2026-10-31: DEC-8890 is TESTED: src/screens/__tests__/plan_drawings_from_build_2026_10_26.test.tsx. Bars 0 points from the edges; What it buys row by row; ‘Today, the odds that your $523,000 lasts to age 90 are 35.3%.’ … 36.2%, the nest egg $813,149 → $809,588, the cockpit’s own (DEC-8977); one conversion this year (DEC-8976)."
+    "status": "DONE 2026-10-27 — roth-conversion v02 drawn first, then built and tested; his TestFlight review approves the screen (DEC-9228)",
+    "comments": "His words, 2026-10-27, are on DEC-8890 word for word. | 2026-10-31: DEC-8890 is TESTED: src/screens/__tests__/plan_drawings_from_build_2026_10_26.test.tsx. Bars 0 points from the edges; What it buys row by row; ‘Today, the odds that your $523,000 lasts to age 90 are 35.3%.’ … 36.2%, the nest egg $813,149 → $809,588, the cockpit’s own (DEC-8977); one conversion this year (DEC-8976). | 2026-10-31: no drawing is put to him for approval now; he reviews the built screens on TestFlight, and the screens he passes are marked approved with their drawings (DEC-9228)."
    }
   },
   {
@@ -4726,13 +4726,13 @@
   {
    "task": "Debt-to-income and the student-loan outlook move from Goals to Cash flow · Debts",
    "todo": "Build them on the Debts tab once goals v03 is approved; Debts does not have them yet.",
-   "status": "TO DO — after his approval of goals v03 (the Cash flow and Plan rounds)",
+   "status": "DONE 2026-11-01 — DEBT-TO-INCOME and the STUDENT LOAN OUTLOOK are on Cash flow · Debts; Goals’ door opens ?tab=debts",
    "ref": "src/screens/BudgetScreen.tsx (Debts) · src/screens/GoalsScreen.tsx · MoneyKeel/documents/plan/moneykeel_pres_mock_goals_v03.html",
    "date": "2026-10-31",
-   "comments": "Drawn in goals v03, 2026-10-30 (DEC-8979).",
+   "comments": "Drawn in goals v03, 2026-10-30 (DEC-8979). | 2026-11-01: FX-CF-A, DEC-9304; frame 6 reads 8.20% · Healthy, the founder’s household 53.00% · High. Test: src/screens/__tests__/cashflow_fix_wave_2026_10_27.test.tsx.",
    "_written": {
-    "status": "TO DO — after his approval of goals v03 (the Cash flow and Plan rounds)",
-    "comments": "Drawn in goals v03, 2026-10-30 (DEC-8979)."
+    "status": "DONE 2026-11-01 — DEBT-TO-INCOME and the STUDENT LOAN OUTLOOK are on Cash flow · Debts; Goals’ door opens ?tab=debts",
+    "comments": "Drawn in goals v03, 2026-10-30 (DEC-8979). | 2026-11-01: FX-CF-A, DEC-9304; frame 6 reads 8.20% · Healthy, the founder’s household 53.00% · High. Test: src/screens/__tests__/cashflow_fix_wave_2026_10_27.test.tsx."
    }
   },
   {
@@ -4901,6 +4901,138 @@
    "_written": {
     "status": "TO DO — the Plan module round",
     "comments": "Found by the PFS sweep, 2026-10-31: the block asks it in the drawing with no row in this plan. Mark 7, the cockpit computing its own odds, is row #103."
+   }
+  },
+  {
+   "task": "Nothing goes to him for review until the build is ready; his TestFlight review approves the screens he passes, with their drawings (his decision of 2026-10-31, DEC-9228)",
+   "todo": "1. No review request to him until the build is ready. 2. The pre-build checklist carries no approvals. 3. After his TestFlight review, mark the screens he passes, and their drawings, approved, citing DEC-9228 — the design record first, then each drawing’s own row.",
+   "status": "TO DO — from 2026-10-31 (the lead); the marking follows his TestFlight review",
+   "ref": "MoneyKeel/documents/standards/moneykeel_pres_spec_design-each-screen-was-built-from_v01.md (every drawing marked NOT APPROVED) · the pre-build checklist",
+   "date": "2026-10-31",
+   "comments": "His words, 2026-10-31, are on DEC-9228 word for word. The lead’s reading, written on the row as the lead’s: ‘now’ in ‘choosing now to approve mocks’ reads as ‘not’. The never-blind rule (DEC-8891) still applies when he reviews.",
+   "_written": {
+    "status": "TO DO — from 2026-10-31 (the lead); the marking follows his TestFlight review",
+    "comments": "His words, 2026-10-31, are on DEC-9228 word for word. The lead’s reading, written on the row as the lead’s: ‘now’ in ‘choosing now to approve mocks’ reads as ‘not’. The never-blind rule (DEC-8891) still applies when he reviews."
+   }
+  },
+  {
+   "task": "Net worth drawing match, round 3 (NW3-01 to NW3-33) and its fixes",
+   "todo": "Close every Net worth round-3 defect in the app or on its drawing.",
+   "status": "DONE 2026-11-01 — 33 of 33: FX-NW 10 (NW3-05 to 11, 14, 15, 32), FX-PF 5 (02, 03, 04, 12, 33), FX-SHARED 4 (13 by R16, 16, 17, 18), DRAW-HYGIENE 13 (19 to 31), FX-PLAN 1 (01, by R10)",
+   "ref": "src/screens/__tests__/networth_fxnw_2026_10_27.test.tsx · src/screens/__tests__/fxpf3_fixes_2026_10_31.test.tsx · src/screens/__tests__/drawn_from_build_nw_2026_10_27.test.tsx · src/__tests__/every_choice_is_44_points.test.tsx · src/__tests__/one_sheet_frame.test.tsx",
+   "date": "2026-11-01",
+   "comments": "Decisions DEC-9277, DEC-9278, DEC-9283, DEC-9287, DEC-9288, DEC-9289, DEC-9290, DEC-9291, DEC-9292, DEC-9293, DEC-9294, DEC-9295, DEC-9296, DEC-9297, DEC-9313, DEC-9312, DEC-9285. NW3-19, the 40% fade: FX-PF wrote the rows on trade M–O and edit-record D–J; the auditor named D–I.",
+   "_written": {
+    "status": "DONE 2026-11-01 — 33 of 33: FX-NW 10 (NW3-05 to 11, 14, 15, 32), FX-PF 5 (02, 03, 04, 12, 33), FX-SHARED 4 (13 by R16, 16, 17, 18), DRAW-HYGIENE 13 (19 to 31), FX-PLAN 1 (01, by R10)",
+    "comments": "Decisions DEC-9277, DEC-9278, DEC-9283, DEC-9287, DEC-9288, DEC-9289, DEC-9290, DEC-9291, DEC-9292, DEC-9293, DEC-9294, DEC-9295, DEC-9296, DEC-9297, DEC-9313, DEC-9312, DEC-9285. NW3-19, the 40% fade: FX-PF wrote the rows on trade M–O and edit-record D–J; the auditor named D–I."
+   }
+  },
+  {
+   "task": "Performance drawing match, round 3 (PF3-1 to PF3-7, N-3) and its fixes",
+   "todo": "Close every Performance round-3 defect.",
+   "status": "DONE 2026-11-01 — 7 of 7 and N-3: FX-PF 6 (PF3-1, 2, 3, 5, 6, 7), FX-SHARED 1 (PF3-4, one space after an icon); N-3 the household reads +26.54% this year from a close on every day",
+   "ref": "src/screens/__tests__/fxpf3_fixes_2026_10_31.test.tsx · src/__tests__/one_space_after_an_icon.test.ts",
+   "date": "2026-11-01",
+   "comments": "Decisions DEC-9298, DEC-9297, DEC-9315. PF3-6 and PF3-7 were drawing errors, fixed by correction rows.",
+   "_written": {
+    "status": "DONE 2026-11-01 — 7 of 7 and N-3: FX-PF 6 (PF3-1, 2, 3, 5, 6, 7), FX-SHARED 1 (PF3-4, one space after an icon); N-3 the household reads +26.54% this year from a close on every day",
+    "comments": "Decisions DEC-9298, DEC-9297, DEC-9315. PF3-6 and PF3-7 were drawing errors, fixed by correction rows."
+   }
+  },
+  {
+   "task": "Cash flow drawing match, round 3 (CF3, BC3, IN3, SU3, ST3, CR3, REC3) and its fixes",
+   "todo": "Close every Cash flow round-3 defect.",
+   "status": "DONE 2026-11-01 — CF3-01 to 08 and BC3-01 9 of 9 (FX-CF-A); IN3-01 to 06, SU3-01, 03 to 06 and REC3-03 12 of 12 (FX-CF-B); SU3-02 (FX-SHARED); ST3-01 and CR3-01 2 of 2 (FX-CF-C); REC3-01 and 02 (DRAW-HYGIENE)",
+   "ref": "src/screens/__tests__/cashflow_fix_wave_2026_10_27.test.tsx · src/screens/__tests__/income_fixes_fx_cf_b_2026_10_31.test.tsx · src/screens/__tests__/contribution_amount_one_way_2026_10_31.test.tsx · src/__tests__/one_minus_sign.test.ts",
+   "date": "2026-11-01",
+   "comments": "Decisions DEC-9279, DEC-9280, DEC-9281, DEC-9282, DEC-9299, DEC-9300, DEC-9301, DEC-9302, DEC-9303, DEC-9304, DEC-9305, DEC-9306, DEC-9307, DEC-9314.",
+   "_written": {
+    "status": "DONE 2026-11-01 — CF3-01 to 08 and BC3-01 9 of 9 (FX-CF-A); IN3-01 to 06, SU3-01, 03 to 06 and REC3-03 12 of 12 (FX-CF-B); SU3-02 (FX-SHARED); ST3-01 and CR3-01 2 of 2 (FX-CF-C); REC3-01 and 02 (DRAW-HYGIENE)",
+    "comments": "Decisions DEC-9279, DEC-9280, DEC-9281, DEC-9282, DEC-9299, DEC-9300, DEC-9301, DEC-9302, DEC-9303, DEC-9304, DEC-9305, DEC-9306, DEC-9307, DEC-9314."
+   }
+  },
+  {
+   "task": "Drawing records tell the truth, round 3 (R3-1 to R3-6) — DRAW-HYGIENE",
+   "todo": "Headers, quotes, never-blind blocks, stale counts, questions and row shapes on every live drawing.",
+   "status": "DONE 2026-11-01 — 6 of 6; 35 of 35 drawings, 58 tables, 0 rows misfit; a dry decision sweep adds 0 decisions",
+   "ref": "src/screens/__tests__/networth_matches_v08.test.tsx · src/screens/__tests__/update_value_sheet_drawing.test.tsx · src/screens/__tests__/sheets_drawn_from_code.test.tsx",
+   "date": "2026-11-01",
+   "comments": "Decision DEC-9285. Five phrases of his found missing from the decision log are recorded (DEC-9262 to DEC-9266); ‘too much duplication’ is his DEC-0226.",
+   "_written": {
+    "status": "DONE 2026-11-01 — 6 of 6; 35 of 35 drawings, 58 tables, 0 rows misfit; a dry decision sweep adds 0 decisions",
+    "comments": "Decision DEC-9285. Five phrases of his found missing from the decision log are recorded (DEC-9262 to DEC-9266); ‘too much duplication’ is his DEC-0226."
+   }
+  },
+  {
+   "task": "Empty means empty (R16): every box nobody filled opens empty, app-wide",
+   "todo": "Remove every grey placeholder figure; name every box that lost its only name; a guard holds it.",
+   "status": "DONE 2026-11-01 — the forms, the five sheets, Cash flow, sign-up, Base pay, the tool screens: 0 written-out figures on live screens; 35 code-built placeholders kept with reasons",
+   "ref": "src/__tests__/no_figure_placeholder_r16.test.ts",
+   "date": "2026-11-01",
+   "comments": "Decisions DEC-9283, DEC-9284, DEC-9286. The guard reads 147 files; its first ratchet carries the true 4, all in the dead GoalsScreen.",
+   "_written": {
+    "status": "DONE 2026-11-01 — the forms, the five sheets, Cash flow, sign-up, Base pay, the tool screens: 0 written-out figures on live screens; 35 code-built placeholders kept with reasons",
+    "comments": "Decisions DEC-9283, DEC-9284, DEC-9286. The guard reads 147 files; its first ratchet carries the true 4, all in the dead GoalsScreen."
+   }
+  },
+  {
+   "task": "Remove the dead GoalsScreen.tsx and its goals_drawing_v02 test after his TestFlight review",
+   "todo": "Delete src/screens/GoalsScreen.tsx and src/screens/__tests__/goals_drawing_v02.test.tsx once he has judged the built Goals on TestFlight; the R16 guard’s first ratchet then falls from 4 to 0.",
+   "status": "TO DO — after his TestFlight review (the lead)",
+   "ref": "src/screens/GoalsScreen.tsx · src/screens/__tests__/goals_drawing_v02.test.tsx · src/__tests__/no_figure_placeholder_r16.test.ts",
+   "date": "2026-11-01",
+   "comments": "FX-PLAN, 2026-11-01: no route mounts it; the Goals route redirects to Plan · Goals (PlanGoals).",
+   "_written": {
+    "status": "TO DO — after his TestFlight review (the lead)",
+    "comments": "FX-PLAN, 2026-11-01: no route mounts it; the Goals route redirects to Plan · Goals (PlanGoals)."
+   }
+  },
+  {
+   "task": "A stray probe, src/__tests__/zz_nwx.test.tsx, asserts nothing",
+   "todo": "Remove it: it renders four screens, prints figures to the console, catches every error and can never fail.",
+   "status": "TO DO — the lead (not deleted now)",
+   "ref": "src/__tests__/zz_nwx.test.tsx",
+   "date": "2026-11-01",
+   "comments": "FX-PF, 2026-11-01: nothing imports or names it; it was committed with d31209ed.",
+   "_written": {
+    "status": "TO DO — the lead (not deleted now)",
+    "comments": "FX-PF, 2026-11-01: nothing imports or names it; it was committed with d31209ed."
+   }
+  },
+  {
+   "task": "The target SPEED test failed under load",
+   "todo": "Make it count work, not milliseconds, without loosening what it checks.",
+   "status": "DONE 2026-11-01 — it counts 23 simulations and 241,200 path-years",
+   "ref": "src/domain/planning/target.test.ts",
+   "date": "2026-11-01",
+   "comments": "CLEANUP-TESTS, 2026-11-01: it took 1,823 ms against 1,500 alongside other tests; it passed alone.",
+   "_written": {
+    "status": "DONE 2026-11-01 — it counts 23 simulations and 241,200 path-years",
+    "comments": "CLEANUP-TESTS, 2026-11-01: it took 1,823 ms against 1,500 alongside other tests; it passed alone."
+   }
+  },
+  {
+   "task": "Closing round 3: identifiers and tooling (PF-TOOLS)",
+   "todo": "Number the round’s functions, inputs and figures; headers; floors and ratchets at true counts.",
+   "status": "DONE 2026-11-01 — 8 of 8 saved numbers checked; MK-XS-F-209, 210, MK-PL-F-103, MK-XS-I-083 issued; MK-CF-M-102 to 108, MK-NW-M-074, MK-PL-M-046 to 058 reserved; headers 914 of 914; cards 496 of 496",
+   "ref": "Calculation Module code/scripts/moneykeel_function_register.json · Calculation Module code/scripts/moneykeel_metric_register.json",
+   "date": "2026-11-01",
+   "comments": "Goals’ figures reserved as Roth’s are (DEC-9310).",
+   "_written": {
+    "status": "DONE 2026-11-01 — 8 of 8 saved numbers checked; MK-XS-F-209, 210, MK-PL-F-103, MK-XS-I-083 issued; MK-CF-M-102 to 108, MK-NW-M-074, MK-PL-M-046 to 058 reserved; headers 914 of 914; cards 496 of 496",
+    "comments": "Goals’ figures reserved as Roth’s are (DEC-9310)."
+   }
+  },
+  {
+   "task": "Closing round 3: every red test (CLEANUP-TESTS)",
+   "todo": "Decide every red in the full suite.",
+   "status": "DONE 2026-11-01 — 593 suites, 10,904 tests: 9 reds decided, 3 fixed and 6 routed; tsc 0; check-ui-tests passes",
+   "ref": "src/domain/planning/target.test.ts · src/components/PlanGoals.tsx",
+   "date": "2026-11-01",
+   "comments": "The standards guard it routed here passes 3 of 3 since the design record names the new versions.",
+   "_written": {
+    "status": "DONE 2026-11-01 — 593 suites, 10,904 tests: 9 reds decided, 3 fixed and 6 routed; tsc 0; check-ui-tests passes",
+    "comments": "The standards guard it routed here passes 3 of 3 since the design record names the new versions."
    }
   }
  ]

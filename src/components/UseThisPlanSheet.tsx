@@ -2,6 +2,7 @@
 // The founder's non-negotiable: before anything changes, see exactly what changes — every value
 // old → new — then one explicit tap. The sheet is the ONE write path a decision screen uses
 // (store.adoptPlan snapshots the previous plan so "Back to previous plan" can restore it exactly).
+import { SHEET_FRAME, SHEET_HANDLE } from './sheetFrame';   // one sheet frame (NW3-18, 2026-10-31)
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Modal } from 'react-native';
 import { useStore } from '../store/useStore';
@@ -61,8 +62,8 @@ export function UseThisPlanSheet({ visible, onClose, title, changes, patch, adop
 
 const s = StyleSheet.create({
   backdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end' },
-  card: { backgroundColor: Colors.bgSecondary, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: Spacing.lg, paddingBottom: 32 },
-  handle: { width: 40, height: 4, borderRadius: 2, backgroundColor: Colors.border, alignSelf: 'center', marginBottom: Spacing.md },
+  card: { ...SHEET_FRAME, padding: Spacing.lg, paddingBottom: 32 },
+  handle: { ...SHEET_HANDLE },
   title: { fontSize: 17, fontWeight: '800', color: Colors.textPrimary, textAlign: 'center' },
   sub: { fontSize: 13, color: Colors.textSecondary, textAlign: 'center', marginTop: 6, marginBottom: Spacing.md, lineHeight: 19 },
   row: { paddingVertical: 10 },

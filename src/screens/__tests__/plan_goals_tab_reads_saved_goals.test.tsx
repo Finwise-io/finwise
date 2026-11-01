@@ -33,24 +33,25 @@ function openGoalsTab(goals: any[]) {
 
 test('two saved goals: the Goals sub-tab lists both, in the order saved, with their real amounts and years (v4 ‘$28,000 by 2027’)', () => {
   const L = openGoalsTab(GOALS);
-  const i = L.indexOf('Emergency fund'), j = L.indexOf('New car');
+  // since 2026-10-31 the tab is built to goals v03: each name carries its icon, and the date its month ('$10,000 by Oct 2027')
+  const i = L.indexOf('🛟 Emergency fund'), j = L.indexOf('🚗 New car');
   expect([i >= 0, j > i]).toEqual([true, true]);
-  expect(L[i + 1]).toBe('$10,000 by 2027');
-  expect(L[j + 1]).toBe('$28,000 by 2027');
+  expect(L[i + 1]).toBe('$10,000 by Oct 2027 · behind');
+  expect(L[j + 1]).toMatch(/^\$28,000 by Jun 2027/);
   expect(L).not.toContain('Nothing here yet');
   expect(L).toContain('Can I afford it all?');
 });
 
 test('the one reader takes the saved shape and the goals service’s shape alike, and reads the year from either', () => {
-  expect(planGoalRows(GOALS)).toEqual([
-    { id: 'g1', label: 'Emergency fund', target: 10_000, saved: 4_000, targetDate: '2027' },
-    { id: 'g2', label: 'New car', target: 28_000, saved: 5_000, targetDate: '2027' },
+  expect(planGoalRows(GOALS)).toMatchObject([
+    { id: 'g1', label: 'Emergency fund', target: 10_000, saved: 4_000, targetDate: 'Oct 2027', targetYm: '2027-10' },
+    { id: 'g2', label: 'New car', target: 28_000, saved: 5_000, targetDate: 'Jun 2027', targetYm: '2027-06' },
   ]);
   // the service's record (goalsFromOnboarding): goal_id, target_amount, target_year, nothing saved
   expect(planGoalRows([{ goal_id: 'x', label: 'House', target_amount: 60_000, target_year: 2030 }]))
-    .toEqual([{ id: 'x', label: 'House', target: 60_000, saved: 0, targetDate: '2030' }]);
+    .toMatchObject([{ id: 'x', label: 'House', target: 60_000, saved: 0, targetDate: '2030', targetYm: null }]);
   // no date entered, no saved amount: the row has no year, never a made-up one
-  expect(planGoalRows([{ id: 'y', label: 'Trip', target: 3_000 }])).toEqual([{ id: 'y', label: 'Trip', target: 3_000, saved: 0, targetDate: null }]);
+  expect(planGoalRows([{ id: 'y', label: 'Trip', target: 3_000 }])).toMatchObject([{ id: 'y', label: 'Trip', target: 3_000, saved: 0, targetDate: null, targetYm: null }]);
   expect(planGoalRows(undefined)).toEqual([]);
 });
 

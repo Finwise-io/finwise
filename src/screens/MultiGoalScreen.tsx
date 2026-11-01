@@ -32,7 +32,7 @@ export default function MultiGoalScreen() {
 
   // dials start from the REAL goals (each at its required monthly pace) — off until toggled
   const [dials, setDials] = useState<GoalDial[]>(() =>
-    ((store.goals ?? []) as any[]).filter((g) => (g.saved || 0) < (g.target || 0)).map((g) => ({
+    ((store.goals ?? []) as any[]).filter((g) => g.kind !== 'debt' && (g.saved || 0) < (g.target || 0)).map((g) => ({   // a debt goal is weighed as Extra on debt, not a saving dial (2026-10-31)
       id: String(g.id), label: g.label, on: false,
       monthlyAmount: Math.max(STEP, Math.round((requiredMonthly(g) ?? STEP) / STEP) * STEP),
       target: g.target, saved: g.saved,

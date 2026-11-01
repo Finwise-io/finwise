@@ -133,3 +133,97 @@ export function drawnLines(html: string, key: string): string[] {
   }
   return out;
 }
+
+/** ONE LINE OR BOX, WITH HOW IT LOOKS (2026-10-31, drawing match round 3, NW3-32): the words alone let a title drawn at 17 pass beside a
+ *  title built at 20, and never read a box. Each item is a Text (its words, size, weight and colour) or a box (what it holds — its value,
+ *  or its grey example marked as one — with its size). `drawnItems` reads them off a drawing written by `toHtml`; `builtItems` off a render,
+ *  in the same order, so the two lists can be compared item for item. */
+export interface Item { kind: 'text' | 'box'; t: string; size: number; weight: string; color: string }
+const HEX = (c: string) => {
+  const v = c.trim(); const m = v.match(/^var\(--([A-Za-z0-9]+)\)$/);
+  return (m ? String((Colors as any)[m[1]] ?? v) : v).toUpperCase().replace(/\s/g, '');
+};
+const styleOf = (attrs: string) => {
+  const st = (/style="([^"]*)"/.exec(attrs)?.[1] ?? '');
+  const get = (k: string) => new RegExp(`(?:^|;)${k}:([^;]+)`).exec(st)?.[1];
+  return { size: get('font-size'), weight: get('font-weight'), color: get('color') };
+};
+const norm = (t: string) => t.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&').replace(/\s+/g, ' ').trim();
+const weightOf = (w: unknown) => (w == null ? '400' : String(w) === 'normal' ? '400' : String(w) === 'bold' ? '700' : String(w));
+
+export function drawnItems(html: string, key: string): Item[] {
+  const at = html.indexOf(`data-state="${key}"`);
+  if (at < 0) return [];
+  const end = html.indexOf('<div class="phone">', at);
+  const seg = html.slice(at, end < 0 ? html.length : end);
+  const out: Item[] = [];
+  type Open = { capture: 'text' | 'box' | null; ph?: boolean };
+  const stack: Open[] = [];
+  let cur: { kind: 'text' | 'box'; t: string; ph: string; style: ReturnType<typeof styleOf>; depth: number } | null = null;
+  for (const m of seg.matchAll(/<(\/?)([a-z0-9]+)([^>]*)>|([^<]+)/gi)) {
+    if (m[4] != null) {
+      if (cur) { if (stack[stack.length - 1]?.ph) cur.ph += m[4]; else cur.t += m[4]; }
+      continue;
+    }
+    const [, close, tag, attrs] = m;
+    if (/^(img|br|meta|input)$/i.test(tag)) continue;
+    if (close) {
+      const top = stack.pop();
+      if (cur) {
+        cur.depth--;
+        if (top?.capture && cur.depth === 0) {
+          const s = cur.style;
+          const t = cur.kind === 'box' ? (norm(cur.t) || (norm(cur.ph) ? `[example] ${norm(cur.ph)}` : '')) : norm(cur.t);
+          if (t || cur.kind === 'box') out.push({ kind: cur.kind, t, size: Number(String(s.size ?? '14').replace('px', '')), weight: weightOf(s.weight), color: HEX(s.color ?? '#000') });
+          cur = null;
+        }
+      }
+      continue;
+    }
+    const cls = /class="([^"]*)"/.exec(attrs)?.[1] ?? '';
+    if (!cur && tag === 'div' && (cls === 't' || cls === 'in')) {
+      cur = { kind: cls === 'in' ? 'box' : 'text', t: '', ph: '', style: styleOf(attrs), depth: 1 };
+      stack.push({ capture: cur.kind });
+      continue;
+    }
+    // inside a box, the grey example is the span that carries its own colour
+    const ph = !!cur && cur.kind === 'box' && tag === 'span' && /style="color:/.test(attrs);
+    if (cur) cur.depth++;
+    stack.push({ capture: null, ph });
+  }
+  // a Text with no words is not a line, as builtItems skips it
+  return out.filter((x) => x.kind === 'box' || x.t !== '');
+}
+
+export function builtItems(root: any): Item[] {
+  const page: Item[] = [];
+  const sheets: Item[][] = [];   // as toHtml lays them: the page, then the sheet drawn over it (the last one opened)
+  const textOf = (n: any): string => (n == null ? '' : typeof n === 'string' || typeof n === 'number' ? String(n) : Array.isArray(n) ? n.map(textOf).join('') : (n.children ?? []).map(textOf).join(''));
+  const walk = (n: any, inText: boolean, sink: Item[]) => {
+    if (n == null || typeof n === 'string' || typeof n === 'number') return;
+    if (isIcon(n)) return;                                         // drawn as the icon font, not a Text
+    if (typeof n.type !== 'string') { (n.children ?? []).forEach((c: any) => walk(c, inText, sink)); return; }
+    if (n.type === 'Modal') {
+      if (n.props?.visible === false) return;
+      const mine: Item[] = [];
+      (n.children ?? []).forEach((c: any) => walk(c, false, mine));
+      sheets.push(mine);
+      return;
+    }
+    const st = StyleSheet.flatten(n.props?.style) ?? {};
+    if (n.type === 'Text' && !inText) {
+      const t = textOf(n).replace(/\s+/g, ' ').trim();
+      if (t && !/^[\uE000-\uF8FF\s]+$/.test(t)) sink.push({ kind: 'text', t, size: Number(st.fontSize ?? 14), weight: weightOf(st.fontWeight), color: HEX(String(st.color ?? '#000')) });
+      return;
+    }
+    if (n.type === 'TextInput') {
+      const v = n.props?.value != null && String(n.props.value) !== '' ? String(n.props.value).replace(/\s+/g, ' ').trim() : '';
+      const ph = !v && n.props?.placeholder ? `[example] ${String(n.props.placeholder).replace(/\s+/g, ' ').trim()}` : '';
+      sink.push({ kind: 'box', t: v || ph, size: Number(st.fontSize ?? 14), weight: weightOf(st.fontWeight), color: HEX(String(st.color ?? '#000')) });
+      return;
+    }
+    (n.children ?? []).forEach((c: any) => walk(c, inText || n.type === 'Text', sink));
+  };
+  walk(root, false, page);
+  return [...page, ...(sheets[sheets.length - 1] ?? [])];
+}

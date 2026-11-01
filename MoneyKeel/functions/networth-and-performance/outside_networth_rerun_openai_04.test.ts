@@ -480,7 +480,9 @@ describe('MK-NW-F-132 notClassifiedWords — five cases', () => {
   // OpenAI wrote "verify currency locale" / "do not use guessed formatting as authoritative" itself. −12.5 rounds to
   // −12 (JavaScript rounds a half toward +∞), 12.345 to 12, 1,234,567.89 to 1,234,568.
   test.failing('complex · Negative amount formatting', () => { expect(notClassifiedWords(-12.5)).toBe('-$12.50 asset type not classified'); });
-  test('complex · Negative amount formatting — the app\'s answer', () => { expect(notClassifiedWords(-12.5)).toBe('-$12 asset type not classified'); });
+  // −12.5 rounds to −12, written with the minus sign "−" since 2026-10-31 (SU3-02: one money formatter writes "−$")
+  test('complex · Negative amount formatting — the app\'s answer', () => { expect(notClassifiedWords(-12.5)).toBe('−$12 asset type not classified'); });
+  test.failing('complex · Negative amount formatting — the app\'s answer before 2026-10-31, kept (the hyphen)', () => { expect(notClassifiedWords(-12.5)).toBe('-$12 asset type not classified'); });
   test.failing('complex · Cent precision', () => { expect(notClassifiedWords(12.345)).toBe('$12.35 asset type not classified'); });
   test('complex · Cent precision — the app\'s answer', () => { expect(notClassifiedWords(12.345)).toBe('$12 asset type not classified'); });
   test.failing('edge · Large amount grouping', () => { expect(notClassifiedWords(1234567.89)).toBe('$1,234,567.89 asset type not classified'); });

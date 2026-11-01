@@ -68,7 +68,9 @@ export default function RothScreen() {
   }, [gross, amt]);
   const [rateOverride, setRateOverride] = useState<string>('');
   const [rateOpen, setRateOpen] = useState(false);
-  const rate = rateOverride !== '' ? Math.min(0.6, num(rateOverride) / 100) : (estRate ?? 0.22);
+  // no guessed 22% (DEC-0296, lead 2026-11-01): estRate is null only when nothing is converted, and the cost box shows only when
+  // something is, so the fallback is 0 and never printed
+  const rate = rateOverride !== '' ? Math.min(0.6, num(rateOverride) / 100) : (estRate ?? 0);
   // the tax is held exact and saved exact (DEC-0403); it was rounded to the dollar here until 2026-10-20 — every place
   // that prints it rounds it on the way out
   const taxCost = amt * rate;
@@ -149,7 +151,7 @@ export default function RothScreen() {
       {/* convert-this-year dial (r36) — capped at the REAL pre-tax balance */}
       <View style={s.card}>
         <SectionBand inCard inset={20} title="CONVERT THIS YEAR" />
-        <MoneyBox bare style={s.amtInput} placeholder="$0"
+        <MoneyBox bare style={s.amtInput}
           value={amount} onChangeText={setAmount} a11y="Amount to convert this year" />
         <Text style={s.note}>from your pre-tax {maskedMoney(Math.round(preTax))}{num(amount) > preTax ? ' — capped at your balance' : ''}</Text>
         {/* an account with no tax type is counted taxable, not in this pre-tax figure, and named (DEC-4105, 2026-10-10) */}
@@ -176,7 +178,7 @@ export default function RothScreen() {
               <Text style={s.link}>Rate used: {(rate * 100).toFixed(2)}% ({rateOverride !== '' ? 'you entered' : 'calculated from your income'}) · change it ›</Text>
             </TouchableOpacity>
             {rateOpen && (
-              <TextInput style={s.rateInput} keyboardType="decimal-pad" placeholder={`${((estRate ?? 0.22) * 100).toFixed(2)}`}
+              <TextInput style={s.rateInput} keyboardType="decimal-pad" placeholder={estRate === null ? '' : `${(estRate * 100).toFixed(2)}`}
                 placeholderTextColor={Colors.textTertiary} value={rateOverride} onChangeText={setRateOverride}
                 accessibilityLabel="Tax rate percent" />
             )}

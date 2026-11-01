@@ -29,7 +29,7 @@ test('Bonds: change only the rate of a saved bond — its institution "Fidelity"
   render(<BondsScreen />);
   fireEvent.press(screen.getByText('US Treasury 2030'));                   // the row is headed by the bond's own name, as drawn (Bonds v02, 2026-10-20)
   expect(screen.getByDisplayValue('Fidelity')).toBeOnTheScreen();          // the editor opens with what was saved
-  fireEvent.changeText(screen.getByPlaceholderText('4.5'), '4.25');
+  fireEvent.changeText(screen.getByLabelText('Coupon rate, percent a year'), '4.25'); // by its name: the box opens empty (R16, 2026-10-31)
   fireEvent.press(screen.getByText('Save'));
   const b = st().assetAccounts.find((a: any) => a.asset_id === 'b1');
   expect(b.coupon_rate).toBeCloseTo(0.0425, 10);                          // the one change

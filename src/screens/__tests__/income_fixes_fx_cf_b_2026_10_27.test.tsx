@@ -101,7 +101,7 @@ describe('IN2-11 · phones 13 to 15 — the drawn rows with a dot, chosen in gre
     expect(screen.getByLabelText('Taxed as single, $9,650/year — what we were assuming')).toBeOnTheScreen();
     // "$327/month more" bold inside its sentence, at the box's 13 points in ink — it stood alone at 24 points, off the scale
     const fig = styleOf('$327/month more');
-    expect(fig).toMatchObject({ fontWeight: '800', color: Colors.textPrimary });
+    expect(fig).toMatchObject({ fontWeight: '700', color: Colors.textPrimary });   // bold inside a sentence at 700, as drawn (IN3-06, 2026-10-31)
     expect(fig.fontSize ?? 13).toBe(13);
     expect(screen.getByText(/take-home than we were showing you — \$480 if you are both over 65\./)).toBeOnTheScreen();
   });
@@ -183,7 +183,7 @@ describe('IN2-01, 02, 03, 05, 06 · Bonus, Rent, Interest and the Income summary
   test('phone 11: the first sentence bold, in one box with the second', () => {
     open('dividends');
     const first = screen.getByText('Interest and dividends are counted as income you are taxed on, not money you can spend.');
-    expect(StyleSheet.flatten(first.props.style).fontWeight).toBe('800');
+    expect(StyleSheet.flatten(first.props.style).fontWeight).toBe('700');   // as drawn (IN3-06, 2026-10-31)
     expect(first.parent?.parent).toBeTruthy();
     expect(screen.getByText(/not money you can spend\. They are normally reinvested where they are earned/)).toBeOnTheScreen();
   });

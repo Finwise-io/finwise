@@ -3,6 +3,7 @@
 // walk card: Beginning value → Contributions → Withdrawals → Wealth generated (Dividends · Interest ·
 // Change in investment value) → Debt principal you paid → Ending value. Rows ALWAYS sum exactly.
 // Wording differs by design: "net worth", not "market value" — home and debts have no market feed.
+import { SHEET_FRAME, SHEET_HANDLE } from './sheetFrame';   // one sheet frame (NW3-18, 2026-10-31)
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Modal, ScrollView } from 'react-native';
 import { Colors, Radii, Spacing } from '../utils/theme';
@@ -67,9 +68,12 @@ export function ChangeWalkSheet({ visible, onClose, walk }: {
 const s = StyleSheet.create({
   scrim: { flex: 1, backgroundColor: 'rgba(0,0,0,0.35)' },
   // v08 frame E's .sheet: 10 above the handle, 16 at the sides (NW2-04)
-  sheet: { backgroundColor: Colors.white, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: Spacing.base, paddingTop: 10, paddingBottom: 32 },
-  bandHolder: { paddingTop: Spacing.base },   // the 16 the bar's inCard takes back, so it lands on the handle's 10-point gap
-  grab: { width: 36, height: 4, borderRadius: 2, backgroundColor: Colors.bgTertiary, alignSelf: 'center', marginBottom: 10 },
+  // v08 frame E's .sheet: 10 above the handle, 16 at the sides, 30 at the foot (NW2-04; the foot was 32, NW3-14)
+  sheet: { ...SHEET_FRAME, backgroundColor: Colors.white /* v08 frame E draws the change walk white (approved, DEC-0644) */, padding: Spacing.base, paddingTop: 10, paddingBottom: 30 },
+  // the 16 the bar's inCard takes back, so it lands on the handle's 10-point gap; and 2 under it, so the rows start 6 below the bar as
+  // v08's .walkband draws (SectionBand leaves 4; 2026-10-31, NW3-14)
+  bandHolder: { paddingTop: Spacing.base, paddingBottom: 2 },
+  grab: { ...SHEET_HANDLE },
   row: { flexDirection: 'row', alignItems: 'center', paddingVertical: 7 },
   indent: { paddingLeft: 20 },
   label: { flex: 1, fontSize: 13, color: Colors.textPrimary, paddingRight: Spacing.base },

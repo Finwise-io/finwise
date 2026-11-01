@@ -316,6 +316,9 @@ describe('the drawing, read (a guard must prove it looked)', () => {
 
 const MONEY_ROW = fs.readFileSync(path.join(__dirname, '..', '..', '..', 'MoneyKeel', 'documents', 'networth-and-performance', 'moneykeel_pres_mock_update-value-sheet_v02.html'), 'utf8')
   .includes('Every money box on this screen shows its figure the way a figure is printed');
+/** THE ROW OF 2026-10-31 (R16, NW3-07): state C's box, drawn holding a grey '0', is now empty — applied only while the drawing carries the row. */
+const EMPTY_C_ROW = HTML.includes('State C — the amount cleared. The box is drawn holding a grey ‘0’; it is now empty');
+const emptied = (k: string, t: string) => (EMPTY_C_ROW && k === 'C' && t === '0' ? '' : t);
 describe('WORD FOR WORD, IN ORDER: every line of each state of the drawing is the screen\'s, and nothing else is', () => {
   afterAll(() => {
     const text = Object.entries(REPORT).map(([k, v]) => `state ${k}: ${v}`).join('\n');
@@ -329,7 +332,8 @@ describe('WORD FOR WORD, IN ORDER: every line of each state of the drawing is th
     const drawn = DRAWN[i].lines;
     const bSheet = built.filter((l) => l.sheet).map((l) => l.t);
     // the row of 2026-10-27 (DEC-8385): a value box drawn '12400' reads '12,400' beside the sheet's $ — the same figure, nothing else
-    const dSheet = drawn.filter((l) => l.sheet).map((l, j) => (MONEY_ROW && /^\d+(\.\d+)?$/.test(l.t) && (bSheet[j] === amountInBox(l.t) || bSheet[j] === amountInBox(l.t, false)) ? bSheet[j] : l.t));
+    const dSheet = drawn.filter((l) => l.sheet).map((l, j) => (MONEY_ROW && /^\d+(\.\d+)?$/.test(l.t) && (bSheet[j] === amountInBox(l.t) || bSheet[j] === amountInBox(l.t, false)) ? bSheet[j] : l.t))
+      .map((t) => emptied(k, t));
     const dPage = drawn.filter((l) => !l.sheet).map((l) => l.t);
     const bPage = built.filter((l) => !l.sheet).map((l) => l.t);
     expect(bSheet.length > 0).toBe(st.sheet);
@@ -369,7 +373,8 @@ describe('APPEARANCE: every line\'s size, weight and colour as rendered, against
       if (['ABOUT THIS HOLDING', 'HISTORIC 12-MONTH RETURN', 'BOND FACTS', 'IF INTEREST RATES MOVE'].includes(d.t) && b && b.t === d.t && b.size === d.size && (b.weight ?? '400') === (d.weight ?? '400')
         && String(d.color).toUpperCase() === Colors.textTertiary.toUpperCase() && String(b.color).toUpperCase() === Colors.white.toUpperCase()) { looked++; continue; }
       // THE ROW OF 2026-10-27 (DEC-8385, FX-SHARED): the value box drawn '12400' reads '12,400' beside the $ the sheet prints — the same figure
-      const dd = MONEY_ROW && b && /^\d+(\.\d+)?$/.test(d.t) && (b.t === amountInBox(d.t) || b.t === amountInBox(d.t, false)) ? { ...d, t: b.t } : d;
+      const d0 = d.sheet && emptied(k, d.t) !== d.t ? { ...d, t: emptied(k, d.t) } : d;   // the row of 2026-10-31 (state C's box empty)
+      const dd = MONEY_ROW && b && /^\d+(\.\d+)?$/.test(d0.t) && (b.t === amountInBox(d0.t) || b.t === amountInBox(d0.t, false)) ? { ...d0, t: b.t } : d0;
       expect(see(dd)).toBe(see(b));
       looked++;
     }
@@ -398,7 +403,7 @@ test('the drawing carries the row that reads its straight apostrophes as ’ (ro
 });
 
 test('“choose ›” takes its sentence’s 13 points, as built; the drawing’s 14 comes from its rule for all text, and its row 10 says so', () => {
-  expect(HTML).toMatch(/<tr><td>10<\/td><td>2026-10-25 · DRAWING ERROR, states B and C — choose › after “tax type not stated —” is drawn at 14 points/);
+  expect(HTML).toMatch(/<tr><td>10<\/td><td>2026-10-25 · DRAWING ERROR, states B and C — choose › after ‘tax type not stated —’ is drawn at 14 points/);   // screen words in single marks since 2026-10-31 (R17)
   expect(HTML).toMatch(/\.t\{display:block;flex-shrink:1;min-width:0;font-size:14px;/);   // the drawing's rule for all text
   renderState(STATES[1]);
   const link = screen.getByText('choose ›');

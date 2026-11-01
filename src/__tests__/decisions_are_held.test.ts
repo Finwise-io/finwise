@@ -1178,8 +1178,10 @@ describe('the decisions in the log are held by something that executes', () => {
       const body = themeText.match(new RegExp(`export const ${name} = \\{([^}]*)\\}`))?.[1] ?? '';
       return Object.fromEntries([...body.matchAll(/(\w+):\s*(\d+(?:\.\d+)?)/g)].map((m) => [m[1], Number(m[2])]));
     };
-    const Radii = tableOf('Radii'), Spacing = tableOf('Spacing');
-    expect([Radii.md, Radii.pill, Spacing.md]).toEqual([12, 100, 12]);   // the tables were found and read
+    // and the tap-size table (2026-11-01, FX-CF-A): controls now state their height as Tap.min, which this reader could not see, so the
+    // Cash flow sub-tabs (44 tall, corner 12) were reckoned from their type alone, 18.6 tall, and read as semicircles
+    const Radii = tableOf('Radii'), Spacing = tableOf('Spacing'), Tap = tableOf('Tap');
+    expect([Radii.md, Radii.pill, Spacing.md, Tap.min]).toEqual([12, 100, 12, 44]);   // the tables were found and read
     // the type sizes too (2026-10-21), so a control's height is reckoned from the text it actually carries
     const TypeSizes: Record<string, number> = Object.fromEntries([...(themeText.match(/export const Typography = \{[\s\S]*?sizes: \{([^}]*)\}/)?.[1] ?? '').matchAll(/(\w+):\s*(\d+(?:\.\d+)?)/g)].map((m) => [m[1], Number(m[2])]));
     expect([TypeSizes.xs, TypeSizes.sm, TypeSizes.md]).toEqual([11, 13, 17]);
@@ -1198,7 +1200,7 @@ describe('the decisions in the log are held by something that executes', () => {
       if (ts.isParenthesizedExpression(e)) return num(e.expression);
       if (ts.isPrefixUnaryExpression(e) && e.operator === ts.SyntaxKind.MinusToken) { const v = num(e.operand); return v == null ? null : -v; }
       if (ts.isPropertyAccessExpression(e) && ts.isIdentifier(e.expression)) {
-        const table = e.expression.text === 'Radii' ? Radii : e.expression.text === 'Spacing' ? Spacing : null;
+        const table = e.expression.text === 'Radii' ? Radii : e.expression.text === 'Spacing' ? Spacing : e.expression.text === 'Tap' ? Tap : null;
         return table && typeof table[e.name.text] === 'number' ? table[e.name.text] : null;
       }
       if (ts.isPropertyAccessExpression(e) && /^Typography\.sizes$/.test(e.expression.getText())) return typeof TypeSizes[e.name.text] === 'number' ? TypeSizes[e.name.text] : null;

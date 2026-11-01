@@ -84,10 +84,10 @@ describe('FLOW 2 · the daily habit: log a coffee with + Expense on Cash flow (i
   test('two taps on Cash flow → the expense lands in the store and the month-so-far line', () => {
     useStore.setState({ onboardingProfile: WORKER, onboardingComplete: true } as any);
     render(<CashFlowScreen />);
-    fireEvent.press(screen.getByLabelText('Add expense'));
-    fireEvent.changeText(screen.getByPlaceholderText('0'), '6.50');
+    fireEvent.press(screen.getByLabelText('Log an expense from any tab'));
+    fireEvent.changeText(screen.getByLabelText('Expense amount'), '6.50');
     fireEvent.press(screen.getByText(/Dining/));
-    fireEvent.press(screen.getByText(/^Add \$6\.50$/));
+    fireEvent.press(screen.getByText(/^Log \$6\.50$/));
     const exp = (useStore.getState() as any).expenses;
     expect(exp).toHaveLength(1);
     expect(exp[0].amount).toBe(6.5);
@@ -99,7 +99,7 @@ describe('FLOW 2 · the daily habit: log a coffee with + Expense on Cash flow (i
   test('founder decision 2026-07-16: Home has NO + Expense button — logging lives on Cash flow', () => {
     useStore.setState({ onboardingProfile: WORKER, onboardingComplete: true } as any);
     render(<HomeScreen />);
-    expect(screen.queryByLabelText('Add expense')).toBeNull();
+    expect(screen.queryByLabelText('Log an expense from any tab')).toBeNull();
   });
 });
 
@@ -209,18 +209,18 @@ describe('EDGE 2 · the + Expense sheet never saves junk', () => {
   test('blank amount or missing category keeps Save disabled; a real entry saves once', () => {
     useStore.setState({ onboardingProfile: WORKER, onboardingComplete: true } as any);
     render(<CashFlowScreen />);
-    fireEvent.press(screen.getByLabelText('Add expense'));
-    fireEvent.changeText(screen.getByPlaceholderText('0'), '12');
-    fireEvent.press(screen.getByText(/^Add \$12$/));                       // amount but NO category → guarded
+    fireEvent.press(screen.getByLabelText('Log an expense from any tab'));
+    fireEvent.changeText(screen.getByLabelText('Expense amount'), '12');
+    fireEvent.press(screen.getByText(/^Log \$12$/));                       // amount but NO category → guarded
     expect((useStore.getState() as any).expenses).toHaveLength(0);
     // (pressing the disabled button bubbles to the backdrop in the harness only — on device the
     // sheet's ScrollView claims the touch; reopen if the harness closed it)
-    if (!screen.queryByPlaceholderText('0')) {
-      fireEvent.press(screen.getByLabelText('Add expense'));
-      fireEvent.changeText(screen.getByPlaceholderText('0'), '12');
+    if (!screen.queryByLabelText('Expense amount')) {
+      fireEvent.press(screen.getByLabelText('Log an expense from any tab'));
+      fireEvent.changeText(screen.getByLabelText('Expense amount'), '12');
     }
     fireEvent.press(screen.getByText(/Groceries/));
-    fireEvent.press(screen.getByText(/^Add \$12$/));
+    fireEvent.press(screen.getByText(/^Log \$12$/));
     const saved = (useStore.getState() as any).expenses;
     expect(saved).toHaveLength(1);                                         // exactly once
     expect(saved[0].amount).toBe(12);

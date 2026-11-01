@@ -67,9 +67,11 @@ test('no calculation rounds inside itself — any power of ten, read off the syn
   expect(seen['src/domain'] ?? 0).toBeGreaterThanOrEqual(60);
   expect(seen['MoneyKeel/functions'] ?? 0).toBeGreaterThanOrEqual(20);
   expect(seen['Calculation Module code/engines'] ?? 0).toBeGreaterThanOrEqual(10);
-  // …and that the detector still fires on this code: 12 shortening roundings found on 2026-10-25 (7 carried + 5 that become words)
-  expect(shortening).toBeGreaterThanOrEqual(12);
-  expect(words).toBeGreaterThanOrEqual(5);
+  // …and that the detector still fires on this code: 12 shortening roundings found on 2026-10-25 (7 carried + 5 that become words);
+  // 11 since 2026-10-31 (FX-CF-B, IN3-04): MK-CF-F-182 asPercent prints its two decimals as written, `(r × 100).toFixed(2)`, where
+  // `+(…).toFixed(2)` shortened them first and dropped the trailing zero ("3.8%") — one fewer, the true count
+  expect(shortening).toBeGreaterThanOrEqual(11);
+  expect(words).toBeGreaterThanOrEqual(4);   // 5 → 4 the same day, for the same reason: asPercent's was one that became words
   const stale = CARRIED_CALC.filter((c) => (count[`${c.file} | ${c.code}`] ?? 0) !== c.n)
     .map((c) => `${c.file} — "${c.code}" is carried ${c.n}× but found ${count[`${c.file} | ${c.code}`] ?? 0}× — correct CARRIED_CALC to the true number`);
   // eslint-disable-next-line no-console

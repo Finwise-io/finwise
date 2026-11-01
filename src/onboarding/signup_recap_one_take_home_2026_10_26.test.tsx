@@ -43,7 +43,8 @@ const recap = (op: any, accounts: any[] = []) => {
 /** the card's rows, signed, from "WHERE IT COMES FROM"'s total down to the box: they must add up to it, to the dollar */
 const addsUp = (L: string[]) => {
   const at = L.indexOf('Total income /year'), box = L.indexOf('Available /year');
-  const val = (s: string) => Number(s.replace(/[^0-9.-]/g, '').replace(/^-?/, (m) => m));
+  // the minus sign "−" (U+2212, one money formatter since 2026-10-31) is read as a minus, as the hyphen was
+const val = (s: string) => Number(s.replace(/\u2212/g, '-').replace(/[^0-9.-]/g, '').replace(/^-?/, (m) => m));
   const rows = L.slice(at + 3, box).filter((_, i) => i % 2 === 1).map(val);
   return { total: val(L[at + 1]), rows, box: val(L[box + 1]) };
 };
@@ -53,7 +54,7 @@ test('Pat, $3,600 a year reinvested: $50,324 a year beside ≈$4,194 a month —
   // by hand: $60,000 + $3,600 = $63,600; tax ~8%, $4,876; 401(k) $4,800; reinvested $3,600, not money to spend → $50,324
   expect(after('Take-home / year')).toBe(money(50_324));
   expect(L).toContain(`≈ ${money(50_324 / 12)}/month average`);
-  expect(after('Interest & dividends, reinvested — not money to spend')).toBe(`-${money(3_600)}`);
+  expect(after('Interest & dividends, reinvested — not money to spend')).toBe(money(-(3_600)));
   expect(after('Available /year')).toBe(money(50_324));
   const c = addsUp(L);
   expect(c.total + c.rows.reduce((t, r) => t + r, 0)).toBe(c.box);   // 63,600 − 4,876 − 4,800 − 3,600 = 50,324
@@ -66,7 +67,7 @@ test('$10,000 of savings at 4%, nothing typed: the $400 calculated is taxed and 
   const { L, after } = recap(PAT, [SAVINGS]);
   expect(after('Take-home / year')).toBe(money(50_708));
   expect(L).toContain(`≈ ${money(50_708 / 12)}/month average`);
-  expect(after('Interest & dividends, reinvested — not money to spend')).toBe(`-${money(400)}`);
+  expect(after('Interest & dividends, reinvested — not money to spend')).toBe(money(-(400)));
   const c = addsUp(L);
   expect(c.total + c.rows.reduce((t, r) => t + r, 0)).toBe(c.box);   // 60,400 − 4,492 − 4,800 − 400 = 50,708
   expect(takeHomeMonthly(profileWithAccountIncome(PAT as any, [SAVINGS], []) as any) * 12).toBeCloseTo(50_708, 6);
@@ -83,7 +84,7 @@ test('stock kept as shares when it vests: $10,000 in March is not money to spend
   const op = { ...PAT, incomeSources: ['employment', 'equity'], equityType: 'rsu', rsuGrants: [{ shares: 25, price: 400, date: '2026-03-15' }] };
   const { L, after } = recap(op);
   // by hand: tax ~8.06% ($5,644 of $70,000); the vest after its tax, $10,000 × (1 − 5,644 ÷ 70,000) = $9,193.71
-  expect(after('Stock vesting, kept as shares, after its tax — not money to spend')).toBe(`-${money(9_193.71)}`);
+  expect(after('Stock vesting, kept as shares, after its tax — not money to spend')).toBe(money(-(9_193.71)));
   expect(after('Take-home / year')).toBe(money(50_362.29));
   const c = addsUp(L);
   expect(Math.abs(c.total + c.rows.reduce((t, r) => t + r, 0) - c.box)).toBeLessThanOrEqual(1);   // rounded once per row (DEC-0264)
@@ -102,8 +103,8 @@ describe('the person\'s own rate is for their pay (v07 rule 5 and phone 16): the
     // by hand: the year's tax 20% × $78,000 = $15,600 (the Income summary's); taken out of pay, the wages' 20% × $60,000 = $12,000;
     // the other 20% × ($14,400 rent + $3,600 interest) = $3,600 is not taken out of the take-home (phone 16's rent lands whole)
     expect(after('Total income /year')).toBe(money(78_000));
-    expect(after('Tax taken out of your pay')).toBe(`-${money(12_000)}`);
-    expect(after('Interest & dividends, reinvested — not money to spend')).toBe(`-${money(3_600)}`);
+    expect(after('Tax taken out of your pay')).toBe(money(-(12_000)));
+    expect(after('Interest & dividends, reinvested — not money to spend')).toBe(money(-(3_600)));
     expect(after('Available /year')).toBe(money(57_600));
     expect(after('Take-home / year')).toBe(money(57_600));
     expect(L).toContain('Your tax for the year is $15,600, at your 20.00% rate. $3,600 of it is on your rent, interest and dividends — your own rate is for your pay, so it is not taken out of your take-home.');
@@ -118,7 +119,7 @@ describe('the person\'s own rate is for their pay (v07 rule 5 and phone 16): the
     const { L, after } = recap(op);
     // by hand: the rate worked from the take-home, ($5,000 − $400 − $4,000) ÷ $5,000 = 12%; the year's tax 12% × $63,600 = $7,632;
     // taken out of pay 12% × $60,000 = $7,200; the other $432 is on the interest
-    expect(after('Tax taken out of your pay')).toBe(`-${money(7_200)}`);
+    expect(after('Tax taken out of your pay')).toBe(money(-(7_200)));
     expect(after('Available /year')).toBe(money(48_000));
     expect(L).toContain('Your tax for the year is $7,632, at your 12.00% rate. $432 of it is on your interest and dividends — your own rate is for your pay, so it is not taken out of your take-home.');
     const c = addsUp(L);
@@ -138,4 +139,10 @@ describe('the person\'s own rate is for their pay (v07 rule 5 and phone 16): the
 
 test.failing('the recap until 2026-10-26, pinned: $53,924 a year beside ≈$4,194 a month (FIXED 2026-10-26)', () => {
   expect(recap({ ...PAT, invAnnual: '3600' }).after('Take-home / year')).toBe(money(53_924));
+});
+
+// THE OLD ANSWER, KEPT (the fix wave's rule): until 2026-10-31 sign-up typed a hyphen before a money figure, "-$4,444". One money formatter
+// writes the minus sign "−" now (SU3-02); this fails because no hyphen is printed. The day it passes, a hyphen has come back.
+test.failing('before 2026-10-31, kept · a money figure taken out was written with a hyphen', () => {
+  expect(money(-1)).toBe(`-${money(1)}`);
 });

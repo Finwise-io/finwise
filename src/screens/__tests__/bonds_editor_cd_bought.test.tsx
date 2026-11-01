@@ -10,8 +10,8 @@ const fill = (name: string) => {
   const onSave = jest.fn();
   render(<BondEditor bond={null} open onClose={() => {}} onSave={onSave} />);
   fireEvent.changeText(screen.getByPlaceholderText('e.g. US Treasury 2030, Apple Corp 4.5%'), name);
-  fireEvent.changeText(screen.getByPlaceholderText('10000'), '10000');
-  fireEvent.changeText(screen.getByPlaceholderText('4.5'), '4.2');
+  fireEvent.changeText(screen.getByLabelText('Face (par) value'), '10000'); // the box is found by its name: it opens empty, no example (R16, 2026-10-31)
+  fireEvent.changeText(screen.getByLabelText('Coupon rate, percent a year'), '4.2');
   fireEvent.press(screen.getByLabelText('Pick a maturity date'));
   return onSave;
 };

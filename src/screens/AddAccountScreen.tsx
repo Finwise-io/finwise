@@ -3,6 +3,7 @@
 // ones gate the Save. Edit mode is this same screen pre-filled (the 'manual update' view) —
 // saving writes the balance AND stamps value-as-of together, the same staleness concept bonds
 // and alternatives use. Writes through the SAME store actions every editor uses — one write path.
+import { ALT_KINDS_CAPTURE } from '../domain/alternatives';   // the one list of Alternatives kinds (NW3-08)
 import { MoneyBox } from '../components/MoneyBox';   // every money box, one component (DEC-8385)
 import TopBar from '../components/TopBar';
 import React, { useMemo, useState } from 'react';
@@ -40,7 +41,9 @@ const KIND_BY_CLASS: Record<Exclude<Cls, 'debt'>, string> = { cash: 'checking', 
 // ONE WORD PER KIND (DEC-4529, 2026-10-11; DEC-0382): each chip's word is read from the one list of kinds
 // (ASSET_KINDS), the list the Alternatives screen reads too — so annuities read "Annuities" here, as they do there.
 // This form typed its own words and wrote "Annuity" until 2026-10-20.
-const ALT_TYPES = (['crypto', 'commodities', 'annuities', 'other_asset'] as const).map((k) => [k, assetKind(k)?.label ?? 'Other'] as const);
+// THE ONE LIST OF KINDS (2026-10-31, drawing match round 3, NW3-08; Add an account v02 row of that date): the five the Alternatives editor
+// and Net worth's step-by-step add offer too — this form offered four, with no Options
+const ALT_TYPES = ALT_KINDS_CAPTURE.map((k) => [k, assetKind(k)?.label ?? 'Other'] as const);
 const KEPT_ALT_KINDS = ['private_equity', 'hedge_funds', 'options'];   // saved earlier, kept as they are, not offered
 // HELD IN IS THE ONE LIST (DEC-2441, DEC-2484h, 2026-10-20): the six choices every form reads, HELD_IN_CHOICES beside
 // MK-NW-F-010 wrapperAccount. This form offered one "401(k) / IRA" choice and saved only the tax bucket, so a 401(k)
@@ -195,10 +198,13 @@ export default function AddAccountScreen() {
   ]);
 
   // a field whose example is a dollar amount ("$0", "$10,000", "$2,400") is a money box: "$25,000" while it is typed, 25000 saved (DEC-8385, FX-SHARED 2026-10-27)
-  const field = (label: string, value: string, set: (t: string) => void, opts: { placeholder?: string; keyboard?: any; required?: boolean; a11y?: string } = {}) => (
+  // EMPTY MEANS EMPTY (2026-10-31, the lead's ruling R16; NW3-07; Add an account v02 row of that date): no box shows a grey figure that could
+  // be read as an answer — '$0', '0.0', '100', '$10,000', '$9,700', '4.5', '$2,400', '6.5', '7.0', '$150' are gone. A money box says so
+  // with `money`, no longer with a '$' example.
+  const field = (label: string, value: string, set: (t: string) => void, opts: { placeholder?: string; keyboard?: any; required?: boolean; a11y?: string; money?: boolean } = {}) => (
     <View>
       <Text style={s.fieldL}>{label}{opts.required ? ' *' : ''}</Text>
-      {/^\$/.test(opts.placeholder ?? '')
+      {opts.money || /^\$/.test(opts.placeholder ?? '')
         ? <MoneyBox bare style={s.input} value={value} onChangeText={set} placeholder={opts.placeholder} a11y={opts.a11y ?? label} />
         : <TextInput style={s.input} value={value} onChangeText={set} placeholder={opts.placeholder}
             placeholderTextColor={Colors.textTertiary} keyboardType={opts.keyboard}
@@ -229,15 +235,15 @@ export default function AddAccountScreen() {
 
       {field('Name', name, setName, { placeholder: cls === 'debt' ? 'Car loan' : 'Chase checking', required: true, a11y: 'Account name' })}
       {cls !== 'debt' && cls !== 'property' && field('Institution (optional)', institution, setInstitution, { placeholder: 'Chase', a11y: 'Institution' })}
-      {field(cls === 'debt' ? 'Debt balance' : cls === 'property' ? 'What it’s worth' : 'Balance', balance, setBalance, { placeholder: '$0', keyboard: 'decimal-pad', required: true, a11y: 'Balance' })}
-      {cls === 'cash' && field('Interest rate % (optional)', rate, setRate, { placeholder: '0.0', keyboard: 'decimal-pad', a11y: 'Interest rate percent' })}
+      {field(cls === 'debt' ? 'Debt balance' : cls === 'property' ? 'What it’s worth' : 'Balance', balance, setBalance, { money: true, keyboard: 'decimal-pad', required: true, a11y: 'Balance' })}
+      {cls === 'cash' && field('Interest rate % (optional)', rate, setRate, { keyboard: 'decimal-pad', a11y: 'Interest rate percent' })}
 
       {cls === 'bonds' && (
         <>
-          {field('Face value (optional)', face, setFace, { placeholder: '$10,000', keyboard: 'decimal-pad', a11y: 'Face value' })}
+          {field('Face value (optional)', face, setFace, { money: true, keyboard: 'decimal-pad', a11y: 'Face value' })}
           {/* (DEC-0281, 2026-10-20) what was paid — the second step of a bond's value, shown on its account page */}
-          {field('What you paid (optional)', paid, setPaid, { placeholder: '$9,700', keyboard: 'decimal-pad', a11y: 'What you paid' })}
-          {field('Interest rate % (optional)', coupon, setCoupon, { placeholder: '4.5', keyboard: 'decimal-pad', a11y: 'Coupon percent' })}
+          {field('What you paid (optional)', paid, setPaid, { money: true, keyboard: 'decimal-pad', a11y: 'What you paid' })}
+          {field('Interest rate % (optional)', coupon, setCoupon, { keyboard: 'decimal-pad', a11y: 'Coupon percent' })}
           {!isCd && (
             <>
               {/* (2026-10-20, under DEC-3390) how often a bond pays — asked of a bond, never a CD */}
@@ -311,13 +317,13 @@ export default function AddAccountScreen() {
           </View>
         </>
       )}
-      {cls === 'property' && !editMode && field('Mortgage balance (optional)', owe, setOwe, { placeholder: '$0', keyboard: 'decimal-pad', a11y: 'Amount still owed' })}
-      {cls === 'property' && !editMode && num(owe) > 0 && field('Monthly mortgage payment', owePay, setOwePay, { placeholder: '$2,400', keyboard: 'decimal-pad', a11y: 'Monthly mortgage payment' })}
-      {cls === 'property' && !editMode && num(owe) > 0 && field('Mortgage interest rate % (optional)', oweApr, setOweApr, { placeholder: '6.5', keyboard: 'decimal-pad', a11y: 'Mortgage interest rate percent, optional' })}
+      {cls === 'property' && !editMode && field('Mortgage balance (optional)', owe, setOwe, { money: true, keyboard: 'decimal-pad', a11y: 'Amount still owed' })}
+      {cls === 'property' && !editMode && num(owe) > 0 && field('Monthly mortgage payment', owePay, setOwePay, { money: true, keyboard: 'decimal-pad', a11y: 'Monthly mortgage payment' })}
+      {cls === 'property' && !editMode && num(owe) > 0 && field('Mortgage interest rate % (optional)', oweApr, setOweApr, { keyboard: 'decimal-pad', a11y: 'Mortgage interest rate percent, optional' })}
       {cls === 'debt' && (
         <>
-          {field('Interest rate % *', apr, setApr, { placeholder: '7.0', keyboard: 'decimal-pad', a11y: 'Interest rate percent' })}
-          {field('Minimum monthly payment *', minPay, setMinPay, { placeholder: '$150', keyboard: 'decimal-pad', required: false, a11y: 'Minimum monthly payment' })}
+          {field('Interest rate % *', apr, setApr, { keyboard: 'decimal-pad', a11y: 'Interest rate percent' })}
+          {field('Minimum monthly payment *', minPay, setMinPay, { money: true, keyboard: 'decimal-pad', required: false, a11y: 'Minimum monthly payment' })}
         </>
       )}
 
@@ -336,8 +342,8 @@ export default function AddAccountScreen() {
             <Text style={s.fieldL}>Retirement earmark % (optional)</Text>
             <InfoDot term="earmarked" line={s.fieldL} />
           </View>
-          <TextInput style={s.input} value={earmark} onChangeText={setEarmark} placeholder="100"
-            placeholderTextColor={Colors.textTertiary} keyboardType="number-pad" accessibilityLabel="Retirement earmark percent" />
+          <TextInput style={s.input} value={earmark} onChangeText={setEarmark}
+            keyboardType="number-pad" accessibilityLabel="Retirement earmark percent" />
         </>
       )}
 

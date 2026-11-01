@@ -4,6 +4,7 @@
 // 401(k)'s amount). iOS uses `automaticallyAdjustKeyboardInsets` (adds the keyboard inset + scrolls the
 // focused field into view, even when content fits); Android keeps KeyboardAvoidingView. Drop-in for the old
 // per-screen `Sheet({open,onClose,title})`.
+import { SHEET_FRAME, SHEET_HANDLE } from './sheetFrame';   // one sheet frame (NW3-18, 2026-10-31)
 import React from 'react';
 import { Modal, View, Text, ScrollView, TouchableOpacity, KeyboardAvoidingView, Platform, StyleSheet } from 'react-native';
 import { Colors, Radii, Spacing } from '../utils/theme';
@@ -32,8 +33,8 @@ export function KeyboardAwareSheet({ open, onClose, title, children }: {
 
 const s = StyleSheet.create({
   backdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end' },
-  card: { backgroundColor: Colors.bgSecondary, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: Spacing.lg, paddingBottom: 32 },
-  grip: { width: 38, height: 4, borderRadius: 2, backgroundColor: Colors.border, alignSelf: 'center', marginBottom: Spacing.md },
+  card: { ...SHEET_FRAME, padding: Spacing.lg, paddingBottom: 32 },
+  grip: { ...SHEET_HANDLE },
   // 20, centred: as Net worth v08 frame G draws the title of a sheet that adds an account (it was 17; the dated row of 2026-10-30 on v08)
   title: { fontSize: 20, fontWeight: '800', color: Colors.textPrimary, textAlign: 'center', marginBottom: Spacing.sm },
 });

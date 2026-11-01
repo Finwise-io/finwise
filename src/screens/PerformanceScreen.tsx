@@ -1,5 +1,6 @@
 // Portfolio Performance — per-holding actual return vs its SAME-period benchmark (ticker-based, lots).
-import { MoneyBox } from '../components/MoneyBox';   // every money box, one component (DEC-8385)
+import { SHEET_FRAME, SHEET_HANDLE } from '../components/sheetFrame';   // one sheet frame (NW3-18, 2026-10-31)
+import { MoneyBox, savedAmountForBox } from '../components/MoneyBox';   // every money box, one component (DEC-8385)
 import React, { useEffect, useMemo, useState } from 'react';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Modal, ActivityIndicator, Alert, RefreshControl, type LayoutChangeEvent, KeyboardAvoidingView, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -16,7 +17,7 @@ import { personalFlowTotals } from '../../Calculation Module code/engines/ledger
 import { windowBounds } from '../../Calculation Module code/engines/window-return';
 import { Dec } from '../../Calculation Module code/engines/decimal';
 import { valueOn } from '../../Calculation Module code/engines/snapshots';
-import { Colors, Spacing, Radii, Shadows, ClassMarkColors } from '../utils/theme';
+import { Colors, Spacing, Radii, Shadows, ClassMarkColors, Tap } from '../utils/theme';
 import { money, money2 } from '../domain/_shared/num';
 import { moneyCompact } from '../domain/_shared/money';
 import { ASSET_KINDS, accountAllowsTicker, assetClassOf, holdingClassOf, ASSET_CLASS_LABEL, type AssetAccount, accountDisplayNames, benchmarkReturn } from '../domain/assets';
@@ -591,14 +592,16 @@ export default function PerformanceScreen() {
                   </View>
                   {/* green for money received; $0 in the text colour, as phones 4 and 5 draw it (2026-10-25) */}
                   <Text style={[styles.catV, !dayOneView && b.earned > 0 && { color: Colors.gainText }]}>{fig('MK-PF-M-007', b.earned)}</Text>
-                  <Text style={[styles.catR, b.ret == null && { color: Colors.textSecondary }]}>{ret}</Text>
+                  {/* a return not known: '—' at 13, 700, secondary, as v17 phones 4 and 5 draw it (2026-10-31, PF3-1; it went to 15 with the rows) */}
+                  <Text style={[styles.catR, b.ret == null && { color: Colors.textSecondary, fontSize: 13 }]}>{ret}</Text>
                   {/* no "›": a category row opens no approved screen (DEC-0128) — the gutter stays empty */}
                   <View testID="right-gutter" style={[styles.gutter, styles.gutterInGap]} />
                 </View>
               );
             })}
             <View style={[styles.catRow, styles.walkTotal]} accessible accessibilityLabel={`All categories, earned ${figSaid('MK-PF-M-007', total)}`}>
-              <Text style={[styles.catL, { fontWeight: '700', marginLeft: 14, flex: 1 }]}>All categories</Text>
+              {/* flush with CATEGORY at the row's left edge, as every v17 phone draws it (2026-10-31, PF3-3; it was indented 14) */}
+              <Text style={[styles.catL, { fontWeight: '700', flex: 1 }]}>All categories</Text>
               <Text style={[styles.catV, { fontWeight: '900' }]}>{fig('MK-PF-M-007', total)}</Text>
               <Text style={styles.catR}> </Text>
               <View testID="right-gutter" style={[styles.gutter, styles.gutterInGap]} />
@@ -636,7 +639,7 @@ export default function PerformanceScreen() {
               <TouchableOpacity key={d.route} accessibilityRole="button" style={styles.chooserRow}
                 accessibilityLabel={`${d.title}. ${d.sub}`}
                 onPress={() => { setAddChooser(false); router.push(d.route as any); }}>
-                <Text style={styles.chooserTitle}>{d.icon}  {d.title}</Text>
+                <Text style={styles.chooserTitle}>{d.icon} {d.title}</Text>
                 <Text style={styles.chooserSub}>{d.sub}</Text>
               </TouchableOpacity>
             ))}
@@ -720,8 +723,9 @@ export function HoldingEditor({ open, accounts, existing, onClose, onSave, onDel
     setLot(i, { [field]: field === 'cost_per_share' && t.trim() === '' ? null : num(t) } as Partial<Lot>);
   };
   // a cost not on record (null — a linked purchase the broker sent none for, 2026-10-20) shows as an empty field
+  // a saved price paid opens with its cents, "$192.50" (savedAmountForBox, 2026-10-31, FX-PF, NW3-03 / PF3-5); a share count as saved
   const lotVal = (i: number, field: 'shares' | 'cost_per_share', n: number | null) =>
-    lotRaw[`${i}-${field}`] ?? (n ? String(n) : '');
+    lotRaw[`${i}-${field}`] ?? (n ? (field === 'cost_per_share' ? savedAmountForBox(n) : String(n)) : '');
   // new-investor friendly: only ticker + shares are required; cost/share + date are optional
   // (without cost we just can't show return-since-purchase — value & vs-benchmark still work).
   const isOption = kind === 'options';
@@ -817,11 +821,13 @@ export function HoldingEditor({ open, accounts, existing, onClose, onSave, onDel
           {/* no type chosen (a holding marked to be asked): why Save waits, in the words Net worth asks with (holding-editor v02 row 16) */}
           {kind == null && <Text style={styles.beginnerHint}>The app cannot tell what {ticker.trim().toUpperCase() || 'this holding'} is — choose its type to save.</Text>}
 
+          {/* EMPTY MEANS EMPTY (2026-11-01, the lead’s ruling R16, DEC-0296; the rows of that date on holding-editor v02 and trade v04): a box nobody
+              filled shows no grey figure — ‘0’, ‘100’, ‘$10,000’ and ‘4.5’ are gone; the ‘—’ of an optional figure and the ‘e.g.’ words stay */}
           {isOption && (
             <>
               <Text style={styles.fieldL}>Shares per contract</Text>
               <TextInput style={styles.input} keyboardType="number-pad" value={perContract} onChangeText={setPerContract}
-                accessibilityLabel="Shares per contract" placeholder="100" placeholderTextColor={Colors.textTertiary} />
+                accessibilityLabel="Shares per contract" />
               <Text style={styles.beginnerHint}>100 for a standard option; 10 for a mini option. Value and cost are multiplied by it.</Text>
             </>
           )}
@@ -830,22 +836,20 @@ export function HoldingEditor({ open, accounts, existing, onClose, onSave, onDel
           <Text style={styles.beginnerHint}>New to this? Just enter {isOption ? 'contracts' : 'shares'} — cost &amp; date are optional (add them later for return-since-purchase).</Text>
           {lots.map((l, i) => (
             <View key={i} style={styles.lotRow}>
-              <View style={styles.lotCell}><Text style={styles.lotL}>{isOption ? 'Contracts' : 'Shares'}</Text><TextInput style={styles.lotIn} keyboardType="decimal-pad" value={lotVal(i, 'shares', l.shares)} onChangeText={(t) => setLotNum(i, 'shares', t)} placeholder="0" placeholderTextColor={Colors.textTertiary} /></View>
+              <View style={styles.lotCell}><Text style={styles.lotL}>{isOption ? 'Contracts' : 'Shares'}</Text><TextInput style={styles.lotIn} keyboardType="decimal-pad" value={lotVal(i, 'shares', l.shares)} onChangeText={(t) => setLotNum(i, 'shares', t)} accessibilityLabel={isOption ? 'Contracts' : 'Shares'} /></View>
               <View style={styles.lotCell}><Text style={styles.lotL}>Cost / share (opt)</Text><MoneyBox bare style={styles.lotIn} value={lotVal(i, 'cost_per_share', l.cost_per_share)} onChangeText={(t) => setLotNum(i, 'cost_per_share', t)} placeholder="—" /></View>
               <View style={styles.lotCell}><Text style={styles.lotL}>Date (opt)</Text><DateField value={l.purchase_date ?? ''} onChange={(iso) => setLot(i, { purchase_date: iso })} label="purchase date" style={styles.lotIn} maximumDate={new Date()} /></View>
-              {lots.length > 1 && <TouchableOpacity hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }} accessibilityRole="button" accessibilityLabel={`Remove lot ${i + 1}`} onPress={() => setLots((ls) => ls.filter((_, j) => j !== i))}><Text style={styles.lotDel}>✕</Text></TouchableOpacity>}
+              {lots.length > 1 && <TouchableOpacity hitSlop={Tap.slop} accessibilityRole="button" accessibilityLabel={`Remove lot ${i + 1}`} onPress={() => setLots((ls) => ls.filter((_, j) => j !== i))}><Text style={styles.lotDel}>✕</Text></TouchableOpacity>}
             </View>
           ))}
-          <TouchableOpacity hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }} accessibilityRole="button" accessibilityLabel="Add another lot" onPress={() => setLots((ls) => [...ls, blankLot()])}><Text style={styles.addLink}>＋ Add another lot</Text></TouchableOpacity>
+          <TouchableOpacity hitSlop={Tap.slop} accessibilityRole="button" accessibilityLabel="Add another lot" onPress={() => setLots((ls) => [...ls, blankLot()])}><Text style={styles.addLink}>＋ Add another lot</Text></TouchableOpacity>
           {isBondHolding && (
             <>
               {/* a bond's or CD's own facts (DEC-0281, DEC-6212) — the same three questions, in the same words, as Add an account */}
               <Text style={styles.fieldL}>Face value (optional)</Text>
-              <MoneyBox bare style={styles.input} value={bondFace} onChangeText={setBondFace} a11y="Face value"
-                placeholder="$10,000" />
+              <MoneyBox bare style={styles.input} value={bondFace} onChangeText={setBondFace} a11y="Face value" />
               <Text style={styles.fieldL}>Interest rate % (optional)</Text>
-              <TextInput style={styles.input} keyboardType="decimal-pad" value={bondRate} onChangeText={setBondRate} accessibilityLabel="Coupon percent"
-                placeholder="4.5" placeholderTextColor={Colors.textTertiary} />
+              <TextInput style={styles.input} keyboardType="decimal-pad" value={bondRate} onChangeText={setBondRate} accessibilityLabel="Coupon percent" />
               {!isCdHolding && (
                 <>
                   {/* (2026-10-21, under DEC-3390) how often a held bond pays — the yield to maturity's accrued-interest estimate
@@ -894,7 +898,7 @@ export function HoldingEditor({ open, accounts, existing, onClose, onSave, onDel
             {/* the cost on the button is Total paid, read the one way the Holding page reads it (paidOnRecord, 2026-10-21) */}
             <Text style={styles.saveBtnT}>Save{valid && (paidOnRecord({ position_id: '', ticker, lots, kind, multiplier: isOption ? perContractN : undefined } as Position).paid ?? 0) > 0 ? ` · cost ${fig('MK-NW-M-033', paidOnRecord({ position_id: '', ticker, lots, kind, multiplier: isOption ? perContractN : undefined } as Position).paid)}` : ''}</Text>
           </TouchableOpacity>
-          {onDelete && <TouchableOpacity accessibilityRole="button" accessibilityLabel="Delete holding" onPress={onDelete}><Text style={styles.deleteLink}>Delete holding</Text></TouchableOpacity>}
+          {onDelete && <TouchableOpacity accessibilityRole="button" accessibilityLabel="Delete holding" onPress={onDelete} hitSlop={Tap.slop}><Text style={styles.deleteLink}>Delete holding</Text></TouchableOpacity>}
           <View style={{ height: 20 }} />
         </ScrollView>
       </View>
@@ -1127,7 +1131,7 @@ export function TransactionSheet({ open, accounts, onClose, onSave, prefill }: {
             {askOption && (<>
               <Text style={styles.fieldL}>Shares per contract</Text>
               <TextInput style={styles.input} keyboardType="number-pad" value={buyPerContract} onChangeText={setBuyPerContract}
-                accessibilityLabel="Shares per contract" placeholder="100" placeholderTextColor={Colors.textTertiary} />
+                accessibilityLabel="Shares per contract" />
               <Text style={styles.beginnerHint}>100 for a standard option; 10 for a mini option. Value and cost are multiplied by it.</Text>
             </>)}
           </>)}
@@ -1155,10 +1159,13 @@ export function TransactionSheet({ open, accounts, onClose, onSave, prefill }: {
             </View>
           )}
 
+          {/* EMPTY MEANS EMPTY (2026-11-01, the lead’s ruling R16, DEC-0296; the rows of that date on holding-editor v02 and trade v04): a box nobody
+              filled shows no grey figure — ‘0’, ‘100’, ‘$10,000’ and ‘4.5’ are gone; the ‘—’ of an optional figure and the ‘e.g.’ words stay.
+              Each box is named as the ✎ sheet names it (‘Shares’, ‘Price per share’, ‘Amount’): VoiceOver read the grey ‘0’ as its name */}
           {(isTrade || (isDiv && reinvest)) && (
             <View style={[styles.lotRow, { marginTop: 12 }]}>
-              <View style={styles.lotCell}><Text style={styles.lotL}>{inContracts ? 'Contracts' : 'Shares'}</Text><TextInput style={styles.lotIn} keyboardType="decimal-pad" value={shares} onChangeText={setShares} placeholder="0" placeholderTextColor={Colors.textTertiary} /></View>
-              <View style={styles.lotCell}><Text style={styles.lotL}>Price / share</Text><MoneyBox bare style={styles.lotIn} value={price} onChangeText={setPrice} placeholder="0" /></View>
+              <View style={styles.lotCell}><Text style={styles.lotL}>{inContracts ? 'Contracts' : 'Shares'}</Text><TextInput style={styles.lotIn} keyboardType="decimal-pad" value={shares} onChangeText={setShares} accessibilityLabel={inContracts ? 'Contracts' : 'Shares'} /></View>
+              <View style={styles.lotCell}><Text style={styles.lotL}>Price / share</Text><MoneyBox bare style={styles.lotIn} value={price} onChangeText={setPrice} a11y="Price per share" /></View>
               <View style={styles.lotCell}><Text style={styles.lotL}>Date</Text><DateField value={date} onChange={setDate} label="transaction date" style={styles.lotIn} maximumDate={new Date()} /></View>
             </View>
           )}
@@ -1174,7 +1181,7 @@ export function TransactionSheet({ open, accounts, onClose, onSave, prefill }: {
           )}
           {(isCash || isTransfer || (isDiv && !reinvest)) && (
             <View style={[styles.lotRow, { marginTop: 12 }]}>
-              <View style={styles.lotCell}><Text style={styles.lotL}>Amount</Text><MoneyBox bare style={styles.lotIn} value={amount} onChangeText={setAmount} placeholder="0" /></View>
+              <View style={styles.lotCell}><Text style={styles.lotL}>Amount</Text><MoneyBox bare style={styles.lotIn} value={amount} onChangeText={setAmount} a11y="Amount" /></View>
               <View style={styles.lotCell}><Text style={styles.lotL}>Date</Text><DateField value={date} onChange={setDate} label="transaction date" style={styles.lotIn} maximumDate={new Date()} /></View>
             </View>
           )}
@@ -1229,7 +1236,7 @@ export function HistorySheet({ open, transactions, accounts, onClose, onDelete }
                   <Text style={styles.hMeta}>{dateShown(t.date)} · {acctName(t.account_id)}{t.counter_account_id ? ` → ${acctName(t.counter_account_id)}` : ''}{t.reinvested ? ' · reinvested' : ''}</Text>
                 </View>
                 {eff !== 0 && <Text style={[styles.hAmt, { color: eff >= 0 ? Colors.gainText : Colors.red }]} accessibilityLabel={`${eff > 0 ? 'plus ' : ''}${figSaid('MK-NW-M-062', eff)}`}>{eff >= 0 ? '+' : ''}{fig('MK-NW-M-062', eff)}</Text>}
-                <TouchableOpacity hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }} accessibilityRole="button" accessibilityLabel={`Delete ${txnLabel(t.type).toLowerCase()}${t.ticker ? ` ${t.ticker}` : ''}`} onPress={() => remove(t.id)}><Text style={styles.hDel}>✕</Text></TouchableOpacity>
+                <TouchableOpacity hitSlop={Tap.slop} accessibilityRole="button" accessibilityLabel={`Delete ${txnLabel(t.type).toLowerCase()}${t.ticker ? ` ${t.ticker}` : ''}`} onPress={() => remove(t.id)}><Text style={styles.hDel}>✕</Text></TouchableOpacity>
               </View>
             );
           })}
@@ -1348,7 +1355,7 @@ const styles = StyleSheet.create({
   closedRest: { flexShrink: 1 },
   // the add-an-account sheet — the same shape Net worth uses, so one question looks like one question
   chooserBackdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end' },
-  chooserCard: { backgroundColor: Colors.bgSecondary, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: Spacing.lg, paddingBottom: 34 },
+  chooserCard: { ...SHEET_FRAME, padding: Spacing.lg, paddingBottom: 34 },
   chooserHead: { fontSize: 20, fontWeight: '800', color: Colors.textPrimary, textAlign: 'center', marginBottom: Spacing.md },
   chooserRow: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginBottom: 8, minHeight: 64, justifyContent: 'center' },
   chooserTitle: { fontSize: 15, fontWeight: '800', color: Colors.textPrimary },
@@ -1420,20 +1427,20 @@ const styles = StyleSheet.create({
   hDel: { fontSize: 15, color: Colors.textTertiary, paddingHorizontal: 4 },
 
   scrim: { position: 'absolute', inset: 0, backgroundColor: 'rgba(0,0,0,0.3)' } as any,
-  sheet: { position: 'absolute', left: 0, right: 0, bottom: 0, backgroundColor: Colors.white, borderTopLeftRadius: 22, borderTopRightRadius: 22, padding: 18, paddingBottom: 28 },
-  grab: { width: 38, height: 5, borderRadius: 3, backgroundColor: Colors.border, alignSelf: 'center', marginBottom: 12 },
+  sheet: { ...SHEET_FRAME, position: 'absolute', left: 0, right: 0, bottom: 0, padding: 18, paddingBottom: 28 },
+  grab: { ...SHEET_HANDLE },
   sheetT: { fontSize: 17, fontWeight: '800', color: Colors.textPrimary, marginBottom: 6 },
   sheetS: { fontSize: 13, color: Colors.textSecondary, marginBottom: 8, lineHeight: 17 },
   note: { fontSize: 11, color: Colors.textSecondary, marginTop: 8, lineHeight: 15 },
   fieldL: { fontSize: 13, fontWeight: '700', color: Colors.textSecondary, marginTop: 14, marginBottom: 5 },
   acBox: { borderWidth: 1, borderColor: Colors.border, borderRadius: Radii.md, marginTop: 4, backgroundColor: Colors.cardBg, overflow: 'hidden' },
-  acRow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 10, paddingHorizontal: 12, borderBottomWidth: 1, borderBottomColor: Colors.bgTertiary },
+  acRow: { flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: Tap.min, paddingVertical: 10, paddingHorizontal: 12, borderBottomWidth: 1, borderBottomColor: Colors.bgTertiary },
   acSym: { fontSize: 15, fontWeight: '800', color: Colors.textPrimary, width: 60 },
   acName: { fontSize: 13, color: Colors.textSecondary, flex: 1 },
   input: { borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radii.md, padding: 11, fontSize: 15, color: Colors.textPrimary },
   kindWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 7 },
   // rounded corners, not semicircle ends — the one shape of a choice (DEC-0231, 2026-09-25; corrected 2026-10-20)
-  kindChip: { borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radii.md, paddingHorizontal: 11, paddingVertical: 7 },
+  kindChip: { minHeight: Tap.min, justifyContent: 'center', borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radii.md, paddingHorizontal: 11, paddingVertical: 7 },
   kindChipOn: { borderColor: Colors.primary, backgroundColor: Colors.primaryLight },
   kindChipT: { fontSize: 13, fontWeight: '700', color: Colors.textSecondary },
   kindChipTOn: { color: Colors.primaryDark },

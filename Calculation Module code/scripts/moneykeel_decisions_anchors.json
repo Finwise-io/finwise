@@ -2286,6 +2286,26 @@
   "DEC-1560": {
    "governs": "src/screens/__tests__/cashflow_matches_v01.test.tsx · income_manager_matches_v07.test.tsx · kept_editors_match.test.tsx (each names the difference) · Calculation Module code/scripts/moneykeel_workplan.json · src/onboarding/steps.ts (MK-XS-F-206 DRAWN_SOURCE_ORDER — the income picker keeps the sources that fit the person, eight for someone employed)",
    "why_it_governs_those": "applied and tested, 2026-10-04; 2026-10-31: the income picker in sign-up and the Income manager keeps the subset his ruling kept, in the drawing’s order (DEC-8965, FX-CF-B, held by income_fixes_fx_cf_b_2026_10_27.test.tsx)"
+  },
+  "DEC-9262": {
+   "governs": "MoneyKeel/functions/networth-and-performance/outside_networth_01.test.ts · src/__tests__/guard_every_return_is_time_weighted.test.ts (the nine findings of Net worth file 1, workplan #202 and #205)",
+   "why_it_governs_those": "his instruction of 2026-10-04 to fix all nine; the two tests hold the fixes (recorded 2026-11-01)"
+  },
+  "DEC-9263": {
+   "governs": "MK-NW-O-004 theEmergencyFund · MK-NW-M-046 · MK-NW-M-047 · src/screens/NetWorthScreen.tsx",
+   "why_it_governs_those": "the emergency fund’s two numbers and the debt payments counted in them (recorded 2026-11-01)"
+  },
+  "DEC-9264": {
+   "governs": "src/screens/CashFlowScreen.tsx (This month’s planned and actual blocks) · src/screens/__tests__/cashflow_matches_v01.test.tsx",
+   "why_it_governs_those": "the debt’s own name in both blocks of This month (recorded 2026-11-01)"
+  },
+  "DEC-9265": {
+   "governs": "MK-NW-F-091 pricedGainOf · src/screens/PerformanceScreen.tsx (answered by DEC-5291)",
+   "why_it_governs_those": "his question on windows before the daily record, settled by DEC-5291 (recorded 2026-11-01)"
+  },
+  "DEC-9266": {
+   "governs": "src/screens/BasePayScreen.tsx (the filing-status question’s four options) · src/screens/__tests__/filing_matches_v07.test.tsx",
+   "why_it_governs_those": "the four filing options with no small print (recorded 2026-11-01)"
   }
  }
 }

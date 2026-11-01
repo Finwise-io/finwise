@@ -5,6 +5,7 @@
 //   Security (asked once) + a button into scenario analysis.
 // Screen 2 "Scenario analysis": what-if sliders → projected-nest-egg hero (deterministic, live) +
 //   Monte-Carlo confidence + percentile band (on release) + save/compare scenarios.
+import { SHEET_FRAME, SHEET_HANDLE } from '../components/sheetFrame';   // one sheet frame (NW3-18, 2026-10-31)
 import { MoneyBox } from '../components/MoneyBox';   // every money box, one component (DEC-8385)
 import { plural } from '../domain/_shared/plural';   // the one list of words and plurals (DEC-4082, 2026-10-10)
 import { ageAttainedInYear } from '../domain/income/limits';
@@ -16,7 +17,7 @@ import Svg, { Path, Line, Circle, G, Rect, Text as SvgText } from 'react-native-
 import { useRouter } from 'expo-router';
 import { useStore } from '../store/useStore';
 import { SectionBand } from '../components/SectionBand';
-import { Colors, Spacing, Radii } from '../utils/theme';
+import { Colors, Spacing, Radii, Tap } from '../utils/theme';
 import { money } from '../domain/_shared/num';
 import { moneyCompact, currencySymbol } from '../domain/_shared/money';
 import { maskedMoney } from '../components/useMoney';
@@ -41,7 +42,7 @@ import { useSliderPan } from '../components/sliderGesture';   // B47 finding 12:
 
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
 const big = (n: number) => moneyCompact(n, 'M');
-import { volOf, clamp } from '../domain/retirement/willItLast';
+import { volOf, clamp, planRetireAgeOf } from '../domain/retirement/willItLast';   // one retirement age (R10)
 import { HISTORIC_TTM_BODY } from '../constants/historicReturn';   // the same words as the account page's card (DEC-6005)
 const SECTION_COLOR: Record<string, string> = { Cash: Colors.primary, Investments: Colors.purple, Retirement: Colors.blue, Property: Colors.gold };
 const sectionOf = (a: AssetAccount) => assetKind(a.kind)?.section ?? (a.tax_bucket === 'CASH' ? 'Cash' : a.tax_bucket === 'PROPERTY' ? 'Property' : a.tax_bucket === 'TAXABLE' ? 'Investments' : 'Retirement');
@@ -107,7 +108,8 @@ export default function RetirementCockpit() {
   const spendDefault = retirementSpendMonthly(op) || num(op.monthlySpending) || 5000;
   // B-37: never default a retiree's "retire age" below their current age (an already-retired 74yo
   // must not be told the plan "assumes age 65"). Use their current age as the floor when retired.
-  const retireDefault = num(op.targetRetirementAge) || (store.employmentStatus === 'retired' ? age : 65);
+  // ONE RETIREMENT AGE (R10, 2026-10-31): the plan's own reader, never a second copy of its rule
+  const planAgeOf = planRetireAgeOf({ assumptions: A, op, retiredNow: store.employmentStatus === 'retired', age });
   const horizon = A.horizonAge ?? (num(op.horizonAge) || 90);
   const ssEligibleEffective = A.ssEligible == null ? guaranteedDefault > 0 : A.ssEligible;
   const claimAge = A.ssClaimAge ?? 67;
@@ -120,7 +122,7 @@ export default function RetirementCockpit() {
   const guarRowMonthly = ssIncome + flatStreams.reduce((t, st) => t + st.monthly, 0);
 
   // ---- YOUR PLAN (committed) — drives Screen 1; NOT the scenario sliders ----
-  const planRetireAge = A.retireAge ?? retireDefault;
+  const planRetireAge = planAgeOf.age;
   const planSave = A.contribMonthly ?? contribDefault;
   const planSpend = A.spendMonthly ?? spendDefault;
   const planInfl = A.inflation ?? inflDefault;        // the person's own rate if set, else the dated default
@@ -544,7 +546,7 @@ export default function RetirementCockpit() {
           {nestEgg > 0 && (() => {
             const band = planChance == null || planChance >= 80 ? 'good' : planChance >= 60 ? 'watch' : 'risk';
             const bg = band === 'risk' ? Colors.redLight : band === 'watch' ? Colors.amberLight : Colors.primaryLight;
-            const head = band === 'risk' ? '⚠️  Might fall short' : band === 'watch' ? '⚠️  Close — worth tightening' : '✅  Looking good';
+            const head = band === 'risk' ? '⚠️ Might fall short' : band === 'watch' ? '⚠️ Close — worth tightening' : '✅ Looking good';
             const lasts = dDeplete == null ? `past age ${horizon}` : `to about age ${dDeplete}`;
             const pace = rateBandWords(dPlan.rateBand, { short: true });   // DEC-0036 · DEC-0215
             return (
@@ -1043,7 +1045,7 @@ function SsEditor({ open, onClose, A, ssDefault, onApply }: { open: boolean; onC
           <>
             <View style={styles.acc}>
               <View style={{ flex: 1 }}><Text style={styles.accName}>Estimated benefit</Text><Text style={styles.accBal}>The monthly figure on your statement — at your full retirement age — in today’s dollars</Text></View>
-              <View style={styles.pctBox}><Text style={styles.pctU}>{currencySymbol()}</Text><MoneyBox bare dollarBeside style={[styles.pctIn, { width: 78 }]} value={amt} onChangeText={setAmt} placeholder="0" /></View>
+              <View style={styles.pctBox}><Text style={styles.pctU}>{currencySymbol()}</Text><MoneyBox bare dollarBeside style={[styles.pctIn, { width: 78 }]} value={amt} onChangeText={setAmt} a11y="Estimated benefit" /></View>
             </View>
             <View style={styles.acc}>
               <View style={{ flex: 1 }}><Text style={styles.accName}>Claim at age</Text><Text style={styles.accBal}>62 earliest · 67 full · 70 max</Text></View>
@@ -1129,7 +1131,7 @@ function TtmEditor({ account, onClose, benchmark, onApply, onClear }: {
         {/* the same words as the account page's card for this one field (DEC-6005, 2026-10-19) */}
         <Text style={styles.sheetS}>{HISTORIC_TTM_BODY} Benchmark for its type is {(benchmark * 100).toFixed(2)}%.</Text>
         <View style={styles.pctBox}>
-          <TextInput style={[styles.pctIn, { width: 90 }]} keyboardType="numbers-and-punctuation" value={val} onChangeText={setVal} placeholder="0.0" placeholderTextColor={Colors.textTertiary} autoFocus />
+          <TextInput style={[styles.pctIn, { width: 90 }]} keyboardType="numbers-and-punctuation" value={val} onChangeText={setVal} accessibilityLabel="Historic 12-month return, percent" autoFocus />
           <Text style={styles.pctU}>% over 12 months</Text>
         </View>
         <TouchableOpacity style={styles.applyBtn} onPress={() => onApply(clamp(num(val) * (val.trim().startsWith('-') ? -1 : 1), -90, 200) / 100)}><Text style={styles.applyT}>Save</Text></TouchableOpacity>
@@ -1213,7 +1215,7 @@ const styles = StyleSheet.create({
   heroExplain: { fontSize: 13, color: Colors.textSecondary, lineHeight: 16, marginTop: 8 },
   planStmt: { fontSize: 13, color: Colors.primaryDark, fontWeight: '600', marginTop: 8, lineHeight: 16 },
   basisRow: { flexDirection: 'row', gap: 7, marginTop: 8 },
-  basisPill: { flex: 1, borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radii.md, paddingVertical: 8, paddingHorizontal: 6, alignItems: 'center' },
+  basisPill: { minHeight: Tap.min, justifyContent: 'center', flex: 1, borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radii.md, paddingVertical: 8, paddingHorizontal: 6, alignItems: 'center' },
   basisPillOn: { borderColor: Colors.primary, backgroundColor: Colors.primaryLight },
   basisPillT: { fontSize: 11, fontWeight: '700', color: Colors.textSecondary },
   basisPillR: { fontSize: 13, fontWeight: '800', color: Colors.textPrimary, marginTop: 2 },
@@ -1225,7 +1227,7 @@ const styles = StyleSheet.create({
   instWarn: { fontSize: 11, color: Colors.amber, fontWeight: '700', marginTop: 1 },
   kindGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   // rounded corners, not semicircle ends — the one shape of a choice (DEC-0231, 2026-09-25; corrected 2026-10-20)
-  kindChip: { flexDirection: 'row', alignItems: 'center', gap: 6, borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radii.md, paddingHorizontal: 11, paddingVertical: 8 },
+  kindChip: { minHeight: Tap.min, justifyContent: 'center', flexDirection: 'row', alignItems: 'center', gap: 6, borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radii.md, paddingHorizontal: 11, paddingVertical: 8 },
   kindIc: { fontSize: 15 },
   kindT: { fontSize: 13, fontWeight: '700', color: Colors.textPrimary },
 
@@ -1341,7 +1343,7 @@ const styles = StyleSheet.create({
   chipPicked: { borderColor: Colors.primary, backgroundColor: Colors.primaryLight },
   compareLink: { fontSize: 13, fontWeight: '800', color: Colors.primaryDark, paddingVertical: 6 },
   cmpScrim: { flex: 1, backgroundColor: 'rgba(0,0,0,0.35)' },
-  cmpSheet: { backgroundColor: Colors.cardBg, borderTopLeftRadius: Radii.xl, borderTopRightRadius: Radii.xl, padding: Spacing.lg, paddingBottom: Spacing.xl },
+  cmpSheet: { ...SHEET_FRAME, padding: Spacing.lg, paddingBottom: Spacing.xl },
   cmpTitle: { fontSize: 17, fontWeight: '800', color: Colors.textPrimary, marginBottom: Spacing.md },
   cmpHead: { flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: Colors.border, paddingBottom: 6 },
   cmpRow: { flexDirection: 'row', paddingVertical: 9, borderBottomWidth: 1, borderBottomColor: Colors.bgTertiary, minHeight: 40, alignItems: 'center' },
@@ -1352,7 +1354,7 @@ const styles = StyleSheet.create({
   cmpNote: { fontSize: 13, color: Colors.textTertiary, marginTop: 10, lineHeight: 17 },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 12, alignItems: 'center' },
   // rounded corners, not semicircle ends — the one shape of a choice (DEC-0231, 2026-09-25; corrected 2026-10-20)
-  chip: { backgroundColor: Colors.cardBg, borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radii.md, paddingHorizontal: 12, paddingVertical: 7 },
+  chip: { minHeight: Tap.min, justifyContent: 'center', backgroundColor: Colors.cardBg, borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radii.md, paddingHorizontal: 12, paddingVertical: 7 },
   chipT: { fontSize: 13, fontWeight: '700', color: Colors.textPrimary },
   chipHint: { fontSize: 13, color: Colors.textTertiary, width: '100%' },
 
@@ -1366,9 +1368,9 @@ const styles = StyleSheet.create({
 
 
   scrim: { position: 'absolute', inset: 0, backgroundColor: 'rgba(0,0,0,0.3)' } as any,
-  sheet: { position: 'absolute', left: 0, right: 0, bottom: 0, backgroundColor: Colors.white, borderTopLeftRadius: 22, borderTopRightRadius: 22, padding: 18, paddingBottom: 28 },
+  sheet: { ...SHEET_FRAME, position: 'absolute', left: 0, right: 0, bottom: 0, padding: 18, paddingBottom: 28 },
   kav: { position: 'absolute', left: 0, right: 0, bottom: 0, justifyContent: 'flex-end' } as any,   // #20: keyboard-aware bottom anchor
-  grab: { width: 38, height: 5, borderRadius: 3, backgroundColor: Colors.border, alignSelf: 'center', marginBottom: 12 },
+  grab: { ...SHEET_HANDLE },
   sheetT: { fontSize: 17, fontWeight: '800', color: Colors.textPrimary },
   sheetS: { fontSize: 13, color: Colors.textSecondary, marginTop: 3, marginBottom: 8, lineHeight: 17 },
   acc: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 11, borderTopWidth: 1, borderTopColor: Colors.border },

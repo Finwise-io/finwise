@@ -195,7 +195,7 @@ describe('v08 · the rows of 2026-10-25, on the drawing and on the screen', () =
     const want = [
       /2026-10-25 DRAWING ERROR, every frame — the info dot is drawn as a 9-point italic i in a ring/,
       /2026-10-25 DRAWING ERROR, frame G — the retirement plan line behind the add sheet is drawn without the info dot/,
-      /2026-10-25 Frames A, A2, B and C — three small looks, now as drawn\. \(1\) The · in “3–6 months is the usual guide · an estimate from your own numbers” is in the line’s own grey at regular weight/,
+      /2026-10-25 Frames A, A2, B and C — three small looks, now as drawn\. \(1\) The · in ‘3–6 months is the usual guide · an estimate from your own numbers’ is in the line’s own grey at regular weight/,   // screen words in single marks since 2026-10-31 (R17: double marks hold his words only)
       /2026-10-25 Frame D — the amber box is drawn with 16-point corners, 12 points inside on every side and its headline at 800/,
       /2026-10-25 DRAWING ERROR, frames A, A2, B, C and D — the drawing sets the rows, the emergency fund card and the doors 16 points from the edge/,
       /2026-10-25 DRAWING ERROR, every frame — the top bar’s buttons are drawn 32 points tall\. The app draws them 38 points tall/,
@@ -203,7 +203,7 @@ describe('v08 · the rows of 2026-10-25, on the drawing and on the screen', () =
       /2026-10-25 DRAWING ERROR, frames A and A2 — the bar under What you own draws each part at its true share/,
       /2026-10-25 Not a drawn state: the step-by-step add \(Step 1 of 5/,
       // FIX-MONTH, 2026-10-26 (the lead's ruling of 2026-10-25): a rate never entered reads "rate not entered", never "0.00% APR"
-      /2026-10-25 Not a drawn state: the step-by-step add’s last step, Add your debts \(Step 5 of 5\), lists each debt with its rate under its name\. .* reads “rate not entered · \$1,900\/month” under “Lake house mortgage”, never “0\.00% APR · \$1,900\/month”\. A typed 0 reads “0\.00% APR · \$1,900\/month”\./,
+      /2026-10-25 Not a drawn state: the step-by-step add’s last step, Add your debts \(Step 5 of 5\), lists each debt with its rate under its name\. .* reads ‘rate not entered · \$1,900\/month’ under ‘Lake house mortgage’, never ‘0\.00% APR · \$1,900\/month’\. A typed 0 reads ‘0\.00% APR · \$1,900\/month’\./,
     ];
     expect(want.filter((w) => !w.test(ROWS))).toEqual([]);
     const html = require('fs').readFileSync(DRAWING, 'utf8') as string;

@@ -1,5 +1,6 @@
 // Bonds — individual bond management (Phase B). Bonds are AssetAccounts with bond fields, so they
 // already flow into Net worth + the nest egg; here we add/edit them and show bond-specific metrics.
+import { SHEET_FRAME, SHEET_HANDLE } from '../components/sheetFrame';   // one sheet frame (NW3-18, 2026-10-31)
 import { MoneyBox } from '../components/MoneyBox';   // every money box, one component (DEC-8385)
 import { plural } from '../domain/_shared/plural';   // the one list of words and plurals (DEC-4082, 2026-10-10)
 import TopBar from '../components/TopBar';
@@ -8,7 +9,7 @@ import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Modal,
 import { SectionBand } from '../components/SectionBand';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useStore } from '../store/useStore';
-import { Colors, Spacing, Radii } from '../utils/theme';
+import { Colors, Spacing, Radii, Tap } from '../utils/theme';
 import { fig, figPer, figSpoken, figWords } from '../components/figure';   // rule 11
 import { EmptyNote } from '../components/UI';
 import { DateField } from '../components/DateField';
@@ -296,9 +297,9 @@ export function BondEditor({ bond, open, onClose, onSave, onDelete }: {
           <TextInput style={styles.input} value={institution} onChangeText={setInstitution} placeholder="e.g. Chase, Fidelity, Schwab" placeholderTextColor={Colors.textTertiary} />
           <Text style={styles.fieldHint}>Held inside a brokerage or bank account? Add it here — if that account already has a balance, we’ll ask whether this bond is part of it so nothing is double-counted.</Text>
           <Text style={styles.fieldL}>Face (par) value</Text>
-          <MoneyBox bare style={styles.input} value={face} onChangeText={setFace} placeholder="10000" />
+          <MoneyBox bare style={styles.input} value={face} onChangeText={setFace} a11y="Face (par) value" />   {/* empty when not entered (R16, 2026-10-31; NW3-07): it showed 10000 */}
           <Text style={styles.fieldL}>Coupon rate (% per year)</Text>
-          <TextInput style={styles.input} keyboardType="decimal-pad" value={coupon} onChangeText={setCoupon} placeholder="4.5" placeholderTextColor={Colors.textTertiary} />
+          <TextInput style={styles.input} keyboardType="decimal-pad" value={coupon} onChangeText={setCoupon} accessibilityLabel="Coupon rate, percent a year" />
           {!isCd && (
             <>
               {/* (2026-10-20, under DEC-3390) how often a bond pays — the accrued-interest estimate reads it; never asked of a CD */}
@@ -348,7 +349,7 @@ export function BondEditor({ bond, open, onClose, onSave, onDelete }: {
           <Text style={styles.fieldL}>Market value, as your statement shows it — without accrued interest (blank = what you paid, else face value)</Text>
           <MoneyBox bare style={styles.input} value={value} onChangeText={setValue} placeholder="the value on your statement" />
           <Text style={styles.fieldL}>What you paid (optional)</Text>
-          <MoneyBox bare style={styles.input} value={paid} onChangeText={setPaid} placeholder="$9,700" a11y="What you paid, optional" />
+          <MoneyBox bare style={styles.input} value={paid} onChangeText={setPaid} a11y="What you paid, optional" />
           <Text style={styles.fieldL}>Value as of</Text>
           <DateField value={valueAsOf} onChange={setValueAsOf} label="value as of" style={styles.input} />
           {valid && num(face) > 0 && coupon.trim() !== '' && <Text style={styles.note}>~{figPer('MK-NW-M-056', num(face) * (num(coupon) / 100))} in coupon income.</Text>}
@@ -372,7 +373,7 @@ export function BondEditor({ bond, open, onClose, onSave, onDelete }: {
             </View>
           )}
           <TouchableOpacity style={[styles.saveBtn, !valid && { opacity: 0.4 }]} disabled={!valid} onPress={save}><Text style={styles.saveBtnT}>{bond ? 'Save' : 'Add bond'}</Text></TouchableOpacity>
-          {onDelete && <TouchableOpacity accessibilityRole="button" accessibilityLabel="Delete bond" hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }} onPress={onDelete}><Text style={styles.deleteLink}>Delete bond</Text></TouchableOpacity>}
+          {onDelete && <TouchableOpacity accessibilityRole="button" accessibilityLabel="Delete bond" hitSlop={Tap.slop} onPress={onDelete}><Text style={styles.deleteLink}>Delete bond</Text></TouchableOpacity>}
           <View style={{ height: 16 }} />
         </ScrollView>
       </View>
@@ -406,8 +407,8 @@ const styles = StyleSheet.create({
   bondMetrics: { flexDirection: 'row', flexWrap: 'wrap', gap: 12, marginTop: 8 },
   metric: { fontSize: 13, fontWeight: '700', color: Colors.primary },
   scrim: { position: 'absolute', inset: 0, backgroundColor: 'rgba(0,0,0,0.3)' } as any,
-  sheet: { position: 'absolute', left: 0, right: 0, bottom: 0, backgroundColor: Colors.white, borderTopLeftRadius: 22, borderTopRightRadius: 22, padding: 18, paddingBottom: 28 },
-  grab: { width: 38, height: 5, borderRadius: 3, backgroundColor: Colors.border, alignSelf: 'center', marginBottom: 12 },
+  sheet: { ...SHEET_FRAME, position: 'absolute', left: 0, right: 0, bottom: 0, padding: 18, paddingBottom: 28 },
+  grab: { ...SHEET_HANDLE },
   sheetT: { fontSize: 17, fontWeight: '800', color: Colors.textPrimary, marginBottom: 4 },
   fieldL: { fontSize: 13, fontWeight: '700', color: Colors.textSecondary, marginTop: 14, marginBottom: 5 },
   fieldHint: { fontSize: 11, color: Colors.textTertiary, lineHeight: 15, marginTop: 4 },
@@ -415,7 +416,7 @@ const styles = StyleSheet.create({
   note: { fontSize: 13, color: Colors.textSecondary, marginTop: 8 },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   // rounded corners, not semicircle ends — the one shape of a choice (DEC-0231, 2026-09-25; corrected 2026-10-20)
-  chip: { borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radii.md, paddingHorizontal: 12, paddingVertical: 8 },
+  chip: { minHeight: Tap.min, justifyContent: 'center', borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radii.md, paddingHorizontal: 12, paddingVertical: 8 },
   chipOn: { borderColor: Colors.primary, backgroundColor: Colors.primaryLight },
   chipT: { fontSize: 13, fontWeight: '700', color: Colors.textSecondary },
   chipTOn: { color: Colors.primaryDark },

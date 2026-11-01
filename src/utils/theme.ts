@@ -112,6 +112,12 @@ export const Spacing = {
   xxl: 32,
 };
 
+// THE TAP FLOOR (DEC-0141; NW3-16, NW3-17, 2026-10-31): every choice — a chip, a segment, a radio row — is at least this tall, so a finger
+// at 55 to 70 lands on it. src/__tests__/every_choice_is_44_points.test.ts holds every choice in the app to it.
+// A SMALL WORD OR ✕ THAT IS A BUTTON (2026-11-01, FX-SHARED, NW3-16/17, FX-PF's count of 92 on the sheets): it keeps its drawn size and
+// takes this touch margin, 16 above and below, so its tap area is at least 44 tall (a 12-point line is 14.4 + 32 = 46.4).
+export const Tap = { min: 44, slop: { top: 16, bottom: 16, left: 8, right: 8 } } as const;
+
 export const Radii = {
   sm: 8,
   md: 12,

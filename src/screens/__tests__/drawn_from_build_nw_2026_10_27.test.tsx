@@ -1,16 +1,17 @@
-/** THREE SURFACES DRAWN FROM THE BUILD, HELD WORD FOR WORD (FX-NW, 2026-10-27; drawing match round 2, NW2-15 to NW2-17).
- *  The debt editor (moneykeel_pres_mock_debt-editor_v02.html), the step-by-step add with its ＋ Add and Edit account sheets
- *  (moneykeel_pres_mock_step-by-step-add_v01.html) and Add an account in edit mode (moneykeel_pres_mock_add-account-edit-mode_v01.html)
+/** THREE SURFACES DRAWN FROM THE BUILD, HELD LINE BY LINE AND BOX BY BOX (FX-NW, 2026-10-27; drawing match rounds 2 and 3, NW2-15 to NW2-17,
+ *  NW3-32). The debt editor (moneykeel_pres_mock_debt-editor_v03.html), the step-by-step add with its ＋ Add and Edit account sheets
+ *  (moneykeel_pres_mock_step-by-step-add_v02.html) and Add an account in edit mode (moneykeel_pres_mock_add-account-edit-mode_v02.html)
  *  had no drawing. Each state below is rendered on Oct 27, 2026 with its own household; with FXNW_DRAW_OUT set the render is written
  *  out as the drawing's phone (src/testing/drawFromBuild.ts), and otherwise every line the drawing draws for that state must be the
- *  screen's, in order, and nothing else — so a change to any of the three surfaces goes red here until its drawing is redrawn.
+ *  screen's, in order, and nothing else, and every line and box must look as drawn: its size, weight and colour, and what a box holds
+ *  (a grey example marked as one). A change to any of the three surfaces goes red here until its drawing is redrawn.
  *  The guard proves it looked: every state finds its phone in its drawing and at least the lines it had when drawn. */
 import React from 'react';
 import { render, screen, fireEvent, act } from '@testing-library/react-native';
 import * as fs from 'fs';
 import * as path from 'path';
 import { useStore } from '../../store/useStore';
-import { toHtml, drawnLines } from '../../testing/drawFromBuild';
+import { toHtml, drawnLines, drawnItems, builtItems } from '../../testing/drawFromBuild';
 
 jest.mock('../../services/sync/snaptradeSync', () => ({ runSnapTradeSync: jest.fn(async () => 0) }));
 let mockParams: any = {};
@@ -24,8 +25,9 @@ jest.mock('expo-router', () => ({
 const OUT = process.env.FXNW_DRAW_OUT;   // a folder: write each state's render there for the drawing, instead of holding it
 if (OUT) fs.mkdirSync(OUT, { recursive: true });
 const DOCS = path.join(__dirname, '..', '..', '..', 'MoneyKeel/documents/networth-and-performance');
+// redrawn 2026-10-31 (drawing match round 3): the titles at 20 (DEC-8931), every box nobody filled empty (R16), one list of kinds (NW3-08)
 const DRAWING: Record<string, string> = {
-  debt: 'moneykeel_pres_mock_debt-editor_v02.html', step: 'moneykeel_pres_mock_step-by-step-add_v01.html', edit: 'moneykeel_pres_mock_add-account-edit-mode_v01.html',
+  debt: 'moneykeel_pres_mock_debt-editor_v03.html', step: 'moneykeel_pres_mock_step-by-step-add_v02.html', edit: 'moneykeel_pres_mock_add-account-edit-mode_v02.html',
 };
 const HTML: Record<string, string> = {};
 const htmlOf = (fam: string) => (HTML[fam] ??= fs.readFileSync(path.join(DOCS, DRAWING[fam]), 'utf8'));
@@ -54,12 +56,20 @@ const snap = (key: string, meta: any) => {
   const drawn = drawnLines(htmlOf(key.split('_')[0]), key);
   expect(drawn.length).toBeGreaterThanOrEqual(10);          // the state's phone is in its drawing, and was read
   expect(built).toEqual(drawn);                             // every line, in order, and nothing else
+  // EVERY LINE AND EVERY BOX WITH HOW IT LOOKS (2026-10-31, NW3-32): its words or what the box holds — a grey example is marked as one —
+  // and its size, weight and colour. The words alone let a title drawn at 17 pass beside one built at 20, and never read a box.
+  const say = (x: { kind: string; t: string; size: number; weight: string; color: string }) => `${x.kind} · ${x.t} · ${x.size} · ${x.weight} · ${x.color}`;
+  const dItems = drawnItems(htmlOf(key.split('_')[0]), key).map(say);
+  const bItems = builtItems(screen.UNSAFE_root).map(say);
+  expect(dItems.length).toBeGreaterThanOrEqual(drawn.length);   // it read every line, and the boxes too
+  expect(bItems).toEqual(dItems);
 };
 const TopBar = require('../../components/TopBar').default;
 const NetWorth = () => { const C = require('../NetWorthScreen').default; return <><TopBar /><C /></>; };
 const AddAccount = () => { const C = require('../AddAccountScreen').default; return <C />; };
 const ph = (t: string) => screen.getByPlaceholderText(t);
 const typeIn = (placeholder: string, text: string, nth = 0) => fireEvent.changeText(screen.getAllByPlaceholderText(placeholder)[nth], text);
+const byLabel = (label: string, text: string) => fireEvent.changeText(screen.getByLabelText(label), text);   // a box with no example is found by its label (R16)
 
 const CHK = { asset_id: 'chk', label: 'Chase Checking', institution: 'Chase', kind: 'checking', tax_bucket: 'CASH', balance: 18_000, target_return: 0, asset_class: 'cash', source: 'manual', value_as_of: '2026-10-27' };
 const HOME = { asset_id: 'home', label: 'Home', kind: 'home', tax_bucket: 'PROPERTY', balance: 450_000, target_return: 0, re_use: 'primary', source: 'manual', value_as_of: '2026-10-27' };
@@ -78,12 +88,12 @@ describe('debt editor', () => {
   test('A · Add debt, as it opens', () => { openAdd(base([CHK, HOME])); snap('debt_A', { title: 'STATE A · ADD DEBT, AS IT OPENS · CHECKING $18,000 AND A HOME, NO DEBTS YET' }); });
   test('B · a card typed', () => {
     openAdd(base([CHK, HOME]));
-    typeIn('Lender / name (e.g. Chase Sapphire)', 'Chase Visa'); typeIn('0', '6000'); typeIn('19.99', '22.99'); typeIn('$0', '180'); typeIn('≥ min', '400');
+    typeIn('Lender / name (e.g. Chase Sapphire)', 'Chase Visa'); byLabel('Balance', '6000'); byLabel('Interest rate percent', '22.99'); byLabel('Minimum payment a month', '180'); byLabel('You pay a month', '400');
     snap('debt_B', { title: 'STATE B · A CARD TYPED · CHASE VISA $6,000 AT 22.99%, MINIMUM $180, PAYING $400' });
   });
   test('C · a card whose payment does not cover the interest', () => {
     openAdd(base([CHK, HOME]));
-    typeIn('Lender / name (e.g. Chase Sapphire)', 'Store card'); typeIn('0', '6000'); typeIn('19.99', '22.99'); typeIn('$0', '100');
+    typeIn('Lender / name (e.g. Chase Sapphire)', 'Store card'); byLabel('Balance', '6000'); byLabel('Interest rate percent', '22.99'); byLabel('Minimum payment a month', '100');
     snap('debt_C', { title: 'STATE C · A CARD THAT NEVER PAYS OFF · $6,000 AT 22.99%, $100 A MONTH' });
   });
   test('D · Mortgage picked, the home not yet picked', () => {
@@ -92,7 +102,7 @@ describe('debt editor', () => {
   });
   test('E · a mortgage typed on the home', () => {
     openAdd(base([CHK, HOME])); fireEvent.press(screen.getByLabelText('Mortgage')); fireEvent.press(screen.getByLabelText('On Home'));
-    typeIn('Lender / name (e.g. Chase Sapphire)', 'Home mortgage'); typeIn('0', '412000'); typeIn('6.5', '6.25'); typeIn('1–31', '1'); typeIn('$0', '2850');
+    typeIn('Lender / name (e.g. Chase Sapphire)', 'Home mortgage'); byLabel('Balance', '412000'); byLabel('Interest rate percent', '6.25'); byLabel('Due day', '1'); byLabel('Monthly payment, what you pay', '2850');
     snap('debt_E', { title: 'STATE E · A MORTGAGE ON THE HOME · $412,000 AT 6.25%, $2,850 A MONTH · TODAY OCT 27, 2026' });
   });
   test('F · Mortgage with no property in Net worth', () => {
@@ -101,7 +111,7 @@ describe('debt editor', () => {
   });
   test('G · a loan due in full', () => {
     openAdd(base([CHK, HOME])); fireEvent.press(screen.getByLabelText('Personal loan')); fireEvent.press(screen.getByLabelText('Due in full'));
-    typeIn('Lender / name (e.g. Chase Sapphire)', 'Loan from Dad'); typeIn('0', '15000'); typeIn('12/2026', '12/2026');
+    typeIn('Lender / name (e.g. Chase Sapphire)', 'Loan from Dad'); byLabel('Balance', '15000'); byLabel('Due date, month and year', '12/2026');
     snap('debt_G', { title: 'STATE G · A LOAN DUE IN FULL · $15,000 DUE DECEMBER 2026 · TODAY OCT 27, 2026' });
   });
   test('H · Edit debt: a car loan whose rate and payment were never entered', () => {

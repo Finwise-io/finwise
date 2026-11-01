@@ -50,6 +50,14 @@ test('frame 2 — cash entered, nothing else: Cash is plain, Investments shows $
   expect(v.slice(iInv, iInv + 6)).toContain('Add your accounts ›');
   const iCash = v.findIndex((s) => /Cash/.test(s));
   expect(v.slice(iCash + 1, iInv)).not.toContain('Nothing entered yet.');   // a real figure needs no line
+  // the Debts door, 'Add your debts' with its › in the arrow column (v08 frame C; NW3-10, 2026-10-31 — it read 'Add your debts ›' inline)
+  expect(v[v.indexOf('Add your debts') + 1]).toBe('›');
+});
+// THE OLD ANSWER, KEPT (NW3-10, 2026-10-31): the door was written inline, 'Add your debts ›'
+test.failing('the old answer: frame 2 writes the Debts door inline, "Add your debts ›"', () => {
+  useStore.setState({ assetAccounts: [{ asset_id: 'sav', label: 'Ally Savings', institution: 'Ally', kind: 'savings', tax_bucket: 'CASH', balance: 12400, target_return: 0.01 }] } as any);
+  render(<NetWorth />);
+  expect(visible()).toContain('DEBTS');
   expect(screen.getAllByText('Add your debts ›').length).toBeGreaterThanOrEqual(1);
 });
 

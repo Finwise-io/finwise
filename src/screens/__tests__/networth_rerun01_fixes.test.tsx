@@ -403,7 +403,7 @@ describe('11 · the debt editor saves a payment left blank as not entered, never
     const { DebtEditorSheet } = require('../../components/DebtEditorSheet');
     render(<DebtEditorSheet state={{ open: true }} onClose={() => {}} />);
     fireEvent.press(screen.getByLabelText('Credit card'));
-    fireEvent.changeText(screen.getByPlaceholderText('0'), '3100');
+    fireEvent.changeText(screen.getByLabelText('Balance'), '3100'); // by its name: the box opens empty (R16, 2026-10-31)
     fill(screen);
     fireEvent.press(screen.getByLabelText('Add debt'));
     return ((useStore.getState() as any).liabilities ?? []).slice(-1)[0];
@@ -415,8 +415,8 @@ describe('11 · the debt editor saves a payment left blank as not entered, never
     expect(paymentNotEntered(d)).toBe(true);
   });
   test('a typed 0 is 0, and a typed minimum is kept', () => {
-    expect(add((s) => fireEvent.changeText(s.getByPlaceholderText('$0'), '0')).minimum_monthly_payment).toBe(0);
-    expect(add((s) => fireEvent.changeText(s.getByPlaceholderText('$0'), '120')).minimum_monthly_payment).toBe(120);
+    expect(add((s) => fireEvent.changeText(s.getByLabelText('Minimum payment a month'), '0')).minimum_monthly_payment).toBe(0);
+    expect(add((s) => fireEvent.changeText(s.getByLabelText('Minimum payment a month'), '120')).minimum_monthly_payment).toBe(120);
   });
 });
 

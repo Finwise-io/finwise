@@ -104,7 +104,7 @@ export function balancesHidden(): boolean { return _hide; }
  *
  * Called by ... MK-ST-F-048 currencySymbol
  *
- * Reaches ..... 453 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 458 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -114,7 +114,7 @@ export function balancesHidden(): boolean { return _hide; }
  *               MK-CF-F-237 LATER · MK-NW-F-081 LB
  *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
  *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
- *               … and 435 more — the full list is on functions_from_code
+ *               … and 440 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -135,7 +135,7 @@ export function activeCurrency(): Currency {
  * Called by ... MK-ST-F-049 formatMoney · MK-ST-F-050 formatMoneyCents
  *               MK-ST-F-051 moneyCompact
  *
- * Reaches ..... 452 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 458 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -145,7 +145,7 @@ export function activeCurrency(): Currency {
  *               MK-CF-F-237 LATER · MK-NW-F-081 LB
  *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
  *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
- *               … and 434 more — the full list is on functions_from_code
+ *               … and 440 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -158,25 +158,23 @@ export function currencySymbol(): string {
 
 // Full amount, no minor units (matches the app's whole-number money style), locale-grouped.
 // e.g. USD 2460137 → "$2,460,137" · INR → "₹24,60,137" · EUR (en-IE) → "€2,460,137".
-/* ─ MK-ST-F-049 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
- * formatMoney
+/** A NEGATIVE AMOUNT IS WRITTEN WITH THE MINUS SIGN "−" (U+2212), never the hyphen "-" the number formatter gives (SU3-02,
+ *  2026-10-31: sign-up printed "-$4,876" and Home's net worth "-$333,000" while every drawing and every other screen writes "−$").
+ *  ONE WRITER: formatMoney, formatMoneyCents and moneyCompact all end here, so money(), maskedMoney() and every figure agree.
+ *  src/__tests__/one_minus_sign.test.ts holds it, and holds every printed string against a hyphen before a money figure. */
+export const MINUS = '\u2212';
+/** A written amount with its minus sign as the one minus sign (−), never the hyphen the number formatter gives. */
+/* ─ MK-ST-F-100 ──────────────────────────────────────────────────────────────────── 1 · ACTION
+ * withMinus
  *
- * Answers ..... Full amount, no minor units (matches the app's whole-number money style), locale-grouped.
+ * Answers ..... A written amount with its minus sign as the one minus sign (−), never the hyphen the number formatter gives.
  *
  * Formula .....
- *     BALANCE_MASK   when hide
- *     NOT_A_NUMBER   when !number.is finite(n)
- *     v = round(n)
- *     the answer = new intl.number format(locale, { style: 'currency', currency: code, maximum fraction digits: 0 }).format(v)
- *     neg = '-'   if v < 0
- *     ''   otherwise
+ *     replace('-', MINUS)
  *
- * Called by ... MK-NW-F-079 EF · MK-NW-F-088 BENCH
- *               MK-NW-F-101 PLAN · MK-NW-F-132 notClassifiedWords
- *               MK-NW-F-179 balanceWithBondTakenOut · MK-NW-F-185 valueChanged
- *               MK-ST-F-053 money · MK-XS-F-183 writeFigure
+ * Called by ... MK-ST-F-049 formatMoney · MK-ST-F-050 formatMoneyCents
  *
- * Reaches ..... 448 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 458 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -186,7 +184,45 @@ export function currencySymbol(): string {
  *               MK-CF-F-237 LATER · MK-NW-F-081 LB
  *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
  *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
- *               … and 430 more — the full list is on functions_from_code
+ *               … and 440 more — the full list is on functions_from_code
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-ST-F-100
+ * Changed ..... not in git yet (—)
+ */
+const withMinus = (s: string): string => s.replace('-', MINUS);
+
+/* ─ MK-ST-F-049 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * formatMoney
+ *
+ * Answers ..... How is an amount written?
+ *
+ * Formula .....
+ *     BALANCE_MASK   when hide
+ *     NOT_A_NUMBER   when !number.is finite(n)
+ *     v = round(n) (or 0 when missing or zero)
+ *     the answer = with minus(new intl.number format(locale, { style: 'currency', currency: code, maximum fraction digits: 0 }).format(v))
+ *     neg = MINUS   if v < 0
+ *     ''   otherwise
+ *
+ * Called by ... MK-NW-F-079 EF · MK-NW-F-088 BENCH
+ *               MK-NW-F-101 PLAN · MK-NW-F-132 notClassifiedWords
+ *               MK-NW-F-179 balanceWithBondTakenOut · MK-NW-F-185 valueChanged
+ *               MK-ST-F-048 currencySymbol · MK-ST-F-053 money
+ *               MK-XS-F-183 writeFigure
+ *
+ * Reaches ..... 458 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
+ *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
+ *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-CF-F-237 LATER · MK-NW-F-081 LB
+ *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
+ *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
+ *               … and 440 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -201,11 +237,11 @@ export function formatMoney(n: number): string {
   // A number we could not compute must never print as a real "$0" (founder's B45 rule: never show an
   // invented figure). NaN/Infinity reads as an em dash, which is visibly not a balance.
   if (!Number.isFinite(n)) return NOT_A_NUMBER;
-  const v = Math.round(n);
+  const v = Math.round(n) || 0;   // −0.4 rounds to −0, which Intl writes "-$0": a figure that rounds to nothing is $0
   try {
-    return new Intl.NumberFormat(_locale, { style: 'currency', currency: _code, maximumFractionDigits: 0 }).format(v);
+    return withMinus(new Intl.NumberFormat(_locale, { style: 'currency', currency: _code, maximumFractionDigits: 0 }).format(v));
   } catch {
-    const neg = v < 0 ? '-' : '';
+    const neg = v < 0 ? MINUS : '';
     return neg + currencySymbol() + Math.abs(v).toLocaleString();
   }
 }
@@ -220,9 +256,10 @@ export function formatMoney(n: number): string {
  * Formula .....
  *     BALANCE_MASK   when hide
  *     NOT_A_NUMBER   when !number.is finite(n)
- *     v = n
- *     the answer = new intl.number format(locale, { style: 'currency', currency: code, minimum fraction digits: 2, maximum fraction digits: 2 }).format(v)
- *     neg = '-'   if v < 0
+ *     v = 0   if size of(n) < 0.005
+ *     n   otherwise
+ *     the answer = with minus(new intl.number format(locale, { style: 'currency', currency: code, minimum fraction digits: 2, maximum fraction digits: 2 }).format(v))
+ *     neg = MINUS   if v < 0
  *     ''   otherwise
  *
  * Called by ... MK-ST-F-054 money2 · MK-XS-F-183 writeFigure
@@ -245,11 +282,11 @@ export function formatMoney(n: number): string {
 export function formatMoneyCents(n: number): string {
   if (_hide) return BALANCE_MASK;
   if (!Number.isFinite(n)) return NOT_A_NUMBER;
-  const v = n;
+  const v = Math.abs(n) < 0.005 ? 0 : n;   // −$0.004 shows as $0.00, never "−$0.00"
   try {
-    return new Intl.NumberFormat(_locale, { style: 'currency', currency: _code, minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(v);
+    return withMinus(new Intl.NumberFormat(_locale, { style: 'currency', currency: _code, minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(v));
   } catch {
-    const neg = v < 0 ? '-' : '';
+    const neg = v < 0 ? MINUS : '';
     return neg + currencySymbol() + Math.abs(v).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   }
 }
@@ -264,7 +301,7 @@ export function formatMoneyCents(n: number): string {
  * Formula .....
  *     BALANCE_MASK   when hide
  *     s = currency symbol()
- *     neg = '-'   if n < 0
+ *     neg = MINUS   if n < 0
  *     ''   otherwise
  *     a = size of(n)
  *     `${neg}${s}${(a ÷ 1e6).to fixed(2).replace( ÷ \.?0+$ ÷ , '')}${style}`   when a ≥ 1e6
@@ -295,7 +332,7 @@ export function formatMoneyCents(n: number): string {
 export function moneyCompact(n: number, style: 'M' | 'MM' = 'MM'): string {
   if (_hide) return BALANCE_MASK;
   const s = currencySymbol();
-  const neg = n < 0 ? '-' : '';
+  const neg = n < 0 ? MINUS : '';
   const a = Math.abs(n);
   if (a >= 1e6) return `${neg}${s}${(a / 1e6).toFixed(2).replace(/\.?0+$/, '')}${style}`;
   if (a >= 1e3) return `${neg}${s}${Math.round(a / 1e3)}K`;

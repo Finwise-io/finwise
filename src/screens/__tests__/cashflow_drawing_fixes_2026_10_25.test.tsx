@@ -203,7 +203,7 @@ describe('BC-01 · BC-02 · MI-01', () => {
     expect(dashes.length).toBeGreaterThanOrEqual(24);                       // twelve months, In and Out
     for (const d of dashes.slice(0, 24)) expect([flat(d).fontWeight, flat(d).color]).toEqual(['800', Colors.textPrimary]);
     const said = screen.getByLabelText(/^Aug 2026: in /).props.accessibilityLabel;
-    expect(said).toMatch(/^Aug 2026: in —, out —, ending balance /);
+    expect(said).toBe('Aug 2026: in —, out —, no ending balance — nothing is projected.');   // nothing projected from an empty box (R12, 2026-10-31 — bill-calendar_v02’s row of that date: no cash on record, nothing projected; the old Ends are held as test.failing in cashflow_fix_wave_2026_10_27.test.tsx)
   });
   test('MI-01 · Monthly income’s boxes show no sample amount that looks entered', () => {
     H.householdBrandNew();

@@ -44,6 +44,17 @@ const STATES: [string, Record<string, any>][] = [
   ['F · a combined IRA and family HSA cover (#361)', { birthYear: '1971', c_401k: '1500', c_ira: '450', hsaCover: 'family' }],
 ];
 const PHONES = phoneBlocks(MOCK);
+const HTML = require('fs').readFileSync(require('path').join(__dirname, '..', '..', '..', MOCK), 'utf8') as string;
+/** THE DRAWING'S DATED CORRECTION ROWS, APPLIED — the phones are not redrawn (DEC-4529); each row says what a drawn line reads now.
+ *  Row 7 (2026-10-31, CR3-01, the lead's ruling R13): a monthly amount prints as typed — phone B's $3,333.33 to the cent, so its year adds up
+ *  ($3,333.33 × 12 = $39,999.96, shown $40,000); every amount typed whole reads as drawn, as Base pay prints the same 401(k).
+ *  Row 8 (2026-10-31, R16, DEC-0296): the IRA box with nothing typed is empty — its grey "$0" goes (null = the line is not on the screen). */
+const CORRECTED: [string, string | null, string][] = [['At $3,333/month', 'At $3,333.33/month', 'row 7'], ['$0', null, 'row 8']];
+const asCorrected = (lines: string[]) => lines.flatMap((l) => {
+  if (l === '$0') return [];                                                  // row 8: the empty box shows no figure
+  const c = CORRECTED.find(([from, to]) => to != null && l.startsWith(`${from} you will put in`));
+  return [c ? (c[1] as string) + l.slice(c[0].length) : l];
+});
 
 test('the drawing holds six phones, its READ THIS FIRST is dated 2026-10-27 and names his words (DEC-8839)', () => {
   expect(PHONES).toHaveLength(STATES.length);
@@ -62,7 +73,7 @@ test('the drawing holds six phones, its READ THIS FIRST is dated 2026-10-27 and 
 describe.each(STATES.map(([name, profile], i) => [name, profile, i] as const))('%s', (name, profile, i) => {
   test('every line, word for word and in order, both ways: nothing drawn is missing, nothing rendered is extra', () => {
     open(profile);
-    const drawn = drawnLines(PHONES[i]);
+    const drawn = asCorrected(drawnLines(PHONES[i]));   // the phone as drawn, with its dated rows of 2026-10-31 applied
     const built = levelSharedFooter(renderedLines(screen.toJSON()));
     // a guard proves it looked: the whole screen, top bar to the footer — never a card
     expect(drawn.length).toBeGreaterThanOrEqual(18);
@@ -84,6 +95,36 @@ describe.each(STATES.map(([name, profile], i) => [name, profile, i] as const))('
       expect(b.style).toMatchObject({ borderTopLeftRadius: 0, borderTopRightRadius: 0, marginHorizontal: -16 });
       if (b.valueStyle) expect(b.valueStyle).toMatchObject({ fontSize: 15, fontWeight: '800' });
     }
+  });
+});
+
+// ── ROUND 3 (2026-10-31): the two dated rows, and what they hold on the screen ────────────────────────────────────────────────────────
+describe('round 3 — rows 7 and 8 of 2026-10-31', () => {
+  test('the drawing carries both rows, dated, and each names the words this test applies (CORRECTED above)', () => {
+    expect(HTML).toMatch(/<tr><td>7<\/td><td>2026-10-31 \(settled the same day\) · /);
+    expect(HTML).toMatch(/<tr><td>8<\/td><td>2026-10-31 · /);
+    for (const [, to] of CORRECTED) if (to) expect(HTML).toContain(`‘${to}`);
+    expect(HTML).toContain('A box nobody filled opens <b>empty</b>');
+    expect(HTML).toContain('every other amount on these phones was typed whole and reads as drawn'.replace(/^e/, 'E'));
+  });
+  test('CR3-01, phone B by hand: "$3,333.33/month" × 12 = $39,999.96 → $40,000; − $35,750 = $4,249.96 → $4,250 over — the rows add up as printed', () => {
+    open(STATES[1][1]);
+    expect(screen.getByText(/^At \$3,333\.33\/month you will put in \$40,000 this year — \$4,250 over the \$35,750 limit\./)).toBeOnTheScreen();
+    expect(3333.33 * 12).toBeCloseTo(39_999.96, 6);
+    expect(Math.round(3333.33 * 12)).toBe(40_000);
+    expect(Math.round(3333.33 * 12 - 35_750)).toBe(4_250);
+  });
+  test('R16: the IRA box with nothing typed is empty — no placeholder figure (phones C, D, E)', () => {
+    for (const k of [2, 3, 4]) {
+      const r = open(STATES[k][1]);
+      const box = screen.getByLabelText('What you put into IRAs a month, Traditional and Roth together');
+      expect([box.props.value, box.props.placeholder ?? '']).toEqual(['', '']);
+      r.unmount();
+    }
+  });
+  test.failing('the screen until 2026-10-31, pinned: the empty IRA box held a grey "$0" (FIXED 2026-10-31, R16)', () => {
+    open(STATES[4][1]);
+    expect(screen.getByLabelText('What you put into IRAs a month, Traditional and Roth together').props.placeholder).toBe('$0');
   });
 });
 

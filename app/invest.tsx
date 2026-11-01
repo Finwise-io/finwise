@@ -71,7 +71,7 @@ export default function InvestScreen() {
             style={styles.amountInput}
             value={amount}
             onChangeText={setAmount}
-            placeholder="0.00"
+            a11y="Amount invested"
             autoFocus
           />
 

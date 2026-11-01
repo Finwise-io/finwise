@@ -145,7 +145,7 @@ const s = StyleSheet.create({
   group: { backgroundColor: Colors.cardBg, padding: Spacing.base, marginTop: 16 },
   row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 7 },
   // a row's label in ink, as drawn (IN2-01, 2026-10-27); a total row is bold at the rows' size under a rule (the drawn .rrow.tot)
-  rowL: { fontSize: 13, color: Colors.textPrimary },
+  rowL: { fontSize: 15, color: Colors.textPrimary },   // a label the size of its figure, as drawn and as Base pay prints it (IN3-03, 2026-10-31; DEC-0059)
   rowLStrong: { fontWeight: '800', color: Colors.textPrimary },
   rowTot: { borderTopWidth: 1.5, borderTopColor: Colors.textPrimary },
   rowNote: { fontSize: 11, color: Colors.textTertiary, marginTop: 1 },

@@ -188,7 +188,7 @@ export default function ConnectFlowScreen() {
                       accessibilityState={{ selected: (mergeChoice[f.external_id] ?? 'update') === v }}
                       onPress={() => setMergeChoice({ ...mergeChoice, [f.external_id]: v })}
                       accessibilityLabel={v === 'update' ? 'Update the one you have — keeps its history and settings' : 'Add as a new, separate account'}>
-                      <Text style={s.mergeTxt}>{(mergeChoice[f.external_id] ?? 'update') === v ? '◉' : '○'}  {v === 'update' ? 'Update the one I have (keeps history)' : 'Add as new — it really is separate'}</Text>
+                      <Text style={s.mergeTxt}>{(mergeChoice[f.external_id] ?? 'update') === v ? '◉' : '○'} {v === 'update' ? 'Update the one I have (keeps history)' : 'Add as new — it really is separate'}</Text>
                     </TouchableOpacity>
                   ))}
                 </View>

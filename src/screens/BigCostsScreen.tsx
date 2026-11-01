@@ -11,7 +11,7 @@ import { displayOdds } from '../domain/retirement/willItLast';
 import { ScrollView, View, Text, StyleSheet, TouchableOpacity, TextInput, Alert } from 'react-native';
 import { SectionBand } from '../components/SectionBand';
 import { useStore } from '../store/useStore';
-import { Colors, Spacing, Radii } from '../utils/theme';
+import { Colors, Spacing, Radii, Tap } from '../utils/theme';
 import { maskedMoney, spokenMoney } from '../components/useMoney';
 import { KeyboardAwareSheet } from '../components/KeyboardAwareSheet';
 import { resolveNetWorthRows } from '../domain/snapshot';
@@ -120,15 +120,15 @@ function BigCostSheet({ state, onClose }: { state: { open: boolean; edit?: { id:
       <Text style={s.lbl}>What is it?</Text>
       <TextInput style={s.input} placeholder="New roof" placeholderTextColor={Colors.textTertiary} value={label} onChangeText={setLabel} />
       <Text style={s.lbl}>About how much? (today’s dollars)</Text>
-      <MoneyBox bare style={s.input} placeholder="$28,000" value={amount} onChangeText={setAmount} />
+      <MoneyBox bare style={s.input} value={amount} onChangeText={setAmount} a11y="About how much? (today’s dollars)" />
       <Text style={s.lbl}>Which year?</Text>
-      <TextInput style={s.input} keyboardType="number-pad" placeholder={String(nowYear + 2)} placeholderTextColor={Colors.textTertiary} value={year} onChangeText={setYear} />
+      <TextInput style={s.input} keyboardType="number-pad" accessibilityLabel="Which year?" value={year} onChangeText={setYear} />
       <TouchableOpacity accessibilityRole="button" style={[s.saveBtn, !ready && { opacity: 0.4 }]} disabled={!ready} onPress={save}
         accessibilityLabel="Add it — the odds will account for it">
         <Text style={s.saveTxt}>{editing ? 'Save' : 'Add it — the odds will account for it'}</Text>
       </TouchableOpacity>
       <Text style={s.note}>An estimate is fine — a rough year beats leaving it out. Inflation is applied for you.</Text>
-      {editing && <TouchableOpacity accessibilityRole="button" onPress={remove} accessibilityLabel={`Remove ${editing.label}`}><Text style={s.remove}>Remove</Text></TouchableOpacity>}
+      {editing && <TouchableOpacity hitSlop={Tap.slop} accessibilityRole="button" onPress={remove} accessibilityLabel={`Remove ${editing.label}`}><Text style={s.remove}>Remove</Text></TouchableOpacity>}
     </KeyboardAwareSheet>
   );
 }

@@ -69,7 +69,7 @@ export type CountedWord = keyof typeof PLURAL_WORDS;
  *               MK-XS-F-002 dataGaps · MK-XS-F-003 gapsHeadline
  *               MK-XS-F-183 writeFigure
  *
- * Reaches ..... 448 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 452 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -78,8 +78,8 @@ export type CountedWord = keyof typeof PLURAL_WORDS;
  *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
- *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 430 more — the full list is on functions_from_code
+ *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
+ *               … and 434 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-064 the unit beside a quantity — shares, coins, contracts, ounces or units
@@ -134,7 +134,7 @@ const LETTER_SAID_WITH_AN = 'AEFHILMNORSX';
  *
  * Called by ... MK-NW-F-067 plural
  *
- * Reaches ..... 449 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 453 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -143,8 +143,8 @@ const LETTER_SAID_WITH_AN = 'AEFHILMNORSX';
  *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
- *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 431 more — the full list is on functions_from_code
+ *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
+ *               … and 435 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

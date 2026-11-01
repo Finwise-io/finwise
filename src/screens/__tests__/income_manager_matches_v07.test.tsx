@@ -98,7 +98,9 @@ test('the drawing still has its seventeen phones — the guard proves it looked'
 
 test('phone 12 · Your income — what is entered, one line each, and the seven not picked one tap away', () => {
   show();
-  const want = drawn(12, /^Done$/);
+  // the drawing's CSS prints the bar in capitals, the count with it — 'YOU ENTERED ABOUT · 3 SOURCES'; the build writes the count in
+  // capitals and leaves the title's capitals to the bar (IN3-05, 2026-10-31)
+  const want = drawn(12, /^Done$/, [['3 sources', '3 SOURCES', 'IN3-05: the count in the bar’s capitals']]);
   expect(want.split(' ').length).toBeGreaterThan(55);
   // by hand: $5,000 + $3,300 = $8,300 a month; $1,800 − $600 = $1,200 a month net; $3,000 a year
   expect(firstDifference(want, built())).toBe('');
@@ -113,14 +115,19 @@ test('phone 12 · a job holds two things — its row opens the pay and what is p
   expect(screen.getByText('Paid on top of base pay')).toBeOnTheScreen();        // phone 9
 });
 
+const V07_HTML = require('fs').readFileSync(require('path').join(__dirname, '..', '..', '..', 'MoneyKeel/documents/cashflow/moneykeel_pres_mock_income-end-to-end_v07.html'), 'utf8');
+const R16_V07 = /2026-11-01<\/td>(?:(?!<\/tr>)[\s\S])*DRAWING CORRECTION, phone 9: the stock box left blank is empty/;
 test('phone 9 · Bonus and stock — who, how much, which month, and what December will look like', () => {
   show('bonus');
   const want = drawn(9, /^Save$/, [
     ['Mar Jun Sep Dec', 'Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec', 'difference 3: all twelve months'],
     ['bonus, after tax $18,860', 'bonus, after tax $18,620', 'difference 10: $9,500 + $12,000 × 76% = $18,620'],
+    // THE ROW OF 2026-11-01 (R16, FX-PF): the stock box left blank is empty — read only where the drawing carries that row
+    ...(R16_V07.test(V07_HTML) ? [['Leave blank if you have none. $0 December', 'Leave blank if you have none. December', 'v07 row of 2026-11-01 (R16): the blank stock box is empty']] as [string, string, string][] : []),
   ]);
+  expect(V07_HTML).toMatch(R16_V07);
   expect(want.split(' ').length).toBeGreaterThan(90);
-  // the boxes as drawn: "$12,000" typed, "$0" greyed in the stock box left blank
+  // the boxes as drawn: "$12,000" typed; the stock box left blank, empty (R16, the row of 2026-11-01)
   expect(firstDifference(want, built())).toBe('');
 });
 
@@ -143,6 +150,8 @@ test('phone 11 · Interest & dividends — calculated from the accounts, taxed, 
     ['= We work out', '= We calculate', 'difference 5 (canon)'],
     ['VTI and holdings 1.3% dividend yield', 'VTI and holdings paid out over the trailing twelve months', 'difference 6 (MK-CF-F-184, Q35)'],
     ['never land in your bank account', 'never reach your bank account', 'difference 7 (canon)'],
+    ['3.8% on $18,400', '3.80% on $18,400', 'v07 row of 2026-10-31 (IN3-04; Q49, DEC-0221): a rate to two decimals'],
+    ['4.2% on $30,000', '4.20% on $30,000', 'v07 row of 2026-10-31 (IN3-04)'],
   ]);
   expect(want.split(' ').length).toBeGreaterThan(95);
   // by hand: 3.8% × $18,400 = $699.20; 4.2% × $30,000 = $1,260; $1,041 paid; $699 + $1,260 + $1,041 = $3,000 on the band and the sum

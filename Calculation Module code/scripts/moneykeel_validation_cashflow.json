@@ -67,7 +67,7 @@
   "verdict": "CONFIRMED BY CITATION",
   "check": "CITED",
   "governs": "MK-CF-M-032 · MK-CF-M-043",
-  "notes": "13 of 17 of his words appear in what implements it: annual base-pay counted function income mk-cf-f-; cited by identifier in BasePayScreen.tsx"
+  "notes": "14 of 17 of his words appear in what implements it: annual base-pay counted frame function income; cited by identifier in BasePayScreen.tsx"
  },
  {
   "id": "DEC-0179",
@@ -193,7 +193,7 @@
   "verdict": "CONFIRMED BY CITATION",
   "check": "CITED",
   "governs": "MK-CF-M-037 · MK-CF-M-032 · MK-CF-M-043 · MK-CF-M-030",
-  "notes": "32 of 60 of his words appear in what implements it: approved audit bracket deduction dollar dollars; cited by identifier in base-pay.ts"
+  "notes": "33 of 60 of his words appear in what implements it: approved audit bracket deduction dollar dollars; cited by identifier in base-pay.ts"
  },
  {
   "id": "DEC-0208",
@@ -326,7 +326,7 @@
   "verdict": "CONFIRMED BY CITATION",
   "check": "CITED",
   "governs": "MK-CF-F-109 reviewTransactions (src/domain/transaction",
-  "notes": "only 11 of 24 appear — present: built choice choose dropped entered · absent: chooses dedupes doubles flagged identity; cited by identifier in decisio"
+  "notes": "12 of 24 of his words appear in what implements it: built choice choose chooses dropped entered; cited by identifier in decisions_are_held.test.ts"
  },
  {
   "id": "DEC-0325",
@@ -361,7 +361,7 @@
   "verdict": "CONFIRMED BY CITATION",
   "check": "CITED",
   "governs": "MK-MN-M-003 · MK-MN-M-004 · MK-MN-M-005 · MK-MN-M-029 ",
-  "notes": "14 of 22 of his words appear in what implements it: calculation contribution-room counts current december domain; cited by identifier in decisions_are"
+  "notes": "15 of 22 of his words appear in what implements it: calculation contribution-room counts current december division; cited by identifier in decisions_a"
  },
  {
   "id": "DEC-0339",
@@ -403,7 +403,7 @@
   "verdict": "CONFIRMED BY CITATION",
   "check": "CITED",
   "governs": "MK-CF-M-030 · MK-CF-M-031 · MK-CF-M-032 · MK-CF-M-033 ",
-  "notes": "15 of 27 of his words appear in what implements it: deduction earner estimate estimated estrate gross; cited by identifier in outside_cashflow_openai_"
+  "notes": "16 of 27 of his words appear in what implements it: deduction earner estimate estimated estrate frame; cited by identifier in outside_cashflow_openai_"
  },
  {
   "id": "DEC-0381",
@@ -1205,17 +1205,17 @@
  },
  {
   "id": "DEC-8418",
-  "verdict": "FAINT TRACE",
+  "verdict": "LEAVES A TRACE",
   "check": "TRACE",
   "governs": "MK-CF-F-031 creditUtilization · MK-CF-F-033 debtToInco",
-  "notes": "only 6 of 25 appear — present: credit debt-to-income goals income order · absent: asking chosen divide divided keeps"
+  "notes": "20 of 25 of his words appear in what implements it: asking chosen credit debt-to-income divide divided"
  },
  {
   "id": "DEC-8419",
-  "verdict": "FAINT TRACE",
+  "verdict": "LEAVES A TRACE",
   "check": "TRACE",
   "governs": "MK-CF-F-034 payoffPlan (src/domain/debt/index.ts) · sr",
-  "notes": "only 6 of 25 appear — present: balance extra month months order · absent: added asking clears falling faster"
+  "notes": "17 of 25 of his words appear in what implements it: added asking balance clears extra horizon"
  },
  {
   "id": "DEC-8420",
@@ -1523,7 +1523,7 @@
   "verdict": "LEAVES A TRACE",
   "check": "TRACE",
   "governs": "MK-CF-F-010 emergencyTest (src/domain/budget/index.ts)",
-  "notes": "17 of 26 of his words appear in what implements it: approved asking became count drawing drawn"
+  "notes": "16 of 26 of his words appear in what implements it: approved asking became count drawing drawn"
  },
  {
   "id": "DEC-8470",
@@ -1534,24 +1534,24 @@
  },
  {
   "id": "DEC-8516",
-  "verdict": "FAINT TRACE",
+  "verdict": "LEAVES A TRACE",
   "check": "TRACE",
   "governs": "src/screens/GoalsScreen.tsx (DEBT PAYOFF PLAN) · MK-CF",
-  "notes": "only 8 of 20 appear — present: goals interest month order paying · absent: asking extra lead's minimum minimums"
+  "notes": "18 of 20 of his words appear in what implements it: asking extra goals interest minimum minimums"
  },
  {
   "id": "DEC-8517",
   "verdict": "FAINT TRACE",
   "check": "TRACE",
   "governs": "src/screens/GoalsScreen.tsx · src/screens/BudgetScreen",
-  "notes": "only 9 of 25 appear — present: balance debts goals interest minimum · absent: asking cover don't faster goals-only"
+  "notes": "only 7 of 25 appear — present: balance debts interest minimum month · absent: asking cover don't faster goals"
  },
  {
   "id": "DEC-8519",
   "verdict": "LEAVES A TRACE",
   "check": "TRACE",
   "governs": "src/screens/RetirementCockpit.tsx · MK-CF-M-043",
-  "notes": "14 of 19 of his words appear in what implements it: asking bracket calculated cockpit gross income"
+  "notes": "15 of 19 of his words appear in what implements it: asking bracket calculated cockpit gross income"
  },
  {
   "id": "DEC-8521",
@@ -1565,7 +1565,7 @@
   "verdict": "LEAVES A TRACE",
   "check": "TRACE",
   "governs": "MK-PL-F-067 · willItLastInputs (src/domain/retirement/",
-  "notes": "16 of 23 of his words appear in what implements it: accounts asking calculated domain function gross"
+  "notes": "17 of 23 of his words appear in what implements it: accounts asking calculated domain function gross"
  },
  {
   "id": "DEC-8524",
@@ -1590,10 +1590,10 @@
  },
  {
   "id": "DEC-8595",
-  "verdict": "FAINT TRACE",
+  "verdict": "LEAVES A TRACE",
   "check": "TRACE",
   "governs": "src/screens/GoalsScreen.tsx · MK-CF-F-033 debtToIncome",
-  "notes": "only 5 of 25 appear — present: budget debt-to-income non-monthly order share · absent: asking decimals goal's guides latter"
+  "notes": "16 of 25 of his words appear in what implements it: asking budget debt-to-income latter non-monthly order"
  },
  {
   "id": "DEC-8596",
@@ -1832,5 +1832,47 @@
   "check": "TRACE",
   "governs": "MK-CF-O-005 theContributionRoom · MoneyKeel/documents/",
   "notes": "14 of 20 of his words appear in what implements it: agrees amount asking cover family input"
+ },
+ {
+  "id": "DEC-9264",
+  "verdict": "FAINT TRACE",
+  "check": "TRACE",
+  "governs": "src/screens/CashFlowScreen.tsx (This month’s planned a",
+  "notes": "only 3 of 12 appear — present: actual month planned · absent: approval asking block blocks cash-flow"
+ },
+ {
+  "id": "DEC-9279",
+  "verdict": "FAINT TRACE",
+  "check": "TRACE",
+  "governs": "src/screens/BillCalendarScreen.tsx · MK-CF-M-060",
+  "notes": "only 5 of 20 appear — present: month project projected short twelve · absent: asking column empty entered flagged"
+ },
+ {
+  "id": "DEC-9285",
+  "verdict": "LEAVES A TRACE",
+  "check": "TRACE",
+  "governs": "MoneyKeel/documents/networth-and-performance/ · MoneyK",
+  "notes": "17 of 32 of his words appear in what implements it: activity approval approved asking counts drawing"
+ },
+ {
+  "id": "DEC-9303",
+  "verdict": "FAINT TRACE",
+  "check": "TRACE",
+  "governs": "MK-CF-O-017 futurePaycheck · MK-CF-M-083 · inflationRa",
+  "notes": "only 9 of 21 appear — present: budgetscreen force futurepaycheck inflation mk-cf-m- · absent: argument asking cashflowscreen handed lead's"
+ },
+ {
+  "id": "DEC-9304",
+  "verdict": "FAINT TRACE",
+  "check": "TRACE",
+  "governs": "MK-CF-F-295 debtLoad (MoneyKeel/functions/cashflow/the",
+  "notes": "only 15 of 32 appear — present: debt-to-income debts functions healthy income · absent: asking built carries debtload founder"
+ },
+ {
+  "id": "DEC-9305",
+  "verdict": "FAINT TRACE",
+  "check": "TRACE",
+  "governs": "MK-CF-F-182 asPercent · MK-CF-F-171 · MoneyKeel/functi",
+  "notes": "only 6 of 21 appear — present: base-pay earnerpay gross mk-cf-f- organizer · absent: asking decimals everythingelseshare everywhere lead's"
  }
 ]

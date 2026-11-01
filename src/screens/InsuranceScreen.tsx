@@ -44,8 +44,8 @@ export default function InsuranceScreen() {
       <View style={styles.inputRow}>
         {/* a $ figure is a money box — it prints "$250,000" itself, so no separate $ before it (DEC-8385, 2026-10-27) */}
         {suffix === '$'
-          ? <MoneyBox bare style={styles.input} value={v} onChangeText={set} placeholder="$0" a11y={label} />
-          : <TextInput style={styles.input} keyboardType="decimal-pad" value={v} onChangeText={set} placeholder="0" placeholderTextColor={Colors.textTertiary} />}
+          ? <MoneyBox bare style={styles.input} value={v} onChangeText={set} a11y={label} />
+          : <TextInput style={styles.input} keyboardType="decimal-pad" value={v} onChangeText={set} accessibilityLabel={label} />}
         {suffix !== '$' ? <Text style={styles.suffix}>{suffix}</Text> : null}
       </View>
     </View>

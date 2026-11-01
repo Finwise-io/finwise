@@ -45,10 +45,16 @@ test('A · the usual: the year at the monthly amount, said as a plan — "room f
 test('B · over the limit: "$4,250 over", and what the law does with the excess — never cut to the limit', () => {
   open({ birthYear: '1966', c_401k: '3333.33', c_roth: '800' });
   words('$4,250 over');
-  words('At $3,333/month you will put in $40,000 this year — $4,250 over the $35,750 limit. Money over the limit has to come out by April 15 next year, or it is taxed twice. Calculated from the monthly amount you entered — check it against your latest statement. (Includes the age 60–63 catch-up.)');
+  words('At $3,333.33/month you will put in $40,000 this year — $4,250 over the $35,750 limit. Money over the limit has to come out by April 15 next year, or it is taxed twice. Calculated from the monthly amount you entered — check it against your latest statement. (Includes the age 60–63 catch-up.)');
   words('$1,000 over');
   words('At $800/month you will put in $9,600 this year — $1,000 over the $8,600 limit. Money over the limit has to come out by your tax-filing deadline, or it is taxed 6% for each year it stays. Calculated from the monthly amount you entered — check it against your latest statement. (Includes the age-50+ catch-up.)');
   expect(screen.queryByText(/Try it in a what-if/)).toBeNull();   // no room to fill
+});
+// 2026-10-31 (CR3-01, the lead's ruling R13; contribution-room v02 row 7): a monthly amount prints as typed — $3,333.33 to the cent, so the year
+// beside it adds up as printed ($3,333.33 × 12 = $39,999.96, shown $40,000); an amount typed whole ($1,200, $300 …) prints whole, as before.
+test.failing('B · the words until 2026-10-31, pinned: "At $3,333/month you will put in $40,000" — 3,333 × 12 = 39,996, the rows did not add up (FIXED 2026-10-31, CR3-01)', () => {
+  open({ birthYear: '1966', c_401k: '3333.33', c_roth: '800' });
+  words(/^At \$3,333\/month you will put in \$40,000 this year/);
 });
 test.failing('B · the screen until 2026-10-25, pinned: "$0 left" and "about $35,750 of the $35,750 limit" — no longer its words (FIXED 2026-10-25)', () => {
   open({ birthYear: '1966', c_401k: '3333.33' });

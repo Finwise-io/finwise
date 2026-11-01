@@ -12,7 +12,7 @@ import { useRouter } from 'expo-router';
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { simulate, projectNestEgg } from '../domain/retirement';
-import { willItLastInputs } from '../domain/retirement/willItLast';
+import { willItLastInputs, planRetireAgeOf } from '../domain/retirement/willItLast';   // one retirement age (R10)
 import { resolveNetWorthRows } from '../domain/snapshot';
 import { maskedMoney, spokenMoney } from '../components/useMoney';
 import { PlanSlider } from '../components/PlanSlider';
@@ -42,8 +42,8 @@ export default function WhatIfScreen() {
   });
   const [sliding, setSliding] = useState(false);   // a finger is on a slider → the ScrollView stands down
   const [retireAt, setRetireAt] = useState<number>(() => {
-    const r = Number(A.retireAge ?? op.targetRetirementAge);
-    return Number.isFinite(r) && r > 0 ? Math.max(r, age + 1) : Math.max(67, age + 1);
+    // ONE RETIREMENT AGE (R10, 2026-10-31): the plan's own, 65 when nothing is entered — it started from 67 here
+    return Math.max(planRetireAgeOf({ assumptions: A, op, age }).age, age + 1);
   });
   const saveAge = (v: number) => {
     store.setOnboardingProfile?.({ ...op, birthYear: String(thisYear - v) });

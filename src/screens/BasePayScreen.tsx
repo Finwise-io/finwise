@@ -136,12 +136,14 @@ export default function BasePayScreen({ frame = 'screen', onDone }: {
         </View>
       </View>
 
-      {/* one earner: the section is theirs and its own line carries the figure; two: the band totals both */}
+      {/* one earner: the section is theirs and its own line carries the figure; two: the band totals both — but no total, and no
+          household card below, while three figures cannot all be right (phone 7; IN3-02, 2026-10-31; tenet 1): a sum worked from
+          figures the warning says disagree is not a figure */}
       <View style={s.group}>
         <SectionBand inCard inset={Spacing.base} onRowEdges
           title={wages.length > 1 ? 'Each person’s pay' : wages[0]?.name === 'You' ? 'Your pay' : `${wages[0]?.name}’s pay`}
-          value={wages.length > 1 ? figPer('MK-CF-M-030', pay.grossAnnual) : undefined}
-          valueSaid={wages.length > 1 ? figSaid('MK-CF-M-030', pay.grossAnnual) : undefined} />
+          value={wages.length > 1 && pay.everyFigureAgrees ? figPer('MK-CF-M-030', pay.grossAnnual) : undefined}
+          valueSaid={wages.length > 1 && pay.everyFigureAgrees ? figSaid('MK-CF-M-030', pay.grossAnnual) : undefined} />
         {wages.map((e, i) => (
           <EarnerSection key={e.key} name={e.name} wage={e.w} onChange={e.set} frame={frame}
             pay={pay.earners[i]?.pay} approx={!!pay.earners[i]?.approx} entered={!!pay.earners[i]?.entered} rate={pay.tax.rate}
@@ -153,7 +155,7 @@ export default function BasePayScreen({ frame = 'screen', onDone }: {
 
       {/* SIGN-UP DRAWS NO HOUSEHOLD CARD (phone 8; IN-07, 2026-10-25): its Taxes step asks the rate, so asking it here too was the
           question asked twice. Reached from Cash flow, the card is the screen's sum. */}
-      {!onboarding && (
+      {!onboarding && pay.everyFigureAgrees && (
         <View style={s.group}>
           {/* an hourly wage with no hours a week is no number (DEC-0296): the band carries no total and the card says what is missing */}
           <SectionBand inCard light inset={Spacing.base} onRowEdges title="Your household"
@@ -227,7 +229,7 @@ function HouseholdCard({ pay, wages, op, approx, onRate }: {
       {pay.tax.estimated && pay.tax.mode === 'estimated' && (
         <View style={s.warn}>
           <Text style={s.warnT}>
-            <Text style={{ fontWeight: '800' }}>The take-home above is higher than it will really be, by roughly {fig('MK-CF-M-035', pay.tax.shortBy ?? 0)}/month.</Text>{' '}
+            <Text style={{ fontWeight: '700' }}>The take-home above is higher than it will really be, by roughly {fig('MK-CF-M-035', pay.tax.shortBy ?? 0)}/month.</Text>{' '}
             {pay.tax.stateWords ? `Only federal income tax and ${pay.tax.stateWords} are taken out here.` : 'Only federal income tax is taken out here.'} Social Security takes 6.2% of a wage up to {fig('MK-CF-M-045', SS_WAGE_BASE)}/year and Medicare 1.45% of all of it
             (0.9% more above {fig('MK-CF-M-046', MEDICARE_ADDITIONAL_THRESHOLD)}){pay.tax.stateWords ? '.' : ', and your state may take more.'} If you itemise rather than take the standard deduction, your bill is different again.
           </Text>
@@ -436,7 +438,6 @@ function EarnerSection({ name, wage, onChange, pay, approx, entered, rate, band,
             hint={disagree || !hintsForThem && !onboarding ? undefined
               : onboarding ? 'Leave blank if you don’t contribute.'
               : 'Your own contribution, not your employer’s match.'}
-            placeholder={fig('MK-CF-M-034', 0)}
             value={wage.c_401k} onChangeText={(v) => set('c_401k', v)} />
 
           <Text style={s.q}>{isYou ? 'Your' : `${midName}’s`} employer’s match</Text>
@@ -476,7 +477,7 @@ function EarnerSection({ name, wage, onChange, pay, approx, entered, rate, band,
               that it is his rate the figure is worked from, not a tax band (IN-03, 2026-10-25) */}
           {pay && pay.landsIsEstimated && pay.grossAnnualised > 0 && (
             <Text style={s.info}>
-              {pay.monthly401k > 0 ? '' : <><Text style={{ fontWeight: '800' }}>Nothing is taken out for a 401(k)</Text>, because you have not entered one. </>}
+              {pay.monthly401k > 0 ? '' : <><Text style={{ fontWeight: '700' }}>Nothing is taken out for a 401(k)</Text>, because you have not entered one. </>}
               {approx ? (
                 <>
                   {/* WHAT THE BAND IS READ ON, IN WORDS THAT ARE TRUE (2026-10-26, CLEANUP-LEFT; income-end-to-end_v07 row of that date;
@@ -484,14 +485,14 @@ function EarnerSection({ name, wage, onChange, pay, approx, entered, rate, band,
                       entered" was untrue when part of it was calculated — or read from the accounts' records — and never typed */}
                   {band.accounts ? (
                     <>
-                      We’ll calculate ≈{fig('MK-CF-M-031', pay.landsInBank)}/month, using your tax band read on <Text style={{ fontWeight: '800' }}>{fig('MK-CF-M-076', band.on)}</Text>
+                      We’ll calculate ≈{fig('MK-CF-M-031', pay.landsInBank)}/month, using your tax band read on <Text style={{ fontWeight: '700' }}>{fig('MK-CF-M-076', band.on)}</Text>
                       {` — what you have entered${toAdd ? ' so far' : ''} and the interest and dividends ${band.accounts === 'records' ? 'from your accounts’ records' : 'calculated from your accounts'}.`}
                       {toAdd ? ` Add ${toAdd} later and the band is calculated again, so this figure moves.` : ''}{' '}
                     </>
                   ) : (
                     <>
                       We’ll calculate ≈{fig('MK-CF-M-031', pay.landsInBank)}/month, using your tax band read on
-                      the <Text style={{ fontWeight: '800' }}>{fig('MK-CF-M-076', band.on)} you have entered{toAdd ? ' so far' : ''}</Text>
+                      the <Text style={{ fontWeight: '700' }}>{fig('MK-CF-M-076', band.on)} you have entered{toAdd ? ' so far' : ''}</Text>
                       {toAdd ? ` — add ${toAdd} later and the band is calculated again, so this figure moves.` : '.'}{' '}
                     </>
                   )}
@@ -510,7 +511,8 @@ function EarnerSection({ name, wage, onChange, pay, approx, entered, rate, band,
               {/* a total row, as phone 5 draws it: bold, ink, under the rule (IN2-04, 2026-10-27) — gross less 401(k) less take-home */}
               <Row label="Everything else taken out" value={figPer('MK-CF-M-036', pay.everythingElseMonthly)} strong />
               <Text style={s.info}>
-                {Math.round(((pay.everythingElse ?? 0) / (pay.grossAnnualised || 1)) * 100)}% of {whose} gross. Tax,
+                {/* the share worked once, by MK-CF-O-001 basePay, printed to two decimals (IN3-01, 2026-10-31; Q49) */}
+                {((pay.everythingElseShare ?? 0) * 100).toFixed(2)}% of {whose} gross. Tax,
                 medical cover and anything else bought through work — we do not need to ask about each.
               </Text>
             </>

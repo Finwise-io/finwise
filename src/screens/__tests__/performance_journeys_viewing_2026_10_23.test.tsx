@@ -419,11 +419,14 @@ describe('E2E-64 · hide balances, from the eye on the Performance tab', () => {
     follow();
     ls = lines();
     expect(noDollars()).toEqual([]);
-    expect(ls).toContain('▲ up •••• (1.82%) today');                   // the day's move: $5.00 hidden, 5 ÷ 275 = 1.82% kept
+    // NO DAY'S MOVE (2026-10-31, FX-PF, NW3-04): VTI's last two closes are Aug 28 ($275) and Sep 30 ($280), 33 days apart — a month's
+    // move, which read "▲ up •••• (1.82%) today". A day's move is printed only between closes a market day apart (≤ 4 calendar days)
+    expect(ls.some((x) => /^[▲▼] (up|down) /.test(x))).toBe(false);
     expect(ls).toContain('+16.00%/year');
     h = heard();
     expect(dotsHeard()).toEqual([]);
-    expect(h).toContain('LAST CLOSE · SEP 30, 2026: hidden, up hidden, 1.82 percent today');
+    expect(h).toContain('LAST CLOSE · SEP 30, 2026: hidden');                     // no move said with it (NW3-04)
+    expect(h.some((x: string) => /percent today/.test(x))).toBe(false);
     expect(h).toContain('VTI, worth hidden, up hidden, 55.56 percent since purchase');   // 300 × (280 − 180) = $30,000 on $54,000
 
     // HOME
@@ -496,7 +499,7 @@ describe('E2E-65 · a brand-new person adds an account by hand, then a holding',
     fireEvent.press(screen.getByLabelText('Add a buy or sale for Fidelity Brokerage'));
     fireEvent.changeText(screen.getByPlaceholderText('e.g. AAPL'), 'VTI');
     fireEvent.press(screen.getByLabelText('Type: Stocks / Funds'));   // a first holding: its type is asked (2026-10-25, trade-sheet v03 row 16)
-    const [shares, price] = screen.getAllByPlaceholderText('0');
+    const [shares, price] = screen.getAllByLabelText(/^(Shares|Contracts|Price per share|Amount)$/);   // the boxes by name — their grey ‘0’ is gone (R16, 2026-11-01)
     fireEvent.changeText(shares, '100');
     fireEvent.changeText(price, '280');
     fireEvent.press(screen.getByLabelText('Record buy'));
@@ -757,12 +760,12 @@ describe('E2E-68 · a screen-reader user', () => {
     fireEvent.press(screen.getByLabelText(vti.said));
     expect(follow()).toBe('/holding-detail?account=van&position=p1');
 
-    // the Holding page, heard in its parts: the price and the day's move (275 → 280, $5.00, 5 ÷ 275 = 1.82%), the window
+    // the Holding page, heard in its parts: the price — with no day's move, its last two closes (Aug 28, Sep 30) a month apart (NW3-04) — the window
     // chips — each reached (FIXED 2026-10-23: the card was one element and they could not be) — then the value and the change
     const h = heard();
-    for (const said of ['LAST CLOSE · SEP 30, 2026: $280.00, up $5.00, 1.82 percent today', 'Show 1M', 'Show 3M', 'Show 6M', 'Show YTD', 'Show 1Y', 'Show 2Y',
+    for (const said of ['LAST CLOSE · SEP 30, 2026: $280.00', 'Show 1M', 'Show 3M', 'Show 6M', 'Show YTD', 'Show 1Y', 'Show 2Y',
       'VTI, worth $84,000, up $30,000, 55.56 percent since purchase', 'Price paid (average)', '$180.00']) expect(h).toContain(said);
-    expect(h.indexOf('LAST CLOSE · SEP 30, 2026: $280.00, up $5.00, 1.82 percent today')).toBeLessThan(h.indexOf('Show 1M'));
+    expect(h.indexOf('LAST CLOSE · SEP 30, 2026: $280.00')).toBeLessThan(h.indexOf('Show 1M'));
     expect(h.indexOf('Show 2Y')).toBeLessThan(h.indexOf('VTI, worth $84,000, up $30,000, 55.56 percent since purchase'));
     expect(markHeard()).toEqual([]);
     // a chip reached is a chip that works: 2Y, said with "a year"

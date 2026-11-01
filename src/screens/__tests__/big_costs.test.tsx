@@ -46,8 +46,8 @@ test('screen: add via the sheet → row + total render; store carries the entry'
   render(<BigCostsScreen />);
   fireEvent.press(screen.getByLabelText('Add your first big cost'));
   fireEvent.changeText(screen.getByPlaceholderText('New roof'), 'New roof');
-  fireEvent.changeText(screen.getByPlaceholderText('$28,000'), '28000');
-  fireEvent.changeText(screen.getByPlaceholderText(String(new Date().getFullYear() + 2)), String(new Date().getFullYear() + 2));
+  fireEvent.changeText(screen.getByLabelText('About how much? (today’s dollars)'), '28000');   // by name: the grey examples are gone (R16, 2026-11-01)
+  fireEvent.changeText(screen.getByLabelText('Which year?'), String(new Date().getFullYear() + 2));
   fireEvent.press(screen.getByLabelText('Add it — the odds will account for it'));
   const c = (useStore.getState() as any).bigCosts;
   expect(c).toHaveLength(1);

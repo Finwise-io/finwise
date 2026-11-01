@@ -85,9 +85,11 @@ export default function StressTestScreen() {
       <View style={styles.card}>
         <SectionBand inCard inset={Spacing.base} onRowEdges title="Your cash and the expense" />
         <SubBand title="Cash you could tap today" first />
-        <MoneyBox value={cashStr} onChangeText={setCashStr} placeholder="$0" a11y="Cash you could tap today" />
+        {/* EMPTY MEANS EMPTY (2026-10-31, ST3-01, R16; DEC-0296; stresstest v03, its row of 2026-10-31): a box nobody filled shows no
+            figure — the grey "$0" read as cash entered on the first day. A $0 typed is an answer and fills it. */}
+        <MoneyBox value={cashStr} onChangeText={setCashStr} a11y="Cash you could tap today" />
         <SubBand title="The surprise expense" />
-        <MoneyBox value={shockStr} onChangeText={setShockStr} placeholder="$0" a11y="The surprise expense" />
+        <MoneyBox value={shockStr} onChangeText={setShockStr} a11y="The surprise expense" />
         <View style={styles.presets}>
           {PRESETS.map((p) => (
             <TouchableOpacity key={p.label} style={[styles.preset, shock === p.amount && styles.presetOn]} onPress={() => setShockStr(String(p.amount))}>

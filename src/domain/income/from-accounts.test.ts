@@ -57,9 +57,9 @@ test('the working is shown, and matches the approved mock', () => {
     acct({ asset_id: 'a', kind: 'savings', label: 'Chase savings', balance: 18_400, coupon_rate: 0.038 }),
     acct({ asset_id: 'b', kind: 'bond', label: 'Treasury bonds', balance: 30_000, coupon_rate: 0.042, face_value: 30_000 }),
   ] as any, [], NOW);
-  expect(r.lines[0].why).toBe('3.8% on $18,400');
+  expect(r.lines[0].why).toBe('3.80% on $18,400');   // two decimals (IN3-04, 2026-10-31; Q49, DEC-0221)
   expect(Math.round(r.lines[0].annual)).toBe(699);
-  expect(r.lines[1].why).toBe('4.2% coupon on $30,000 face');
+  expect(r.lines[1].why).toBe('4.20% coupon on $30,000 face');   // two decimals (IN3-04, 2026-10-31)
   expect(r.lines[1].annual).toBe(1_260);
 });
 
@@ -101,7 +101,7 @@ describe('interestAndDividendsForYear — records, entered, calculated ≈, not 
   test('3 · nothing typed → calculated from the accounts\' rates, ≈, with its working', () => {
     const r = interestAndDividendsForYear({}, [SAV, IRA], [], 2026, NOW);
     expect(r).toMatchObject({ amount: 400, basis: 'calculated', approx: true });
-    expect(r.said).toBe('calculated from your accounts — 4% on $10,000');
+    expect(r.said).toBe('calculated from your accounts — 4.00% on $10,000');   // two decimals (IN3-04, 2026-10-31)
     expect(r.lines.map((l: any) => l.label)).toEqual(['Savings']);
   });
   test('4 · nothing at all → not entered, no number (tenet 3)', () => {

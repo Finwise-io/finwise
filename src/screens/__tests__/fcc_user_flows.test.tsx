@@ -106,7 +106,7 @@ describe('3 · brand-new user, day one, finishes onboarding', () => {
     s.setOnboardingComplete(true);
     render(<HomeScreen />);
     expect(screen.getByText('YOUR INVESTMENTS')).toBeOnTheScreen();   // onboarding-derived rows, not zeros
-    expect(screen.queryByLabelText('Add expense')).toBeNull();        // founder 2026-07-16: no + Expense on Home
+    expect(screen.queryByLabelText('Log an expense from any tab')).toBeNull();        // founder 2026-07-16: no + Expense on Home
   });
 });
 

@@ -307,7 +307,7 @@ export function sampleAskLine(missing: string[]): string {
  *
  * Called by ... MK-NW-F-101 PLAN
  *
- * Reaches ..... 438 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 443 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -316,8 +316,8 @@ export function sampleAskLine(missing: string[]): string {
  *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
- *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 420 more — the full list is on functions_from_code
+ *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
+ *               … and 425 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -338,11 +338,11 @@ export function shortfallAgeFromBand(band?: { age: number; p50: number }[] | nul
  *     lasts = (args.leftover at horizon ?? 0) > 0
  *     short at = args.shortfall age
  *     nothing   when not (args.pot at retire! > 0)
- *     the answer = `retire at ${args.retire age} with ~${near(args.pot at retire!)}, ${ending}`
+ *     the answer = `retire at ${args.retire age}${args.retire age ours ? ' (ours until you change it)' : ''} with ~${near(args.pot at retire!)}, ${ending}`
  *
  * Called by ... MK-NW-F-101 PLAN · MK-NW-F-185 valueChanged
  *
- * Reaches ..... 438 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 443 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -351,8 +351,8 @@ export function shortfallAgeFromBand(band?: { age: number; p50: number }[] | nul
  *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
- *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 420 more — the full list is on functions_from_code
+ *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
+ *               … and 425 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-018 retirement age
@@ -367,6 +367,8 @@ export function shortfallAgeFromBand(band?: { age: number; p50: number }[] | nul
 export function onCourseSentence(args: {
   lens: 'retired' | string; chance: number | null;
   retireAge: number; horizonAge: number;
+  /** the age is the app's own (nothing entered): the sentence says so, in the Plan tab's own words, 'ours until you change it' (R10, 2026-10-31) */
+  retireAgeOurs?: boolean;
   potAtRetire: number | null; leftoverAtHorizon: number | null;
   money: (n: number) => string;
   /** The age the middle path runs out, when it does — so a plan that falls short says WHEN,
@@ -395,5 +397,5 @@ export function onCourseSentence(args: {
       : shortAt != null ? `running short around age ${shortAt}` : `running short before ${args.horizonAge}`;
   }
   if (!(args.potAtRetire! > 0)) return null;
-  return `retire at ${args.retireAge} with ~${near(args.potAtRetire!)}, ${ending}`;
+  return `retire at ${args.retireAge}${args.retireAgeOurs ? ' (ours until you change it)' : ''} with ~${near(args.potAtRetire!)}, ${ending}`;
 }

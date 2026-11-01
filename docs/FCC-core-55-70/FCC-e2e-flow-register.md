@@ -163,6 +163,14 @@ The wave added no end-to-end flow; the 92 above still run and are green (the clo
 - **71** and **79** — the figure bold inside its sentence on the filing comparison; $327/month more is unchanged.
 The Cash flow flows 69, 72 to 78 and 80 were re-run after the wave’s Cash flow fixes and are green; the mortgage counted once (DEC-8919) moves no flow’s household.
 
+## Round 3 of the fix wave, 2026-10-31/11-01 — no flow added; four flows' outcomes moved, each worked by hand
+- **72** and **80** — with no cash on record the Bill calendar's End reads — (DEC-9279); a typed 0 still projects ($2,980, then $5,960).
+- **74** — the payment box is found by its name, not a grey 0 (DEC-9283); the $386.42 payment is unchanged: 14,000 − 386.42 = 13,613.58.
+- **75** — the tab tour reads Debts' new DEBT-TO-INCOME, 53.00% · High in the founder's household (DEC-9304).
+- **77** — with no retirement age entered the plan's 65 is said as the app's, ours until you change it (DEC-9277).
+- **79** finds the filing phone in the drawing by its words; $327/month more is unchanged.
+The closing full run, 2026-11-01: 593 suites, 10,904 tests, every red decided.
+
 ## Beyond the 92 — deeper feature journeys (also automated, also green)
 The connect flow (9), the Plan tab (16), draw-order steering (11), the bill calendar (7),
 multi-goal (6), scenario compare (3), holding detail (12), Invest fidelity (10), plus the

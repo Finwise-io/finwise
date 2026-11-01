@@ -170,6 +170,7 @@ test('phone 5 · your section open — every question, every box as drawn, then 
   const want = applyNamed(normPrinted(phone(5, /^Each person’s pay$/, /^Edit ⌄$/)), [
     ['Everything else taken out $1,200 ', 'Everything else taken out $1,200/month ', 'difference 7 (canon row 15)'],
     ['Fortnightly · varies · take-home $3,300 ', 'Fortnightly · varies · take-home $3,300/month ', 'difference 3'],
+    ['17% of your gross', '17.14% of your gross', 'v07 row of 2026-10-31 (IN3-01; Q49): $1,200 ÷ $7,000 = 17.142857…%, to two decimals'],
   ]);
   const got = normPrinted(builtRun(/^Each person’s pay$/, /^Edit ⌄$/));
   expect(want.split(' ').length).toBeGreaterThan(110);
@@ -203,12 +204,17 @@ test('phone 7 · the three do not agree — the boxes marked, the sentence that 
   expect(screen.getByLabelText('Save your base pay')).toBeDisabled();
 });
 
+const V07_HTML = require('fs').readFileSync(require('path').join(__dirname, '..', '..', '..', 'MoneyKeel/documents/cashflow/moneykeel_pres_mock_income-end-to-end_v07.html'), 'utf8');
+const R16_SIGNUP = /2026-11-01<\/td>(?:(?!<\/tr>)[\s\S])*STATES NOT DRAWN AS WRITTEN HERE, the sign-up steps and Your base pay: every money box nobody filled opens empty/;
 test('phone 8 · the same screen inside sign-up — the title, its own hints, the boxes, and what we will calculate', () => {
   show({ baseSalary: '7000', salaryFreq: 'monthly', hasPartner: 'yes', partnerName: 'Sam', whoEarns: 'you' }, 'onboarding');
   const want = applyNamed(normPrinted(phone(8, /^Your base pay$/, /higher than it will really be\.$/)), [
     ['401(k) , because', '401(k), because', 'the space a bold tag leaves before a comma in the drawing’s markup'],
     ['≈$6,196', '≈$6,523', 'difference 11: a spouse entered, taxed jointly until asked — $7,000 − $477 = $6,523', 2],
+    // THE ROW OF 2026-11-01 ON v07 (R16, FX-PF): the 401(k) box nobody filled is empty — read only where the drawing carries that row
+    ...(R16_SIGNUP.test(V07_HTML) ? [['Leave blank if you don’t contribute. $0 Your take-home', 'Leave blank if you don’t contribute. Your take-home', 'v07 row of 2026-11-01 (R16)']] as [string, string, string][] : []),
   ]);
+  expect(V07_HTML).toMatch(R16_SIGNUP);
   const got = applyNamed(normPrinted(builtLinesWithBoxes(screen.toJSON())), [
     [' Your employer’s match A share of what you put in, or a flat amount. % of theirs A set amount %', '', 'difference 9'],
   ]);

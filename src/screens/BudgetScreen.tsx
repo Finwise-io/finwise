@@ -6,14 +6,14 @@ import {
   Modal, TextInput, KeyboardAvoidingView, Platform, Switch,
 } from 'react-native';
 import * as DocumentPicker from 'expo-document-picker';
-import { fig, figSaid, figWords, saidSentence } from '../components/figure';   // rule 11: a figure prints with its identifier
+import { fig, figPer, figSaid, figWords, saidSentence } from '../components/figure';   // rule 11: a figure prints with its identifier
 import { SaidText } from '../components/SaidText';   // a line that prints figures, said through the one spoken writer (E2E-78)
 import { readFileString } from '../services/fileRead';   // T19: supported read path
 import { useRouter } from 'expo-router';
 import { useStore, useMonthlyStats, DebtEntry } from '../store/useStore';
 import { incomeProfileNow } from '../hooks/useIncomeProfile';   // the one profile income figures read (2026-10-26)
 import { Card, SegmentedControl, Badge, Button, TipCard, ProgressBar, InfoDot, EmptyNote } from '../components/UI';
-import { Colors, Typography, Spacing, Radii } from '../utils/theme';
+import { Colors, Typography, Spacing, Radii, Tap } from '../utils/theme';
 import { getCategoryIcon, getCategoryBg, EXPENSE_CATEGORIES, CATEGORY_EMOJI_OPTIONS, CATEGORY_BG_OPTIONS, useAllCategories, BUDGET_CATEGORIES, categoryBucketFor, budgetCategoryIcon } from '../constants/categories';
 import { budgetVsActual, plannedMonthlySpend, budgetEditorBuckets } from '../domain/budget';   // categoryMonthly dropped 2026-10-26: imported, never read (D1)
 import { takeHomeMonthly, monthlySavings } from '../domain/savings';   // canonical take-home + planned surplus
@@ -22,7 +22,7 @@ import { MortgageRateCompare } from '../components/MortgageRateCompare';
 import { willItLastInputs } from '../domain/retirement/willItLast';
 import { FALLBACK_TREASURY } from '../services/economicData';
 import { minimumDebtService, payoffPlan, requiredPayment, debtKind, paymentShape, rateNotEntered, type PayoffMethod, type Debt } from '../domain/debt';
-import { theDebts } from '../../MoneyKeel/functions/cashflow/the-debts';
+import { theDebts, debtLoad } from '../../MoneyKeel/functions/cashflow/the-debts';   // debtLoad: what the debts ask of the income (2026-11-01)
 import { theNetWorth } from '../../MoneyKeel/functions/networth-and-performance/net-worth';   // which debts' payments were never entered: the one list
 import { useNetWorthInputs } from '../hooks/useNetWorthInputs';
 import { theMonth } from '../../MoneyKeel/functions/cashflow/the-month';   // the budget card is this month's plan (2026-10-24)
@@ -361,7 +361,7 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
     const st = useStore.getState() as any;
     return willItLastInputs({ op: st.onboardingProfile, accounts: st.assetAccounts,
       assumptions: st.retirementAssumptions, bigCosts: st.bigCosts,
-      inflationRate: st.inflationRate, employmentStatus: st.employmentStatus, transactions: st.transactions ?? [] });
+      employmentStatus: st.employmentStatus, transactions: st.transactions ?? [] });   // no economic feed: the plan's own inflation (DEC-0259; 2026-10-31, BRIEF-94)
   }, [rawDebts.length, extraPay]);
 
   const bigLoan = rawDebts
@@ -397,6 +397,7 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
   // when a payment or a rate was never entered
   const debtsDoor = theDebts({ debts: activeDebts as any, startOfYearDebt: firstSnap?.gross_debt ?? null, accounts: assetAccounts ?? [], extraMonthly: num(extraPay), method: payoffMethod });
   const debtProgress = debtsDoor.progress;
+  const load = useMemo(() => debtLoad(op, activeDebts as any), [op, activeDebts]);   // what the debts ask of the income (2026-11-01)
   // which property each mortgage is on — Net worth's one reading, through the Debts tab's door (MK-CF-O-018; DEC-1925, CF-23)
   const mortgageOn = debtsDoor.mortgages ?? { properties: 0, mortgages: 0, byProperty: [], unmatched: [], ok: true, sentence: '' };
   const debtProgressSince = yearKeys.length
@@ -460,7 +461,7 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
           <View style={styles.searchWrap}>
             <Text style={{ fontSize: 15 }}>🔍</Text>
             <TextInput style={styles.searchInput} value={search} onChangeText={setSearch} placeholder="Search payee, category, note" placeholderTextColor={Colors.textTertiary} returnKeyType="search" />
-            {search.length > 0 && <TouchableOpacity accessibilityRole="button" accessibilityLabel="Clear search" hitSlop={{ top: 14, bottom: 14, left: 14, right: 14 }} onPress={() => setSearch('')}><Text style={{ color: Colors.textSecondary, fontSize: 17, paddingHorizontal: 6 }}>✕</Text></TouchableOpacity>}
+            {search.length > 0 && <TouchableOpacity accessibilityRole="button" accessibilityLabel="Clear search" hitSlop={Tap.slop} onPress={() => setSearch('')}><Text style={{ color: Colors.textSecondary, fontSize: 17, paddingHorizontal: 6 }}>✕</Text></TouchableOpacity>}
           </View>
 
           <View style={styles.filterRow}>
@@ -548,7 +549,7 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
           )}
           {/* FAB */}
           <TouchableOpacity style={styles.fab} activeOpacity={0.9} onPress={() => setTxnSheet({ open: true })}>
-            <Text style={styles.fabTxt}>＋  Add</Text>
+            <Text style={styles.fabTxt}>＋ Add</Text>
           </TouchableOpacity>
         </>
       )}
@@ -559,19 +560,25 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
 
           {/* YOUR MONTHLY PLAN — Income − Expenses − Debt = Surplus. A square box whose title is a dark-green bar (his words, DEC-8839; the lead's R1, 2026-10-27; cash-flow_v01's row of that date) */}
           <Card style={styles.debtCard}>
-            {/* the editor's own header already says "Your budget" — the card does not say it again (2026-10-25, CF-22) */}
-            {!embedded && <SectionBand inCard onRowEdges inset={16} title="YOUR BUDGET" />}
+            {/* THE BAR THIS MONTH'S PLANNED CARD CARRIES (2026-10-31, CF3-01; DEC-8839): the sheet's own title already reads "Your budget",
+                which the card does not say again (CF-22), so its box title is This month's — "PLANNED · AUGUST +$350" */}
+            <SectionBand inCard onRowEdges inset={16} title={`PLANNED · ${new Date().toLocaleDateString('en-US', { month: 'long' }).toUpperCase()}`}
+              value={Number.isFinite(planLeftOver) ? `${planLeftOver < 0 ? '−' : '+'}${fig('MK-CF-M-002', Math.abs(planLeftOver))}` : '—'} />
             <View style={styles.planRow}><Text style={styles.planLabel}>Income (take-home)</Text><Text style={styles.planVal}>{fig('MK-CF-M-031', planIncome)}</Text></View>
             {/* nothing set reads as This month reads it: "— not set", and no planned surplus (tenet 3) */}
-            <View style={styles.planRow}><Text style={styles.planLabel}>−  Expenses (plan)</Text><Text style={styles.planVal}>{budgetSet ? fig('MK-CF-M-001', planExpenses) : '— not set'}</Text></View>
-            {planDebt > 0 && <View style={styles.planRow}><Text style={styles.planLabel}>−  Debt payments</Text><Text style={styles.planVal}>{fig('MK-NW-M-012', planDebt)}</Text></View>}
+            <View style={styles.planRow}><Text style={styles.planLabel}>− Expenses (plan)</Text><Text style={styles.planVal}>{budgetSet ? fig('MK-CF-M-001', planExpenses) : '— not set'}</Text></View>
+            {/* a budget line that stood down for a debt says so here too, in This month's words (2026-10-31, CF3-03; the 2026-10-25 line on a
+                debt counted once names this editor): the register household's $2,300 Rent / Mortgage line left the plan with nothing said */}
+            {!!counted.sentence && <Text style={styles.countedNote}>{counted.sentence}</Text>}
+            {planDebt > 0 && <View style={styles.planRow}><Text style={styles.planLabel}>− Debt payments</Text><Text style={styles.planVal}>{fig('MK-NW-M-012', planDebt)}</Text></View>}
             <View style={[styles.planRow, styles.planTotalRow]}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                <Text style={styles.planTotalLabel}>=  Planned surplus</Text>
+                <Text style={styles.planTotalLabel}>= Planned surplus</Text>
                 <InfoDot term="surplus" line={styles.planTotalLabel} />
               </View>
               {/* one figure, one form: This month prints the planned surplus with its sign, "+$350", so the editor does (CF-22) */}
-              <Text style={[styles.planTotalVal, { color: !(planLeftOver < 0) ? Colors.primary : Colors.red }]}>{Number.isFinite(planLeftOver) ? `${planLeftOver < 0 ? '−' : '+'}${fig('MK-CF-M-002', Math.abs(planLeftOver))}` : '—'}</Text>
+              {/* printed as This month prints it: 15/800 in the gain green, red when short (2026-10-31, CF3-02) — it was 20/700 brand green */}
+              <Text style={[styles.planTotalVal, { color: !(planLeftOver < 0) ? Colors.gainText : Colors.red }]}>{Number.isFinite(planLeftOver) ? `${planLeftOver < 0 ? '−' : '+'}${fig('MK-CF-M-002', Math.abs(planLeftOver))}` : '—'}</Text>
             </View>
             {budgetSet && planIncome > 0 && <Text style={styles.planNote}>Your expense budget is {percentDigits(budgetShareOfIncome)}% of take-home pay.</Text>}
             {/* NO PLAN, NO "OF $0 PLAN" (2026-10-25, CF-20; the drawing's rule 6, "never $0 dressed as an answer"): what is spent
@@ -580,7 +587,7 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
               <ProgressBar pct={Math.round(spentPct * 100)} color={spentOver ? Colors.red : Colors.primary} height={8} />
               <View style={styles.budgetFooterRow}>
                 <Text style={styles.budgetFooterText}>{fig('MK-CF-M-013', spentTotal)} spent so far</Text>
-                <Text style={[styles.budgetFooterText, { color: spentOver ? Colors.red : Colors.primary }]}>
+                <Text style={[styles.budgetFooterText, { color: spentOver ? Colors.red : Colors.gainText }]}>
                   {spentOver ? `${fig('MK-CF-M-056', spentTotal - planExpenses)} over` : `${fig('MK-CF-M-056', planExpenses - spentTotal)} left`} · of {fig('MK-CF-M-001', planExpenses)} plan
                 </Text>
               </View>
@@ -646,7 +653,7 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
                   <View key={d.id} style={[styles.bcatRow, i > 0 && { borderTopWidth: 1, borderTopColor: Colors.border, paddingTop: 8, marginTop: 2 }]}>
                     <Text style={styles.bcatIcon}>{DEBT_TYPES.find((t) => t.value === d.type)?.icon || '📄'}</Text>
                     <Text style={styles.bcatLabel} numberOfLines={1}>{d.name}</Text>
-                    <Text style={styles.bcatAmt}>{fig('MK-NW-M-011', Math.round(d.minimumPayment))}<Text style={styles.bcatLimit}> /month min</Text></Text>
+                    <Text style={styles.bcatAmt}>{fig('MK-NW-M-011', Math.round(d.minimumPayment))}<Text style={styles.bcatLimit}>/month min</Text></Text>
                   </View>
                 ))}
               </View>
@@ -671,7 +678,7 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
                     <Text style={{ fontSize: 17 }}>{c.icon}</Text>
                   </View>
                   <Text style={[styles.catLabel, { flex: 1, marginLeft: Spacing.sm }]}>{c.label}</Text>
-                  <TouchableOpacity onPress={() => Alert.alert('Delete category', `Remove “${c.label}”?`, [
+                  <TouchableOpacity hitSlop={Tap.slop} onPress={() => Alert.alert('Delete category', `Remove “${c.label}”?`, [
                     { text: 'Cancel', style: 'cancel' },
                     { text: 'Delete', style: 'destructive', onPress: () => deleteCustomCategory(c.label) },
                   ])}>
@@ -779,7 +786,7 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
                 <Text style={styles.limitLabel} accessibilityLabel="Extra a month">Extra / month</Text>
                 <View style={styles.limitInputWrap}>
                   <Text style={styles.limitDollar} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">$</Text>
-                  <MoneyBox bare dollarBeside style={styles.limitInput} value={extraPay} onChangeText={setExtraPay} placeholder="0" returnKeyType="done"
+                  <MoneyBox bare dollarBeside style={styles.limitInput} value={extraPay} onChangeText={setExtraPay} returnKeyType="done"
                     a11y="Extra payment a month, in dollars" />
                 </View>
               </View>
@@ -894,6 +901,39 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
             </View>
           )}
 
+          {/* DEBT-TO-INCOME and STUDENT LOAN OUTLOOK — moved here from Goals (2026-11-01, the lead's ruling; cash-flow_v01's row of that date:
+              Goals v03 sends every Goals door to Plan · Goals, so the old screen that held them opens from nowhere). The figures and words
+              are the Goals screen's, from its own functions, unchanged — MK-CF-F-033 debtToIncome over MK-CF-F-025 minimumDebtService, and MK-CF-F-028 loanPayment — each under its number */}
+          {activeDebts.length > 0 && (
+            <View style={styles.debtCard}>
+              <SectionBand inCard onRowEdges inset={16} title="DEBT-TO-INCOME" />
+              {load.dti ? (<>
+                <View style={styles.dtiHead}>
+                  <Text style={[styles.dtiPct, { color: load.dti.status === 'good' ? Colors.gainText : load.dti.status === 'caution' ? Colors.amber : Colors.red }]}>{fig('MK-CF-M-102', load.dti.ratio)}</Text>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.dtiVerdict}>{load.dti.status === 'good' ? 'Healthy' : load.dti.status === 'caution' ? 'Getting high' : 'High'}</Text>
+                    <SaidText style={styles.dtiSub}>{figPer('MK-CF-M-103', load.dti.monthlyDebt)} in minimum debt payments ÷ {figPer('MK-CF-M-104', load.dti.grossMonthly)} income</SaidText>
+                  </View>
+                </View>
+                <Text style={styles.planNote2}>{load.dti.homeowner ? 'Aim for 36% or less (homeowners, incl. mortgage).' : 'Aim for 20% or less (renters; rent isn’t counted).'} {load.dti.status !== 'good' ? 'Paying debt down lowers this.' : 'You’re in good shape.'}</Text>
+              </>) : (
+                <Text style={styles.planNote2}>Your income is not entered, so there is no debt-to-income figure — we won’t guess one.</Text>
+              )}
+            </View>
+          )}
+          {load.loans && (
+            <View style={styles.debtCard}>
+              <SectionBand inCard onRowEdges inset={16} title="STUDENT LOAN OUTLOOK" />
+              <Text style={styles.loanBig}>{fig('MK-CF-M-105', load.loans.borrowed)} <Text style={styles.loanBigSub}>borrowed</Text></Text>
+              {load.loans.monthly > 0 ? (<>
+                <SaidText style={styles.loanLine}>≈ <Text style={{ fontWeight: '800' }}>{figPer('MK-CF-M-106', load.loans.monthly)}</Text> once you’re repaying · {fig('MK-CF-M-107', load.loans.interest)} total interest</SaidText>
+                {load.loans.shareOfIncome != null && <Text style={styles.planNote2}>That’s ~{fig('MK-CF-M-108', load.loans.shareOfIncome)} of today’s income — keeping total debt under 20% keeps you comfortable.</Text>}
+              </>) : (
+                <Text style={styles.planNote2}>Add an interest rate and term to each loan (in setup) to see the monthly repayment.</Text>
+              )}
+            </View>
+          )}
+
         </ScrollView>
       )}
 
@@ -958,7 +998,7 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
               <Text style={styles.limitLabel}>Amount</Text>
               <View style={styles.limitInputWrap}>
                 <Text style={styles.limitDollar}>$</Text>
-                <MoneyBox bare dollarBeside style={styles.limitInput} value={payAmt} onChangeText={setPayAmt} placeholder="0" autoFocus />
+                <MoneyBox bare dollarBeside style={styles.limitInput} value={payAmt} onChangeText={setPayAmt} a11y="Amount" autoFocus />
               </View>
             </View>
             <Text style={{ fontSize: Typography.sizes.xs, color: Colors.textTertiary, lineHeight: 18 }}>
@@ -1138,7 +1178,7 @@ function TxnSheet({ state, onClose, onDelete }: { state: { open: boolean; editin
             <Text style={styles.limitLabel}>Amount</Text>
             <View style={styles.limitInputWrap}>
               <Text style={styles.limitDollar}>$</Text>
-              <MoneyBox bare dollarBeside style={styles.limitInput} value={amount} onChangeText={setAmount} placeholder="0" autoFocus />
+              <MoneyBox bare dollarBeside style={styles.limitInput} value={amount} onChangeText={setAmount} a11y="Amount" autoFocus />
             </View>
           </View>
           {kind === 'expense' ? (
@@ -1265,9 +1305,22 @@ const styles = StyleSheet.create({
   planLabel: { fontSize: Typography.sizes.base, color: Colors.textSecondary },
   planVal: { fontSize: Typography.sizes.base, fontWeight: Typography.weights.semibold, color: Colors.textPrimary },
   planTotalRow: { borderTopWidth: 1, borderTopColor: Colors.border, marginTop: 4, paddingTop: 9 },
-  planTotalLabel: { fontSize: Typography.sizes.md, fontWeight: Typography.weights.bold, color: Colors.textPrimary },
-  planTotalVal: { fontSize: Typography.sizes.lg, fontWeight: Typography.weights.bold },
+  // the closing row as This month draws it: 15 points, weight 800 (2026-10-31, CF3-02; DEC-0059) — it was 17 and 20 at 700
+  planTotalLabel: { fontSize: Typography.sizes.base, fontWeight: '800', color: Colors.textPrimary },
+  planTotalVal: { fontSize: Typography.sizes.base, fontWeight: '800', fontVariant: ['tabular-nums'] },
   planNote: { fontSize: Typography.sizes.xs, color: Colors.textTertiary, marginTop: 6 },
+  // the sentence This month prints under its rows, in This month's size and colour (CF3-03)
+  // the two boxes moved from Goals (2026-11-01): the Goals screen's own sizes, on the type scale
+  dtiHead: { flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: 4 },
+  dtiPct: { fontSize: 24, fontWeight: '800', fontVariant: ['tabular-nums'] },
+  // the verdict word beside the figure ("Healthy"), not a heading — the bar above is the box's title
+  dtiVerdict: { fontSize: 15, fontWeight: '800', color: Colors.textPrimary },
+  dtiSub: { fontSize: 13, color: Colors.textSecondary, marginTop: 2 },
+  loanBig: { fontSize: 24, fontWeight: '800', color: Colors.textPrimary, marginTop: 4, fontVariant: ['tabular-nums'] },
+  loanBigSub: { fontSize: 13, fontWeight: '600', color: Colors.textSecondary },
+  loanLine: { fontSize: 15, color: Colors.textPrimary, marginTop: 6 },
+  planNote2: { fontSize: 13, color: Colors.textSecondary, lineHeight: 18, marginTop: 8 },
+  countedNote: { fontSize: 13, color: Colors.textSecondary, lineHeight: 18, marginVertical: 6 },
   // bucket section
   bucketHeadRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 },
   bucketName: { fontSize: Typography.sizes.sm, fontWeight: Typography.weights.bold, color: Colors.textPrimary, letterSpacing: 0.3 },
@@ -1333,7 +1386,8 @@ const styles = StyleSheet.create({
 
   // Limits modal
   modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: Spacing.base, borderBottomWidth: 0.5, borderBottomColor: Colors.border, backgroundColor: Colors.cardBg },
-  modalTitle: { fontSize: Typography.sizes.md, fontWeight: Typography.weights.semibold, color: Colors.textPrimary },
+  // a sheet's title at the sheet-title size, 20/800 (2026-10-31, CF3-06; DEC-8931) — it was 17/600
+  modalTitle: { fontSize: 20, fontWeight: '800', color: Colors.textPrimary },
   modalCancel: { fontSize: Typography.sizes.base, color: Colors.textSecondary },
   modalSave: { fontSize: Typography.sizes.base, fontWeight: Typography.weights.semibold, color: Colors.primary },
   limitRow: { flexDirection: 'row', alignItems: 'center', backgroundColor: Colors.cardBg, borderRadius: Radii.lg, borderWidth: 0.5, borderColor: Colors.border, padding: Spacing.sm, gap: Spacing.sm },

@@ -400,11 +400,11 @@ test('B47 finding 1: the equity editor captures the stock symbol and seeds new r
   const { RsuEditor } = require('../../onboarding/modules');
   const answers: Record<string, any> = { equityType: 'rsu', equityTicker: 'NVDA' };
   const ctx = { answers, setAnswer: (k: string, v: any) => { answers[k] = v; } };
-  const { getByLabelText, getAllByPlaceholderText } = render(<RsuEditor ctx={ctx as any} />);
+  const { getByLabelText, getAllByLabelText } = render(<RsuEditor ctx={ctx as any} />);
   expect(getByLabelText('Company stock symbol')).toBeTruthy();
   // typing shares into a fresh row seeds its price from the live NVDA close
   const { fireEvent } = require('@testing-library/react-native');
-  fireEvent.changeText(getAllByPlaceholderText('100')[0], '50');
+  fireEvent.changeText(getAllByLabelText('Shares')[0], '50');   // by name: its grey ‘100’ is gone (R16, 2026-11-01)
   expect(answers.rsuGrants[0].price).toBe('423');
   expect(answers.rsuGrants[0].shares).toBe('50');
 });
@@ -523,9 +523,9 @@ describe('B47 finding 11 — the one repayment-shaped debt editor', () => {
     render(<DebtEditorSheet state={{ open: true }} onClose={() => {}} />);
     fireEvent.press(screen.getByLabelText('Mortgage'));
     fireEvent.press(screen.getByLabelText('On Home'));
-    fireEvent.changeText(screen.getByPlaceholderText('0'), '412000');
-    fireEvent.changeText(screen.getByPlaceholderText('6.5'), '6.25');
-    fireEvent.changeText(screen.getByPlaceholderText('$0'), '2850');
+    fireEvent.changeText(screen.getByLabelText('Balance'), '412000');   // by its name: the boxes open empty (R16, 2026-10-31)
+    fireEvent.changeText(screen.getByLabelText('Interest rate percent'), '6.25');
+    fireEvent.changeText(screen.getByLabelText('Monthly payment, what you pay'), '2850');
     expect(screen.getByText(/paid off by .* — computed from your balance, rate and payment/)).toBeOnTheScreen();
     fireEvent.press(screen.getByLabelText('Add debt'));
     const d = (useStore.getState() as any).liabilities.find((x: any) => x.debt_type === 'MORTGAGE');
@@ -540,9 +540,9 @@ describe('B47 finding 11 — the one repayment-shaped debt editor', () => {
     const { DebtEditorSheet } = require('../../components/DebtEditorSheet');
     render(<DebtEditorSheet state={{ open: true }} onClose={() => {}} />);
     fireEvent.press(screen.getByLabelText('Mortgage'));
-    fireEvent.changeText(screen.getByPlaceholderText('0'), '100000');
-    fireEvent.changeText(screen.getByPlaceholderText('6.5'), '6');
-    fireEvent.changeText(screen.getByPlaceholderText('$0'), '400');
+    fireEvent.changeText(screen.getByLabelText('Balance'), '100000');
+    fireEvent.changeText(screen.getByLabelText('Interest rate percent'), '6');
+    fireEvent.changeText(screen.getByLabelText('Monthly payment, what you pay'), '400');
     expect(screen.getByText(/doesn’t cover the interest — this never pays off/)).toBeOnTheScreen();
   });
 
@@ -552,10 +552,10 @@ describe('B47 finding 11 — the one repayment-shaped debt editor', () => {
     render(<DebtEditorSheet state={{ open: true }} onClose={() => {}} />);
     fireEvent.press(screen.getByLabelText('Personal loan'));
     fireEvent.press(screen.getByText('Due in full'));
-    fireEvent.changeText(screen.getByPlaceholderText('0'), '15000');
+    fireEvent.changeText(screen.getByLabelText('Balance'), '15000');
     fireEvent.press(screen.getByLabelText('Add debt'));          // no date yet → must NOT save
     expect((useStore.getState() as any).liabilities.filter((x: any) => x.debt_type === 'PERSONAL')).toHaveLength(0);
-    fireEvent.changeText(screen.getByPlaceholderText('12/2026'), '12/2026');
+    fireEvent.changeText(screen.getByLabelText('Due date, month and year'), '12/2026');
     expect(screen.getByText(/big-ticket in December 2026’s cash flow and on the bill calendar/)).toBeOnTheScreen();
     fireEvent.press(screen.getByLabelText('Add debt'));
     const d = (useStore.getState() as any).liabilities.find((x: any) => x.debt_type === 'PERSONAL');

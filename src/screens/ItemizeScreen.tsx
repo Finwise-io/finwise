@@ -10,7 +10,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { DateField } from '../components/DateField';
 import { SectionBand } from '../components/SectionBand';   // the form's title on its bar (R1, DEC-8839, 2026-10-30)
 import { useStore } from '../store/useStore';
-import { Colors, Spacing, Radii } from '../utils/theme';
+import { Colors, Spacing, Radii, Tap } from '../utils/theme';
 import { fig } from '../components/figure';   // rule 11: a figure prints with its identifier
 import { currencySymbol } from '../domain/_shared/money';
 import { dateShown } from '../domain/_shared/dates';   // the app's one date writer: "Mar 31, 2027", never 2027-03-31 (2026-10-19)
@@ -123,7 +123,7 @@ export default function ItemizeScreen() {
                 <Text style={styles.itemSub}>{holdingSub(h)}</Text>
               </View>
               <Text style={styles.itemVal}>{fig('MK-NW-M-040', h.value)}</Text>
-              <TouchableOpacity accessibilityRole="button" accessibilityLabel={`Remove ${h.label}`} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }} onPress={() => removeAt(i)}><Text style={styles.remove}>✕</Text></TouchableOpacity>
+              <TouchableOpacity accessibilityRole="button" accessibilityLabel={`Remove ${h.label}`} hitSlop={Tap.slop} onPress={() => removeAt(i)}><Text style={styles.remove}>✕</Text></TouchableOpacity>
             </View>
           ))}
         </View>
@@ -134,7 +134,7 @@ export default function ItemizeScreen() {
       <View style={styles.chips}>
         {CLS_PICKS.map((p) => (
           <TouchableOpacity key={p.id} style={[styles.chip, pick === p.id && styles.chipOn]} accessibilityRole="button" accessibilityState={{ selected: pick === p.id }} accessibilityLabel={p.label} onPress={() => setPick(p.id)}>
-            <Text style={styles.chipTxt}>{p.icon}  {p.label}</Text>
+            <Text style={styles.chipTxt}>{p.icon} {p.label}</Text>
           </TouchableOpacity>
         ))}
       </View>
@@ -150,7 +150,7 @@ export default function ItemizeScreen() {
           <MoneyBox bare style={[styles.input, { flex: 1 }]} placeholder="Face value (optional) — what it pays back" value={face} onChangeText={setFace} a11y="Face value, optional — what the bond pays back at maturity" />
         </View>
       )}
-      <View style={styles.amtRow}><Text style={styles.amtPre}>{currencySymbol()}</Text><MoneyBox bare dollarBeside style={styles.amtIn} placeholder="0" value={val} onChangeText={setVal} /></View>
+      <View style={styles.amtRow}><Text style={styles.amtPre}>{currencySymbol()}</Text><MoneyBox bare dollarBeside style={styles.amtIn} value={val} onChangeText={setVal} a11y="Amount" /></View>
       <TouchableOpacity style={[styles.addBtn, !canAdd && { opacity: 0.4 }]} disabled={!canAdd} accessibilityRole="button" accessibilityLabel="Add this holding" onPress={addHolding}><Text style={styles.addBtnT}>＋ Add holding</Text></TouchableOpacity>
 
       <View style={styles.footerNote}>
@@ -192,7 +192,7 @@ const styles = StyleSheet.create({
   bleed: { marginHorizontal: -Spacing.lg, marginTop: Spacing.lg },   // the page's padding, taken back: the bar runs edge to edge
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   // rounded corners, not semicircle ends — the one shape of a choice (DEC-0231, 2026-09-25; corrected 2026-10-20)
-  chip: { paddingHorizontal: 12, paddingVertical: 10, borderRadius: Radii.md, borderWidth: 1.5, borderColor: Colors.border, backgroundColor: Colors.cardBg },
+  chip: { minHeight: Tap.min, justifyContent: 'center', paddingHorizontal: 12, paddingVertical: 10, borderRadius: Radii.md, borderWidth: 1.5, borderColor: Colors.border, backgroundColor: Colors.cardBg },
   chipOn: { borderColor: Colors.primary, backgroundColor: Colors.primaryLight },
   chipTxt: { fontSize: 13, fontWeight: '600', color: Colors.textPrimary },
   input: { backgroundColor: Colors.cardBg, borderRadius: Radii.md, padding: Spacing.md, fontSize: 15, color: Colors.textPrimary, borderWidth: 1, borderColor: Colors.border, marginTop: Spacing.sm },

@@ -49,12 +49,12 @@ test('a rate of his own, 24%: Your base pay, the Income summary, the Tax organiz
   expect(sum).toContain('your rate, 24.00% (edit on Your base pay screen)');
   expect(sum).toContain('Your 24.00%, used on every figure built from your take-home.');
   expect(lines('TaxOrganizerScreen', OWN)).toContain('Tax · your rate, 24.00%.');
-  expect(recap(OWN)).toContain('Tax (~24.00% on taxable income)');
+  expect(recap(OWN)).toContain('Tax (~24.00% of your gross)');
   for (const L of [base, sum]) expect(L).not.toMatch(/\b24%/);
 });
 
 test('the calculated rate, Pat: the sign-up recap and its Taxes step write "7.41%" ($4,444 ÷ $60,000 = 7.4067%), never "~7%"', () => {
-  expect(recap(PAT)).toContain('Tax (~7.41% on taxable income)');
+  expect(recap(PAT)).toContain('Tax (~7.41% of your gross)');
   useStore.getState().resetAll();
   const r = render(<>{renderStep('income_tax' as any, { status: 'employed', tracks: [], answers: PAT, setAnswer: jest.fn() } as any)}</>);
   const L = builtLines(screen.toJSON()).join(' '); r.unmount();

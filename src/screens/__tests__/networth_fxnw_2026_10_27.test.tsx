@@ -180,7 +180,8 @@ describe('NW2-05 · one continuous ledger: every bar sits flush on what follows 
   test('every bar in the ledger hands back SectionBand’s 4 points (its holder sits at −4), and the emergency fund card is 10 inside above, 14 below', () => {
     set(V08); render(<NetWorth />);
     const all = nodes(screen.toJSON());
-    const ledger = all.find((n) => n.type === 'View' && flat(n.props?.style).backgroundColor === Colors.cardBg && flat(n.props?.style).marginTop === Spacing.sm
+    // the ledger sits right under the choice since 2026-10-31 (NW3-14: v08 draws 0 between them; it was 8 + 4)
+    const ledger = all.find((n) => n.type === 'View' && flat(n.props?.style).backgroundColor === Colors.cardBg && flat(n.props?.style).marginTop === 0
       && textOf(n).includes('WHAT YOU OWN') && textOf(n).includes('DEBTS') && textOf(n).includes('EMERGENCY FUND'));
     expect(ledger).toBeDefined();                              // one white ledger holds all three sections
     expect(bandsOf(nodes(ledger)).length).toBeGreaterThanOrEqual(6);   // WHAT YOU OWN, Cash, Investments, Personal property, DEBTS, EMERGENCY FUND
@@ -323,7 +324,7 @@ describe('workplan row 353 · the property form asks the mortgage’s rate; blan
     fireEvent.changeText(screen.getByLabelText('Amount still owed'), '240000');
     fireEvent.changeText(screen.getByLabelText('Monthly mortgage payment'), '1900');
     expect(screen.getByText('Mortgage interest rate % (optional)')).toBeOnTheScreen();
-    expect(screen.getByPlaceholderText('6.5')).toBeTruthy();
+    expect(screen.queryByPlaceholderText('6.5')).toBeNull();                      // the box opens empty, with no example rate (R16, 2026-10-31)
     if (rate != null) fireEvent.changeText(screen.getByLabelText('Mortgage interest rate percent, optional'), rate);
     fireEvent.press(screen.getByLabelText('Save this account'));
     r.unmount();
@@ -484,5 +485,104 @@ describe('a quantity with decimals — the account page writes it as the Holding
   test('a whole quantity is grouped in thousands, as before', () => {
     const { heldQuantity } = require('../../domain/performance');
     expect([heldQuantity(3319), heldQuantity(160), heldQuantity(1234.5)]).toEqual(['3,319', '160', '1,234.5']);
+  });
+});
+
+/** ROUND 3 OF THE DRAWING MATCH (2026-10-31): NW3-05 to NW3-11 and NW3-14, each pinned with its figures worked by hand. */
+describe('drawing match round 3 — the Net worth fixes', () => {
+  test('NW3-05 · a bank CD with no face value: its money comes back, not "the face value above"', () => {
+    const { theBonds } = require('../../../MoneyKeel/functions/networth-and-performance/bonds');
+    const cd = { asset_id: 'ally', label: 'Ally CD', kind: 'cd', asset_class: 'bonds', tax_bucket: 'TAXABLE', balance: 10_000, coupon_rate: 0.0505, maturity_date: '2027-06-01', cd_bought: 'bank' };
+    const noFace = theBonds({ accounts: [cd], accountId: 'ally' }).one;
+    expect(noFace.ratesMoveRefusal).toMatch(/it is worth its balance until it matures, when the money you put in comes back\./);
+    expect(noFace.ratesMoveRefusal).not.toMatch(/face value above/);
+    const withFace = theBonds({ accounts: [{ ...cd, face_value: 10_000 }], accountId: 'ally' }).one;
+    expect(withFace.ratesMoveRefusal).toMatch(/when the face value above comes back\./);
+    expect(face('moneykeel_pres_mock_account-page_v01.html')).toMatch(/2026-10-31 · Not a drawn state: a CD bought from the bank with no face value entered/);
+  });
+  test('NW3-06 · Alternatives: the share of investable money to two decimals, worked once by its door', () => {
+    const { theAlternativesOutlook } = require('../../../MoneyKeel/functions/networth-and-performance/alternatives-outlook');
+    const accts = [{ asset_id: 'a1', label: 'Bitcoin', kind: 'crypto', tax_bucket: 'TAXABLE', balance: 61_500 }];
+    expect(theAlternativesOutlook({ accounts: accts, investable: 501_500 }).shareOfInvestable).toBeCloseTo(61_500 / 501_500, 12);   // 0.122632…
+    expect(theAlternativesOutlook({ accounts: accts, investable: 0 }).shareOfInvestable).toBeNull();                                 // no share, never 0%
+    set({ ...V08, assetAccounts: [...accts, { asset_id: 'chk', label: 'Checking', kind: 'checking', tax_bucket: 'CASH', balance: 440_000 }] });
+    render(React.createElement(require('../OtherInvestmentsScreen').default));
+    expect(lines()).toContain('1 holding · 12.26% of your investable assets');           // 61,500 ÷ 501,500 = 12.26%; it read 12.3%
+    expect(face('moneykeel_pres_mock_alternatives_v02.html')).toMatch(/2026-10-31 Phone 1 — the share of investable assets under the total\. It reads to two decimals: ‘3 holdings · 12\.00% of your investable assets’/);
+  });
+  test('NW3-07 · R16: a box nobody filled opens empty — no grey figure on the debt editor, Add an account, Bonds, Alternatives, Itemize, the add sheet', () => {
+    const FIGURE = /^\$?[\d.,%/]+$/;   // a grey example made of a figure: '0', '$0', '6.5', '19.99', '0%', '12/2026', '03/2047', '$9,700'
+    const examples = () => screen.UNSAFE_root.findAll((n: any) => n.type === 'TextInput').map((n: any) => (n.props.value ? null : n.props.placeholder)).filter((p: any) => p != null);
+    set(household({ monthlySpending: '3200' }, [])); render(<NetWorth />);
+    fireEvent.press(screen.getByText(/Add your debts/));
+    for (const kind of ['Credit card', 'Mortgage', 'Auto loan']) {
+      fireEvent.press(screen.getByLabelText(kind));
+      for (const shape of ['Monthly payments', 'Card / revolving', 'Due in full']) {
+        fireEvent.press(screen.getByLabelText(shape));
+        expect(examples().filter((p: string) => FIGURE.test(p))).toEqual([]);
+      }
+    }
+    const AddAccount = require('../AddAccountScreen').default;
+    for (const kind of ['Cash', 'Stocks / Funds', 'Bonds', 'Alternatives', 'Real estate', 'Debt']) {
+      set(household({}, [])); const r = render(<AddAccount />);
+      fireEvent.press(screen.getAllByText(kind)[0]);
+      if (kind === 'Real estate') fireEvent.changeText(screen.getByLabelText('Amount still owed'), '240000');   // the payment and rate boxes appear
+      expect([kind, examples().filter((p: string) => FIGURE.test(p))]).toEqual([kind, []]);
+      r.unmount();
+    }
+    for (const [Screen, open] of [[require('../BondsScreen').default, /^＋ Add a bond$|Add a bond/], [require('../OtherInvestmentsScreen').default, /Add an investment/]] as const) {
+      set(household({}, [])); const r = render(React.createElement(Screen));
+      fireEvent.press(screen.getAllByText(open)[0]);
+      expect(examples().filter((p: string) => FIGURE.test(p))).toEqual([]);
+      r.unmount();
+    }
+    expect(face('moneykeel_pres_mock_add-account-by-hand_v02.html')).toMatch(/2026-10-31 Every phone — a box nobody has filled opens empty\./);
+  });
+  test('NW3-08 · one list of Alternatives kinds on all three forms, in one order', () => {
+    const FIVE = ['Crypto', 'Gold / commodities', 'Annuities', 'Options', 'Other'];
+    set(household({}, [])); let r = render(React.createElement(require('../AddAccountScreen').default));
+    fireEvent.press(screen.getAllByText('Alternatives')[0]);
+    const ls = lines(); expect(ls.slice(ls.indexOf('What kind?') + 1, ls.indexOf('What kind?') + 6)).toEqual(FIVE); r.unmount();
+    set({ ...household({}, []), nwSetupChoice: 'guided' }); r = render(<NetWorth />);
+    fireEvent.press(screen.getByText('Next →'));
+    fireEvent.press(screen.getByLabelText(/^Add to /)); fireEvent.press(screen.getByLabelText('Alternatives'));
+    const sheet = lines(); const at = sheet.indexOf('Alternatives', sheet.indexOf('Add to net worth') + 1);
+    expect(sheet.filter((l) => FIVE.includes(l)).slice(-5)).toEqual(FIVE); r.unmount();
+    set({ ...household({}, []) }); r = render(React.createElement(require('../OtherInvestmentsScreen').default));
+    fireEvent.press(screen.getAllByText(/Add an investment/)[0]);
+    expect(lines().filter((l) => FIVE.includes(l))).toEqual(FIVE);
+    void at;
+  });
+  test('NW3-09 · every debt with no balance: the Debts bar says "Value not entered", as the Investments bar does', () => {
+    set({ ...V08, liabilities: V08.liabilities.map((d: any) => ({ ...d, remaining_balance: null })) }); render(<NetWorth />);
+    const ls = lines(); const at = ls.indexOf('DEBTS');
+    expect(ls.slice(at, at + 3)).toEqual(['DEBTS', 'ⓘ', 'Value not entered']);
+  });
+  test('NW3-10 · accounts but no debts: v08 frame C’s two parts — the line, then the door row', () => {
+    set({ ...V08, liabilities: [] }); render(<NetWorth />);
+    const ls = lines(); const at = ls.indexOf('DEBTS');
+    expect(ls.slice(at, at + 6)).toEqual(['DEBTS', 'ⓘ', '$0', 'Nothing entered yet.', 'Add your debts', '›']);   // it was one line, 'Nothing entered yet. Add your debts ›'
+  });
+  test('NW3-11 · a gap whose title ends in a full stop is not given a second one', () => {
+    const { DataGapsBanner } = require('../../components/DataGapsBanner');
+    render(<DataGapsBanner onPage={{ sync: true }} gaps={[{ kind: 'history-depth', title: 'Your broker sent 30 days of history; figures before that aren’t counted.', meanwhile: 'Figures for this window count from Oct 5.' } as any]} />);
+    const all = lines().join(' ');
+    expect(all).toContain('figures before that aren’t counted. Figures for this window count from Oct 5.');
+    expect(all).not.toMatch(/\.\./);
+  });
+  test('NW3-14 · Net worth’s spacing, as v08 draws it', () => {
+    set(V08); render(<NetWorth />);
+    const band = screen.getByText(/^YOUR NET WORTH/);
+    let b: any = band; while (b && !(b.type === 'View' && flat(b.props?.style).backgroundColor === Colors.primaryDeep)) b = b.parent;
+    expect(flat(b.props.style).marginBottom + Spacing.xs).toBe(8);                    // SectionBand's 4 + the body's 4 = v08's 8 under the bar
+    const { StyleSheet: SS } = require('react-native');
+    const src = fs.readFileSync(path.join(ROOT, 'src/screens/NetWorthScreen.tsx'), 'utf8');
+    expect(src).toMatch(/groupPills: \{ flexDirection: 'row', gap: 8, marginTop: Spacing\.md, marginBottom: 0,/);   // 8 + 12 = 20 above, 0 below
+    expect(src).toMatch(/ledger: \{ backgroundColor: Colors\.cardBg, marginTop: 0 \}/);
+    expect(src).toMatch(/chooserHead: \{[^}]*marginBottom: 14 \}/);
+    const walk = fs.readFileSync(path.join(ROOT, 'src/components/ChangeWalkSheet.tsx'), 'utf8');
+    expect(walk).toMatch(/paddingTop: 10, paddingBottom: 30 \}/);
+    expect(walk).toMatch(/bandHolder: \{ paddingTop: Spacing\.base, paddingBottom: 2 \}/);   // 4 + 2 = v08's 6 under the walk's bar
+    void SS;
   });
 });

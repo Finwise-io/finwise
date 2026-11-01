@@ -198,7 +198,7 @@ export default function ImportHoldingsScreen() {
               <TouchableOpacity accessibilityRole="button" key={v} style={[styles.mergeRow, mergeChoice === v && styles.mergeOn]}
                 onPress={() => setMergeChoice(v)}
                 accessibilityState={{ selected: mergeChoice === v }} accessibilityLabel={label}>
-                <Text style={styles.mergeTxt}>{mergeChoice === v ? '◉' : '○'}  {label}</Text>
+                <Text style={styles.mergeTxt}>{mergeChoice === v ? '◉' : '○'} {label}</Text>
               </TouchableOpacity>
             ))}
             <Text style={styles.note}>Nothing is ever added twice without asking you.</Text>

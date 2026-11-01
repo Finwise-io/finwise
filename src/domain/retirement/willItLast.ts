@@ -76,7 +76,8 @@ export const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.mi
  *               MK-PL-F-067 willItLastInputs
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- * Reads ....... MK-XS-I-024 logged expenses
+ * Reads ....... MK-XS-I-018 retirement age
+ *               MK-XS-I-024 logged expenses
  *               MK-XS-I-026 big costs (amount and year)
  *               MK-XS-I-029 inflation rate
  *               MK-XS-I-044 the person’s own plan overrides
@@ -103,6 +104,10 @@ export interface WillItLastArgs {
   withBand?: boolean;
   transactions?: any[];                      // store.transactions — the year's interest records, for the tax rate (optional)
 }
+
+// THE ONE RETIREMENT AGE (R10, 2026-10-31) lives in ./retireAge, a module with no imports, so persona and sign-up can read it too
+export { RETIRE_AGE_ASSUMED, planRetireAgeOf } from './retireAge';
+import { planRetireAgeOf } from './retireAge';
 
 export interface WillItLastResult {
   captured: boolean;                 // the three questions answered (age, expenses, something saved)?
@@ -236,7 +241,8 @@ export function willItLastInputs(a: WillItLastArgs): RetirementInputs | null {
   // the same; the two stay one rule
   const contribDefault = monthlyContributionsFromOnboarding(op) ?? 0;   // not answered → the plan's own default of $0 (Plan build: say "not entered")
   const spendDefault = retirementSpendMonthly(op) || numOrZero(op.monthlySpending) || 5000;
-  const retireDefault = numOrZero(op.targetRetirementAge) || (a.employmentStatus === 'retired' ? age : 65);
+  // ONE RETIREMENT AGE (R10, 2026-10-31): the plan's age is read by the one reader every screen uses — never a fallback of its own
+  const planAge = planRetireAgeOf({ assumptions: A, op, retiredNow: a.employmentStatus === 'retired', age });
   const horizon = A.horizonAge ?? (numOrZero(op.horizonAge) || 90);
   const ssEligibleEffective = A.ssEligible == null ? outsideTotal > 0 : A.ssEligible;
   const claimAge = A.ssClaimAge ?? 67;
@@ -246,7 +252,7 @@ export function willItLastInputs(a: WillItLastArgs): RetirementInputs | null {
     ? (A.ssMonthly != null ? ssBenefitAt(A.ssMonthly, claimAge, numOrZero(op.birthYear) || null) : (ssBase?.monthly ?? 0))
     : 0;
 
-  const planRetireAge = A.retireAge ?? retireDefault;
+  const planRetireAge = planAge.age;
   const planSave = A.contribMonthly ?? contribDefault;
   const planSpend = A.spendMonthly ?? spendDefault;
   const planInfl = A.inflation ?? inflDefault;

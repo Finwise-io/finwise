@@ -3,7 +3,7 @@ import {
   View, Text, TouchableOpacity, StyleSheet, ActivityIndicator, Modal,
   ViewStyle, TextStyle, StyleProp, Animated, ScrollView,
 } from 'react-native';
-import { Colors, Typography, Spacing, Radii, Shadows } from '../utils/theme';
+import { Colors, Typography, Spacing, Radii, Shadows, Tap } from '../utils/theme';
 import { formatMoney } from '../domain/_shared/money';
 import { GLOSSARY, type GlossaryTerm } from '../domain/glossary';
 import { useStore } from '../store/useStore';
@@ -346,7 +346,7 @@ const styles = StyleSheet.create({
     padding: 3,
     gap: 3,
   },
-  segBtn: { flex: 1, paddingVertical: 9, alignItems: 'center', borderRadius: Radii.sm - 2 },
+  segBtn: { minHeight: Tap.min, justifyContent: 'center', flex: 1, paddingVertical: 9, alignItems: 'center', borderRadius: Radii.sm - 2 },
   segBtnOn: { backgroundColor: Colors.cardBg, borderWidth: 0.5, borderColor: Colors.border },
   segText: { fontSize: Typography.sizes.sm, fontWeight: Typography.weights.medium, color: Colors.textSecondary },
   segTextOn: { color: Colors.primary },

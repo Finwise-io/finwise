@@ -4,7 +4,7 @@ import { SectionBand } from '../components/SectionBand';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useStore } from '../store/useStore';
 import { Card, TipCard } from '../components/UI';
-import { Colors, Typography, Spacing, Radii } from '../utils/theme';
+import { Colors, Typography, Spacing, Radii, Tap } from '../utils/theme';
 import { logoutUser, submitFeedback, resendVerification, refreshEmailVerified, isEmailVerified, deleteAccount, regenerateRecoveryCode, currentUserEmail } from '../services/firebase';
 import { isLockAvailable, authenticate } from '../services/appLock';
 import { resolveLens } from '../domain/profile/lens';
@@ -377,7 +377,7 @@ export default function SettingsScreen() {
                 const active = resolveLens(onboardingProfile, lensOverride) === v;
                 return (
                   <TouchableOpacity accessibilityRole="button" key={v} onPress={() => setLensOverride?.(v)}
-                    style={{ paddingVertical: 8, paddingHorizontal: 14, borderRadius: Radii.md /* DEC-0231: rounded corners, not semicircle ends */, backgroundColor: active ? Colors.primary : Colors.bgSecondary, borderWidth: 1, borderColor: active ? Colors.primary : Colors.border }}
+                    style={{ minHeight: Tap.min, justifyContent: 'center', paddingVertical: 8, paddingHorizontal: 14, borderRadius: Radii.md /* DEC-0231: rounded corners, not semicircle ends */, backgroundColor: active ? Colors.primary : Colors.bgSecondary, borderWidth: 1, borderColor: active ? Colors.primary : Colors.border }}
                     accessibilityLabel={label}
                     accessibilityState={{ selected: active }}
                     accessibilityHint="Sets up your Home and tab order">
@@ -651,7 +651,7 @@ export default function SettingsScreen() {
 
       {/* Financial Disclaimer */}
       <Card style={styles.disclaimerCard}>
-        <Text style={styles.disclaimerTitle}>⚠️  Financial Disclaimer</Text>
+        <Text style={styles.disclaimerTitle}>⚠️ Financial Disclaimer</Text>
         <Text style={styles.disclaimerText}>
           MoneyKeel is for informational and educational purposes only. It does not constitute financial,
           investment, tax, or legal advice. Always consult a qualified financial professional before
@@ -708,7 +708,7 @@ const styles = StyleSheet.create({
   settingValue: { fontSize: Typography.sizes.base, fontWeight: '500', color: Colors.textPrimary },
   linkBtn: { marginTop: Spacing.sm },
   linkText: { fontSize: Typography.sizes.base, color: Colors.primary, fontWeight: '500' },
-  actionRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: Spacing.md, borderBottomWidth: 0.5, borderBottomColor: Colors.border },
+  actionRow: { flexDirection: 'row', alignItems: 'center', minHeight: Tap.min, paddingVertical: Spacing.md, borderBottomWidth: 0.5, borderBottomColor: Colors.border },
   lockRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: Spacing.sm },
   delBackdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.45)', alignItems: 'center', justifyContent: 'center', padding: Spacing.lg },
   delCard: { width: '100%', maxWidth: 380, backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.lg },

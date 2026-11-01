@@ -66,7 +66,7 @@ export interface WaterfallStep { name: string; allocated: number; }
  *
  * Called by ... MK-CF-F-092 incomeMonthlyGrid · MK-PL-F-011 buildGoalsState
  *
- * Reaches ..... 438 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 443 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -75,8 +75,8 @@ export interface WaterfallStep { name: string; allocated: number; }
  *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
- *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 420 more — the full list is on functions_from_code
+ *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
+ *               … and 425 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-027 goals (target, saved, date)
@@ -202,7 +202,10 @@ export interface SaveCapacity { avg: number; min: number; max: number; lumpy: bo
  *     max = max
  *     lumpy = max − min > max(50, avg × 0.25)
  *
- * Called by ... nothing — it is an entry point, or nothing reaches it
+ * Called by ... MK-PL-F-098 goalsCapacity
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-PL-F-098 goalsCapacity
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -267,11 +270,11 @@ export interface GoalLike { target: number; saved: number; targetDate?: string; 
  *     nothing   when y is missing (or m is missing when missing or zero)
  *     max(1, (y − now.get full year()) × 12 + (m − 1 − now.get month()))
  *
- * Called by ... MK-PL-F-019 goalMonthsRemaining
+ * Called by ... MK-PL-F-019 goalMonthsRemaining · MK-PL-F-101 debtGoalPlan
  *
- * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
- *               MK-PL-F-019 goalMonthsRemaining · MK-PL-F-023 goalStatus
- *               MK-PL-F-020 requiredMonthly
+ * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
+ *               MK-PL-F-101 debtGoalPlan · MK-PL-F-019 goalMonthsRemaining
+ *               MK-PL-F-023 goalStatus · MK-PL-F-020 requiredMonthly
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-027 goals (target, saved, date)
@@ -449,6 +452,8 @@ export type GoalStatus = 'fully_funded' | 'on_track' | 'behind' | 'no_date';
  *
  * Serves ...... MK-MN-M-009
  * Reads ....... MK-XS-I-027 goals (target, saved, date)
+ *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
+ *               MK-XS-I-078 the debt a logged debt payment was paid on
  *
  * Decides .....
  *     · If saved is missing it counts as zero, so nothing recorded and a real zero look the same.
@@ -468,27 +473,40 @@ export function goalStatus(g: GoalLike, fundedThisMonth: number | null | undefin
 }
 
 /** THE PLAN TAB'S GOAL ROWS, READ FROM WHAT IS SAVED (2026-10-30, FX-PLAN; the lead's order, under his approved Plan v4 frames
- *  'Goals — populated' and 'Goals — empty').
+ *  'Goals — populated' and 'Goals — empty'; since 2026-10-31 the Goals sub-tab is built to goals v03).
  *
  *  The Goals sub-tab read each goal as goal_id, target_amount and target_year — the names of the goals service's own record (Goal,
  *  above, built by goalsFromOnboarding). The app saves a goal as id, target, saved and targetDate ('YYYY-MM', the store's Goal). So
- *  every goal read $0 with no date, and the tab showed 'Nothing here yet' with goals entered — in Build 53 and until today. This is
+ *  every goal read $0 with no date, and the tab showed 'Nothing here yet' with goals entered — in Build 53 and until 2026-10-30. This is
  *  the one reader: it takes the saved shape, and the service's shape too, so a record of either kind reads the same.
- *  The date is the year, as v4 draws it ('$28,000 by 2027'). */
-export interface PlanGoalRow { id: string; label: string; target: number; saved: number; targetDate: string | null }
-/** The Plan tab's goal rows, read from what is saved: each goal's name, target, saved and date, from either shape a goal is stored in; the date is its year, and a goal with no date has none. */
+ *  `targetDate` is the date as v03 prints it ('Oct 2027'; a year alone when only a year is known); `targetYm` is the month the
+ *  figures are worked to ('YYYY-MM'), null when no month is known. Every other field the goal carries (its icon, its kind, the debt
+ *  it pays off, what was funded each month) is passed through untouched. */
+export interface PlanGoalRow { id: string; label: string; target: number; saved: number; targetDate: string | null; targetYm: string | null;
+  icon?: string; kind?: 'save' | 'debt'; debtId?: string; duration?: string; fundedByMonth?: Record<string, number> }
+const MONTH_WORDS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+/** The Plan tab's goal rows, read from what is saved: each goal's name, target, saved and date, from either shape a goal is stored in; the date prints as its month and year ('Oct 2027'), or its year alone when only a year is known, and a goal with no date has none. */
 /* ─ MK-PL-F-094 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * planGoalRows
  *
- * Answers ..... The Plan tab's goal rows, read from what is saved: each goal's name, target, saved and date, from either shape a goal is stored in; the date is its year, and a goal with no date has none.
+ * Answers ..... The Plan tab's goal rows, read from what is saved: each goal's name, target, saved and date, from either shape a goal is stored in; the date prints as its month and year ('Oct 2027'), or its year alone when only a year is known, and a goal with no date has none.
  *
  * Formula .....
  *     g = raw (or none when missing)
+ *     ym = target date.match( ÷ ^(\d{4}) − (\d{1,2}) ÷ )   if target date is a string
+ *     nothing   otherwise
+ *     month = ym[2] read as a number   if ym
+ *     na n   otherwise
+ *     target ym = `${ym[1]}-${string(month).pad start(2, '0')}`   if ym and month ≥ 1 and month ≤ 12
+ *     nothing   otherwise
  *
  * Called by ... nothing — it is an entry point, or nothing reaches it
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-027 goals (target, saved, date)
+ *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
+ *               MK-XS-I-078 the debt a logged debt payment was paid on
+ *               MK-XS-I-083 what a goal is — saving toward an amount, or paying off a debt — and the debt a payoff goal pays off
  *
  * Formula also on the master file · functions_from_code · MK-PL-F-094
  * Changed ..... not in git yet (—)
@@ -496,14 +514,18 @@ export interface PlanGoalRow { id: string; label: string; target: number; saved:
 export function planGoalRows(goals: unknown[] | null | undefined): PlanGoalRow[] {
   return (Array.isArray(goals) ? goals : []).map((raw: any, i) => {
     const g = raw ?? {};
-    const date = typeof g.targetDate === 'string' && /^\d{4}/.test(g.targetDate) ? g.targetDate.slice(0, 4)
+    const ym = typeof g.targetDate === 'string' ? g.targetDate.match(/^(\d{4})-(\d{1,2})/) : null;
+    const month = ym ? Number(ym[2]) : NaN;
+    const targetYm = ym && month >= 1 && month <= 12 ? `${ym[1]}-${String(month).padStart(2, '0')}` : null;
+    const targetDate = targetYm ? `${MONTH_WORDS[month - 1]} ${ym![1]}`
       : g.target_year != null && Number.isFinite(Number(g.target_year)) ? String(Number(g.target_year)) : null;
     return {
       id: String(g.id ?? g.goal_id ?? `goal-${i}`),
       label: String(g.label ?? 'Goal'),
       target: toNum(g.target ?? g.target_amount),
       saved: toNum(g.saved),
-      targetDate: date,
+      targetDate, targetYm,
+      icon: g.icon, kind: g.kind, debtId: g.debtId, duration: g.duration, fundedByMonth: g.fundedByMonth,
     };
   });
 }

@@ -29,7 +29,7 @@ describe('the debt editor', () => {
     expect(screen.getByText('Which property is it on?')).toBeOnTheScreen();
     // his words, 2026-10-05: "display the message when they try to enter mortgage on debt screen - add property first on NW page"
     expect(screen.getByText('Add the property first, on the Net worth page. A mortgage is always on a property, so this one cannot be saved until its property is there.')).toBeOnTheScreen();
-    fireEvent.changeText(screen.getByPlaceholderText('0'), '250000');
+    fireEvent.changeText(screen.getByLabelText('Balance'), '250000');
     fireEvent.press(screen.getByLabelText('Add debt'));
     expect(state().liabilities).toHaveLength(0);
   });
@@ -39,7 +39,7 @@ describe('the debt editor', () => {
     render(<DebtEditorSheet state={{ open: true }} onClose={() => {}} />);
     fireEvent.press(screen.getByLabelText('Mortgage'));
     fireEvent.changeText(screen.getByPlaceholderText('Lender / name (e.g. Chase Sapphire)'), 'Chase');
-    fireEvent.changeText(screen.getByPlaceholderText('0'), '250000');
+    fireEvent.changeText(screen.getByLabelText('Balance'), '250000');
     fireEvent.press(screen.getByLabelText('Add debt'));
     expect(state().liabilities).toHaveLength(0);                       // not until it says which property
     expect(screen.getByText('Pick the property this mortgage is on to save it.')).toBeOnTheScreen();

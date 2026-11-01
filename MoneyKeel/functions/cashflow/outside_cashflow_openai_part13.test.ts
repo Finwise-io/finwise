@@ -139,6 +139,8 @@ const futureWith = (stubs: { age: number | null; guaranteed: number; inputs: any
     willItLastInputs: () => stubs.inputs,
     simulate: () => ({ projected_at_retirement: stubs.projected }),
     buildPaycheckYear: () => ({ safeDrawMonthly: stubs.draw }),
+    // the one retirement age (R10, 2026-10-31) is the app's own reader, not a stub: an age handed in is read as it is
+    planRetireAgeOf: require('../../../src/domain/retirement/retireAge').planRetireAgeOf,
   });
 /** solveSafeDraw, the app's own text, with the reviewer's chance oracle in place of simulate */
 const safeDrawWithOracle = (oracle: (netDraw: number) => number) => compile(PAYCHECK_TS,

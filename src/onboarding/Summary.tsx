@@ -4,6 +4,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Card } from '../components/UI';
+import { SectionBand } from '../components/SectionBand';   // box titles on the dark bar (DEC-8839, R1; SU3-04, 2026-10-31)
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { Status, Track } from './steps';
 import { num, grossAnnual, retirementMonthlyIncome } from './modules';
@@ -70,8 +71,10 @@ export default function Summary({ status, tracks, answers: a, name, onOpen }: Pr
         <Text style={s.heroSub}>You’re all set to manage your income, expenses and savings smartly.</Text>
       </View>
 
-      <Text style={s.section}>WHAT’S ACTIVE — TAP TO OPEN</Text>
-      <Card>
+      {/* each list is one square card under its dark bar (SU3-04, 2026-10-31; a dated row on income-end-to-end_v07) — the titles
+          were grey capitals above the cards */}
+      <Card style={SQUARE}>
+        <SectionBand inCard inset={Spacing.base} title="What’s active — tap to open" />
         {active.map((m, i) => (
           <TouchableOpacity key={m.key} style={[s.statusRow, i > 0 && s.rowDivider]} onPress={() => onOpen?.(m.route)} disabled={!onOpen}>
             <Text style={s.modIcon}>{m.icon}</Text>
@@ -86,10 +89,11 @@ export default function Summary({ status, tracks, answers: a, name, onOpen }: Pr
 
       {unlock.length > 0 && (
         <>
-          <Text style={s.section}>UNLOCK NEXT — WHENEVER YOU’RE READY</Text>
-          {unlock.map((m) => (
-            <Card key={m.key}>
-              <TouchableOpacity style={s.statusRow} onPress={() => onOpen?.(m.route)} disabled={!onOpen}>
+          <Card style={{ ...SQUARE, marginTop: Spacing.md }}>
+          <SectionBand inCard inset={Spacing.base} title="Unlock next — whenever you’re ready" />
+          {unlock.map((m, i) => (
+            <View key={m.key}>
+              <TouchableOpacity style={[s.statusRow, i > 0 && s.rowDivider]} onPress={() => onOpen?.(m.route)} disabled={!onOpen}>
                 <Text style={s.modIcon}>{m.icon}</Text>
                 <View style={{ flex: 1 }}>
                   <Text style={s.modTitle}>{m.title}</Text>
@@ -97,8 +101,9 @@ export default function Summary({ status, tracks, answers: a, name, onOpen }: Pr
                 </View>
                 <Text style={s.arrow}>➔</Text>
               </TouchableOpacity>
-            </Card>
+            </View>
           ))}
+          </Card>
         </>
       )}
 
@@ -107,12 +112,14 @@ export default function Summary({ status, tracks, answers: a, name, onOpen }: Pr
   );
 }
 
+/** a card that opens with a bar is square, so the bar runs edge to edge (DEC-0079) */
+const SQUARE = { borderRadius: 0 } as const;
+
 const s = StyleSheet.create({
   hero: { alignItems: 'center', marginBottom: Spacing.lg },
   kicker: { fontSize: 13, fontWeight: '800', color: Colors.primary, letterSpacing: 2, marginTop: 4 },
   heroTitle: { fontSize: 24, fontWeight: '800', color: Colors.textPrimary, textAlign: 'center', marginTop: 4 },
   heroSub: { fontSize: 15, color: Colors.primaryDark, textAlign: 'center', marginTop: 6, marginHorizontal: 10 },
-  section: { fontSize: 11, fontWeight: '700', color: Colors.textTertiary, letterSpacing: 0.6, marginTop: Spacing.md, marginBottom: Spacing.xs },
   statusRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm, paddingVertical: 10 },
   rowDivider: { borderTopWidth: 1, borderTopColor: Colors.border },
   modIcon: { fontSize: 24, width: 30, textAlign: 'center' },

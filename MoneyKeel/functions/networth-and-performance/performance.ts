@@ -294,6 +294,9 @@ function withoutBlankRows(d: any): any {
  *               MK-XS-I-048 the person’s own asset-class answer
  *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
  *               MK-XS-I-063 option contract multiplier — 100 unless the broker or the person states otherwise
+ * Ruled by .... DEC-9265
+ *               his decisions, in MoneyKeel/documents/decision-log/moneykeel_log_decisions_v01.xlsx.
+ *               Change the arithmetic and one of those stops being obeyed — read them first.
  *
  * Decides .....
  *     · Uses a built-in total of 0.
@@ -1123,6 +1126,7 @@ const whyLeftOut = (r: GainRow): 'history' | 'paid' | 'sale' => (r.paidInside ==
  *     · If g is missing it uses 0.
  *     · If priced gain is missing it uses 0.
  *     · If gap return is missing it uses 0.
+ *     · If length is missing it uses 0.
  *     · If balance is missing it counts as zero, so nothing recorded and a real zero look the same.
  *     · Treats a year as 365 days.
  *
@@ -1537,7 +1541,25 @@ export function thePerformance(input: {
   // back, the return stays the measured time-weighted return of the accounts (DEC-1669, DEC-4439). `covered`
   // still says only whether the record reaches back; the Performance tab greys a window only where it is neither covered nor worked back.
   const knownReturn = workedBack && input.holdings ? knownHoldingsReturn(gainRows, years) : null;
-  const cumulative = covered ? verdict?.rate ?? null : workedBack ? knownReturn : null;
+  // A RETURN AGREES WITH ITS WALK (2026-10-31, FX-PF, NW3-02; the lead's ruling R11 under DEC-1669 and tenet 2). One account whose
+  // total was typed, its holdings listed inside it, that sold inside a window worked back from today: the sale took money out of its
+  // holdings into the rest of its typed total, so the holdings' own return is not the account's. Its return is
+  // the walk's own change, time-weighted: with no money put in or taken out, ending ÷ beginning − 1. Vanguard Brokerage, $50,000
+  // typed with 100 VTI, 10 sold today at $120.00 less a $5 fee: 1M walk $48,800 → $49,995, so +2.45% (VTI's own +13.28% read
+  // beside it). Money put in or taken out inside the window: its value that day is not on record, so no figure, and the sentence
+  // says so (DEC-1669: never another method). A holding whose gain is not known keeps DEC-5068's reading and its sentence.
+  // A SALE, AS R11 SAYS — NOT A BUY: a buy moves money from the account's cash into a holding, which the holdings' own return already
+  // counts at what was paid from the start of its day (DEC-7451; journey E2E-57, the same walk and Return before a buy and after it).
+  // To reverse: drop walkReturn; to take buys in too, test 'BUY' beside 'SELL' below.
+  const oneAccount = input.investmentAccountIds.size === 1
+    ? ((input.accounts ?? []) as any[]).find((a: any) => input.investmentAccountIds.has(String(a?.asset_id))) : null;
+  const typedTotal = !!oneAccount && oneAccount.derive_balance !== true && oneAccount.source !== 'connected' && (oneAccount.positions?.length ?? 0) > 0;
+  const tradedInside = typedTotal && ledger.some((t: any) => t?.type === 'SELL');
+  const flowDay = ledger.filter((t: any) => t?.type === 'DEPOSIT' || t?.type === 'WITHDRAWAL' || t?.type === 'TRANSFER' || t?.type === 'TRANSFER_IN_KIND')
+    .map((t: any) => String(t?.date ?? '').slice(0, 10)).sort()[0];
+  const walkReturn: number | null | undefined = workedBack && tradedInside && walk && unknownNames.length === 0
+    ? (contributions === 0 && withdrawals === 0 && walk.beginning > 0 ? walk.ending / walk.beginning - 1 : null) : undefined;
+  const cumulative = covered ? verdict?.rate ?? null : workedBack ? (walkReturn !== undefined ? walkReturn : knownReturn) : null;
   // a yearly rate only for a window longer than a year: (1 + the return)^(365 ÷ days) − 1. "Since" is
   // the whole record: its figure is the window's own total, said with its two dates.
   // LONGER THAN A YEAR is read on the calendar, the way the window itself is (DEC-3768b): a window that opens
@@ -1559,7 +1581,8 @@ export function thePerformance(input: {
     beginningAsOf: bounds ? bounds.beginningAsOf : null,
     ret: perYear ?? cumulative,
     cumulative, perYear, years,
-    sentence: covered ? whyNoReturn(verdict) : cannotReach,
+    sentence: covered ? whyNoReturn(verdict) : walkReturn === null && flowDay
+      ? whyNoReturn({ rate: null, refused: 'MOVEMENT_DAY_NOT_RECORDED', day: flowDay } as any) : cannotReach,
     notIncluded, workedBack,
   };
 }

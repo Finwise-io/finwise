@@ -97,7 +97,7 @@ const type = (label: string | RegExp, v: string) => fireEvent.changeText(screen.
 const disabled = (label: string) => screen.getByLabelText(label).props.accessibilityState?.disabled === true;
 const acct = (id: string) => (useStore.getState().assetAccounts as any[]).find((a) => a.asset_id === id);
 const typeTicker = (t: string) => fireEvent.changeText(screen.getByPlaceholderText('e.g. AAPL'), t);
-const typeTrade = (shares: string, price: string) => { const [s, p] = screen.getAllByPlaceholderText('0'); fireEvent.changeText(s, shares); fireEvent.changeText(p, price); };
+const typeTrade = (shares: string, price: string) => { const [s, p] = screen.getAllByLabelText(/^(Shares|Contracts|Price per share|Amount)$/); fireEvent.changeText(s, shares); fireEvent.changeText(p, price); };   // the boxes by name — their grey ‘0’ is gone (R16, 2026-11-01)
 
 // ═══ THE PRICES AND THE HOUSEHOLDS ═══════════════════════════════════════════════════════════════════════════════════════
 const closes = (pts: [string, number][]) => ({ points: pts.map(([date, close]) => ({ date, close })) });

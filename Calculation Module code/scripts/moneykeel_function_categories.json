@@ -99,6 +99,11 @@
   "file": "MoneyKeel/functions/cashflow/credit-line.ts",
   "category": "1 · ACTION"
  },
+ "LOAD": {
+  "id": "MK-CF-F-296",
+  "file": "MoneyKeel/functions/cashflow/the-debts.ts",
+  "category": "1 · ACTION"
+ },
  "M": {
   "id": "MK-CF-F-241",
   "file": "MoneyKeel/functions/cashflow/this-month.ts",
@@ -1024,9 +1029,19 @@
   "file": "src/domain/_shared/freshness.ts",
   "category": "3 · DEPENDENT"
  },
+ "debtGoalPlan": {
+  "id": "MK-PL-F-101",
+  "file": "src/domain/goals/planGoals.ts",
+  "category": "2 · DISPLAYED"
+ },
  "debtKind": {
   "id": "MK-CF-F-035",
   "file": "src/domain/debt/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "debtLoad": {
+  "id": "MK-CF-F-295",
+  "file": "MoneyKeel/functions/cashflow/the-debts.ts",
   "category": "2 · DISPLAYED"
  },
  "debtPaymentsByDebt": {
@@ -1537,6 +1552,11 @@
  "goalStatus": {
   "id": "MK-PL-F-023",
   "file": "src/domain/goals/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "goalsCapacity": {
+  "id": "MK-PL-F-098",
+  "file": "src/domain/goals/planGoals.ts",
   "category": "2 · DISPLAYED"
  },
  "goalsFromOnboarding": {
@@ -2379,6 +2399,11 @@
   "file": "Calculation Module code/engines/coverage.ts",
   "category": "3 · DEPENDENT"
  },
+ "monthYear": {
+  "id": "MK-PL-F-099",
+  "file": "src/domain/goals/planGoals.ts",
+  "category": "2 · DISPLAYED"
+ },
  "monthYearShown": {
   "id": "MK-ST-F-095",
   "file": "src/domain/_shared/dates.ts",
@@ -2412,6 +2437,11 @@
  "monthsBefore": {
   "id": "MK-PF-F-036",
   "file": "src/domain/performance/index.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "monthsFrom": {
+  "id": "MK-PL-F-100",
+  "file": "src/domain/goals/planGoals.ts",
   "category": "3 · DEPENDENT"
  },
  "monthsLeftInYear": {
@@ -2842,6 +2872,11 @@
  "planGoalRows": {
   "id": "MK-PL-F-094",
   "file": "src/domain/goals/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "planRetireAgeOf": {
+  "id": "MK-PL-F-102",
+  "file": "src/domain/retirement/retireAge.ts",
   "category": "2 · DISPLAYED"
  },
  "planTarget": {
@@ -4418,6 +4453,11 @@
   "id": "MK-ST-F-094",
   "file": "src/domain/_shared/plural.ts",
   "category": "2 · DISPLAYED"
+ },
+ "withMinus": {
+  "id": "MK-ST-F-100",
+  "file": "src/domain/_shared/money.ts",
+  "category": "1 · ACTION"
  },
  "withSalaryMonth": {
   "id": "MK-CF-F-169",

@@ -52,7 +52,7 @@ export interface TrendPoint { key: string; nw: number }   // key 'YYYY-MM' (mont
  * Called by ... MK-NW-F-099 SNAP · MK-NW-F-100 TREND
  *               MK-NW-F-147 paymentNotEntered
  *
- * Reaches ..... 438 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 443 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -61,8 +61,8 @@ export interface TrendPoint { key: string; nw: number }   // key 'YYYY-MM' (mont
  *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
- *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 420 more — the full list is on functions_from_code
+ *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
+ *               … and 425 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-031 daily and monthly snapshots
@@ -120,7 +120,7 @@ export function pruneDaily(daily: Record<string, number>): Record<string, number
  *
  * Called by ... MK-XS-F-008 normalizeSnapshot
  *
- * Reaches ..... 439 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 444 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -129,8 +129,8 @@ export function pruneDaily(daily: Record<string, number>): Record<string, number
  *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
- *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 421 more — the full list is on functions_from_code
+ *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
+ *               … and 426 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -150,7 +150,8 @@ const isYm = (s: unknown): s is string => typeof s === 'string' && /^\d{4}-\d{2}
  * Called by ... MK-CF-F-028 loanPayment · MK-CF-F-049 buildIncomeState
  *               MK-CF-F-122 addDays · MK-CF-F-129 round4
  *               MK-CF-F-155 cash · MK-CF-F-189 essentialsFromLoggedSpending
- *               MK-CF-F-291 purchaseRecordsFollowReimport · MK-CF-O-001 basePay
+ *               MK-CF-F-291 purchaseRecordsFollowReimport · MK-CF-F-295 debtLoad
+ *               MK-CF-F-296 LOAD · MK-CF-O-001 basePay
  *               MK-CF-O-016 incomeSources · MK-HM-F-006 money0
  *               MK-NW-F-026 accountDisplayNames · MK-NW-F-058 yearsToMaturity
  *               MK-NW-F-067 plural · MK-NW-F-119 estimatedAccrued
@@ -169,7 +170,7 @@ const isYm = (s: unknown): s is string => typeof s === 'string' && /^\d{4}-\d{2}
  *               MK-XS-F-131 toInt · MK-XS-F-171 numOrNaN
  *               MK-XS-F-199 profileOnTheWayIn
  *
- * Reaches ..... 542 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 548 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -179,7 +180,7 @@ const isYm = (s: unknown): s is string => typeof s === 'string' && /^\d{4}-\d{2}
  *               MK-CF-F-237 LATER · MK-NW-F-081 LB
  *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
  *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
- *               … and 524 more — the full list is on functions_from_code
+ *               … and 530 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -235,7 +236,7 @@ export function makeMonthlySnapshot(i: Omit<MonthlySnapshot, 'v' | 'net_worth'> 
  *
  * Called by ... MK-XS-F-009 readHistory
  *
- * Reaches ..... 438 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 443 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -244,8 +245,8 @@ export function makeMonthlySnapshot(i: Omit<MonthlySnapshot, 'v' | 'net_worth'> 
  *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
- *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 420 more — the full list is on functions_from_code
+ *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
+ *               … and 425 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -292,7 +293,7 @@ export function normalizeSnapshot(ym: string, raw: unknown): MonthlySnapshot | n
  *
  * Called by ... MK-XS-F-005 trendPoints
  *
- * Reaches ..... 438 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 443 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -301,8 +302,8 @@ export function normalizeSnapshot(ym: string, raw: unknown): MonthlySnapshot | n
  *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
- *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 420 more — the full list is on functions_from_code
+ *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
+ *               … and 425 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-031 daily and monthly snapshots

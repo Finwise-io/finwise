@@ -72,7 +72,7 @@ const pctTxt = (d: number) => `${Math.round(d * 100)}%`;
  *
  * Called by ... MK-CF-O-001 basePay · MK-HM-F-007 percent2
  *
- * Reaches ..... 439 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 443 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -81,8 +81,8 @@ const pctTxt = (d: number) => `${Math.round(d * 100)}%`;
  *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
- *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 421 more — the full list is on functions_from_code
+ *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
+ *               … and 425 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -132,7 +132,8 @@ const RULES: Rule[] = [
   // flag stays recorded (DEC-0317) and nothing shows it until the Insights screen has a design of record.
   // FCC retiree rule: the government-required yearly withdrawal from pre-tax accounts (age 73+).
   (i) => i.rmdDue ? { id: 'rmd-due', priority: 1, icon: '📌', title: 'Required withdrawal due', body: `${money0(i.rmdDue.amount)} must come out of your pre-tax retirement accounts by Dec 31 — the IRS requires it from age 73.`, route: '/required-withdrawals' } : null,
-  (i) => i.toxicDebt ? { id: 'toxic-debt', priority: 1, icon: '🔥', title: 'Tackle high-interest debt first', body: `${i.toxicDebt.label} is at ${pctTxt(i.toxicDebt.apr)} APR — paying it down beats almost any investment return.`, route: '/(tabs)/goals' } : null,
+  // a debt's payoff plan lives on Cash flow, under Debts, since Goals was built to goals v03 (2026-10-31, FX-PLAN): it opened Goals
+  (i) => i.toxicDebt ? { id: 'toxic-debt', priority: 1, icon: '🔥', title: 'Tackle high-interest debt first', body: `${i.toxicDebt.label} is at ${pctTxt(i.toxicDebt.apr)} APR — paying it down beats almost any investment return.`, route: '/(tabs)/cashflow' } : null,
   // B-44: a robotic "0.0 months" alarms a user with plenty in investments; word the no-cash case plainly.
   (i) => (i.cashMonths != null && i.cashMonths < 3) ? { id: 'runway', priority: 1, icon: '🛟', title: 'Build your emergency fund', body: i.cashMonths < 0.1 ? `You have no cash set aside for emergencies — most planners use 3–6 months of expenses as the range (investments aren’t counted here).` : `Your cash covers about ${i.cashMonths.toFixed(1)} months of expenses — most planners' range is 3–6.`, route: '/(tabs)/goals' } : null,
   (i) => (i.retireChance != null && i.retireChance < 60) ? { id: 'retire-offtrack', priority: 1, icon: '🏖️', title: 'Your retirement plan needs attention', body: `Only a ${i.retireChance}% odds it lasts — adjust savings, age, or expenses in the scenario.`, route: '/retirement' } : null,

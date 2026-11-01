@@ -1,5 +1,7 @@
 // Net worth = Assets − Debts. Also the capture surface: every bucket is a section you fill in
 // (per-account, with institution), so it works as both first-run setup and ongoing management.
+import { SHEET_FRAME, SHEET_HANDLE } from '../components/sheetFrame';   // one sheet frame (NW3-18, 2026-10-31)
+import { ALT_KINDS_CAPTURE } from '../domain/alternatives';   // the one list of Alternatives kinds (NW3-08)
 import { MoneyBox } from '../components/MoneyBox';   // every money box, one component (DEC-8385)
 import { plural } from '../domain/_shared/plural';   // the one list of words and plurals (DEC-4082, 2026-10-10)
 import React, { useEffect, useMemo, useRef, useState } from 'react';
@@ -8,7 +10,8 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useStore } from '../store/useStore';
 import { SectionBand } from '../components/SectionBand';
 import { fig, figPer, figSaid, figWords } from '../components/figure';
-import { selectWillItLast } from '../domain/retirement/willItLast';
+import { selectWillItLast, planRetireAgeOf } from '../domain/retirement/willItLast';   // one retirement age (R10)
+import { ageFromProfile } from '../utils/persona';
 import { simulate } from '../domain/retirement';
 import { onCourseSentence, shortfallAgeFromBand, planDoor, sampleAskLine, oddsLine, sampleOddsLine } from '../domain/planning/hub';
 import { resolveLens } from '../domain/profile/lens';
@@ -20,7 +23,7 @@ import { measuredFromLabel } from '../../Calculation Module code/engines/coverag
 import { DataGapsBanner } from '../components/DataGapsBanner';
 import { ChangeWalkSheet } from '../components/ChangeWalkSheet';
 import { dataGaps } from '../domain/gaps';
-import { Colors, Spacing, Radii, ClassMarkColors, ChartPalette, DebtRamp } from '../utils/theme';
+import { Colors, Spacing, Radii, ClassMarkColors, ChartPalette, DebtRamp, Tap } from '../utils/theme';
 import { money } from '../domain/_shared/num';
 import { maskedMoney, spokenMoney, typedAmount } from '../components/useMoney';
 import { trendPoints, buildChangeWalk } from '../domain/history';
@@ -300,9 +303,11 @@ export default function NetWorthScreen() {
   const nwLens = resolveLens(op ?? {}, store.lensOverride);
   // which of the three answers are still missing (age · what you spend · what you have)
   const nwDoor = planDoor(op, assets);
+  const nwRetire = planRetireAgeOf({ assumptions: store.retirementAssumptions, op, retiredNow: store.employmentStatus === 'retired', age: ageFromProfile(op) });
   const nwOnCourse = onCourseSentence({
     lens: resolveLens(op ?? {}, store.lensOverride), chance: nwWil.chance,
-    retireAge: Math.round(Number(store.retirementAssumptions?.retireAge ?? op?.targetRetirementAge ?? 67)),
+    // ONE RETIREMENT AGE (R10, 2026-10-31; NW3-01): the plan's own age, never a 67 of this screen's — and marked ours when nothing was entered
+    retireAge: Math.round(nwRetire.age), retireAgeOurs: nwRetire.ours,
     horizonAge: nwWil.horizonAge,
     potAtRetire: nwSim?.projected_at_retirement ?? null,
     leftoverAtHorizon: nwSim?.band?.length ? nwSim.band[nwSim.band.length - 1].p50 : null,
@@ -416,7 +421,7 @@ export default function NetWorthScreen() {
       // THE BAR RUNS EDGE TO EDGE, "+ Add" UNDER IT (v08's READ THIS FIRST row of 2026-10-25, DEC-0067): it sat beside "+ Add" in one row,
       // only as wide as its words and 20 in from each edge
       <View style={styles.secHead}>
-        <View style={styles.bleed}><SectionBand light title={`${SECTION_ICON[sec]}  ${secLabel(sec).toUpperCase()}`} value={total > 0 ? fig('MK-NW-M-006', total) : undefined} /></View>
+        <View style={styles.bleed}><SectionBand light title={`${SECTION_ICON[sec]} ${secLabel(sec).toUpperCase()}`} value={total > 0 ? fig('MK-NW-M-006', total) : undefined} /></View>
         <TouchableOpacity style={styles.secAdd} accessibilityRole="button" accessibilityLabel={`Add to ${secLabel(sec)}`} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }} onPress={() => setAssetSheet({ open: true, section: sec })}><Text style={styles.add}>+ Add</Text></TouchableOpacity>
       </View>
     );
@@ -519,7 +524,7 @@ export default function NetWorthScreen() {
   const renderDebtSection = () => (
     <View>
       <View style={styles.secHead}>
-        <View style={styles.bleed}><SectionBand light title="💳  DEBTS" value={dState.total_debt_balance > 0 ? fig('MK-NW-M-009', dState.total_debt_balance) : undefined} /></View>
+        <View style={styles.bleed}><SectionBand light title="💳 DEBTS" value={dState.total_debt_balance > 0 ? fig('MK-NW-M-009', dState.total_debt_balance) : undefined} /></View>
         <TouchableOpacity style={styles.secAdd} accessibilityRole="button" accessibilityLabel="Add a debt" hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }} onPress={() => setDebtSheet({ open: true })}><Text style={styles.add}>+ Add</Text></TouchableOpacity>
       </View>
       <View style={styles.card}>
@@ -1009,11 +1014,24 @@ export default function NetWorthScreen() {
 
         {/* DEBTS — minus numbers, the word carries the meaning */}
         <View style={styles.flushBand}><SectionBand title="DEBTS" infoTerm="debt" trailing={RIGHT_SLOT}
-          value={dState.total_debt_balance > 0 ? `−${fig('MK-NW-M-009', Math.round(dState.total_debt_balance))}`
+          value={liabilities.length === 0 ? fig('MK-NW-M-009', 0)
             // nothing entered: the figure stays $0 with the line under it (Q48 empty-state mock frame 1, and v08 state C
             // "DEBTS $0"). It printed no figure at all once any account was entered (mock-match audit v02, 2026-10-11).
-            : liabilities.length === 0 ? fig('MK-NW-M-009', 0) : undefined} /></View>
-          {liabilities.length === 0 && <View style={styles.ledgerPad}><EmptyNote door="debts" onPress={() => setDebtSheet({ open: true })} /></View>}   {/* Q48: nothing entered — a "no debts" answer does not exist yet, so an entered none cannot be told apart (question for the founder) */}
+            // EVERY DEBT'S BALANCE MISSING: "Value not entered", as v08's row of 2026-10-09 says of a group (DEC-3657) — the bar
+            // showed no total at all while the Investments bar beside it said so (2026-10-31, drawing match round 3, NW3-09)
+            : !liabilities.some((d) => d.remaining_balance != null && Number.isFinite(d.remaining_balance)) ? figWords('MK-NW-M-009', 'Value not entered')
+            : dState.total_debt_balance > 0 ? `−${fig('MK-NW-M-009', Math.round(dState.total_debt_balance))}` : fig('MK-NW-M-009', 0)} /></View>
+          {/* NOTHING ENTERED: v08 frame C's shape (approved 2026-10-01, DEC-0644, newer than the empty-state pattern of 2026-09-09) — the line
+              "Nothing entered yet." and the door row "Add your debts ›" under it, the same two parts the first day draws. It was one line with
+              an inline link here and two parts on the first day: one section, two shapes (2026-10-31, drawing match round 3, NW3-10). */}
+          {liabilities.length === 0 && (<>
+            <Text style={[styles.firstDayAsk, styles.ledgerPad]}>Nothing entered yet.</Text>
+            <TouchableOpacity style={styles.ledgerRow} accessibilityRole="button" accessibilityLabel={DEBTS_DOOR_WORDS}
+              onPress={() => setDebtSheet({ open: true })}>
+              <Text style={styles.doorTxt}>{DEBTS_DOOR_WORDS}</Text>
+              <Text style={styles.arrowSlot}>›</Text>
+            </TouchableOpacity>
+          </>)}
           {/* the debts' own composition bar (founder Q6, 2026-08-11) — the same shape as the assets
               bar above, in the warning family so the two sections can never be misread for each other */}
           {liabilities.length > 0 && (
@@ -1193,7 +1211,7 @@ export default function NetWorthScreen() {
               <TouchableOpacity key={d.route} accessibilityRole="button" style={styles.chooserRow}
                 accessibilityLabel={`${d.title}. ${d.sub}`}
                 onPress={() => { setAddChooser(false); if (!choice) { store.seedNetWorth?.(op); store.setNwSetupChoice?.('self'); } router.push(d.route as any); }}>
-                <Text style={styles.chooserTitle}>{d.icon}  {d.title}</Text>
+                <Text style={styles.chooserTitle}>{d.icon} {d.title}</Text>
                 <Text style={styles.chooserSub}>{d.sub}</Text>
               </TouchableOpacity>
             ))}
@@ -1227,7 +1245,8 @@ const RET_OPTS: { key: AddWrapper; label: string }[] = WRAPPER_OPTS.filter((w) =
 const CASH_OPTS = ['checking', 'savings', 'hysa', 'money_market', 'cd', 'cash_mgmt', 'foreign_currency'];
 // Founder 2026-08-04: PE/HF out of phase 1 (keep it simple) — the kinds stay in the data model,
 // so anything already saved still renders; only the capture chips are trimmed.
-const ALT_OPTS = ['crypto', 'commodities', 'annuities', 'options'];
+// the one list of Alternatives kinds, as Add an account and the Alternatives editor offer it (2026-10-31, NW3-08): this sheet had Options and no Other
+const ALT_OPTS: string[] = [...ALT_KINDS_CAPTURE];
 const PROP_OPTS = ['vehicle', 'other_asset'];
 const INSIDE_OPTS: { key: AssetClass | 'mixed'; label: string }[] = [
   { key: 'mixed', label: 'Mixed / not sure' }, { key: 'stocks_etf', label: 'Stocks / Funds' }, { key: 'bonds', label: 'Bonds' }, { key: 'cash', label: 'Cash' },
@@ -1375,7 +1394,7 @@ function AssetSheet({ state, onClose }: { state: { open: boolean; section?: stri
   // rate, in Add an account's order (the rate, then where it was bought, then when it matures)
   const cdQuestions = (<>
     <Text style={sh.lbl}>Interest rate % (optional)</Text>
-    <TextInput style={sh.input} keyboardType="decimal-pad" placeholder="4.5" placeholderTextColor={Colors.textTertiary}
+    <TextInput style={sh.input} keyboardType="decimal-pad"
       value={rate} onChangeText={setRate} accessibilityLabel="Coupon percent" />
     <Text style={sh.lbl}>{CD_BOUGHT_QUESTION}</Text>
     <View style={sh.chips}>{CD_BOUGHT_CHOICES.map(({ value, label, spoken }) => (
@@ -1393,15 +1412,15 @@ function AssetSheet({ state, onClose }: { state: { open: boolean; section?: stri
     <KeyboardAwareSheet open={state.open} onClose={onClose} title={editing ? 'Edit account' : TITLES[step]}>
       {step === 'pick' ? (
         <>
-          <TouchableOpacity style={sh.quickRow} accessibilityRole="button" accessibilityLabel="Quick add" onPress={() => choose('quick')}><Text style={sh.quickTxt}>⚡  Quick add — just a name & value</Text></TouchableOpacity>
+          <TouchableOpacity style={sh.quickRow} accessibilityRole="button" accessibilityLabel="Quick add" onPress={() => choose('quick')}><Text style={sh.quickTxt}>⚡ Quick add — just a name & value</Text></TouchableOpacity>
           {/* each list's sub-title on the light-green bar, edge to edge of the sheet (2026-10-30, R1, DEC-8839; drawn in step-by-step add v01) */}
           <View style={sh.bleed}><SectionBand light title="WHAT IT IS" /></View>
           {ADD_CLASS_PICKS.map((p) => (
-            <TouchableOpacity key={p.key} style={sh.pickRow} accessibilityRole="button" accessibilityLabel={p.label} onPress={() => choose(p.key)}><Text style={sh.pickTxt}>{p.icon}  {p.label}</Text><Text style={sh.pickArrow}>›</Text></TouchableOpacity>
+            <TouchableOpacity key={p.key} style={sh.pickRow} accessibilityRole="button" accessibilityLabel={p.label} onPress={() => choose(p.key)}><Text style={sh.pickTxt}>{p.icon} {p.label}</Text><Text style={sh.pickArrow}>›</Text></TouchableOpacity>
           ))}
           <View style={sh.bleed}><SectionBand light title="A WHOLE ACCOUNT (holds a mix)" /></View>
           {ADD_ACCT_PICKS.map((p) => (
-            <TouchableOpacity key={p.key} style={sh.pickRow} accessibilityRole="button" accessibilityLabel={p.label} onPress={() => choose(p.key)}><Text style={sh.pickTxt}>{p.icon}  {p.label}</Text><Text style={sh.pickArrow}>›</Text></TouchableOpacity>
+            <TouchableOpacity key={p.key} style={sh.pickRow} accessibilityRole="button" accessibilityLabel={p.label} onPress={() => choose(p.key)}><Text style={sh.pickTxt}>{p.icon} {p.label}</Text><Text style={sh.pickArrow}>›</Text></TouchableOpacity>
           ))}
         </>
       ) : (
@@ -1417,7 +1436,7 @@ function AssetSheet({ state, onClose }: { state: { open: boolean; section?: stri
           {step === 'property' && <Chips ids={PROP_OPTS} />}
           {(step === 'stocks' || step === 'bonds' || step === 'alts') && (<>
             <Text style={sh.clsLabel}>Held in</Text><Wrappers opts={WRAPPER_OPTS} />
-            <Text style={sh.note}>{step === 'bonds' ? 'Enter a total value below — or track each bond (coupon, maturity) on the Bonds screen.' : step === 'stocks' ? 'Enter a total value below — or track specific tickers (shares, cost) on the Stocks / Funds screen.' : 'Enter a total value below — or track each holding on the Alternatives screen. Crypto, commodities, annuities, options.'}</Text>
+            <Text style={sh.note}>{step === 'bonds' ? 'Enter a total value below — or track each bond (coupon, maturity) on the Bonds screen.' : step === 'stocks' ? 'Enter a total value below — or track specific tickers (shares, cost) on the Stocks / Funds screen.' : 'Enter a total value below — or track each holding on the Alternatives screen. Crypto, commodities, annuities, options or another kind.'}</Text>
             {/* the kinds named are the four this sheet offers — private equity and hedge funds are not offered in this phase
                 (DEC-2334, 2026-10-06); this line still named them until 2026-10-20 */}
             {/* NW-16: make the "track specifics" path actionable — route to the holdings detail screen */}
@@ -1455,7 +1474,7 @@ function AssetSheet({ state, onClose }: { state: { open: boolean; section?: stri
                 src/__tests__/itemize_has_one_door.test.tsx. */}
           </>)}
           <TextInput style={sh.input} placeholder={step === 'quick' ? 'Name (e.g. My Robinhood)' : 'Institution / name (e.g. Chase)'} placeholderTextColor={Colors.textTertiary} value={inst} onChangeText={setInst} />
-          <View style={sh.amtRow}><Text style={sh.amtPre}>{currencySymbol()}</Text><MoneyBox bare dollarBeside style={sh.amtIn} placeholder="0" value={bal} onChangeText={setBal} /></View>
+          <View style={sh.amtRow}><Text style={sh.amtPre}>{currencySymbol()}</Text><MoneyBox bare dollarBeside style={sh.amtIn} value={bal} onChangeText={setBal} a11y="Value" />   {/* empty when not entered (R16, 2026-10-31; NW3-07): it showed 0 */}</View>
           {needsKind && <Text style={sh.note}>Pick which kind of retirement account it is.</Text>}
           <TouchableOpacity style={[sh.save, needsKind && { opacity: 0.4 }]} disabled={needsKind} accessibilityState={{ disabled: needsKind }} accessibilityRole="button" accessibilityLabel={editing ? 'Save account' : 'Add account'} onPress={save}><Text style={sh.saveTxt}>{editing ? 'Save' : 'Add'} {v > 0 ? typedAmount(v) : ''}</Text></TouchableOpacity>
           {editing && <TouchableOpacity accessibilityRole="button" accessibilityLabel="Remove account" style={sh.tap44} onPress={remove}><Text style={sh.remove}>Remove</Text></TouchableOpacity>}
@@ -1478,8 +1497,10 @@ const styles = StyleSheet.create({
   // green banner WHAT YOU OWN wears — one titling treatment for every section, edge to edge. Their
   // body carries the ledger's own inset, so the text under a banner lines up with the rows under one.
   heroBlock: { backgroundColor: Colors.cardBg, marginBottom: Spacing.sm },
-  blockBody: { paddingHorizontal: Spacing.md, paddingBottom: Spacing.md, alignItems: 'flex-start' },
-  ledger: { backgroundColor: Colors.cardBg, marginTop: Spacing.sm },
+  // v08 (.heroband margin 8; .cardBody padding-top 8): 8 under each block's bar — SectionBand's own 4, plus these 4 (2026-10-31, NW3-14)
+  blockBody: { paddingHorizontal: Spacing.md, paddingTop: Spacing.xs, paddingBottom: Spacing.md, alignItems: 'flex-start' },
+  // the ledger starts right under the choice, as v08 draws it (.pills padding-bottom 0, .band margin-top 0; NW3-14): it sat 12 below
+  ledger: { backgroundColor: Colors.cardBg, marginTop: 0 },
   ledgerRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm,
     paddingHorizontal: Spacing.md, paddingVertical: 10, minHeight: 44,
     borderTopWidth: 1, borderTopColor: Colors.border },
@@ -1535,7 +1556,8 @@ const styles = StyleSheet.create({
   pathAheadNum: { fontWeight: '800' },
   // walk row 8: the grouping pills (44pt targets — the tap-target rule applies to new controls).
   // Founder note 4 (2026-08-10): LEFT justified, sharing the ledger's left edge.
-  groupPills: { flexDirection: 'row', gap: 8, marginTop: Spacing.sm, marginBottom: Spacing.xs,
+  // 20 from the plan card to the choice (v08: the card's 8 below it, the choice's 12 above), 0 under it (2026-10-31, NW3-14): it was 16 and 4
+  groupPills: { flexDirection: 'row', gap: 8, marginTop: Spacing.md, marginBottom: 0,
     justifyContent: 'flex-start', paddingHorizontal: Spacing.base },
   // rounded corners, not semicircle ends — the one shape of a choice (DEC-0231, 2026-09-25; corrected 2026-10-20)
   groupPill: { borderWidth: 1, borderColor: Colors.border, borderRadius: Radii.md, paddingHorizontal: 14, minHeight: 44, justifyContent: 'center', backgroundColor: Colors.cardBg },
@@ -1546,11 +1568,11 @@ const styles = StyleSheet.create({
   addConnectTxt: { color: Colors.white, fontSize: 17, fontWeight: '800' },
   firstDayAsk: { fontSize: 13, color: Colors.textSecondary, lineHeight: 18, paddingVertical: Spacing.sm },
   firstDayAskQ: { fontWeight: '700', color: Colors.textPrimary },   // Net worth v08 state C: a plain <b> in the drawing, which draws at 700
-  chooserHead: { fontSize: 20, fontWeight: '800', color: Colors.textPrimary, textAlign: 'center', marginBottom: Spacing.md },
+  chooserHead: { fontSize: 20, fontWeight: '800', color: Colors.textPrimary, textAlign: 'center', marginBottom: 14 },   // v08 frame G .sheettitle: 14 under (NW3-14)
   chooserBackdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end' },
   // v08 frame G (.sheet, .grab; drawing match round 2, NW2-09): 10 above the handle, 16 at the sides, 30 below; the handle 36 wide in
   // the tertiary grey, 10 above the title — the walk and fix sheets' handle. It was 40 wide in the border grey inside 20.
-  chooserCard: { backgroundColor: Colors.bgSecondary, borderTopLeftRadius: 24, borderTopRightRadius: 24, paddingTop: 10, paddingHorizontal: Spacing.base, paddingBottom: 30 },
+  chooserCard: { ...SHEET_FRAME, paddingTop: 10, paddingHorizontal: Spacing.base, paddingBottom: 30 },
   chooserGrip: { width: 36, height: 4, borderRadius: 2, backgroundColor: Colors.bgTertiary, alignSelf: 'center', marginBottom: 10 },
   chooserRow: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginBottom: 8, minHeight: 64, justifyContent: 'center' },
   chooserTitle: { fontSize: 15, fontWeight: '800', color: Colors.textPrimary },
@@ -1598,7 +1620,7 @@ const styles = StyleSheet.create({
   secTitle: { fontSize: 13, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.5 },
   add: { fontSize: 13, fontWeight: '700', color: Colors.primary },
   invToggle: { flexDirection: 'row', backgroundColor: Colors.bgTertiary, borderRadius: Radii.md, padding: 3, marginTop: 6, alignSelf: 'flex-start' },
-  invTab: { paddingHorizontal: 14, paddingVertical: 6, borderRadius: Radii.sm },
+  invTab: { minHeight: Tap.min, justifyContent: 'center', paddingHorizontal: 14, paddingVertical: 6, borderRadius: Radii.sm },
   invTabOn: { backgroundColor: Colors.cardBg },
   invTabTxt: { fontSize: 13, fontWeight: '600', color: Colors.textSecondary },
   invTabTxtOn: { color: Colors.primary, fontWeight: '800' },
@@ -1656,8 +1678,8 @@ const styles = StyleSheet.create({
 
 const sh = StyleSheet.create({
   backdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end' },
-  card: { backgroundColor: Colors.bgSecondary, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: Spacing.lg, paddingBottom: 32 },
-  grip: { width: 38, height: 4, borderRadius: 2, backgroundColor: Colors.border, alignSelf: 'center', marginBottom: Spacing.md },
+  card: { ...SHEET_FRAME, padding: Spacing.lg, paddingBottom: 32 },
+  grip: { ...SHEET_HANDLE },
   title: { fontSize: 17, fontWeight: '800', color: Colors.textPrimary, textAlign: 'center', marginBottom: Spacing.sm },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, justifyContent: 'flex-start' },
   // rounded corners, not semicircle ends — the one shape of a choice (DEC-0231, 2026-09-25; corrected 2026-10-20)
@@ -1675,7 +1697,7 @@ const sh = StyleSheet.create({
   save: { backgroundColor: Colors.primary, borderRadius: Radii.lg, paddingVertical: Spacing.md, alignItems: 'center', marginTop: Spacing.md },
   saveTxt: { color: Colors.white, fontSize: 17, fontWeight: '800' },
   remove: { color: Colors.red, fontWeight: '700', textAlign: 'center', paddingVertical: Spacing.md },
-  pickRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 14, paddingHorizontal: 4, borderBottomWidth: 1, borderBottomColor: Colors.border },
+  pickRow: { minHeight: Tap.min, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 14, paddingHorizontal: 4, borderBottomWidth: 1, borderBottomColor: Colors.border },
   pickTxt: { fontSize: 15, fontWeight: '600', color: Colors.textPrimary },
   pickArrow: { fontSize: 20, color: Colors.textTertiary },
   bleed: { marginHorizontal: -Spacing.lg, marginTop: 16 },   // the sheet's padding (20), taken back: the light-green bar runs edge to edge

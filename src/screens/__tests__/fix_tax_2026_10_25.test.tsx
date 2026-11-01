@@ -151,7 +151,7 @@ describe('2 · the Tax organizer', () => {
     b.unmount();
     useStore.setState({ onboardingProfile: { baseSalary: '6000', salaryFreq: 'monthly' } } as any);
     render(<TaxOrganizerScreen />);
-    expect(screen.getByText('  calculated from your accounts — 4% on $10,000')).toBeOnTheScreen();
+    expect(screen.getByText('  calculated from your accounts — 4.00% on $10,000')).toBeOnTheScreen();   // two decimals (IN3-04, 2026-10-31)
     expect(screen.getByText('≈$400')).toBeOnTheScreen();
   });
 });

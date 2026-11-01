@@ -52,7 +52,7 @@ export default function TaxOrganizerScreen() {
       <Text style={styles.sub}>A summary to hand your accountant — income, accounts, and the documents to gather. Not a tax return.</Text>
 
       <TouchableOpacity style={[styles.share, busy && { opacity: 0.5 }]} disabled={busy} onPress={sharePdf}>
-        <Text style={styles.shareT}>{busy ? 'Preparing…' : '⬇  Share as PDF'}</Text>
+        <Text style={styles.shareT}>{busy ? 'Preparing…' : '⬇ Share as PDF'}</Text>
       </TouchableOpacity>
 
       {/* PRD F9#14: filing status + optional flat state rate — every tax ESTIMATE in the app
@@ -78,7 +78,7 @@ export default function TaxOrganizerScreen() {
           <Text style={styles.fileGo}>Change ›</Text>
         </TouchableOpacity>
         <Text style={styles.fieldL}>State income tax % (optional — leave blank for no state tax)</Text>
-        <TextInput style={styles.stateInput} keyboardType="decimal-pad" placeholder="0"
+        <TextInput style={styles.stateInput} keyboardType="decimal-pad"
           placeholderTextColor={Colors.textTertiary}
           value={String(store.onboardingProfile?.stateTaxRate ?? '')}
           onChangeText={(t: string) => store.setOnboardingProfile?.({ ...(store.onboardingProfile ?? {}), stateTaxRate: t })}
@@ -156,7 +156,7 @@ export default function TaxOrganizerScreen() {
       {/* documents */}
       <SectionBand title="DOCUMENTS TO GATHER" />
       <View style={styles.card}>
-        {org.documents.map((d) => <Text key={d} style={styles.doc}>•  {d}</Text>)}
+        {org.documents.map((d) => <Text key={d} style={styles.doc}>• {d}</Text>)}
       </View>
 
       <Text style={styles.foot}>This is an organizer, not a filed return or tax advice. Your accountant will use your official documents (W-2, 1099s, 1098s, etc.) — this helps you both prepare.</Text>

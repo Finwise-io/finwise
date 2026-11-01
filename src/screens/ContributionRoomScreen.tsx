@@ -7,7 +7,7 @@ import { useRouter } from 'expo-router';
 import { KeyboardAwareScreen } from '../components/KeyboardAwareScreen';
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
-import { fig, figPer, figSaid } from '../components/figure';   // every figure printed by its identifier (rule 11, 2026-10-26)
+import { fig, figPer, figPerAsTyped, figSaid } from '../components/figure';   // every figure printed by its identifier (rule 11, 2026-10-26)
 import { ProgressBar, InfoDot } from '../components/UI';
 import { Disclaimer } from '../components/Disclaimer';
 import { SectionBand } from '../components/SectionBand';
@@ -39,7 +39,9 @@ function RoomCard({ title, room, knownUsed, catchUpWords, overRule, how, note, e
   // every figure printed by its identifier (rule 11; 2026-10-26, PF-TOOLS): MK-MN-M-003 the room, the amount over or the "up to";
   // MK-MN-M-004 the year at the monthly amount; MK-MN-M-031 the limit; MK-MN-M-032 the monthly amount entered
   const head = !knownUsed ? `up to ${fig('MK-MN-M-003', room.limit)}` : over ? `${fig('MK-MN-M-003', room.excess)} over` : `room for ${fig('MK-MN-M-003', room.remaining)}`;
-  const plan = `At ${figPer('MK-MN-M-032', room.monthly)} you will put in ${fig('MK-MN-M-004', room.used)} this year`;
+  // the monthly amount as typed (2026-10-31, CR3-01): whole when typed whole, to the cent when typed with cents — so $3,333.33 × 12 adds up to
+  // the $40,000 beside it, and $1,200 reads as Base pay prints the same 401(k)
+  const plan = `At ${figPerAsTyped('MK-MN-M-032', room.monthly)} you will put in ${fig('MK-MN-M-004', room.used)} this year`;
   const said = !knownUsed
     ? `The ${IRS_LIMITS.year} limit is ${fig('MK-MN-M-031', room.limit)}.`
     : over
@@ -115,7 +117,7 @@ export default function ContributionRoomScreen() {
   const radio = (key: string, label: string, spoken: string, on: boolean, onPress: () => void) => (
     <TouchableOpacity key={key} accessibilityRole="radio" accessibilityState={{ selected: on }} accessibilityLabel={spoken}
       style={[s.medicareBtn, on && s.medicareOn]} onPress={onPress}>
-      <Text style={[s.medicareTxt, on && s.medicareTxtOn]}>{on ? '◉' : '○'}  {label}</Text>
+      <Text style={[s.medicareTxt, on && s.medicareTxtOn]}>{on ? '◉' : '○'} {label}</Text>
     </TouchableOpacity>
   );
 
@@ -160,7 +162,8 @@ export default function ContributionRoomScreen() {
             <View style={s.inRow}>
               <Text style={s.inLabel}>Traditional and Roth together</Text>
               <View style={{ width: 150 }}>
-                <MoneyBox value={iraBox} onChangeText={(v) => setProfile?.({ ...op, c_ira: v })} placeholder="$0" tail="/month"
+                {/* EMPTY MEANS EMPTY (2026-10-31, R16; DEC-0296; v02 row 8): nothing typed, the box is empty — no grey "$0" that reads as an entry */}
+                <MoneyBox value={iraBox} onChangeText={(v) => setProfile?.({ ...op, c_ira: v })} tail="/month"
                   a11y="What you put into IRAs a month, Traditional and Roth together" />
               </View>
             </View>

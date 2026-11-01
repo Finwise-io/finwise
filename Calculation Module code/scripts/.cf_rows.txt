@@ -277,3 +277,5 @@
   ['MK-CF-F-292', 'src/domain/transactions/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
   ['MK-CF-F-293', 'src/screens/FilingStatusScreen.tsx', 'src/screens/__tests__/filing_matches_v07.test.tsx'],
   ['MK-CF-F-294', 'src/onboarding/modules.tsx', 'src/__tests__/take_home_one_producer.test.tsx'],
+  ['MK-CF-F-295', 'MoneyKeel/functions/cashflow/the-debts.ts', 'MoneyKeel/functions/cashflow/outside_cashflow_openai_part09.test.ts'],
+  ['MK-CF-F-296', 'MoneyKeel/functions/cashflow/the-debts.ts', 'MoneyKeel/functions/cashflow/outside_cashflow_openai_part09.test.ts'],

@@ -164,7 +164,19 @@ describe('R6 · What-if (lookahead-v3 FINAL): inline sliders, canonical saves, i
     fireEvent(screen.getByLabelText('Retire at'), 'onAccessibilityAction', { nativeEvent: { actionName: 'decrement' } });
     const s = useStore.getState() as any;
     expect(s.onboardingProfile.birthYear).toBe(String(new Date().getFullYear() - 46));   // 45 + 1
-    expect(s.retirementAssumptions.retireAge).toBe(66);                                  // 67 − 1
+    // by hand, under R10 (2026-10-31, one retirement age): nothing entered, so the slider starts at the plan's 65 (it started at a
+    // 67 of What-if's own, while the plan retired the person at 65); one step down saves 65 − 1 = 64
+    expect(s.retirementAssumptions.retireAge).toBe(64);
+  });
+
+  test.failing('What-if until 2026-10-31, pinned: the slider started at its own 67, so one step down saved 66 (FIXED 2026-10-31, R10)', () => {
+    useStore.setState({
+      onboardingProfile: {}, onboardingComplete: true,
+      assetAccounts: [{ asset_id: 'b1', label: 'Brokerage', kind: 'brokerage', tax_bucket: 'TAXABLE', balance: 200000, target_return: 0.08 }],
+    } as any);
+    render(<WhatIfScreen />);
+    fireEvent(screen.getByLabelText('Retire at'), 'onAccessibilityAction', { nativeEvent: { actionName: 'decrement' } });
+    expect((useStore.getState() as any).retirementAssumptions.retireAge).toBe(66);
   });
 
   test('info dots on the delta AND Projected nest egg open the how-we-estimate text', () => {

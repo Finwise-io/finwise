@@ -1,4 +1,5 @@
 import { ageToday } from '../domain/profile/calc';
+import { RETIRE_AGE_ASSUMED } from '../domain/retirement/retireAge';   // the one assumed retirement age (R10, 2026-10-31)
 // Life-stage persona — drives which surfaces the home foregrounds.
 export type Persona = 'building' | 'preretiree' | 'retired';
 
@@ -22,7 +23,7 @@ export function ageTodayFromProfile(op: Record<string, any> | null): number | nu
 
 export function personaOf(opts: { age: number | null; employmentStatus?: string | null; targetRetireAge?: number | null }): Persona {
   const { age, employmentStatus } = opts;
-  if (employmentStatus === 'retired' || (age != null && age >= (opts.targetRetireAge ?? 65))) return 'retired';
+  if (employmentStatus === 'retired' || (age != null && age >= (opts.targetRetireAge ?? RETIRE_AGE_ASSUMED))) return 'retired';   // the one assumed age (R10)
   if (age != null && age >= 50) return 'preretiree';
   return 'building';
 }

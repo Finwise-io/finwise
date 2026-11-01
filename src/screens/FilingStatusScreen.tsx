@@ -277,10 +277,10 @@ const s = StyleSheet.create({
   info: { backgroundColor: Colors.blueLight, borderLeftWidth: 3, borderLeftColor: Colors.blue, paddingVertical: 9, paddingHorizontal: 11, marginTop: 10 },
   infoT: { fontSize: 13, color: Colors.textPrimary, lineHeight: 19 },
   group: { backgroundColor: Colors.cardBg, padding: Spacing.base, marginTop: 20 },
-  whyB: { fontWeight: '800', color: Colors.textPrimary },
+  whyB: { fontWeight: '700', color: Colors.textPrimary },   // bold inside a sentence at 700, as drawn (IN3-06, 2026-10-31)
   q: { fontSize: 15, fontWeight: '800', color: Colors.textPrimary, marginTop: 24 },
   note: { fontSize: 13, color: Colors.textSecondary, lineHeight: 19, marginTop: 10 },
-  whoseT: { fontSize: 13, fontWeight: '800', color: Colors.textPrimary },
+  whoseT: { fontSize: 13, fontWeight: '700', color: Colors.textPrimary },   // as drawn (IN3-06)
   cta: { backgroundColor: Colors.primary, borderRadius: Radii.md, minHeight: 52, justifyContent: 'center', alignItems: 'center', marginTop: 24 },
   ctaT: { fontSize: 17, fontWeight: '800', color: Colors.white },
 });

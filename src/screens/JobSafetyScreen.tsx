@@ -113,7 +113,7 @@ export default function JobSafetyScreen() {
         {ess <= 0 ? (
           <>
             <Text style={s.askLine}>What do your essential expenses come to in a typical month? (rent, food, utilities — the must-pays)</Text>
-            <MoneyBox bare style={s.input} placeholder="$2,800"
+            <MoneyBox bare style={s.input}
               value={customExpenses} onChangeText={setCustomExpenses} a11y="Essential monthly expenses" />
           </>
         ) : (

@@ -64,7 +64,7 @@ function open(liabilities: any[] = [VISA, CAR], profile: Record<string, any> = P
 
 test('v02 · the whole screen, word for word and figure for figure, with $100 extra typed', () => {
   open();
-  fireEvent.changeText(screen.getByPlaceholderText('0'), '100');
+  fireEvent.changeText(screen.getByPlaceholderText(/^\$?0$/), '100');
   // THE ROW OF 2026-10-30 ON GOALS v03 (CLEANUP-TESTS; typography only, which DEC-8889's freeze leaves open): every apostrophe
   // inside a word prints as ’ — the archived v02 draws "rent isn't counted", "You're in good shape" with a straight '
   const drawn = normPrinted(drawnContent().map((l) => l.replace(/([A-Za-z])'([A-Za-z])/g, '$1’$2')));
@@ -88,7 +88,7 @@ test('the figures, by hand: $650 a month clears in 44 months with $5,409.45 of i
 
 test.failing('the words until 2026-10-26, pinned: the plan said it ran on the minimums (FIXED 2026-10-26)', () => {
   open();
-  fireEvent.changeText(screen.getByPlaceholderText('0'), '100');
+  fireEvent.changeText(screen.getByPlaceholderText(/^\$?0$/), '100');
   expect(screen.getByText('Extra / month (beyond minimums)')).toBeTruthy();
 });
 
@@ -111,7 +111,7 @@ test('payments that cannot cover the interest: the Goals card and the Debts tab 
 test('v02 · every bar on its fill, in its order, and edge to edge — read off the rendered screen (DEC-8839)', () => {
   // the drawing's household with a suggested sinking fund showing: no goal named for it yet
   open();
-  fireEvent.changeText(screen.getByPlaceholderText('0'), '100');
+  fireEvent.changeText(screen.getByPlaceholderText(/^\$?0$/), '100');
   const bars = barsAndReach(screen.toJSON());
   // the five dark bars and three light ones the drawing draws, in its order — none missing, none extra
   expect(bars.map((b) => `${b.kind} ${b.title}`)).toEqual([

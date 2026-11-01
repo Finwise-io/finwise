@@ -18,7 +18,7 @@ FIELDS = {
  'MK-XS-I-002': ['tax_bucket', 'tax_treatment', 'taxBucket'],
  'MK-XS-I-003': ['institution'],
  'MK-XS-I-004': ['shares', 'totalShares', 'quantity'],
- 'MK-XS-I-005': ['last_price', 'close', 'latestClose', 'priceOf'],
+ 'MK-XS-I-005': ['last_price', 'close', 'latestClose', 'priceOf', 'recentDatedCloses'],   # + the dated closes MK-NW-O-006 theHolding is handed (2026-11-01)
  'MK-XS-I-006': ['fetchedAt', 'pricesFetchedAt'],   # last_synced moved to its own input, MK-XS-I-066 (2026-10-13)
  'MK-XS-I-007': ['cost_per_share', 'purchase_date', 'cost_basis', 'costBasis'],
  'MK-XS-I-008': [r't\.amount', r'txn\.amount', r'transaction\.amount'],
@@ -149,6 +149,9 @@ NEW = {
                  'typed by the person on the Contribution-room screen (HSA card)', ['hsaCover']),
  'MK-XS-I-082': ('the purchase an opening record is of — so editing or removing that purchase changes or removes its record',
                  'set by the app when a holding\'s purchases open its records (openingRecordsOf); absent on records written before 2026-10-27', ['lot_id']),
+ # 2026-11-01 (PF-TOOLS) — FX-PLAN's Goals v03 (DEC-8889, DEC-9228): a goal is saving toward an amount, or paying off one debt
+ 'MK-XS-I-083': ('what a goal is — saving toward an amount, or paying off a debt — and the debt a payoff goal pays off',
+                 'chosen by the person when they add a goal on the Plan tab (Goals)', [r'g\.kind', r'form\.kind', r'g\.debtId', r'form\.debtId']),
 }
 
 # MoneyKeel/functions added 2026-08-27 — new calculations live there, and a folder the sweep

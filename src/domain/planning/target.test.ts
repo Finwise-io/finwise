@@ -94,12 +94,28 @@ test('the same inputs always give the same target — a person who reopens the s
   expect(planTarget(PAT).requiredExtraAnnual).toBe(planTarget(PAT).requiredExtraAnnual);
 });
 
+// SPEED, MEASURED AS WORK, NOT AS WALL-CLOCK (2026-11-01, CLEANUP-TESTS): the 1,500 ms timer read the machine's load — it took
+// 1,823 ms beside other suites and passed alone. What the time is made of is the simulation the block runs: every call of
+// simulate (MK-PL-F-050), its paths × its years. That count does not depend on the machine, so it is the budget: 23 calls and
+// 241,200 path-years on Pat on 2026-11-01, which ran in 284 ms alone — well inside the 1,500 ms a stepper allows. The ceiling is
+// that true count: any extra simulation work turns this red, so the check is tighter than the timer was, never looser.
 test('SPEED: the whole outcome block computes fast enough to sit behind a stepper', () => {
+  const R = require('../retirement');
+  const spy = jest.spyOn(R, 'simulate');
   const t0 = Date.now();
-  planTarget(PAT, 108_000);
-  leverDeltas(PAT);
+  let calls: any[][] = [];
+  try {
+    planTarget(PAT, 108_000);
+    leverDeltas(PAT);
+    calls = [...spy.mock.calls] as any[][];
+  } finally { spy.mockRestore(); }
   const ms = Date.now() - t0;
+  const pathYears = calls.reduce((t, [i]) => t + (i.paths ?? 1000) * Math.max(0, i.horizon_age - i.current_age), 0);
+  // A GUARD MUST PROVE IT LOOKED: the spy saw the block's simulations
+  expect(calls.length).toBeGreaterThan(0);
   // a person holding a stepper expects the number to move; this is the budget that keeps it honest
-  expect(ms).toBeLessThan(1500);
-  console.log(`   outcome block: ${ms}ms (target solve + saving solve + levers)`);
+  expect(calls.length).toBeLessThanOrEqual(23);
+  expect(pathYears).toBeLessThanOrEqual(241_200);
+  expect(Math.max(...calls.map(([i]) => i.paths ?? 1000))).toBeLessThanOrEqual(PAT.paths ?? 400);
+  console.log(`   outcome block: ${calls.length} simulations, ${pathYears} path-years, ${ms}ms on this machine (target solve + saving solve + levers)`);
 });

@@ -1,6 +1,7 @@
 // Other investments (Phase C) — alternatives (crypto, PE, hedge funds, commodities, annuities, other)
 // held at a manual value as AssetAccounts, so they flow to Net worth + nest egg. Third management
 // surface alongside Performance (stocks/ETFs) and Bonds.
+import { SHEET_FRAME, SHEET_HANDLE } from '../components/sheetFrame';   // one sheet frame (NW3-18, 2026-10-31)
 import { MoneyBox } from '../components/MoneyBox';   // every money box, one component (DEC-8385)
 import { plural } from '../domain/_shared/plural';   // the one list of words and plurals (DEC-4082, 2026-10-10)
 import TopBar from '../components/TopBar';
@@ -10,7 +11,7 @@ import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Modal,
 import { SectionBand } from '../components/SectionBand';
 import { useStore } from '../store/useStore';
 import { DateField } from '../components/DateField';
-import { Colors, Spacing, Radii } from '../utils/theme';
+import { Colors, Spacing, Radii, Tap } from '../utils/theme';
 import { fig, figSpoken, figWords } from '../components/figure';
 import { EmptyNote } from '../components/UI';
 import { assetKind, benchmarkReturn, type AssetAccount, type TaxBucket, type AddWrapper, HELD_IN_CHOICES, heldInOf, wrapperAccount } from '../domain/assets';
@@ -46,10 +47,11 @@ export default function OtherInvestmentsScreen() {
   // itself while asking the door only for the rate — the same shape of split that let two screens
   // show two answers for one account. Every figure here now comes off the door's answer, and the
   // account object is looked up only to open the editor, which is the one thing a figure cannot do.
-  const outlook = useMemo(() => theAlternativesOutlook({ accounts }), [accounts]);
   const nwIn = useNetWorthInputs();   // the family's inputs, built once — never picked out of the store here (DEC-0345)
   const investable = theNetWorth(nwIn).investable;
-  const sharePct = investable > 0 ? Math.round((outlook.totalValue / investable) * 1000) / 10 : 0;
+  // the share of investable money is the door's figure, MK-NW-M-074, to two decimals (2026-10-31, NW3-06; Alternatives v02 row of that
+  // date) — this screen worked it to one decimal by itself
+  const outlook = useMemo(() => theAlternativesOutlook({ accounts, investable }), [accounts, investable]);
   const [edit, setEdit] = useState<AssetAccount | null>(null);
   const [addOpen, setAddOpen] = useState(false);
 
@@ -74,7 +76,7 @@ export default function OtherInvestmentsScreen() {
         <>
           <View style={styles.summary}>
             <Text style={styles.sumVal}>{fig('MK-NW-M-049', outlook.totalValue)}</Text>
-            <Text style={styles.sumLab}>{plural(outlook.count, 'holding')} · {sharePct}% of your investable assets</Text>
+            <Text style={styles.sumLab}>{plural(outlook.count, 'holding')}{outlook.shareOfInvestable != null ? ` · ${fig('MK-NW-M-074', outlook.shareOfInvestable)} of your investable assets` : ''}</Text>
             <View style={styles.sumRow}>
               <View style={styles.sumCell}><Text style={styles.sumCellL}>EXP. RETURN</Text><Text style={styles.sumCellV}>{fig('MK-NW-M-051', outlook.expectedReturn)}</Text></View>
               <View style={styles.sumCell}><Text style={styles.sumCellL}>EST. GROWTH /year</Text><Text style={[styles.sumCellV, { color: Colors.primary }]}>{fig('MK-NW-M-050', outlook.estimatedGrowthPerYear)}</Text></View>
@@ -181,7 +183,7 @@ export function AltEditor({ item, open, onClose, onSave, onDelete, presetKind }:
           <Text style={styles.fieldL}>Where it’s held (institution)</Text>
           <TextInput style={styles.input} value={inst} onChangeText={setInst} placeholder="e.g. Coinbase, Chase — optional" placeholderTextColor={Colors.textTertiary} />
           <Text style={styles.fieldL}>Current value</Text>
-          <MoneyBox bare style={styles.input} value={value} onChangeText={setValue} placeholder="0" />
+          <MoneyBox bare style={styles.input} value={value} onChangeText={setValue} a11y="Current value" />   {/* empty when not entered (R16, 2026-10-31; NW3-07): it showed 0 */}
           <Text style={styles.fieldL}>Value as of</Text>
           <DateField value={valueAsOf} onChange={setValueAsOf} label="value as of" style={styles.input} />
           <Text style={styles.fieldL}>Held in</Text>
@@ -207,7 +209,7 @@ export function AltEditor({ item, open, onClose, onSave, onDelete, presetKind }:
             onPress={() => onSave({ kind, label: label.trim(), institution: inst.trim(), balance: num(value), tax_bucket: bucket as TaxBucket, ...heldField, value_as_of: valueAsOf || isoLocalDate(new Date()) })}>
             <Text style={styles.saveBtnT}>{item ? 'Save' : 'Add'}</Text>
           </TouchableOpacity>
-          {onDelete && <TouchableOpacity accessibilityRole="button" accessibilityLabel="Delete this holding" hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }} onPress={() => Alert.alert('Delete this holding?', `Removes ${label.trim() || 'this investment'} from your holdings.`, [{ text: 'Cancel', style: 'cancel' }, { text: 'Delete', style: 'destructive', onPress: onDelete }])}><Text style={styles.deleteLink}>Delete</Text></TouchableOpacity>}
+          {onDelete && <TouchableOpacity accessibilityRole="button" accessibilityLabel="Delete this holding" hitSlop={Tap.slop} onPress={() => Alert.alert('Delete this holding?', `Removes ${label.trim() || 'this investment'} from your holdings.`, [{ text: 'Cancel', style: 'cancel' }, { text: 'Delete', style: 'destructive', onPress: onDelete }])}><Text style={styles.deleteLink}>Delete</Text></TouchableOpacity>}
           <View style={{ height: 16 }} />
         </ScrollView>
       </View>
@@ -239,15 +241,15 @@ const styles = StyleSheet.create({
   val: { fontSize: 15, fontWeight: '800', color: Colors.textPrimary },
   sub: { fontSize: 11, color: Colors.textSecondary, marginTop: 3 },
   scrim: { position: 'absolute', inset: 0, backgroundColor: 'rgba(0,0,0,0.3)' } as any,
-  sheet: { position: 'absolute', left: 0, right: 0, bottom: 0, backgroundColor: Colors.white, borderTopLeftRadius: 22, borderTopRightRadius: 22, padding: 18, paddingBottom: 28 },
-  grab: { width: 38, height: 5, borderRadius: 3, backgroundColor: Colors.border, alignSelf: 'center', marginBottom: 12 },
+  sheet: { ...SHEET_FRAME, position: 'absolute', left: 0, right: 0, bottom: 0, padding: 18, paddingBottom: 28 },
+  grab: { ...SHEET_HANDLE },
   sheetT: { fontSize: 17, fontWeight: '800', color: Colors.textPrimary, marginBottom: 4 },
   fieldL: { fontSize: 13, fontWeight: '700', color: Colors.textSecondary, marginTop: 14, marginBottom: 5 },
   hint: { fontSize: 11, color: Colors.textTertiary, marginTop: 6, lineHeight: 15 },
   input: { borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radii.md, padding: 12, fontSize: 17, color: Colors.textPrimary },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   // rounded corners, not semicircle ends — the one shape of a choice (DEC-0231, 2026-09-25; corrected 2026-10-20)
-  chip: { borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radii.md, paddingHorizontal: 12, paddingVertical: 8 },
+  chip: { minHeight: Tap.min, justifyContent: 'center', borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radii.md, paddingHorizontal: 12, paddingVertical: 8 },
   chipOn: { borderColor: Colors.primary, backgroundColor: Colors.primaryLight },
   chipT: { fontSize: 13, fontWeight: '700', color: Colors.textSecondary },
   chipTOn: { color: Colors.primaryDark },

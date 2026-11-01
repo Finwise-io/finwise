@@ -897,7 +897,8 @@
    ],
    "test_result": [
     "passed"
-   ]
+   ],
+   "changed_2026_10_31": "2026-10-31 (FX-CF-B, IN3-04; his Q49 and DEC-0221 'Return on cash - use 2 decimals'): asPercent prints two decimals always, so the app reads 24.00% where the reviewer, working the old text ('at most two decimals'), expected '24%'. Worked by hand; the reviewer's answer is pinned as a failing test."
   },
   {
    "case_id": "MK-CF-F-182-C02",
@@ -916,7 +917,8 @@
    ],
    "test_result": [
     "passed"
-   ]
+   ],
+   "changed_2026_10_31": "2026-10-31 (FX-CF-B, IN3-04; his Q49 and DEC-0221 'Return on cash - use 2 decimals'): asPercent prints two decimals always, so the app reads 3.80% where the reviewer, working the old text ('at most two decimals'), expected '3.8%'. Worked by hand; the reviewer's answer is pinned as a failing test."
   },
   {
    "case_id": "MK-CF-F-182-C03",
@@ -973,7 +975,8 @@
    ],
    "test_result": [
     "passed"
-   ]
+   ],
+   "changed_2026_10_31": "2026-10-31 (FX-CF-B, IN3-04; his Q49 and DEC-0221 'Return on cash - use 2 decimals'): asPercent prints two decimals always, so the app reads 0.00% where the reviewer, working the old text ('at most two decimals'), expected '0%'. Worked by hand; the reviewer's answer is pinned as a failing test."
   },
   {
    "case_id": "MK-CF-F-183-C01",

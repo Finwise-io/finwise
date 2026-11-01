@@ -36,19 +36,19 @@ export interface AccountIncome {
   missing: string | null;   // what we know we cannot see
 }
 
-/** A rate as the person would say it: 3.8%, not 0.038. Named for what it does, and named
+/** A rate as the person would say it: 3.80%, not 0.038. Named for what it does, and named
  *  uniquely — `pct` already means something on the bonds screen. */
 /* ─ MK-CF-F-182 ──────────────────────────────────────────────────────────────────── 1 · ACTION
  * asPercent
  *
- * Answers ..... A rate as the person would say it: 3.8%, not 0.038.
+ * Answers ..... A rate as the person would say it: 3.80%, not 0.038.
  *
  * Formula .....
  *     the answer = (r × 100) followed by '%'
  *
  * Called by ... MK-CF-F-184 incomeFromAccounts
  *
- * Reaches ..... 438 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 443 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -57,8 +57,8 @@ export interface AccountIncome {
  *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
- *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 420 more — the full list is on functions_from_code
+ *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
+ *               … and 425 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -68,7 +68,9 @@ export interface AccountIncome {
  * Formula also on the master file · functions_from_code · MK-CF-F-182
  * Changed ..... not in git yet (—)
  */
-const asPercent = (r: number) => `${+(r * 100).toFixed(2)}%`;   // two decimals at most, and no arithmetic dust: 0.038 × 100 is 3.8000000000000003
+const asPercent = (r: number) => `${(r * 100).toFixed(2)}%`;
+// TWO DECIMALS, ALWAYS (2026-10-31, FX-CF-B, IN3-04; his Q49 and DEC-0221 "Return on cash - use 2 decimals"; v07 row of that day):
+// "3.80% on $18,400" beside a CD's "5.05%" — one form for one kind of figure (tenet 4). It cut trailing zeros: "3.8%", "4%".
 
 /** What each account's holdings PAID in a window — the trailing twelve months ending today unless a window is handed in —
  *  by account: cash payouts and reinvested ones alike (his DEC-0179: reinvested income is still taxed), never a record dated
@@ -93,7 +95,7 @@ const asPercent = (r: number) => `${+(r * 100).toFixed(2)}%`;   // two decimals 
  *
  * Called by ... MK-CF-F-184 incomeFromAccounts · MK-CF-F-264 interestAndDividendsForYear
  *
- * Reaches ..... 438 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 443 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -102,8 +104,8 @@ const asPercent = (r: number) => `${+(r * 100).toFixed(2)}%`;   // two decimals 
  *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
- *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 420 more — the full list is on functions_from_code
+ *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
+ *               … and 425 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -164,7 +166,7 @@ function paidOutByAccount(
  *
  * Called by ... MK-CF-F-184 incomeFromAccounts · MK-CF-F-264 interestAndDividendsForYear
  *
- * Reaches ..... 438 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 443 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -173,8 +175,8 @@ function paidOutByAccount(
  *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
- *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 420 more — the full list is on functions_from_code
+ *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
+ *               … and 425 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -213,7 +215,7 @@ function incomeIsTaxedWhenPaid(a: AssetAccount): boolean {
  *
  * Called by ... MK-CF-F-207 SOURCE · MK-CF-F-264 interestAndDividendsForYear
  *
- * Reaches ..... 438 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 443 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -222,8 +224,8 @@ function incomeIsTaxedWhenPaid(a: AssetAccount): boolean {
  *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
- *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 420 more — the full list is on functions_from_code
+ *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
+ *               … and 425 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
@@ -380,7 +382,7 @@ export interface InterestAndDividendsForYear {
  * Called by ... MK-CF-F-084 taxableAnnual · MK-CF-F-274 taxedSourcesAnnual
  *               MK-CF-F-275 profileWithAccountIncome · MK-CF-O-007 theTaxOrganizer
  *
- * Reaches ..... 438 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 443 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -389,8 +391,8 @@ export interface InterestAndDividendsForYear {
  *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
- *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 420 more — the full list is on functions_from_code
+ *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
+ *               … and 425 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-003 institution name

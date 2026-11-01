@@ -89,7 +89,15 @@ describe('with accounts', () => {
     expect(screen.queryByText('＋ Add or connect an account')).toBeNull();
     fireEvent.press(screen.getByLabelText('Add an account'));
     expect(screen.getByText(ADD_ACCOUNT_QUESTION)).toBeOnTheScreen();
-    expect(screen.getByText('🔗  Link it (read-only)')).toBeOnTheScreen();
+    // one space after the icon, as frame G draws it (PF3-4, 2026-10-31) — read raw: the default reading collapses spaces and could not see two
+    expect(screen.getByText('🔗 Link it (read-only)', { normalizer: (s: string) => s })).toBeOnTheScreen();
+  });
+
+  // the old answer, kept (the fix wave's rule): two spaces after the icon, until 2026-10-31
+  test.failing('before 2026-10-31, kept · the door read "🔗  Link it (read-only)" with two spaces', () => {
+    render(<NetWorth />);
+    fireEvent.press(screen.getByLabelText('Add an account'));
+    expect(screen.getByText('🔗  Link it (read-only)', { normalizer: (s: string) => s })).toBeOnTheScreen();
   });
 
   test('the return on cash + investments shows two decimals', () => {

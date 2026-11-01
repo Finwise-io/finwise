@@ -97,9 +97,10 @@ export function SectionBand({ title, value, light, inCard, inset = Spacing.md, i
       {value != null && <Text style={[s.value, valueWords && { fontSize: 13 }, light && s.textLight, gutter == null && valuePad > 0 && { marginRight: valuePad }]} accessibilityLabel={valueLabel}>{value}</Text>}
       {gutter != null && (
         <View testID="right-gutter" style={{ width: gutter, alignItems: 'flex-end', marginLeft: -6 }}>
+          {/* the arrow at 13, 800, as v17 draws it on each account bar (12 on the one scale; 2026-10-31, FX-PF, PF3-2) — it was a total's 15 */}
           {!!onChevronPress && (
             <Text onPress={onChevronPress} suppressHighlighting accessibilityRole="button" accessibilityLabel={titleHint ?? `Open ${title}`}
-              style={[s.value, light && s.textLight]}>›</Text>
+              style={[s.value, { fontSize: 13 }, light && s.textLight]}>›</Text>
           )}
         </View>
       )}

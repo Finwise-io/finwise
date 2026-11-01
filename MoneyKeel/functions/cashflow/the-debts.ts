@@ -5,7 +5,8 @@
  *  are handed out here, with their inputs and an example that runs.
  */
 import { declareFigures } from '../_figure-spec';
-import { payoffPlan, minimumDebtService, totalDebtMonthly, requiredPayment, rateNotEntered, type Debt, type PayoffMethod, type PayoffResult } from '../../../src/domain/debt';
+import { payoffPlan, minimumDebtService, totalDebtMonthly, requiredPayment, rateNotEntered, debtToIncome, loanPayment, type Debt, type PayoffMethod, type PayoffResult } from '../../../src/domain/debt';
+import { totalGrossAnnual } from '../../../src/domain/income';
 import { mortgagesByProperty, type MortgageCheck } from '../networth-and-performance/net-worth';   // which property each mortgage is on (DEC-1925)
 
 export interface TheDebts {
@@ -60,14 +61,15 @@ export interface TheDebts {
  *     rate missing = active where rate not entered(each)for each of : label
  *     payments monthly = Σ over active of (required payment(each) read as a number (or 0 when missing or zero))
  *
- * Called by ... MK-CF-F-211 DEBTS
+ * Called by ... MK-CF-F-211 DEBTS · MK-CF-F-296 LOAD
  *
- * Reaches ..... 1 function. Change the arithmetic above and these change with it:
- *               MK-CF-F-211 DEBTS
+ * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-211 DEBTS · MK-CF-F-296 LOAD
  *
  * Serves ...... MK-CF-M-057 · MK-CF-M-058 · MK-CF-M-059 · MK-CF-M-072
  *               MK-CF-M-073 · MK-CF-M-074 · MK-CF-M-075 · MK-CF-M-089
- *               MK-CF-M-096
+ *               MK-CF-M-096 · MK-CF-M-102 · MK-CF-M-103 · MK-CF-M-104
+ *               MK-CF-M-105 · MK-CF-M-106 · MK-CF-M-107 · MK-CF-M-108
  * Reads ....... MK-XS-I-014 debt balance
  *               MK-XS-I-015 debt interest rate
  *
@@ -135,13 +137,11 @@ export function theDebts(input: { debts: Debt[]; extraMonthly?: number; method?:
  *
  * Called by ... MK-CF-O-018 theDebts
  *
- * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-211 DEBTS · MK-CF-O-018 theDebts
+ * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-211 DEBTS · MK-CF-F-296 LOAD
+ *               MK-CF-O-018 theDebts
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- * Reads ....... MK-XS-I-014 debt balance
- *               MK-XS-I-015 debt interest rate
- *               MK-XS-I-016 debt minimum payment
  *
  * Formula also on the master file · functions_from_code · MK-CF-F-252
  * Changed ..... not in git yet (—)
@@ -154,6 +154,66 @@ export function payoffRefusal(notEntered: { label: string; what: ('payment' | 'r
   const parts = [...both.map((l) => `${l}’s payment and rate`), ...(pays.length ? [clause(pays, 'payment')] : []), ...(rates.length ? [clause(rates, 'rate')] : [])];
   const many = parts.length > 1 || both.length > 0 || pays.length > 1 || rates.length > 1;
   return `${parts.join(' and ')} ${many ? 'are' : 'is'} not entered, so there is no payoff date — we won’t guess one.`;
+}
+
+/** What it is for: WHAT THE DEBTS ASK OF THE INCOME — debt-to-income, and the student loans repaid after study (2026-11-01, FX-CF-A; the
+ *  lead's ruling: Goals v03 moved both off Goals, to Cash flow, under Debts). The figures are the Goals screen's, from its own functions,
+ *  unchanged: debt-to-income is the minimums the debts oblige (MK-CF-F-025 minimumDebtService) ÷ income before tax a month
+ *  (totalGrossAnnual ÷ 12), judged against 36% with a mortgage and 20% without (MK-CF-F-033 debtToIncome; DEC-0641: measured on the
+ *  obligation, never on what someone chooses to pay). Each student loan with a rate and a term is repaid at MK-CF-F-028 loanPayment.
+ *  Worked by hand: frame 6's $110 + $300 = $410 on $60,000/year → 410 ÷ 5,000 = 8.20%, healthy for a renter; $30,000 at 5.50% over
+ *  10 years → $325.58 a month, $9,069.46 of interest, 325.58 ÷ 5,000 = 6.51% of today's income. No income entered: no ratio. */
+/* ─ MK-CF-F-295 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * debtLoad
+ *
+ * Answers ..... What it is for: WHAT THE DEBTS ASK OF THE INCOME — debt-to-income, and the student loans repaid after study (2026-11-01, FX-CF-A; the lead's ruling: Goals v03 moved both off Goals, to Cash flow, under Debts).
+ *
+ * Formula .....
+ *     op = profile (or none when missing)
+ *     num = (v: unknown) => { const n = parse float(string(v ?? '').replace( ÷ [^0 − 9.] ÷ g, '')); return number.is finite(n) ? n : 0; }
+ *     gross monthly = total gross annual(op) ÷ 12
+ *     homeowner = (debts ?? []).some((d) => debt type = 'MORTGAGE')
+ *     list = (array.is array(op.loans) ? op.loans : []) as any[]
+ *     borrowed = 0, monthly = 0, interest = 0
+ *     loans = borrowed = borrowed
+ *     monthly = monthly
+ *     interest = interest
+ *     share of income = monthly ÷ gross monthly   if gross monthly > 0
+ *     nothing   otherwise   if borrowed > 0
+ *     nothing   otherwise
+ *     the answer = { dti, loans }
+ *
+ * Called by ... MK-CF-F-296 LOAD
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-CF-F-296 LOAD
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-014 debt balance
+ *               MK-XS-I-015 debt interest rate
+ *               MK-XS-I-016 debt minimum payment
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-F-295
+ * Changed ..... not in git yet (—)
+ */
+export function debtLoad(profile: any, debts: Debt[]): {
+  dti: { ratio: number; monthlyDebt: number; grossMonthly: number; guideline: number; status: 'good' | 'caution' | 'high'; homeowner: boolean } | null;
+  loans: { borrowed: number; monthly: number; interest: number; shareOfIncome: number | null } | null;
+} {
+  const op = profile ?? {};
+  const num = (v: unknown) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return Number.isFinite(n) ? n : 0; };
+  const grossMonthly = totalGrossAnnual(op) / 12;
+  const homeowner = (debts ?? []).some((d) => d.debt_type === 'MORTGAGE');
+  const dti = (debts ?? []).length > 0 && grossMonthly > 0
+    ? { ...debtToIncome(minimumDebtService(debts), grossMonthly, homeowner), homeowner } : null;
+  const list = (Array.isArray(op.loans) ? op.loans : []) as any[];
+  let borrowed = 0, monthly = 0, interest = 0;
+  for (const l of list) {
+    borrowed += num(l?.amount);
+    if (num(l?.apr) > 0 && num(l?.termYears) > 0) { const p = loanPayment(num(l.amount), num(l.apr), num(l.termYears)); monthly += p.monthly; interest += p.totalInterest; }
+  }
+  const loans = borrowed > 0 ? { borrowed, monthly, interest, shareOfIncome: grossMonthly > 0 ? monthly / grossMonthly : null } : null;
+  return { dti, loans };
 }
 
 const EXAMPLE = {
@@ -174,6 +234,28 @@ const GIVEN = 'A $9,000 card at 24% with a $200 minimum and a $14,000 car loan a
  * Formula .....
  *     the debts(EXAMPLE)
  *
+ * Called by ... MK-CF-F-296 LOAD
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-CF-F-296 LOAD
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-F-211
+ * Changed ..... not in git yet (—)
+ */
+const DEBTS = () => theDebts(EXAMPLE);
+
+const LOAD_GIVEN = 'Debts frame 6 of cash-flow_v01: a $3,200 Visa with a $110 minimum and a $9,800 car loan with a $300 minimum, no mortgage, on $60,000/year of pay; and, for the student loans, $30,000 borrowed at 5.50% over 10 years.';
+/** Example only: runs debtLoad on the worked example and calculates nothing of its own. */
+/* ─ MK-CF-F-296 ──────────────────────────────────────────────────────────────────── 1 · ACTION
+ * LOAD
+ *
+ * Answers ..... Example only: runs debtLoad on the worked example and calculates nothing of its own.
+ *
+ * Formula .....
+ *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
+ *
  * Called by ... nothing — it is an entry point, or nothing reaches it
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
@@ -181,14 +263,18 @@ const GIVEN = 'A $9,000 card at 24% with a $200 minimum and a $14,000 car loan a
  *               MK-XS-I-014 debt balance
  *               MK-XS-I-015 debt interest rate
  *               MK-XS-I-016 debt minimum payment
- *               MK-XS-I-027 goals (target, saved, date)
+ *               MK-XS-I-039 how often each income arrives
+ *               MK-XS-I-040 whether a stream is already being received
+ *               MK-XS-I-060 how a person is paid — weekly, fortnightly, monthly
  *               MK-XS-I-064 the unit beside a quantity — shares, coins, contracts, ounces or units
  *
- * Formula also on the master file · functions_from_code · MK-CF-F-211
+ * Formula also on the master file · functions_from_code · MK-CF-F-296
  * Changed ..... not in git yet (—)
  */
-const DEBTS = () => theDebts(EXAMPLE);
-
+const LOAD = () => debtLoad({ status: 'employed', incomeSources: ['employment'], baseSalary: '5000', salaryMode: 'takehome', salaryFreq: 'monthly', taxMode: 'manual', manualTaxRate: '0',
+  loans: [{ label: 'Student loan', amount: 30000, apr: 5.5, termYears: 10 }] },
+  [{ debt_id: 'v', label: 'Visa card', debt_type: 'CREDIT_CARD', remaining_balance: 3200, interest_rate_apr: 0.229, minimum_monthly_payment: 110 },
+   { debt_id: 'c', label: 'Car loan', debt_type: 'AUTO', remaining_balance: 9800, interest_rate_apr: 0.064, minimum_monthly_payment: 300 }] as any);
 export const DEBT_FIGURES = declareFigures({
   'MK-CF-M-057': {
     label: '/month interest', unit: 'money', per: 'month', screens: ['/cashflow'],
@@ -237,7 +323,7 @@ export const DEBT_FIGURES = declareFigures({
   // WHAT IS STILL OWED WHEN THE PAYOFF WALK STOPS, ITS OWN NUMBER (2026-10-26, PF-TOOLS; CLEANUP-LEFT's finding): the Debts tab
   // printed it under MK-NW-M-009 (Net worth's DEBTS) and Goals with none — one figure, two screens, one number now
   'MK-CF-M-096': {
-    label: '$X still owed then', unit: 'money', screens: ['/cashflow', '/goals'],
+    label: '$X still owed then', unit: 'money', screens: ['/cashflow'],   // '/goals' dropped 2026-11-01 (lead): it only redirects to Plan · Goals now
     answers: 'What is still owed after a thousand years of payments that do get ahead of the interest — said instead of a payoff date.',
     formula: 'the balance of every debt still owed when the payoff plan stops at its 12,000th month (MK-CF-F-034 payoffPlan, past the horizon)',
     inputs: ['MK-XS-I-014 debt balance', 'MK-XS-I-015 debt interest rate', 'MK-XS-I-041 the payment the person chose to make on a debt'],
@@ -288,5 +374,70 @@ export const DEBT_FIGURES = declareFigures({
     refusal: 'A debt due in full on a date has no monthly payment — the line says when the whole balance is due.',
     ruled: '2026-10-02',
     worked: { given: GIVEN, answer: '$200/month', run: () => requiredPayment(EXAMPLE.debts[0]) },
+  },
+  // ── WHAT THE DEBTS ASK OF THE INCOME (2026-11-01, FX-CF-A): the two Goals sections, now on Debts — the same figures, under their own numbers ──
+  'MK-CF-M-102': {
+    label: 'debt-to-income', unit: 'percent-2dp', screens: ['/cashflow'],
+    answers: 'How much of the income before tax the debts oblige each month — the share lenders read.',
+    formula: 'the minimum payments the debts oblige each month (MK-CF-F-025) ÷ income before tax a month; healthy at 36% or less with a mortgage, 20% or less without; above that and up to 1.4 times the guide, getting high; beyond it, high (MK-CF-F-033 debtToIncome)',
+    inputs: ['MK-XS-I-016 debt minimum payment', 'MK-XS-I-023 salary and other income'],
+    decisions: ['MEASURED ON THE OBLIGATION (DEC-0641: the minimum stays on the door for debt-to-income), never on what someone chooses to pay.'],
+    refusal: 'No income entered: "Your income is not entered, so there is no debt-to-income figure — we won’t guess one." No debt: the box is not drawn.',
+    ruled: '2026-11-01',   // the lead's decision (moved from Goals, figures unchanged); its decision row is PF-RECORDS'
+    worked: { given: LOAD_GIVEN, answer: '8.20%', run: () => LOAD().dti?.ratio ?? null },
+  },
+  'MK-CF-M-103': {
+    label: 'minimum debt payments', unit: 'money', per: 'month', screens: ['/cashflow'],
+    answers: 'What the debts oblige each month at their minimums — the top of the debt-to-income division.',
+    formula: 'each debt’s minimum monthly payment, added up (MK-CF-F-025 minimumDebtService)',
+    inputs: ['MK-XS-I-016 debt minimum payment'],
+    refusal: 'No debt: the box is not drawn.',
+    ruled: '2026-11-01',
+    worked: { given: LOAD_GIVEN, answer: '$410/month', run: () => LOAD().dti?.monthlyDebt ?? null },
+  },
+  'MK-CF-M-104': {
+    label: 'income before tax a month', unit: 'money', per: 'month', screens: ['/cashflow'],
+    answers: 'The income debt-to-income divides by: the year’s pay before tax, a twelfth of it.',
+    formula: 'the year’s income before tax (totalGrossAnnual) ÷ 12',
+    inputs: ['MK-XS-I-023 salary and other income'],
+    refusal: 'No income entered: no ratio, and the box says so.',
+    ruled: '2026-11-01',
+    worked: { given: LOAD_GIVEN, answer: '$5,000/month', run: () => LOAD().dti?.grossMonthly ?? null },
+  },
+  'MK-CF-M-105': {
+    label: 'student loans borrowed', unit: 'money', screens: ['/cashflow'],
+    answers: 'How much is borrowed in student loans, as entered in setup.',
+    formula: 'each student loan’s amount, added up',
+    inputs: ['the student loans entered in setup (amount, rate, years)'],
+    refusal: 'No student loan entered: the box is not drawn.',
+    ruled: '2026-11-01',
+    worked: { given: LOAD_GIVEN, answer: '$30,000', run: () => LOAD().loans?.borrowed ?? null },
+  },
+  'MK-CF-M-106': {
+    label: 'student loan repayment', unit: 'money', per: 'month', screens: ['/cashflow'],
+    answers: 'What the student loans will cost each month once they are being repaid.',
+    formula: 'each loan with a rate and a term at the level repayment P × r ÷ (1 − (1 + r)^−n), r the rate ÷ 12, n the years × 12 (MK-CF-F-028 loanPayment), added up',
+    inputs: ['the student loans entered in setup (amount, rate, years)'],
+    refusal: 'A loan with no rate or term: "Add an interest rate and term to each loan (in setup) to see the monthly repayment."',
+    ruled: '2026-11-01',
+    worked: { given: LOAD_GIVEN, answer: '$326/month', run: () => LOAD().loans?.monthly ?? null },
+  },
+  'MK-CF-M-107': {
+    label: 'student loan total interest', unit: 'money', screens: ['/cashflow'],
+    answers: 'The interest the student loans cost over their terms.',
+    formula: 'each loan’s repayment × its months, less what was borrowed (MK-CF-F-028 loanPayment), added up',
+    inputs: ['the student loans entered in setup (amount, rate, years)'],
+    refusal: 'A loan with no rate or term adds none, and the box says how to add them.',
+    ruled: '2026-11-01',
+    worked: { given: LOAD_GIVEN, answer: '$9,069', run: () => LOAD().loans?.interest ?? null },
+  },
+  'MK-CF-M-108': {
+    label: 'the repayment as a share of today’s income', unit: 'percent-2dp', screens: ['/cashflow'],
+    answers: 'How much of today’s income before tax the student loan repayment would take.',
+    formula: 'the student loan repayment a month (MK-CF-M-106) ÷ income before tax a month (MK-CF-M-104)',
+    inputs: ['the student loans entered in setup (amount, rate, years)', 'MK-XS-I-023 salary and other income'],
+    refusal: 'No income entered: the line is not printed.',
+    ruled: '2026-11-01',
+    worked: { given: LOAD_GIVEN, answer: '6.51%', run: () => LOAD().loans?.shareOfIncome ?? null },
   },
 } as const);
