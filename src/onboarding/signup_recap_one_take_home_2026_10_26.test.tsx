@@ -53,7 +53,7 @@ test('Pat, $3,600 a year reinvested: $50,324 a year beside ≈$4,194 a month —
   const { L, after } = recap({ ...PAT, invAnnual: '3600' });
   // by hand: $60,000 + $3,600 = $63,600; tax ~8%, $4,876; 401(k) $4,800; reinvested $3,600, not money to spend → $50,324
   expect(after('Take-home / year')).toBe(money(50_324));
-  expect(L).toContain(`≈ ${money(50_324 / 12)}/month average`);
+  expect(L).toContain(`≈${money(50_324 / 12)}/month average`);
   expect(after('Interest & dividends, reinvested — not money to spend')).toBe(money(-(3_600)));
   expect(after('Available /year')).toBe(money(50_324));
   const c = addsUp(L);
@@ -66,7 +66,7 @@ test('Pat, $3,600 a year reinvested: $50,324 a year beside ≈$4,194 a month —
 test('$10,000 of savings at 4%, nothing typed: the $400 calculated is taxed and not spendable — $50,708 a year, ≈$4,226 a month', () => {
   const { L, after } = recap(PAT, [SAVINGS]);
   expect(after('Take-home / year')).toBe(money(50_708));
-  expect(L).toContain(`≈ ${money(50_708 / 12)}/month average`);
+  expect(L).toContain(`≈${money(50_708 / 12)}/month average`);
   expect(after('Interest & dividends, reinvested — not money to spend')).toBe(money(-(400)));
   const c = addsUp(L);
   expect(c.total + c.rows.reduce((t, r) => t + r, 0)).toBe(c.box);   // 60,400 − 4,492 − 4,800 − 400 = 50,708
@@ -76,7 +76,7 @@ test('$10,000 of savings at 4%, nothing typed: the $400 calculated is taxed and 
 test('paid to the bank: money to spend — no line, $53,924 a year and ≈$4,494 a month', () => {
   const { L, after } = recap({ ...PAT, invAnnual: '3600', invPaidToBank: 'yes' });
   expect(after('Take-home / year')).toBe(money(53_924));
-  expect(L).toContain(`≈ ${money(53_924 / 12)}/month average`);
+  expect(L).toContain(`≈${money(53_924 / 12)}/month average`);
   expect(L.join(' ')).not.toMatch(/not money to spend/);
 });
 

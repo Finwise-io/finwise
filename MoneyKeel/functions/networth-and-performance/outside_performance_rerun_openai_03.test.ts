@@ -289,9 +289,11 @@ describe('MK-PF-F-020 portfolioBenchReturn — five cases', () => {
     const prices: Record<string, PriceSeries> = {
       // (the close the evening before the purchase (2026-10-23, W-START): the 10 were bought at the market's $110, so the holding stood at $110 that evening — read by the whole-day rule (DEC-4439, DEC-7451) now that a holding held when the window began is measured from its purchases; without it the closes said the eleven months from $100 to $110 all fell on the purchase day, and the figure read 2,420 ÷ 2,100 − 1 = +15.24%)
       A: series([['2025-10-10', 100], ['2026-09-01', 110], ['2026-09-02', 110], ['2026-10-12', 121]], 'A'),
-      SPY: series([['2025-10-10', 600], ['2026-10-12', 660]], 'SPY'),
+      // a close near each window's start (R19, 2026-11-01): SPY and BTC on 2026-09-01 (the eve of A's Sep 2 purchase, where the
+      // market's second piece starts) at $600 and $100, the price each figure measured from (the 2025-10-10 closes the old rule carried)
+      SPY: series([['2025-10-10', 600], ['2026-09-01', 600], ['2026-10-12', 660]], 'SPY'),
       B: series([['2025-10-10', 100], ['2026-10-12', 100]], 'B'),
-      BTC: series([['2025-10-10', 100], ['2026-10-12', 104]], 'BTC'),
+      BTC: series([['2025-10-10', 100], ['2026-09-01', 100], ['2026-10-12', 104]], 'BTC'),
     };
     const rowsBuilt = buildPerformance([
       pos({ ticker: 'A', kind: 'stocks_etf', lots: [{ lot_id: 'a1', shares: 10, cost_per_share: 100, purchase_date: '2025-01-02' }, { lot_id: 'a2', shares: 10, cost_per_share: 110, purchase_date: '2026-09-02' }] }),

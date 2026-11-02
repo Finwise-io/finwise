@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { Text, TouchableOpacity, Platform, StyleSheet } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { Colors, Radii } from '../utils/theme';
+import { Colors, Radii, Tap } from '../utils/theme';
 import { withArticle } from '../domain/_shared/plural';   // the one article rule: "Pick an expense date" (2026-10-21)
 
 const fmtISO = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
@@ -55,7 +55,8 @@ export function DateLink({ text, onPick, label, style, maximumDate }: {
   const [day, setDay] = useState<Date>(maximumDate ?? new Date());
   return (
     <>
-      <Text accessibilityRole="button" accessibilityLabel={label ?? text} style={[df.link, style]} onPress={() => setShow((v) => !v)}>{text}</Text>
+      {/* a link that acts is a touchable with the touch margin: a Text takes no margin, and its 18-point line was the whole target (NW4-04, 2026-11-01) */}
+      <TouchableOpacity accessibilityRole="button" accessibilityLabel={label ?? text} hitSlop={Tap.slop} onPress={() => setShow((v) => !v)}><Text style={[df.link, style]}>{text}</Text></TouchableOpacity>
       {show && (
         <DateTimePicker value={day} mode="date" display={Platform.OS === 'ios' ? 'spinner' : 'default'} maximumDate={maximumDate}
           onChange={(e: any, d?: Date) => {

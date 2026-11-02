@@ -286,7 +286,9 @@ describe('nothing is cut to cents before it is saved (Q49 precision; the two rou
     render(<BondsScreen />);
     fireEvent.press(screen.getByText('US Treasury 2027'));
     pressSell();
-    fireEvent.changeText(screen.getByPlaceholderText('amount sold (up to $24,650)'), '1000.33');
+    // the limit is said in the line above the box since 2026-11-01 (R16, NW4-05): 'up to $24,650 (its market value)'; the box says 'amount sold'
+    expect(screen.getByText(/Enter the proceeds, up to \$24,650 \(its market value\), to lower or close the position\./)).toBeOnTheScreen();
+    fireEvent.changeText(screen.getByPlaceholderText('amount sold'), '1000.33');
     fireEvent.press(screen.getByLabelText('Sell'));
     const b = st().assetAccounts[0];
     // by hand: 25,000 × (24,650 − 1,000.33) ÷ 24,650 = 25,000 × 23,649.67 ÷ 24,650 = 23,985.4462…; a cut would give 23,985.45
@@ -301,7 +303,8 @@ describe('nothing is cut to cents before it is saved (Q49 precision; the two rou
     render(<OtherInvestmentsScreen />);
     fireEvent.press(screen.getByText('Bitcoin'));
     pressSell();
-    fireEvent.changeText(screen.getByPlaceholderText('amount sold (up to $28,000)'), '1000.33');
+    expect(screen.getByText(/Enter the proceeds, up to \$28,000 \(its current value\), to lower or close the position\./)).toBeOnTheScreen();   // R16, NW4-05
+    fireEvent.changeText(screen.getByPlaceholderText('amount sold'), '1000.33');
     fireEvent.press(screen.getByLabelText('Sell'));
     const a = st().assetAccounts[0];
     expect(a.balance).toBeCloseTo(28000.12345 - 1000.33, 9);                 // by hand 26,999.79345 — not cut to 26,999.79

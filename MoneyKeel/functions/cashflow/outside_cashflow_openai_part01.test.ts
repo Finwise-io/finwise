@@ -107,7 +107,8 @@ const partYear = (grossAnnual: any, paid: number) => Array.from({ length: 12 }, 
 /** the July starter of the brief's worked example: $60,000.30 over six paid months, $501.13 into a 401(k), $3,799.17 typed */
 const JULY = () => oneWage(partYear('60000.30', 6), { c_401k: '501.13', landsTypical: '3799.17' });
 
-const IMPORTED: Record<string, unknown> = { toNum, SALARY_PERIODS, DEFAULT_HOURS_PER_WEEK };
+// payPeriodsAYear (2026-11-01, FX-CF-B, R23): enteredMonthlyRaw reads the one pay-frequency table through it
+const IMPORTED: Record<string, unknown> = { toNum, SALARY_PERIODS, DEFAULT_HOURS_PER_WEEK, payPeriodsAYear: require('../../../src/domain/income/pay-frequency').payPeriodsAYear };
 const compile = (file: string, start: RegExp, name: string) => {
   const text = fs.readFileSync(path.join(__dirname, file), 'utf8');
   const at = text.search(start);

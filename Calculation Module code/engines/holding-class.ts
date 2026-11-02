@@ -91,7 +91,7 @@ const BOND_WORD_COMPANY_RE = /\b(treasury|treas|bond|note|muni)\s+(wines?|estate
  *
  * Called by ... MK-NW-F-008 incomeBearingClassOf · MK-ST-F-011 classifyHoldingClass
  *
- * Reaches ..... 443 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 478 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -101,7 +101,7 @@ const BOND_WORD_COMPANY_RE = /\b(treasury|treas|bond|note|muni)\s+(wines?|estate
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 425 more — the full list is on functions_from_code
+ *               … and 460 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -240,7 +240,7 @@ const FILE_TYPE_WORDS: [RegExp, HoldingClass][] = [
  *
  * Called by ... MK-PF-F-013 benchmarkTicker · MK-ST-F-011 classifyHoldingClass
  *
- * Reaches ..... 443 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 478 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -250,7 +250,7 @@ const FILE_TYPE_WORDS: [RegExp, HoldingClass][] = [
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 425 more — the full list is on functions_from_code
+ *               … and 460 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-070 the class a broker sends for a holding — its security type and its cash-equivalent flag
@@ -303,7 +303,7 @@ export function brokerClassOf(type?: string | null, cashEquivalent?: boolean | n
  *               MK-NW-F-109 holdingClassOf · MK-XS-F-102 ingestSync
  *               MK-XS-F-105 mapPosition · MK-XS-F-172 assetClassForSymbol
  *
- * Reaches ..... 443 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 478 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -313,7 +313,7 @@ export function brokerClassOf(type?: string | null, cashEquivalent?: boolean | n
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 425 more — the full list is on functions_from_code
+ *               … and 460 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance

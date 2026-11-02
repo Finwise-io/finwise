@@ -17,7 +17,10 @@ import type { UserId } from './ids';
  *     snap.data() as T   if snap.exists()
  *     nothing   otherwise
  *
- * Called by ... nothing — it is an entry point, or nothing reaches it
+ * Called by ... MK-CF-F-298 capFirst
+ *
+ * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-298 capFirst · MK-CF-F-302 setupLoanSentences
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

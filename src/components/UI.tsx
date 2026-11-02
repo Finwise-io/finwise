@@ -18,10 +18,14 @@ export function EmptyNote({ door, onPress, style }: { door: EmptyDoor; onPress?:
   const d = EMPTY_DOORS[door];
   const go = onPress ?? (() => router.push(d.route as any));
   return (
-    <Text style={[emptyNote.note, style]} accessibilityLabel={`Nothing entered yet. ${d.label}`}>
-      Nothing entered yet.{' '}
-      <Text style={emptyNote.link} accessibilityRole="link" onPress={go}>{d.label}</Text>
-    </Text>
+    // THE LINE IS THE DOOR (NW4-04, 2026-11-01): the link inside the sentence was an 18-point target and a Text takes no touch margin,
+    // so the whole line opens it, with Tap.slop — 26 + 32 = 58. It reads and looks as before.
+    <TouchableOpacity accessibilityRole="link" accessibilityLabel={`Nothing entered yet. ${d.label}`} hitSlop={Tap.slop} onPress={go}>
+      <Text style={[emptyNote.note, style]}>
+        Nothing entered yet.{' '}
+        <Text style={emptyNote.link}>{d.label}</Text>
+      </Text>
+    </TouchableOpacity>
   );
 }
 const emptyNote = StyleSheet.create({
@@ -155,7 +159,7 @@ export function SectionHeader({ title, action, onAction }: { title: string; acti
     <View style={styles.sectionHeader}>
       <Text style={styles.sectionTitle}>{title}</Text>
       {action && (
-        <TouchableOpacity onPress={onAction} accessibilityRole="button" accessibilityLabel={action}>
+        <TouchableOpacity onPress={onAction} accessibilityRole="button" accessibilityLabel={action} hitSlop={Tap.slop}>
           <Text style={styles.sectionAction}>{action}</Text>
         </TouchableOpacity>
       )}
@@ -267,7 +271,7 @@ export function InfoDot({ term, line, color: colorOver, size: sizeOver }: {
               showsVerticalScrollIndicator persistentScrollbar>
               <Text style={styles.infoBody}>{def.body}</Text>
             </ScrollView>
-            <TouchableOpacity style={styles.infoClose} onPress={() => setOpen(false)} accessibilityRole="button" accessibilityLabel="Close definition">
+            <TouchableOpacity style={styles.infoClose} hitSlop={Tap.slop} onPress={() => setOpen(false)} accessibilityRole="button" accessibilityLabel="Close definition">
               <Text style={styles.infoCloseTxt}>Got it</Text>
             </TouchableOpacity>
           </View>

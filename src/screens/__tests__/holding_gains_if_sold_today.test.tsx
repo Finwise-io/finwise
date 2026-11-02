@@ -42,7 +42,9 @@ const series = (ticker: string, pts: [string, number][]) => ({ ticker, points: p
 // phone A of holding-detail v02, on the drawing's own day (Oct 1, 2026): 100 AAPL bought Mar 14, 2023 at $168.00 and 40 at
 // $192.50, today $241.84; the market (SPY) $500 → $612 over the past year
 // (2026-10-23, W-START: and AAPL's close the evening before the 40 were bought on Jan 9 at $192.50 — the price it stood at, as the drawing has it: the past year is AAPL's own move, $175.00 → $241.84. A holding held when the window began that buys inside it is read from its purchases now (MK-PF-F-014), each counted from the start of its day at what was paid (DEC-4439), so that evening's close is read: (100 × $192.50 ÷ 100 × $175) × (140 × $241.84 ÷ (100 × $192.50 + $7,700)) − 1 = +38.19%. Without it the last close on record before Jan 9 was Oct 1's $175, the $17.50 a share above it read as lost, and AAPL read +34.36%.)
-const SPY = series('SPY', [['2024-08-01', 400], ['2025-09-30', 500], ['2025-10-01', 500], ['2026-04-01', 560], ['2026-09-30', 610], ['2026-10-01', 612]]);
+// a close near each window's start (R19, 2026-11-01): SPY on 2026-01-08 (the evening before the Jan 9 buy, where the market's second
+// piece starts) at $500, the price each figure measured from (the Oct 1, 2025 close the old rule carried)
+const SPY = series('SPY', [['2024-08-01', 400], ['2025-09-30', 500], ['2025-10-01', 500], ['2026-01-08', 500], ['2026-04-01', 560], ['2026-09-30', 610], ['2026-10-01', 612]]);
 const AAPL = series('AAPL', [['2024-08-01', 150], ['2025-09-30', 175], ['2025-10-01', 175], ['2026-01-08', 192.5], ['2026-04-01', 210], ['2026-09-30', 239.53], ['2026-10-01', 241.84]]);
 const phoneA = (secondDate: string) => ({ position_id: 'p1', ticker: 'AAPL', label: 'Apple Inc.', kind: 'stocks_etf', lots: [
   { lot_id: 'l1', shares: 100, cost_per_share: 168, purchase_date: '2023-03-14' },

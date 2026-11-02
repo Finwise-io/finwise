@@ -60,7 +60,7 @@ export default function ItemizeScreen() {
         <TopBar back />
         <View style={styles.content}>
         <Text style={styles.h1}>Account not found</Text>
-        <TouchableOpacity accessibilityRole="button" accessibilityLabel="Go back" onPress={() => router.back()}><Text style={styles.link}>← Back</Text></TouchableOpacity>
+        <TouchableOpacity hitSlop={Tap.slop} accessibilityRole="button" accessibilityLabel="Go back" onPress={() => router.back()}><Text style={styles.link}>← Back</Text></TouchableOpacity>
         </View>
       </View>
     );
@@ -151,7 +151,7 @@ export default function ItemizeScreen() {
         </View>
       )}
       <View style={styles.amtRow}><Text style={styles.amtPre}>{currencySymbol()}</Text><MoneyBox bare dollarBeside style={styles.amtIn} value={val} onChangeText={setVal} a11y="Amount" /></View>
-      <TouchableOpacity style={[styles.addBtn, !canAdd && { opacity: 0.4 }]} disabled={!canAdd} accessibilityRole="button" accessibilityLabel="Add this holding" onPress={addHolding}><Text style={styles.addBtnT}>＋ Add holding</Text></TouchableOpacity>
+      <TouchableOpacity hitSlop={Tap.slop} style={[styles.addBtn, !canAdd && { opacity: 0.4 }]} disabled={!canAdd} accessibilityRole="button" accessibilityLabel="Add this holding" onPress={addHolding}><Text style={styles.addBtnT}>＋ Add holding</Text></TouchableOpacity>
 
       <View style={styles.footerNote}>
         {remainder > 0 && items.length > 0 && <Text style={styles.note}>{fig('MK-NW-M-039', remainder)} still unallocated — it’ll be kept as cash in {inst}, so your total stays {fig('MK-NW-M-038', lump.balance)}.</Text>}

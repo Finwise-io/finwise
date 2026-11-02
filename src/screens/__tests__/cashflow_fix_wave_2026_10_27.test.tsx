@@ -513,7 +513,7 @@ describe('Debts: what the debts ask of the income (moved from Goals, 2026-11-01)
     const L = debtsTab();
     const at = L.indexOf('DEBT-TO-INCOME');
     expect(at).toBeGreaterThan(L.indexOf('PROGRESS'));
-    expect(L.slice(at, at + 5)).toEqual(['DEBT-TO-INCOME', '8.20%', 'Healthy', '$410/month in minimum debt payments ÷ $5,000/month income',
+    expect(L.slice(at, at + 5)).toEqual(['DEBT-TO-INCOME', '8.20%', 'Healthy', '$410.00/month in minimum debt payments ÷ $5,000/month income',
       'Aim for 20% or less (renters; rent isn’t counted). You’re in good shape.']);
     expect(flat(screen.getByText('DEBT-TO-INCOME')).color).toBe('#FFFFFF');            // the title on its dark-green bar
     expect(L).not.toContain('STUDENT LOAN OUTLOOK');                                    // no student loan entered: no box
@@ -523,7 +523,7 @@ describe('Debts: what the debts ask of the income (moved from Goals, 2026-11-01)
     on('2026-08-20'); H.householdDebts();
     useStore.setState({ liabilities: (useStore.getState() as any).liabilities.map((d: any) => (d.debt_id === 'v' ? { ...d, monthly_payment: 300 } : d)) } as any);
     show(); tab('Debts');
-    expect(lines()).toContain('$410/month in minimum debt payments ÷ $5,000/month income');
+    expect(lines()).toContain('$410.00/month in minimum debt payments ÷ $5,000/month income');
     void st;
   });
   test('no income entered: no ratio, and the box says why', () => {
@@ -541,7 +541,7 @@ describe('Debts: what the debts ask of the income (moved from Goals, 2026-11-01)
     const L = lines();
     const at = L.indexOf('STUDENT LOAN OUTLOOK');
     expect(at).toBeGreaterThan(L.indexOf('DEBT-TO-INCOME'));
-    expect(L.slice(at, at + 4)).toEqual(['STUDENT LOAN OUTLOOK', '$30,000 borrowed', '≈ $326/month once you’re repaying · $9,069 total interest',
+    expect(L.slice(at, at + 4)).toEqual(['STUDENT LOAN OUTLOOK', '$30,000 borrowed', '≈$326/month once you’re repaying · $9,069 total interest',
       'That’s ~6.51% of today’s income — keeping total debt under 20% keeps you comfortable.']);
   });
   test('a student loan with no rate or term: what to add, no repayment guessed', () => {
@@ -573,5 +573,80 @@ describe('the door “Your debts … are on Cash flow, under Debts ›” opens 
   test('with no tab named, Cash flow opens on This month as before', () => {
     on('2026-08-20'); H.householdDebts(); show();
     expect(screen.getByLabelText('This month tab, selected')).toBeTruthy();
+  });
+});
+
+// ════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+// ROUND 4, 2026-11-01 (FX-CF-A) — CF4-01/06 (R21), CF4-03 (R22), CF4-04, CF4-05, CF4-10. Rows: cash-flow_v01 and goals_v03, 2026-11-01.
+// CF4-02 is held by src/__tests__/approx_mark_one_form.test.ts.
+// ════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+describe('round 4 · Debts', () => {
+  const CAR_CENTS = { debt_id: 'c', label: 'Car loan', debt_type: 'AUTO', remaining_balance: 9800, interest_rate_apr: 0.064, minimum_monthly_payment: 386.42 };
+  test('CF4-01 (R21): the sum works as printed — $386.42 ÷ $5,000 = 7.73%, the payment to the cent', () => {
+    on('2026-08-20'); H.householdDebts(); useStore.setState({ liabilities: [CAR_CENTS] } as any); show(); tab('Debts');
+    const L = lines(); const d = L.indexOf('DEBT-TO-INCOME');
+    expect(L.slice(d + 1, d + 4)).toEqual(['7.73%', 'Healthy', '$386.42/month in minimum debt payments ÷ $5,000/month income']);   // 386.42 ÷ 5,000 = 7.7284%
+  });
+  test.failing('CF4-01 · the old answer, kept: the payment rounded to the dollar beside a ratio worked on the cents', () => {
+    on('2026-08-20'); H.householdDebts(); useStore.setState({ liabilities: [CAR_CENTS] } as any); show(); tab('Debts');
+    expect(lines()).toContain('$386/month in minimum debt payments ÷ $5,000/month income');
+  });
+  const LOAN = [{ label: 'Student loan', amount: 30000, apr: 5.5, termYears: 10 }];
+  test('CF4-03 (R22): a setup student loan alone — YOUR DEBT $30,000, said, and no “Nothing entered yet”', () => {
+    on('2026-08-20'); H.householdDebts();
+    const op = (useStore.getState() as any).onboardingProfile;
+    useStore.setState({ liabilities: [], monthlySnapshots: {}, onboardingProfile: { ...op, loans: LOAN } } as any); show(); tab('Debts');
+    const L = lines(); const y = L.indexOf('YOUR DEBT');
+    expect(L.slice(y, y + 3)).toEqual(['YOUR DEBT', '$30,000', 'Includes $30,000 of student loans entered in setup — repayment starts after you graduate.']);
+    expect(L.join(' ')).not.toMatch(/Nothing entered yet\. Add your debts/);
+    expect(L).toContain('$30,000 borrowed');                                                   // the outlook's borrowed is the same $30,000
+  });
+  test('CF4-03 (R22): beside a $3,200 Visa and a $9,800 car loan, 3,200 + 9,800 + 30,000 = $43,000 — one total, from the one reader', () => {
+    on('2026-08-20'); H.householdDebts();
+    const op = (useStore.getState() as any).onboardingProfile;
+    useStore.setState({ onboardingProfile: { ...op, loans: LOAN } } as any); show(); tab('Debts');
+    expect(after(lines(), 'YOUR DEBT')).toBe('$43,000');
+    const { setupStudentLoans } = require('../../domain/debt');
+    const liabilities = (useStore.getState() as any).liabilities;
+    expect(liabilities.reduce((t: number, d: any) => t + d.remaining_balance, 0) + setupStudentLoans({ loans: LOAN }).owed).toBe(43000);
+  });
+  test.failing('CF4-03 · the old answer, kept: YOUR DEBT $0 and “Nothing entered yet” above $30,000 borrowed', () => {
+    on('2026-08-20'); H.householdDebts();
+    const op = (useStore.getState() as any).onboardingProfile;
+    useStore.setState({ liabilities: [], monthlySnapshots: {}, onboardingProfile: { ...op, loans: LOAN } } as any); show(); tab('Debts');
+    expect(after(lines(), 'YOUR DEBT')).toBe('$0');
+  });
+  test('CF4-04: a $0 YOUR DEBT is grey (#6B6B66), never the brand green; a debt above $0 is red', () => {
+    on('2026-08-20'); H.householdBrandNew(); show(); tab('Debts');
+    expect(flat(screen.getAllByText('$0').find((n: any) => flat(n).fontSize === 30)).color).toBe('#6B6B66');
+    jest.useRealTimers(); on('2026-08-20'); H.householdDebts(); show(); tab('Debts');
+    expect(flat(screen.getByText('$13,000')).color).toBe('#A32D2D');
+  });
+});
+
+describe('round 4 · Goals and the Tax organizer', () => {
+  // RE-MEASURED 2026-11-01 (CLEANUP-TESTS): the minus stays against its figure (CF4-10). The $0 401(k) line comes back: his DEC-0252
+  // (Q46) names it one of the four lines the organizer shows, so with nothing put in it reads "$0" — a line he asked for never vanishes.
+  test('CF4-10: the Tax organizer writes a minus against its figure, and keeps the 401(k) line at $0 (DEC-0252)', () => {
+    on('2026-08-20'); set({ onboardingProfile: { status: 'employed', incomeSources: ['employment'], baseSalary: '60000', salaryFreq: 'annually', salaryMode: 'gross', filingStatus: 'single' } });
+    show('TaxOrganizerScreen');
+    const L = lines();
+    expect(L.filter((l) => /^− /.test(l))).toEqual([]);
+    expect(L.some((l) => /^−\$[\d,]+$/.test(l))).toBe(true);
+    expect(L[L.indexOf('401(k) contribution') + 1]).toBe('$0');
+    // THE HOUSEHOLD'S OWN FIGURES, BY HAND (2026-11-01, CLEANUP-TESTS): a $60,000 yearly salary is salaryFreq 'annually', the app's
+    // word (SALARY_PERIODS, × 1). It was typed 'annual', a value the app does not have, read as a month: wages $720,000.
+    // $60,000 − $0 − $16,100 = $43,900 taxable; tax 10% of $12,400 + 12% of ($43,900 − $12,400) = $1,240 + $3,780 = $5,020;
+    // $5,020 ÷ $60,000 = 8.3667% → ≈8.37%.
+    expect(L[L.indexOf('Wages (W-2)') + 1]).toBe('$60,000');
+    expect(L[L.indexOf('Gross income') + 1]).toBe('$60,000');
+    expect(L[L.indexOf('Standard deduction') + 1]).toBe('−$16,100');
+    expect(L[L.indexOf('Taxable income') + 1]).toBe('$43,900');
+    expect(L.some((l) => /^Calculated federal tax ≈8\.37% of the year’s income/.test(l))).toBe(true);
+  });
+  test.failing('CF4-10 as FX-CF-A built it, pinned (no longer its answer): a $0 401(k) line left out', () => {
+    on('2026-08-20'); set({ onboardingProfile: { status: 'employed', incomeSources: ['employment'], baseSalary: '60000', salaryFreq: 'annually', salaryMode: 'gross', filingStatus: 'single' } });
+    show('TaxOrganizerScreen');
+    expect(lines()).not.toContain('401(k) contribution');
   });
 });

@@ -41,13 +41,15 @@ const after = (l: string[], t: string, from = 0) => { const i = l.indexOf(t, fro
 const VANGUARD = () => ({ asset_id: 'van', label: 'Brokerage', institution: 'Vanguard', kind: 'brokerage', tax_bucket: 'TAXABLE', balance: 50_000, cash_balance: 5_000,
   source: 'manual', value_as_of: '2026-09-01', positions: [{ position_id: 'vti', ticker: 'VTI', label: 'Vanguard Total Stock Market ETF', kind: 'stocks_etf',
     lots: [{ lot_id: 'l1', shares: 100, cost_per_share: 80, purchase_date: '2025-03-03' }] }] });
-const VTI = series('VTI', [['2024-08-01', 70], ['2025-09-30', 90], ['2026-09-29', 99], ['2026-09-30', 100]]);
+// a close on Aug 28, 2026 at the $90.00 the month is measured from (R19, 2026-11-01: a window starts only from a close at most 7 days
+// before it; the month began from Sep 30, 2025). The year keeps only its Aug 1, 2024 close, 14 months back — R19's own case below.
+const VTI = series('VTI', [['2024-08-01', 70], ['2025-09-30', 90], ['2026-08-28', 90], ['2026-09-29', 99], ['2026-09-30', 100]]);
 const sold = () => {
   useStore.setState({ assetAccounts: [VANGUARD()], priceCache: { VTI } } as any);
   useStore.getState().recordTransaction({ date: '2026-09-30', type: 'SELL', account_id: 'van', ticker: 'VTI', shares: 10, price: 120, fee: 5, fee_in_price: false } as any);
 };
 describe('NW3-02 · R11: a typed total that sold inside the window — its Return is its walk\'s own change', () => {
-  test.each([['1M', '$48,800', '$1,195', '+2.45%', 49_995 / 48_800 - 1], ['1Y', '$46,800', '$3,195', '+6.83%', 49_995 / 46_800 - 1]] as [string, string, string, string, number][])(
+  test.each([['1M', '$48,800', '$1,195', '+2.45%', 49_995 / 48_800 - 1]] as [string, string, string, string, number][])(
     'the account page on %s: walk %s → $49,995, wealth generated %s, Return %s, and the Total row the same', (w, begin, gained, ret, exact) => {
       sold();
       expect(Math.abs(exact * 100 - parseFloat(ret)) < 0.005).toBe(true);           // the printed figure is the hand-worked one
@@ -61,6 +63,25 @@ describe('NW3-02 · R11: a typed total that sold inside the window — its Retur
       const total = l.lastIndexOf('Total');
       expect(l.slice(total, total + 3)).toEqual(['Total', '$49,995', ret]);
     });
+  // 1Y (R19, 2026-11-01): the year opens Sep 30, 2025, so its start is read on Sep 29, 2025; VTI's last close on or before it is Aug 1,
+  // 2024, 424 days back — no start, so no Return, and the sentence names that close. It read +6.83% from that $70 (kept below).
+  test('the account page on 1Y: no price near the year\'s start, so no Return — the sentence names VTI\'s Aug 1, 2024 close (R19)', () => {
+    sold();
+    mockParams = { id: 'van' };
+    render(<>{React.createElement(require('../AccountPortfolioScreen').default)}</>);
+    pick('1Y');
+    const l = builtLines(screen.toJSON());
+    expect(after(l, 'Return', l.findIndex((x) => x.startsWith('THIS ACCOUNT ·')))).toBe('—');
+    expect(l.some((x) => /^VTI \(\$9,000\) has no price near the window’s start: its last close before it is Aug 1, 2024, so its gains are not included\.$/.test(x))).toBe(true);
+  });
+  test.failing('the answer until 2026-11-01, kept (no longer the app\'s): 1Y read +6.83% from VTI\'s $70 close of Aug 1, 2024', () => {
+    sold();
+    mockParams = { id: 'van' };
+    render(<>{React.createElement(require('../AccountPortfolioScreen').default)}</>);
+    pick('1Y');
+    const l = builtLines(screen.toJSON());
+    expect(after(l, 'Return', l.findIndex((x) => x.startsWith('THIS ACCOUNT ·')))).toBe('+6.83%');
+  });
   test('the Performance tab, this one account, agrees on 1M: +2.45% on the summary and on its card', () => {
     sold();
     render(React.createElement(require('../PerformanceScreen').default));
@@ -150,7 +171,8 @@ describe('PF3-2 · PF3-3 · the account bar\'s arrow, and All categories flush (
     sold();
     render(React.createElement(require('../PerformanceScreen').default));
     pick('1M');
-    const arrows = screen.UNSAFE_root.findAll((n: any) => n.type === 'Text' && n.props?.children === '›' && String(n.props?.accessibilityLabel ?? '').startsWith('Open '));
+    // the arrow itself (its 'Open …' name moved to the touchable around it with NW4-04's Tap.slop, 2026-11-01)
+    const arrows = screen.UNSAFE_root.findAll((n: any) => n.type === 'Text' && n.props?.children === '›');
     expect(arrows.length).toBeGreaterThanOrEqual(1);                                       // the guard looked: the account bar's arrow
     for (const a of arrows) expect(StyleSheet.flatten(a.props.style)).toMatchObject({ fontSize: 13, fontWeight: '800' });
     const all = screen.getByText('All categories');

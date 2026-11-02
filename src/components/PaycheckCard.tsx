@@ -6,7 +6,7 @@ import { SectionBand } from './SectionBand';
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Modal } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Colors, Spacing, Radii } from '../utils/theme';
+import { Colors, Spacing, Radii, Tap } from '../utils/theme';
 import { useCashflowModel } from '../hooks/useCashflowModel';
 import { EstimateTag, InfoDot } from './UI';
 import { maskedMoney } from './useMoney';   // every balance masks under hide-balances (the walk test enforces it)
@@ -43,7 +43,7 @@ export function PaycheckCard() {
           the bill named — never smoothed, never clipped to zero (edge-case audit E4) */}
       {m.netSafeToSpend < 0 ? (
         <>
-          <HeroAmount style={styles.hero}>− {fig('MK-CF-M-078', Math.abs(m.netSafeToSpend))} <Text style={styles.unit}>short this month</Text></HeroAmount>
+          <HeroAmount style={styles.hero}>−{fig('MK-CF-M-078', Math.abs(m.netSafeToSpend))} <Text style={styles.unit}>short this month</Text></HeroAmount>
           <Text style={styles.est}>estimate · {m.bills[0]?.label ?? 'a big bill'} lands this month</Text>
         </>
       ) : (
@@ -54,7 +54,7 @@ export function PaycheckCard() {
       )}
 
       {year.guaranteedMissing ? (
-        <TouchableOpacity accessibilityRole="link" style={styles.promptBtn} onPress={() => router.push('/monthly-income')}>
+        <TouchableOpacity hitSlop={Tap.slop} accessibilityRole="link" style={styles.promptBtn} onPress={() => router.push('/monthly-income')}>
           <Text style={styles.promptT}>Add your Social Security and pension to see your full paycheck →</Text>
         </TouchableOpacity>
       ) : (

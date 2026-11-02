@@ -53,6 +53,7 @@ function paidIn(days: any[], accountId: string, key: string, from: string, amoun
 }
 const monthsAgo = (m: number) => { const d = new Date(`${TODAY}T12:00:00`); d.setMonth(d.getMonth() - m); return isoLocalDate(d); };
 const daysAgo = (n: number) => { const d = new Date(`${TODAY}T12:00:00`); d.setDate(d.getDate() - n); return isoLocalDate(d); };
+const daysBefore = (day: string, n: number) => { const d = new Date(`${day}T12:00:00`); d.setDate(d.getDate() - n); return isoLocalDate(d); };
 const acct = (id: string, institution: string | undefined, label: string, balance: number, source: string | undefined, positions: any[], cash = 0) => ({
   asset_id: id, label, institution, kind: 'brokerage', tax_bucket: 'TAXABLE', balance, target_return: 0.05, source, cash_balance: cash,
   last_synced: source ? new Date().toISOString() : undefined, positions,
@@ -169,6 +170,10 @@ function bar(): [string, string][] {
 const flat = (n: any) => StyleSheet.flatten(n?.props?.style) ?? {};
 const money = (s: string) => Number(s.replace(/[$,]/g, '').replace('−', '-'));
 const PCT = /^[+−-]\d+\.\d{2}%$/;
+/** the 2Y chip's yearly rate says so since 2026-11-01 (v17's row of that day, 'DRAWING CORRECTION, the 2Y window chip'; the lead's
+ *  ruling R20, under DEC-0237 and DEC-0404): '+7.22%/year' on the 2Y chip only; every other window stays bare */
+const PCT_2Y = /^[+−-]\d+\.\d{2}%\/year$/;
+const chipPct = (label: string) => (label === '2Y' ? PCT_2Y : PCT);
 
 
 // ── DEC-0008 ─────────────────────────────────────────────────────────────────────────────────────────
@@ -233,7 +238,10 @@ test('DEC-0057 — a broker that shared 3 months: 1Y names the shortfall in one 
     assetAccounts: [{ ...acct('etr', 'E*TRADE', 'ACCOUNT 1', 44_000, 'connected', [pos('p1', 'VTI', 100, 400, 300, monthsAgo(14))], 4_000), history_from: monthsAgo(3) }],
     transactions: [{ id: 'v1', date: monthsAgo(2), type: 'DIVIDEND', account_id: 'etr', ticker: 'VTI', amount: 100, created_at: 'x', source: 'connected' }],
     snapshotDays: daily(monthsAgo(3), [['etr', 'VTI', 100, 36_000, 40_000], ['etr', 'CASH', 1, 4_000, 4_000]]),
-    invDaily: {}, priceCache: { VTI: series('VTI', 300, 400, monthsAgo(14)) }, pricesFetchedAt: new Date().toISOString(),
+    // a close near each window's start (R19, 2026-11-01): VTI two days before a year back at $300, the price the 1Y figure measured
+    // from (the 14-months-back close the old rule carried)
+    invDaily: {}, priceCache: { VTI: { ticker: 'VTI', points: [{ date: monthsAgo(14), close: 300 }, { date: daysBefore(monthsAgo(12), 2), close: 300 }, { date: TODAY, close: 400 }] } },
+    pricesFetchedAt: new Date().toISOString(),
   } as any);
   open(5, setUp);
   const SAID = /^E\*TRADE shared 3 months of history \(from [A-Z][a-z]{2} \d{1,2}, \d{4}\) — figures before that aren’t counted\.$/;
@@ -271,7 +279,7 @@ test('DEC-0064 — with 26 months of record every window prints its own return (
   open(3);
   const b = bar();
   expect(b.map((x) => x[0])).toEqual([expect.stringMatching(/^Since /), '1M', 'This year', '1Y', '2Y']);
-  for (const [, f] of b) expect(f).toMatch(PCT);
+  for (const [k, f] of b) expect(f).toMatch(chipPct(k));           // the 2Y chip with '/year' (R20, v17 row of 2026-11-01)
   expect(new Set(b.map((x) => x[1])).size).toBe(5);                // five windows, five figures of their own
 });
 test('DEC-0064 — a fresh account (phone 5): every window is a dash, never 0.00%', () => {
@@ -390,7 +398,8 @@ test('DEC-0235 — each window button carries two lines: the window on top, its 
       expect(texts).toHaveLength(2);
       const [top, under] = texts.map((t: any) => [].concat(t.props.children).join(''));
       expect(label.startsWith(`Show ${top}`)).toBe(true);
-      expect(under).toMatch(/^([+−-]\d+\.\d{2}%|—)$/);
+      // the 2Y chip's yearly rate carries '/year' (R20, v17 row of 2026-11-01); every other window bare, or a dash
+      expect(under).toMatch(top === '2Y' ? /^([+−-]\d+\.\d{2}%\/year|—)$/ : /^([+−-]\d+\.\d{2}%|—)$/);
     }
     expect(seen.size).toBe(5);
     screen.unmount();
@@ -403,7 +412,11 @@ test('DEC-0235 — each window button carries two lines: the window on top, its 
 test('DEC-0237 · DEC-0404 — with a record covering two years (phone 3), 2Y prints the yearly rate, says so under the control, and states the window\'s own total beside it', () => {
   open(3);
   expect(lines()).toContain('2Y is shown per year, so it sits fairly beside 1Y');
-  const twoY = bar()[4][1];
+  // the 2Y chip reads the yearly rate with '/year' since 2026-11-01 (R20, v17 row of that day); the trio's Return prints the same
+  // rate bare, and the sentence under it says '/year' — the row: "Nothing else moves"
+  const twoYChip = bar()[4][1];
+  expect(twoYChip).toMatch(PCT_2Y);
+  const twoY = twoYChip.replace(/\/year$/, '');
   pick('2Y');
   const all = lines();
   const e = all.indexOf('Return');

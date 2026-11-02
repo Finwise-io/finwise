@@ -714,6 +714,11 @@
   "file": "src/services/notifications.ts",
   "category": "1 · ACTION"
  },
+ "capFirst": {
+  "id": "MK-CF-F-298",
+  "file": "src/domain/debt/index.ts",
+  "category": "1 · ACTION"
+ },
  "capGains": {
   "id": "MK-PF-F-006",
   "file": "src/domain/performance/index.ts",
@@ -952,7 +957,7 @@
  "currentIdToken": {
   "id": "MK-XS-F-064",
   "file": "src/services/firebase.ts",
-  "category": "3 · DEPENDENT (feeds an action only)"
+  "category": "3 · DEPENDENT"
  },
  "currentRetirementIncomeMonthly": {
   "id": "MK-CF-F-072",
@@ -1454,6 +1459,11 @@
   "file": "src/domain/retirement/ssTiming.ts",
   "category": "2 · DISPLAYED"
  },
+ "freqNotRecognised": {
+  "id": "MK-CF-F-297",
+  "file": "MoneyKeel/functions/cashflow/base-pay.ts",
+  "category": "3 · DEPENDENT"
+ },
  "fullRetirementAge": {
   "id": "MK-PL-F-057",
   "file": "src/domain/retirement/ssTiming.ts",
@@ -1944,6 +1954,11 @@
   "file": "src/domain/bonds/index.ts",
   "category": "3 · DEPENDENT"
  },
+ "isPayFrequency": {
+  "id": "MK-CF-F-307",
+  "file": "src/domain/income/pay-frequency.ts",
+  "category": "1 · ACTION"
+ },
  "isPlausibleTicker": {
   "id": "MK-XS-F-081",
   "file": "src/services/marketData.ts",
@@ -2168,6 +2183,11 @@
   "id": "MK-CF-F-028",
   "file": "src/domain/debt/index.ts",
   "category": "2 · DISPLAYED"
+ },
+ "loanStartsOn": {
+  "id": "MK-CF-F-300",
+  "file": "src/domain/debt/index.ts",
+  "category": "3 · DEPENDENT"
  },
  "localDay": {
   "id": "MK-ST-F-096",
@@ -2734,6 +2754,16 @@
   "file": "MoneyKeel/functions/cashflow/base-pay.ts",
   "category": "3 · DEPENDENT"
  },
+ "payFrequencyOf": {
+  "id": "MK-CF-F-306",
+  "file": "src/domain/income/pay-frequency.ts",
+  "category": "1 · ACTION"
+ },
+ "payPeriodsAYear": {
+  "id": "MK-CF-F-308",
+  "file": "src/domain/income/pay-frequency.ts",
+  "category": "3 · DEPENDENT"
+ },
  "paycheckReturn": {
   "id": "MK-CF-F-279",
   "file": "src/domain/paycheck/index.ts",
@@ -2848,6 +2878,11 @@
   "id": "MK-CF-F-140",
   "file": "MoneyKeel/functions/cashflow/base-pay.ts",
   "category": "1 · ACTION"
+ },
+ "periodsOf": {
+  "id": "MK-CF-F-309",
+  "file": "src/domain/income/take-home-mode-migration.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
  },
  "personalFlowTotals": {
   "id": "MK-ST-F-013",
@@ -3243,6 +3278,11 @@
   "id": "MK-NW-F-116",
   "file": "src/domain/assets/index.ts",
   "category": "1 · ACTION"
+ },
+ "repairHourlyTakeHome": {
+  "id": "MK-CF-F-310",
+  "file": "src/domain/income/take-home-mode-migration.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
  },
  "requestNotificationPermission": {
   "id": "MK-XS-F-084",
@@ -3654,6 +3694,36 @@
   "file": "src/domain/bonds/index.ts",
   "category": "2 · DISPLAYED"
  },
+ "setupLoanDebts": {
+  "id": "MK-CF-F-305",
+  "file": "src/domain/debt/index.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "setupLoanSentences": {
+  "id": "MK-CF-F-302",
+  "file": "src/domain/debt/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "setupLoansAll": {
+  "id": "MK-CF-F-304",
+  "file": "src/domain/debt/index.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "setupLoansNotEntered": {
+  "id": "MK-CF-F-303",
+  "file": "src/domain/debt/index.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "setupLoansSplit": {
+  "id": "MK-CF-F-301",
+  "file": "src/domain/debt/index.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "setupStudentLoans": {
+  "id": "MK-CF-F-299",
+  "file": "src/domain/debt/index.ts",
+  "category": "2 · DISPLAYED"
+ },
  "sharesThroughWindow": {
   "id": "MK-PF-F-073",
   "file": "src/domain/performance/index.ts",
@@ -3818,6 +3888,11 @@
   "id": "MK-XS-F-101",
   "file": "src/services/sync/ingest.ts",
   "category": "1 · ACTION"
+ },
+ "staleStartClose": {
+  "id": "MK-PF-F-086",
+  "file": "src/domain/performance/index.ts",
+  "category": "3 · DEPENDENT"
  },
  "startDateFor": {
   "id": "MK-PF-F-008",
@@ -4343,6 +4418,11 @@
   "id": "MK-ST-F-031",
   "file": "Calculation Module code/engines/snapshots.ts",
   "category": "2 · DISPLAYED"
+ },
+ "valuedByYouWords": {
+  "id": "MK-PF-F-088",
+  "file": "src/domain/performance/index.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
  },
  "verdict": {
   "id": "MK-ST-F-060",

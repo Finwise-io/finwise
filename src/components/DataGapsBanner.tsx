@@ -8,7 +8,7 @@ import { plural } from '../domain/_shared/plural';   // the one list of words an
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Modal, ScrollView } from 'react-native';
 import { router } from 'expo-router';
-import { Colors, Radii, Spacing } from '../utils/theme';
+import { Colors, Radii, Spacing, Tap } from '../utils/theme';
 import { modalAnimation } from '../hooks/reducedMotion';
 import { gapsHeadline, type DataGap } from '../domain/gaps';
 
@@ -66,7 +66,7 @@ export function DataGapsBanner({ gaps, onPage }: { gaps: DataGap[]; onPage?: OnP
     <>
       {onPage ? (
         <View style={s.banner} testID="gaps-on-page">
-          <TouchableOpacity accessibilityRole="button" activeOpacity={0.85} onPress={() => setOpen(true)}
+          <TouchableOpacity accessibilityRole="button" activeOpacity={0.85} hitSlop={Tap.slop} onPress={() => setOpen(true)}
             accessibilityLabel={`${headline}. ${gaps.map((g) => sentence(g.onItsPage ?? g.title)).join(' ')} Opens how to fix them.`}>
             <Text style={[s.head, s.headOnPage]}>⚠ {headline} ›</Text>
           </TouchableOpacity>
@@ -190,7 +190,9 @@ const s = StyleSheet.create({
   pageDoorTxtFill: { color: Colors.white },
   pageDoorTxtLine: { color: Colors.primaryDeep },
   scrim: { flex: 1, backgroundColor: 'rgba(0,0,0,0.35)' },
-  sheet: { ...SHEET_FRAME, padding: Spacing.base, paddingBottom: 32 },
+  // the one sheet frame's inset, as Net worth v08 draws its sheets and the add sheet is built: 10 above the handle, 16 at the sides, 30 below
+  // (NW4-07, 2026-11-01; it was 16 and 32)
+  sheet: { ...SHEET_FRAME, paddingTop: 10, paddingHorizontal: Spacing.base, paddingBottom: 30 },
   grab: { ...SHEET_HANDLE },
   sheetTitle: { fontSize: 17, fontWeight: '800', color: Colors.textPrimary },
   sheetSub: { fontSize: 13, color: Colors.textSecondary, marginBottom: 8 },

@@ -26,7 +26,10 @@ const iso = (d: Date) => d.toISOString().slice(0, 10);
 const seriesFor = (start: number, end: number) => {
   const now = new Date();
   const back = (m: number) => iso(new Date(now.getFullYear(), now.getMonth() - m, 1));
-  return { points: [{ date: back(14), close: start }, { date: back(6), close: (start + end) / 2 }, { date: iso(new Date(Date.now() - 86400e3)), close: end * 0.99 }, { date: iso(now), close: end }] };
+  // a close near each window's start (R19, 2026-11-01): a year and two days back at the start price, the price the 1Y figure measured
+  // from (the 14-months-back close the old rule carried)
+  const yearBack = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate() - 2);
+  return { points: [{ date: back(14), close: start }, { date: iso(yearBack), close: start }, { date: back(6), close: (start + end) / 2 }, { date: iso(new Date(Date.now() - 86400e3)), close: end * 0.99 }, { date: iso(now), close: end }] };
 };
 function lines(): string[] {
   const out: string[] = [];

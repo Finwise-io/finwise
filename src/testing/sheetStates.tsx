@@ -35,10 +35,15 @@ const fidelity = (position: any, extra: any = {}) => ({ asset_id: 'fid', label: 
 const AAPL = { position_id: 'p1', ticker: 'AAPL', label: 'Apple Inc.', kind: 'stocks_etf', lots: [
   { lot_id: 'l1', shares: 100, cost_per_share: 168, purchase_date: '2023-03-14' }, { lot_id: 'l2', shares: 40, cost_per_share: 192.5, purchase_date: '2026-01-09' }] };
 const series = (ticker: string, pts: [string, number][]) => ({ ticker, points: pts.map(([date, close]) => ({ date, close })) });
+// A CLOSE NEAR EVERY WINDOW'S START (2026-11-01, FX-PF; the lead's ruling R19): a window starts only from a close at most 7 days before
+// its first day. These lists held four closes, so 1M began from Sep 30, 2025 and 1Y from Aug 1, 2024 — a real daily history has a
+// close beside each. Added, each dated near a start: Sep 27, 2024 (2Y, at the Aug 1, 2024 prices it measured from), Sep 29, 2025
+// (1Y, at the next day's price — it measured from the 14-month-old $70 / $150 / $400, NW4-02), Dec 31, 2025 and Aug 28, 2026 (YTD
+// and 1M, at the price they measured from), and VTI on Sep 4, 2026 for the windows opened on a record's own day (Since Sep 6, Sep 8). Only the 1Y figures move: VTI $90 → $100, +11.11%, where +42.86% was printed.
 const PRICES = {
-  AAPL: series('AAPL', [['2024-08-01', 150], ['2025-09-30', 175], ['2026-09-29', 239.53], ['2026-09-30', 241.84]]),
-  SPY: series('SPY', [['2024-08-01', 400], ['2025-09-30', 500], ['2026-09-29', 610], ['2026-09-30', 612]]),
-  VTI: series('VTI', [['2024-08-01', 70], ['2025-09-30', 90], ['2026-09-29', 99], ['2026-09-30', 100]]),
+  AAPL: series('AAPL', [['2024-08-01', 150], ['2024-09-27', 150], ['2025-09-29', 175], ['2025-09-30', 175], ['2025-12-31', 175], ['2026-08-28', 175], ['2026-09-29', 239.53], ['2026-09-30', 241.84]]),
+  SPY: series('SPY', [['2024-08-01', 400], ['2024-09-27', 400], ['2025-09-29', 500], ['2025-09-30', 500], ['2025-12-31', 500], ['2026-08-28', 500], ['2026-09-29', 610], ['2026-09-30', 612]]),
+  VTI: series('VTI', [['2024-08-01', 70], ['2024-09-27', 70], ['2025-09-29', 90], ['2025-09-30', 90], ['2025-12-31', 90], ['2026-08-28', 90], ['2026-09-04', 90], ['2026-09-29', 99], ['2026-09-30', 100]]),
 };
 
 // ── what a state is ──────────────────────────────────────────────────────────────────────────────────────────────

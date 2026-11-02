@@ -123,7 +123,7 @@ export default function GoalsScreen() {
         <View style={styles.suggestCard}>
           <SectionBand light inCard title="💡 SUGGESTED: A SINKING FUND" />
           <Text style={styles.suggestSub}>Your non-monthly budget{sinkBasis.allPct ? ` (${sinkBasis.pct.toFixed(2)}% of take-home pay)` : ''} comes to ~{money(sink.annual)}/year. Set aside {money(sink.monthly)}/month so non-monthly costs (travel, gifts, repairs) never blow the budget.</Text>
-          <TouchableOpacity onPress={() => store.addGoal({ label: 'Non-monthly fund', icon: '🛟', target: sink.annual, saved: 0, duration: '12', color: Colors.primary })}>
+          <TouchableOpacity hitSlop={Tap.slop} onPress={() => store.addGoal({ label: 'Non-monthly fund', icon: '🛟', target: sink.annual, saved: 0, duration: '12', color: Colors.primary })}>
             <Text style={styles.suggestCta}>Create this goal ›</Text>
           </TouchableOpacity>
         </View>
@@ -167,7 +167,7 @@ export default function GoalsScreen() {
           </TouchableOpacity>
         );
       })}
-      <TouchableOpacity onPress={() => setAddOpen(true)}><Text style={styles.addLink}>＋ Add a goal</Text></TouchableOpacity>
+      <TouchableOpacity hitSlop={Tap.slop} onPress={() => setAddOpen(true)}><Text style={styles.addLink}>＋ Add a goal</Text></TouchableOpacity>
 
       {/* college is a savings goal too — it lives with the goals */}
       <TouchableOpacity style={styles.creditCard} activeOpacity={0.85} onPress={() => router.push('/education')}>
@@ -198,7 +198,7 @@ export default function GoalsScreen() {
             <Text style={styles.loanBig}>{money(loanOutlook.borrowed)} <Text style={styles.loanBigSub}>borrowed</Text></Text>
             {loanOutlook.monthly > 0 ? (
               <>
-                <Text style={styles.loanLine}>≈ <Text style={{ fontWeight: '800' }}>{money(loanOutlook.monthly)}/month</Text> once you’re repaying · {money(loanOutlook.interest)} total interest</Text>
+                <Text style={styles.loanLine}>≈<Text style={{ fontWeight: '800' }}>{money(loanOutlook.monthly)}/month</Text> once you’re repaying · {money(loanOutlook.interest)} total interest</Text>
                 {grossMonthly > 0 && <Text style={styles.note}>That’s ~{(loanOutlook.projDti * 100).toFixed(2)}% of today’s income — keeping total debt under 20% keeps you comfortable.</Text>}
               </>
             ) : (
@@ -324,7 +324,7 @@ export default function GoalsScreen() {
             <Text style={styles.sheetT}>Fund {alloc?.label}</Text>
             <Text style={styles.note}>Surplus this month: {money(availableSurplus)}. What you allocate is set aside for this goal and flips it 🟢 On track.</Text>
             <View style={[styles.amtBox, { marginTop: Spacing.sm }]}><Text style={styles.amtPre}>{currencySymbol()}</Text><MoneyBox bare dollarBeside style={styles.amtIn} value={allocAmt} onChangeText={setAllocAmt} placeholder="0" /></View>
-            {availableSurplus > 0 && <TouchableOpacity accessibilityRole="button" accessibilityLabel={`Use all available surplus, ${money(availableSurplus)}`} onPress={() => setAllocAmt(String(Math.round(availableSurplus)))}><Text style={styles.allocUseAll}>Use all available ({money(availableSurplus)})</Text></TouchableOpacity>}
+            {availableSurplus > 0 && <TouchableOpacity hitSlop={Tap.slop} accessibilityRole="button" accessibilityLabel={`Use all available surplus, ${money(availableSurplus)}`} onPress={() => setAllocAmt(String(Math.round(availableSurplus)))}><Text style={styles.allocUseAll}>Use all available ({money(availableSurplus)})</Text></TouchableOpacity>}
             <TouchableOpacity accessibilityRole="button" accessibilityLabel={`Allocate to ${alloc?.label ?? 'this goal'}`} style={[styles.saveBtn, !(num(allocAmt) > 0 && availableSurplus > 0) && { opacity: 0.4 }]} disabled={!(num(allocAmt) > 0 && availableSurplus > 0)}
               onPress={() => { const amt = Math.min(num(allocAmt), availableSurplus); if (amt > 0 && alloc) store.fundGoals?.(nowYm, [{ goalId: alloc.id, amount: amt }]); setAlloc(null); }}>
               <Text style={styles.saveBtnT}>Allocate {num(allocAmt) > 0 ? money(Math.min(num(allocAmt), availableSurplus)) : ''}</Text>
@@ -387,7 +387,7 @@ function GoalEditor({ goal, open, onClose, onSave, onDelete }: {
             onPress={() => onSave({ label: label.trim(), target: num(target), saved: num(saved), duration: monthsUntil > 0 ? String(monthsUntil) : undefined, targetDate: monthsUntil > 0 ? `${num(tYear)}-${String(num(tMonth)).padStart(2, '0')}` : undefined, icon, color: Colors.primary })}>
             <Text style={styles.saveBtnT}>{goal ? 'Save' : 'Add goal'}</Text>
           </TouchableOpacity>
-          {onDelete && <TouchableOpacity onPress={onDelete}><Text style={styles.deleteLink}>Delete goal</Text></TouchableOpacity>}
+          {onDelete && <TouchableOpacity hitSlop={Tap.slop} onPress={onDelete}><Text style={styles.deleteLink}>Delete goal</Text></TouchableOpacity>}
           <View style={{ height: 16 }} />
         </ScrollView>
       </View>

@@ -283,7 +283,7 @@ describe('E2E-75 · the tab tour in the founder\'s household (cash-flow_v01 fram
     // DEBT-TO-INCOME, moved here from Goals (cash-flow_v01, 2026-11-01): the minimums 2,000 + 250 + 200 + 200 = $2,650 on $60,000 a
     // year, $5,000 a month: 2,650 ÷ 5,000 = 53.00%. With the mortgage the guide is 36%, and 53% is past 36 × 1.4 = 50.4%, so: High
     const d = ls.indexOf('DEBT-TO-INCOME');
-    expect(ls.slice(d, d + 5)).toEqual(['DEBT-TO-INCOME', '53.00%', 'High', '$2,650/month in minimum debt payments ÷ $5,000/month income',
+    expect(ls.slice(d, d + 5)).toEqual(['DEBT-TO-INCOME', '53.00%', 'High', '$2,650.00/month in minimum debt payments ÷ $5,000/month income',
       'Aim for 36% or less (homeowners, incl. mortgage). Paying debt down lowers this.']);
   });
 

@@ -67,7 +67,8 @@ import { toNum } from '../../../src/domain/_shared/num';
 import { TAX_TABLES, deductionFor } from '../../../src/domain/income/tax';
 
 // ── the functions the app does not export, compiled from their own source text ──────────────────────
-const IMPORTED: Record<string, unknown> = { PAY_PERIODS, toNum };
+// payPeriodsAYear (2026-11-01, FX-CF-B, R23): periodsAYear reads the one pay-frequency table through it
+const IMPORTED: Record<string, unknown> = { PAY_PERIODS, toNum, payPeriodsAYear: require('../../../src/domain/income/pay-frequency').payPeriodsAYear };
 const compile = (file: string, parts: { start: RegExp; end: string }[], name: string) => {
   const text = fs.readFileSync(path.join(__dirname, file), 'utf8');
   const code = parts.map(({ start, end }) => {

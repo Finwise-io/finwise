@@ -29,10 +29,11 @@ export const STANDARD_DEDUCTION = 16_100;   // 2026 single-filer standard deduct
  *     repeat 50 times: mid = (lo + hi) ÷ 2; if mid − tax owed for(mid, status, 0, over65) < net then lo = mid else hi = mid
  *     the answer = (lo + hi) ÷ 2   — the gross whose take-home equals net, found by halving the interval
  *
- * Called by ... MK-CF-F-186 convertTakeHomeMode
+ * Called by ... MK-CF-F-186 convertTakeHomeMode · MK-CF-F-310 repairHourlyTakeHome
  *
- * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
  *               MK-CF-F-186 convertTakeHomeMode · MK-XS-F-199 profileOnTheWayIn
+ *               MK-CF-F-310 repairHourlyTakeHome
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-030 tax filing status and age
@@ -144,7 +145,7 @@ export const SENIOR_DEDUCTION = {
  *
  * Called by ... MK-CF-F-099 deductionFor · MK-PL-F-082 taxableIncomeSteps
  *
- * Reaches ..... 452 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 486 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -154,7 +155,7 @@ export const SENIOR_DEDUCTION = {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 434 more — the full list is on functions_from_code
+ *               … and 468 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-030 tax filing status and age
@@ -192,7 +193,7 @@ export function seniorDeductionFor(status: FilingStatus = 'single', over65 = 0, 
  *
  * Called by ... MK-CF-F-100 taxableIncomeFor · MK-PL-F-082 taxableIncomeSteps
  *
- * Reaches ..... 451 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 485 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -202,7 +203,7 @@ export function seniorDeductionFor(status: FilingStatus = 'single', over65 = 0, 
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 433 more — the full list is on functions_from_code
+ *               … and 467 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-030 tax filing status and age
@@ -231,7 +232,7 @@ export function deductionFor(status: FilingStatus = 'single', over65 = 0, magi: 
  * Called by ... MK-CF-F-101 taxOwedFor · MK-CF-F-103 marginalBracketFor
  *               MK-CF-F-104 ltcgRateFor · MK-CF-F-278 ltcgTaxOnGain
  *
- * Reaches ..... 449 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 484 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -241,7 +242,7 @@ export function deductionFor(status: FilingStatus = 'single', over65 = 0, magi: 
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 431 more — the full list is on functions_from_code
+ *               … and 466 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-030 tax filing status and age
@@ -273,7 +274,7 @@ export function taxableIncomeFor(gross: number, status: FilingStatus = 'single',
  *               MK-CF-F-144 takeHomeAsEntered · MK-CF-F-181 rateInForce
  *               MK-CF-F-240 PAY_LANDS_TYPED · MK-PL-F-032 rothConversionCost
  *
- * Reaches ..... 446 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 481 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -283,7 +284,7 @@ export function taxableIncomeFor(gross: number, status: FilingStatus = 'single',
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 428 more — the full list is on functions_from_code
+ *               … and 463 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-030 tax filing status and age
@@ -322,12 +323,13 @@ export function taxOwedFor(gross: number, status: FilingStatus = 'single', state
  *
  * Called by ... MK-CF-F-049 buildIncomeState · MK-PL-F-067 willItLastInputs
  *
- * Reaches ..... 10 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 11 functions. Change the arithmetic above and these change with it:
  *               MK-CF-F-049 buildIncomeState · MK-XS-F-031 buildSnapshot
  *               MK-CF-F-186 convertTakeHomeMode · MK-CF-O-017 futurePaycheck
  *               MK-CF-F-052 getIncomeState · MK-CF-F-097 grossFromNet
- *               MK-XS-F-199 profileOnTheWayIn · MK-PL-F-068 selectWillItLast
- *               MK-XS-F-032 snapshotFromOnboarding · MK-PL-F-067 willItLastInputs
+ *               MK-XS-F-199 profileOnTheWayIn · MK-CF-F-310 repairHourlyTakeHome
+ *               MK-PL-F-068 selectWillItLast · MK-XS-F-032 snapshotFromOnboarding
+ *               MK-PL-F-067 willItLastInputs
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-030 tax filing status and age
@@ -354,7 +356,7 @@ export function effectiveRateOnGrossFor(gross: number, status: FilingStatus = 's
  *
  * Called by ... MK-CF-O-001 basePay · MK-CF-O-004 incomeSummary
  *
- * Reaches ..... 443 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 478 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -364,7 +366,7 @@ export function effectiveRateOnGrossFor(gross: number, status: FilingStatus = 's
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 425 more — the full list is on functions_from_code
+ *               … and 460 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-030 tax filing status and age

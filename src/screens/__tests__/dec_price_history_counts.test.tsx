@@ -40,7 +40,15 @@ const VANGUARD = { asset_id: 'van', label: 'BROKERAGE', institution: 'Vanguard',
   balance: 40000, target_return: 0.05, source: 'connected', last_synced: new Date().toISOString(),
   positions: [{ position_id: 'p-vti', ticker: 'VTI', asset_class: 'stock_etf', last_price: 250, lots: [{ lot_id: 'l1', shares: 160, cost_per_share: 200, purchase_date: daysAgo(900) }] }] };
 const TREASURY = { asset_id: 't31', label: 'Treasury 2031', kind: 'fixed_income', asset_class: 'bonds', tax_bucket: 'TAXABLE', balance: 10000, target_return: 0.04, positions: [] };
-const VTI_SERIES = { ticker: 'VTI', points: [{ date: daysAgo(800), close: 250 / 1.1 }, { date: daysAgo(40), close: 245 }, { date: TODAY, close: 250 }] };
+/** two days before a window's start eve, so its close is within R19's 7 days whichever way the eve is counted: 1M, 1Y, 2Y back, and
+ *  Dec 29 of last year for This year */
+const nearEve = (months: number) => { const d = new Date(`${TODAY}T12:00:00`); d.setMonth(d.getMonth() - months); d.setDate(d.getDate() - 2); return isoLocalDate(d); };
+const NEAR_YTD = `${Number(TODAY.slice(0, 4)) - 1}-12-29`;
+const byDay = (pts: { date: string; close: number }[]) => [...pts].sort((a, b) => a.date.localeCompare(b.date));
+// a close near each window's start (R19, 2026-11-01): 1M back at $245, This year (Dec 29), 1Y and 2Y back at $227.27… (250 ÷ 1.1) — the
+// price each figure measured from (the old rule's last close on or before the eve: daysAgo(40) for 1M, daysAgo(800) for the rest)
+const VTI_SERIES = { ticker: 'VTI', points: byDay([{ date: daysAgo(800), close: 250 / 1.1 }, { date: nearEve(24), close: 250 / 1.1 }, { date: nearEve(12), close: 250 / 1.1 },
+  { date: NEAR_YTD, close: 250 / 1.1 }, { date: daysAgo(40), close: 245 }, { date: nearEve(1), close: 245 }, { date: TODAY, close: 250 }]) };
 
 function openHomeFirst() {
   useStore.getState().resetAll();

@@ -13,7 +13,7 @@ import { useMemo } from 'react';
 import { useStore } from '../store/useStore';
 import { resolveNetWorthRows } from '../domain/snapshot';
 import type { AssetAccount } from '../domain/assets';
-import type { Debt } from '../domain/debt';
+import { setupLoanDebts, type Debt } from '../domain/debt';
 import { latestCloseLookup } from '../domain/performance';
 
 /** What every Net worth question is asked about. Each door takes the fields it needs: theNetWorth reads uid, accounts and
@@ -75,7 +75,10 @@ export interface NetWorthInputs {
 export function netWorthInputs(s: any): NetWorthInputs {
   const uid = String(s?.user?.uid ?? 'local');
   const accounts: AssetAccount[] = s?.assetAccounts ?? [];
-  const debts: Debt[] = s?.liabilities ?? [];
+  // the debts entered, and each student loan entered in setup that none of them is (R22, 2026-11-01: every dollar counted once —
+  // the Debts tab counts them too, through the same reader, setupStudentLoans)
+  const entered: Debt[] = s?.liabilities ?? [];
+  const debts: Debt[] = [...entered, ...setupLoanDebts(s?.onboardingProfile, entered)];
   const rows = resolveNetWorthRows(uid, s?.onboardingProfile ?? null, s?.nwSeeded ?? false, accounts, debts);
   return {
     uid, accounts, debts,

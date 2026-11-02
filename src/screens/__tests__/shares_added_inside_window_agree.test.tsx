@@ -410,9 +410,11 @@ describe('8 · one rule in every window: a buy at today\'s close moves 1M, This 
       const yearly = w.period === '2Y';
       // the Holding page over 2Y reads its return since purchase, the window's own total: 1.25 → 1.25 × 0.99 × 11,000 ÷ 10,900
       const own = (x: number) => (yearly ? pct((1 + x) ** (731 / 365) - 1) : pct(x));
-      expect(was).toEqual({ chip: pct(w.before), ret: pct(w.before), category: `${pct(w.before)}${yearly ? '/year' : ''}`, account: pct(w.before),
+      // the 2Y chip says '/year' since 2026-11-01 (the lead's ruling R20; v17's and the account page's rows of that day): the same
+      // yearly rate, +11.79% and +11.74% a year, now labelled as one; the trio's Return beside it prints the rate bare as before
+      expect(was).toEqual({ chip: `${pct(w.before)}${yearly ? '/year' : ''}`, ret: pct(w.before), category: `${pct(w.before)}${yearly ? '/year' : ''}`, account: pct(w.before),
         bar: pct(w.before), holding: own(w.before), market: pct(w.market) });
-      expect(now).toEqual({ chip: pct(w.after), ret: pct(w.after), category: `${pct(w.after)}${yearly ? '/year' : ''}`, account: pct(w.after),
+      expect(now).toEqual({ chip: `${pct(w.after)}${yearly ? '/year' : ''}`, ret: pct(w.after), category: `${pct(w.after)}${yearly ? '/year' : ''}`, account: pct(w.after),
         bar: pct(w.after), holding: own(w.after), market: pct(w.market) });
       seen.push(w.chip);
     });

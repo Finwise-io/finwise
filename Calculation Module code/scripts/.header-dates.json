@@ -987,5 +987,21 @@
 "src/domain/goals/planGoals.ts::monthsFrom": "not in git yet|\u2014",
 "src/domain/goals/planGoals.ts::monthYear": "not in git yet|\u2014",
 "src/domain/goals/planGoals.ts::goalsCapacity": "not in git yet|\u2014",
-"src/domain/retirement/retireAge.ts::planRetireAgeOf": "not in git yet|\u2014"
+"src/domain/retirement/retireAge.ts::planRetireAgeOf": "not in git yet|\u2014",
+"MoneyKeel/functions/cashflow/base-pay.ts::freqNotRecognised": "not in git yet|\u2014",
+"src/domain/debt/index.ts::setupLoanDebts": "not in git yet|\u2014",
+"src/domain/debt/index.ts::setupLoansAll": "not in git yet|\u2014",
+"src/domain/debt/index.ts::setupLoansNotEntered": "not in git yet|\u2014",
+"src/domain/debt/index.ts::setupLoanSentences": "not in git yet|\u2014",
+"src/domain/debt/index.ts::setupLoansSplit": "not in git yet|\u2014",
+"src/domain/debt/index.ts::loanStartsOn": "not in git yet|\u2014",
+"src/domain/debt/index.ts::setupStudentLoans": "not in git yet|\u2014",
+"src/domain/debt/index.ts::capFirst": "not in git yet|\u2014",
+"src/domain/income/pay-frequency.ts::payPeriodsAYear": "not in git yet|\u2014",
+"src/domain/income/pay-frequency.ts::isPayFrequency": "not in git yet|\u2014",
+"src/domain/income/pay-frequency.ts::payFrequencyOf": "not in git yet|\u2014",
+"src/domain/income/take-home-mode-migration.ts::repairHourlyTakeHome": "not in git yet|\u2014",
+"src/domain/income/take-home-mode-migration.ts::periodsOf": "not in git yet|\u2014",
+"src/domain/performance/index.ts::staleStartClose": "not in git yet|\u2014",
+"src/domain/performance/index.ts::valuedByYouWords": "not in git yet|\u2014"
 }

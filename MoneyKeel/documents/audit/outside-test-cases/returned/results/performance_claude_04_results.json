@@ -765,7 +765,8 @@
    "difference": "none",
    "formula_gives_match": "n/a",
    "note": "",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_04.test.ts › MK-PF-F-029 closeAsOf — five cases › complex · Target between two sparse marks of a hand-priced fund"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_04.test.ts › MK-PF-F-029 closeAsOf — five cases › complex · Target between two sparse marks of a hand-priced fund",
+   "settled": "SETTLED 2026-11-01 (CLEANUP-TESTS, on the round-4 tree) — SUPERSEDED BY THE LEAD'S RULING R19 (2026-11-01, NW4-02, tenet 2: a window never starts from a stale price): closeAsOf takes no start close older than START_CLOSE_DAYS, 7 days. The target is 30 Jun 2026; the last mark before it is 29 May, 32 days back, so there is no start close and no figure (null), where the auditor's answer was that mark, $10.538. The auditor's answer is kept as test.failing. Held by outside_performance_claude_04.test.ts:238."
   },
   {
    "id": "MK-PF-F-029",

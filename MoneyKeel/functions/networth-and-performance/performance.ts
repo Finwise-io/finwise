@@ -20,7 +20,7 @@
 //     brokerage statements do the same). His ruling: show BOTH, and label them.
 import { availableCash } from '../../../src/domain/transactions';
 import { declareFigures, writeFigure } from '../_figure-spec';
-import { portfolioBenchReturn, startDateFor, contractMultiplier, totalShares, windowTotal, paidOnRecord, purchaseDateOnRecord, lotCostOnRecord, worthWithInterest, closeOnOrBefore, latestClose, bondInterestInWindow, statedCdRate, returnWithInterest, periodReturnSince, marketGap, calendarDay, returnSplitAtPurchases, type HoldingPath, type Period, type PriceSeries } from '../../../src/domain/performance';
+import { staleStartClose, portfolioBenchReturn, startDateFor, contractMultiplier, totalShares, windowTotal, paidOnRecord, purchaseDateOnRecord, lotCostOnRecord, worthWithInterest, closeOnOrBefore, latestClose, bondInterestInWindow, statedCdRate, returnWithInterest, periodReturnSince, marketGap, calendarDay, returnSplitAtPurchases, type HoldingPath, type Period, type PriceSeries } from '../../../src/domain/performance';
 import { formatMoney } from '../../../src/domain/_shared/money';
 import { buildChangeWalk, type ChangeWalk } from '../../../src/domain/history';
 import { personalFlowTotals, moneyIntoAccount } from '../../../Calculation Module code/engines/ledger';
@@ -72,6 +72,9 @@ export interface WindowFigures {
   /** Set only where the window opens before the daily record begins and is JOINED there (DEC-6412, 2026-10-19): the
    *  record's first day. The days before it are worked back from price history; from it on, the record is measured. */
   recordBegins?: string | null;
+  /** A typed-total account's own walk adjustment (R18, 2026-11-01), inside the window, which its beginning
+   *  takes off where the holdings' move alone was taken: interest to its cash − fees. 0 for any other reading. Read by the fold. */
+  typedAdjust?: number;
 }
 
 /** THE THREE THINGS A SCREEN NEEDED TO ASK THIS DOOR, and calculated for itself until 2026-09-30.
@@ -578,6 +581,9 @@ function gainRowName(r: GainRow): string {
  *     the answer:
  *     `A${said.slice(1)}`   if list = 'a holding'
  *     said   otherwise
+ *     who = `${string(name ?? '').trim() or 'A holding'} (${write figure(PERFORMANCE_FIGURES['MK − PF − M − 022'], value)})`   if value ≠ nothing
+ *     string(name ?? '').trim() (or 'A holding' when missing or zero)   otherwise
+ *     … the first steps only — the rest of the body needs reading by hand.
  *
  * Called by ... MK-NW-F-144 beforeTheRecordSentence · MK-NW-O-008 thePerformance
  *
@@ -588,11 +594,12 @@ function gainRowName(r: GainRow): string {
  *               MK-NW-O-008 thePerformance
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-005 holding price
  *
  * Formula also on the master file · functions_from_code · MK-NW-F-130
  * Changed ..... not in git yet (—)
  */
-function notIncludedSentence(left: { name: string; value: number | null; why?: 'history' | 'paid' | 'sale' }[], countedValue: number): string {
+function notIncludedSentence(left: { name: string; value: number | null; why?: 'history' | 'paid' | 'sale' | 'stale'; day?: string }[], countedValue: number): string {
   // HIS WORDING (DEC-6076, 2026-10-19, "approved.", after "State D - for summary box - we need to explain that 10%
   // return is on 40K and not 50K."): the first sentence names the dollars the return is on — the holdings
   // knownHoldingsReturn (MK-NW-F-138) counts — and the second names what is left out with its value today. Each
@@ -628,10 +635,17 @@ function notIncludedSentence(left: { name: string; value: number | null; why?: '
     // a sentence that opens on the generic name opens with a capital; a holding's own name is printed as it is
     return list === 'a holding' ? `A${said.slice(1)}` : said;
   };
-  const said = (['history', 'paid', 'sale'] as const)
+  // A START TOO OLD TO MEASURE FROM (R19, 2026-11-01): each such holding named with the day of the last close it has before the
+  // window began — 'VTI ($10,000) has no price near the window’s start: its last close before it is Aug 1, 2024, so its gains are
+  // not included.'
+  const stale = (left ?? []).filter((r) => r?.why === 'stale').map((r) => {
+    const who = r.value != null ? `${String(r.name ?? '').trim() || 'A holding'} (${writeFigure(PERFORMANCE_FIGURES['MK-PF-M-022'], r.value)})` : (String(r.name ?? '').trim() || 'A holding');
+    return `${who} has no price near the window’s start: its last close before it is ${dateShown(String(r.day))}, so its gains are not included.`;
+  });
+  const said = [...(['history', 'paid', 'sale'] as const)
     .map((why) => ({ why, group: (left ?? []).filter((r) => (r?.why ?? 'history') === why) }))
     .filter((x) => x.group.length > 0)
-    .map((x) => sentence(x.group, x.why)).join(' ') || sentence([], 'history');
+    .map((x) => sentence(x.group, x.why)), ...stale].join(' ') || sentence([], 'history');
   return countedValue > 0
     ? `Return is on the ${writeFigure(PERFORMANCE_FIGURES['MK-PF-M-021'], countedValue)} with a price history. ${said}`
     : said;
@@ -941,7 +955,8 @@ function gainRowBetween(r: GainRow, from: string, to: string, priceOf: (ticker: 
   // holding whose prices begin late (MK-PF-F-039); prices that begin after the record's first day reach none of them
   const firstPoint = [...(series?.points ?? [])].filter((x) => /^\d{4}-\d{2}-\d{2}/.test(String(x?.date ?? ''))).sort((x, y) => String(x.date).localeCompare(String(y.date)))[0];
   const closeTo = closeOnOrBefore(series, to);
-  const closeFrom = closeOnOrBefore(series, from) ?? (firstPoint && String(firstPoint.date).slice(0, 10) <= to ? firstPoint.close : null);
+  // R19 (2026-11-01): a close more than 7 days before those days' start is no start (staleStartClose)
+  const closeFrom = staleStartClose(series, from) ? null : closeOnOrBefore(series, from) ?? (firstPoint && String(firstPoint.date).slice(0, 10) <= to ? firstPoint.close : null);
   // A CD WITH A STATED RATE, NO PRICES, HELD THROUGH THOSE DAYS (2026-10-27, FX-PF, PF-5; DEC-3656): it grows by its rate over
   // them, as it does over the whole window — its value on a day is its value today ÷ (1 + rate)^(the days from then to today ÷
   // 365). $10,400 at 4.00% with the record beginning 90 days ago, over 1Y: on the record's first day 10,400 ÷ 1.04^(90 ÷ 365),
@@ -1089,6 +1104,7 @@ const whyLeftOut = (r: GainRow): 'history' | 'paid' | 'sale' => (r.paidInside ==
  *     seen = new set<string>()
  *     j = joined.get(string(account id ?? ''))
  *     flows = personal flow totals(records)
+ *     [LOOP — the answer is found inside a loop the extractor cannot render; the steps above are the ones before it. Read by hand.]
  *     … the first steps only — the rest of the body needs reading by hand.
  *
  * Called by ... MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
@@ -1127,7 +1143,9 @@ const whyLeftOut = (r: GainRow): 'history' | 'paid' | 'sale' => (r.paidInside ==
  *     · If priced gain is missing it uses 0.
  *     · If gap return is missing it uses 0.
  *     · If length is missing it uses 0.
+ *     · If typed adjust is missing it uses 0.
  *     · If balance is missing it counts as zero, so nothing recorded and a real zero look the same.
+ *     · If amount is missing it counts as zero, so nothing recorded and a real zero look the same.
  *     · Treats a year as 365 days.
  *
  * Formula also on the master file · functions_from_code · MK-NW-O-008
@@ -1318,8 +1336,15 @@ export function thePerformance(input: {
     }));
   const gainRows: GainRow[] = [...(input.holdings ?? []), ...instrumentRows];
   const rowGains = gainRows.map((r) => pricedGainOf([r], years));
-  const unknownNames: { name: string; value: number | null; why?: 'history' | 'paid' | 'sale' }[] = gainRows.filter((_, i) => rowGains[i] == null)
-    .map((r) => ({ name: gainRowName(r), value: leftOutValueOf(r), why: whyLeftOut(r) }));
+  // the evening before the window's first day, where its start close is read (R19 names a close too old to start from)
+  const startEve = windowStart ? new Date(Date.parse(`${windowStart}T00:00:00Z`) - 86_400_000).toISOString().slice(0, 10) : null;
+  const unknownNames: { name: string; value: number | null; why?: 'history' | 'paid' | 'sale' | 'stale'; day?: string }[] = gainRows.filter((_, i) => rowGains[i] == null)
+    .map((r) => {
+      const why = whyLeftOut(r);
+      const tk = (r.position as any)?.ticker;
+      const old = (why ?? 'history') === 'history' && tk && startEve && input.priceOf ? staleStartClose(input.priceOf(String(tk)), startEve) : null;
+      return old ? { name: gainRowName(r), value: leftOutValueOf(r), why: 'stale' as const, day: old.day } : { name: gainRowName(r), value: leftOutValueOf(r), why };
+    });
   // a caller still handing over a dollar figure (no holdings) whose gain is unknown: named generically, its value unknown
   if (!input.holdings && input.pricedGain === null) unknownNames.push({ name: 'a holding', value: null });
   // THE DOLLARS THE RETURN IS ON (DEC-6076, 2026-10-19): today's value of each holding knownHoldingsReturn keeps,
@@ -1502,8 +1527,61 @@ export function thePerformance(input: {
   // should be calculated and displayed for every asset with history. Below it display …"). It replaces the
   // refusal of DEC-3656 part 2, which drew no beginning, no wealth generated and no walk at all: its gain adds
   // nothing (its value is taken as unchanged over the window), and the sentence names it.
-  const notIncluded = workedBack && unknownNames.length > 0 ? notIncludedSentence(unknownNames, countedValue) : '';
-  const beginning = measured ?? (ending - pricedGain - contributions + withdrawals);
+  // AN ACCOUNT WHOSE TOTAL WAS TYPED (2026-11-01, FX-PF; the lead's ruling R18, widening R11; tenet 2, every number adds up). Its
+  // ending is the total as the app holds it; worked back from it, EVERY record inside the window enters the walk: what its holdings
+  // moved (their dividends and a bond's interest inside that, as their own returns count them), the interest paid to its cash, the
+  // fees it paid, and money put in or taken out. Interest to its cash was carved out of the holdings' move ("change in investment
+  // value $965" where VTI moved $1,000 and $35 of interest came in), and a fee sat on no line. Now: beginning = ending − the holdings'
+  // move − interest to its cash + fees − put in + taken out.
+  // Vanguard Brokerage, $50,000 typed, 100 VTI $90 → $100 over 1M: interest $35 → $48,965 → $50,000 (+$1,035); a $5 fee →
+  // $49,005 → $50,000 (+$995: the fee is inside the change in investment value, $1,000 − $5). Opening cash is the account's own
+  // cash, neither money in nor a gain. To reverse: the beginning back to ending − the move − put in + taken out.
+  const oneAccount = input.investmentAccountIds.size === 1
+    ? ((input.accounts ?? []) as any[]).find((a: any) => input.investmentAccountIds.has(String(a?.asset_id))) : null;
+  const typedTotal = !!oneAccount && oneAccount.derive_balance !== true && oneAccount.source !== 'connected' && (oneAccount.positions?.length ?? 0) > 0;
+  const feesPaid = ledger.filter((t: any) => t?.type === 'FEE').reduce((sum: number, t: any) => sum + Math.abs(Number(t?.amount) || 0), 0);
+  // interest paid to the account's own cash — no holding named. A holding's dividends, and a bond's coupon, are already inside its
+  // own move: its closes are dividend-adjusted (DEC-4645) and a bond's return counts its interest (DEC-6212), so they are not taken
+  // off twice (#46, DEC-4644: 1,000 shares $100 → $105 with $1,200 paid to cash begins at $100,000, never $98,800)
+  const cashInterest = ledger.filter((t: any) => t?.type === 'INTEREST' && !String(t?.ticker ?? '').trim())
+    .reduce((sum: number, t: any) => sum + Math.abs(Number(t?.amount) || 0), 0);
+  const typedWalk = typedTotal && measured == null;
+  // SEVERAL ACCOUNTS, SOME OF THEM TYPED TOTALS (R18, PF4-3): the Performance tab's summary and Home measure every investment account
+  // at once. A typed-total account among them is read by this same function on its own — its walk, its beginning, its return — and
+  // counted as ONE row (its value now, its start, its return); the other accounts' holdings count as before. The summary printed
+  // VTI's own +12.23% (1M) and +44.30% (1Y) beside its walk, where Vanguard's own card read +2.25% and +7.07%; with the Treasury left
+  // out for no price history, the summary is Vanguard's. One of them refusing for money moved in or out refuses the summary too.
+  const ownerOfRow = (() => {
+    const m = new Map<string, string>();
+    for (const a of (input.accounts ?? []) as any[]) for (const q of a?.positions ?? []) m.set(String(q?.position_id), String(a?.asset_id));
+    return (r: GainRow) => m.get(String(r.position?.position_id)) ?? ((r.position as any)?.account_id as string | undefined);
+  })();
+  const isTypedAccount = (id: string) => { const a = ((input.accounts ?? []) as any[]).find((x: any) => String(x?.asset_id) === id);
+    return !!a && a.derive_balance !== true && a.source !== 'connected' && (a.positions?.length ?? 0) > 0; };
+  const typedParts = input.investmentAccountIds.size > 1 && measured == null && windowStart != null && windowStart !== today && input.holdings
+    ? [...input.investmentAccountIds].filter(isTypedAccount).map((id) => ({ id,
+        f: thePerformance({ ...input, investmentAccountIds: new Set([id]), holdings: input.holdings!.filter((r) => ownerOfRow(r) === id) }) }))
+    : [];
+  const typedAdjustAll = typedParts.reduce((t, x) => t + (x.f.typedAdjust ?? 0), 0);
+  // WHAT THE RETURN IS ON, TRUE FOR A FOLDED ACCOUNT (2026-11-01, FX-PF; R18; DEC-6076, his approved sentence kept word for word): his
+  // sentence names the dollars with a price history; a typed-total account folded in counts more than that — the rest of its total,
+  // worked back from its records — and a second plain sentence says so. It read 'Return is on the $50,000 with a price history' where
+  // $40,000 of it has none (v17's row of 2026-11-01). To reverse: drop typedRest's sentence.
+  const typedRest = typedParts.filter((x) => x.f.cumulative != null).reduce((t, x) => t + x.f.ending
+    - gainRows.filter((r) => ownerOfRow(r) === x.id && knownHoldingsReturn([r], years) != null).reduce((u, r) => u + (r.marketValue ?? 0), 0), 0);
+  // ONE TRUE SENTENCE IN HIS SHAPE (the lead's wording of 2026-11-01): where a typed-total account is folded in, the Return is worked on
+  // the whole of it, so the sentence names that whole and its two parts, which add up — 'Return is on the $50,000: $10,000 with a price
+  // history and $40,000 of an account whose total was typed, worked back from its records.' Elsewhere his sentence stands word for word.
+  const fig21 = (v: number) => writeFigure(PERFORMANCE_FIGURES['MK-PF-M-021'], v);
+  const typedCount = typedParts.filter((x) => x.f.cumulative != null).length;
+  const notIncludedBase = workedBack && unknownNames.length > 0 ? notIncludedSentence(unknownNames, countedValue) : '';
+  const firstSentence = `Return is on the ${fig21(countedValue)} with a price history.`;
+  const notIncluded = typedRest > 0.5 && notIncludedBase.startsWith(firstSentence)
+    ? notIncludedBase.replace(firstSentence, `Return is on the ${fig21(countedValue + typedRest)}: ${fig21(countedValue)} with a price history and ${fig21(typedRest)} of ${typedCount > 1 ? 'accounts whose totals were typed' : 'an account whose total was typed'}, worked back from its records.`)
+    : notIncludedBase;
+  const beginning = measured ?? (typedWalk
+    ? ending - pricedGain - cashInterest + feesPaid - contributions + withdrawals
+    : ending - pricedGain - contributions + withdrawals - typedAdjustAll);
 
   const walk = unreachable ? null : buildChangeWalk({
     beginning, ending, fromLabel: input.windowLabel, toLabel: 'today',
@@ -1540,25 +1618,64 @@ export function thePerformance(input: {
   // with no history is left out, never counted at 0%; with none, there is no return. Where the record reaches
   // back, the return stays the measured time-weighted return of the accounts (DEC-1669, DEC-4439). `covered`
   // still says only whether the record reaches back; the Performance tab greys a window only where it is neither covered nor worked back.
-  const knownReturn = workedBack && input.holdings ? knownHoldingsReturn(gainRows, years) : null;
-  // A RETURN AGREES WITH ITS WALK (2026-10-31, FX-PF, NW3-02; the lead's ruling R11 under DEC-1669 and tenet 2). One account whose
-  // total was typed, its holdings listed inside it, that sold inside a window worked back from today: the sale took money out of its
-  // holdings into the rest of its typed total, so the holdings' own return is not the account's. Its return is
-  // the walk's own change, time-weighted: with no money put in or taken out, ending ÷ beginning − 1. Vanguard Brokerage, $50,000
-  // typed with 100 VTI, 10 sold today at $120.00 less a $5 fee: 1M walk $48,800 → $49,995, so +2.45% (VTI's own +13.28% read
-  // beside it). Money put in or taken out inside the window: its value that day is not on record, so no figure, and the sentence
-  // says so (DEC-1669: never another method). A holding whose gain is not known keeps DEC-5068's reading and its sentence.
-  // A SALE, AS R11 SAYS — NOT A BUY: a buy moves money from the account's cash into a holding, which the holdings' own return already
-  // counts at what was paid from the start of its day (DEC-7451; journey E2E-57, the same walk and Return before a buy and after it).
-  // To reverse: drop walkReturn; to take buys in too, test 'BUY' beside 'SELL' below.
-  const oneAccount = input.investmentAccountIds.size === 1
-    ? ((input.accounts ?? []) as any[]).find((a: any) => input.investmentAccountIds.has(String(a?.asset_id))) : null;
-  const typedTotal = !!oneAccount && oneAccount.derive_balance !== true && oneAccount.source !== 'connected' && (oneAccount.positions?.length ?? 0) > 0;
-  const tradedInside = typedTotal && ledger.some((t: any) => t?.type === 'SELL');
+  const typedRefused = typedParts.find((x) => x.f.cumulative == null && x.f.workedBack && !!x.f.sentence);
+  const foldRows: GainRow[] = typedParts.length === 0 ? gainRows : [
+    ...gainRows.filter((r) => !typedParts.some((x) => x.id === ownerOfRow(r))),
+    ...typedParts.filter((x) => x.f.cumulative != null && x.f.walk).map((x) => ({ name: x.id, marketValue: x.f.ending,
+      periodReturn: x.f.cumulative, periodTotal: x.f.cumulative, startValue: x.f.walk!.beginning } as GainRow)),
+  ];
+  const knownReturn = workedBack && input.holdings ? (typedRefused ? null : knownHoldingsReturn(foldRows, years)) : null;
+  // A TYPED-TOTAL ACCOUNT'S RETURN IS ITS WALK'S OWN (2026-11-01, FX-PF; the lead's ruling R18, widening R11 of 2026-10-31; DEC-1669,
+  // tenet 2). One account whose total was typed, its holdings listed inside it, a window worked back from today: its return is the walk's
+  // own change, time-weighted — with no money put in or taken out, ending ÷ beginning − 1 — for EVERY record kind (a sale, a buy,
+  // interest, a dividend, a fee, opening cash) and with none. The holdings' own return is not the account's: the typed total holds
+  // more than they do. Vanguard Brokerage, $50,000 typed with 100 VTI ($90 → $100 over 1M): $49,000 → $50,000, +2.04%, where VTI's own
+  // +11.11% was printed beside it; after 10 sold today at $120.00 less $5, +2.45% (R11). Money put in or taken out inside the window
+  // (a deposit, a withdrawal, a transfer): the account's value that day is not on record, so no figure, and the sentence says so
+  // (DEC-1669: never another method; FX-PF decision 2 of round 3, kept by R18). A holding whose gain is not known keeps DEC-5068's
+  // reading and its sentence. R11 took a sale only, and kept a buy (E2E-57); R18 takes both. To reverse: drop walkReturn.
   const flowDay = ledger.filter((t: any) => t?.type === 'DEPOSIT' || t?.type === 'WITHDRAWAL' || t?.type === 'TRANSFER' || t?.type === 'TRANSFER_IN_KIND')
     .map((t: any) => String(t?.date ?? '').slice(0, 10)).sort()[0];
-  const walkReturn: number | null | undefined = workedBack && tradedInside && walk && unknownNames.length === 0
-    ? (contributions === 0 && withdrawals === 0 && walk.beginning > 0 ? walk.ending / walk.beginning - 1 : null) : undefined;
+  // MONEY MOVED INSIDE THE WINDOW (R18, the lead's note of 2026-11-01): the pieces are split at each day money moved, as DEC-1669 has it.
+  // The account's value just before that day's money is worked back from today exactly as the beginning is — today's total, less what
+  // its holdings' prices moved from the close before that day (the close is read as every window start is, so one more than 7 days
+  // old is no value, R19), less the interest paid to its cash since, plus the fees since, less the money put in since and plus the money
+  // taken out since. Vanguard Brokerage, $200 taken out Sep 3, 2026 (VTI $90 at its Aug 28 close, $100 today): just before,
+  // $50,000 − $1,000 + $200 = $49,200, which is the beginning, so the first piece is 0%; just after, $49,000; the second piece
+  // $50,000 ÷ $49,000 − 1 = +2.04%. Where a day's value cannot be worked back, no figure, and the sentence says so.
+  const flowTwr = (): number | null => {
+    if (!walk || !(walk.beginning > 0) || !input.priceOf || !input.holdings || !windowStart) return null;
+    const inWindow = moved.flows.filter((f: any) => String(f?.date) >= windowStart && String(f?.date) <= today);
+    const days = [...new Set(inWindow.map((f: any) => String(f.date)))].sort();
+    if (!days.length) return null;
+    const eve = (d: string) => new Date(Date.parse(`${d}T00:00:00Z`) - 86_400_000).toISOString().slice(0, 10);
+    const sumSince = (d: string, kinds: string[]) => ledger.filter((t: any) => kinds.includes(t?.type) && String(t?.date ?? '').slice(0, 10) >= d
+      && (t?.type !== 'INTEREST' || !String(t?.ticker ?? '').trim()))   // a holding's own interest is inside its move, as above
+      .reduce((t: number, x: any) => t + Math.abs(Number(x?.amount) || 0), 0);
+    const movedSince = (d: string) => inWindow.filter((f: any) => String(f.date) >= d).reduce((t: number, f: any) => t + Number(f.amount || 0), 0);
+    const gainSince = (d: string): number | null => {
+      let g = 0;
+      for (const r of input.holdings!) {
+        const x = gainRowBetween(r, eve(d), today, input.priceOf!, input.transactions ?? [], input.accounts ?? [], today);
+        if (x == null) continue;
+        if (x.startValue == null || x.marketValue == null) return null;
+        g += x.marketValue - x.startValue;
+      }
+      return g;
+    };
+    let prev = walk.beginning, grown = 1;
+    for (const d of days) {
+      const g = gainSince(d);
+      if (g == null) return null;
+      const before = ending - g - sumSince(d, ['INTEREST']) + sumSince(d, ['FEE']) - movedSince(d);
+      if (!(before > 0) || !(prev > 0)) return null;
+      grown *= before / prev;
+      prev = before + inWindow.filter((f: any) => String(f.date) === d).reduce((t: number, f: any) => t + Number(f.amount || 0), 0);
+    }
+    return prev > 0 ? grown * (ending / prev) - 1 : null;
+  };
+  const walkReturn: number | null | undefined = workedBack && typedWalk && walk && unknownNames.length === 0
+    ? (contributions === 0 && withdrawals === 0 && walk.beginning > 0 ? walk.ending / walk.beginning - 1 : flowTwr()) : undefined;
   const cumulative = covered ? verdict?.rate ?? null : workedBack ? (walkReturn !== undefined ? walkReturn : knownReturn) : null;
   // a yearly rate only for a window longer than a year: (1 + the return)^(365 ÷ days) − 1. "Since" is
   // the whole record: its figure is the window's own total, said with its two dates.
@@ -1582,8 +1699,9 @@ export function thePerformance(input: {
     ret: perYear ?? cumulative,
     cumulative, perYear, years,
     sentence: covered ? whyNoReturn(verdict) : walkReturn === null && flowDay
-      ? whyNoReturn({ rate: null, refused: 'MOVEMENT_DAY_NOT_RECORDED', day: flowDay } as any) : cannotReach,
+      ? whyNoReturn({ rate: null, refused: 'MOVEMENT_DAY_NOT_RECORDED', day: flowDay } as any) : typedRefused ? typedRefused.f.sentence : cannotReach,
     notIncluded, workedBack,
+    typedAdjust: typedWalk ? cashInterest - feesPaid : 0,
   };
 }
 
@@ -2343,13 +2461,15 @@ export const PERFORMANCE_FIGURES = declareFigures({
     ruled: '2026-10-21',
     // VOO closed $500.00 the day before the window opened and $550.00 today, nothing paid: $550 ÷ $500 − 1 = +10.00%
     worked: {
+      // (2026-11-01, R19: a window starts only from a close at most 7 days before it — this example's close of Sep 30, 2025 was 20 days
+      // before the year's start and read nothing; it is the Friday before, Oct 17, 2025, at the same $500.00)
       given: 'VOO, 10 shares bought Jan 2, 2024, worth $5,500 today (Oct 21, 2026). The past year opens Oct 21, 2025; the last close on or '
-        + 'before the day before is $500.00 on Sep 30, 2025, and the latest is $550.00 on Oct 20, 2026. Nothing was paid on it.',
+        + 'before the day before is $500.00 on Oct 17, 2025, and the latest is $550.00 on Oct 20, 2026. Nothing was paid on it.',
       answer: '+10.00%',
       run: () => holdingRowsIn({
         account: { asset_id: 'v', label: 'Vanguard', kind: 'brokerage', tax_bucket: 'TAXABLE', balance: 5_500 } as any,
         positions: [{ position_id: 'voo', ticker: 'VOO', asset_class: 'stock_etf', lots: [{ lot_id: 'l', shares: 10, cost_per_share: 400, purchase_date: '2024-01-02' }] } as any],
-        priceOf: () => ({ ticker: 'VOO', points: [{ date: '2025-09-30', close: 500 }, { date: '2026-10-20', close: 550 }] }),
+        priceOf: () => ({ ticker: 'VOO', points: [{ date: '2025-10-17', close: 500 }, { date: '2026-10-20', close: 550 }] }),
         period: '1Y', transactions: [], now: new Date('2026-10-21T12:00:00'),
       })[0].periodReturn,
     },

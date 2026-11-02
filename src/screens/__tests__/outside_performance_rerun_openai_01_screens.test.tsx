@@ -216,7 +216,9 @@ const H_BENCH = { assetAccounts: [{ asset_id: 'z', label: 'Brokerage', instituti
     positions: [{ position_id: 's1', ticker: 'VTI', asset_class: 'stock_etf', last_price: 400, lots: [{ lot_id: 'z1', shares: 100, cost_per_share: 300, purchase_date: '2024-01-01' }] },
                 { position_id: 's2', ticker: 'BND', asset_class: 'bond', last_price: 100, lots: [{ lot_id: 'z2', shares: 100, cost_per_share: 100, purchase_date: '2024-01-01' }] }] }],
   priceCache: { VTI: closes([['2026-08-27', 400], ['2026-08-28', 400], ['2026-09-28', 400]]), BND: closes([['2026-08-27', 100], ['2026-08-28', 100], ['2026-09-28', 100]]),
-    SPY: closes([['2026-08-27', 500], ['2026-08-28', 500], ['2026-09-28', 550]]), AGG: closes([['2026-08-27', 100], ['2026-08-28', 100], ['2026-09-28', 104]]) },
+    // a close near each window's start (R19, 2026-11-01): SPY and AGG on 2026-09-09 (the evening before BENCH_TOPUP_HOME's Sep 10 buy, where
+    // the market's second piece starts) at $500 and $100, the price each figure measured from (the Aug 28 closes the old rule carried)
+    SPY: closes([['2026-08-27', 500], ['2026-08-28', 500], ['2026-09-09', 500], ['2026-09-28', 550]]), AGG: closes([['2026-08-27', 100], ['2026-08-28', 100], ['2026-09-09', 100], ['2026-09-28', 104]]) },
   pricesFetchedAt: '2026-09-28T11:00:00Z', transactions: [], snapshotDays: [] };
 /** MK-PF-M-006/007: since 1 Jan 2026 — dividends $420 and $405 on VTI, $505 of interest on the Ally CD, one $40 dividend
  *  with no ticker, a $900 dividend from Nov 2025 outside the window; VTI $40,600 up 12%. */

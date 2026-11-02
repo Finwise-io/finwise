@@ -200,6 +200,10 @@ const ROW_WORDS: Record<string, Record<string, string>> = {
   // row 85: no rate, no year's interest to state — never a $0 made from an unknown (tenet 3)
   B: { 'not entered · $0/year — coupon rate not entered': 'coupon rate not entered' },
 };
+/** THE DRAWING'S CORRECTION OF 2026-11-01 — row 93 (the lead's ruling R20, NW4-03): the 2Y chip's figure is a yearly rate and says so,
+ *  '+11.79%/year' where '+11.79%' is drawn. Each state's 2Y figure is the only line of its state with those words (held below). */
+const ROW_93: Record<string, Record<string, string>> = { A: { '+10.87%': '+10.87%/year' }, D: { '+11.79%': '+11.79%/year' } };
+for (const [k, m] of Object.entries(ROW_93)) ROW_WORDS[k] = { ...ROW_WORDS[k], ...m };
 function drawnStates(): { key: string; label: string; lines: Line[] }[] {
   const phone = HTML.slice(HTML.indexOf('<div class="phone">'), HTML.indexOf('<div class="side">'))
     .replace(/<span class="pn">[^<]*<\/span>/g, '')            // the orange change marks: the drawing's, not the app's
@@ -335,9 +339,14 @@ describe('the rows of 2026-10-27 (84, 85) are on the drawing, and each line they
     expect(text).toMatch(/84 ?2026-10-27 · DRAWING ERROR, state A — ‘See all activity \(older than Apr 2, 2026\) ›’ and ‘7 more records below this date’ should read ‘See all activity \(Apr 2, 2026 and older\) ›’ and ‘7 more records below’/);
     expect(text).toMatch(/85 ?2026-10-27 · State B, BOND FACTS — ‘Interest payments: not entered · \$0\/year — coupon rate not entered’ should read ‘Interest payments: coupon rate not entered’/);
   });
-  test('each corrected line is a line the drawing draws (3 of 3), so no correction is applied blind', () => {
+  test('row 93 of 2026-11-01 (R20, the 2Y chip says /year) is on the drawing, with its words', () => {
+    const text = HTML.replace(/<[^>]+>/g, '').replace(/&amp;/g, '&');
+    expect(text).toMatch(/93 ?2026-11-01 ·[\s\S]{0,800}DRAWING CORRECTION, the 2Y window chip: its figure is a yearly rate, and the chip now says so — ‘\+11\.79%\/year’ where ‘\+11\.79%’ is drawn/);
+  });
+  // 5 of 5 since 2026-11-01: rows 84 and 85 (3 lines) and row 93 (the 2Y chip of states A and D, 2 lines)
+  test('each corrected line is a line the drawing draws (5 of 5), so no correction is applied blind', () => {
     const corrected = Object.entries(ROW_WORDS).flatMap(([k, m]) => Object.values(m).map((w) => DRAWN.find((d) => d.key === k)!.lines.filter((l) => l.t === w).length));
-    expect(corrected).toEqual([1, 1, 1]);
+    expect(corrected).toEqual([1, 1, 1, 1, 1]);
   });
 });
 /** The coverage line of every state, written for the audit (the runner cuts console output). */
@@ -811,7 +820,7 @@ function builtBar(): Seg[] {
 function drawnBars(): Seg[][] {
   return [...HTML.matchAll(/<div class="segbar">([\s\S]*?)<\/div>/g)].map((m) =>
     [...m[1].matchAll(/<span class="(sg[^"]*)"><span class="k">([^<]*)<\/span><span class="v">([^<]*)<\/span><\/span>/g)]
-      .map((x) => ({ k: x[2], v: x[3], on: /\bon\b/.test(x[1]), no: /\bno\b/.test(x[1]) })));
+      .map((x) => ({ k: x[2], v: x[2] === '2Y' && /%$/.test(x[3]) ? `${x[3]}/year` : x[3], on: /\bon\b/.test(x[1]), no: /\bno\b/.test(x[1]) })));   // row 93 (2026-11-01, R20): the 2Y chip's yearly rate says /year
 }
 /** The trio's Return, as printed. */
 const trioReturn = (lines: string[]) => lines[lines.indexOf('Return') + 1];
@@ -820,11 +829,12 @@ const trioReturn = (lines: string[]) => lines[lines.indexOf('Return') + 1];
 const BARS: Record<string, [string, string, 'on' | 'no' | ''][]> = {
   // 1Y and 2Y open before the record's first day (Oct 1, 2025), so they are JOINED there (DEC-6412, 2026-10-19): the days
   // before it worked back from VOO's prices, then the record's own +8.26%. Before (DEC-5291, worked back whole): +7.12%, +9.57%
-  A: [['Since Oct 1, 2025', '+8.26%', 'on'], ['1M', '+1.00%', ''], ['This year', '+1.89%', ''], ['1Y', '+8.26%', ''], ['2Y', '+10.87%', '']],
+  // the 2Y chip says /year since 2026-11-01 (row 93, R20): the same +10.87% yearly rate, now labelled as one
+  A: [['Since Oct 1, 2025', '+8.26%', 'on'], ['1M', '+1.00%', ''], ['This year', '+1.89%', ''], ['1Y', '+8.26%', ''], ['2Y', '+10.87%/year', '']],
   B: [['Since Jun 2, 2026', '+1.50%', 'on'], ['1M', '+1.50%', ''], ['This year', '—', 'no'], ['1Y', '—', 'no'], ['2Y', '—', 'no']],
   C: [['Since today', '—', 'on'], ['1M', '—', 'no'], ['This year', '—', 'no'], ['1Y', '—', 'no'], ['2Y', '—', 'no']],
   // Since today is never greyed (2026-10-19): state C draws it picked with a dash, state D at rest with a dash, and it can be picked
-  D: [['Since today', '—', ''], ['1M', '+2.46%', ''], ['This year', '+5.93%', ''], ['1Y', '+10.00%', 'on'], ['2Y', '+11.79%', '']],
+  D: [['Since today', '—', ''], ['1M', '+2.46%', ''], ['This year', '+5.93%', ''], ['1Y', '+10.00%', 'on'], ['2Y', '+11.79%/year', '']],   // row 93: /year, the same +11.79% a year
   E: [['Since Jun 2, 2026', '+0.00%', 'on'], ['1M', '+0.00%', ''], ['This year', '—', 'no'], ['1Y', '—', 'no'], ['2Y', '—', 'no']],
   F: [['Since Jun 2, 2026', '+0.00%', 'on'], ['1M', '+0.00%', ''], ['This year', '—', 'no'], ['1Y', '—', 'no'], ['2Y', '—', 'no']],
 };

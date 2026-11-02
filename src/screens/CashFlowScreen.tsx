@@ -114,13 +114,11 @@ export default function CashFlowScreen() {
 
       {/* the ONE month switcher — steers every tab (approved §C) */}
       <View style={styles.switchRow}>
-        <TouchableOpacity accessibilityRole="button" onPress={() => setSurfOffset((m) => m - 1)} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-          accessibilityLabel="Previous month"><Text style={styles.switchArrow}>‹</Text></TouchableOpacity>
+        <TouchableOpacity hitSlop={Tap.slop} accessibilityRole="button" onPress={() => setSurfOffset((m) => m - 1)} accessibilityLabel="Previous month"><Text style={styles.switchArrow}>‹</Text></TouchableOpacity>
         <Text style={styles.switchLabel}>{selLabel}</Text>
-        <TouchableOpacity accessibilityRole="button" onPress={() => setSurfOffset((m) => Math.min(11, m + 1))} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-          accessibilityLabel="Next month"><Text style={styles.switchArrow}>›</Text></TouchableOpacity>
+        <TouchableOpacity hitSlop={Tap.slop} accessibilityRole="button" onPress={() => setSurfOffset((m) => Math.min(11, m + 1))} accessibilityLabel="Next month"><Text style={styles.switchArrow}>›</Text></TouchableOpacity>
         {surfOffset !== 0 && (
-          <TouchableOpacity accessibilityRole="button" onPress={() => setSurfOffset(0)} accessibilityLabel="Back to the current month">
+          <TouchableOpacity hitSlop={Tap.slop} accessibilityRole="button" onPress={() => setSurfOffset(0)} accessibilityLabel="Back to the current month">
             <Text style={styles.switchToday}>today ›</Text>
           </TouchableOpacity>
         )}
@@ -298,7 +296,7 @@ function OtherMonthCard({ offset, ym, label, grid, store, onSpending, budgetSet 
       {/* ONE LINE SAYS WHAT THE FIGURES ARE, NEVER TWO THAT DISAGREE (2026-10-27, CF2-08; tenet 1): a month before anything was recorded
           predates the tracking, and says only that; it also said "Added up from what is logged …", which says it was added up */}
       {predates && <Text style={styles.note}>Nothing recorded for this month — it predates your tracking.</Text>}
-      <TouchableOpacity accessibilityRole="button" onPress={onSpending} accessibilityLabel="See that month’s activity on the Expenses tab">
+      <TouchableOpacity hitSlop={Tap.slop} accessibilityRole="button" onPress={onSpending} accessibilityLabel="See that month’s activity on the Expenses tab">
         <Text style={styles.link}>That month’s activity ›</Text>
       </TouchableOpacity>
       {/* "Frozen" only when a saved record stands behind the month (2026-10-25, FIX-MONTH; CFR-4 formula check MK-CF-F-220): a month never saved is added up from what is logged, and moves */}
@@ -482,7 +480,7 @@ function ExpensesTab({ ym, grid, budgetProfile, liabilities, bva, expenses, onLo
       {l.hidden > 0 && (
         /* FIVE, THEN THE REST ON A TAP (rule 7 under the drawing). The rest opens in the full list,
            where a row can also be searched, corrected or removed. */
-        <TouchableOpacity accessibilityRole="button" onPress={() => setAllTxns(true)} accessibilityLabel={`Show all ${l.items.length} — ${figSaid('MK-CF-M-101', restCents / 100)} more`}>
+        <TouchableOpacity hitSlop={Tap.slop} accessibilityRole="button" onPress={() => setAllTxns(true)} accessibilityLabel={`Show all ${l.items.length} — ${figSaid('MK-CF-M-101', restCents / 100)} more`}>
           <Text style={styles.more}>Show all {l.items.length} · {cents('MK-CF-M-101', restCents)} more ›</Text>
         </TouchableOpacity>
       )}
@@ -633,7 +631,7 @@ function ExpensesTab({ ym, grid, budgetProfile, liabilities, bva, expenses, onLo
         )}
         {/* the one way anything arrives "imported" today: a statement file. Not on the drawing — kept, or
             the Imported list above could never fill. */}
-        <TouchableOpacity accessibilityRole="button" onPress={() => setImporting(true)} accessibilityLabel="Import a statement — a CSV from your bank">
+        <TouchableOpacity hitSlop={Tap.slop} accessibilityRole="button" onPress={() => setImporting(true)} accessibilityLabel="Import a statement — a CSV from your bank">
           <Text style={styles.link}>Import a statement ›</Text>
         </TouchableOpacity>
       </View>
@@ -643,7 +641,7 @@ function ExpensesTab({ ym, grid, budgetProfile, liabilities, bva, expenses, onLo
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1, backgroundColor: Colors.bgSecondary, paddingTop: 54 }}>
           <View style={[styles.headRow, { paddingHorizontal: Spacing.base }]}>
             <Text style={styles.h1}>All transactions</Text>
-            <TouchableOpacity accessibilityRole="button" accessibilityLabel="Done with transactions" onPress={() => setAllTxns(false)}>
+            <TouchableOpacity hitSlop={Tap.slop} accessibilityRole="button" accessibilityLabel="Done with transactions" onPress={() => setAllTxns(false)}>
               <Text style={styles.link}>Done</Text>
             </TouchableOpacity>
           </View>
@@ -654,7 +652,7 @@ function ExpensesTab({ ym, grid, budgetProfile, liabilities, bva, expenses, onLo
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1, backgroundColor: Colors.bgSecondary, paddingTop: 54 }}>
           <View style={[styles.headRow, { paddingHorizontal: Spacing.base }]}>
             <Text style={styles.h1}>Import a statement</Text>
-            <TouchableOpacity accessibilityRole="button" accessibilityLabel="Done importing" onPress={() => setImporting(false)}>
+            <TouchableOpacity hitSlop={Tap.slop} accessibilityRole="button" accessibilityLabel="Done importing" onPress={() => setImporting(false)}>
               <Text style={styles.link}>Done</Text>
             </TouchableOpacity>
           </View>
@@ -701,10 +699,10 @@ function RetiredMain({ year, accounts, bva, onWhyOrder }: { year: any; accounts:
         {/* the box title on a dark-green bar, its two doors on the line under it (his words, DEC-8839; the lead's R1, 2026-10-27; cash-flow_v01's row of that date) */}
         <SectionBand inCard onRowEdges inset={16} title="DRAW COMES FROM" />
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end' }}>
-          <TouchableOpacity accessibilityRole="button" onPress={() => setSteerOpen(true)} accessibilityLabel="Steer it — reorder where the draw comes from">
+          <TouchableOpacity hitSlop={Tap.slop} accessibilityRole="button" onPress={() => setSteerOpen(true)} accessibilityLabel="Steer it — reorder where the draw comes from">
             <Text style={styles.link}>Steer it ›</Text>
           </TouchableOpacity>
-          <TouchableOpacity accessibilityRole="button" onPress={onWhyOrder} accessibilityLabel="Why this order?" style={{ marginLeft: 12 }}>
+          <TouchableOpacity hitSlop={Tap.slop} accessibilityRole="button" onPress={onWhyOrder} accessibilityLabel="Why this order?" style={{ marginLeft: 12 }}>
             <Text style={styles.link}>Why? ›</Text>
           </TouchableOpacity>
         </View>
@@ -736,7 +734,7 @@ function BudgetEditor({ open, onClose }: { open: boolean; onClose: () => void })
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1, backgroundColor: Colors.bgSecondary, paddingTop: 54 }}>
         <View style={[styles.headRow, { paddingHorizontal: Spacing.base }]}>
           <Text style={styles.h1}>Your budget</Text>
-          <TouchableOpacity accessibilityRole="button" accessibilityLabel="Done editing your budget" onPress={onClose}>
+          <TouchableOpacity hitSlop={Tap.slop} accessibilityRole="button" accessibilityLabel="Done editing your budget" onPress={onClose}>
             <Text style={styles.link}>Done</Text>
           </TouchableOpacity>
         </View>
@@ -966,7 +964,7 @@ function DrawOrderWhy({ visible, onClose, accounts, op }: { visible: boolean; on
             </View>
           ))}
           {age == null && split.preTax > 0 && <Text style={styles.whyTxt}>{RMD_NO_AGE}</Text>}
-          <TouchableOpacity accessibilityRole="button" style={styles.modalBtn} onPress={onClose}>
+          <TouchableOpacity hitSlop={Tap.slop} accessibilityRole="button" style={styles.modalBtn} onPress={onClose}>
             <Text style={styles.modalBtnT}>Got it</Text>
           </TouchableOpacity>
         </View>

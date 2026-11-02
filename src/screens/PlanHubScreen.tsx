@@ -458,7 +458,7 @@ export default function PlanHubScreen() {
           <View style={styles.card}>
             {scenarios.map((s, i) => (
               <View key={s.id} style={[styles.scRow, i > 0 && styles.divider]}>
-                <TouchableOpacity accessibilityRole="button" style={{ flex: 1 }} onPress={() => router.push('/retirement')}
+                <TouchableOpacity hitSlop={Tap.slop} accessibilityRole="button" style={{ flex: 1 }} onPress={() => router.push('/retirement')}
                   accessibilityLabel={`Saved scenario ${s.name}, ${s.chance != null ? `${s.chance} percent when saved` : ''}`}>
                   <Text style={styles.rowTitle}>{s.name}</Text>
                   <Text style={styles.rowSub}>{s.chance != null ? `${s.chance}% when saved` : 'open to re-run'} · {prettySavedDate(s.createdAt)}</Text>
@@ -476,7 +476,7 @@ export default function PlanHubScreen() {
   const revertBlock = (<>
       {/* Back to previous plan (appears only after an adoption) */}
       {planHistory.length > 0 && (
-        <TouchableOpacity accessibilityRole="button" style={styles.card} activeOpacity={0.85} onPress={confirmRevert}
+        <TouchableOpacity hitSlop={Tap.slop} accessibilityRole="button" style={styles.card} activeOpacity={0.85} onPress={confirmRevert}
           accessibilityLabel={`Back to previous plan, saved ${planHistory[0].date}`}>
           <Text style={styles.rowTitle}>Back to previous plan ({planHistory[0].date})</Text>
           <Text style={styles.rowSub}>One tap shows exactly what would switch back — nothing changes without a confirmation.</Text>

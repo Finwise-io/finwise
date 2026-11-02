@@ -1570,12 +1570,12 @@ Rendered `SAVER` on 2026-09-28. The card asked the future paycheck once per rend
    "expectedReturn": 0.06
   },
   "bigCosts": [],
-  "inflationRate": 3.2,
   "employmentStatus": null,
   "transactions": []
  },
  "returned": {
   "retireAge": 67,
+  "retireAgeOurs": false,
   "monthly": 6565,
   "guaranteed": 2000,
   "draw": 4565,
@@ -1996,18 +1996,23 @@ export function buildPaycheckYear(op: OnboardingProfile | null, opts: PaycheckOp
 
 ```ts
 export function futurePaycheck(input: {
-  op: any; accounts: any[]; assumptions: any; bigCosts?: any[]; inflationRate?: number; employmentStatus?: any;
+  // no inflationRate (2026-10-31, the lead's order; DEC-0259): nothing read it, and the store's 3.2% feed was being handed in and ignored —
+  // the one inflation is inflationRateInForce, read inside the plan's inputs
+  op: any; accounts: any[]; assumptions: any; bigCosts?: any[]; employmentStatus?: any;
   transactions?: any[];   // the year's interest records, for the plan's tax rate (2026-10-26, CLEANUP-LEFT)
 }): FuturePaycheck | null {
   const { op, assumptions: A } = input;
   const age = ageFromProfile(op);
-  const retireAge = A?.retireAge ?? (Number(op?.targetRetirementAge) || 67);
+  // ONE RETIREMENT AGE (R10, 2026-10-31; cash-flow v01's row of that date): the plan's own age, 65 and ours when nothing is entered —
+  // the card read 67 while the odds beside it were worked at 65
+  const retireOf = planRetireAgeOf({ assumptions: A, op, retiredNow: input.employmentStatus === 'retired', age });
+  const retireAge = retireOf.age;
   // OUTSIDE money only — Social Security, pension, annuity, other (MK-CF-F-076). The six-source figure
   // also carries planned withdrawals and the required withdrawal; this card prints a draw beside it,
   // and counting both is the double count his ruling Q-38 (2026-08-20) forbids.
   const guaranteed = guaranteedOutsideStreams(op).reduce((t, st) => t + st.monthly, 0);
   if (age == null || age >= retireAge) return null;
-  const inputs = willItLastInputs({ op, accounts: input.accounts ?? [], assumptions: A, bigCosts: input.bigCosts, inflationRate: input.inflationRate, employmentStatus: input.employmentStatus, transactions: input.transactions ?? [] } as any);
+  const inputs = willItLastInputs({ op, accounts: input.accounts ?? [], assumptions: A, bigCosts: input.bigCosts, employmentStatus: input.employmentStatus, transactions: input.transactions ?? [] } as any);
   if (!inputs || inputs.start_balance <= 0) return null;
   const projectedEgg = simulate(inputs).projected_at_retirement;
   if (!projectedEgg || projectedEgg <= 0) return null;
@@ -2017,7 +2022,7 @@ export function futurePaycheck(input: {
   } as any);
   // FULL PRECISION, ROUNDED ONCE AT THE SCREEN (2026-10-25, FIX-ROOM; his PRECISION order, Q49): $2,731.17 guaranteed + a
   // $1,730 draw is $4,461.17, and the card prints $4,461 through fig(). It was rounded here, to 4,461 and 2,731.
-  return { retireAge, monthly: guaranteed + projYear.safeDrawMonthly, guaranteed, draw: projYear.safeDrawMonthly,
+  return { retireAge, retireAgeOurs: retireOf.ours, monthly: guaranteed + projYear.safeDrawMonthly, guaranteed, draw: projYear.safeDrawMonthly,
     assumes: { yearlyReturn: inputs.mean_return, yearlyInflation: inputs.inflation } };
 }
 ```

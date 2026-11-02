@@ -162,8 +162,10 @@ const closes = (pts: [string, number][]) => ({ points: pts.map(([date, close]) =
 const PRICES = {
   VTI: closes([['2025-03-03', 80], ['2026-08-28', 95], ['2026-08-29', 95], ['2026-09-14', 98], ['2026-09-15', 98], ['2026-09-29', 99], ['2026-09-30', 100]]),
   BND: closes([['2025-03-03', 70], ['2026-08-28', 72], ['2026-08-29', 72], ['2026-09-30', 73]]),
-  SPY: closes([['2025-03-03', 500], ['2026-08-28', 600], ['2026-08-29', 600], ['2026-09-14', 606], ['2026-09-15', 606], ['2026-09-30', 612]]),
-  AGG: closes([['2025-03-03', 95], ['2026-08-28', 98], ['2026-08-29', 98], ['2026-09-14', 98], ['2026-09-15', 98], ['2026-09-30', 99]]),
+  // (2026-11-01, R19: a start reads a close at most 7 days old — a buy today is measured from last night, Sep 29, where these held only
+  // Sep 15's; the close is added at the same price it was measured from)
+  SPY: closes([['2025-03-03', 500], ['2026-08-28', 600], ['2026-08-29', 600], ['2026-09-14', 606], ['2026-09-15', 606], ['2026-09-29', 606], ['2026-09-30', 612]]),
+  AGG: closes([['2025-03-03', 95], ['2026-08-28', 98], ['2026-08-29', 98], ['2026-09-14', 98], ['2026-09-15', 98], ['2026-09-29', 98], ['2026-09-30', 99]]),
 };
 const lot = (id: string, shares: number | null, cost: number | null, date: string) => ({ lot_id: id, shares, cost_per_share: cost, purchase_date: date });
 const VTI = (lots: any[]) => ({ position_id: 'vti', ticker: 'VTI', label: 'Vanguard Total Stock Market ETF', kind: 'stocks_etf', lots });
@@ -198,6 +200,11 @@ describe('E2E-57 · Record a buy from the account page: tap "Add a buy or sale",
   // ── A · THE TRADE SHEET DRAWING'S HOUSEHOLD AND ITS STATE B ─────────────────────────────────────────────────────────
   // Vanguard, named Brokerage, built by hand: $50,000 typed on Sep 1, $5,000 of it cash, 100 VTI bought Mar 3, 2025 at $80
   // (the trade-sheet drawing's state B, src/testing/sheetStates.tsx, with its Ally savings and its Treasury).
+  test.failing('the answer until 2026-11-01, kept (no longer the app\'s): the account read VTI\'s own 100 ÷ 90 − 1 = +11.11% before the buy', () => {
+    const B = TRADE_SHEET.states.find((s) => s.key === 'B')!;
+    household({ ...B.store, pricesFetchedAt: new Date().toISOString() });
+    expect(printed(look('account', { id: 'van', period: '1M' }), 'MK-PF-M-016')[0]).toBe(pct(100 / 90 - 1));
+  });
   test('A · the sheet opens with Vanguard chosen, reads state B of the trade-sheet drawing word for word, saves, and the $50,000 the person typed stays $50,000', () => {
     const B = TRADE_SHEET.states.find((s) => s.key === 'B')!;
     household({ ...B.store, pricesFetchedAt: new Date().toISOString() });
@@ -238,22 +245,27 @@ describe('E2E-57 · Record a buy from the account page: tap "Add a buy or sale",
     const invAfter = look('invest', {}, pick('1M'));
     for (const id of ['MK-PF-M-013', 'MK-PF-M-014', 'MK-PF-M-004']) expect(printed(accAfter, id)).toEqual(printed(accBefore, id));
     for (const id of ['MK-PF-M-018', 'MK-PF-M-002', 'MK-PF-M-001', 'MK-PF-M-005']) expect(printed(invAfter, id)).toEqual(printed(invBefore, id));
-    expect(printed(accBefore, 'MK-PF-M-016')[0]).toBe(pct(100 / 90 - 1));
-    expect([printed(accAfter, 'MK-PF-M-013')[0], printed(accAfter, 'MK-PF-M-014')[0], printed(accAfter, 'MK-PF-M-016')[0]]).toEqual(['$49,000', '$1,000', pct(9_900 / 9_000 * 11_000 / 10_900 - 1)]);
+    // RETURN (R18, 2026-11-01): the account's total was typed, so its Return is its own walk's — $49,000 → $50,000 before the buy and
+    // after it (a buy is neither money in nor money out): 50,000 ÷ 49,000 − 1 = +2.04% both times. VTI's own +11.11% before and
+    // +11.01% after (9,900 ÷ 9,000 × 11,000 ÷ 10,900 − 1) were printed; they are kept below as test.failing.
+    expect(printed(accBefore, 'MK-PF-M-016')[0]).toBe(pct(50_000 / 49_000 - 1));
+    expect([printed(accAfter, 'MK-PF-M-013')[0], printed(accAfter, 'MK-PF-M-014')[0], printed(accAfter, 'MK-PF-M-016')[0]]).toEqual(['$49,000', '$1,000', pct(50_000 / 49_000 - 1)]);
     expect(printed(accAfter, 'MK-PF-M-004').slice(-1)).toEqual(['$50,000']);
     // the Performance tab sums every investment account in the household (the drawing's Treasury too); Vanguard's own walk
     // is under its bar, open as the first of several accounts opens (v17 phone 1) — the same lines before the buy and after it
     const walkOf = (sh: Shot) => { const at = sh.lines.indexOf('▾ VANGUARD BROKERAGE'); return sh.lines.slice(at, sh.lines.indexOf('Return', at) + 2); };
     expect(walkOf(invAfter)).toEqual(['▾ VANGUARD BROKERAGE', '$50,000', '›', '✍️ By hand · you update it',
       'Beginning market value (Aug 29, 2026)', '$49,000', 'Contributions', '$0', 'Withdrawals', '$0', 'Wealth generated', '$1,000',
-      'Dividends', '$0', 'Interest', '$0', 'Change in investment value', '$1,000', 'Ending market value (Sep 30, 2026)', '$50,000', 'Return', pct(9_900 / 9_000 * 11_000 / 10_900 - 1)]);
-    expect(walkOf(invBefore).slice(0, -1)).toEqual(walkOf(invAfter).slice(0, -1));          // every line but the Return
-    expect(walkOf(invBefore).slice(-1)).toEqual(['+11.11%']);
+      'Dividends', '$0', 'Interest', '$0', 'Change in investment value', '$1,000', 'Ending market value (Sep 30, 2026)', '$50,000', 'Return', pct(50_000 / 49_000 - 1)]);   // the walk's own (R18)
+    expect(walkOf(invBefore)).toEqual(walkOf(invAfter));          // every line, the Return too: a buy moves neither (R18, 2026-11-01)
+    expect(walkOf(invBefore).slice(-1)).toEqual([pct(50_000 / 49_000 - 1)]);   // the walk's own before the buy too (R18; it read VTI's +11.11%)
     // THE 2Y CHIP BY THE SAME RULE (DEC-7451: a purchase counts from the start of its day at what was paid). 2Y is measured from the
     // $80 purchase over 731 days: 1.25^(365/731) − 1 = +11.79% a year; the 10 bought today count from this morning, when VTI
     // stood at $99, so today's part falls from 100 ÷ 99 to 11,000 ÷ 10,900 — (1.25 × 11,000 ÷ 10,900 × 99 ÷ 100)^(365/731) − 1 = +11.74%.
     const twoYear = (sh: Shot) => sh.lines[sh.lines.indexOf('2Y') + 1];
-    expect([twoYear(invBefore), twoYear(invAfter)]).toEqual([pct(1.25 ** (365 / 731) - 1), pct((1.25 * 11_000 / 10_900 * 99 / 100) ** (365 / 731) - 1)]);
+    // 2Y (R18, R20, 2026-11-01): the walk's own — VTI up $2,000 since its Mar 3, 2025 purchase, so $48,000 → $50,000 before and after
+    // the buy: (50,000 ÷ 48,000)^(365 ÷ 731) − 1 = +2.06% a year, the chip reading "/year" (it read VTI's +11.79% and +11.74%)
+    expect([twoYear(invBefore), twoYear(invAfter)]).toEqual([`${pct((50_000 / 48_000) ** (365 / 731) - 1)}/year`, `${pct((50_000 / 48_000) ** (365 / 731) - 1)}/year`]);
   });
 
   test('A2 · the cash a buy needs counts its fee: 50 VTI at $100.00 is the whole $5,000, and a $5 fee makes it $5,005 — refused, and said so', () => {
@@ -298,17 +310,21 @@ describe('E2E-57 · Record a buy from the account page: tap "Add a buy or sale",
     const NW = look('networth');
     const HOLD = look('holding', { account: 'van', position: 'vti', period: '1M' });
     const HOME = look('home');
-    expect([printed(ACC, 'MK-PF-M-013')[0], printed(ACC, 'MK-PF-M-014')[0], printed(ACC, 'MK-PF-M-016')[0]]).toEqual(['$39,500', '$500', pct(9_900 / 9_500 * 11_000 / 10_900 - 1)]);
+    // R18 (2026-11-01): a typed total — its Return is its walk's, $39,500 → $40,000: 40,000 ÷ 39,500 − 1 = +1.27%, on the account page and
+    // the Performance tab alike (it read VTI's own 9,900 ÷ 9,500 × 11,000 ÷ 10,900 − 1, kept below as test.failing)
+    expect([printed(ACC, 'MK-PF-M-013')[0], printed(ACC, 'MK-PF-M-014')[0], printed(ACC, 'MK-PF-M-016')[0]]).toEqual(['$39,500', '$500', pct(40_000 / 39_500 - 1)]);
     expect(printed(ACC, 'MK-PF-M-004').slice(-1)).toEqual(['$40,000']);
     expect(after(INV, 'Beginning market value (Aug 29, 2026)')).toBe('$39,500');
-    expect([after(INV, 'Ending value'), after(INV, 'Wealth generated'), after(INV, 'Return')]).toEqual(['$40,000', '$500', pct(9_900 / 9_500 * 11_000 / 10_900 - 1)]);
+    expect([after(INV, 'Ending value'), after(INV, 'Wealth generated'), after(INV, 'Return')]).toEqual(['$40,000', '$500', pct(40_000 / 39_500 - 1)]);
     expect(NW.lines).toContain('$40,000');
     expect(after(NW, 'Vanguard Brokerage', 2)).toBe('$40,000');     // the row: name, source, total
     // the Holding page: 110 shares, and its own return for the month is the one the account's return is made of
     expect(after(HOLD, 'Quantity')).toBe('110 shares');
     expect(after(HOLD, 'Your return, past month')).toBe(pct(9_900 / 9_500 * 11_000 / 10_900 - 1));
     expect(after(HOLD, 'The market, same dates')).toBe(pct(612 / 600 - 1));   // SPY $600 → $612 = +2.00%
-    expect(homeMonth(HOME)).toBe(`▲ up $500 (${pct(9_900 / 9_500 * 11_000 / 10_900 - 1).slice(1)}) this month`);
+    // Home's month agrees with the account's own walk (R18): $500 on $39,500, 40,000 ÷ 39,500 − 1 = 1.27% (the Holding page above keeps
+    // VTI's own +5.17%, the holding's figure)
+    expect(homeMonth(HOME)).toBe(`▲ up $500 (${pct(40_000 / 39_500 - 1).slice(1)}) this month`);
   });
 
   // ── C · THE FOUNDER'S OWN DATA SHAPE: PERFORMANCE v17 PHONE 1, TWO LINKED ACCOUNTS AND A DAILY RECORD ──────────────────

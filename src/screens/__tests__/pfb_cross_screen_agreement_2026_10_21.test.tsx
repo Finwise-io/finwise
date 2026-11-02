@@ -110,7 +110,9 @@ const H_MARKET = {
     { position_id: 's2', ticker: 'BND', asset_class: 'bond', last_price: 100, lots: [{ lot_id: 'z2', shares: 100, cost_per_share: 100, purchase_date: '2024-01-01' }] }] }],
   priceCache: { VTI: closes([['2026-08-27', 400], ['2026-08-28', 400], ['2026-09-10', 400], ['2026-09-28', 400]]),
     BND: closes([['2026-08-27', 100], ['2026-08-28', 100], ['2026-09-28', 100]]),
-    SPY: closes([['2026-08-27', 500], ['2026-08-28', 500], ['2026-09-28', 550]]), AGG: closes([['2026-08-27', 100], ['2026-08-28', 100], ['2026-09-28', 104]]) },
+    // a close near each window's start (R19, 2026-11-01): SPY and AGG on 2026-09-09 (the evening before the Sep 10 buy, where the market's
+    // second piece starts) at $500 and $100, the price each figure measured from (the Aug 28 closes the old rule carried)
+    SPY: closes([['2026-08-27', 500], ['2026-08-28', 500], ['2026-09-09', 500], ['2026-09-28', 550]]), AGG: closes([['2026-08-27', 100], ['2026-08-28', 100], ['2026-09-09', 100], ['2026-09-28', 104]]) },
   pricesFetchedAt: '2026-09-28T11:00:00Z', transactions: [], snapshotDays: [],
 };
 

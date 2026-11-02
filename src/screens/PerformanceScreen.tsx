@@ -634,6 +634,7 @@ export default function PerformanceScreen() {
       <Modal visible={addChooser} transparent animationType={modalAnimation()} onRequestClose={() => setAddChooser(false)}>
         <TouchableOpacity accessibilityRole="button" accessibilityLabel="Close" style={styles.chooserBackdrop} activeOpacity={1} onPress={() => setAddChooser(false)}>
           <View style={styles.chooserCard} onStartShouldSetResponder={() => true}>
+            <View style={styles.grab} />
             <Text style={styles.chooserHead}>{ADD_ACCOUNT_QUESTION}</Text>
             {ADD_ACCOUNT_DOORS.map((d) => (
               <TouchableOpacity key={d.route} accessibilityRole="button" style={styles.chooserRow}
@@ -1355,8 +1356,10 @@ const styles = StyleSheet.create({
   closedRest: { flexShrink: 1 },
   // the add-an-account sheet — the same shape Net worth uses, so one question looks like one question
   chooserBackdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end' },
-  chooserCard: { ...SHEET_FRAME, padding: Spacing.lg, paddingBottom: 34 },
-  chooserHead: { fontSize: 20, fontWeight: '800', color: Colors.textPrimary, textAlign: 'center', marginBottom: Spacing.md },
+  // v08 frame G, as Net worth's own add sheet builds it (PF4-1, 2026-11-01): the handle 36 × 4 with 10 below it, 10 above, 16 at the sides,
+  // 30 below, the title 14 above the doors — it had no handle and 20 all round with 34 below, so the doors' words sat 32 in, not 28
+  chooserCard: { ...SHEET_FRAME, paddingTop: 10, paddingHorizontal: Spacing.base, paddingBottom: 30 },
+  chooserHead: { fontSize: 20, fontWeight: '800', color: Colors.textPrimary, textAlign: 'center', marginBottom: 14 },
   chooserRow: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginBottom: 8, minHeight: 64, justifyContent: 'center' },
   chooserTitle: { fontSize: 15, fontWeight: '800', color: Colors.textPrimary },
   chooserSub: { fontSize: 13, color: Colors.textSecondary, marginTop: 2 },

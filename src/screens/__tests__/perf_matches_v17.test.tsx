@@ -190,7 +190,9 @@ const norm = (lines: string[]) => lines.join(' ').toLowerCase()
  *     so its gain is its value less its cost), with the 2Y line; and its day-one line reads, in his words of 2026-10-14
  *     (DEC-5425, "approved."): "You added your accounts today. Figures for 1M, 1Y and longer come from each holding's
  *     past prices."
- *     Phone 5 (nothing entered) is unchanged: there is no holding with a history, so its windows stay "—". */
+ *     Phone 5 (nothing entered) is unchanged: there is no holding with a history, so its windows stay "—".
+ *  AND v17's ROW OF 2026-11-01 (the lead's ruling R20, NW4-03, under DEC-0237 and DEC-0404: "DRAWING CORRECTION, the 2Y window chip"):
+ *  11. The 2Y chip's figure is a yearly rate and says so: "+7.30%/year" where "+7.30%" is drawn (a dash stays a dash). */
 const MARK_16 = 'money moved in and out in amounts where when it moved would decide a window return, so this is your rate per year, counting when you added money';
 const KNOWN = (s: string) => s
   .replace(/(bonds & cds|cash in this account) \$# (#%\/year|—)/g, '$1 $# <rate or dash>')
@@ -203,7 +205,8 @@ const KNOWN = (s: string) => s
   .replace(/^(performance <date> since <date> #% #m #% this year #% )#y — #y — summary/, '$1#y #% #y #% #y is shown per year, so it sits fairly beside #y summary')   // 9 (phone 1)
   .replace(/^(performance <date> since today — )#m — this year — #y — #y — summary/, '$1#m #% this year #% #y #% #y #% #y is shown per year, so it sits fairly beside #y summary')   // 10 (phone 4)
   .replace("day one: your value is real, your return starts measuring from today. we never back-fill a year we didn't see. $# your line",
-    "you added your accounts today. figures for #m, #y and longer come from each holding's past prices. $# your line");   // 10 (words: DEC-5425)
+    "you added your accounts today. figures for #m, #y and longer come from each holding's past prices. $# your line")   // 10 (words: DEC-5425)
+  .replace(/(#y #%)( #y is shown per year)/g, '$1/year$2');   // 11 (R20, v17 row of 2026-11-01): the drawn 2Y chip reads '/year'; the built one already does
 
 const CHROME = new Set(['9:41', '▦ Menu', 'Money', 'Keel', '◉', '⚙', '🏠', 'Home', '💎', 'Net worth', '📈', '💵', 'Cash flow', '🧭', 'Plan']);
 function drawn(n: number): string[] {
@@ -240,6 +243,10 @@ function firstDifference(a: string, b: string): string {
 }
 
 describe('the Performance tab says what Performance v17 draws, word for word', () => {
+  test('KNOWN 11 stands on v17\'s row of 2026-11-01 (R20), written on the drawing', () => {
+    const html = fs.readFileSync(path.join(__dirname, '..', '..', '..', 'MoneyKeel', 'documents', 'networth-and-performance', 'moneykeel_pres_mock_performance_v17.html'), 'utf8');
+    expect(html).toMatch(/2026-11-01<\/td>(?:(?!<\/tr>)[\s\S])*DRAWING CORRECTION, the 2Y window chip/);
+  });
   // the graph's axis dates sit under a drawn line on phones 1 and 3 only
   const AXIS: Record<number, RegExp | null> = { 1: /<date> ?<date> (?=how \$# became)/, 3: /<date> ?<date> (?=how \$# became)/, 4: null, 5: null };
   test.each([

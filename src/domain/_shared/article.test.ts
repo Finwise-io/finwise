@@ -21,6 +21,8 @@ test.each([
   ['8% rate', 'an 8% rate'], ['11-month CD', 'an 11-month CD'], ['18,000 limit', 'an 18,000 limit'], ['1,800 limit', 'a 1,800 limit'],
   // the future paycheck's assumed return (CashFlowScreen, MK-CF-M-022, 2026-10-26)
   ['8.00%', 'an 8.00%'], ['6.00%', 'a 6.00%'], ['11.50%', 'an 11.50%'],
+  // a money figure, said by its number (the setup-loan sentence, MK debt setupLoanSentences, 2026-11-01)
+  ['$30,000 student loan', 'a $30,000 student loan'], ['$8,000 student loan', 'an $8,000 student loan'], ['$11,000 loan', 'an $11,000 loan'], ['$1,800 loan', 'a $1,800 loan'], ['$80 fee', 'an $80 fee'],
 ])('withArticle(%j) is %j', (word, said) => {
   expect(withArticle(word)).toBe(said);
 });

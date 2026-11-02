@@ -487,7 +487,7 @@
   "verdict": "LEAVES A TRACE",
   "check": "TRACE",
   "governs": "MK-NW-O-008 thePerformance · MK-PF-F-026 moneyWeighted",
-  "notes": "29 of 39 of his words appear in what implements it: account amount approved beginning beneath built"
+  "notes": "30 of 39 of his words appear in what implements it: account amount approved beginning beneath built"
  },
  {
   "id": "DEC-0646",
@@ -1467,7 +1467,7 @@
   "verdict": "CONFIRMED BY CITATION",
   "check": "CITED",
   "governs": "eventPath, yardstickOn, firstEvent, IDs awaiting · MK-",
-  "notes": "27 of 35 of his words appear in what implements it: beside bought close counted counts day's; cited by identifier in performance.ts"
+  "notes": "27 of 35 of his words appear in what implements it: beside bought close counted counts day's; cited by identifier in outside_performance_rerun_openai_"
  },
  {
   "id": "DEC-7452",
@@ -1979,5 +1979,61 @@
   "check": "TRACE",
   "governs": "src/utils/theme.ts (Tap) · src/screens/HoldingDetailSc",
   "notes": "only 13 of 30 appear — present: action activity bonds buttons delete · absent: asking choices drawn floor lead's"
+ },
+ {
+  "id": "DEC-9484",
+  "verdict": "LEAVES A TRACE",
+  "check": "TRACE",
+  "governs": "MK-NW-O-008 thePerformance (flowTwr, typedAdjust) · Mo",
+  "notes": "18 of 29 of his words appear in what implements it: account beginning beside dividend-adjusted dividends interest"
+ },
+ {
+  "id": "DEC-9485",
+  "verdict": "FAINT TRACE",
+  "check": "TRACE",
+  "governs": "MK-NW-O-008 thePerformance (notIncluded) · src/screens",
+  "notes": "only 11 of 30 appear — present: account category history holding investment · absent: asking folded folds holdings lead's"
+ },
+ {
+  "id": "DEC-9486",
+  "verdict": "LEAVES A TRACE",
+  "check": "TRACE",
+  "governs": "MK-PF-F-029 closeAsOf · MK-PF-F-086 staleStartClose · ",
+  "notes": "17 of 22 of his words appear in what implements it: check close constant gains included lead's"
+ },
+ {
+  "id": "DEC-9487",
+  "verdict": "LEAVES A TRACE",
+  "check": "TRACE",
+  "governs": "MK-PF-F-029 closeAsOf · MK-PF-F-088 valuedByYouWords ·",
+  "notes": "21 of 33 of his words appear in what implements it: claude covered dated earlier holds lead's"
+ },
+ {
+  "id": "DEC-9488",
+  "verdict": "FAINT TRACE",
+  "check": "TRACE",
+  "governs": "src/components/WindowSelector.tsx · src/screens/Perfor",
+  "notes": "only 4 of 14 appear — present: sentence summary windows yearly · absent: asking lead's order reads reverse"
+ },
+ {
+  "id": "DEC-9495",
+  "verdict": "FAINT TRACE",
+  "check": "TRACE",
+  "governs": "src/screens/BondsScreen.tsx · src/screens/OtherInvestm",
+  "notes": "only 6 of 20 appear — present: frame handle investment padding performance · absent: asking bottom draws lead's order"
+ },
+ {
+  "id": "DEC-9496",
+  "verdict": "FAINT TRACE",
+  "check": "TRACE",
+  "governs": "MK-NW-O-002 theAccount · src/screens/AccountPortfolioS",
+  "notes": "only 4 of 17 appear — present: account amount recorded reverse · absent: asking edit-record heard lead's mk-nw-o-"
+ },
+ {
+  "id": "DEC-9501",
+  "verdict": "LEAVES A TRACE",
+  "check": "TRACE",
+  "governs": "src/__tests__/source_always_date_only_when_stale.test.",
+  "notes": "14 of 21 of his words appear in what implements it: domain guard lead's mk-pf-f- order performance"
  }
 ]

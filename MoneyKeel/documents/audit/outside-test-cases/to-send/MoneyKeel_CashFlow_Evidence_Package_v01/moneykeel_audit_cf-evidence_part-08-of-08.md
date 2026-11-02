@@ -197,7 +197,7 @@ Each case: the figure and the tenet, what the first reviewer said it lacked, the
       1
      ],
      "result": "passed",
-     "lines": "170–187",
+     "lines": "185–202",
      "holds_the_phone_with_the_line": false
     },
     {
@@ -208,7 +208,7 @@ Each case: the figure and the tenet, what the first reviewer said it lacked, the
       2
      ],
      "result": "passed",
-     "lines": "189–204",
+     "lines": "204–223",
      "holds_the_phone_with_the_line": false
     }
    ]
@@ -356,7 +356,7 @@ Each case: the figure and the tenet, what the first reviewer said it lacked, the
       1
      ],
      "result": "passed",
-     "lines": "170–187",
+     "lines": "185–202",
      "holds_the_phone_with_the_line": true
     },
     {
@@ -367,7 +367,7 @@ Each case: the figure and the tenet, what the first reviewer said it lacked, the
       2
      ],
      "result": "passed",
-     "lines": "189–204",
+     "lines": "204–223",
      "holds_the_phone_with_the_line": true
     }
    ]
@@ -483,7 +483,7 @@ Each case: the figure and the tenet, what the first reviewer said it lacked, the
       1
      ],
      "result": "passed",
-     "lines": "170–187",
+     "lines": "185–202",
      "holds_the_phone_with_the_line": false
     },
     {
@@ -494,7 +494,7 @@ Each case: the figure and the tenet, what the first reviewer said it lacked, the
       2
      ],
      "result": "passed",
-     "lines": "189–204",
+     "lines": "204–223",
      "holds_the_phone_with_the_line": false
     }
    ]
@@ -615,7 +615,7 @@ Each case: the figure and the tenet, what the first reviewer said it lacked, the
       1
      ],
      "result": "passed",
-     "lines": "170–187",
+     "lines": "185–202",
      "holds_the_phone_with_the_line": false
     },
     {
@@ -626,7 +626,7 @@ Each case: the figure and the tenet, what the first reviewer said it lacked, the
       2
      ],
      "result": "passed",
-     "lines": "189–204",
+     "lines": "204–223",
      "holds_the_phone_with_the_line": false
     }
    ]
@@ -1099,7 +1099,7 @@ Rows of `MoneyKeel/documents/standards/moneykeel_pres_spec_design-each-screen-wa
 
 **READ THIS FIRST — RULED AFTER THIS MOCKUP. The phones below are not redrawn; where this line and a phone disagree, this line is the design.** 
 
-Its dated rows, every one, as written on the drawing (13):
+Its dated rows, every one, as written on the drawing (14):
 
 ```json
 [
@@ -1107,40 +1107,43 @@ Its dated rows, every one, as written on the drawing (13):
   "text": "2026-10-21 · DEC-0231 · DEC-4529 — DRAWING ERROR, both phones — the top bar’s back button is drawn with semicircle ends (border-radius 19px on a button 32px tall), copied from the code. His ruling of 2026-09-25 is rounded corners, not semicircle ends, for the buttons on every screen: the corner is corrected to 12 , the one corner of a button and of a choice in the app. Its size, colours and words do not change. The round icon buttons at the right of the bar stay circles: a circle has no ends. The phones are not redrawn. Line added 2026-10-21. His words: “make the buttons same as all radio buttons across all screens — rounded corners not semicircle ends” (DEC-0231). In the code."
  },
  {
-  "text": "2026-10-24 · DEC-3523 (tenet 1) · DEC-0440 — DRAWING ERROR, both phones — the foot line ends “Tap any row for that month’s full detail.”, and a screen reader said each month row “Opens the month’s detail.” No row has a tap: month detail was retired on 2026-10-02, when This month (cash-flow_v01) was built without a door to it. The sentence is not printed and the rows no longer promise it; the rest of the foot line is unchanged. Found by the Cash flow journey E2E-80. Not a decision of his: made under tenet 1 without asking him; one word from him reverses it. To reverse: give each month row a door to that month, and print the sentence again. Line added 2026-10-24. In the code."
+  "text": "2026-10-24 · DEC-3523 (tenet 1) · DEC-0440 — DRAWING ERROR, both phones — the foot line ends ‘Tap any row for that month’s full detail.’, and a screen reader said each month row ‘Opens the month’s detail.’ No row has a tap: month detail was retired on 2026-10-02, when This month (cash-flow_v01) was built without a door to it. The sentence is not printed and the rows no longer promise it; the rest of the foot line is unchanged. Found by the Cash flow journey E2E-80. Not a decision of his: made under tenet 1 without asking him; one word from him reverses it. To reverse: give each month row a door to that month, and print the sentence again. Line added 2026-10-24. In the code."
  },
  {
-  "text": "2026-10-24 · DEC-3523 (tenet 4) — DRAWING ERROR, both phones — a typo: the line under the title reads “Oct 2026 – Sep ’27 2027”, the year twice, copied from the build. It reads “Oct 2026 – Sep 2027”: each end is a month as the app’s one date writer writes it, without the day. A screen reader hears each month row the same way (“Jan 2027: in …”, where it heard “Jan ’27 2027”). The month names in the table (“Jan ’27”) do not change. The lead’s ruling on the Cash flow journey E2E-80. Line added 2026-10-24. In the code."
+  "text": "2026-10-24 · DEC-3523 (tenet 4) — DRAWING ERROR, both phones — a typo: the line under the title reads ‘Oct 2026 – Sep ’27 2027’, the year twice, copied from the build. It reads ‘Oct 2026 – Sep 2027’: each end is a month as the app’s one date writer writes it, without the day. A screen reader hears each month row the same way (‘Jan 2027: in …’, where it heard ‘Jan ’27 2027’). The month names in the table (‘Jan ’27’) do not change. The lead’s ruling on the Cash flow journey E2E-80. Line added 2026-10-24. In the code."
  },
  {
   "text": "2026-10-24 · DEC-1923 · DEC-0283 · DEC-3523 (tenets 1, 4) — The twelve months are the Cash flow tab’s own. With the home’s mortgage in Debts, the Rent / Mortgage budget line is not counted beside it, as This month does not count it: $7,200 in, $700 of groceries and the $2,400 mortgage out, September’s End $4,100 (it read $5,400 out and an End of $1,800, the $2,300 line counted too). The In column is the take-home after tax and the 401(k), as Your base pay prints it. A yearly bill whose day has already passed this month is in this month’s Out and is not under COMING UP (it was listed for the same day next year). The words do not change. Found by the Cash flow journeys E2E-72 and E2E-81. Not a decision of his: made under tenets 1 and 4 and his rule DEC-1923 without asking him; one word from him reverses it. To reverse: build the calendar’s months from the budget as typed again. Line added 2026-10-24. In the code."
  },
  {
-  "text": "2026-10-24 · DEC-0002 · DEC-0447 · DEC-3523 (tenet 1) — A bill added here with its own month is on top of the monthly budget, in that month only. With $2,000/month typed, $2,650/month of debt payments and $1,200 of car insurance added for Oct 15, every month’s Out keeps the full $2,000 — Out $4,650, October $5,850 — and COMING UP reads “Short $500 — set it aside by Oct 13, 2026, from savings or a backup.” It read Out $4,550, October $5,750 and short $300: the typed $2,000 was taken to hold $100/month of the bill. The words do not change. Found by the Cash flow journeys’ test H4. Not a decision of his: made under his rules DEC-0002 and DEC-0447 and tenet 1 without asking him; one word from him reverses it. To reverse: read the typed budget as holding a twelfth of each dated bill again. Line added 2026-10-24. In the code."
+  "text": "2026-10-24 · DEC-0002 · DEC-0447 · DEC-3523 (tenet 1) — A bill added here with its own month is on top of the monthly budget, in that month only. With $2,000/month typed, $2,650/month of debt payments and $1,200 of car insurance added for Oct 15, every month’s Out keeps the full $2,000 — Out $4,650, October $5,850 — and COMING UP reads ‘Short $500 — set it aside by Oct 13, 2026, from savings or a backup.’ It read Out $4,550, October $5,750 and short $300: the typed $2,000 was taken to hold $100/month of the bill. The words do not change. Found by the Cash flow journeys’ test H4. Not a decision of his: made under his rules DEC-0002 and DEC-0447 and tenet 1 without asking him; one word from him reverses it. To reverse: read the typed budget as holding a twelfth of each dated bill again. Line added 2026-10-24. In the code."
  },
  {
   "text": "2026-10-24 · DEC-3523 (tenet 2) · DEC-0264 — Every row of the table adds up as printed: the End before it, plus In, less Out, is its End. Each End is the balance rounded to the dollar, as the lowest point beside it is; In and Out share the change between two Ends, each less than a dollar from its exact value, a whole-dollar figure never moving. From $3,000, $5,415.83 in and $1,198.77 out end at $7,217.06: Sep +$5,416 · −$1,199 · $7,217 — each rounded alone, a row could miss its End by a dollar. The words do not change. Found by the Cash flow journey E2E-72. Not a decision of his: made under tenet 2 without asking him; one word from him reverses it. To reverse: round In, Out and End each on its own again. Line added 2026-10-24. In the code."
  },
  {
-  "text": "2026-10-25 · DEC-3523 (tenets 1, 3) · MK-CF-M-051 · MK-CF-M-052 · MK-CF-M-061 — The table’s In, Out and End are drawn black at 800, every one: In was green at regular weight and Out regular with no colour of its own; both now read as End reads. A screen reader hears a month as printed: where In or Out is “—” it hears “—” (it heard “in $0 a month, out $0 a month” beside a printed —). The words do not change. Not a decision of his: made without asking him, as his order of 2026-09-30 says; found by the Cash flow drawing match (MM-CF, 2026-10-24) and built by CF-MMFIX-A. One word from him reverses it. To reverse: give In its green and Out its regular weight again. Line added 2026-10-25. In the code since 2026-10-25."
+  "text": "2026-10-25 · DEC-3523 (tenets 1, 3) · MK-CF-M-051 · MK-CF-M-052 · MK-CF-M-061 — The table’s In, Out and End are drawn black at 800, every one: In was green at regular weight and Out regular with no colour of its own; both now read as End reads. A screen reader hears a month as printed: where In or Out is ‘—’ it hears ‘—’ (it heard ‘in $0 a month, out $0 a month’ beside a printed —). The words do not change. Not a decision of his: made without asking him, as his order of 2026-09-30 says; found by the Cash flow drawing match (MM-CF, 2026-10-24) and built by CF-MMFIX-A. One word from him reverses it. To reverse: give In its green and Out its regular weight again. Line added 2026-10-25. In the code since 2026-10-25."
  },
  {
-  "text": "2026-10-25 · DEC-3523 (tenet 3) · DEC-0431 · MK-CF-M-060 — DRAWING ERROR, phone 1 (the first day): with nothing entered there is no verdict — no “OK — you stay above zero in all 12 months” and no “Lowest point $0”, a verdict on nothing; the table says “Nothing entered yet” and its door, as his rule DEC-0431 words a fresh account. A cash on hand typed in the box is kept, with the day it was typed, when the person leaves the screen, and the line under the box says so: “You entered this on Oct 25, 2026; your accounts hold $5,000. The table carries forward what you entered — edit it and the End column recalculates from there.” (it went back to the accounts’ cash on the next visit). Not a decision of his: made without asking him, as his order of 2026-09-30 says; found by the outside measurement of Cash flow’s screens (OpenAI, measured by CFR-5) and built by CF-MMFIX-A. One word from him reverses it. The second part is the lead’s ruling of 2026-10-25. To reverse: draw the verdict on the first day again, and read the accounts’ cash on every visit. Line added 2026-10-25. In the code since 2026-10-25."
+  "text": "2026-10-25 · DEC-3523 (tenet 3) · DEC-0431 · MK-CF-M-060 — DRAWING ERROR, phone 1 (the first day): with nothing entered there is no verdict — no ‘OK — you stay above zero in all 12 months’ and no ‘Lowest point $0’, a verdict on nothing; the table says ‘Nothing entered yet’ and its door, as his rule DEC-0431 words a fresh account. A cash on hand typed in the box is kept, with the day it was typed, when the person leaves the screen, and the line under the box says so: ‘You entered this on Oct 25, 2026; your accounts hold $5,000. The table carries forward what you entered — edit it and the End column recalculates from there.’ (it went back to the accounts’ cash on the next visit). Not a decision of his: made without asking him, as his order of 2026-09-30 says; found by the outside measurement of Cash flow’s screens (OpenAI, measured by CFR-5) and built by CF-MMFIX-A. One word from him reverses it. The second part is the lead’s ruling of 2026-10-25. To reverse: draw the verdict on the first day again, and read the accounts’ cash on every visit. Line added 2026-10-25. In the code since 2026-10-25."
  },
  {
-  "text": "2026-10-25 · DEC-3523 (tenets 3, 5) · DEC-7611 · MK-CF-M-028 · MK-CF-M-062 · MK-CF-M-063 — COMING UP (not drawn on this version): with no cash on hand given — the box blank — each bill keeps its name, amount and due date, and the line under it reads the row’s own refusal, “No balance to start from — nothing is projected.” It read “Short $1,400 — set it aside by Oct 13, 2026, from savings or a backup.”, worked from a $0 nobody entered. A cash on hand typed as 0 is an answer, and the line is worked from it. A once-in-a-while bill with no month set is not listed: it has no date, and the table counts it as a twelfth a month in Out ($1,200 a year reads $100 in every month; it read “Insurance · $1,200 due Jan 1, 2027”, a date nobody gave, while the table took $100 a month). A bill typed for the 29th, 30th or 31st falls on the last day of a shorter month (the 29th of February is Feb 28, 2027). The verdict above the table is not changed by this line. Not a decision of his: made without asking him, as his order of 2026-09-30 says, on the outside review’s part 8 (CFR-2) and built by FIX-BILLS. One word from him reverses it. To reverse: project COMING UP from $0 when the box is blank, and date a bill with no month on January 1. Line added 2026-10-25. In the code since 2026-10-25."
+  "text": "2026-10-25 · DEC-3523 (tenets 3, 5) · DEC-7611 · MK-CF-M-028 · MK-CF-M-062 · MK-CF-M-063 — COMING UP (not drawn on this version): with no cash on hand given — the box blank — each bill keeps its name, amount and due date, and the line under it reads the row’s own refusal, ‘No balance to start from — nothing is projected.’ It read ‘Short $1,400 — set it aside by Oct 13, 2026, from savings or a backup.’, worked from a $0 nobody entered. A cash on hand typed as 0 is an answer, and the line is worked from it. A once-in-a-while bill with no month set is not listed: it has no date, and the table counts it as a twelfth a month in Out ($1,200 a year reads $100 in every month; it read ‘Insurance · $1,200 due Jan 1, 2027’, a date nobody gave, while the table took $100 a month). A bill typed for the 29th, 30th or 31st falls on the last day of a shorter month (the 29th of February is Feb 28, 2027). The verdict above the table is not changed by this line. Not a decision of his: made without asking him, as his order of 2026-09-30 says, on the outside review’s part 8 (CFR-2) and built by FIX-BILLS. One word from him reverses it. To reverse: project COMING UP from $0 when the box is blank, and date a bill with no month on January 1. Line added 2026-10-25. In the code since 2026-10-25."
  },
  {
-  "text": "2026-10-26 · DEC-3523 (tenets 3, 5) · MK-CF-M-060 · MK-CF-M-063 — With no balance to start from (the box left blank), the calendar gives no verdict: no “Careful — short in …” and no “OK — you stay above zero”, which were worked from a $0 nobody entered; where the verdict stands it says only “No balance to start from — nothing is projected.”, the line COMING UP already says. A cash account holding $0 on record is an answer, not a blank: the box reads 0 and the table and the verdict are projected from it (it read blank and refused). The box is blank only when no cash balance is on record, and the line under it then reads “No cash balance on record yet — enter what you have, and the table starts from it.” (it said “Auto-filled from your accounts ($0)”). Not a decision of his: the lead’s rulings of 2026-10-26 on FIX-BILLS’ findings, made without asking him, as his order of 2026-09-30 says; built by CF-MMFIX-A. One word from him reverses it. To reverse: work the verdict from $0 with the box blank, and leave a $0 balance’s box blank. Line added 2026-10-26. In the code since 2026-10-26."
+  "text": "2026-10-26 · DEC-3523 (tenets 3, 5) · MK-CF-M-060 · MK-CF-M-063 — With no balance to start from (the box left blank), the calendar gives no verdict: no ‘Careful — short in …’ and no ‘OK — you stay above zero’, which were worked from a $0 nobody entered; where the verdict stands it says only ‘No balance to start from — nothing is projected.’, the line COMING UP already says. A cash account holding $0 on record is an answer, not a blank: the box reads 0 and the table and the verdict are projected from it (it read blank and refused). The box is blank only when no cash balance is on record, and the line under it then reads ‘No cash balance on record yet — enter what you have, and the table starts from it.’ (it said ‘Auto-filled from your accounts ($0)’). Not a decision of his: the lead’s rulings of 2026-10-26 on FIX-BILLS’ findings, made without asking him, as his order of 2026-09-30 says; built by CF-MMFIX-A. One word from him reverses it. To reverse: work the verdict from $0 with the box blank, and leave a $0 balance’s box blank. Line added 2026-10-26. In the code since 2026-10-26."
  },
  {
   "text": "2026-10-27 · DEC-0296 · DEC-3523 (tenet 3) · MK-CF-M-060 — Phone 2 (the first day), and whenever no cash balance is on record: the Cash on hand box is empty — no grey ‘$0’ inside it, which reads as a balance entered. The line under it already says why: ‘No cash balance on record yet — enter what you have, and the table starts from it.’ The bill form’s boxes lose their grey samples too: Amount, Day and Year are empty until typed (they showed ‘$0’, ‘15’ and this year); the name keeps its example, ‘Property tax’, a word and not a figure. A typed 0 is still an answer (the 2026-10-25 line). Not a decision of his: made without asking him, as his order of 2026-09-30 says; found by the round-2 drawing match (BC2-01), under his rule DEC-0296 (an unknown input produces no number and a reason — never a default) — the Monthly income drawing’s row of 2026-10-25 took the grey samples out of its boxes for the same reason. One word from him reverses it. To reverse: put ‘$0’, ‘15’ and the year back as the boxes’ samples. Line added 2026-10-27. In the code since 2026-10-27 — row written before the code."
  },
  {
-  "text": "2026-10-27 · DEC-8336 · DEC-3523 (tenet 4) — Words not drawn on these phones (the first-day gate, the lump-sum line, the short-month card): an apostrophe inside a word is ’ , as the phones draw it — ‘it’s built from …’, ‘it’s in that month’s Out column.’, ‘IF YOU CAN’T PAY EVERYTHING, PAY THESE FIRST’, the marks around essential in ‘Mark bills … to see them here.’ Not a decision of his: the class DEC-8336 fixed on Net worth; found by the round-2 drawing match (CF2-10). To reverse: write ' again. Line added 2026-10-27. In the code since 2026-10-27 — row written before the code. 2026-10-27 · DEC-0354 · DEC-0059 · DEC-6457 · DEC-4529 — Approved before: this drawing, 2026-10-02 (‘ok. open them from build but make sure it meets new design standards’). Both phones draw the top bar 14 points in from each side, its back button and round icons 32 points tall. His feedback: His words, 2026-09-14 (DEC-0354): ‘you did not have ‘MoneyKeel’ at the top which every other screen has’; 2026-08-04 (DEC-0059): ‘make sure font size and color and overall design are same across all screens.’ New: The MoneyKeel top bar starts 4 points below the status bar (the app started it 6 down until today), sits 20 points in from each side and 10 above the page; its button and two round icons are 38 points tall, the button’s words 13 points. The phones are not redrawn. Why 4 · 20 · 10: the account page v01, approved 2026-10-19 (DEC-6457), the newest approved drawing with this bar, and Net worth v08 (DEC-0644) both draw it. Not a decision of his: the lead’s ruling of 2026-10-27, made without asking him, as his order of 2026-09-30 says. To reverse: start the bar 6 points down again. In the code since 2026-10-27."
+  "text": "2026-10-27 · DEC-8336 · DEC-3523 (tenet 4) — Words not drawn on these phones (the first-day gate, the lump-sum line, the short-month card): an apostrophe inside a word is ’ , as the phones draw it — ‘it’s built from …’, ‘it’s in that month’s Out column.’, ‘IF YOU CAN’T PAY EVERYTHING, PAY THESE FIRST’, the marks around essential in ‘Mark bills … to see them here.’ Not a decision of his: the class DEC-8336 fixed on Net worth; found by the round-2 drawing match (CF2-10). To reverse: write ' again. Line added 2026-10-27. In the code since 2026-10-27 — row written before the code. 2026-10-27 · DEC-0354 · DEC-0059 · DEC-6457 · DEC-4529 — Approved before: this drawing, 2026-10-02 (“ok. open them from build but make sure it meets new design standards”). Both phones draw the top bar 14 points in from each side, its back button and round icons 32 points tall. His feedback: His words, 2026-09-14 (DEC-0354): “you did not have ‘MoneyKeel’ at the top which every other screen has”; 2026-08-04 (DEC-0059): “make sure font size and color and overall design are same across all screens.” New: The MoneyKeel top bar starts 4 points below the status bar (the app started it 6 down until today), sits 20 points in from each side and 10 above the page; its button and two round icons are 38 points tall, the button’s words 13 points. The phones are not redrawn. Why 4 · 20 · 10: the account page v01, approved 2026-10-19 (DEC-6457), the newest approved drawing with this bar, and Net worth v08 (DEC-0644) both draw it. Not a decision of his: the lead’s ruling of 2026-10-27, made without asking him, as his order of 2026-09-30 says. To reverse: start the bar 6 points down again. In the code since 2026-10-27."
  },
  {
   "text": "2026-10-27 · DEC-8839 · DEC-3523 (tenet 6) — Both phones, and the cards they open: every box title sits on a dark-green bar , edge to edge with square corners — COMING UP, LATER — BEYOND THIS 12-MONTH WINDOW, IF YOU CAN’T PAY EVERYTHING, PAY THESE FIRST, and the bill form’s ADD A DATED BILL / EDIT THIS BILL (they were quiet labels and a 15-point title). So that each bar can run to its card’s edges, every card is square and white , its rows 16 points in, as Cash flow’s own tabs are (they were rounded, 12 in). The words, the figures and the order do not change. His words: “ContributionRoom, Stress Test screens - both are not standard app design as the standard design says box titles in dark green bar, and sub-titles in light green bar.” (DEC-8839, 2026-10-27); the lead’s ruling R1 of 2026-10-27 makes it app-wide, and the screen-design standard carries it (section 2.3). Applied by FX-CF-A without asking him again. To reverse: give the titles their quiet labels and the cards their rounded corners again. Line added 2026-10-27. In the code since 2026-10-27 — row written before the code. 2026-10-27 · DEC-8385 · DEC-0177 · DEC-3768c · DEC-3523 — Approved before: this drawing, 2026-10-02 (“ok. open them from build but make sure it meets new design standards”). Its money boxes print a typed figure plain. His feedback: None on these boxes. He approved the income drawing on 2026-08-27 (DEC-0177: “yes”), which draws a money box with its figure as money, ‘$7,000’. New: Every money box on this screen shows its figure the way a figure is printed, while it is typed — ‘$1,000’ where a box was drawn ‘1000’, ‘$192.50’ where ‘192.5’; where the screen prints its own $ just before the box, the box reads ‘1,000’, so the $ is printed once — and it stores the plain amount, so no figure moves. The box keeps its look. A typed letter is refused whole (DEC-3768c). Shares, contracts, rates, days and years keep their plain digits. The phones are not redrawn. One figure, one form (tenet 4, DEC-3523): the money boxes of the income screens already show ‘$7,000’ (DEC-8385), and one component, MoneyBox, now draws every money box in the app — src/__tests__/every_money_box_is_moneybox.test.tsx counts them all. Not a decision of his: the lead’s ruling of 2026-10-27, made without asking him, as his order of 2026-09-30 says. To reverse: print the plain figure in the box again. In the code since 2026-10-27. 2026-10-30 · brand-wordmark v02 · DEC-8891 — Approved before: this drawing, 2026-10-02 (“ok. open them from build but make sure it meets new design standards”). Its top bar draws the name typed in two colours, ‘Money’ green and ‘Keel’ navy, as the app drew it until 2026-10-30. No logo decision of his is on record before this one. His feedback: his instruction of 2026-10-30, with his three logo files: “change the logo to attached”. New: The lettering in the top bar is now his logo of 2026-10-30, his dark-green ‘MoneyKeel’ lettering at 84 × 17.1 points, as ‘MoneyKeel/documents/other/moneykeel_pres_mock_brand-wordmark_v02.html’ draws it. Nothing else on the phones moves. The phones are not redrawn. His instruction, carried to this drawing by the lead’s row of 2026-10-30, made without asking him, as his order of 2026-09-30 says. To reverse: the old lettering is kept in ‘assets/brand/archive-2026-10-30/’. In the code since 2026-10-30."
+ },
+ {
+  "text": "2026-10-31 · DEC-0296 · DEC-3523 (tenets 1, 3) · MK-CF-M-061 — Approved before: this drawing, 2026-10-02 (DEC-1112: “ok. open them from build but make sure it meets new design standards”). His feedback: His words, 2026-08-20 (DEC-0296): “an unknown input produces no number and a reason — never a default”. New: with no cash balance on record — the box empty — the End column reads ‘—’ in every month and no month is flagged short : In and Out are the plan’s own figures, and nothing is projected from a $0 nobody entered. With $7,200 in and $4,220 out a month and the box empty, October reads In ‘+$7,200’ · Out ‘−$4,220’ · End ‘—’ (it read $2,980, and so on to $32,160 in September), under the line ‘No balance to start from — nothing is projected.’ DRAWING ERROR, phone 2 (the first day): its twelve ‘$0’ Ends read ‘—’. A cash account holding $0 on record is an answer (the 2026-10-26 line), so phone 1’s household, a checking account at $0, still reads $2,980 … $32,160. Not a decision of his: the lead’s ruling R12 (2026-10-31, BC3-01), made under his words above without asking him; under DEC-9228 he judges the built screen on TestFlight. To reverse: project the Ends from $0 with the box empty. Line added 2026-10-31. In the code since 2026-10-31 — row written before the code. 2026-11-01 · DEC-6457 · DEC-0354 · DEC-0808 · DEC-4529 · NW3-14 — Approved before: this drawing, 2026-10-02 (“ok. open them from build but make sure it meets new design standards”). Every phone draws the top bar’s ‘‹ Back’ button with its words 12 points in from each side. The account page’s drawing, approved 2026-10-19 (DEC-6457), the newest approved drawing with this bar, draws them 13 points in. His feedback: None on the button’s inset. His words on which drawing holds: “If I approved mock up post build - that the latest approval.” (DEC-0808, 2026-09-27). New: DRAWING ERROR, every phone — the button’s words sit 13 points in from each side, as the account page’s drawing draws them and the app draws them; this drawing’s 12 is one point short on each side. Its words, height, corner and colours do not change. The phones are not redrawn. Line added 2026-11-01. The top bar is the one bar every screen carries (DEC-0354), and its ‘Menu’ and ‘‹ Back’ buttons share one style (src/components/TopBar.tsx, menuBtn). No row named the inset until the drawing match of 2026-10-31 (NW3-14, on Net worth v08). The lead’s reading under DEC-4529: the drawing is left, a dated line corrects it. To reverse: the buttons’ side inset set to 12 in menuBtn, and this line removed. Drawing corrected by this line — the app already shows it."
  }
 ]
 ```
@@ -1293,7 +1296,7 @@ Its phones that hold the screens in this part (1, 2), every line in order, as th
 
 ## The match tests — each test that holds one of these screens to a drawing phone, its code and its result at this build
 
-**Bill calendar v02 › phone 1 · a working household, twelve months ahead — every figure as drawn** — `src/screens/__tests__/kept_editors_match.test.tsx`, lines 170–187, phones 1: **passed**
+**Bill calendar v02 › phone 1 · a working household, twelve months ahead — every figure as drawn** — `src/screens/__tests__/kept_editors_match.test.tsx`, lines 185–202, phones 1: **passed**
 
 ```ts
 test('phone 1 · a working household, twelve months ahead — every figure as drawn', () => {
@@ -1316,7 +1319,7 @@ test('phone 1 · a working household, twelve months ahead — every figure as dr
   })
 ```
 
-**Bill calendar v02 › phone 2 · the first day, nothing entered — every figure as drawn** — `src/screens/__tests__/kept_editors_match.test.tsx`, lines 189–204, phones 2: **passed**
+**Bill calendar v02 › phone 2 · the first day, nothing entered — every figure as drawn** — `src/screens/__tests__/kept_editors_match.test.tsx`, lines 204–223, phones 2: **passed**
 
 ```ts
 test('phone 2 · the first day, nothing entered — every figure as drawn', () => {
@@ -1327,13 +1330,17 @@ test('phone 2 · the first day, nothing entered — every figure as drawn', () =
       .replace(/ ok — you stay above zero in all 12 months lowest point \$0 — oct\./, '')
       // and its row of 2026-10-26: with no cash balance on record the line under the box says so (it said "Auto-filled … ($0)")
       .replace("auto-filled from your accounts ($0) — the starting balance the table carries forward. edit it and the end column recalculates from there.",
-        'no cash balance on record yet — enter what you have, and the table starts from it.');
+        'no cash balance on record yet — enter what you have, and the table starts from it.')
+      // and its row of 2026-10-31 (R12, BC3-01 — DRAWING ERROR, phone 2): with no cash on record no End is projected, so each drawn
+      // "$0" End reads "—"; the twelve are counted, so the edit found every one
+      .replace(/(\b(?:oct|nov|dec|jan '27|feb '27|mar '27|apr '27|may '27|jun '27|jul '27|aug '27|sep '27) — — )\$0\b/g, '$1—');
     expect(want.split(' ').length).toBeGreaterThan(100);
     expect(want).not.toMatch(/ok — you stay above zero|auto-filled/);   // both named changes found their drawn lines
+    expect((normExact(upTo(P[1], /^A forward plan, not a promise/)).match(/ — — \$0\b/g) ?? []).length).toBe(12);   // the drawn Ends it replaced
     expect(firstDifference(want, normExact(built))).toBe('');
-    // twelve months, each — in, — out, $0 at the end: nothing behind them (Q48)
-    expect(built.filter((l) => l === '$0')).toHaveLength(12);
-    expect(built.filter((l) => l === '—')).toHaveLength(24);
+    // twelve months, each — in, — out, — at the end: nothing behind them (Q48), and nothing projected (R12)
+    expect(built.filter((l) => l === '$0')).toHaveLength(0);
+    expect(built.filter((l) => l === '—')).toHaveLength(36);
   })
 ```
 

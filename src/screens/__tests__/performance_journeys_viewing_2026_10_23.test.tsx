@@ -216,6 +216,9 @@ function v17phone(n: number): string[] {
 }
 function v17difference(n: number, built: string[]): string {
   let want = v17known(v17norm(v17phone(n)));
+  // v17's row of 2026-11-01 (R20, 'DRAWING CORRECTION, the 2Y window chip'; perf_mock_match_2026_10_12's KNOWN (d)): the 2Y chip's
+  // yearly rate says '/year' where the drawing prints it bare — on the drawn figure only, never on a dash
+  want = want.replace(/(#y #%)( #y is shown per year)/g, '$1/year$2');
   if (n === 1) want = want.replace(/<date> ?<date> (?=how \$# became)/, '');   // the graph's axis dates (SVG, after layout)
   const got = v17known(v17norm(built));
   expect(want.split(' ').length).toBeGreaterThan(60);
@@ -252,7 +255,8 @@ describe('E2E-63 · the window journey in the founder\'s household (Performance 
     // every window's own figure on its button: 1M 125,200 ÷ 123,300 − 1 = +1.54%; This year 125,200 ÷ 116,700 − 1 = +7.28%;
     // 1Y the same as Since — VTI and VOO closed at $260 and $500 on Sep 29 and Oct 1, 2025, so the days before the record add
     // (1 + 0) — +9.34%; 2Y (1.25 × 1.093385)^(365 ÷ 731) − 1 = +16.88% a year (worked below)
-    expect(['Since Oct 1, 2025', '1M', 'This year', '1Y', '2Y'].map((w) => after(w, 1, ls))).toEqual(['+9.34%', '+1.54%', '+7.28%', '+9.34%', '+16.88%']);
+    // (2Y's chip says '/year' since 2026-11-01: v17's row of that day, R20 — the same +16.88% a year)
+    expect(['Since Oct 1, 2025', '1M', 'This year', '1Y', '2Y'].map((w) => after(w, 1, ls))).toEqual(['+9.34%', '+1.54%', '+7.28%', '+9.34%', '+16.88%/year']);
 
     // 1M — Aug 30 to Sep 30; its beginning is the evening before, Aug 29, read from the record's Aug 28: $123,300.
     // 125,200 − 123,300 = $1,900, all change in value; 1,900 ÷ 123,300 = +1.54%. Never a yearly rate.
@@ -332,7 +336,8 @@ describe('E2E-63 · the window journey in the founder\'s household (Performance 
     expect(walk).toEqual(vanguard.slice(4, 20));                         // line for line the walk the tab drew for Vanguard
     // the window bar is the account's own: Since 1.0375 × 1.047959 − 1 = +8.73%; 1M 102,700 ÷ 101,200 − 1 = +1.48%;
     // This year 102,700 ÷ 96,500 − 1 = +6.42%; 1Y the same as Since; 2Y +16.55%
-    expect(['Since Oct 1, 2025', '1M', 'This year', '1Y', '2Y'].map((w) => after(w, 1, ls))).toEqual(['+8.73%', '+1.48%', '+6.42%', '+8.73%', '+16.55%']);
+    // (2Y's chip says '/year' since 2026-11-01: the account page's row 93, R20 — the same +16.55% a year)
+    expect(['Since Oct 1, 2025', '1M', 'This year', '1Y', '2Y'].map((w) => after(w, 1, ls))).toEqual(['+8.73%', '+1.48%', '+6.42%', '+8.73%', '+16.55%/year']);
     // BY CATEGORY & HOLDING on 2Y: VTI $208 → $280, 280 ÷ 208 − 1 = +34.62% in all, 1.346154^(365 ÷ 731) − 1 = +16.00% a year.
     // VTI is all of Stocks / Funds, so the class bar is the same yearly rate (FIXED 2026-10-23: it read +34.62%), and every
     // return in the column says it is yearly (the lead's ruling the same day: they printed the yearly rate bare)
@@ -517,7 +522,8 @@ describe('E2E-65 · a brand-new person adds an account by hand, then a holding',
     // the holding shows: its account still carries $28,000 — 100 VTI at today's close, $280.00 — and Stocks / Funds is its row.
     // Bought today at $280.00 and closing at $280.00 today, it has gained nothing in any window: 280 ÷ 280 − 1 = +0.00%,
     // each window's figure worked from VTI's own price history (DEC-5291), so the day-one line says so (DEC-5425, his words).
-    expect(['Since today', '1M', 'This year', '1Y', '2Y'].map((w) => after(w, 1, ls))).toEqual(['—', '+0.00%', '+0.00%', '+0.00%', '+0.00%']);
+    // (2Y's chip says '/year' since 2026-11-01: v17's row of that day, R20 — (280 ÷ 280)^(365 ÷ 731) − 1 = +0.00% a year)
+    expect(['Since today', '1M', 'This year', '1Y', '2Y'].map((w) => after(w, 1, ls))).toEqual(['—', '+0.00%', '+0.00%', '+0.00%', '+0.00%/year']);
     expect(ls).toContain("You added your accounts today. Figures for 1M, 1Y and longer come from each holding’s past prices.");
     expect(after('Ending value', 1, ls)).toBe('$28,000');
     expect(ls.slice(ls.indexOf('Fidelity Brokerage'), ls.indexOf('Fidelity Brokerage') + 2)).toEqual(['Fidelity Brokerage', '$28,000']);

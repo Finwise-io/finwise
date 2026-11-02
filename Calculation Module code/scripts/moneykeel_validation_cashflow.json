@@ -473,7 +473,7 @@
   "verdict": "CONFIRMED BY CITATION",
   "check": "CITED",
   "governs": "MK-CF-M-031",
-  "notes": "6 of 11 of his words appear in what implements it: captured cards income parts question reaches; cited by identifier in base-pay.ts"
+  "notes": "7 of 11 of his words appear in what implements it: captured cards frequency income parts question; cited by identifier in base-pay.ts"
  },
  {
   "id": "DEC-0512",
@@ -1874,5 +1874,54 @@
   "check": "TRACE",
   "governs": "MK-CF-F-182 asPercent · MK-CF-F-171 · MoneyKeel/functi",
   "notes": "only 6 of 21 appear — present: base-pay earnerpay gross mk-cf-f- organizer · absent: asking decimals everythingelseshare everywhere lead's"
+ },
+ {
+  "id": "DEC-9489",
+  "verdict": "FAINT TRACE",
+  "check": "TRACE",
+  "governs": "MK-CF-M-103 · MK-CF-F-295 debtLoad · src/screens/Budge",
+  "notes": "only 9 of 26 appear — present: check debt-to-income interest minimums mk-cf-m- · absent: asking beside cents frame goals"
+ },
+ {
+  "id": "DEC-9490",
+  "verdict": "FAINT TRACE",
+  "check": "TRACE",
+  "governs": "MK-CF-F-299 setupStudentLoans · MK-CF-F-303 setupLoans",
+  "notes": "only 10 of 25 appear — present: amount counted debts dollar editor · absent: asking borrowed equals includes lead's"
+ },
+ {
+  "id": "DEC-9491",
+  "verdict": "FAINT TRACE",
+  "check": "TRACE",
+  "governs": "MK-CF-F-301 setupLoansSplit · MK-CF-F-302 setupLoanSen",
+  "notes": "only 6 of 19 appear — present: count counted entered month start · absent: asking counts lead's mk-cf-f- order"
+ },
+ {
+  "id": "DEC-9492",
+  "verdict": "FAINT TRACE",
+  "check": "TRACE",
+  "governs": "MK-CF-F-308 payPeriodsAYear · MK-CF-F-297 freqNotRecog",
+  "notes": "only 13 of 34 appear — present: annual biweekly blank domain entered · absent: annually asking choose chosen disagreed"
+ },
+ {
+  "id": "DEC-9493",
+  "verdict": "LEAVES A TRACE",
+  "check": "TRACE",
+  "governs": "MK-CF-F-310 repairHourlyTakeHome · MK-CF-F-186 · src/s",
+  "notes": "23 of 34 of his words appear in what implements it: alone asking became conversion counted entered"
+ },
+ {
+  "id": "DEC-9497",
+  "verdict": "FAINT TRACE",
+  "check": "TRACE",
+  "governs": "src/screens/BudgetScreen.tsx · src/onboarding/modules.",
+  "notes": "only 6 of 21 appear — present: drawn estimate month printed reads · absent: approx asking catches files forms"
+ },
+ {
+  "id": "DEC-9500",
+  "verdict": "LEAVES A TRACE",
+  "check": "TRACE",
+  "governs": "MK-ST-F-094 withArticle (src/domain/_shared/plural.ts)",
+  "notes": "10 of 18 of his words appear in what implements it: asking correct minus order reverse ruling"
  }
 ]

@@ -321,7 +321,7 @@ export default function RetirementCockpit() {
       <SlidingCtx.Provider value={setSliding}>
       <ScrollView automaticallyAdjustKeyboardInsets style={{ flex: 1, backgroundColor: Colors.bgSecondary }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false} scrollEnabled={!sliding}>
         <View style={styles.topbar}>
-          <TouchableOpacity onPress={() => setScreen('current')}><Text style={styles.back}>‹ Where you stand</Text></TouchableOpacity>
+          <TouchableOpacity hitSlop={Tap.slop} onPress={() => setScreen('current')}><Text style={styles.back}>‹ Where you stand</Text></TouchableOpacity>
           <Text style={styles.sandboxTag}>SANDBOX</Text>
         </View>
 
@@ -367,13 +367,13 @@ export default function RetirementCockpit() {
           {/* PRD F11#14 / F8#11 — plan-to (horizon) age is adjustable IN the scenario */}
           <View style={styles.horizonRow}>
             <Text style={styles.horizonLabel}>Plan to age</Text>
-            <TouchableOpacity accessibilityRole="button" style={styles.horizonBtn}
+            <TouchableOpacity hitSlop={Tap.slop} accessibilityRole="button" style={styles.horizonBtn}
               accessibilityLabel="Plan to a younger age"
               onPress={() => { setHorizonSand((h) => Math.max(Math.max(age, rAge) + 1, 75, h - 1)); invalidateMC(); }}>
               <Text style={styles.horizonBtnT}>−</Text>
             </TouchableOpacity>
             <Text style={styles.horizonVal} accessible accessibilityLabel={`Planning to age ${horizonSand}`}>{horizonSand}</Text>
-            <TouchableOpacity accessibilityRole="button" style={styles.horizonBtn}
+            <TouchableOpacity hitSlop={Tap.slop} accessibilityRole="button" style={styles.horizonBtn}
               accessibilityLabel="Plan to an older age"
               onPress={() => { setHorizonSand((h) => Math.min(105, h + 1)); invalidateMC(); }}>
               <Text style={styles.horizonBtnT}>+</Text>
@@ -414,7 +414,7 @@ export default function RetirementCockpit() {
                 <View style={styles.legItem}><View style={[styles.legSwatch, { backgroundColor: Colors.primary }]} /><Text style={styles.legT}>median (typical)</Text></View>
               </View>
               <Text style={styles.fx}>Y-axis is log-scaled. When the lower edge drops to the floor, the money has run out in those scenarios.</Text>
-              <TouchableOpacity onPress={runMC}><Text style={[styles.editLink2, { marginTop: 8 }]}>↻ Re-run</Text></TouchableOpacity>
+              <TouchableOpacity hitSlop={Tap.slop} onPress={runMC}><Text style={[styles.editLink2, { marginTop: 8 }]}>↻ Re-run</Text></TouchableOpacity>
             </>
           )}
         </View>
@@ -423,8 +423,8 @@ export default function RetirementCockpit() {
         <TouchableOpacity style={styles.save} onPress={useAsPlan}><Text style={styles.saveT}>Use as my plan</Text></TouchableOpacity>
         <Text style={styles.actionHint}>Makes these your real numbers — updates “Where you stand”.</Text>
         <View style={styles.scenarioBtnRow}>
-          <TouchableOpacity style={styles.scenarioBtn2} onPress={() => setSaveOpen(true)}><Text style={styles.scenarioBtn2T}>＋ Save scenario</Text></TouchableOpacity>
-          <TouchableOpacity style={styles.scenarioBtn2} onPress={resetSandbox}><Text style={styles.scenarioBtn2T}>↺ Reset to plan</Text></TouchableOpacity>
+          <TouchableOpacity hitSlop={Tap.slop} style={styles.scenarioBtn2} onPress={() => setSaveOpen(true)}><Text style={styles.scenarioBtn2T}>＋ Save scenario</Text></TouchableOpacity>
+          <TouchableOpacity hitSlop={Tap.slop} style={styles.scenarioBtn2} onPress={resetSandbox}><Text style={styles.scenarioBtn2T}>↺ Reset to plan</Text></TouchableOpacity>
         </View>
         <Text style={styles.actionHint}>Save = bookmark this what-if to compare later (doesn’t change your plan). Reset = pull the sliders back to your current plan.</Text>
 
@@ -441,7 +441,7 @@ export default function RetirementCockpit() {
               </TouchableOpacity>
             ))}
             {(store.retirementScenarios?.length ?? 0) >= 2 && (
-              <TouchableOpacity accessibilityRole="button" onPress={() => { setPickMode(!pickMode); setPicked([]); }}
+              <TouchableOpacity hitSlop={Tap.slop} accessibilityRole="button" onPress={() => { setPickMode(!pickMode); setPicked([]); }}
                 accessibilityLabel={pickMode ? 'Cancel comparing' : 'Compare two scenarios side by side'}>
                 <Text style={styles.compareLink}>{pickMode ? 'Cancel' : 'Compare two ›'}</Text>
               </TouchableOpacity>
@@ -531,7 +531,7 @@ export default function RetirementCockpit() {
                     )}
                   </View>
                 </View>
-                <TouchableOpacity onPress={() => setEarmarkOpen(true)}><Text style={styles.editLink}>⚙︎ Edit what counts toward retirement ›</Text></TouchableOpacity>
+                <TouchableOpacity hitSlop={Tap.slop} onPress={() => setEarmarkOpen(true)}><Text style={styles.editLink}>⚙︎ Edit what counts toward retirement ›</Text></TouchableOpacity>
             {!!leavesOut && <Text style={styles.note}>Nest egg {leavesOut}</Text>}{/* (DEC-4036k, 2026-10-10) */}
               </>
             ) : (
@@ -563,7 +563,7 @@ export default function RetirementCockpit() {
 
           {/* Simple: one action to reveal the mechanics */}
           {simple && !showDetails && nestEgg > 0 && (
-            <TouchableOpacity style={styles.detailsBtn} onPress={() => setShowDetails(true)}>
+            <TouchableOpacity hitSlop={Tap.slop} style={styles.detailsBtn} onPress={() => setShowDetails(true)}>
               <Text style={styles.detailsBtnTxt}>See the details — taxes, required withdrawals, draw order  →</Text>
             </TouchableOpacity>
           )}
@@ -680,7 +680,7 @@ export default function RetirementCockpit() {
                 ))}
               </View>
             </View>
-            <TouchableOpacity onPress={() => setEarmarkOpen(true)}><Text style={styles.editLink}>⚙︎ Edit what counts toward retirement ›</Text></TouchableOpacity>
+            <TouchableOpacity hitSlop={Tap.slop} onPress={() => setEarmarkOpen(true)}><Text style={styles.editLink}>⚙︎ Edit what counts toward retirement ›</Text></TouchableOpacity>
             {!!leavesOut && <Text style={styles.note}>Nest egg {leavesOut}</Text>}{/* (DEC-4036k, 2026-10-10) */}
           </>
         ) : (
@@ -735,7 +735,7 @@ export default function RetirementCockpit() {
               : `You returned ${(actualReturn * 100).toFixed(2)}% over the last 12 months vs a ${(benchBlended * 100).toFixed(2)}% benchmark — ${beatBy! >= 0 ? `${(beatBy! * 100).toFixed(2)} pts ahead` : `${(Math.abs(beatBy!) * 100).toFixed(2)} pts behind`}.`}
           </Text>
           {!simple && <Text style={styles.tFootMuted}>“Your 12-mo” = the historic 12-month return you enter on each holding. Benchmark = the asset class’s historical index return (not editable); past performance isn’t a guarantee, and a 12-mo actual vs a ~30-yr average is directional only.</Text>}
-          <TouchableOpacity onPress={() => router.push('/performance')}><Text style={[styles.editLink2, { marginTop: 10 }]}>📈 Track live performance vs benchmark ›</Text></TouchableOpacity>
+          <TouchableOpacity hitSlop={Tap.slop} onPress={() => router.push('/performance')}><Text style={[styles.editLink2, { marginTop: 10 }]}>📈 Track live performance vs benchmark ›</Text></TouchableOpacity>
         </View>
       )}
 
@@ -1004,7 +1004,7 @@ export function EarmarkSheet({ open, onClose, assets, nestEgg, onSet, onDone, re
                     <View style={styles.pctBox}><TextInput style={styles.pctIn} keyboardType="number-pad" value={String(pct)} onChangeText={(t) => onSet(a.asset_id, clamp(Math.round(num(t)), 0, 100))} /><Text style={styles.pctU}>%</Text></View>
                     <Text style={styles.counts}>{moneyCompact(earmarkedAmount(a, carId, homeId), 'M')}</Text>
                     {a.retirement_pct != null && (
-                      <TouchableOpacity accessibilityLabel={`Use the automatic share for ${a.institution?.trim() || a.label}`} onPress={() => onSet(a.asset_id, null)}>
+                      <TouchableOpacity hitSlop={Tap.slop} accessibilityLabel={`Use the automatic share for ${a.institution?.trim() || a.label}`} onPress={() => onSet(a.asset_id, null)}>
                         <Text style={styles.autoLink}>auto</Text>
                       </TouchableOpacity>
                     )}
@@ -1050,9 +1050,9 @@ function SsEditor({ open, onClose, A, ssDefault, onApply }: { open: boolean; onC
             <View style={styles.acc}>
               <View style={{ flex: 1 }}><Text style={styles.accName}>Claim at age</Text><Text style={styles.accBal}>62 earliest · 67 full · 70 max</Text></View>
               <View style={styles.stepper}>
-                <TouchableOpacity style={styles.stepBtn} onPress={() => setClaim((c) => clamp(c - 1, 62, 70))}><Text style={styles.stepBtnT}>−</Text></TouchableOpacity>
+                <TouchableOpacity hitSlop={Tap.slop} style={styles.stepBtn} onPress={() => setClaim((c) => clamp(c - 1, 62, 70))}><Text style={styles.stepBtnT}>−</Text></TouchableOpacity>
                 <Text style={styles.stepVal}>{claim}</Text>
-                <TouchableOpacity style={styles.stepBtn} onPress={() => setClaim((c) => clamp(c + 1, 62, 70))}><Text style={styles.stepBtnT}>+</Text></TouchableOpacity>
+                <TouchableOpacity hitSlop={Tap.slop} style={styles.stepBtn} onPress={() => setClaim((c) => clamp(c + 1, 62, 70))}><Text style={styles.stepBtnT}>+</Text></TouchableOpacity>
               </View>
             </View>
           </>
@@ -1135,7 +1135,7 @@ function TtmEditor({ account, onClose, benchmark, onApply, onClear }: {
           <Text style={styles.pctU}>% over 12 months</Text>
         </View>
         <TouchableOpacity style={styles.applyBtn} onPress={() => onApply(clamp(num(val) * (val.trim().startsWith('-') ? -1 : 1), -90, 200) / 100)}><Text style={styles.applyT}>Save</Text></TouchableOpacity>
-        {account?.actual_ttm != null && <TouchableOpacity onPress={onClear}><Text style={styles.clearLink}>Clear</Text></TouchableOpacity>}
+        {account?.actual_ttm != null && <TouchableOpacity hitSlop={Tap.slop} onPress={onClear}><Text style={styles.clearLink}>Clear</Text></TouchableOpacity>}
       </View>
           </KeyboardAvoidingView>
     </Modal>

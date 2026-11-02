@@ -21,7 +21,12 @@ const iso = (d: Date) => d.toISOString().slice(0, 10);
 const seriesFor = (start: number, end: number) => {
   const now = new Date();
   const back = (m: number) => iso(new Date(now.getFullYear(), now.getMonth() - m, 1));
-  return { points: [{ date: back(14), close: start }, { date: back(6), close: (start + end) / 2 }, { date: iso(now), close: end }] };
+  // a close near each window's start (R19, 2026-11-01): a year and two days back at the start price (the 1Y eve's close, which the old
+  // rule took from 14 months back) and 93 days back at the middle price (the eve of NVDA's 90-days-ago buy, where its path and the
+  // market's split; the old rule took it from 6 months back) — the price each figure measured from
+  const yearBack = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate() - 2);
+  return { points: [{ date: back(14), close: start }, { date: iso(yearBack), close: start }, { date: back(6), close: (start + end) / 2 },
+    { date: iso(new Date(Date.now() - 93 * 86400e3)), close: (start + end) / 2 }, { date: iso(now), close: end }] };
 };
 
 const NVDA_POS = {

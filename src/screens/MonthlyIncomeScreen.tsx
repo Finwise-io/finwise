@@ -14,7 +14,7 @@ import { SectionBand } from '../components/SectionBand';
 import { useRouter } from 'expo-router';
 import { KeyboardAwareScreen } from '../components/KeyboardAwareScreen';
 import { useStore } from '../store/useStore';
-import { Colors, Spacing, Radii } from '../utils/theme';
+import { Colors, Spacing, Radii, Tap } from '../utils/theme';
 import { money } from '../domain/_shared/num';
 
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
@@ -136,7 +136,7 @@ export default function MonthlyIncomeScreen() {
               placeholder="—" accessibilityLabel="day of month Social Security arrives" />
           </>
         ) : (
-          <TouchableOpacity accessibilityRole="link" onPress={() => router.push('/retirement')}>
+          <TouchableOpacity hitSlop={Tap.slop} accessibilityRole="link" onPress={() => router.push('/retirement')}>
             <Text style={styles.link}>Deciding when to claim? Compare 62 / 67 / 70 in Plan →</Text>
           </TouchableOpacity>
         )}

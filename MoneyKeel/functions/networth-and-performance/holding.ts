@@ -504,10 +504,11 @@ const HOLD = () => theHolding({ position: EXAMPLE_POSITION, accountId: 'a2', pri
  *               MK-PF-F-034 closeOnOrBefore · MK-PF-F-038 periodTotalReturn
  *               MK-PF-F-039 periodReturnParts · MK-PF-F-040 returnSincePurchases
  *               MK-PF-F-055 valueAtClose · MK-PF-F-056 purchasePieces
- *               MK-PF-F-070 holdingPath · MK-PF-F-077 eventPath
- *               MK-XS-F-192 typedValueDatedBack
+ *               MK-PF-F-060 closeDayOnOrBefore · MK-PF-F-070 holdingPath
+ *               MK-PF-F-077 eventPath · MK-PF-F-086 staleStartClose
+ *               MK-PF-F-088 valuedByYouWords · MK-XS-F-192 typedValueDatedBack
  *
- * Reaches ..... 444 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 479 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -517,7 +518,7 @@ const HOLD = () => theHolding({ position: EXAMPLE_POSITION, accountId: 'a2', pri
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 426 more — the full list is on functions_from_code
+ *               … and 461 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
@@ -536,7 +537,9 @@ const EXAMPLE_CLOSES: Record<string, PriceSeries> = {
   // + $10,600)) − 1 = +16.00%. Without it the last close before Jun 1 was Sep 26, 2025's $250, the $15 a share above it read as
   // lost, and VTI read +14.04%, ahead by 2.04 points.)
   VTI: series('VTI', [['2024-09-27', 240], ['2025-09-26', 250], ['2026-05-29', 265], ['2026-09-25', 287.69], ['2026-09-28', 290]]),
-  SPY: series('SPY', [['2024-09-27', 500], ['2025-09-26', 550], ['2026-09-25', 610], ['2026-09-28', 616]]),
+  // (2026-11-01, R19: a start reads a close at most 7 days old — the market over the same dates is measured at the 40 shares' purchase
+  // too, where SPY held only Sep 26, 2025's close; its May 29, 2026 close is added at the $550 the example measured from)
+  SPY: series('SPY', [['2024-09-27', 500], ['2025-09-26', 550], ['2026-05-29', 550], ['2026-09-25', 610], ['2026-09-28', 616]]),
 };
 const EXAMPLE_ACCOUNT = { asset_id: 'a2', label: 'Fidelity Brokerage', kind: 'brokerage', tax_bucket: 'TAXABLE', balance: 40_600, positions: [EXAMPLE_POSITION] } as any;
 /** Example only: runs holdingRowsIn on the worked example and calculates nothing of its own. */
@@ -568,7 +571,7 @@ const COMPARE = (period: '1Y' | '2Y' = '1Y') =>
 const COMPARE_GIVEN =
   '140 shares of VTI on 28 Sep 2026, first bought in Mar 2023. The past year opens 28 Sep 2025, so it is measured from the close '
   + 'of the day before — 26 Sep 2025, the last trading day on or before 27 Sep: VTI closed at $250 then and $290 today; the stock '
-  + 'market (SPY) at $550 then and $616 today. 40 of the shares were bought on 1 Jun 2026 at $265, the price VTI closed at the '
+  + 'market (SPY) at $550 then (and still $550 on 29 May 2026) and $616 today. 40 of the shares were bought on 1 Jun 2026 at $265, the price VTI closed at the '
   + 'evening before, so they count in at what was paid and leave the return VTI\u2019s own move. Closes are dividend-adjusted.';
 
 /** THE FIGURES THIS DOOR HANDS OUT (rule 11). The master file's rows are printed from here. */

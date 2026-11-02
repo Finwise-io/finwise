@@ -62,7 +62,7 @@ Home and every screen opened from another screen still need their Build 53 desig
 
 The file each next task on that screen starts from. It is updated the same day an approval changes it.
 
-**2026-10-31, his decision (DEC-9228):** nothing is put to him for review until the build is ready, and no drawing goes to him for approval now — the lead reads his ‘choosing now to approve mocks’ as ‘not’. Every drawing marked NOT APPROVED below stays so until his TestFlight review; the screens he passes there are marked approved here, with their drawings, citing DEC-9228.
+**2026-10-31, his decision (DEC-9228):** nothing is put to him for review until the build is ready, and no drawing goes to him for approval now — the lead reads his ‘choosing now to approve mocks’ as ‘not’. Every drawing marked NOT APPROVED below stays so until his TestFlight review; the screens he passes there are marked approved here, with their drawings, citing DEC-9228. **2026-11-01, round 4:** 11 drawings now say what changed from their last version — add-account, bonds, alternatives, itemize v02; trade v04; holding-editor v02; activity v02; edit-record v03; holding-detail v02; cash-flow v01; goals v03 (DEC-9285). Dated rows of the round: a typed-total account’s return is its walk’s (DEC-9484), with correction rows on edit-record v03 and v17; no window from a stale price (DEC-9486); 2Y says a year (DEC-9488); printed sums as printed (DEC-9489); setup student loans on Debts and Net worth (DEC-9490, DEC-9491); one pay-frequency table (DEC-9492); every tap 44 by its touch margin, Tap.slop (DEC-9523).
 
 | Screen | Current approved design | Waiting for approval |
 |---|---|---|

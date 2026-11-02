@@ -33,7 +33,7 @@ import { fetchPriceSeries } from '../services/marketData';
  *               MK-ST-F-028 buildDayFromAccounts · MK-XS-F-199 profileOnTheWayIn
  *               MK-XS-F-205 recordsOnTheWayIn
  *
- * Reaches ..... 443 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 478 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -43,7 +43,7 @@ import { fetchPriceSeries } from '../services/marketData';
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 425 more — the full list is on functions_from_code
+ *               … and 460 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
@@ -622,7 +622,7 @@ const DEFAULT_BADGES: Badge[] = [
  *               MK-XS-F-138 deriveKeyFromSecret · MK-XS-F-139 wrapWithSecret
  *               MK-XS-F-199 profileOnTheWayIn
  *
- * Reaches ..... 443 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 478 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -632,7 +632,7 @@ const DEFAULT_BADGES: Badge[] = [
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 425 more — the full list is on functions_from_code
+ *               … and 460 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -690,7 +690,7 @@ function recordsOnTheWayIn(d: any): { transactions?: Transaction[]; assetAccount
  * Answers ..... A PROFILE ON ITS WAY INTO THE STORE — the one set of once-only moves, wherever it comes from: a save, the phone's own copy when the app opens, or the cloud copy (2026-10-25, CF-MMFIX-B; drawing check IN-09).
  *
  * Formula .....
- *     require('.. ÷ domain ÷ income ÷ old − rent − migration').move old rent figure(require('.. ÷ domain ÷ income ÷ take − home − mode − migration').convert take home mode(p))
+ *     m = require('.. ÷ domain ÷ income ÷ take − home − mode − migration')
  *     t   when type ! = 'TRANSFER_IN_KIND' (or direction when missing or zero)
  *     {}   when f is missing
  *     {}   when goals seeded
@@ -701,7 +701,6 @@ function recordsOnTheWayIn(d: any): { transactions?: Transaction[]; assetAccount
  *     {}   when count of linked is missing
  *     rebuilt from = out.start by account
  *     rebuilt at = the date ).to isostring(   when count of out.days is missing
- *     {}   when prev is missing
  *     [LOOP — the answer is found inside a loop the extractor cannot render; the steps above are the ones before it. Read by hand.]
  *     … the first steps only — the rest of the body needs reading by hand.
  *
@@ -730,7 +729,9 @@ function recordsOnTheWayIn(d: any): { transactions?: Transaction[]; assetAccount
  * Changed ..... not in git yet (—)
  */
 function profileOnTheWayIn<T>(p: T): T {
-  return require('../domain/income/old-rent-migration').moveOldRentFigure(require('../domain/income/take-home-mode-migration').convertTakeHomeMode(p));
+  // the hourly take-home the old conversion read as a month is converted again, on the hours entered (R23, 2026-11-01, FX-CF-B)
+  const m = require('../domain/income/take-home-mode-migration');
+  return require('../domain/income/old-rent-migration').moveOldRentFigure(m.repairHourlyTakeHome(m.convertTakeHomeMode(p)));
 }
 
 export const useStore = create<AppState>()(

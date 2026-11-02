@@ -21,7 +21,7 @@ import { incomeMonthlyGrid } from '../domain/income';
 import { MortgageRateCompare } from '../components/MortgageRateCompare';
 import { willItLastInputs } from '../domain/retirement/willItLast';
 import { FALLBACK_TREASURY } from '../services/economicData';
-import { minimumDebtService, payoffPlan, requiredPayment, debtKind, paymentShape, rateNotEntered, type PayoffMethod, type Debt } from '../domain/debt';
+import { minimumDebtService, payoffPlan, requiredPayment, debtKind, paymentShape, rateNotEntered, setupStudentLoans, setupLoanSentences, type PayoffMethod, type Debt } from '../domain/debt';
 import { theDebts, debtLoad } from '../../MoneyKeel/functions/cashflow/the-debts';   // debtLoad: what the debts ask of the income (2026-11-01)
 import { theNetWorth } from '../../MoneyKeel/functions/networth-and-performance/net-worth';   // which debts' payments were never entered: the one list
 import { useNetWorthInputs } from '../hooks/useNetWorthInputs';
@@ -152,7 +152,10 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
   // advances each rule's nextDate, so re-running generates nothing until the next period is due)
   React.useEffect(() => { applyRecurringIncomes?.(); applyRecurringExpenses?.(); }, []);
 
-  const totalDebt = debtsView.reduce((s: number, d: DebtEntry) => s + d.balance, 0);
+  // ONE DEBT TOTAL (2026-11-01, the lead's R22; CF4-03): a student loan entered in setup is a debt, so YOUR DEBT counts it — it read
+  // "$0 · Nothing entered yet" directly above "$30,000 borrowed"
+  const setupLoans = setupStudentLoans(op, liabilities ?? []);   // only the setup loans no debt entered is (FX-NW, R22: counted once)
+  const totalDebt = debtsView.reduce((s: number, d: DebtEntry) => s + d.balance, 0) + setupLoans.owed;
 
   function handleDeleteDebt(id: string) {
     Alert.alert('Delete debt', 'Remove this debt entry?', [
@@ -435,8 +438,8 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
             <TouchableOpacity disabled={isCurrentMonth} onPress={() => setMonthOffset((m) => Math.min(0, m + 1))} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}><Text style={[styles.monthArrow, isCurrentMonth && { opacity: 0.25 }]}>›</Text></TouchableOpacity>
             </>)}
             <View style={{ flex: 1 }} />
-            {(recurringIncomes.length + recurringExpenses.length) > 0 && <TouchableOpacity onPress={() => setRecurringMgr(true)}><Text style={styles.sectionLink}>↻ Recurring</Text></TouchableOpacity>}
-            <TouchableOpacity onPress={() => setTab('Import')}><Text style={styles.sectionLink}>⤓ Import</Text></TouchableOpacity>
+            {(recurringIncomes.length + recurringExpenses.length) > 0 && <TouchableOpacity hitSlop={Tap.slop} onPress={() => setRecurringMgr(true)}><Text style={styles.sectionLink}>↻ Recurring</Text></TouchableOpacity>}
+            <TouchableOpacity hitSlop={Tap.slop} onPress={() => setTab('Import')}><Text style={styles.sectionLink}>⤓ Import</Text></TouchableOpacity>
           </View>
 
           <View style={styles.strip}>
@@ -514,7 +517,7 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
                 <Swipeable
                   overshootRight={false}
                   renderRightActions={() => (
-                    <TouchableOpacity style={styles.swipeDel} onPress={() => deleteEntry(item.kind, item)}>
+                    <TouchableOpacity hitSlop={Tap.slop} style={styles.swipeDel} onPress={() => deleteEntry(item.kind, item)}>
                       <Text style={styles.swipeDelTxt}>Delete</Text>
                     </TouchableOpacity>
                   )}
@@ -544,7 +547,7 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
           {deleted && (
             <View style={styles.undoBar}>
               <Text style={styles.undoTxt} numberOfLines={1}>Deleted {deleted.kind === 'income' ? (deleted.entry.source || 'income') : (deleted.entry.store || deleted.entry.category || 'expense')}</Text>
-              <TouchableOpacity onPress={undoDelete}><Text style={styles.undoAction}>Undo</Text></TouchableOpacity>
+              <TouchableOpacity hitSlop={Tap.slop} onPress={undoDelete}><Text style={styles.undoAction}>Undo</Text></TouchableOpacity>
             </View>
           )}
           {/* FAB */}
@@ -696,11 +699,11 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
       <Modal visible={catFormVisible} animationType={modalAnimation()} presentationStyle="pageSheet">
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
           <View style={styles.modalHeader}>
-            <TouchableOpacity onPress={() => setCatFormVisible(false)}>
+            <TouchableOpacity hitSlop={Tap.slop} onPress={() => setCatFormVisible(false)}>
               <Text style={styles.modalCancel}>Cancel</Text>
             </TouchableOpacity>
             <Text style={styles.modalTitle}>New category</Text>
-            <TouchableOpacity onPress={saveCustomCategory}>
+            <TouchableOpacity hitSlop={Tap.slop} onPress={saveCustomCategory}>
               <Text style={styles.modalSave}>Save</Text>
             </TouchableOpacity>
           </View>
@@ -751,7 +754,8 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
           <View style={styles.debtCard}>
             {/* every box title on a dark-green bar, edge to edge (his words, DEC-8839; the lead's R1, 2026-10-27; cash-flow_v01's row of that date) — the four were quiet grey labels and a plain title */}
             <SectionBand inCard onRowEdges inset={16} title="YOUR DEBT" />
-            <Text style={[styles.debtHero, { color: totalDebt > 0 ? Colors.red : Colors.primary }]} accessible
+            {/* a $0 in the drawing's grey for a $0 with nothing behind it, never the brand green (2026-11-01, CF4-04) */}
+            <Text style={[styles.debtHero, { color: totalDebt > 0 ? Colors.red : Colors.textSecondary }]} accessible
               accessibilityLabel={`You owe ${figSaid('MK-NW-M-009', Math.round(totalDebt))}`}>{fig('MK-NW-M-009', Math.round(totalDebt))}</Text>
             {/* NOTHING ENTERED IS SAID, WITH ONE DOOR (Q48 — DEC-0260, DEC-0431; 2026-10-25, CF-18): a brand-new person read "across 0
                 debts · $0/month in payments · ~$0/month interest", a 🎉, an edit hint with nothing to tap and a second door */}
@@ -761,7 +765,15 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
                       also printed "· ~$113/month interest", a figure no row keeps (2026-10-27, CF2-03) */}
                   across {plural(activeDebts.length, 'debt')} · {fig('MK-NW-M-012', Math.round(debtsDoor.paymentsMonthly))}/month in payments
                 </SaidText>
-              : <EmptyNote door="debts" onPress={() => setDebtSheet({ open: true })} />}
+              : setupLoans.owed > 0 ? null : <EmptyNote door="debts" onPress={() => setDebtSheet({ open: true })} />}
+            {/* the student loans entered in setup are in the total, and said (R22, CF4-03) */}
+            {setupLoans.owed > 0 && (
+              <SaidText style={styles.debtSub}>Includes {fig('MK-CF-M-105', setupLoans.owed)} of student loans entered in setup — repayment starts after you graduate.</SaidText>
+            )}
+            {/* a setup loan not owed yet, or with no start month, said in words — the one rule, the same sentences as Net worth (R22a, 2026-11-01) */}
+            {setupLoanSentences(op, (liabilities ?? []) as Debt[], (n) => fig('MK-NW-M-010', Math.round(n))).map((t) => (
+              <SaidText key={t} style={styles.debtSub}>{t}</SaidText>
+            ))}
             {/* the payments above leave out one never entered, and say so in Net worth's words (2026-10-25) */}
             {payNotEntered.length > 0 && (
               <Text style={styles.debtSub}>{payNotEntered.map((x) => x.label).join(', ')} {plural(payNotEntered.length, 'payment', '·')} not entered, so {payNotEntered.length === 1 ? 'it is' : 'they are'} not included. Enter {payNotEntered.length === 1 ? 'it' : 'them'} to include.</Text>
@@ -883,7 +895,7 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
           {/* "+ Add debt account" UNDER THE LIST, as row 6 keeps it (DEC-1560; 2026-10-27, CF2-05) — it was printed after PROGRESS. The
               edit hint "Tap a debt to edit • Hold to delete" is on no drawing and no row (CF2-04): each row says it in words to a screen reader */}
           {activeDebts.length > 0 && (
-            <TouchableOpacity style={styles.setLimitsBtn} onPress={() => setDebtSheet({ open: true })} activeOpacity={0.8}
+            <TouchableOpacity hitSlop={Tap.slop} style={styles.setLimitsBtn} onPress={() => setDebtSheet({ open: true })} activeOpacity={0.8}
               accessibilityRole="button" accessibilityLabel="Add debt account">
               <Text style={styles.setLimitsBtnText}>+ Add debt account</Text>
             </TouchableOpacity>
@@ -926,7 +938,7 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
               <SectionBand inCard onRowEdges inset={16} title="STUDENT LOAN OUTLOOK" />
               <Text style={styles.loanBig}>{fig('MK-CF-M-105', load.loans.borrowed)} <Text style={styles.loanBigSub}>borrowed</Text></Text>
               {load.loans.monthly > 0 ? (<>
-                <SaidText style={styles.loanLine}>≈ <Text style={{ fontWeight: '800' }}>{figPer('MK-CF-M-106', load.loans.monthly)}</Text> once you’re repaying · {fig('MK-CF-M-107', load.loans.interest)} total interest</SaidText>
+                <SaidText style={styles.loanLine}>≈<Text style={{ fontWeight: '800' }}>{figPer('MK-CF-M-106', load.loans.monthly)}</Text> once you’re repaying · {fig('MK-CF-M-107', load.loans.interest)} total interest</SaidText>
                 {load.loans.shareOfIncome != null && <Text style={styles.planNote2}>That’s ~{fig('MK-CF-M-108', load.loans.shareOfIncome)} of today’s income — keeping total debt under 20% keeps you comfortable.</Text>}
               </>) : (
                 <Text style={styles.planNote2}>Add an interest rate and term to each loan (in setup) to see the monthly repayment.</Text>
@@ -942,7 +954,7 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
       {/* ── Import tab ───────────────────────────────────────────── */}
       {tab === 'Import' && (
         <ScrollView automaticallyAdjustKeyboardInsets style={{ flex: 1 }} contentContainerStyle={{ padding: Spacing.base, gap: Spacing.sm }}>
-          <TouchableOpacity onPress={() => setTab('Activity')} style={{ alignSelf: 'flex-start' }}><Text style={styles.sectionLink}>‹ Back to Activity</Text></TouchableOpacity>
+          <TouchableOpacity hitSlop={Tap.slop} onPress={() => setTab('Activity')} style={{ alignSelf: 'flex-start' }}><Text style={styles.sectionLink}>‹ Back to Activity</Text></TouchableOpacity>
           {/* the box titles on dark-green bars (his words, DEC-8839; the lead's R1, 2026-10-27; cash-flow_v01's row of that date) */}
           <Card style={styles.importBox}>
             <SectionBand inCard onRowEdges inset={16} title="IMPORT FROM EXCEL OR CSV" />
@@ -988,9 +1000,9 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
       <Modal visible={!!payDebt} animationType={modalAnimation()} presentationStyle="pageSheet">
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
           <View style={styles.modalHeader}>
-            <TouchableOpacity onPress={() => setPayDebt(null)}><Text style={styles.modalCancel}>Cancel</Text></TouchableOpacity>
+            <TouchableOpacity hitSlop={Tap.slop} onPress={() => setPayDebt(null)}><Text style={styles.modalCancel}>Cancel</Text></TouchableOpacity>
             <Text style={styles.modalTitle}>Log payment</Text>
-            <TouchableOpacity onPress={logPayment}><Text style={styles.modalSave}>Log</Text></TouchableOpacity>
+            <TouchableOpacity hitSlop={Tap.slop} onPress={logPayment}><Text style={styles.modalSave}>Log</Text></TouchableOpacity>
           </View>
           <ScrollView automaticallyAdjustKeyboardInsets contentContainerStyle={{ padding: Spacing.base, gap: Spacing.sm }}>
             <Text style={[styles.budgetCardSub, { marginBottom: 4 }]}>{payDebt?.label} · {fig('MK-NW-M-010', Math.round(payDebt?.remaining_balance || 0))} balance</Text>
@@ -1011,11 +1023,11 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
       <Modal visible={limitsVisible} animationType={modalAnimation()} presentationStyle="pageSheet">
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
           <View style={styles.modalHeader}>
-            <TouchableOpacity onPress={() => setLimitsVisible(false)}>
+            <TouchableOpacity hitSlop={Tap.slop} onPress={() => setLimitsVisible(false)}>
               <Text style={styles.modalCancel}>Cancel</Text>
             </TouchableOpacity>
             <Text style={styles.modalTitle}>Monthly limits</Text>
-            <TouchableOpacity onPress={saveLimits}>
+            <TouchableOpacity hitSlop={Tap.slop} onPress={saveLimits}>
               <Text style={styles.modalSave}>Save</Text>
             </TouchableOpacity>
           </View>
@@ -1036,10 +1048,8 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
                     </View>
                     <Text style={styles.limitLabel}>{label}</Text>
                     <View style={styles.limitInputWrap}>
-                      <TouchableOpacity
-                        onPress={() => setDraftUnits((u) => ({ ...u, [label]: (u[label] ?? 'dollar') === 'pct' ? 'dollar' : 'pct' }))}
-                        hitSlop={{ top: 10, bottom: 10, left: 8, right: 8 }}
-                        accessibilityRole="button"
+                      <TouchableOpacity hitSlop={Tap.slop}
+                        onPress={() => setDraftUnits((u) => ({ ...u, [label]: (u[label] ?? 'dollar') === 'pct' ? 'dollar' : 'pct' }))} accessibilityRole="button"
                         accessibilityLabel={`${label} unit, currently ${(draftUnits[label] ?? 'dollar') === 'pct' ? 'percent' : 'dollars'}; tap to switch`}>
                         <Text style={[styles.limitDollar, { color: Colors.primary, fontWeight: '800' }]}>
                           {(draftUnits[label] ?? 'dollar') === 'pct' ? '%' : '$'}
@@ -1071,7 +1081,7 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
         <View style={styles.modalHeader}>
           <View style={{ width: 50 }} />
           <Text style={styles.modalTitle}>Recurring</Text>
-          <TouchableOpacity onPress={() => setRecurringMgr(false)}><Text style={styles.modalSave}>Done</Text></TouchableOpacity>
+          <TouchableOpacity hitSlop={Tap.slop} onPress={() => setRecurringMgr(false)}><Text style={styles.modalSave}>Done</Text></TouchableOpacity>
         </View>
         <ScrollView automaticallyAdjustKeyboardInsets contentContainerStyle={{ padding: Spacing.base, gap: Spacing.sm }}>
           <Text style={[styles.budgetCardSub, { marginBottom: 4 }]}>These auto-add each month. “Stop” keeps past entries but generates no more.</Text>
@@ -1086,7 +1096,7 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
                     <Text style={styles.limitLabel}>{r.store || r.category}</Text>
                     <Text style={{ fontSize: Typography.sizes.xs, color: Colors.textTertiary }}>{fig('MK-CF-M-014', Math.round(r.amount))} · {r.frequency} · {r.category}</Text>
                   </View>
-                  <TouchableOpacity onPress={() => deleteRecurringExpense(r.id)}><Text style={{ color: Colors.red, fontWeight: '700', fontSize: Typography.sizes.sm }}>Stop</Text></TouchableOpacity>
+                  <TouchableOpacity hitSlop={Tap.slop} onPress={() => deleteRecurringExpense(r.id)}><Text style={{ color: Colors.red, fontWeight: '700', fontSize: Typography.sizes.sm }}>Stop</Text></TouchableOpacity>
                 </View>
               ))}
               {recurringIncomes.map((r: any) => (
@@ -1096,7 +1106,7 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
                     <Text style={styles.limitLabel}>{r.source}</Text>
                     <Text style={{ fontSize: Typography.sizes.xs, color: Colors.textTertiary }}>{fig('MK-CF-M-012', Math.round(r.amount))} · {r.frequency} · income</Text>
                   </View>
-                  <TouchableOpacity onPress={() => deleteRecurringIncome(r.id)}><Text style={{ color: Colors.red, fontWeight: '700', fontSize: Typography.sizes.sm }}>Stop</Text></TouchableOpacity>
+                  <TouchableOpacity hitSlop={Tap.slop} onPress={() => deleteRecurringIncome(r.id)}><Text style={{ color: Colors.red, fontWeight: '700', fontSize: Typography.sizes.sm }}>Stop</Text></TouchableOpacity>
                 </View>
               ))}
             </>
@@ -1164,9 +1174,9 @@ function TxnSheet({ state, onClose, onDelete }: { state: { open: boolean; editin
     <Modal visible={state.open} animationType={modalAnimation()} presentationStyle="pageSheet">
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
         <View style={styles.modalHeader}>
-          <TouchableOpacity onPress={onClose}><Text style={styles.modalCancel}>Cancel</Text></TouchableOpacity>
+          <TouchableOpacity hitSlop={Tap.slop} onPress={onClose}><Text style={styles.modalCancel}>Cancel</Text></TouchableOpacity>
           <Text style={styles.modalTitle}>{editing ? 'Edit' : 'Add'} {kind === 'income' ? 'income' : 'expense'}</Text>
-          <TouchableOpacity onPress={save} disabled={amt <= 0}><Text style={[styles.modalSave, amt <= 0 && { opacity: 0.4 }]}>Save</Text></TouchableOpacity>
+          <TouchableOpacity hitSlop={Tap.slop} onPress={save} disabled={amt <= 0}><Text style={[styles.modalSave, amt <= 0 && { opacity: 0.4 }]}>Save</Text></TouchableOpacity>
         </View>
         <ScrollView automaticallyAdjustKeyboardInsets contentContainerStyle={{ padding: Spacing.base, gap: Spacing.sm, paddingBottom: 48 }} keyboardShouldPersistTaps="handled">
           {!editing && (

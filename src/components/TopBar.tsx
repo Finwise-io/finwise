@@ -8,7 +8,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../store/useStore';
-import { Colors, Spacing, Radii } from '../utils/theme';
+import { Colors, Spacing, Radii, Tap } from '../utils/theme';
 import { resolveLens, tabOrder, type FccTab } from '../domain/profile/lens';
 import { TAB_META } from '../constants/tabs';
 import { modalAnimation } from '../hooks/reducedMotion';
@@ -169,7 +169,7 @@ export default function TopBar({ back, onBack }: { back?: boolean; onBack?: () =
             {/* footer pinned BELOW the scroll area so Rewards/Tips/Settings are always visible */}
             <View style={s.footerRow}>
               {FOOTER.map((m) => (
-                <TouchableOpacity key={m.t} style={s.footerItem} onPress={() => go(m)} accessibilityRole="button" accessibilityLabel={m.t}>
+                <TouchableOpacity hitSlop={Tap.slop} key={m.t} style={s.footerItem} onPress={() => go(m)} accessibilityRole="button" accessibilityLabel={m.t}>
                   <Text style={s.footerE}>{m.e}</Text>
                   <Text style={s.footerT}>{m.t}</Text>
                 </TouchableOpacity>

@@ -69,7 +69,7 @@ export type CountedWord = keyof typeof PLURAL_WORDS;
  *               MK-XS-F-002 dataGaps · MK-XS-F-003 gapsHeadline
  *               MK-XS-F-183 writeFigure
  *
- * Reaches ..... 452 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 487 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -79,7 +79,7 @@ export type CountedWord = keyof typeof PLURAL_WORDS;
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 434 more — the full list is on functions_from_code
+ *               … and 469 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-064 the unit beside a quantity — shares, coins, contracts, ounces or units
@@ -129,12 +129,12 @@ const LETTER_SAID_WITH_AN = 'AEFHILMNORSX';
  *     text   when (NO_ARTICLE_WORDS as readonly string[]).includes(lower)
  *     first = text.split( ÷ [^A − za − z0 − 9] ÷ ).find((w) => length > 0) (or '' when missing)
  *     word = first.to lower case()
- *     lead = the first of text.match( ÷ ^\d+ ÷ ) (or [''] when missing)
+ *     lead = the first of text.replace( ÷ ^[$−-]+ ÷ , '').match( ÷ ^\d+ ÷ ) (or [''] when missing)
  *     the answer = `${an ? 'an' : 'a'} ${text}`
  *
- * Called by ... MK-NW-F-067 plural
+ * Called by ... MK-CF-F-302 setupLoanSentences · MK-NW-F-067 plural
  *
- * Reaches ..... 453 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 488 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -144,7 +144,7 @@ const LETTER_SAID_WITH_AN = 'AEFHILMNORSX';
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 435 more — the full list is on functions_from_code
+ *               … and 470 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -160,7 +160,8 @@ export function withArticle(phrase: string): string {
   let an: boolean;
   if (/^\d/.test(first)) {
     // said as a number: 8, 80, 800 and 8,000 begin "eight"; 11 and 18 (and 11,000) begin "eleven" and "eighteen"
-    const lead = (text.match(/^\d+/) ?? [''])[0];
+    // a money figure is said by its number: '$8,000' is 'an eight thousand…', '$30,000' 'a thirty thousand…' (2026-11-01) — the $ is not a word
+    const lead = (text.replace(/^[$−-]+/, '').match(/^\d+/) ?? [''])[0];
     an = lead.startsWith('8') || lead === '11' || lead === '18';
   } else if ((SAID_WITH_A as readonly string[]).includes(word)) an = false;
   else if ((SAID_WITH_AN as readonly string[]).includes(word)) an = true;

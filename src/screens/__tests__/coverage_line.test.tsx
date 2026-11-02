@@ -128,7 +128,7 @@ describe('BEGINNING VALUES COME FROM THE RECORD', () => {
     // with no record at all, still nothing
     // R11 (2026-10-31, FX-PF, NW3-02): a typed-total account that sold inside the window and moved money in or out refuses
     // with the movement-day sentence; every other uncovered case still falls to cannotReach
-    expect(src).toMatch(/sentence: covered \? whyNoReturn\(verdict\) : walkReturn === null && flowDay\s*\? whyNoReturn\(\{ rate: null, refused: 'MOVEMENT_DAY_NOT_RECORDED', day: flowDay \} as any\) : cannotReach/);
+    expect(src).toMatch(/sentence: covered \? whyNoReturn\(verdict\) : walkReturn === null && flowDay\s*\? whyNoReturn\(\{ rate: null, refused: 'MOVEMENT_DAY_NOT_RECORDED', day: flowDay \} as any\) : typedRefused \? typedRefused\.f\.sentence : cannotReach/);   // R18: a typed-total account folded into the summary refuses it with its own sentence (2026-11-01)
     expect(src).toMatch(/measured == null && theirDays\.length > 0/);
     // mock v17's mark 16 — a money-weighted rate per year standing in — is gone from the door and the screen
     const screen = read('PerformanceScreen.tsx');

@@ -104,7 +104,8 @@ test('a doc header claims the number the register issued to the function beneath
   // ruling that day) and retired on the register — a retirement lowers the floor by its true number, one
   // 931 on 2026-11-01 (PF-TOOLS): the round-3 functions (MK-CF-F-295, 296, MK-PL-F-098 to 102, MK-ST-F-100) and three by hand
   // (MK-XS-F-209 figPerAsTyped, MK-XS-F-210 savedAmountForBox, MK-PL-F-103 RETIRE_AGE_ASSUMED); the 917 read mid-round was headers not yet written
-  expect(pairs).toBeGreaterThanOrEqual(931);       // it read this many headers, not zero (895 at the end of 2026-10-26)
+  // 950 at the end of 2026-11-01 (PF-TOOLS, round 4): + MK-CF-F-297 to 312 and MK-PF-F-086 to 088 (16 the scan numbered, 3 constants by hand)
+  expect(pairs).toBeGreaterThanOrEqual(950);       // it read this many headers, not zero (895 at the end of 2026-10-26)
   expect([...new Set(offences)]).toEqual([]);
 });
 

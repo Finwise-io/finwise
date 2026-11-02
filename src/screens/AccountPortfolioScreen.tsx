@@ -661,7 +661,7 @@ export default function AccountPortfolioScreen() {
           "tax type not stated" — never "taxable" by default — and "choose ›", in the link colour, opens the account's own
           editor, whose "Held in" choice sets it. */}
       {taxNotStated ? (
-        <TouchableOpacity accessibilityRole="button" accessibilityLabel="Tax type not stated. Tap to choose."
+        <TouchableOpacity hitSlop={Tap.slop} accessibilityRole="button" accessibilityLabel="Tax type not stated. Tap to choose."
           onPress={() => router.push(`/add-account?edit=${account.asset_id}` as any)}>
           <Text style={s.headClass}>{classWords} · {TAX_TYPE_NOT_STATED} — <Text style={s.headClassLink}>choose ›</Text></Text>
         </TouchableOpacity>
@@ -867,7 +867,7 @@ export default function AccountPortfolioScreen() {
             there is nothing to break into. Replaces DEC-0651's condition on that one point; the rest stands. */}
         {insideRows.length === 0 && tickers.length === 0 && (account.balance || 0) > 0
           && source !== 'connected' && (cls === 'stocks_etf' || cls === 'mixed') && (
-          <TouchableOpacity accessibilityRole="button" style={s.itemizeDoor}
+          <TouchableOpacity hitSlop={Tap.slop} accessibilityRole="button" style={s.itemizeDoor}
             accessibilityLabel={`Itemize ${pageName} into holdings`}
             onPress={() => router.push(`/itemize?accountId=${account.asset_id}` as any)}>
             <Text style={s.itemizeDoorT}>🧩 Itemize into holdings →</Text>
@@ -999,12 +999,12 @@ export default function AccountPortfolioScreen() {
         <View style={s.staleCard}>
           <Text style={s.staleTxt}>⏱ Value date unknown — confirm it once and we can tell you when it goes stale.</Text>
           <View style={{ flexDirection: 'row', gap: 8, marginTop: 8 }}>
-            <TouchableOpacity accessibilityRole="button" style={s.staleBtn}
+            <TouchableOpacity hitSlop={Tap.slop} accessibilityRole="button" style={s.staleBtn}
               onPress={() => store.updateAsset?.(account.asset_id, { value_as_of: iso(new Date()) })}
               accessibilityLabel="This value is current — stamp it today">
               <Text style={s.staleBtnTxt}>It’s current</Text>
             </TouchableOpacity>
-            <TouchableOpacity accessibilityRole="button" style={s.staleBtn} onPress={() => setValueSheet(true)}
+            <TouchableOpacity hitSlop={Tap.slop} accessibilityRole="button" style={s.staleBtn} onPress={() => setValueSheet(true)}
               accessibilityLabel="Update the value">
               <Text style={s.staleBtnTxt}>Update it</Text>
             </TouchableOpacity>
@@ -1017,12 +1017,12 @@ export default function AccountPortfolioScreen() {
         <View style={s.staleCard}>
           <Text style={s.staleTxt}>⏱ This value is {fresh.monthsOld} months old — still right?</Text>
           <View style={{ flexDirection: 'row', gap: 8, marginTop: 8 }}>
-            <TouchableOpacity accessibilityRole="button" style={s.staleBtn}
+            <TouchableOpacity hitSlop={Tap.slop} accessibilityRole="button" style={s.staleBtn}
               onPress={() => store.updateAsset?.(account.asset_id, { value_as_of: iso(new Date()) })}
               accessibilityLabel="Still right — keep the amount and re-stamp today">
               <Text style={s.staleBtnTxt}>Still right</Text>
             </TouchableOpacity>
-            <TouchableOpacity accessibilityRole="button" style={s.staleBtn} onPress={() => setValueSheet(true)}
+            <TouchableOpacity hitSlop={Tap.slop} accessibilityRole="button" style={s.staleBtn} onPress={() => setValueSheet(true)}
               accessibilityLabel="Update the value">
               <Text style={s.staleBtnTxt}>Update value</Text>
             </TouchableOpacity>
@@ -1118,7 +1118,7 @@ export default function AccountPortfolioScreen() {
               {/* the one right-hand column: ✎ on a record you entered (it opens its editor), nothing on the broker's */}
               <View testID="right-gutter" style={s.gutter}>
                 {mine && (
-                  <TouchableOpacity onPress={() => setEditRow(t)} hitSlop={{ top: 12, bottom: 12, left: 14, right: 14 }}
+                  <TouchableOpacity onPress={() => setEditRow(t)} hitSlop={Tap.slop}
                     accessibilityRole="button" accessibilityLabel={`Edit or delete your ${recordSaid(t, figSaid('MK-NW-M-062', Math.abs(eff)))}`}>
                     <Text style={s.txnEdit}>✎</Text>
                   </TouchableOpacity>
@@ -1180,7 +1180,7 @@ export default function AccountPortfolioScreen() {
           const sameDay = !!cutDay && txns.slice(shown.length).some((t) => String(t.date ?? '').slice(0, 10) === cutDay);
           const range = !when ? '' : sameDay ? `${when} and older` : `older than ${when}`;
           return (
-            <TouchableOpacity accessibilityRole="button" onPress={() => setShowAll(true)}
+            <TouchableOpacity hitSlop={Tap.slop} accessibilityRole="button" onPress={() => setShowAll(true)}
               accessibilityLabel={`See all activity — ${plural(hiddenCount, 'record', `${hiddenCount} more`)}${range ? `, ${range}` : ''}`}>
               <Text style={s.link}>See all activity{range ? ` (${range})` : ''} ›</Text>
               <Text style={[p.note, s.seeAllCount]}>{plural(hiddenCount, 'record', `${hiddenCount} more`)} below{sameDay ? '' : ' this date'}</Text>
@@ -1309,7 +1309,7 @@ function AltDetail({ account }: { account: AssetAccount }) {
       {account.kind === 'options'
         ? <Text style={s.optNote}>Options are contracts — no "typical yearly return" exists for them. Their value moves with the underlying price, time to expiry and volatility.</Text>
         : <FactRow label="Typical yearly return for this type" value={`~${fig('MK-NW-M-072', ret)} · estimate from history`} />}
-      <TouchableOpacity accessibilityRole="button" onPress={() => router.push('/look-back')}
+      <TouchableOpacity hitSlop={Tap.slop} accessibilityRole="button" onPress={() => router.push('/look-back')}
         accessibilityLabel="Look back: what if this had been in the stock market?">
         <Text style={s.linkTxt}>Look back: what if this had been in the stock market? ›</Text>
       </TouchableOpacity>
@@ -1342,14 +1342,14 @@ function ReportedReturnCard({ account }: { account: AssetAccount }) {
             placeholderTextColor={Colors.textTertiary} value={val} onChangeText={setVal} autoFocus
             accessibilityLabel="Historic 12-month return on your holdings, in percent" />
           <Text style={s.bondLine}>%</Text>
-          <TouchableOpacity accessibilityRole="button" style={s.ttmSave} onPress={save} accessibilityLabel="Save historic 12-month return">
+          <TouchableOpacity hitSlop={Tap.slop} accessibilityRole="button" style={s.ttmSave} onPress={save} accessibilityLabel="Save historic 12-month return">
             <Text style={s.ttmSaveTxt}>Save</Text>
           </TouchableOpacity>
         </View>
       ) : (
         <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 4 }}>
           <Text style={[s.bondLine, { flex: 1 }]}>{ttm != null ? fig('MK-NW-M-073', ttm) : figWords('MK-NW-M-073', 'Not entered')}</Text>
-          <TouchableOpacity accessibilityRole="button" onPress={() => { setVal(ttm != null ? String((ttm * 100).toFixed(2)) : ''); setEditing(true); }}
+          <TouchableOpacity hitSlop={Tap.slop} accessibilityRole="button" onPress={() => { setVal(ttm != null ? String((ttm * 100).toFixed(2)) : ''); setEditing(true); }}
             accessibilityLabel={ttm != null ? 'Edit historic 12-month return' : 'Add historic 12-month return'}>
             <Text style={s.linkTxt}>{ttm != null ? 'Edit' : 'Add'}</Text>
           </TouchableOpacity>

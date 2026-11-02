@@ -94,7 +94,9 @@ describe('source always, date only when stale (DEC-0301)', () => {
       const code = fs.readFileSync(f, 'utf8')
         .replace(/\/\*[\s\S]*?\*\//g, ' ').replace(/(^|[\s;,)}])\/\/.*$/gm, '$1 ');
       // a second copy of the arithmetic is a second definition of "old"
-      if (/86[_,]?400[_,]?000/.test(code) && /stale/i.test(code)) offenders.push(path.relative(SRC, f));
+      // staleStartClose (MK-PF, R19, 2026-11-01) names a window's START close older than START_CLOSE_DAYS, held by its own guard
+      // (src/__tests__/no_stale_window_start_r19.test.ts) — not how old the data is; its name is not a second freshness threshold (2026-11-01, CLEANUP-TESTS)
+      if (/86[_,]?400[_,]?000/.test(code) && /stale/i.test(code.replace(/\bstaleStartClose\b/g, ''))) offenders.push(path.relative(SRC, f));
     }
     expect(offenders).toEqual([]);
   });

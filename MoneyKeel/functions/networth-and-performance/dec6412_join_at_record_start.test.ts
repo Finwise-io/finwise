@@ -167,7 +167,9 @@ describe('DEC-6412 · case (4): mixed — a holding with no price history, money
   const prices: Record<string, any> = {
     VTI: series([['2025-09-29', 160], ['2026-06-30', 200], ['2026-09-30', 210]]),
     VXUS: series([['2026-08-01', 50], ['2026-09-30', 60]]),
-    VOO: series([['2025-09-29', 300], ['2026-08-01', 380], ['2026-09-30', 400]]),
+    // (2026-11-01, R19: a window starts only from a close at most 7 days before it — the record's own part, from Jun 30, read VOO's
+    // start from Sep 29, 2025; the close the evening before it is added at the $300 the hand working has it unmoved at)
+    VOO: series([['2025-09-29', 300], ['2026-06-29', 300], ['2026-08-01', 380], ['2026-09-30', 400]]),
   };
   const priceOf = (t: string) => prices[String(t).trim().toUpperCase()];
   const LEDGER = [{ id: 'dep', date: '2026-06-15', type: 'DEPOSIT', amount: 5_000, account_id: 'bro' },

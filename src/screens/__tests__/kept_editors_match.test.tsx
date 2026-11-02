@@ -435,11 +435,11 @@ describe('Bonds v02', () => {
     // the list's household types for phone 1 would show as "0" in the box (NW2-25: the boxes are read now, not stripped)
     show(BondsScreen, { assetAccounts: BONDS.map((b) => (b.asset_id === 'b1' ? (({ accrued_interest: _typed, ...rest }) => rest)(b) : b)) });
     fireEvent.press(screen.getByText('US Treasury 2027'));
-    const typed = ['US Treasury 2027', '25000', '4.25', 'interest earned since the last coupon, if you know it', 'amount sold (up to $24,650)'];   // 2
+    const typed = ['US Treasury 2027', '25000', '4.25', 'interest earned since the last coupon, if you know it', 'amount sold (up to $24,650)'];   // 2 — as drawn; the box says 'amount sold' since 2026-11-01 (R16, NW4-05)
     // NW2-25: each drawn box, read, in order — a money box as its row of 2026-10-27 says it is shown (DEC-8385: '$25,000' where
     // '25000' is drawn); the rate box keeps its plain 4.25
     expect(noteOf(NW + 'bonds_v02.html').rows).toMatch(/Every money box on this screen shows its figure the way a figure is printed/);
-    expect(inOrder(typed.map((t) => (t === '25000' ? '$25,000' : t)), boxesShown())).toEqual([]);
+    expect(inOrder(typed.map((t) => (t === '25000' ? '$25,000' : t === 'amount sold (up to $24,650)' ? 'amount sold' : t)), boxesShown())).toEqual([]);
     const seg = upTo(P[2], /^Sold the whole position/).filter((l) => !typed.includes(l) && l !== '‹ Back');
     // the drawing's markup breaks two sentences across lines; the build prints each as one
     // his ruling DEC-3390 on top of the drawing (2026-10-09, noted at its top): the value field says it is the
@@ -449,7 +449,8 @@ describe('Bonds v02', () => {
       .replace('Current value (blank = face value)', 'Market value, as your statement shows it — without accrued interest (blank = what you paid, else face value)')   // 20
       .replace("what it's worth now", 'the value on your statement')
       .replace('Account Taxable Trad IRA / 401k Roth', `Held in ${SIX.join(' ')}`)                                                       // 19
-      .replace('edit “Current value” above.', 'edit “Market value” above.')];                                                             // 25
+      .replace('edit “Current value” above.', 'edit “Market value” above.')                                                               // 25
+      .replace('Enter the proceeds to lower or close the position.', 'Enter the proceeds, up to $24,650 (its market value), to lower or close the position.')];   // Bonds v02 row of 2026-11-01 (R16, NW4-05)
     const form = builtLines(screen.toJSON()); const from = form.indexOf('Edit bond');
     expect(from).toBeGreaterThan(0);
     const formWords = norm(form.slice(from));
@@ -499,6 +500,11 @@ describe('Bonds v02', () => {
       'Save', 'Delete bond',
     ];
     expect(designed).toContain('[amount sold (up to $24,650)]');                                                                // the drawn box, read from the drawing
+    // THE ROW OF 2026-11-01 (Bonds v02; R16, NW4-05): the box says 'amount sold' and the line above it states the limit in words
+    expect(noteOf(NW + 'bonds_v02.html').rows).toMatch(/The box now holds the words ‘amount sold’ only; the line above it states the limit in words/);
+    const at = designed.indexOf('[amount sold (up to $24,650)]');
+    designed[at] = '[amount sold]';
+    designed[at - 1] = designed[at - 1].replace('Enter the proceeds to lower or close the position.', 'Enter the proceeds, up to $24,650 (its market value), to lower or close the position.');
     const form = formLines(); const from = form.indexOf('Edit bond');
     expect(from).toBeGreaterThan(0);
     expect(firstDifference(normExact(designed), normExact(form.slice(from)))).toBe('');
@@ -621,13 +627,14 @@ describe('Alternatives v02', () => {
   test('phone 3 · the editor — as ruled (DEC-1560): five drawn lines are not on the form, and exactly those five', () => {
     show(OtherInvestmentsScreen, { assetAccounts: ALTS });
     fireEvent.press(screen.getByText('Bitcoin'));
-    const typed = ['Bitcoin', 'Coinbase', '28000', 'amount sold (up to $28,000)', '‹ Back'];                 // 2
+    const typed = ['Bitcoin', 'Coinbase', '28000', 'amount sold (up to $28,000)', '‹ Back'];   // as drawn; the box says 'amount sold' since 2026-11-01 (R16, NW4-05)                 // 2
     // NW2-25: each drawn box, read, in order — the value box as its row of 2026-10-27 says a money box is shown ('$28,000')
     expect(noteOf(NW + 'alternatives_v02.html').rows).toMatch(/Every money box on this screen shows its figure the way a figure is printed/);
-    expect(inOrder(typed.slice(0, 4).map((t) => (t === '28000' ? '$28,000' : t)), boxesShown())).toEqual([]);
+    expect(inOrder(typed.slice(0, 4).map((t) => (t === '28000' ? '$28,000' : t === 'amount sold (up to $28,000)' ? 'amount sold' : t)), boxesShown())).toEqual([]);
     const form = builtLines(screen.toJSON()); const from = form.indexOf('Edit investment');
     const drawn = upTo(P[2], /^Sold all of it/).filter((l) => !typed.includes(l));
-    const sentence = drawn.slice(drawn.indexOf('🔻 Sell') + 1, drawn.indexOf('Record')).join(' ');           // one sentence in the build
+    const sentence = drawn.slice(drawn.indexOf('🔻 Sell') + 1, drawn.indexOf('Record')).join(' ')           // one sentence in the build
+      .replace('Enter the proceeds to lower or close the position.', 'Enter the proceeds, up to $28,000 (its current value), to lower or close the position.');   // Alternatives v02 row of 2026-11-01
     // 19: the drawn Account and its three choices are the one list, headed Held in (the drawing's READ THIS FIRST row of 2026-10-20)
     const held = (ls: string[]) => { const i = ls.indexOf('Account'); expect(ls.slice(i, i + 4)).toEqual(['Account', 'Taxable', 'Trad IRA / 401k', 'Roth']); return [...ls.slice(0, i), 'Held in', ...SIX, ...ls.slice(i + 4)]; };
     const lines = held([...drawn.slice(0, drawn.indexOf('🔻 Sell') + 1), sentence, ...drawn.slice(drawn.indexOf('Record'))]);
@@ -660,6 +667,11 @@ describe('Alternatives v02', () => {
       'Save', 'Delete',                                                                                                       // 2026-10-25
     ];
     expect(designed).toContain('[amount sold (up to $28,000)]');                                                            // the drawn box
+    // THE ROW OF 2026-11-01 (Alternatives v02; R16, NW4-05): the box says 'amount sold' and the line above it states the limit in words
+    expect(noteOf(NW + 'alternatives_v02.html').rows).toMatch(/The box now holds the words ‘amount sold’ only; the line above it states the limit in words/);
+    const at = designed.indexOf('[amount sold (up to $28,000)]');
+    designed[at] = '[amount sold]';
+    designed[at - 1] = designed[at - 1].replace('Enter the proceeds to lower or close the position.', 'Enter the proceeds, up to $28,000 (its current value), to lower or close the position.');
     const form = formLines(); const from = form.indexOf('Edit investment');
     expect(from).toBeGreaterThan(0);
     expect(firstDifference(normExact(designed), normExact(form.slice(from)))).toBe('');

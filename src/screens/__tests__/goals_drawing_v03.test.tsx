@@ -56,8 +56,11 @@ function openPlan(state: Record<string, any>) {
   const PlanHubScreen = require('../PlanHubScreen').default;
   return render(<PlanHubScreen />);
 }
+/** the drawing's dated rows applied by name: 2026-11-01 (round 4, R21) — a total of interest is whole dollars, "$1,408 of interest"; the
+ *  drawn "$1,407.85" is the drawing's error, its row says so. Each must find its line once. */
+const ROW_EDITS: [string, string][] = [['clear it: $743.42/month, $1,407.85 of interest.', 'clear it: $743.42/month, $1,408 of interest.']];
 const holds = (marker: string, floor: number) => {
-  const d = drawn(marker);
+  const d = drawn(marker).map((l) => ROW_EDITS.reduce((t, [a, b]) => t.split(a).join(b), l));
   expect(firstDifference(normPrinted(d), normPrinted(builtLinesWithBoxes(screen.toJSON())))).toBe('');
   expect(d.length).toBeGreaterThanOrEqual(floor);   // A GUARD MUST PROVE IT LOOKED: the whole phone, not a fragment
 };

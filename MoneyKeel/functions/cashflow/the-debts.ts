@@ -5,7 +5,7 @@
  *  are handed out here, with their inputs and an example that runs.
  */
 import { declareFigures } from '../_figure-spec';
-import { payoffPlan, minimumDebtService, totalDebtMonthly, requiredPayment, rateNotEntered, debtToIncome, loanPayment, type Debt, type PayoffMethod, type PayoffResult } from '../../../src/domain/debt';
+import { payoffPlan, minimumDebtService, totalDebtMonthly, requiredPayment, rateNotEntered, debtToIncome, loanPayment, setupStudentLoans, type Debt, type PayoffMethod, type PayoffResult } from '../../../src/domain/debt';
 import { totalGrossAnnual } from '../../../src/domain/income';
 import { mortgagesByProperty, type MortgageCheck } from '../networth-and-performance/net-worth';   // which property each mortgage is on (DEC-1925)
 
@@ -63,8 +63,12 @@ export interface TheDebts {
  *
  * Called by ... MK-CF-F-211 DEBTS · MK-CF-F-296 LOAD
  *
- * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 9 functions. Change the arithmetic above and these change with it:
  *               MK-CF-F-211 DEBTS · MK-CF-F-296 LOAD
+ *               MK-CF-F-295 debtLoad · MK-CF-F-305 setupLoanDebts
+ *               MK-CF-F-302 setupLoanSentences · MK-CF-F-304 setupLoansAll
+ *               MK-CF-F-303 setupLoansNotEntered · MK-CF-F-301 setupLoansSplit
+ *               MK-CF-F-299 setupStudentLoans
  *
  * Serves ...... MK-CF-M-057 · MK-CF-M-058 · MK-CF-M-059 · MK-CF-M-072
  *               MK-CF-M-073 · MK-CF-M-074 · MK-CF-M-075 · MK-CF-M-089
@@ -137,9 +141,12 @@ export function theDebts(input: { debts: Debt[]; extraMonthly?: number; method?:
  *
  * Called by ... MK-CF-O-018 theDebts
  *
- * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 10 functions. Change the arithmetic above and these change with it:
  *               MK-CF-F-211 DEBTS · MK-CF-F-296 LOAD
- *               MK-CF-O-018 theDebts
+ *               MK-CF-F-295 debtLoad · MK-CF-F-305 setupLoanDebts
+ *               MK-CF-F-302 setupLoanSentences · MK-CF-F-304 setupLoansAll
+ *               MK-CF-F-303 setupLoansNotEntered · MK-CF-F-301 setupLoansSplit
+ *               MK-CF-F-299 setupStudentLoans · MK-CF-O-018 theDebts
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -212,6 +219,7 @@ export function debtLoad(profile: any, debts: Debt[]): {
     borrowed += num(l?.amount);
     if (num(l?.apr) > 0 && num(l?.termYears) > 0) { const p = loanPayment(num(l.amount), num(l.apr), num(l.termYears)); monthly += p.monthly; interest += p.totalInterest; }
   }
+  borrowed = setupStudentLoans(op).owed;   // the one reader of the setup loans (R22): the outlook's "borrowed" is YOUR DEBT's share of them
   const loans = borrowed > 0 ? { borrowed, monthly, interest, shareOfIncome: grossMonthly > 0 ? monthly / grossMonthly : null } : null;
   return { dti, loans };
 }
@@ -234,10 +242,13 @@ const GIVEN = 'A $9,000 card at 24% with a $200 minimum and a $14,000 car loan a
  * Formula .....
  *     the debts(EXAMPLE)
  *
- * Called by ... MK-CF-F-296 LOAD
+ * Called by ... MK-CF-F-296 LOAD · MK-CF-F-304 setupLoansAll
  *
- * Reaches ..... 1 function. Change the arithmetic above and these change with it:
- *               MK-CF-F-296 LOAD
+ * Reaches ..... 8 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-296 LOAD · MK-CF-F-295 debtLoad
+ *               MK-CF-F-305 setupLoanDebts · MK-CF-F-302 setupLoanSentences
+ *               MK-CF-F-304 setupLoansAll · MK-CF-F-303 setupLoansNotEntered
+ *               MK-CF-F-301 setupLoansSplit · MK-CF-F-299 setupStudentLoans
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -387,13 +398,15 @@ export const DEBT_FIGURES = declareFigures({
     worked: { given: LOAD_GIVEN, answer: '8.20%', run: () => LOAD().dti?.ratio ?? null },
   },
   'MK-CF-M-103': {
-    label: 'minimum debt payments', unit: 'money', per: 'month', screens: ['/cashflow'],
+    // a payment, so written to the cent (Q49) — the sum beside the ratio then works as printed (the lead's R21, 2026-11-01; CF4-01):
+    // $386.42 ÷ $5,000 = 7.73%, where "$386" ÷ $5,000 is 7.72%
+    label: 'minimum debt payments', unit: 'money-cents', per: 'month', screens: ['/cashflow'],
     answers: 'What the debts oblige each month at their minimums — the top of the debt-to-income division.',
     formula: 'each debt’s minimum monthly payment, added up (MK-CF-F-025 minimumDebtService)',
     inputs: ['MK-XS-I-016 debt minimum payment'],
     refusal: 'No debt: the box is not drawn.',
     ruled: '2026-11-01',
-    worked: { given: LOAD_GIVEN, answer: '$410/month', run: () => LOAD().dti?.monthlyDebt ?? null },
+    worked: { given: LOAD_GIVEN, answer: '$410.00/month', run: () => LOAD().dti?.monthlyDebt ?? null },
   },
   'MK-CF-M-104': {
     label: 'income before tax a month', unit: 'money', per: 'month', screens: ['/cashflow'],

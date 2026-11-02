@@ -47,7 +47,16 @@ const SCHWAB = {
   ],
 };
 /** VTI's closes: $227.27… well before the window, $250 today → +10.00% over any window that opens after the first */
-const VTI_SERIES = { ticker: 'VTI', points: [{ date: daysAgo(600), close: 250 / 1.1 }, { date: TODAY, close: 250 }] };
+/** two days before a window's start eve, so its close is within R19's 7 days whichever way the eve is counted: 1M, 1Y, 2Y back, and
+ *  Dec 29 of last year for This year */
+const nearEve = (months: number) => { const d = new Date(`${TODAY}T12:00:00`); d.setMonth(d.getMonth() - months); d.setDate(d.getDate() - 2); return isoLocalDate(d); };
+const NEAR_YTD = `${Number(TODAY.slice(0, 4)) - 1}-12-29`;
+const byDay = (pts: { date: string; close: number }[]) => [...pts].sort((a, b) => a.date.localeCompare(b.date));
+// a close near each window's start (R19, 2026-11-01): 1M back, This year (Dec 29) and 1Y back at $227.27… (250 ÷ 1.1), the price each
+// figure measured from (the daysAgo(600) close the old rule carried); 2Y opens before the first close, so it reads that first close.
+// Also daysAgo(402), near the eve of the Performance card's 'Since' window, whose record starts daysAgo(400) (the card test below)
+const VTI_SERIES = { ticker: 'VTI', points: byDay([{ date: daysAgo(600), close: 250 / 1.1 }, { date: daysAgo(402), close: 250 / 1.1 }, { date: nearEve(12), close: 250 / 1.1 }, { date: NEAR_YTD, close: 250 / 1.1 },
+  { date: nearEve(1), close: 250 / 1.1 }, { date: TODAY, close: 250 }]) };
 
 function seed(accounts: any[], extra: Record<string, unknown> = {}) {
   useStore.getState().resetAll();
@@ -102,7 +111,9 @@ describe('the Performance tab, that account\'s card (DEC-5068, 2026-10-13)', () 
       positions: [{ position_id: 'p1', ticker: 'VXUS', asset_class: 'stock_etf', last_price: 330, lots: [{ lot_id: 'l9', shares: 100, cost_per_share: 260, purchase_date: daysAgo(700) }] }] };
     seed([VAN, SCHWAB], {
       snapshotDays: [rec(start, 30000), rec(daysAgo(100), 31500), rec(TODAY, 33000)],
-      priceCache: { VTI: VTI_SERIES, VXUS: { ticker: 'VXUS', points: [{ date: daysAgo(600), close: 300 }, { date: TODAY, close: 330 }] } },
+      // VXUS: a close near each window's start (R19, 2026-11-01): 1M back, Dec 29 and 1Y back at $300, the price each figure measured from
+      priceCache: { VTI: VTI_SERIES, VXUS: { ticker: 'VXUS', points: byDay([{ date: daysAgo(600), close: 300 }, { date: nearEve(12), close: 300 }, { date: NEAR_YTD, close: 300 },
+        { date: nearEve(1), close: 300 }, { date: TODAY, close: 330 }]) } },
     });
     render(<PerformanceScreen />);
     // closed: the one quiet line carries the figures, and the sentence sits below it

@@ -83,7 +83,7 @@ describe('the rate: sign-up and Cash flow give one person one rate', () => {
   test('sign-up\'s income recap: tax $4,444 at ~7%, take-home $50,756 a year — the same as its own monthly average, ≈ $4,230', () => {
     const L = signUp('recap_income');
     expect(L[L.indexOf('Take-home / year') + 1]).toBe(money(50_756));
-    expect(L).toContain(`≈ ${money(4_229.67)}/month average`);
+    expect(L).toContain(`≈${money(4_229.67)}/month average`);
     expect(L[L.indexOf('Tax (~7.41% of your gross)') + 1]).toBe(money(-(4_444)));
     expect(L[L.indexOf('Available /year') + 1]).toBe(money(50_756));
   });
@@ -95,7 +95,7 @@ describe('the rate: sign-up and Cash flow give one person one rate', () => {
     expect(L[L.indexOf('Calculated federal tax') + 2]).toBe(`≈${money(4_444)}/year`);
     const S = signUp('recap_income');
     expect(S[S.indexOf('Tax (~7.41% of your gross)') + 1]).toBe(money(-(4_444)));
-    expect(S).toContain(`≈ ${money(4_229.67)}/month average`);
+    expect(S).toContain(`≈${money(4_229.67)}/month average`);
   });
 });
 

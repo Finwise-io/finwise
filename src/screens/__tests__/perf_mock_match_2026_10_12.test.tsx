@@ -268,7 +268,21 @@ const KNOWN: [number, string, string, string][] = [
   [4, "day one: your value is real, your return starts measuring from today. we never back-fill a year we didn't see.",
     "you added your accounts today. figures for 1m, 1y and longer come from each holding's past prices.",
     'DEC-5291: the day-one line says the longer windows come from price history; DEC-5425 (2026-10-14, "approved."): in his words'],
+  // (d) — the rows of 2026-11-01 on v17 (read by the test below, which proves each row is there)
+  // R20: the 2Y chip is a yearly rate and says so (DEC-0237, DEC-0404)
+  [1, '2y +3.66% 2y is shown', '2y +3.66%/year 2y is shown', 'v17 row of 2026-11-01, R20: the 2Y chip reads "/year"'],
+  [3, '2y +7.30% 2y is shown', '2y +7.30%/year 2y is shown', 'v17 row of 2026-11-01, R20'],
+  // R18 PHONE 4: both accounts typed totals, each one's Return its walk's; the summary 354,314 ÷ 322,814 − 1 = +9.76%; 2Y 1.09758 over 2.003 years
+  [4, '1m +9.86% this year +9.86% 1y +9.86% 2y +4.81% 2y is shown', '1m +9.76% this year +9.76% 1y +9.76% 2y +4.76%/year 2y is shown', 'v17 row of 2026-11-01, R18 PHONE 4 and R20'],
 ];
+
+describe('the rows of 2026-11-01 on v17 the known differences (d) stand on (FX-PF, R18, R20)', () => {
+  const html = require('fs').readFileSync(require('path').join(__dirname, '..', '..', '..', 'MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_performance_v17.html'), 'utf8');
+  test('R20 and R18 PHONE 4 are each written on the drawing', () => {
+    expect(html).toMatch(/2026-11-01<\/td>(?:(?!<\/tr>)[\s\S])*DRAWING CORRECTION, the 2Y window chip/);
+    expect(html).toMatch(/2026-11-01<\/td>(?:(?!<\/tr>)[\s\S])*R18 PHONE 4 — DRAWING CORRECTION/);
+  });
+});
 
 describe('Performance v17 — every word and every figure, in each data state', () => {
   test.each([[1], [3], [4], [5]] as [1 | 3 | 4 | 5][])('phone %i', (n) => {
@@ -408,11 +422,14 @@ describe('ARROWS AND ONE RIGHT EDGE (follow-up, 2026-10-12): "›" on each accou
   const FIGURE = /^(?:[−+]?\$[\d,]+|[+−]?\d+\.\d\d%(?:\/year)?|—)$/;
   test.each([[1, 2], [3, 1], [4, 2]] as [1 | 3 | 4, number][])('phone %i: one "›" per account bar (%i), none on the all-accounts bar or the category rows (DEC-0128)', (n, accounts) => {
     open(n);
-    const arrows = nodes().filter(({ n: x }) => x.type === 'Text' && textOf(x) === '›');
+    const all = nodes();
+    const arrows = all.filter(({ n: x }) => x.type === 'Text' && textOf(x) === '›');
     expect(arrows).toHaveLength(accounts);
-    for (const { parent } of arrows) expect(parent.props.testID).toBe('right-gutter');
+    // in the bar's right gutter: its parent, or — since NW4-04 (2026-11-01) made the arrow a touchable with Tap.slop — its parent's parent
+    const up = (x: any) => all.find(({ n: y }) => y === x)?.parent;
+    for (const { parent } of arrows) expect([parent?.props?.testID, up(parent)?.props?.testID]).toContain('right-gutter');
     // each sits on an account bar: the bar's title names the account
-    const bars = nodes().filter(({ n: x }) => (x.children ?? []).some((c: any) => c?.props?.testID === 'right-gutter' && textOf(c) === '›'));
+    const bars = all.filter(({ n: x }) => (x.children ?? []).some((c: any) => c?.props?.testID === 'right-gutter' && textOf(c) === '›'));
     expect(bars.map(({ n: x }) => textOf(x))).toEqual(expect.arrayContaining([expect.stringMatching(/Brokerage/)]));
     expect(bars.every(({ n: x }) => !/ALL ACCOUNTS|CATEGORY/.test(textOf(x)))).toBe(true);
   });
@@ -523,10 +540,17 @@ describe('FIXED by the drawing check of 2026-10-24 (MM-PF, fixed 2026-10-25) —
     const labels = r.filter((x) => x.t === '✍️ By hand · you update it');
     expect(labels).toHaveLength(2);                                  // the open walk's and the closed line's
     for (const l of labels) expect(l.color).toBe(Colors.textSecondary);
-    // E*TRADE, closed: 90 VOO bought today at $500, worth $550 — worked back, it gained 90 × $50 = $4,500, +10.00%
+    // E*TRADE, closed: 90 VOO bought today at $500, worth $550 — worked back, it gained 90 × $50 = $4,500; its total typed at $52,704
+    // with $3,204 of cash, so its walk is $48,204 → $52,704 and its Return the walk's (R18, 2026-11-01): 52,704 ÷ 48,204 − 1 = +9.34%
+    // (VOO's own +10.00% was printed; that answer is kept below as test.failing)
     const r2 = r.map((x) => x.t); const closed = r2.indexOf('✍️ By hand · you update it', r2.indexOf('▸ E*TRADE BROKERAGE'));
-    expect(r2[closed + 1]).toBe('· wealth generated $4,500 · return +10.00%');
+    expect(r2[closed + 1]).toBe('· wealth generated $4,500 · return +9.34%');
     for (const c of screen.getAllByText('✍️ By hand · you update it')) { let v: any = c.parent; while (v && v.type !== 'View') v = v.parent; expect(StyleSheet.flatten(v.props.style).backgroundColor).toBe(Colors.bgTertiary); }
+  });
+  test.failing('the answer until 2026-11-01, kept (no longer the app\'s): E*TRADE closed on 1M read VOO\'s own +10.00%', () => {
+    open(4); pick('1M');
+    const r2 = shown().map((x) => x.t); const closed = r2.indexOf('✍️ By hand · you update it', r2.indexOf('▸ E*TRADE BROKERAGE'));
+    expect(r2[closed + 1]).toBe('· wealth generated $4,500 · return +10.00%');
   });
   test('D5 · the category bar\'s window words are 13 points, not a money total\'s 15 (v17 .bandv 12; DEC-0059)', () => {
     const r = open(1);
@@ -587,23 +611,32 @@ describe('PF-4 · v17 phone 4: the CD bought today counts at its cost, 0% — Re
     fireEvent.press(b!);
   };
   const after = (r: string[], t: string, from = 0) => { const i = r.indexOf(t, from); expect(i).toBeGreaterThanOrEqual(0); return r[i + 1]; };
-  test.each([['1M'], ['This year'], ['1Y']])('%s: Return +9.86%, Vanguard +9.83%, the Bonds & CDs row +0.00%, and no holding named as left out', (w) => {
+  // R18 (2026-11-01): both accounts are typed totals, so each one's Return is its walk's and the summary folds the two walks —
+  // Vanguard $274,610 → $301,610 (+9.83%: its holdings are its whole total), E*TRADE $48,204 → $52,704 (+9.34%: $3,204 of cash beside
+  // VOO), together 354,314 ÷ 322,814 − 1 = +9.76%, where R4's +9.86% (the holdings' own) was printed. Kept below as test.failing.
+  test.each([['1M'], ['This year'], ['1Y']])('%s: Return +9.76%, Vanguard +9.83%, the Bonds & CDs row +0.00%, and no holding named as left out', (w) => {
     open(4); pick(w);
     const r = shown().map((x) => x.t);
     const sum = r.findIndex((t) => t.startsWith('SUMMARY ·'));
     expect(sum).toBeGreaterThan(0);
-    expect([after(r, 'Wealth generated', sum), after(r, 'Return', sum)]).toEqual(['$31,500', '+9.86%']);
+    expect([after(r, 'Wealth generated', sum), after(r, 'Return', sum)]).toEqual(['$31,500', '+9.76%']);
     expect(after(r, 'Return', r.indexOf('▾ VANGUARD BROKERAGE'))).toBe('+9.83%');
-    expect(r[r.indexOf('· wealth generated $4,500 · return +10.00%')]).toBe('· wealth generated $4,500 · return +10.00%');   // E*TRADE holds no CD
+    expect(r[r.indexOf('· wealth generated $4,500 · return +9.34%')]).toBe('· wealth generated $4,500 · return +9.34%');   // E*TRADE holds no CD; its walk's +9.34%
     const bonds = r.indexOf('Bonds & CDs', r.indexOf('WHAT EACH CATEGORY EARNED'));
     expect(r.slice(bonds, bonds + 3)).toEqual(['Bonds & CDs', '$0', '+0.00%']);
     expect(r.some((t) => /KEYBANK|no price history|gains are not included/.test(t))).toBe(false);
   });
-  test('2Y: +4.81% a year from +9.86% over the two years; Vanguard +4.79% a year from +9.83%', () => {
+  test('2Y: +4.76% a year from +9.76% over the two years; Vanguard +4.79% a year from +9.83%', () => {
     open(4); pick('2Y');
     const r = shown().map((x) => x.t);
-    expect(r).toContain('+9.86% over the two years, which is +4.81%/year — a yearly rate, so it sits fairly beside a one-year window.');
+    // 1.09758 over 2.003 years (Aug 4, 2024 → Aug 4, 2026, both edge days in: 731 days ÷ 365): (1.09758)^(1 ÷ 2.003) − 1 = +4.76%
+    expect(r).toContain('+9.76% over the two years, which is +4.76%/year — a yearly rate, so it sits fairly beside a one-year window.');
     expect(r).toContain('+9.83% over the two years, which is +4.79%/year — a yearly rate, so it sits fairly beside a one-year window.');
+  });
+  test.failing('the answer until 2026-11-01, kept (no longer the app\'s): 1M read +9.86%, the holdings\' own return beside the walks (R4)', () => {
+    open(4); pick('1M');
+    const r = shown().map((x) => x.t);
+    expect(after(r, 'Return', r.findIndex((t) => t.startsWith('SUMMARY ·')))).toBe('+9.86%');
   });
   test.failing('the answer until 2026-10-27, kept (no longer the app\'s): 1M read +10.00%, the CD left out with no sentence', () => {
     open(4); pick('1M');

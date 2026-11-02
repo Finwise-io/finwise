@@ -7,7 +7,7 @@ import {
 import { useRouter } from 'expo-router';
 import { useStore } from '../src/store/useStore';
 import { Button, Card, TipCard } from '../src/components/UI';
-import { Colors, Typography, Spacing, Radii } from '../src/utils/theme';
+import { Colors, Typography, Spacing, Radii, Tap } from '../src/utils/theme';
 import { format } from 'date-fns';
 
 const SAVING_LABELS = [
@@ -72,7 +72,7 @@ export default function SavingsScreen() {
           <Text style={[styles.label, { marginTop: Spacing.md }]}>What is this?</Text>
           <View style={styles.labelGrid}>
             {SAVING_LABELS.map((l) => (
-              <TouchableOpacity
+              <TouchableOpacity hitSlop={Tap.slop}
                 key={l}
                 style={[styles.labelBtn, label === l && styles.labelBtnOn]}
                 onPress={() => setLabel(l)}
@@ -97,7 +97,7 @@ export default function SavingsScreen() {
             <Text style={styles.label}>Link to a goal (optional)</Text>
             <Text style={styles.hint}>This will also add the amount to your goal progress</Text>
             <View style={styles.goalGrid}>
-              <TouchableOpacity
+              <TouchableOpacity hitSlop={Tap.slop}
                 style={[styles.goalBtn, linkedGoal === null && styles.goalBtnOn]}
                 onPress={() => setLinkedGoal(null)}
               >
@@ -105,7 +105,7 @@ export default function SavingsScreen() {
                 <Text style={[styles.goalBtnText, linkedGoal === null && styles.goalBtnTextOn]}>None</Text>
               </TouchableOpacity>
               {goals.map((g) => (
-                <TouchableOpacity
+                <TouchableOpacity hitSlop={Tap.slop}
                   key={g.id}
                   style={[styles.goalBtn, linkedGoal === g.id && styles.goalBtnOn]}
                   onPress={() => setLinkedGoal(g.id)}

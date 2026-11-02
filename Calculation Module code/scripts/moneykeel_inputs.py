@@ -152,6 +152,9 @@ NEW = {
  # 2026-11-01 (PF-TOOLS) — FX-PLAN's Goals v03 (DEC-8889, DEC-9228): a goal is saving toward an amount, or paying off one debt
  'MK-XS-I-083': ('what a goal is — saving toward an amount, or paying off a debt — and the debt a payoff goal pays off',
                  'chosen by the person when they add a goal on the Plan tab (Goals)', [r'g\.kind', r'form\.kind', r'g\.debtId', r'form\.debtId']),
+ # 2026-11-01 (PF-TOOLS) — FX-PF's R19a: a holding's price series may be the values the person typed, not market closes
+ 'MK-XS-I-084': ('that a holding\'s prices are values the person typed, not market closes — a window then starts from the last one however old',
+                 'marked on the price series of a holding priced by hand (PriceSeries.byHand); no screen sets it yet — the tests do', [r'series\??\.byHand']),
 }
 
 # MoneyKeel/functions added 2026-08-27 — new calculations live there, and a folder the sweep

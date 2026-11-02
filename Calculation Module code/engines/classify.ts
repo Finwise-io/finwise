@@ -94,14 +94,15 @@ const CUSIP = /^[0-9A-Z]{9}$/;
  *               MK-CF-F-172 hasWage · MK-CF-F-189 essentialsFromLoggedSpending
  *               MK-CF-F-256 budgetEditorBuckets · MK-CF-F-289 purchaseRecordsFollowEdit
  *               MK-CF-F-290 purchaseRecordsAfterHoldingRemoved · MK-CF-F-291 purchaseRecordsFollowReimport
- *               MK-CF-O-020 theBudgetCounted · MK-NW-F-026 accountDisplayNames
- *               MK-NW-F-027 accountClassBreakdown · MK-NW-F-084 categoryEarnings
- *               MK-NW-F-092 investmentAccountIdsOf · MK-NW-F-104 closedWith
- *               MK-NW-F-106 mortgagesByProperty · MK-NW-F-117 propertyUseMap
- *               MK-NW-F-130 notIncludedSentence · MK-NW-F-143 gainRowBetween
- *               MK-NW-F-149 withoutBlankRows · MK-NW-O-003 theNetWorth
- *               MK-NW-O-004 theEmergencyFund · MK-NW-O-008 thePerformance
- *               MK-PF-F-015 topHoldingConcentration · MK-PF-F-047 isIndividualBondOrCD
+ *               MK-CF-F-304 setupLoansAll · MK-CF-O-020 theBudgetCounted
+ *               MK-NW-F-026 accountDisplayNames · MK-NW-F-027 accountClassBreakdown
+ *               MK-NW-F-084 categoryEarnings · MK-NW-F-092 investmentAccountIdsOf
+ *               MK-NW-F-104 closedWith · MK-NW-F-106 mortgagesByProperty
+ *               MK-NW-F-117 propertyUseMap · MK-NW-F-130 notIncludedSentence
+ *               MK-NW-F-143 gainRowBetween · MK-NW-F-149 withoutBlankRows
+ *               MK-NW-O-003 theNetWorth · MK-NW-O-004 theEmergencyFund
+ *               MK-NW-O-008 thePerformance · MK-PF-F-015 topHoldingConcentration
+ *               MK-PF-F-029 closeAsOf · MK-PF-F-047 isIndividualBondOrCD
  *               MK-PF-F-052 purchaseDateOnRecord · MK-PF-F-053 isBroadIndexOption
  *               MK-PF-F-075 soldOutPositions · MK-PL-F-009 rmdTakenThisYear
  *               MK-PL-F-031 taxOrganizer · MK-ST-F-010 nameEvidence
@@ -115,7 +116,7 @@ const CUSIP = /^[0-9A-Z]{9}$/;
  *               MK-XS-F-187 fixStoredMoney · MK-XS-F-188 fixStoredFees
  *               MK-XS-F-199 profileOnTheWayIn
  *
- * Reaches ..... 479 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 501 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -125,7 +126,7 @@ const CUSIP = /^[0-9A-Z]{9}$/;
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 461 more — the full list is on functions_from_code
+ *               … and 483 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

@@ -13,7 +13,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { ScrollView, View, Text, TextInput, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../store/useStore';
-import { Colors, Spacing, Radii } from '../utils/theme';
+import { Colors, Spacing, Radii, Tap } from '../utils/theme';
 import { maskedMoney, spokenMoney } from '../components/useMoney';
 import { activeSyncProvider, CONSENT_COPY, type FoundAccount } from '../services/sync';
 import { snaptradeConfigured } from '../services/sync/snaptradeClient';
@@ -136,7 +136,7 @@ export default function ConnectFlowScreen() {
   if (step === 'consent') {
     return (
       <ScrollView automaticallyAdjustKeyboardInsets style={s.root} contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
-        <TouchableOpacity accessibilityRole="button" onPress={() => setStep('institution')} accessibilityLabel="Back to the institution list">
+        <TouchableOpacity hitSlop={Tap.slop} accessibilityRole="button" onPress={() => setStep('institution')} accessibilityLabel="Back to the institution list">
           <Text style={s.back}>‹ Back</Text>
         </TouchableOpacity>
         <Text style={s.h1}>Before you connect {institution}</Text>

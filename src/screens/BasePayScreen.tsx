@@ -37,6 +37,7 @@ import { SectionBand } from '../components/SectionBand';
 import { EmptyNote } from '../components/UI';
 import { MoneyBox, amountInBox, plainAmount } from '../components/MoneyBox';
 import { useIncomeProfile } from '../hooks/useIncomeProfile';
+import { payFrequencyOf, PAY_FREQUENCY_NOT_RECOGNISED } from '../domain/income/pay-frequency';   // the one table (R23, 2026-11-01)
 
 type Who = 'you' | 'partner' | 'both';
 const FREQS: { k: string; label: string }[] = [
@@ -44,12 +45,12 @@ const FREQS: { k: string; label: string }[] = [
   { k: 'biweekly', label: 'Bi-weekly' }, { k: 'monthly', label: 'Monthly' },
 ];
 const FREQ_WORD: Record<string, string> = {
-  hourly: 'Hourly', weekly: 'Weekly', biweekly: 'Fortnightly', monthly: 'Monthly',
+  hourly: 'Hourly', weekly: 'Weekly', biweekly: 'Fortnightly', monthly: 'Monthly', annually: 'Yearly',   // the five of the one table (R23)
 };
 // A fortnightly earner types a FORTNIGHT's pay. The months below are still months — a fortnightly
 // figure typed into a monthly box is the mistake this label prevents (mock 2c).
 const PERIOD_WORD: Record<string, string> = {
-  hourly: 'an hour', weekly: 'a week', biweekly: 'a fortnight', monthly: 'each month',
+  hourly: 'an hour', weekly: 'a week', biweekly: 'a fortnight', monthly: 'each month', annually: 'a year',
 };
 const PAID_WORD: Record<string, string> = { hourly: 'hourly', weekly: 'weekly', biweekly: 'fortnightly' };
 const MONTH_ABBR = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
@@ -159,9 +160,11 @@ export default function BasePayScreen({ frame = 'screen', onDone }: {
         <View style={s.group}>
           {/* an hourly wage with no hours a week is no number (DEC-0296): the band carries no total and the card says what is missing */}
           <SectionBand inCard light inset={Spacing.base} onRowEdges title="Your household"
-            value={pay.hoursNotEntered.length ? undefined : `${approx ? '≈' : ''}${figPer('MK-CF-M-031', pay.landsInBank)}`}
-            valueSaid={pay.hoursNotEntered.length ? undefined : `${approx ? 'about ' : ''}${figSaid('MK-CF-M-031', pay.landsInBank)}`} />
-          {pay.hoursNotEntered.length ? (
+            value={pay.hoursNotEntered.length || pay.freqNotRecognised.length ? undefined : `${approx ? '≈' : ''}${figPer('MK-CF-M-031', pay.landsInBank)}`}
+            valueSaid={pay.hoursNotEntered.length || pay.freqNotRecognised.length ? undefined : `${approx ? 'about ' : ''}${figSaid('MK-CF-M-031', pay.landsInBank)}`} />
+          {pay.freqNotRecognised.length ? (
+            <View style={s.warn}><Text style={s.warnT}>{PAY_FREQUENCY_NOT_RECOGNISED}</Text></View>
+          ) : pay.hoursNotEntered.length ? (
             <View style={s.warn}><Text style={s.warnT}>{hoursMissingSentence(pay.hoursNotEntered[0])}</Text></View>
           ) : pay.nothingEntered ? (
             /* NOTHING ENTERED (Q48, IN-08): the one line and its door, never ≈$0, a 10% bracket or a warning about $0 */
@@ -305,7 +308,7 @@ function EarnerSection({ name, wage, onChange, pay, approx, entered, rate, band,
 }) {
   // "rent, a bonus or a spouse’s wage" — the drawn list, less what is already entered (F3)
   const toAdd = band.add.length > 1 ? `${band.add.slice(0, -1).join(', ')} or ${band.add[band.add.length - 1]}` : band.add[0] ?? '';
-  const freq = String(wage.salaryFreq ?? 'monthly');
+  const freq = payFrequencyOf(wage.salaryFreq);   // nothing saved is Monthly, as shown chosen (R23, 2026-11-01)
   const midName = name === 'Your spouse' ? 'your spouse' : name;   // lowercase mid-sentence (#6)
   const isYou = name === 'You';
   // A month table entered before this screen existed carries no mode of its own. It still drives
@@ -326,7 +329,9 @@ function EarnerSection({ name, wage, onChange, pay, approx, entered, rate, band,
   const pattern = `${FREQ_WORD[freq]} · ${varies ? 'varies' : 'the same each month'}`;
   const perMonthWord = freq === 'monthly' ? '' : '/month';
   const onboarding = frame === 'onboarding';
-  const summary = pay?.hoursNotEntered && !open ? `${FREQ_WORD[freq]} · hours a week not entered`
+  // a frequency outside the one table says so and shows no figure (R23, 2026-11-01; dated row on income-end-to-end_v07)
+  const summary = pay?.freqNotRecognised && !open ? 'Pay frequency not recognised'
+    : pay?.hoursNotEntered && !open ? `${FREQ_WORD[freq]} · hours a week not entered`
     : !pay || !(pay.grossAnnualised > 0) || (onboarding && open) ? 'Tell us how you are paid'
     : open ? pattern
     : `${pattern} · ${pay.landsIsEstimated ? `take-home ${approx ? '≈' : ''}${fig('MK-CF-M-031', pay.landsInBank)}${perMonthWord} (calculated)` : `take-home ${fig('MK-CF-M-031', pay.landsInBank)}${perMonthWord}`}`;
@@ -366,6 +371,9 @@ function EarnerSection({ name, wage, onChange, pay, approx, entered, rate, band,
               </TouchableOpacity>
             ))}
           </View>
+          {pay?.freqNotRecognised && (
+            <View style={s.warn}><Text style={s.warnT}>{PAY_FREQUENCY_NOT_RECOGNISED}</Text></View>
+          )}
 
           <Text style={s.q}>Is {isYou ? 'your' : `${midName}’s`} pay the same every month?</Text>
           <View style={s.segRow}>

@@ -7,7 +7,7 @@ import { useRouter } from 'expo-router';
 import { loginUser, registerUser, resetPassword, restoreWithRecoveryCode, lookupInvite, setUserHousehold, joinHouseholdMembership, loadUserData } from '../services/firebase';
 import { useStore } from '../store/useStore';
 import { Button } from '../components/UI';
-import { Colors, Typography, Spacing, Radii } from '../utils/theme';
+import { Colors, Typography, Spacing, Radii, Tap } from '../utils/theme';
 
 type Mode = 'login' | 'register' | 'forgot';
 
@@ -258,7 +258,7 @@ export default function AuthScreen() {
               accessibilityLabel="Recovery code"
             />
             <Button label={restoreBusy ? 'Restoring…' : 'Restore my data'} onPress={submitRestore} disabled={restoreBusy} />
-            <TouchableOpacity onPress={startFresh} style={{ paddingVertical: 12, alignItems: 'center' }} accessibilityRole="button" accessibilityLabel="Start fresh instead">
+            <TouchableOpacity hitSlop={Tap.slop} onPress={startFresh} style={{ paddingVertical: 12, alignItems: 'center' }} accessibilityRole="button" accessibilityLabel="Start fresh instead">
               <Text style={styles.restoreFresh}>I don’t have it — start fresh</Text>
             </TouchableOpacity>
           </View>
@@ -366,7 +366,7 @@ export default function AuthScreen() {
           <Button label={btnLabels[mode]} onPress={handleSubmit} loading={loading} style={{ marginTop: Spacing.base }} />
 
           {mode === 'login' && (
-            <TouchableOpacity onPress={() => setMode('forgot')} style={styles.linkBtn}>
+            <TouchableOpacity hitSlop={Tap.slop} onPress={() => setMode('forgot')} style={styles.linkBtn}>
               <Text style={styles.linkText}>Forgot your password?</Text>
             </TouchableOpacity>
           )}

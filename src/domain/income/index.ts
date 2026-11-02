@@ -27,11 +27,11 @@ export const INCOME_UPDATED = 'IncomeUpdated';
  *
  * Called by ... MK-CF-F-052 getIncomeState
  *
- * Reaches ..... 7 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 8 functions. Change the arithmetic above and these change with it:
  *               MK-CF-F-049 buildIncomeState · MK-XS-F-031 buildSnapshot
  *               MK-CF-F-186 convertTakeHomeMode · MK-CF-F-052 getIncomeState
  *               MK-CF-F-097 grossFromNet · MK-XS-F-199 profileOnTheWayIn
- *               MK-XS-F-032 snapshotFromOnboarding
+ *               MK-CF-F-310 repairHourlyTakeHome · MK-XS-F-032 snapshotFromOnboarding
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -76,11 +76,11 @@ export async function saveIncome(docData: IncomeDoc): Promise<void> {
  *
  * Called by ... MK-CF-F-049 buildIncomeState
  *
- * Reaches ..... 7 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 8 functions. Change the arithmetic above and these change with it:
  *               MK-CF-F-049 buildIncomeState · MK-XS-F-031 buildSnapshot
  *               MK-CF-F-186 convertTakeHomeMode · MK-CF-F-052 getIncomeState
  *               MK-CF-F-097 grossFromNet · MK-XS-F-199 profileOnTheWayIn
- *               MK-XS-F-032 snapshotFromOnboarding
+ *               MK-CF-F-310 repairHourlyTakeHome · MK-XS-F-032 snapshotFromOnboarding
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

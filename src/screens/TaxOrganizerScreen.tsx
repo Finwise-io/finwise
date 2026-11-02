@@ -106,8 +106,12 @@ export default function TaxOrganizerScreen() {
         {org.steps == null && <EmptyNote door="income" onPress={() => router.push('/income-manager')} />}
         {org.steps != null && (
           <>
-            <View style={styles.row}><Text style={styles.rowL}>401(k) contribution</Text><Text style={styles.rowV}>− {money(org.steps.preTaxContributions)}</Text></View>
-            <View style={styles.row}><Text style={styles.rowL}>Standard deduction{org.steps.deductionIncludes.length ? <Text style={styles.tag}>  includes {org.steps.deductionIncludes.join(' and ')}</Text> : null}</Text><Text style={styles.rowV}>− {money(org.steps.standardDeduction)}</Text></View>
+            {/* a minus sign written as the one figure writer writes it, against the figure: "−$39,850" (2026-11-01, CF4-10; tenet 4) — it read
+                "− $39,850"; and a 401(k) of $0 takes nothing off, so its row is not printed (it read "− $0") */}
+            {/* THE 401(k) LINE IS ALWAYS ONE OF THE FOUR (his DEC-0252, Q46: "the tax organizer shows gross income, 401(k) contribution, standard
+                deduction and taxable income"): with nothing put in it reads $0, never vanishes (restored 2026-11-01, CLEANUP-TESTS) */}
+            <View style={styles.row}><Text style={styles.rowL}>401(k) contribution</Text><Text style={styles.rowV}>{org.steps.preTaxContributions > 0 ? `−${money(org.steps.preTaxContributions)}` : money(0)}</Text></View>
+            <View style={styles.row}><Text style={styles.rowL}>Standard deduction{org.steps.deductionIncludes.length ? <Text style={styles.tag}>  includes {org.steps.deductionIncludes.join(' and ')}</Text> : null}</Text><Text style={styles.rowV}>−{money(org.steps.standardDeduction)}</Text></View>
             {/* the spouse's age never answered on a joint return: counted as under 65, said, with the door to the question
                 (the lead's ruling of 2026-10-25 on CFR-4's needs-ruling 4) */}
             {org.steps.spouseAgeNotEntered && (
@@ -180,8 +184,8 @@ function orgToHtml(o: TaxOrganizer): string {
     <div class="sub">Prepared in MoneyKeel · a summary for your accountant, not a tax return</div>
     <h2>INCOME</h2>${o.steps == null ? `<table><tr class="total"><td>Gross income</td><td style="text-align:right">$${Math.round(o.grossIncome).toLocaleString()}</td></tr></table><div>${o.refusal ?? ''}</div><!-- money-mask-ok: generated HTML export document, not an on-screen display -->` : `<table>${rows(o.income)}
       <tr class="total"><td>Gross income</td><td style="text-align:right">$${Math.round(o.steps.grossIncome).toLocaleString()}</td></tr><!-- money-mask-ok: generated HTML export document, not an on-screen display -->
-      <tr><td>401(k) contribution</td><td style="text-align:right">− $${Math.round(o.steps.preTaxContributions).toLocaleString()}</td></tr><!-- money-mask-ok: generated HTML export document, not an on-screen display -->
-      <tr><td>Standard deduction${o.steps.deductionIncludes.length ? ` (includes ${o.steps.deductionIncludes.join(' and ')})` : ''}${o.steps.spouseAgeNotEntered ? ' — your spouse counted as under 65, not entered' : ''}</td><td style="text-align:right">− $${Math.round(o.steps.standardDeduction).toLocaleString()}</td></tr><!-- money-mask-ok: generated HTML export document, not an on-screen display -->
+      <tr><td>401(k) contribution</td><td style="text-align:right">−$${Math.round(o.steps.preTaxContributions).toLocaleString()}</td></tr><!-- money-mask-ok: generated HTML export document, not an on-screen display -->
+      <tr><td>Standard deduction${o.steps.deductionIncludes.length ? ` (includes ${o.steps.deductionIncludes.join(' and ')})` : ''}${o.steps.spouseAgeNotEntered ? ' — your spouse counted as under 65, not entered' : ''}</td><td style="text-align:right">−$${Math.round(o.steps.standardDeduction).toLocaleString()}</td></tr><!-- money-mask-ok: generated HTML export document, not an on-screen display -->
       <tr class="total"><td>Taxable income</td><td style="text-align:right">$${Math.round(o.steps.taxableIncome).toLocaleString()}</td></tr></table>`}<!-- money-mask-ok: generated HTML export document, not an on-screen display -->
     ${o.notCounted ? `<div>${o.notCounted}</div>` : ''}
     ${o.contributions.length ? `<h2>RETIREMENT CONTRIBUTIONS</h2><table>${rows(o.contributions)}</table>` : ''}

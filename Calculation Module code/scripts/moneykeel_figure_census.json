@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-01",
+ "generated": "2026-11-02",
  "states": [
   "worker",
   "rich",
@@ -44,7 +44,7 @@
     },
     {
      "k": "t",
-     "s": "afternoon"
+     "s": "evening"
     },
     {
      "k": "t",
@@ -278,7 +278,7 @@
     },
     {
      "k": "t",
-     "s": "afternoon"
+     "s": "evening"
     },
     {
      "k": "t",
@@ -540,7 +540,7 @@
     },
     {
      "k": "t",
-     "s": "afternoon"
+     "s": "evening"
     },
     {
      "k": "t",
@@ -8800,11 +8800,11 @@
     },
     {
      "k": "a",
-     "s": "$420 a month in minimum debt payments ÷ $9,000 a month income"
+     "s": "$420.00 a month in minimum debt payments ÷ $9,000 a month income"
     },
     {
      "k": "t",
-     "s": "$420/month"
+     "s": "$420.00/month"
     },
     {
      "k": "t",
@@ -10596,11 +10596,11 @@
     },
     {
      "k": "a",
-     "s": "$2,020 a month in minimum debt payments ÷ $9,000 a month income"
+     "s": "$2,020.00 a month in minimum debt payments ÷ $9,000 a month income"
     },
     {
      "k": "t",
-     "s": "$2,020/month"
+     "s": "$2,020.00/month"
     },
     {
      "k": "t",
@@ -36746,11 +36746,7 @@
     },
     {
      "k": "t",
-     "s": "−"
-    },
-    {
-     "k": "t",
-     "s": "$9,600"
+     "s": "−$9,600"
     },
     {
      "k": "t",
@@ -36968,11 +36964,7 @@
     },
     {
      "k": "t",
-     "s": "−"
-    },
-    {
-     "k": "t",
-     "s": "$9,600"
+     "s": "−$9,600"
     },
     {
      "k": "t",
@@ -37203,10 +37195,6 @@
     {
      "k": "t",
      "s": "401(k) contribution"
-    },
-    {
-     "k": "t",
-     "s": "−"
     },
     {
      "k": "t",
@@ -40450,6 +40438,7 @@
     "/contribution-room|rich",
     "/contribution-room|worker",
     "/holding-detail|rich",
+    "/home|new",
     "/home|retiree",
     "/home|rich",
     "/home|worker",
@@ -40488,13 +40477,13 @@
     "$420",
     "$600",
     "$165,000",
-    "$6,400",
     "$0",
+    "$6,400",
     "$151,000",
     "$14,000",
     "$120,000"
    ],
-   "renders": 1581
+   "renders": 1649
   },
   {
    "site": "MoneyKeel/functions/_figure-spec.ts:128",
@@ -40515,14 +40504,16 @@
    "line": ": spec.unit === 'money-cents' ? formatMoneyCents(value)",
    "values": [
     "$0.00",
+    "$420.00",
+    "$2,020.00",
     "$100.00",
     "$98.00",
     "$90.00"
    ],
-   "renders": 19
+   "renders": 23
   },
   {
-   "site": "MoneyKeel/functions/cashflow/base-pay.ts:1269",
+   "site": "MoneyKeel/functions/cashflow/base-pay.ts:1309",
    "routes": [
     "/analytics",
     "/base-pay",
@@ -40920,7 +40911,7 @@
    "renders": 2
   },
   {
-   "site": "src/components/UI.tsx:181",
+   "site": "src/components/UI.tsx:185",
    "routes": [
     "/tips"
    ],
@@ -41354,7 +41345,7 @@
     "/goals|worker"
    ],
    "inside": "GoalsScreen",
-   "line": "{availableSurplus > 0 && <TouchableOpacity accessibilityRole=\"button\" accessibilityLabel={`Use all available surplus, ${money(availableSurplus)}`} onPress={() => setAllocAmt(String(Math.round(availabl",
+   "line": "{availableSurplus > 0 && <TouchableOpacity hitSlop={Tap.slop} accessibilityRole=\"button\" accessibilityLabel={`Use all available surplus, ${money(availableSurplus)}`} onPress={() => setAllocAmt(String(",
    "values": [
     "$7,200",
     "$3,500"
@@ -42840,7 +42831,7 @@
    "renders": 4
   },
   {
-   "site": "src/screens/TaxOrganizerScreen.tsx:109",
+   "site": "src/screens/TaxOrganizerScreen.tsx:113",
    "routes": [
     "/tax-organizer"
    ],
@@ -42850,7 +42841,7 @@
     "/tax-organizer|worker"
    ],
    "inside": "TaxOrganizerScreen",
-   "line": "<View style={styles.row}><Text style={styles.rowL}>401(k) contribution</Text><Text style={styles.rowV}>− {money(org.steps.preTaxContributions)}</Text></View>",
+   "line": "<View style={styles.row}><Text style={styles.rowL}>401(k) contribution</Text><Text style={styles.rowV}>{org.steps.preTaxContributions > 0 ? `−${money(org.steps.preTaxContributions)}` : money(0)}</Text",
    "values": [
     "$9,600",
     "$0"
@@ -42858,7 +42849,7 @@
    "renders": 3
   },
   {
-   "site": "src/screens/TaxOrganizerScreen.tsx:110",
+   "site": "src/screens/TaxOrganizerScreen.tsx:114",
    "routes": [
     "/tax-organizer"
    ],
@@ -42876,7 +42867,7 @@
    "renders": 3
   },
   {
-   "site": "src/screens/TaxOrganizerScreen.tsx:119",
+   "site": "src/screens/TaxOrganizerScreen.tsx:123",
    "routes": [
     "/tax-organizer"
    ],
@@ -42895,7 +42886,7 @@
    "renders": 3
   },
   {
-   "site": "src/screens/TaxOrganizerScreen.tsx:141",
+   "site": "src/screens/TaxOrganizerScreen.tsx:145",
    "routes": [
     "/tax-organizer"
    ],
@@ -42912,7 +42903,7 @@
    "renders": 4
   },
   {
-   "site": "src/screens/TaxOrganizerScreen.tsx:151",
+   "site": "src/screens/TaxOrganizerScreen.tsx:155",
    "routes": [
     "/tax-organizer"
    ],

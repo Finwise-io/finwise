@@ -71,7 +71,9 @@ describe('the outside audits are settled case by case', () => {
     const r = audit([1, 2, 3, 4].map((p) => [`performance_claude_0${p}_results.json`, `outside_performance_claude_0${p}.test.ts`] as [string, string]));
     expect(r.read).toBe(225);
     expect(r.unsettled).toEqual([]);
-    expect(r.needing.length).toBe(81);    // 55 not PASS · 12 whose function was removed · 13 kept failing since their run · 1 RULE UNCLEAR
+    // 82 since 2026-11-01: MK-PF-F-029's 'two sparse marks' case is kept failing under the lead's ruling R19 (no start close older than 7
+    // days), and carries its settled line (CLEANUP-TESTS)
+    expect(r.needing.length).toBe(82);    // 55 not PASS · 12 whose function was removed · 14 kept failing since their run · 1 RULE UNCLEAR
   });
   test('the guard fires: each of the five reasons, with no settled line, is caught; a plain pass is not', () => {
     const base = { id: 'MK-PF-F-001', kind: 'easy', title: 'Two purchases of one stock', status: 'PASS' };

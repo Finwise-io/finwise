@@ -171,6 +171,12 @@ The Cash flow flows 69, 72 to 78 and 80 were re-run after the wave’s Cash flow
 - **79** finds the filing phone in the drawing by its words; $327/month more is unchanged.
 The closing full run, 2026-11-01: 593 suites, 10,904 tests, every red decided.
 
+## Round 4 of the fix wave, 2026-11-01 — no flow added; three flows' figures moved, each worked by hand
+- **57** — a buy on a typed $50,000 account: the return is the walk's own, 50,000 ÷ 49,000 − 1 = +2.04% before and after the buy (it read +11.11%, then +11.01%); 2Y +2.06%/year (DEC-9484).
+- **63** — the window journey on v17 phone 4 reads the summary +9.76% (it read +9.86%) and E*TRADE +9.34% (DEC-9484).
+- **The account page's state I** — 1Y +2.25% on the page, the tab's card and the summary, starting from the Sep 29, 2025 close (it read +7.07% from a close 424 days old) (DEC-9486).
+- **The Tax organizer test (CF4-10)** — its household now saves 'annually': wages $60,000, taxable $43,900, tax $5,020 (it read $720,000 from a frequency the app does not have).
+
 ## Beyond the 92 — deeper feature journeys (also automated, also green)
 The connect flow (9), the Plan tab (16), draw-order steering (11), the bill calendar (7),
 multi-goal (6), scenario compare (3), holding detail (12), Invest fidelity (10), plus the

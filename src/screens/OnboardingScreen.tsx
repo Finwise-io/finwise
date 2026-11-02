@@ -282,13 +282,13 @@ export default function OnboardingScreen() {
         {renderBody()}
 
         {isOptionalStep && !PRE_ANSWERED_STEPS.has(current as any) && (
-          <TouchableOpacity onPress={advance} style={{ alignSelf: 'center', paddingVertical: Spacing.sm }}>
+          <TouchableOpacity hitSlop={Tap.slop} onPress={advance} style={{ alignSelf: 'center', paddingVertical: Spacing.sm }}>
             <Text style={styles.link}>Skip for now</Text>
           </TouchableOpacity>
         )}
 
         {stepIndex > 0 && !isLast && (
-          <TouchableOpacity onPress={saveAndExit} style={{ alignSelf: 'center', paddingVertical: Spacing.md }}>
+          <TouchableOpacity hitSlop={Tap.slop} onPress={saveAndExit} style={{ alignSelf: 'center', paddingVertical: Spacing.md }}>
             <Text style={styles.link}>Save & come back later</Text>
           </TouchableOpacity>
         )}

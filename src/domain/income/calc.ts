@@ -1,4 +1,5 @@
 // Pure income calculations (spec service 1). No I/O. Fully unit-tested.
+import { PAY_FREQUENCIES } from './pay-frequency';   // the one pay-frequency table (R23, 2026-11-01)
 import { IncomeSource, TaxProfile, IncomeState, MonthlyCell, Frequency } from './types';
 
 export const PERIODS_PER_YEAR: Record<Frequency, number> = {
@@ -16,12 +17,13 @@ export const PERIODS_PER_YEAR: Record<Frequency, number> = {
  *
  * Called by ... MK-CF-F-044 annualNet · MK-CF-F-161 monthlyGrossOfSource
  *
- * Reaches ..... 10 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 11 functions. Change the arithmetic above and these change with it:
  *               MK-CF-F-044 annualNet · MK-CF-F-049 buildIncomeState
  *               MK-XS-F-031 buildSnapshot · MK-CF-F-186 convertTakeHomeMode
  *               MK-CF-F-052 getIncomeState · MK-CF-F-045 grossAnnualBaseline
  *               MK-CF-F-097 grossFromNet · MK-CF-F-161 monthlyGrossOfSource
- *               MK-XS-F-199 profileOnTheWayIn · MK-XS-F-032 snapshotFromOnboarding
+ *               MK-XS-F-199 profileOnTheWayIn · MK-CF-F-310 repairHourlyTakeHome
+ *               MK-XS-F-032 snapshotFromOnboarding
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -43,11 +45,12 @@ const isRental = (t: string) => t === 'LONG_TERM_RENTAL' || t === 'SHORT_TERM_RE
  *
  * Called by ... MK-CF-F-045 grossAnnualBaseline
  *
- * Reaches ..... 8 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 9 functions. Change the arithmetic above and these change with it:
  *               MK-CF-F-049 buildIncomeState · MK-XS-F-031 buildSnapshot
  *               MK-CF-F-186 convertTakeHomeMode · MK-CF-F-052 getIncomeState
  *               MK-CF-F-045 grossAnnualBaseline · MK-CF-F-097 grossFromNet
- *               MK-XS-F-199 profileOnTheWayIn · MK-XS-F-032 snapshotFromOnboarding
+ *               MK-XS-F-199 profileOnTheWayIn · MK-CF-F-310 repairHourlyTakeHome
+ *               MK-XS-F-032 snapshotFromOnboarding
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-039 how often each income arrives
@@ -74,11 +77,11 @@ export function annualNet(s: IncomeSource): number {
  *
  * Called by ... MK-CF-F-049 buildIncomeState
  *
- * Reaches ..... 7 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 8 functions. Change the arithmetic above and these change with it:
  *               MK-CF-F-049 buildIncomeState · MK-XS-F-031 buildSnapshot
  *               MK-CF-F-186 convertTakeHomeMode · MK-CF-F-052 getIncomeState
  *               MK-CF-F-097 grossFromNet · MK-XS-F-199 profileOnTheWayIn
- *               MK-XS-F-032 snapshotFromOnboarding
+ *               MK-CF-F-310 repairHourlyTakeHome · MK-XS-F-032 snapshotFromOnboarding
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -100,11 +103,11 @@ export function grossAnnualBaseline(sources: IncomeSource[]): number {
  *
  * Called by ... MK-CF-F-049 buildIncomeState
  *
- * Reaches ..... 7 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 8 functions. Change the arithmetic above and these change with it:
  *               MK-CF-F-049 buildIncomeState · MK-XS-F-031 buildSnapshot
  *               MK-CF-F-186 convertTakeHomeMode · MK-CF-F-052 getIncomeState
  *               MK-CF-F-097 grossFromNet · MK-XS-F-199 profileOnTheWayIn
- *               MK-XS-F-032 snapshotFromOnboarding
+ *               MK-CF-F-310 repairHourlyTakeHome · MK-XS-F-032 snapshotFromOnboarding
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-039 how often each income arrives
@@ -152,11 +155,11 @@ import type { OnboardingProfile } from '../onboardingProfile';
  *
  * Called by ... MK-CF-F-049 buildIncomeState
  *
- * Reaches ..... 7 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 8 functions. Change the arithmetic above and these change with it:
  *               MK-CF-F-049 buildIncomeState · MK-XS-F-031 buildSnapshot
  *               MK-CF-F-186 convertTakeHomeMode · MK-CF-F-052 getIncomeState
  *               MK-CF-F-097 grossFromNet · MK-XS-F-199 profileOnTheWayIn
- *               MK-XS-F-032 snapshotFromOnboarding
+ *               MK-CF-F-310 repairHourlyTakeHome · MK-XS-F-032 snapshotFromOnboarding
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-039 how often each income arrives
@@ -175,8 +178,9 @@ function monthlyGrossOfSource(s: IncomeSource): number[] {
   const amt = isRental(s.income_type) ? s.gross_amount - (s.operating_expenses || 0) : s.gross_amount;
   switch (s.frequency) {
     case 'MONTHLY': for (let i = 0; i < 12; i++) m[i] += amt; break;
-    case 'WEEKLY':  for (let i = 0; i < 12; i++) m[i] += amt * 52 / 12; break;
-    case 'BIWEEKLY':for (let i = 0; i < 12; i++) m[i] += amt * 26 / 12; break;
+    // weekly and biweekly read the one pay-frequency table (R23, 2026-11-01); a cadence not listed here adds nothing — never × 12
+    case 'WEEKLY':  for (let i = 0; i < 12; i++) m[i] += amt * PAY_FREQUENCIES.weekly / 12; break;
+    case 'BIWEEKLY':for (let i = 0; i < 12; i++) m[i] += amt * PAY_FREQUENCIES.biweekly / 12; break;
     case 'QUARTERLY': [2, 5, 8, 11].forEach((i) => (m[i] += amt)); break;  // Mar/Jun/Sep/Dec
     case 'ANNUAL':
       // multi-month lands (equity vesting) win: the amount splits by the vest-month shares —
@@ -209,11 +213,11 @@ function monthlyGrossOfSource(s: IncomeSource): number[] {
  * Called by ... MK-CF-F-052 getIncomeState · MK-CF-F-097 grossFromNet
  *               MK-XS-F-031 buildSnapshot
  *
- * Reaches ..... 7 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 8 functions. Change the arithmetic above and these change with it:
  *               MK-CF-F-049 buildIncomeState · MK-XS-F-031 buildSnapshot
  *               MK-CF-F-186 convertTakeHomeMode · MK-CF-F-052 getIncomeState
  *               MK-CF-F-097 grossFromNet · MK-XS-F-199 profileOnTheWayIn
- *               MK-XS-F-032 snapshotFromOnboarding
+ *               MK-CF-F-310 repairHourlyTakeHome · MK-XS-F-032 snapshotFromOnboarding
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-030 tax filing status and age
@@ -283,11 +287,11 @@ export function buildIncomeState(userId: string, sources: IncomeSource[], tax: T
  *
  * Called by ... MK-CF-F-049 buildIncomeState
  *
- * Reaches ..... 7 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 8 functions. Change the arithmetic above and these change with it:
  *               MK-CF-F-049 buildIncomeState · MK-XS-F-031 buildSnapshot
  *               MK-CF-F-186 convertTakeHomeMode · MK-CF-F-052 getIncomeState
  *               MK-CF-F-097 grossFromNet · MK-XS-F-199 profileOnTheWayIn
- *               MK-XS-F-032 snapshotFromOnboarding
+ *               MK-CF-F-310 repairHourlyTakeHome · MK-XS-F-032 snapshotFromOnboarding
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

@@ -57,7 +57,7 @@ export interface TheMonth {
  *
  * Called by ... MK-CF-F-203 MONTH
  *
- * Reaches ..... 443 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 478 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -67,7 +67,7 @@ export interface TheMonth {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 425 more — the full list is on functions_from_code
+ *               … and 460 more — the full list is on functions_from_code
  *
  * Serves ...... MK-CF-M-001 · MK-CF-M-002 · MK-CF-M-003 · MK-CF-M-004
  *               MK-CF-M-013 · MK-CF-M-014 · MK-CF-M-015 · MK-CF-M-020
@@ -172,15 +172,15 @@ const GIVEN =
  *               MK-CF-F-079 incomeFromOnboarding · MK-CF-F-087 monthlyTaxRates
  *               MK-CF-F-088 taxableByCalendarMonth · MK-CF-F-146 payFiguresAgree
  *               MK-CF-F-153 radar · MK-CF-F-157 debtPaymentsByDebt
- *               MK-CF-F-204 line · MK-CF-F-205 COMING
- *               MK-CF-F-246 expensesAsCounted · MK-CF-F-255 spendByMonthByCategory
- *               MK-CF-F-259 rateNotEntered · MK-CF-O-004 incomeSummary
- *               MK-CF-O-010 theMonth · MK-CF-O-020 theBudgetCounted
- *               MK-NW-F-046 historyCoverage · MK-NW-O-004 theEmergencyFund
- *               MK-PF-F-045 priceHistoryShortSentence · MK-PL-F-036 weighGoals
- *               MK-XS-F-004 buildDatedGrid
+ *               MK-CF-F-186 convertTakeHomeMode · MK-CF-F-204 line
+ *               MK-CF-F-205 COMING · MK-CF-F-246 expensesAsCounted
+ *               MK-CF-F-255 spendByMonthByCategory · MK-CF-F-259 rateNotEntered
+ *               MK-CF-O-004 incomeSummary · MK-CF-O-010 theMonth
+ *               MK-CF-O-020 theBudgetCounted · MK-NW-F-046 historyCoverage
+ *               MK-NW-O-004 theEmergencyFund · MK-PF-F-045 priceHistoryShortSentence
+ *               MK-PL-F-036 weighGoals · MK-XS-F-004 buildDatedGrid
  *
- * Reaches ..... 443 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 478 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -190,7 +190,7 @@ const GIVEN =
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 425 more — the full list is on functions_from_code
+ *               … and 460 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -224,7 +224,7 @@ const MONTH = () => theMonth(EXAMPLE);
  *               MK-XS-F-004 buildDatedGrid · MK-XS-F-058 parseReceipt
  *               MK-XS-F-094 parseReceiptText · MK-XS-F-096 pickReceipt
  *
- * Reaches ..... 443 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 478 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -234,7 +234,7 @@ const MONTH = () => theMonth(EXAMPLE);
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 425 more — the full list is on functions_from_code
+ *               … and 460 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)

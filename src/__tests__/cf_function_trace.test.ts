@@ -302,6 +302,22 @@ const FUNCTIONS: [string, string, string][] = [
   ['MK-CF-F-294', 'src/onboarding/modules.tsx', 'src/__tests__/take_home_one_producer.test.tsx'],
   ['MK-CF-F-295', 'MoneyKeel/functions/cashflow/the-debts.ts', 'MoneyKeel/functions/cashflow/outside_cashflow_openai_part09.test.ts'],
   ['MK-CF-F-296', 'MoneyKeel/functions/cashflow/the-debts.ts', 'MoneyKeel/functions/cashflow/outside_cashflow_openai_part09.test.ts'],
+  ['MK-CF-F-297', 'MoneyKeel/functions/cashflow/base-pay.ts', 'MoneyKeel/functions/cashflow/base-pay.test.ts'],
+  ['MK-CF-F-298', 'src/domain/debt/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
+  ['MK-CF-F-299', 'src/domain/debt/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
+  ['MK-CF-F-300', 'src/domain/debt/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
+  ['MK-CF-F-301', 'src/domain/debt/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
+  ['MK-CF-F-302', 'src/domain/debt/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
+  ['MK-CF-F-303', 'src/domain/debt/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
+  ['MK-CF-F-304', 'src/domain/debt/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
+  ['MK-CF-F-305', 'src/domain/debt/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
+  ['MK-CF-F-306', 'src/domain/income/pay-frequency.ts', 'src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx'],
+  ['MK-CF-F-307', 'src/domain/income/pay-frequency.ts', 'src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx'],
+  ['MK-CF-F-308', 'src/domain/income/pay-frequency.ts', 'src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx'],
+  ['MK-CF-F-309', 'src/domain/income/take-home-mode-migration.ts', 'MoneyKeel/functions/cashflow/outside_cashflow_openai_part16.test.ts'],
+  ['MK-CF-F-310', 'src/domain/income/take-home-mode-migration.ts', 'MoneyKeel/functions/cashflow/outside_cashflow_openai_part16.test.ts'],
+  ['MK-CF-F-311', 'src/domain/income/pay-frequency.ts', 'src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx'],
+  ['MK-CF-F-312', 'src/domain/income/pay-frequency.ts', 'src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx'],
 ];
 
 /** Every MK-CF-F record in the code, read from the code: the header rule the header writer prints directly above each function
@@ -337,8 +353,8 @@ describe('every Cash flow function traces to its proof in one hop (step 3.c)', (
     // 2026-10-26, the 39 functions written in the 2026-10-25 fix wave numbered (MK-CF-F-243 to 281, PF-TOOLS)
     // 266 the same day: growthUsed (CLEANUP-LEFT), and three numbered by hand — PLANNED_GROUP_WORDS, federalBracketForComparison,
     // accountIncomeIn (the lead's instruction)
-    expect(code.size).toBeGreaterThanOrEqual(277);   // 277 on 2026-11-01 (PF-TOOLS: MK-CF-F-295 debtLoad, 296 its example helper); 275 on 2026-10-30 (PF-TOOLS: MK-CF-F-286 to 294, the fix wave's nine)
-    expect(FUNCTIONS.length).toBeGreaterThanOrEqual(277);
+    expect(code.size).toBeGreaterThanOrEqual(293);   // 293 at the end of 2026-11-01 (PF-TOOLS: MK-CF-F-297 to 312, round 4); 277 earlier that day (MK-CF-F-295 debtLoad, 296 its example helper); 275 on 2026-10-30 (PF-TOOLS: MK-CF-F-286 to 294, the fix wave's nine)
+    expect(FUNCTIONS.length).toBeGreaterThanOrEqual(293);
     expect(new Set(FUNCTIONS.map((r) => r[0])).size).toBe(FUNCTIONS.length);
     const table = new Set(FUNCTIONS.map((r) => r[0]));
     expect([...code.keys()].filter((id) => !table.has(id)).sort()).toEqual([]);   // in the code, missing from the table

@@ -194,11 +194,11 @@ export function AltEditor({ item, open, onClose, onSave, onDelete, presetKind }:
             <View style={styles.sellBox}>
               {/* the box's sub-title on the light-green bar, edge to edge of the box (2026-10-30, R1, DEC-8839; v02 row of that date) */}
               <SectionBand light inCard inset={12} title="🔻 Sell" />
-              <Text style={styles.hint}>Sold this (or part of it) — e.g. an option before expiration, or some crypto? Enter the proceeds to lower or close the position. To re-mark its price, edit “Current value” above.</Text>
+              <Text style={styles.hint}>Sold this (or part of it) — e.g. an option before expiration, or some crypto? Enter the proceeds, up to {fig('MK-NW-M-052', num(value))} (its current value), to lower or close the position. To re-mark its price, edit “Current value” above.</Text>
               <View style={styles.sellRow}>
                 <MoneyBox bare style={[styles.input, { flex: 1 }]} value={sellAmt} onChangeText={setSellAmt}
-                  placeholder={`amount sold (up to ${fig('MK-NW-M-052', num(value))})`} />
-                <TouchableOpacity accessibilityRole="button" accessibilityLabel="Sell" style={[styles.sellBtn, !(num(sellAmt) > 0) && { opacity: 0.4 }]} disabled={!(num(sellAmt) > 0)} onPress={applySale}>
+                  placeholder="amount sold" />   {/* the limit is said in the line above, not in the empty box (R16; NW4-05, 2026-11-01) */}
+                <TouchableOpacity hitSlop={Tap.slop} accessibilityRole="button" accessibilityLabel="Sell" style={[styles.sellBtn, !(num(sellAmt) > 0) && { opacity: 0.4 }]} disabled={!(num(sellAmt) > 0)} onPress={applySale}>
                   <Text style={styles.sellBtnT}>Record</Text>
                 </TouchableOpacity>
               </View>
@@ -243,7 +243,8 @@ const styles = StyleSheet.create({
   scrim: { position: 'absolute', inset: 0, backgroundColor: 'rgba(0,0,0,0.3)' } as any,
   sheet: { ...SHEET_FRAME, position: 'absolute', left: 0, right: 0, bottom: 0, padding: 18, paddingBottom: 28 },
   grab: { ...SHEET_HANDLE },
-  sheetT: { fontSize: 17, fontWeight: '800', color: Colors.textPrimary, marginBottom: 4 },
+  // the add or edit sheet's title, 20 / 800, as every other (DEC-8931; NW4-06, 2026-11-01, the v02 row of that date; it was 17)
+  sheetT: { fontSize: 20, fontWeight: '800', color: Colors.textPrimary, marginBottom: 4 },
   fieldL: { fontSize: 13, fontWeight: '700', color: Colors.textSecondary, marginTop: 14, marginBottom: 5 },
   hint: { fontSize: 11, color: Colors.textTertiary, marginTop: 6, lineHeight: 15 },
   input: { borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radii.md, padding: 12, fontSize: 17, color: Colors.textPrimary },

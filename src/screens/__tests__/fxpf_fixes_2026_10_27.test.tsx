@@ -14,6 +14,7 @@
  *   —       "5,000 shares" on the Holding page
  */
 import React from 'react';
+import { closesNearEachStart } from '../../testing/closeNearEachStart';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react-native';
 import { StyleSheet } from 'react-native';
 import * as fs from 'fs';
@@ -160,7 +161,8 @@ describe('the Holding page', () => {
     useStore.setState({
       assetAccounts: [{ asset_id: 'van', label: 'BROKERAGE', institution: 'Vanguard', kind: 'brokerage', tax_bucket: 'TAXABLE', derive_balance: true, cash_balance: 0, balance: 495_000,
         positions: [{ position_id: 'v', ticker: 'VTI', label: 'Vanguard Total Stock Market', kind: 'stocks_etf', lots: [{ lot_id: 'a', shares: 5000, cost_per_share: 70, purchase_date: '2024-03-01' }] }] }],
-      priceCache: { VTI: { ticker: 'VTI', points: pts }, SPY: { ticker: 'SPY', points: pts.map((p) => ({ ...p, close: p.close * 5 })) } },
+      // a close near each window's start, at the price it measured from (R19, 2026-11-01): "This year" read its start from Jan 2 of last year
+      priceCache: closesNearEachStart({ VTI: { ticker: 'VTI', points: pts }, SPY: { ticker: 'SPY', points: pts.map((p) => ({ ...p, close: p.close * 5 })) } }),
       pricesFetchedAt: new Date().toISOString(),
     } as any);
     mockParams = { account: 'van', position: 'v', period: 'YTD' };

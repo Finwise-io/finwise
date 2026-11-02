@@ -5034,6 +5034,90 @@
     "status": "DONE 2026-11-01 — 593 suites, 10,904 tests: 9 reds decided, 3 fixed and 6 routed; tsc 0; check-ui-tests passes",
     "comments": "The standards guard it routed here passes 3 of 3 since the design record names the new versions."
    }
+  },
+  {
+   "task": "Net worth drawing match, round 4 (NW4-01 to NW4-12) and its fixes",
+   "todo": "Close every Net worth round-4 defect.",
+   "status": "DONE 2026-11-01 — 12 of 12: FX-PF NW4-01, 02, 03 (R18, R19, R20); FX-NW NW4-04 to 07; DRAW-HYGIENE NW4-08 to 12",
+   "ref": "src/screens/__tests__/fxpf4_fixes_2026_11_01.test.tsx · src/__tests__/every_choice_is_44_points.test.tsx · src/__tests__/no_stale_window_start_r19.test.ts",
+   "date": "2026-11-01",
+   "comments": "Decisions DEC-9484, DEC-9485, DEC-9486, DEC-9487, DEC-9488, DEC-9523, DEC-9494, DEC-9495, DEC-9490, DEC-9491.",
+   "_written": {
+    "status": "DONE 2026-11-01 — 12 of 12: FX-PF NW4-01, 02, 03 (R18, R19, R20); FX-NW NW4-04 to 07; DRAW-HYGIENE NW4-08 to 12",
+    "comments": "Decisions DEC-9484, DEC-9485, DEC-9486, DEC-9487, DEC-9488, DEC-9523, DEC-9494, DEC-9495, DEC-9490, DEC-9491."
+   }
+  },
+  {
+   "task": "Performance drawing match, round 4 (PF4-1 to PF4-6) and its fixes",
+   "todo": "Close every Performance round-4 defect.",
+   "status": "DONE 2026-11-01 — 6 of 6: FX-PF PF4-1 to 5 (the add sheet frame, opening cash $5,000, R18 on the summary and the sheets); DRAW-HYGIENE PF4-6",
+   "ref": "src/screens/__tests__/fxpf4_fixes_2026_11_01.test.tsx · src/screens/__tests__/sheets_drawn_from_code.test.tsx",
+   "date": "2026-11-01",
+   "comments": "Decisions DEC-9484, DEC-9485, DEC-9496, DEC-9495. Phone 4 now reads +9.76% (DEC-8920 noted).",
+   "_written": {
+    "status": "DONE 2026-11-01 — 6 of 6: FX-PF PF4-1 to 5 (the add sheet frame, opening cash $5,000, R18 on the summary and the sheets); DRAW-HYGIENE PF4-6",
+    "comments": "Decisions DEC-9484, DEC-9485, DEC-9496, DEC-9495. Phone 4 now reads +9.76% (DEC-8920 noted)."
+   }
+  },
+  {
+   "task": "Cash flow drawing match, round 4 (CF4-01 to CF4-10) and its fixes",
+   "todo": "Close every Cash flow round-4 defect.",
+   "status": "DONE 2026-11-01 — 10 of 10: FX-CF-A CF4-01 to 06 and 10; DRAW-HYGIENE CF4-07 to 09",
+   "ref": "src/screens/__tests__/cashflow_fix_wave_2026_10_27.test.tsx · src/screens/__tests__/one_debt_total_r22_2026_11_01.test.tsx · src/__tests__/approx_mark_one_form.test.ts",
+   "date": "2026-11-01",
+   "comments": "Decisions DEC-9489, DEC-9490, DEC-9491, DEC-9497, DEC-9498, DEC-9499.",
+   "_written": {
+    "status": "DONE 2026-11-01 — 10 of 10: FX-CF-A CF4-01 to 06 and 10; DRAW-HYGIENE CF4-07 to 09",
+    "comments": "Decisions DEC-9489, DEC-9490, DEC-9491, DEC-9497, DEC-9498, DEC-9499."
+   }
+  },
+  {
+   "task": "One pay-frequency table (R23), and the Build 54 hourly take-home migration bug repaired",
+   "todo": "One table for every reader; an unknown frequency refuses; repair the profiles Build 54 converted wrongly.",
+   "status": "DONE 2026-11-01 — 7 of 7 readers read src/domain/income/pay-frequency.ts; repairHourlyTakeHome (MK-CF-F-310) repairs the exact footprint once: $25/hour → $4,333.33/month",
+   "ref": "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx",
+   "date": "2026-11-01",
+   "comments": "Decisions DEC-9492, DEC-9493. Build 54 counted hourly as 12 a year: $25/hour became a $25/month take-home.",
+   "_written": {
+    "status": "DONE 2026-11-01 — 7 of 7 readers read src/domain/income/pay-frequency.ts; repairHourlyTakeHome (MK-CF-F-310) repairs the exact footprint once: $25/hour → $4,333.33/month",
+    "comments": "Decisions DEC-9492, DEC-9493. Build 54 counted hourly as 12 a year: $25/hour became a $25/month take-home."
+   }
+  },
+  {
+   "task": "Phone check: the hourly take-home repair on his and the testers’ profiles",
+   "todo": "On the TestFlight build, open Base pay on a profile that was hourly in Build 54 and see the take-home read on the hours ($25/hour × 40 × 52 ÷ 12 = $4,333.33/month), and that nothing typed since was touched.",
+   "status": "TO DO — on the next device build (the build gate holds it)",
+   "ref": "src/store/useStore.ts (profileOnTheWayIn) · MK-CF-F-310 repairHourlyTakeHome",
+   "date": "2026-11-01",
+   "comments": "FX-CF-B, 2026-11-01 (DEC-9493): the cloud data cannot be read from here, so whether a real profile was converted is not known.",
+   "_written": {
+    "status": "TO DO — on the next device build (the build gate holds it)",
+    "comments": "FX-CF-B, 2026-11-01 (DEC-9493): the cloud data cannot be read from here, so whether a real profile was converted is not known."
+   }
+  },
+  {
+   "task": "Remove the unreachable IncomeSheet in MoneySheets",
+   "todo": "It still writes the old take-home mode and its own frequency; nothing opens it. Remove it.",
+   "status": "TO DO — the owner of MoneySheets (FX-SHARED)",
+   "ref": "src/components/MoneySheets.tsx (IncomeSheet)",
+   "date": "2026-11-01",
+   "comments": "Found by FX-CF-B, 2026-11-01, under R23.",
+   "_written": {
+    "status": "TO DO — the owner of MoneySheets (FX-SHARED)",
+    "comments": "Found by FX-CF-B, 2026-11-01, under R23."
+   }
+  },
+  {
+   "task": "Closing round 4: identifiers and tooling (PF-TOOLS), and every red test (CLEANUP-TESTS)",
+   "todo": "Number the round; set guards to their true counts; decide every red.",
+   "status": "DONE 2026-11-01 — 22 functions and constants, input MK-XS-I-084; cards 513 of 513; headers 930 of 930; 597 suites, 10,977 tests, every red decided",
+   "ref": "Calculation Module code/scripts/moneykeel_function_register.json · src/__tests__/no_stale_window_start_r19.test.ts",
+   "date": "2026-11-01",
+   "comments": "Decisions DEC-9499, DEC-9500, DEC-9501; the outside hand-priced case on MK-PF-F-029 settled under R19a at $10.538 (DEC-9487).",
+   "_written": {
+    "status": "DONE 2026-11-01 — 22 functions and constants, input MK-XS-I-084; cards 513 of 513; headers 930 of 930; 597 suites, 10,977 tests, every red decided",
+    "comments": "Decisions DEC-9499, DEC-9500, DEC-9501; the outside hand-priced case on MK-PF-F-029 settled under R19a at $10.538 (DEC-9487)."
+   }
   }
  ]
 }

@@ -279,8 +279,8 @@ export default function SettingsScreen() {
         <View style={styles.verifyBanner}>
           <Text style={styles.verifyTxt}>⚠ Verify your email so you can recover your account. We sent a link to {user?.email}.</Text>
           <View style={styles.verifyRow}>
-            <TouchableOpacity accessibilityRole="button" onPress={handleResendVerify}><Text style={styles.verifyAction}>Resend</Text></TouchableOpacity>
-            <TouchableOpacity accessibilityRole="button" onPress={handleCheckVerified}><Text style={styles.verifyAction}>I’ve verified ›</Text></TouchableOpacity>
+            <TouchableOpacity hitSlop={Tap.slop} accessibilityRole="button" onPress={handleResendVerify}><Text style={styles.verifyAction}>Resend</Text></TouchableOpacity>
+            <TouchableOpacity hitSlop={Tap.slop} accessibilityRole="button" onPress={handleCheckVerified}><Text style={styles.verifyAction}>I’ve verified ›</Text></TouchableOpacity>
           </View>
         </View>
       )}
@@ -304,7 +304,7 @@ export default function SettingsScreen() {
         <SectionBand title="Display mode" />
         <View style={styles.modeRow}>
           {(['simple', 'advisor'] as const).map((m) => (
-            <TouchableOpacity accessibilityRole="button" key={m} style={[styles.modeBtn, (displayMode ?? 'simple') === m && styles.modeBtnOn]} onPress={() => setDisplayMode(m)}>
+            <TouchableOpacity hitSlop={Tap.slop} accessibilityRole="button" key={m} style={[styles.modeBtn, (displayMode ?? 'simple') === m && styles.modeBtnOn]} onPress={() => setDisplayMode(m)}>
               <Text style={[styles.modeT, (displayMode ?? 'simple') === m && styles.modeTOn]}>{m === 'simple' ? 'Simple' : 'Advisor'}</Text>
               <Text style={styles.modeSub}>{m === 'simple' ? 'plain language, less detail' : 'full depth & metrics'}</Text>
             </TouchableOpacity>
@@ -318,7 +318,7 @@ export default function SettingsScreen() {
         <SectionBand title="Text size" />
         <View style={styles.modeRow}>
           {FONT_SCALES.map((f) => (
-            <TouchableOpacity accessibilityRole="button" key={f.value} style={[styles.modeBtn, (fontScale ?? 1) === f.value && styles.modeBtnOn]} onPress={() => setFontScale(f.value)}>
+            <TouchableOpacity hitSlop={Tap.slop} accessibilityRole="button" key={f.value} style={[styles.modeBtn, (fontScale ?? 1) === f.value && styles.modeBtnOn]} onPress={() => setFontScale(f.value)}>
               <Text style={[styles.modeT, (fontScale ?? 1) === f.value && styles.modeTOn, { fontSize: 13 * f.value }]}>{f.label}</Text>
             </TouchableOpacity>
           ))}
@@ -368,7 +368,7 @@ export default function SettingsScreen() {
           <View style={{ flex: 1, marginRight: Spacing.sm }}>
             <Text style={styles.actionLabel}>Your setup</Text>
             <Text style={styles.actionSub}>Sets up your Home and tab order. Still working leads with your investments; retired leads with your monthly paycheck.</Text>
-            <TouchableOpacity accessibilityRole="button" onPress={() => router.push('/first-run')}
+            <TouchableOpacity hitSlop={Tap.slop} accessibilityRole="button" onPress={() => router.push('/first-run')}
               accessibilityLabel="Open your setup — the two questions that set your Home and tab order">
               <Text style={{ fontSize: 13, fontWeight: '700', color: Colors.primary, marginTop: 6 }}>Open your setup ›</Text>
             </TouchableOpacity>
@@ -594,7 +594,7 @@ export default function SettingsScreen() {
       <Modal visible={feedbackVisible} animationType={modalAnimation()} presentationStyle="pageSheet">
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
           <View style={styles.modalHeader}>
-            <TouchableOpacity accessibilityRole="button" onPress={() => setFeedbackVisible(false)}>
+            <TouchableOpacity hitSlop={Tap.slop} accessibilityRole="button" onPress={() => setFeedbackVisible(false)}>
               <Text style={styles.modalCancel}>Cancel</Text>
             </TouchableOpacity>
             <Text style={styles.modalTitle}>Send feedback</Text>
@@ -609,7 +609,7 @@ export default function SettingsScreen() {
             <Text style={styles.inputLabel}>What kind of feedback?</Text>
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
               {FEEDBACK_TYPES.map(t => (
-                <TouchableOpacity accessibilityRole="button" key={t.value}
+                <TouchableOpacity hitSlop={Tap.slop} accessibilityRole="button" key={t.value}
                   style={[styles.typeBtn, fbType === t.value && styles.typeBtnOn]}
                   onPress={() => setFbType(t.value)}>
                   <Text style={[styles.typeBtnText, fbType === t.value && styles.typeBtnTextOn]}>
@@ -672,7 +672,7 @@ export default function SettingsScreen() {
             Resetting will permanently delete all your data. This cannot be undone.
           </Text>
         </TipCard>
-        <TouchableOpacity accessibilityRole="button" style={styles.dangerBtn} onPress={handleReset}>
+        <TouchableOpacity hitSlop={Tap.slop} accessibilityRole="button" style={styles.dangerBtn} onPress={handleReset}>
           <Text style={styles.dangerBtnText}>Reset all data</Text>
         </TouchableOpacity>
       </Card>

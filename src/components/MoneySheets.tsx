@@ -8,7 +8,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Modal, Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import { useRouter, router } from 'expo-router';
 import { useStore } from '../store/useStore';
-import { Colors, Spacing, Radii } from '../utils/theme';
+import { Colors, Spacing, Radii, Tap } from '../utils/theme';
 import { money, money2 } from '../domain/_shared/num';
 import { currencySymbol } from '../domain/_shared/money';
 import { BUDGET_CATEGORIES, categoryBucketFor } from '../constants/categories';
@@ -337,7 +337,7 @@ export function AllocateSavings({ state, onClose }: { state: { open: boolean; ym
                 <Text style={sh.saveTxt}>{over ? 'Over available' : `Assign ${money(total)}`}</Text>
               </TouchableOpacity>
             )}
-            {state.isPrompt && <TouchableOpacity accessibilityRole="button" onPress={skip}><Text style={sh.remove}>Skip for now</Text></TouchableOpacity>}
+            {state.isPrompt && <TouchableOpacity hitSlop={Tap.slop} accessibilityRole="button" onPress={skip}><Text style={sh.remove}>Skip for now</Text></TouchableOpacity>}
           </View>
         </ScrollView>
       </TouchableOpacity>

@@ -166,7 +166,7 @@ function MonthYearCell({ value, onChange, style }: { value?: string; onChange: (
   const set = (y: number, mo: number) => onChange(`${y}-${String(mo).padStart(2, '0')}`);
   return (
     <>
-      <TouchableOpacity style={style} onPress={() => setOpen(true)}>
+      <TouchableOpacity hitSlop={Tap.slop} style={style} onPress={() => setOpen(true)}>
         <Text numberOfLines={1} style={{ fontSize: 15, color: value ? Colors.textPrimary : Colors.textTertiary }}>
           {value ? fmtMonthYear(value) : 'Pick date'}
         </Text>
@@ -196,7 +196,7 @@ function MonthYearCell({ value, onChange, style }: { value?: string; onChange: (
                 );
               })}
             </ScrollView>
-            <TouchableOpacity style={[s.addBtn, { marginTop: Spacing.md }]} onPress={() => setOpen(false)}>
+            <TouchableOpacity hitSlop={Tap.slop} style={[s.addBtn, { marginTop: Spacing.md }]} onPress={() => setOpen(false)}>
               <Text style={s.addBtnT}>Done</Text>
             </TouchableOpacity>
           </View>
@@ -583,7 +583,7 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
             </View>
             {!!worked.missing && <Text style={s.hint}>{worked.missing}</Text>}
             {Math.round(worked.annual) !== Math.round(annual) && worked.annual > 0 && (
-              <TouchableOpacity accessibilityRole="button" accessibilityLabel={`Use ${money(worked.annual)}`}
+              <TouchableOpacity hitSlop={Tap.slop} accessibilityRole="button" accessibilityLabel={`Use ${money(worked.annual)}`}
                 // the calculated figure is stored to the cent and rounded only where it is shown (Q49, DEC-0264; 2026-10-25)
                 onPress={() => { ctx.setAnswer('invAmount', String(worked.annual));
                                  ctx.setAnswer('invFreq', 'annual');
@@ -710,7 +710,7 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
             {list.length > 1 && (
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                 <Text style={s.label}>Scholarship {i + 1}</Text>
-                <TouchableOpacity onPress={() => setList(list.filter((_, j) => j !== i))}><Text style={{ color: Colors.red, fontWeight: '700', fontSize: 13 }}>Remove</Text></TouchableOpacity>
+                <TouchableOpacity hitSlop={Tap.slop} onPress={() => setList(list.filter((_, j) => j !== i))}><Text style={{ color: Colors.red, fontWeight: '700', fontSize: 13 }}>Remove</Text></TouchableOpacity>
               </View>
             )}
             <Text style={s.label}>Name (optional)</Text>
@@ -734,7 +734,7 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
             )}
           </Card>
         ))}
-        <TouchableOpacity onPress={() => setList([...list, { label: '', amount: '', freq: 'annual' }])}><Text style={s.addAnother}>＋ Add another scholarship</Text></TouchableOpacity>
+        <TouchableOpacity hitSlop={Tap.slop} onPress={() => setList([...list, { label: '', amount: '', freq: 'annual' }])}><Text style={s.addAnother}>＋ Add another scholarship</Text></TouchableOpacity>
         <Text style={s.hint}>Count money you receive to live on. We won’t tax this.</Text>
       </>);
     }
@@ -750,7 +750,7 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
             {list.length > 1 && (
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                 <Text style={s.label}>Loan {i + 1}</Text>
-                <TouchableOpacity onPress={() => setList(list.filter((_, j) => j !== i))}><Text style={{ color: Colors.red, fontWeight: '700', fontSize: 13 }}>Remove</Text></TouchableOpacity>
+                <TouchableOpacity hitSlop={Tap.slop} onPress={() => setList(list.filter((_, j) => j !== i))}><Text style={{ color: Colors.red, fontWeight: '700', fontSize: 13 }}>Remove</Text></TouchableOpacity>
               </View>
             )}
             <Text style={s.label}>Name (optional)</Text>
@@ -778,13 +778,13 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
                 </View>
                 {num(row.apr) > 0 && num(row.termYears) > 0 && (() => {
                   const lp = loanPayment(num(row.amount), num(row.apr), num(row.termYears));
-                  return <Text style={s.note2}>≈ <Text style={{ fontWeight: '800' }}>{money(lp.monthly)}/month</Text> for {num(row.termYears)} years · {money(lp.totalInterest)} total interest.</Text>;
+                  return <Text style={s.note2}>≈<Text style={{ fontWeight: '800' }}>{money(lp.monthly)}/month</Text> for {num(row.termYears)} years · {money(lp.totalInterest)} total interest.</Text>;
                 })()}
               </>
             )}
           </Card>
         ))}
-        <TouchableOpacity onPress={() => setList([...list, { label: '', amount: '', months: [] }])}><Text style={s.addAnother}>＋ Add another loan</Text></TouchableOpacity>
+        <TouchableOpacity hitSlop={Tap.slop} onPress={() => setList([...list, { label: '', amount: '', months: [] }])}><Text style={s.addAnother}>＋ Add another loan</Text></TouchableOpacity>
         {(() => {
           const borrowed = list.reduce((t, r) => t + num(r.amount), 0);
           const repay = list.reduce((t, r) => t + (num(r.apr) > 0 && num(r.termYears) > 0 ? loanPayment(num(r.amount), num(r.apr), num(r.termYears)).monthly : 0), 0);
@@ -792,7 +792,7 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
             <View style={s.callout}>
               <Text style={s.calloutIcon}>🏦</Text>
               <View style={{ flex: 1 }}>
-                <Text style={s.calloutTxt}>{money(borrowed)} borrowed{repay > 0 ? ` · ≈ ${money(repay)}/month after graduation` : ''}</Text>
+                <Text style={s.calloutTxt}>{money(borrowed)} borrowed{repay > 0 ? ` · ≈${money(repay)}/month after graduation` : ''}</Text>
                 <Text style={s.calloutSub}>It lands as cash now in your bill calendar; repayment starts after you graduate.</Text>
               </View>
             </View>
@@ -902,7 +902,7 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
         </Card>
         {/* the year is the months the wage is paid (MK-CF-F-178 × payrollMonths; 2026-10-26, FIX-INCOME-A): $500/month of match
             from July is $3,000 this year, never × 12 */}
-        {matchMonthly > 0 && <Callout text={`≈ ${money(matchMonthly)}/month of free money`}
+        {matchMonthly > 0 && <Callout text={`≈${money(matchMonthly)}/month of free money`}
           sub={`About ${money(householdEmployerMatchAnnual(a as any))}/year your employer adds on top of your own savings.`} />}
       </>);
     }
@@ -1468,14 +1468,14 @@ export function RsuEditor({ ctx }: { ctx: StepCtx }) {
                   placeholder={c.ph} placeholderTextColor={Colors.textTertiary}
                   value={r[c.key] ?? ''} onChangeText={(t) => setCell(i, c.key, t)} />
             ))}
-            <TouchableOpacity style={{ width: 24, alignItems: 'center' }} disabled={!filled}
-              onPress={() => removeRow(i)} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+            <TouchableOpacity hitSlop={Tap.slop} style={{ width: 24, alignItems: 'center' }} disabled={!filled}
+              onPress={() => removeRow(i)}>
               <Text style={s.removeX}>{filled ? '✕' : ''}</Text>
             </TouchableOpacity>
           </View>
         );
       })}
-      <TouchableOpacity style={s.addBtn} onPress={() => setExtra((e) => e + 1)}>
+      <TouchableOpacity hitSlop={Tap.slop} style={s.addBtn} onPress={() => setExtra((e) => e + 1)}>
         <Text style={s.addBtnT}>+ Add row</Text></TouchableOpacity>
     </Card>
 
@@ -1601,7 +1601,7 @@ function IncomeRecap({ ctx }: { ctx: StepCtx }) {
     <View style={s.heroCard}>
       <Text style={s.heroCardLabel}>Take-home / year</Text>
       <Text style={s.heroCardValue}>{money(availableYr)}</Text>
-      <Text style={s.heroCardSub}>≈ {money(avgMo)}/month average</Text>
+      <Text style={s.heroCardSub}>≈{money(avgMo)}/month average</Text>
     </View>
 
     {/* insight: typical month + the lean stretch + the windfall months */}
@@ -1888,7 +1888,7 @@ function SavingsEditor({ ctx }: { ctx: StepCtx }) {
     <View style={s.heroCard}>
       <Text style={s.heroCardLabel}>Surplus / year</Text>
       <Text style={[s.heroCardValue, annual < 0 && { color: Colors.red }]}>{money(annual)}</Text>
-      <Text style={s.heroCardSub}>≈ {money(avg)}/month average{net > 0 ? ` · ${pct}% of take-home` : ''}</Text>
+      <Text style={s.heroCardSub}>≈{money(avg)}/month average{net > 0 ? ` · ${pct}% of take-home` : ''}</Text>
     </View>
 
     {/* column chart of monthly savable amount */}
@@ -2064,7 +2064,7 @@ function RetireOutlook({ ctx }: { ctx: StepCtx }) {
           <MoneyRow ctx={ctx} k="ri_annuities" label="Annuity / other" />
           {guaranteedMo > 0 && <Callout text={`−${money(guaranteedMo)}/month off your savings target`}
             sub={`Capital needed drops to ${money(need.needed)}.`} />}
-          <TouchableOpacity style={s.addBtn} onPress={() => setGiOpen(false)}><Text style={s.addBtnT}>Done</Text></TouchableOpacity>
+          <TouchableOpacity hitSlop={Tap.slop} style={s.addBtn} onPress={() => setGiOpen(false)}><Text style={s.addBtnT}>Done</Text></TouchableOpacity>
         </View>
       </TouchableOpacity>
     </Modal>
@@ -2104,7 +2104,7 @@ function SavePlanScreen({ ctx }: { ctx: StepCtx }) {
       <View style={s.heroCard}>
         <Text style={s.heroCardLabel}>Surplus / year</Text>
         <Text style={[s.heroCardValue, annualSave < 0 && { color: Colors.red }]}>{money(annualSave)}</Text>
-        <Text style={s.heroCardSub}>≈ {money(annualSave / 12)}/month average — but it varies, see below</Text>
+        <Text style={s.heroCardSub}>≈{money(annualSave / 12)}/month average — but it varies, see below</Text>
       </View>
       <Card style={BANDED_CARD}>
         <SectionBand inCard inset={Spacing.base} title="Surplus by month" />
@@ -2152,14 +2152,14 @@ function SavePlanScreen({ ctx }: { ctx: StepCtx }) {
         })}
       </View>
       {num(raw) > 0 && (unit === 'pct'
-        ? <Text style={s.hint}>{num(raw)}% of your yearly free cash = {money(investMo * 12)}/year (≈ {money(investMo)}/month)</Text>
-        : <Text style={s.hint}>≈ {money(investMo)}/month</Text>)}
+        ? <Text style={s.hint}>{num(raw)}% of your yearly free cash = {money(investMo * 12)}/year (≈{money(investMo)}/month)</Text>
+        : <Text style={s.hint}>≈{money(investMo)}/month</Text>)}
       <Text style={s.hint}>What’s left funds your goals and cash buffer. The Roth-vs-brokerage split comes later — the Retirement tab walks you through the tax-smart way.</Text>
     </Card>
     {investMo > 0 && (() => {
       const investYr = investMo * 12;
       const leftover = annualSave - investYr;
-      if (!hasCashflow) return <Callout text={`Investing ${money(investYr)}/year (≈ ${money(investMo)}/month)`} />;
+      if (!hasCashflow) return <Callout text={`Investing ${money(investYr)}/year (≈${money(investMo)}/month)`} />;
       // GENUINELY over the year's net free cash → the only case where "less" is the answer
       if (investYr > annualSave) {
         return <Callout warn text={`${money(investYr)}/year is more than your ${money(annualSave)} of free cash`}
@@ -2170,7 +2170,7 @@ function SavePlanScreen({ ctx }: { ctx: StepCtx }) {
         return <Callout text={`Funded for the year — timing matters`}
           sub={`In ${monthRanges(leanIdx, sug.map((m) => m.label))} free cash runs below ${money(investMo)}/month, so those deposits come from the surplus you bank in the strong months — keep that surplus in cash until then. ${leftover > 0 ? `${money(leftover)}/year is left for goals and buffer.` : 'At 100%, nothing is left for goals or emergencies — any surprise breaks the plan.'}`} />;
       }
-      return <Callout text={`Investing ${money(investYr)}/year (≈ ${money(investMo)}/month)`}
+      return <Callout text={`Investing ${money(investYr)}/year (≈${money(investMo)}/month)`}
         sub={`Covered by your free cash in every month; ${money(Math.max(0, leftover))}/year is left for goals and your cash buffer.`} />;
     })()}
   </>);
@@ -2300,7 +2300,7 @@ function SpendingEditor({ ctx }: { ctx: StepCtx }) {
               R16; v07 row of that day): it read "$0" then "$" */}
           <MoneyBox bare unitBeside style={s.spendAmt}
             value={e.amount ?? ''} onChangeText={(t) => upsert(cat.id, { amount: t }, seed)} />
-          <TouchableOpacity style={s.unitToggle} onPress={() => upsert(cat.id, { unit: unit === 'pct' ? 'dollar' : 'pct' }, seed)}>
+          <TouchableOpacity hitSlop={Tap.slop} style={s.unitToggle} onPress={() => upsert(cat.id, { unit: unit === 'pct' ? 'dollar' : 'pct' }, seed)}>
             <Text style={s.unitToggleTxt}>{unit === 'pct' ? '%' : currencySymbol()}</Text>
           </TouchableOpacity>
           {custom && <TouchableOpacity onPress={() => remove(cat.id)} hitSlop={Tap.slop}><Text style={s.removeX}>✕</Text></TouchableOpacity>}
@@ -2390,7 +2390,7 @@ function SpendingEditor({ ctx }: { ctx: StepCtx }) {
           <SectionBand inCard inset={Spacing.base} title={`${tk.title} · ${tk.note}`} />
           {SPEND_CATS.filter((c) => c.tier === tk.key && (!c.stages || c.stages.includes(ctx.status as Status))).map((c) => renderRow(c, false))}
           {cats.filter((c) => c.custom && tierOf(c) === tk.key).map((c) => renderRow(c, true))}
-          <TouchableOpacity style={s.addRow} onPress={() => addCustom(tk.key)}><Text style={s.addRowTxt}>+ Add {tk.title.toLowerCase()}</Text></TouchableOpacity>
+          <TouchableOpacity hitSlop={Tap.slop} style={s.addRow} onPress={() => addCustom(tk.key)}><Text style={s.addRowTxt}>+ Add {tk.title.toLowerCase()}</Text></TouchableOpacity>
           {tot > 0 && (
             <View style={s.bucketTotalRow}>
               <Text style={s.bucketTotalLabel}>{tk.title} total</Text>
@@ -2510,7 +2510,7 @@ export function RentalEditor({ ctx }: { ctx: StepCtx }) {
         <Text style={{ fontSize: 13, fontWeight: '700', color: Colors.primary }}>Add the property first ›</Text>
       </TouchableOpacity>
     )}
-    <TouchableOpacity style={s.addBtn} onPress={addProp}><Text style={s.addBtnT}>+ Add property</Text></TouchableOpacity>
+    <TouchableOpacity hitSlop={Tap.slop} style={s.addBtn} onPress={addProp}><Text style={s.addBtnT}>+ Add property</Text></TouchableOpacity>
     {count > 0 && <Callout text={`${money(netMonthly)}/month net rental income`}
       sub={`About ${money(netMonthly * 12)}/year across ${plural(count, 'property')} after costs.${properties.length === 0 ? ' The rent is counted once you pick its property on the Income screen.'
         : allNamed ? '' : ' The rent is counted once you pick its property above.'}`} warn={netMonthly < 0} />}
@@ -2550,7 +2550,7 @@ function InvitePartner({ ctx }: { ctx: StepCtx }) {
       </>) : (
         <Text style={s.note}>We’ll create a one-time code your spouse enters when they sign up — no email needed, share it however you like.</Text>
       )}
-      <TouchableOpacity style={[s.addBtn, busy && { opacity: 0.5 }]} disabled={busy}
+      <TouchableOpacity hitSlop={Tap.slop} style={[s.addBtn, busy && { opacity: 0.5 }]} disabled={busy}
         onPress={code ? () => shareCode(code) : createAndShare}>
         <Text style={s.addBtnT}>{busy ? 'Creating…' : code ? 'Share the code' : '✉️ Create & share invite code'}</Text>
       </TouchableOpacity>
@@ -2591,10 +2591,10 @@ function VerifyEmail({ ctx }: { ctx: StepCtx }) {
         <Text style={[s.note, { color: Colors.primary, fontWeight: '700', textAlign: 'center' }]}>✓ Your email is verified — you’re all set.</Text>
       ) : (<>
         <Text style={s.note}>We sent a verification link to <Text style={{ fontWeight: '800' }}>{email ?? 'your email'}</Text>. Open it, then come back and tap the button below.</Text>
-        <TouchableOpacity style={[s.addBtn, busy && { opacity: 0.5 }]} disabled={busy} onPress={check}>
+        <TouchableOpacity hitSlop={Tap.slop} style={[s.addBtn, busy && { opacity: 0.5 }]} disabled={busy} onPress={check}>
           <Text style={s.addBtnT}>{busy ? 'Checking…' : "I’ve clicked the link — check"}</Text>
         </TouchableOpacity>
-        <TouchableOpacity disabled={busy} onPress={resend}>
+        <TouchableOpacity hitSlop={Tap.slop} disabled={busy} onPress={resend}>
           <Text style={[s.hint, { textAlign: 'center', marginTop: 10, textDecorationLine: 'underline' }]}>Resend the link</Text>
         </TouchableOpacity>
         {!!note && <Text style={[s.hint, { textAlign: 'center', marginTop: 8 }]}>{note}</Text>}
@@ -2636,7 +2636,7 @@ function GoalsEditor({ ctx }: { ctx: StepCtx }) {
         <MoneyBox bare style={[s.input, { flex: 1 }]} placeholder={`${currencySymbol()} target`} value={target} onChangeText={setTarget} />
         <TextInput style={[s.input, { flex: 1 }]} placeholder="By year" keyboardType="number-pad" placeholderTextColor={Colors.textTertiary} value={year} onChangeText={setYear} />
       </View>
-      <TouchableOpacity style={[s.addBtn, !canAdd && { opacity: 0.4 }]} disabled={!canAdd} onPress={add}><Text style={s.addBtnT}>+ Add goal</Text></TouchableOpacity>
+      <TouchableOpacity hitSlop={Tap.slop} style={[s.addBtn, !canAdd && { opacity: 0.4 }]} disabled={!canAdd} onPress={add}><Text style={s.addBtnT}>+ Add goal</Text></TouchableOpacity>
       {!canAdd && (label.trim() !== '' || target !== '') && <Text style={[s.hint, { textAlign: 'center' }]}>Give it a name and a target amount to add it.</Text>}
     </Card>
     {goals.map((g, i) => (

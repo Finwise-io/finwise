@@ -233,8 +233,16 @@ describe('MK-PF-F-029 closeAsOf — five cases', () => {
   test('complex · Labor Day weekend', () => {
     expect(closeAsOf(S([['2026-09-03', 412.18], ['2026-09-04', 415.02], ['2026-09-08', 409.77]]), D('2026-09-07'))).toBe(415.02);
   });
-  test('complex · Target between two sparse marks of a hand-priced fund', () => {
-    expect(closeAsOf(S([['2026-04-30', 10.412], ['2026-05-29', 10.538], ['2026-07-31', 10.701]]), D('2026-06-30'))).toBe(10.538);
+  // R19a (2026-11-01, the lead's ruling, narrowing R19): the 7-day limit is for market closes. A HAND-PRICED fund is valued when the person
+  // types a value, so a month between marks is normal: its window starts from the last value on or before the start, however old — never
+  // a value between two of theirs (the log holds no ruling on hand-typed marks; a value nobody typed is a default, DEC-0296). By hand: the
+  // marks are $10.412 Apr 30, $10.538 May 29, $10.701 Jul 31; the start is Jun 30, so it reads the May 29 mark, $10.538, 32 days back —
+  // the auditor's answer (it is that mark, not a point between two). SETTLED under R19a (CLEANUP-TESTS had it settled under R19 as no start).
+  test('complex · Target between two sparse marks of a hand-priced fund: the May 29 value, $10.538, however old (R19a)', () => {
+    expect(closeAsOf({ ...S([['2026-04-30', 10.412], ['2026-05-29', 10.538], ['2026-07-31', 10.701]]), byHand: true } as any, D('2026-06-30'))).toBe(10.538);
+  });
+  test('…the same marks as MARKET closes: May 29 is 32 days before the start, so no start (R19 — a market closes every trading day)', () => {
+    expect(closeAsOf(S([['2026-04-30', 10.412], ['2026-05-29', 10.538], ['2026-07-31', 10.701]]), D('2026-06-30'))).toBeNull();
   });
   // UNCLEAR: app gives 25.00 (the first close, dated five months after the target, index.ts:506), expected REFUSES — the
   // fallback is written in on purpose; closeOnOrBefore (MK-PF-F-034) is the no-fallback twin. Open question as MK-PF-F-010.

@@ -5,7 +5,7 @@
 // `inCard` bleeds the band to the card's edges (cards app-wide use Spacing.md padding).
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { Colors, Spacing } from '../utils/theme';
+import { Colors, Spacing, Tap } from '../utils/theme';
 import { InfoDot } from './UI';
 import { saidSentence } from './figure';   // a title or total that holds a figure is said through the one spoken writer
 
@@ -82,7 +82,7 @@ export function SectionBand({ title, value, light, inCard, inset = Spacing.md, i
       {onTitlePress ? (
         // hitSlop, not a taller bar: the bar is 11-point caps on 8 points of padding, and stretching
         // it to 44 would change every band on every screen. The finger target is 44; the bar is not.
-        <TouchableOpacity onPress={onTitlePress} hitSlop={{ top: 10, bottom: 10, left: 8, right: 8 }}
+        <TouchableOpacity onPress={onTitlePress} hitSlop={Tap.slop}   /* 16 above and below: 13 + 32 = 45 (NW4-04, 2026-11-01; it was 10, about 33) */
           style={{ flex: 0, flexShrink: 1 }} accessibilityRole="button" accessibilityLabel={titleHint ?? title}>
           <Text style={[s.title, { flex: 0, flexShrink: 1, textDecorationLine: 'underline' }, light && s.textLight]} numberOfLines={1}>{title}</Text>
         </TouchableOpacity>
@@ -99,8 +99,10 @@ export function SectionBand({ title, value, light, inCard, inset = Spacing.md, i
         <View testID="right-gutter" style={{ width: gutter, alignItems: 'flex-end', marginLeft: -6 }}>
           {/* the arrow at 13, 800, as v17 draws it on each account bar (12 on the one scale; 2026-10-31, FX-PF, PF3-2) — it was a total's 15 */}
           {!!onChevronPress && (
-            <Text onPress={onChevronPress} suppressHighlighting accessibilityRole="button" accessibilityLabel={titleHint ?? `Open ${title}`}
-              style={[s.value, { fontSize: 13 }, light && s.textLight]}>›</Text>
+            // a touchable with the touch margin, not a Text's own 16-point line (NW4-04, 2026-11-01)
+            <TouchableOpacity onPress={onChevronPress} hitSlop={Tap.slop} accessibilityRole="button" accessibilityLabel={titleHint ?? `Open ${title}`}>
+              <Text style={[s.value, { fontSize: 13 }, light && s.textLight]}>›</Text>
+            </TouchableOpacity>
           )}
         </View>
       )}

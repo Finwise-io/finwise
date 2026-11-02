@@ -1,3 +1,4 @@
+import type { PayFrequency } from './income/pay-frequency';
 // Typed shape of the consolidated onboarding answers (`onboardingProfile`, read as `op`/`a` across
 // the domain). All fields optional — onboarding is progressive. Amount fields are `Money` because
 // TextInputs produce strings while tests/seed data use numbers; `toNum()` coerces either way.
@@ -18,7 +19,7 @@ export interface OnboardingProfile {
   // meta
   status?: string; tracks?: string[]; name?: string;
   // employment / salary
-  incomeSources?: string[]; salaryFreq?: 'hourly' | 'weekly' | 'biweekly' | 'monthly'; baseSalary?: Money;
+  incomeSources?: string[]; salaryFreq?: PayFrequency; baseSalary?: Money;   // the five of the one table (R23, 2026-11-01)
   hoursPerWeek?: Money; salaryMode?: 'gross' | 'takehome';
   /** Month key ('2026-07') → amount. Was twelve positional slots meaning Jan–Dec, which could not
    *  describe a window crossing a year boundary; an array is still READ, as the current year. */

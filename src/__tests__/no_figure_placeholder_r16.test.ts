@@ -47,20 +47,19 @@ test('no placeholder shows a figure, outside the dead Goals screen — ratchet a
   expect(figures.length).toBe(RATCHET);                                      // lower RATCHET when the count falls
 });
 
-/** the true number of placeholders written as expressions — 35 on 2026-11-01, after the R16 sweep cleared 22 of the 50 (onboarding's
+/** the true number of placeholders written as expressions — 35 on 2026-11-01 (33 after NW4-05, below), after the R16 sweep cleared 22 of the 50 (onboarding's
  *  grey `${currencySymbol()}0`, ‘0’ and ‘50’, its stock-grant ‘100’ and ‘$0’, MoneySheets' ‘$0’ and ‘0%’, Your base pay's ‘$0’). What
  *  remains, and why it stays:
  *   · pass-throughs that print what their caller hands them (MoneyBox ×2, InputModal ×2, AddAccount's field ×2, BasePay's and
  *     IncomeManager's Money, AuthScreen's field, onboarding's helpers `ph ?? ''` ×6 and the stock-grant row's c.ph ×2) — their callers
  *     are read by the figure ratchet above;
- *   · words, some with a figure inside a sentence (Itemize, Budget's 'No limit', Auth, Bonds' and Other investments' 'amount sold (up
- *     to $X)', Required withdrawals, Settings, Net worth, IncomeManager's 'use $X', onboarding's 'e.g. 80' and '$ target');
+ *   · words, some with a figure inside a sentence (Itemize, Budget's 'No limit', Auth, Required withdrawals, Settings, Net worth, IncomeManager's 'use $X', onboarding's 'e.g. 80' and '$ target');
  *   · a figure the app uses when the box is blank, said in words beside it: JobSafety's monthly spend, Roth's rate, Plan's target nest
  *     egg ('our starting figure, not yours'), Social Security timing's example ('Showing example numbers'), Your base pay's tax rate
  *     ('Leave it blank to use the calculated rate') and its month table's typical month (as Income v07 phone 6 draws it), and the
  *     savings months under 'Use suggested'.
  *  It may only fall. */
-const RATCHET_EXPRESSIONS = 35;
+const RATCHET_EXPRESSIONS = 33;   // 33 on 2026-11-01 (FX-NW, NW4-05): Bonds' and Other investments' 'amount sold (up to $X)' are the words 'amount sold' now, the limit said in the line above
 test('placeholders written as expressions: listed, and a ratchet at the true count', () => {
   expect(expressions.length).toBeLessThanOrEqual(RATCHET_EXPRESSIONS);
   expect(expressions.length).toBe(RATCHET_EXPRESSIONS);                     // lower it when the count falls

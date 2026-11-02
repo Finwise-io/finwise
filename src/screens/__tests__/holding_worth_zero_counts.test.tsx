@@ -57,12 +57,14 @@ const BROKERAGE = {
 };
 /** closes: each holding's and each yardstick's, long before the month and today — so any month reads the same move. AAA's
  *  close today is $0, as the feed sends it (a day with no close is skipped, never written as $0). */
-const PRICES = {
-  AAA: { ticker: 'AAA', points: [{ date: daysAgo(600), close: 100 }, { date: TODAY, close: 0 }] },
-  BBB: { ticker: 'BBB', points: [{ date: daysAgo(600), close: 100 }, { date: TODAY, close: 120 }] },
-  SPY: { ticker: 'SPY', points: [{ date: daysAgo(600), close: 100 }, { date: TODAY, close: 110 }] },
-  AGG: { ticker: 'AGG', points: [{ date: daysAgo(600), close: 100 }, { date: TODAY, close: 102 }] },
-};
+/** two days before a window's start eve, so its close is within R19's 7 days whichever way the eve is counted */
+const nearEve = (months: number) => { const d = new Date(`${TODAY}T12:00:00`); d.setMonth(d.getMonth() - months); d.setDate(d.getDate() - 2); return isoLocalDate(d); };
+const NEAR_YTD = `${Number(TODAY.slice(0, 4)) - 1}-12-29`;
+// a close near each window's start (R19, 2026-11-01): 1Y back, Dec 29 of last year and 1M back, each at $100, the price each figure
+// measured from (the daysAgo(600) close the old rule carried); 2Y opens before the first close, so it reads that first close
+const flatTo = (ticker: string, today: number) => ({ ticker, points: [{ date: daysAgo(600), close: 100 },
+  ...[nearEve(12), NEAR_YTD, nearEve(1)].sort().map((date) => ({ date, close: 100 })), { date: TODAY, close: today }] });
+const PRICES = { AAA: flatTo('AAA', 0), BBB: flatTo('BBB', 120), SPY: flatTo('SPY', 110), AGG: flatTo('AGG', 102) };
 /** the two purchases open the account's history (so no window is day one) and move no money */
 const BUYS = [
   { id: 'ba', account_id: 'brk', type: 'BUY', ticker: 'AAA', shares: 10, price: 90, amount: 900, date: daysAgo(700) },

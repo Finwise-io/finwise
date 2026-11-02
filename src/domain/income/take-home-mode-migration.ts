@@ -19,7 +19,44 @@ import { toNum } from '../_shared/num';
 import { grossFromNet } from './tax';
 import { filingStatusOf, over65CountOf } from './onboarding';
 
-const PERIODS: Record<string, number> = { hourly: 12, weekly: 52, biweekly: 26, monthly: 12 };
+// THE ONE PAY-FREQUENCY TABLE (2026-11-01, FX-CF-B; R23): this file kept its own, which counted an HOUR as a MONTH (12 a year) and had
+// no 'annually' — a take-home of $25 an hour, 40 hours a week, converted as $25 a MONTH ($300/year). An hourly take-home is now
+// worked on the hours a week entered (× 52); with no hours, or a frequency outside the table, nothing is converted — the screens
+// say what is missing (DEC-0296).
+import { payPeriodsAYear } from './pay-frequency';
+/** Pay periods a year for this profile's take-home as typed: the hours a week × 52 for an hourly wage, the one table otherwise. */
+/* ─ MK-CF-F-309 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+ * periodsOf
+ *
+ * Answers ..... Pay periods a year for this profile's take-home as typed: the hours a week × 52 for an hourly wage, the one table otherwise.
+ *
+ * Formula .....
+ *     h = na n   if string(op.hours per week ?? '').trim() = ''
+ *     op.hours per week read as a number (0 when it is not one)   otherwise
+ *     the answer:
+ *     h × 52   if h > 0
+ *     nothing   otherwise
+ *
+ * Called by ... MK-CF-F-186 convertTakeHomeMode
+ *
+ * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-186 convertTakeHomeMode · MK-XS-F-199 profileOnTheWayIn
+ *               MK-CF-F-310 repairHourlyTakeHome
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-039 how often each income arrives
+ *               MK-XS-I-075 hours a week, for a wage paid by the hour
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-F-309
+ * Changed ..... not in git yet (—)
+ */
+const periodsOf = (op: Record<string, any>): number | null => {
+  if (String(op.salaryFreq ?? 'monthly') === 'hourly') {
+    const h = String(op.hoursPerWeek ?? '').trim() === '' ? NaN : toNum(op.hoursPerWeek);
+    return h > 0 ? h * 52 : null;
+  }
+  return payPeriodsAYear(op.salaryFreq);
+};
 
 /** True when this profile still holds a pre-2026-08-28 take-home entry. */
 /* ─ MK-CF-F-185 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
@@ -32,8 +69,9 @@ const PERIODS: Record<string, number> = { hourly: 12, weekly: 52, biweekly: 26, 
  *
  * Called by ... MK-CF-F-186 convertTakeHomeMode
  *
- * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
  *               MK-CF-F-186 convertTakeHomeMode · MK-XS-F-199 profileOnTheWayIn
+ *               MK-CF-F-310 repairHourlyTakeHome
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-060 how a person is paid — weekly, fortnightly, monthly
@@ -53,21 +91,21 @@ export function needsTakeHomeConversion(op: OnboardingProfile | null): boolean {
  *
  * Formula .....
  *     op   when !needs take home conversion(op as any)
- *     periods = PERIODS[string(op.salary freq ?? 'monthly')] (or 12 when missing)
+ *     periods = periods of(op)
+ *     op   when periods = nothing
  *     net per period = op.base salary read as a number (0 when it is not one)
  *     net annual = net per period × periods
  *     typed rate = to num((op as any).manual tax rate) ÷ 100   if (op as any).tax mode = 'manual'
  *     na n   otherwise
  *     k401 annual = to num((op as any).c 401k) × 12
  *
- * Called by ... MK-XS-F-199 profileOnTheWayIn
+ * Called by ... MK-CF-F-310 repairHourlyTakeHome · MK-XS-F-199 profileOnTheWayIn
  *
- * Reaches ..... 1 function. Change the arithmetic above and these change with it:
- *               MK-XS-F-199 profileOnTheWayIn
+ * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-199 profileOnTheWayIn · MK-CF-F-310 repairHourlyTakeHome
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- * Reads ....... MK-XS-I-039 how often each income arrives
- *               MK-XS-I-043 their own retirement contribution
+ * Reads ....... MK-XS-I-043 their own retirement contribution
  *               MK-XS-I-060 how a person is paid — weekly, fortnightly, monthly
  *
  * Decides .....
@@ -79,7 +117,8 @@ export function needsTakeHomeConversion(op: OnboardingProfile | null): boolean {
  */
 export function convertTakeHomeMode<T extends Record<string, any>>(op: T): T {
   if (!needsTakeHomeConversion(op as any)) return op;
-  const periods = PERIODS[String(op.salaryFreq ?? 'monthly')] ?? 12;
+  const periods = periodsOf(op);
+  if (periods == null) return op;   // no hours, or a frequency outside the table: nothing is guessed (R23, DEC-0296)
   const netPerPeriod = toNum(op.baseSalary);
   const netAnnual = netPerPeriod * periods;
   // THEIR OWN RATE, WHEN THEY GAVE ONE (2026-10-24, Cash flow journey E2E-72; tenet 5): the gross is worked back so their typed
@@ -102,4 +141,58 @@ export function convertTakeHomeMode<T extends Record<string, any>>(op: T): T {
     // NOT TYPED, AND SAID SO (tenet 3): Your base pay prints this gross as worked back from their take-home until they type one
     grossWorkedBack: true,
   };
+}
+
+/** What it is for: THE REPAIR OF AN HOURLY TAKE-HOME THE OLD CONVERSION READ AS A MONTH (2026-11-01, FX-CF-B; R23).
+ *  From Build 54 (2026-09-01) to 2026-11-01 the conversion above counted an hour as a month. Before Build 54 sign-up offered Hourly
+ *  beside Take-home, so a profile saved then as "$25 an hour, take-home, 40 hours a week" came out as a take-home of $25 a MONTH and a
+ *  gross of $25 an hour worked back from $300/year. This finds that exact footprint — an hourly wage whose gross was worked back,
+ *  whose take-home is the hourly figure itself and whose gross is what the old conversion made of it to the cent — and converts the
+ *  hourly take-home again on the hours a week entered. Anything typed since breaks the footprint, so nothing typed is touched; with
+ *  no hours entered nothing is changed. By hand: $25 × 40 × 52 = $52,000/year taken home, $4,333.33/month (it read $25). */
+/* ─ MK-CF-F-310 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+ * repairHourlyTakeHome
+ *
+ * Answers ..... What it is for: THE REPAIR OF AN HOURLY TAKE-HOME THE OLD CONVERSION READ AS A MONTH (2026-11-01, FX-CF-B; R23).
+ *
+ * Formula .....
+ *     a = op (or none when missing)
+ *     op   when gross worked back is missing (or string(salary freq) ! = 'hourly' (or salary mode ! = 'gross' when missing or zero) when missing or zero)
+ *     net = lands typical read as a number (0 when it is not one)
+ *     op   when not (net > 0) or !(to num(hours per week) > 0)
+ *     typed rate = to num(manual tax rate) ÷ 100   if tax mode = 'manual'
+ *     na n   otherwise
+ *     k401 annual = to num(c 401k) × 12
+ *     op   when size of(to num(base salary) − old gross ÷ 12) > 0.005
+ *     the answer = convert take home mode({ ...op, salary mode: 'takehome', base salary: string(net), lands typical: undefined, gross worked back: undefined })
+ *
+ * Called by ... MK-XS-F-199 profileOnTheWayIn
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-XS-F-199 profileOnTheWayIn
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-039 how often each income arrives
+ *               MK-XS-I-043 their own retirement contribution
+ *               MK-XS-I-060 how a person is paid — weekly, fortnightly, monthly
+ *               MK-XS-I-075 hours a week, for a wage paid by the hour
+ *
+ * Decides .....
+ *     · Turns a monthly figure into a year by multiplying by twelve.
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-F-310
+ * Changed ..... not in git yet (—)
+ */
+export function repairHourlyTakeHome<T extends Record<string, any>>(op: T): T {
+  const a: any = op ?? {};
+  if (!a.grossWorkedBack || String(a.salaryFreq) !== 'hourly' || a.salaryMode !== 'gross') return op;
+  const net = toNum(a.landsTypical);
+  if (!(net > 0) || !(toNum(a.hoursPerWeek) > 0)) return op;
+  // what the old conversion wrote for a take-home of `net` an hour read as `net` a month (periods 12)
+  const typedRate = a.taxMode === 'manual' ? toNum(a.manualTaxRate) / 100 : NaN;
+  const k401Annual = toNum(a.c_401k) * 12;
+  const oldGross = typedRate >= 0 && typedRate < 1 ? (net * 12 + k401Annual) / (1 - typedRate)
+    : grossFromNet(net * 12, filingStatusOf(a), over65CountOf(a)) + k401Annual;
+  if (Math.abs(toNum(a.baseSalary) - oldGross / 12) > 0.005) return op;   // not the old conversion's footprint: leave it
+  return convertTakeHomeMode({ ...op, salaryMode: 'takehome', baseSalary: String(net), landsTypical: undefined, grossWorkedBack: undefined });
 }

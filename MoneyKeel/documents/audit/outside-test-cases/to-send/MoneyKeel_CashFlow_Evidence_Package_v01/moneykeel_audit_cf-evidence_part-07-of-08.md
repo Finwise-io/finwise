@@ -130,7 +130,7 @@ Each case: the figure and the tenet, what the first reviewer said it lacked, the
       12
      ],
      "result": "passed",
-     "lines": "99–105",
+     "lines": "99–107",
      "holds_the_phone_with_the_line": true
     },
     {
@@ -141,7 +141,7 @@ Each case: the figure and the tenet, what the first reviewer said it lacked, the
       9
      ],
      "result": "passed",
-     "lines": "116–125",
+     "lines": "120–132",
      "holds_the_phone_with_the_line": false
     },
     {
@@ -152,7 +152,7 @@ Each case: the figure and the tenet, what the first reviewer said it lacked, the
       10
      ],
      "result": "passed",
-     "lines": "127–138",
+     "lines": "134–145",
      "holds_the_phone_with_the_line": false
     },
     {
@@ -163,7 +163,7 @@ Each case: the figure and the tenet, what the first reviewer said it lacked, the
       11
      ],
      "result": "passed",
-     "lines": "140–150",
+     "lines": "147–159",
      "holds_the_phone_with_the_line": false
     }
    ]
@@ -1562,7 +1562,7 @@ Each case: the figure and the tenet, what the first reviewer said it lacked, the
       12
      ],
      "result": "passed",
-     "lines": "99–105",
+     "lines": "99–107",
      "holds_the_phone_with_the_line": false
     },
     {
@@ -1573,7 +1573,7 @@ Each case: the figure and the tenet, what the first reviewer said it lacked, the
       9
      ],
      "result": "passed",
-     "lines": "116–125",
+     "lines": "120–132",
      "holds_the_phone_with_the_line": false
     },
     {
@@ -1584,7 +1584,7 @@ Each case: the figure and the tenet, what the first reviewer said it lacked, the
       10
      ],
      "result": "passed",
-     "lines": "127–138",
+     "lines": "134–145",
      "holds_the_phone_with_the_line": false
     },
     {
@@ -1595,7 +1595,7 @@ Each case: the figure and the tenet, what the first reviewer said it lacked, the
       11
      ],
      "result": "passed",
-     "lines": "140–150",
+     "lines": "147–159",
      "holds_the_phone_with_the_line": true
     }
    ]
@@ -2079,7 +2079,7 @@ Every line in order (`[icon]` is an icon); every figure printed under its identi
    "004  Your income",
    "005  Add anything that changes",
    "006  YOU ENTERED ABOUT",
-   "007  4 sources",
+   "007  4 SOURCES",
    "008  A job",
    "009  ✓",
    "010  You and Sam · take-home $9,398/month",
@@ -2938,9 +2938,9 @@ Rows of `MoneyKeel/documents/standards/moneykeel_pres_spec_design-each-screen-wa
 
 ## The drawing — `MoneyKeel/documents/cashflow/moneykeel_pres_mock_income-end-to-end_v07.html`
 
-**READ THIS FIRST — ADDED AFTER THIS MOCKUP · BUILD 54. Every line below is his ruling and is approved.** These were ruled after this drawing was approved, during work on Build 54 (the build on TestFlight). They are in the app’s code unless a line says “Not built yet”, and reach a phone with the next build cut. The phones below are not redrawn: where a line here and a phone disagree, this line is the design.
+**READ THIS FIRST — ADDED AFTER THIS MOCKUP · BUILD 54. Each row says whose decision it is: his, in his own words with the day he gave them, or the lead’s, made without asking him under his order of 2026-09-30. (Corrected 2026-10-31: this line said every row was his ruling and approved, which was untrue of the lead’s rows.)** These were ruled after this drawing was approved, during work on Build 54 (the build on TestFlight). They are in the app’s code unless a line says ‘Not built yet’, and reach a phone with the next build cut. The phones below are not redrawn: where a line here and a phone disagree, this line is the design.
 
-Its dated rows, every one, as written on the drawing (57):
+Its dated rows, every one, as written on the drawing (67):
 
 ```json
 [
@@ -2953,14 +2953,14 @@ Its dated rows, every one, as written on the drawing (57):
  },
  {
   "Ruled": "2026-10-04",
-  "What changed, against the phones below": "Rent from a property (phone 10): the hint reads “Tax, insurance, repairs, management.”",
+  "What changed, against the phones below": "Rent from a property (phone 10): the hint reads ‘Tax, insurance, repairs, management.’",
   "His words, or where it came from": "“remove langage to include interest on mortgage in maintenance expenses, as that is not standard practice.”",
   "Record": "DEC-1859",
   "State": "In the code"
  },
  {
   "Ruled": "2026-10-04",
-  "What changed, against the phones below": "Rent from a property (phone 10) asks “Which property is it?” and, once one is picked, “Monthly mortgage payment on this property, if any”. Leaving the screen adds that mortgage to Debts, on that property. With no property in Net worth it says: “Add this property first, on the Net worth page. Then its mortgage can be recorded here.”",
+  "What changed, against the phones below": "Rent from a property (phone 10) asks ‘Which property is it?’ and, once one is picked, ‘Monthly mortgage payment on this property, if any’. Leaving the screen adds that mortgage to Debts, on that property. With no property in Net worth it says: ‘Add this property first, on the Net worth page. Then its mortgage can be recorded here.’",
   "His words, or where it came from": "“11 - mortgage should not costs to run. We should ask to add monthly mortgage payment if any mortgage on second property. And automatically add it to debt.”",
   "Record": "DEC-1924",
   "State": "In the code"
@@ -2974,21 +2974,21 @@ Its dated rows, every one, as written on the drawing (57):
  },
  {
   "Ruled": "2026-10-10",
-  "What changed, against the phones below": "Rent from a property (phone 10): an entry that names no property is not counted as rent anywhere — not in income, the emergency fund or the property’s use. “Which property is it?” shows in amber with “Not counted as rent until you pick its property.”, and “This is the figure every other screen uses” is left off until it is answered. With no property in Net worth the line is “Add the property in Net worth first ›”, opening Add an account on Real estate. The old single rent figure names no property, so it is not counted either.",
-  "His words, or where it came from": "“10 - approved” (the recommendation: a rent entry cannot be saved until a property is picked)",
+  "What changed, against the phones below": "Rent from a property (phone 10): an entry that names no property is not counted as rent anywhere — not in income, the emergency fund or the property’s use. ‘Which property is it?’ shows in amber with ‘Not counted as rent until you pick its property.’, and ‘This is the figure every other screen uses’ is left off until it is answered. With no property in Net worth the line is ‘Add the property in Net worth first ›’, opening Add an account on Real estate. The old single rent figure names no property, so it is not counted either.",
+  "His words, or where it came from": "His words, “10 -approved.” (DEC-4059d; the recommendation: a rent entry cannot be saved until a property is picked)",
   "Record": "DEC-4059d · MK-CF-F-067 · MK-NW-F-115 · MK-NW-F-117 · MK-NW-O-004",
   "State": "In the code"
  },
  {
   "Ruled": "2026-10-10",
-  "What changed, against the phones below": "Interest & dividends (phone 11): a linked account whose history start date cannot be read is listed as “Schwab: History start date cannot be read. Edit date”; Edit date opens a date picker and the person’s date is saved on that account.",
+  "What changed, against the phones below": "Interest & dividends (phone 11): a linked account whose history start date cannot be read is listed as ‘Schwab: History start date cannot be read. Edit date’; Edit date opens a date picker and the person’s date is saved on that account.",
   "His words, or where it came from": "“9: Say date cannot be read. Edit date. and give user an option to enter or correct date.”",
   "Record": "DEC-4059c · MK-NW-F-046",
   "State": "In the code"
  },
  {
   "Ruled": "2026-10-10",
-  "What changed, against the phones below": "Every count written in words takes its plural from one list of words and plurals, so it is right for 0, 1 and many — the manager’s count “1 source” / “3 sources”; the rent row “One property” / “Two properties”; benefits “· 1 month of the year”.",
+  "What changed, against the phones below": "Every count written in words takes its plural from one list of words and plurals, so it is right for 0, 1 and many — the manager’s count ‘1 source’ / ‘3 sources’; the rent row ‘One property’ / ‘Two properties’; benefits ‘· 1 month of the year’.",
   "His words, or where it came from": "“15 - why not go ahead and make a list of words and plurals.”",
   "Record": "DEC-4082",
   "State": "In the code"
@@ -3002,196 +3002,196 @@ Its dated rows, every one, as written on the drawing (57):
  },
  {
   "Ruled": "2026-10-23",
-  "What changed, against the phones below": "Income summary (and the calculated rate wherever it is described): when a state income tax rate has been entered on the Tax organizer, the calculated rate already includes it, so the closing line reads “Without it we show the calculated rate — federal income tax, plus the 5.00% state rate you entered, assuming the standard deduction.” With no state rate entered it reads as drawn: “— federal income tax only, assuming the standard deduction.” The figures do not change. The phones are not redrawn. Line added 2026-10-23.",
-  "His words, or where it came from": "Not a decision of his: made under his tenet 5 (the person’s word outranks the app’s guess) without asking him — the Tax organizer says its state rate “tunes every tax estimate in the app”, and the calculated rate adds it; the words said “federal income tax only”. One word from him reverses it. To reverse: take the state rate out of the calculated rate, and the words stand as drawn.",
+  "What changed, against the phones below": "Income summary (and the calculated rate wherever it is described): when a state income tax rate has been entered on the Tax organizer, the calculated rate already includes it, so the closing line reads ‘Without it we show the calculated rate — federal income tax, plus the 5.00% state rate you entered, assuming the standard deduction.’ With no state rate entered it reads as drawn: ‘— federal income tax only, assuming the standard deduction.’ The figures do not change. The phones are not redrawn. Line added 2026-10-23.",
+  "His words, or where it came from": "Not a decision of his: made under his tenet 5 (the person’s word outranks the app’s guess) without asking him — the Tax organizer says its state rate ‘tunes every tax estimate in the app’, and the calculated rate adds it; the words said ‘federal income tax only’. One word from him reverses it. To reverse: take the state rate out of the calculated rate, and the words stand as drawn.",
   "Record": "DEC-3523 (tenet 5) · DEC-0384 · MK-CF-F-181 · MK-CF-M-031",
   "State": "In the code"
  },
  {
   "Ruled": "2026-10-24",
-  "What changed, against the phones below": "Sign-up’s Taxes step (not drawn on this page; it asks Base pay’s question in Base pay’s words) reads the income, the rate and the bracket the Income summary reads — what the year is taxed on, the rate in force, and the bracket on that income. Its line under the estimate reads “On the ~$55,200 it is taxed on — your gross less your 401(k) — from the IRS schedule after the standard deduction. It does NOT include Social Security and Medicare — about another 7.7% of a wage — or any state tax.” It read “On ~$68,400 gross, from the IRS schedule after the standard deduction …”, over the total of every source, the untaxed ones too, with its own rate (~8% where Cash flow says 7%) and its own bracket (22% where Cash flow says 12%). With a state rate entered, the line says the rate includes it. The income recap’s tax line and take-home read the same rate. Line added 2026-10-24.",
+  "What changed, against the phones below": "Sign-up’s Taxes step (not drawn on this page; it asks Base pay’s question in Base pay’s words) reads the income, the rate and the bracket the Income summary reads — what the year is taxed on, the rate in force, and the bracket on that income. Its line under the estimate reads ‘On the ~$55,200 it is taxed on — your gross less your 401(k) — from the IRS schedule after the standard deduction. It does NOT include Social Security and Medicare — about another 7.7% of a wage — or any state tax.’ It read ‘On ~$68,400 gross, from the IRS schedule after the standard deduction …’, over the total of every source, the untaxed ones too, with its own rate (~8% where Cash flow says 7%) and its own bracket (22% where Cash flow says 12%). With a state rate entered, the line says the rate includes it. The income recap’s tax line and take-home read the same rate. Line added 2026-10-24.",
   "His words, or where it came from": "Not a decision of his: made under his tenet 4 (one thing, one number, one word) without asking him — one person had two rates and two brackets on two screens. One word from him reverses it. To reverse: give the step its own rate and the total of every source again.",
   "Record": "DEC-3523 (tenet 4) · DEC-0384 · MK-CF-F-181 · MK-CF-O-004 · MK-CF-M-041 · MK-CF-M-043",
   "State": "In the code"
  },
  {
   "Ruled": "2026-10-24",
-  "What changed, against the phones below": "The Federal tax bracket is the band of what is taxed once each earner’s 401(k) is out — on Your base pay (the wages) and on the Income summary (every source). Phone 2’s household, $138,000 of wages with $14,400 into 401(k)s, is taxed on $138,000 − $14,400 − $32,200 = $91,400: 12% , where phone 2 draws 22%, the band of the gross. One wage alone is 12% too, so the sentence “Filing jointly, the band comes from what you earn together. On your pay alone we would have read 12% …” is not printed for this household; it still is wherever the two bands differ, and “The 24% is your own figures — tax, Social Security, Medicare, everything.” stays. A single filer on $70,000 with a $10,000 401(k) reads 12%, not 22%. What it is taxed on stayed as drawn in this line; corrected later on 2026-10-24 (DEC-7887): under “= Gross /year” the 401(k)s now come off and “= What it is taxed on” is the taxed figure — see that row. Rule 6 (“read from gross, annualised … never from take-home”) still holds for the base; the 401(k) comes off it first. Line added 2026-10-24.",
+  "What changed, against the phones below": "The Federal tax bracket is the band of what is taxed once each earner’s 401(k) is out — on Your base pay (the wages) and on the Income summary (every source). Phone 2’s household, $138,000 of wages with $14,400 into 401(k)s, is taxed on $138,000 − $14,400 − $32,200 = $91,400: 12% , where phone 2 draws 22%, the band of the gross. One wage alone is 12% too, so the sentence ‘Filing jointly, the band comes from what you earn together. On your pay alone we would have read 12% …’ is not printed for this household; it still is wherever the two bands differ, and ‘The 24% is your own figures — tax, Social Security, Medicare, everything.’ stays. A single filer on $70,000 with a $10,000 401(k) reads 12%, not 22%. What it is taxed on stayed as drawn in this line; corrected later on 2026-10-24 (DEC-7887): under ‘= Gross /year’ the 401(k)s now come off and ‘= What it is taxed on’ is the taxed figure — see that row. Rule 6 (‘read from gross, annualised … never from take-home’) still holds for the base; the 401(k) comes off it first. Line added 2026-10-24.",
   "His words, or where it came from": "His ruling DEC-0283 (2026-09-10): income before tax is gross less the 401(k) and other deductions — the tax was already worked that way while the bracket named the band of the gross. Applied without asking him, under tenet 1 (a wrong number ends trust), which ranks above the drawing (tenet 6). One word from him reverses it. To reverse: read the bracket off the gross again.",
   "Record": "DEC-0185 · DEC-0283 · DEC-3523 (tenets 1, 4) · MK-CF-M-032 · MK-CF-M-043 · MK-CF-F-181",
   "State": "In the code"
  },
  {
   "Ruled": "2026-10-24",
-  "What changed, against the phones below": "Income summary, when the tax is calculated (no rate typed) and a state income tax rate has been entered on the Tax organizer: the line under “Calculated federal tax” reads “Federal income tax, plus the 5.00% state rate you entered — it knows nothing about Social Security or Medicare.”, because the calculated rate is the federal rate plus that state rate (the words built for the typed-rate case, DEC-7608). With no state rate entered it reads as built: “Federal only — it knows nothing about your state, and nothing about Social Security or Medicare.” The figures do not change. The phones are not redrawn. Line added 2026-10-24.",
+  "What changed, against the phones below": "Income summary, when the tax is calculated (no rate typed) and a state income tax rate has been entered on the Tax organizer: the line under ‘Calculated federal tax’ reads ‘Federal income tax, plus the 5.00% state rate you entered — it knows nothing about Social Security or Medicare.’, because the calculated rate is the federal rate plus that state rate (the words built for the typed-rate case, DEC-7608). With no state rate entered it reads as built: ‘Federal only — it knows nothing about your state, and nothing about Social Security or Medicare.’ The figures do not change. The phones are not redrawn. Line added 2026-10-24.",
   "His words, or where it came from": "Not a decision of his: made under tenet 1 (a wrong number, here a false sentence beside one, ends trust) without asking him — the line said the rate knew nothing about the state when it held the state rate the person typed. One word from him reverses it. To reverse: take the state rate out of the calculated rate, and the line stands as built.",
   "Record": "DEC-7608 · DEC-0384 · DEC-3523 (tenet 1) · MK-CF-F-181 · MK-CF-M-044",
   "State": "In the code"
  },
  {
   "Ruled": "2026-10-24",
-  "What changed, against the phones below": "Income summary, What it is taxed on (frame 5a): the gross lines stay as drawn, and “= Gross /year” stays the figure before any deductions. Under it, two rows in the same style: Your 401(k)s with the year’s contributions taken off (“−$14,400” for frame 5a’s household, $800 and $400 a month), and = What it is taxed on , the total the tax and the bracket are worked on ($167,400 − $14,400 = $153,000). The band beside “What it is taxed on” shows that same total, not the gross. With no 401(k) the two figures are the same and both rows still show, the 401(k) row at $0. The tax row, the bracket row and the sentence under them are unchanged; the bracket is read on the $153,000 (22%). Line added 2026-10-24.",
-  "His words, or where it came from": "His ruling DEC-0283 (2026-09-10): gross is before any deductions, and income before tax is gross less the 401(k) and any other deduction. The figure labelled “What it is taxed on” printed the gross, the 401(k) still in it, while the tax and the bracket were worked without it. Applied without asking him, under tenets 1 and 2 (every number shows how it was made); one word from him reverses it. To reverse: print the gross beside “What it is taxed on” again and drop the two rows.",
+  "What changed, against the phones below": "Income summary, What it is taxed on (frame 5a): the gross lines stay as drawn, and ‘= Gross /year’ stays the figure before any deductions. Under it, two rows in the same style: Your 401(k)s with the year’s contributions taken off (‘−$14,400’ for frame 5a’s household, $800 and $400 a month), and = What it is taxed on , the total the tax and the bracket are worked on ($167,400 − $14,400 = $153,000). The band beside ‘What it is taxed on’ shows that same total, not the gross. With no 401(k) the two figures are the same and both rows still show, the 401(k) row at $0. The tax row, the bracket row and the sentence under them are unchanged; the bracket is read on the $153,000 (22%). Line added 2026-10-24.",
+  "His words, or where it came from": "His ruling DEC-0283 (2026-09-10): gross is before any deductions, and income before tax is gross less the 401(k) and any other deduction. The figure labelled ‘What it is taxed on’ printed the gross, the 401(k) still in it, while the tax and the bracket were worked without it. Applied without asking him, under tenets 1 and 2 (every number shows how it was made); one word from him reverses it. To reverse: print the gross beside ‘What it is taxed on’ again and drop the two rows.",
   "Record": "DEC-0283 · DEC-3523 (tenets 1, 2) · MK-CF-M-041 · new MK-CF-M-076 (= Gross /year) · new MK-CF-M-077 (Your 401(k)s, a year)",
   "State": "In the code"
  },
  {
   "Ruled": "2026-10-24",
-  "What changed, against the phones below": "Interest & dividends (phone 11), From your accounts , a bond’s line — not a drawn state. A bond’s year of interest is now the one figure its account page and the Bonds screen print. A bond with a rate and a maturity date but no face value reads “4.5% coupon — face value not entered, so counted as $0 until it is” and $0 (it read “4.5% on $24,200” and $1,089, the rate on the market value; a bond pays its coupon on its face). A bond past its maturity date reads “matured Jun 30, 2026 — it pays no more interest” and $0 (it kept its year’s coupon here while every other figure counted $0). A CD bought from the bank with no face value still reads its rate on its balance, “5.05% on $10,000” and $505. The drawn line is unchanged: “Treasury bonds” has no face value and no maturity date, so it is read as a bond fund, which has no face of its own, and keeps its rate on its balance — “4.2% on $30,000”, $1,260. Line added 2026-10-24.",
+  "What changed, against the phones below": "Interest & dividends (phone 11), From your accounts , a bond’s line — not a drawn state. A bond’s year of interest is now the one figure its account page and the Bonds screen print. A bond with a rate and a maturity date but no face value reads ‘4.5% coupon — face value not entered, so counted as $0 until it is’ and $0 (it read ‘4.5% on $24,200’ and $1,089, the rate on the market value; a bond pays its coupon on its face). A bond past its maturity date reads ‘matured Jun 30, 2026 — it pays no more interest’ and $0 (it kept its year’s coupon here while every other figure counted $0). A CD bought from the bank with no face value still reads its rate on its balance, ‘5.05% on $10,000’ and $505. The drawn line is unchanged: ‘Treasury bonds’ has no face value and no maturity date, so it is read as a bond fund, which has no face of its own, and keeps its rate on its balance — ‘4.2% on $30,000’, $1,260. Line added 2026-10-24.",
   "His words, or where it came from": "Tenet 3 (DEC-3523): unknown is not zero, and it outranks tenet 6 and the no-face half of DEC-2748c for a dated bond; DEC-2748d: a matured bond pays nothing more, on every figure; tenet 4: one figure, one number. Decided without asking him; to reverse it, the line reads the rate on the value again for a bond with no face.",
   "Record": "DEC-3523 (tenets 3, 4) · DEC-2748c · DEC-2748d · MK-CF-F-184 · MK-NW-F-126 · MK-CF-M-066",
   "State": "In the code"
  },
  {
   "Ruled": "2026-10-24",
-  "What changed, against the phones below": "How do you file your taxes? — phone 15, “That changes your take-home”. It compares what the app was showing with what it will show: “What we were assuming” is the status in force before the answer (the answer on record, or filing jointly when a spouse was entered and nothing was asked), and both sides count who is 65 or older the way the take-home does. The phone shows whenever the answer changes the status and the take-home with it: a rise in the drawn words, a fall in the same words with “less” (“$327/month less”, jointly → separately). The month’s figure is the difference of the two take-homes as printed — $6,196 → $6,523 is “$327/month more”, where it read “$328” (the cent-exact $327.50); both over 65, “$480”. “…if you are both over 65” goes with its row, on a joint return only. A couple already taxed jointly who confirm it see no phone: nothing moves. Line added 2026-10-24.",
+  "What changed, against the phones below": "How do you file your taxes? — phone 15, ‘That changes your take-home’. It compares what the app was showing with what it will show: ‘What we were assuming’ is the status in force before the answer (the answer on record, or filing jointly when a spouse was entered and nothing was asked), and both sides count who is 65 or older the way the take-home does. The phone shows whenever the answer changes the status and the take-home with it: a rise in the drawn words, a fall in the same words with ‘less’ (‘$327/month less’, jointly → separately). The month’s figure is the difference of the two take-homes as printed — $6,196 → $6,523 is ‘$327/month more’, where it read ‘$328’ (the cent-exact $327.50); both over 65, ‘$480’. ‘…if you are both over 65’ goes with its row, on a joint return only. A couple already taxed jointly who confirm it see no phone: nothing moves. Line added 2026-10-24.",
   "His words, or where it came from": "The lead’s rulings of 2026-10-24 on the Cash flow journey E2E-79: show a fall as well as a rise (tenet 1); a difference printed beside the figures it compares is their printed difference (tenet 2). Not a decision of his; one word from him reverses it. To reverse: show the phone only for a rise, and print the cent-exact difference.",
   "Record": "DEC-3523 (tenets 1, 2) · DEC-0283 · MK-CF-F-181",
   "State": "In the code"
  },
  {
   "Ruled": "2026-10-24",
-  "What changed, against the phones below": "Your base pay (phones 2 to 7), for a take-home entered before 2026-08-28 — not a drawn state. That take-home stays the take-home; its gross was worked back once, and is now worked back with the person’s own rate when they typed one (a typed 0% on $5,000 gives $5,000, where the federal schedule gave $5,475.38 and the card read “Everything else taken out $475/month · 0%”). Until a gross is typed, the gross box shows it to the cent (it showed “5475.378787878787”) with the line “≈ Worked back from the take-home you entered. Type the gross from a payslip to replace it.” in place of “Before anything comes out.”, and the card’s last line reads “The take-home is what you entered; the gross was worked back from it.” in place of “This is what you entered — nothing here is calculated.” Typing a gross brings back the drawn words. Line added 2026-10-24.",
+  "What changed, against the phones below": "Your base pay (phones 2 to 7), for a take-home entered before 2026-08-28 — not a drawn state. That take-home stays the take-home; its gross was worked back once, and is now worked back with the person’s own rate when they typed one (a typed 0% on $5,000 gives $5,000, where the federal schedule gave $5,475.38 and the card read ‘Everything else taken out $475/month · 0%’). Until a gross is typed, the gross box shows it to the cent (it showed ‘5475.378787878787’) with the line ‘≈ Worked back from the take-home you entered. Type the gross from a payslip to replace it.’ in place of ‘Before anything comes out.’, and the card’s last line reads ‘The take-home is what you entered; the gross was worked back from it.’ in place of ‘This is what you entered — nothing here is calculated.’ Typing a gross brings back the drawn words. Line added 2026-10-24.",
   "His words, or where it came from": "Not a decision of his: made under tenet 3 (approved 2026-10-09: something never entered is never shown as if it were, DEC-3523) and tenet 5 (the person’s word outranks the app’s guess), and this drawing’s rule 9, that every estimate is prefixed ≈ and says what it cannot see; found by the Cash flow journeys E2E-71 and E2E-72. One word from him reverses it. To reverse: work the gross back from the federal schedule and print the drawn words.",
   "Record": "DEC-3523 (tenets 3, 5) · MK-CF-F-186 · MK-CF-O-001 · MK-CF-M-030",
   "State": "In the code"
  },
  {
   "Ruled": "2026-10-25",
-  "What changed, against the phones below": "Your base pay (phone 3), a tax rate typed . The rate is his, so the card says so: the tax row reads Tax · your rate, 24% · $2,760/month (24% of $11,500), where it read “Calculated federal tax — assumes you take the standard deduction ≈$2,760/month”. A take-home worked from his own rate is not an estimate, so it carries no ≈ — the household band, “= Take-home” and the closed lines read $7,540/month, You $4,520, Sam $3,020 (calculated); the open section reads “We’ll calculate $4,520/month, using the 24% rate you entered.” where it spoke of a tax band the figure was not worked from; one take-home typed and one not: “Sam’s take-home: $3,020 (calculated at your 24% rate, less 401(k))”. Every figure worked with the calculated rate keeps its ≈ (rule 9), on this screen, the Income summary (its rows, total and band: ≈$5,669, ≈$3,759, ≈$9,427 for phone 3’s household, where they printed with none) and the Income tab. DRAWING ERROR on phone 3: “= Take-home $8,740/month” leaves the $1,200 of 401(k)s in; the rate is everything that comes out except the 401(k) (the phone’s own question), so $11,500 − $2,760 − $1,200 = $7,540.",
-  "His words, or where it came from": "Not a decision of his: the lead’s, on the Cash flow drawing check of 2026-10-24 (IN-03), made without asking him, under his tenets 1, 2 and 4 (DEC-3523: a figure says whose it is, an estimate says so, one figure in one form) and this drawing’s rules 8e and 9. One word from him reverses it. To reverse: label a typed rate “Calculated federal tax” and put ≈ on every take-home the app works out.",
+  "What changed, against the phones below": "Your base pay (phone 3), a tax rate typed . The rate is his, so the card says so: the tax row reads Tax · your rate, 24% · $2,760/month (24% of $11,500), where it read ‘Calculated federal tax — assumes you take the standard deduction ≈$2,760/month’. A take-home worked from his own rate is not an estimate, so it carries no ≈ — the household band, ‘= Take-home’ and the closed lines read $7,540/month, You $4,520, Sam $3,020 (calculated); the open section reads ‘We’ll calculate $4,520/month, using the 24% rate you entered.’ where it spoke of a tax band the figure was not worked from; one take-home typed and one not: ‘Sam’s take-home: $3,020 (calculated at your 24% rate, less 401(k))’. Every figure worked with the calculated rate keeps its ≈ (rule 9), on this screen, the Income summary (its rows, total and band: ≈$5,669, ≈$3,759, ≈$9,427 for phone 3’s household, where they printed with none) and the Income tab. DRAWING ERROR on phone 3: ‘= Take-home $8,740/month’ leaves the $1,200 of 401(k)s in; the rate is everything that comes out except the 401(k) (the phone’s own question), so $11,500 − $2,760 − $1,200 = $7,540.",
+  "His words, or where it came from": "Not a decision of his: the lead’s, on the Cash flow drawing check of 2026-10-24 (IN-03), made without asking him, under his tenets 1, 2 and 4 (DEC-3523: a figure says whose it is, an estimate says so, one figure in one form) and this drawing’s rules 8e and 9. One word from him reverses it. To reverse: label a typed rate ‘Calculated federal tax’ and put ≈ on every take-home the app works out.",
   "Record": "DEC-3523 (tenets 1, 2, 4) · MK-CF-O-001 · MK-CF-O-004 · MK-CF-M-031 · MK-CF-M-033 · MK-CF-M-037 · MK-CF-M-038",
   "State": "In the code"
  },
  {
   "Ruled": "2026-10-25",
-  "What changed, against the phones below": "DRAWING ERRORS, phones 2 to 4 (the app is right; the phones are not redrawn). Phone 2: “Everything else taken out $4,700/month · 24%” is $11,500 − $8,300 − $1,200 = $2,000/month · 17% of the gross, and its sentence reads “The 17% is your own figures …”. Phones 3 and 4, worked after the 401(k)s by his DEC-0283: the household and take-home ≈$9,427/month , the tax ≈$873/month , “$11,500 gross − $873 tax − $1,200 of 401(k)s = $9,427.” (drawn ≈$9,242 and ≈$1,058); Sam ≈$3,759 (calculated) and the household ≈$8,759/month (drawn ≈$3,686 and ≈$8,686). Phone 8 has a spouse entered, so it is taxed jointly until the filing question is answered (the 2026-10-24 row on phone 15): ≈$6,523/month where drawn ≈$6,196, the single figure. Phones 9 and 16: December, with the bonus, is $9,500 + $12,000 × (1 − 24%) = $18,620 at the household’s own 24%; the drawn $18,860 is the bonus at 22%.",
+  "What changed, against the phones below": "DRAWING ERRORS, phones 2 to 4 (the app is right; the phones are not redrawn). Phone 2: ‘Everything else taken out $4,700/month · 24%’ is $11,500 − $8,300 − $1,200 = $2,000/month · 17% of the gross, and its sentence reads ‘The 17% is your own figures …’. Phones 3 and 4, worked after the 401(k)s by his DEC-0283: the household and take-home ≈$9,427/month , the tax ≈$873/month , ‘$11,500 gross − $873 tax − $1,200 of 401(k)s = $9,427.’ (drawn ≈$9,242 and ≈$1,058); Sam ≈$3,759 (calculated) and the household ≈$8,759/month (drawn ≈$3,686 and ≈$8,686). Phone 8 has a spouse entered, so it is taxed jointly until the filing question is answered (the 2026-10-24 row on phone 15): ≈$6,523/month where drawn ≈$6,196, the single figure. Phones 9 and 16: December, with the bonus, is $9,500 + $12,000 × (1 − 24%) = $18,620 at the household’s own 24%; the drawn $18,860 is the bonus at 22%.",
   "His words, or where it came from": "Not a decision of his: the lead’s, on the Cash flow drawing check of 2026-10-24 (IN-01, IN-02, IN-07, IN-10), made without asking him, under his DEC-0283 and tenet 1 (DEC-3523), the way DEC-4529 corrected a drawn figure. One word from him reverses it. To reverse: draw the figures again as the phones show them.",
   "Record": "DEC-0283 · DEC-1625 · DEC-4529 · DEC-3523 (tenet 1) · MK-CF-M-031 · MK-CF-M-033 · MK-CF-M-036 · MK-CF-M-039",
   "State": "In the code"
  },
  {
   "Ruled": "2026-10-25",
-  "What changed, against the phones below": "Money boxes, as drawn (Your base pay, Bonus and stock, Rent, Interest & dividends): a box shows its figure with the $ and the thousands mark while it is typed — “$7,000”, “$12,000”, “$1,800” (it showed “7000”). The match box reads “50% · $400/month” (50% of the $800 put in) or “$150/month · a set amount” , its worth beside what was typed (it showed “50”, “150”). A match typed without tapping either choice is read as the choice the screen shows chosen, % of theirs, everywhere the match counts — it was counted as dollars, so 50 with $800 put in counted $50/month, not $400. An empty box shows what an empty box counts: “$0” for a 401(k) or stock left blank, “optional” for a take-home. Sam’s months (phone 6): a month not typed shows the month the app counts — the fortnight’s $2,077 as a month, $2,077 × 26 ÷ 12 = $4,500 — where it showed “2077”, the fortnight figure this phone’s own sentence says a monthly box must never hold; a typed month is marked and last month greyed, as drawn. A month with nothing typed — never typed, or cleared — counts as the typical month in the year’s gross too, and a month typed $0 counts $0: a typed $0 is an answer. The year is this calendar year’s twelve months, as every Cash flow month reads it (rule 6: the average month × 12, never the window’s total): phone 6’s Sam, with September 2026 typed at $6,000, earns 11 × $4,500.17 + $6,000 = $55,502 this year (his March 2027 $6,000 is next year’s); Your base pay counted the typed months only, so it read every month as $6,000 and showed $72,000. A worker paid $12,500 from July, January to June typed $0, reads $75,000. DRAWING ERROR on phone 6: its band reads $139,502/year ($84,000 + $55,502), where drawn $138,000, which leaves the $6,000 month out.",
-  "His words, or where it came from": "Not a decision of his: the lead’s, on the Cash flow drawing check of 2026-10-24 (IN-04, IN-05, IN-06), made without asking him, under his tenets 1 and 4 (DEC-3523: a wrong number ends trust; one figure, one number) and this drawing’s line “Every month below starts from this”. One word from him reverses it. To reverse: show the boxes as plain digits, the fortnight figure in an empty month, count only the typed months, and read a match with no choice tapped as dollars.",
+  "What changed, against the phones below": "Money boxes, as drawn (Your base pay, Bonus and stock, Rent, Interest & dividends): a box shows its figure with the $ and the thousands mark while it is typed — ‘$7,000’, ‘$12,000’, ‘$1,800’ (it showed ‘7000’). The match box reads ‘50% · $400/month’ (50% of the $800 put in) or ‘$150/month · a set amount’ , its worth beside what was typed (it showed ‘50’, ‘150’). A match typed without tapping either choice is read as the choice the screen shows chosen, % of theirs, everywhere the match counts — it was counted as dollars, so 50 with $800 put in counted $50/month, not $400. An empty box shows what an empty box counts: ‘$0’ for a 401(k) or stock left blank, ‘optional’ for a take-home. Sam’s months (phone 6): a month not typed shows the month the app counts — the fortnight’s $2,077 as a month, $2,077 × 26 ÷ 12 = $4,500 — where it showed ‘2077’, the fortnight figure this phone’s own sentence says a monthly box must never hold; a typed month is marked and last month greyed, as drawn. A month with nothing typed — never typed, or cleared — counts as the typical month in the year’s gross too, and a month typed $0 counts $0: a typed $0 is an answer. The year is this calendar year’s twelve months, as every Cash flow month reads it (rule 6: the average month × 12, never the window’s total): phone 6’s Sam, with September 2026 typed at $6,000, earns 11 × $4,500.17 + $6,000 = $55,502 this year (his March 2027 $6,000 is next year’s); Your base pay counted the typed months only, so it read every month as $6,000 and showed $72,000. A worker paid $12,500 from July, January to June typed $0, reads $75,000. DRAWING ERROR on phone 6: its band reads $139,502/year ($84,000 + $55,502), where drawn $138,000, which leaves the $6,000 month out.",
+  "His words, or where it came from": "Not a decision of his: the lead’s, on the Cash flow drawing check of 2026-10-24 (IN-04, IN-05, IN-06), made without asking him, under his tenets 1 and 4 (DEC-3523: a wrong number ends trust; one figure, one number) and this drawing’s line ‘Every month below starts from this’. One word from him reverses it. To reverse: show the boxes as plain digits, the fortnight figure in an empty month, count only the typed months, and read a match with no choice tapped as dollars.",
   "Record": "DEC-3523 (tenets 1, 4, 5) · MK-CF-F-143 · MK-CF-F-178 · MK-CF-O-001 · MK-CF-M-030",
   "State": "In the code"
  },
  {
   "Ruled": "2026-10-25",
-  "What changed, against the phones below": "Your base pay with nothing entered (not drawn). His empty-state ruling (Q48): the household band reads $0/month with “Nothing entered yet. Add your income ›” under it, the door opening the first person’s questions; no gross row, no bracket, no tax row, no warning and no rate question until a gross is typed; no ✓ beside a person with nothing entered, and that person is left out of the household’s sentence. It read “≈$0/month”, “Federal tax bracket 10%”, “Calculated federal tax ≈$0/month”, “= Take-home ≈$0/month” and “higher than it will really be, by roughly $0/month”.",
+  "What changed, against the phones below": "Your base pay with nothing entered (not drawn). His empty-state ruling (Q48): the household band reads $0/month with ‘Nothing entered yet. Add your income ›’ under it, the door opening the first person’s questions; no gross row, no bracket, no tax row, no warning and no rate question until a gross is typed; no ✓ beside a person with nothing entered, and that person is left out of the household’s sentence. It read ‘≈$0/month’, ‘Federal tax bracket 10%’, ‘Calculated federal tax ≈$0/month’, ‘= Take-home ≈$0/month’ and ‘higher than it will really be, by roughly $0/month’.",
   "His words, or where it came from": "Not a decision of his: the lead’s, on the Cash flow drawing check of 2026-10-24 (IN-08), made without asking him, under his Q48 (DEC-0431, the approved empty-state drawing) and tenet 3 (DEC-3523: unknown is not zero). One word from him reverses it. To reverse: show the card’s rows on an empty profile again.",
   "Record": "DEC-0431 (Q48) · DEC-3523 (tenet 3) · MK-CF-O-001",
   "State": "In the code"
  },
  {
   "Ruled": "2026-10-25",
-  "What changed, against the phones below": "Inside sign-up (phone 8; the filing question, phones 13 and 14). The step is titled “Your base pay”, as drawn (it had no title); the household card and the rate question are not shown — phone 8 draws neither, and sign-up’s Taxes step asks the rate; the button reads Continue on every step (it read “Continue →”); the filing question has no “Skip for now” — it is pre-answered, and Continue keeps the answer. “← Back”, “Save & come back later” and the step names at the top stay on every step, though the phones do not draw them: the phones draw the questions, and a person must be able to go back or stop. The picker (phone 1) reads “We’ll” with the curly mark. Phone 6: Sam’s 401(k) and take-home boxes carry no grey line, as drawn. Phone 7: while the three figures disagree, the gross and the take-home boxes are marked and the three grey lines give way to the warning, as drawn.",
+  "What changed, against the phones below": "Inside sign-up (phone 8; the filing question, phones 13 and 14). The step is titled ‘Your base pay’, as drawn (it had no title); the household card and the rate question are not shown — phone 8 draws neither, and sign-up’s Taxes step asks the rate; the button reads Continue on every step (it read ‘Continue →’); the filing question has no ‘Skip for now’ — it is pre-answered, and Continue keeps the answer. ‘← Back’, ‘Save & come back later’ and the step names at the top stay on every step, though the phones do not draw them: the phones draw the questions, and a person must be able to go back or stop. The picker (phone 1) reads ‘We’ll’ with the curly mark. Phone 6: Sam’s 401(k) and take-home boxes carry no grey line, as drawn. Phone 7: while the three figures disagree, the gross and the take-home boxes are marked and the three grey lines give way to the warning, as drawn.",
   "His words, or where it came from": "Not a decision of his: the lead’s, on the Cash flow drawing check of 2026-10-24 (IN-07, IN-18, IN-19, IN-20), made without asking him, under his tenet 6 (DEC-3523: the drawing is the design) and this drawing’s rule 2b; the back and pause buttons under tenet 1 (nobody is trapped in sign-up). One word from him reverses it. To reverse: take the title and Continue’s arrow back to how they were, show the household card in sign-up, or remove Back and Save & come back later.",
   "Record": "DEC-3523 (tenets 1, 6) · rule 2b · MK-CF-O-001",
   "State": "In the code"
  },
  {
   "Ruled": "2026-10-25",
-  "What changed, against the phones below": "Your base pay, a take-home typed before 2026-08-28 : the row of 2026-10-24 above applies from the first open. The take-home is converted when the profile loads, on the phone and from the cloud, not only when something is saved; until a save the founder’s household showed $5,000 in the gross box under “Before anything comes out.”, an empty take-home box, “Calculated federal tax ≈$0/month” and “We’ll calculate ≈$5,000/month”.",
+  "What changed, against the phones below": "Your base pay, a take-home typed before 2026-08-28 : the row of 2026-10-24 above applies from the first open. The take-home is converted when the profile loads, on the phone and from the cloud, not only when something is saved; until a save the founder’s household showed $5,000 in the gross box under ‘Before anything comes out.’, an empty take-home box, ‘Calculated federal tax ≈$0/month’ and ‘We’ll calculate ≈$5,000/month’.",
   "His words, or where it came from": "Not a decision of his: the lead’s, on the Cash flow drawing check of 2026-10-24 (IN-09), made without asking him, under his tenets 3 and 5 (DEC-3523) and the mock-match rule that a rule change re-classifies the data already stored. One word from him reverses it. To reverse: convert the take-home only when the profile is saved.",
   "Record": "DEC-3523 (tenets 3, 5) · MK-CF-F-186 · MK-CF-M-030",
   "State": "In the code"
  },
  {
   "Ruled": "2026-10-25",
-  "What changed, against the phones below": "One door on a fresh account. Income summary (phone 17): “Nothing entered yet. Add your income ›” once, where the same door printed twice in a row; the $0 and the sentence stay (Q48). Your income (phone 12): no count band — “You entered about 0 sources” is gone; “Nothing entered yet. Add your income ›” and the ten sources stand.",
+  "What changed, against the phones below": "One door on a fresh account. Income summary (phone 17): ‘Nothing entered yet. Add your income ›’ once, where the same door printed twice in a row; the $0 and the sentence stay (Q48). Your income (phone 12): no count band — ‘You entered about 0 sources’ is gone; ‘Nothing entered yet. Add your income ›’ and the ten sources stand.",
   "His words, or where it came from": "Not a decision of his: the lead’s, on the Cash flow drawing check of 2026-10-24 (IN-11, IN-12), made without asking him, under his Q48 (DEC-0431: one line and its door) and tenet 3 (DEC-3523). One word from him reverses it. To reverse: print the door twice and the count of no sources.",
   "Record": "DEC-0431 (Q48) · DEC-3523 (tenet 3)",
   "State": "In the code"
  },
  {
   "Ruled": "2026-10-25",
-  "What changed, against the phones below": "Appearance , phones 2 to 12, 14, 16 and 17. A heading drawn as a dark-green band is one — square, edge to edge of its card, white capitals, its total on the rows’ right edge: Who earns a wage?, Each person’s pay, Your pay, Who gets a bonus?, Your bonus, The property, From your accounts, You entered about, Take-home each month. A light-green one is the light band: Your household, December will look different, This does not reach your bank, Anything else?, What it is taxed on, Is either of you 65 or older?. “= Take-home”, “= You keep”, “= Inflow” and the December bonus are green (#006300); the information boxes sit on the blue tint with a blue rule, the warning on the red tint in ink, the pre-answer on the green tint; Edit ⌄ and Done ⌃ are brand green at 800; “Add another property” is a filled green button. The type stays on the app’s scale (11 · 13 · 15 · 17 · 20) and the choices keep the 12-point corner (DEC-0231), where the phones draw 10 to 14.5 points and square choices.",
+  "What changed, against the phones below": "Appearance , phones 2 to 12, 14, 16 and 17. A heading drawn as a dark-green band is one — square, edge to edge of its card, white capitals, its total on the rows’ right edge: Who earns a wage?, Each person’s pay, Your pay, Who gets a bonus?, Your bonus, The property, From your accounts, You entered about, Take-home each month. A light-green one is the light band: Your household, December will look different, This does not reach your bank, Anything else?, What it is taxed on, Is either of you 65 or older?. ‘= Take-home’, ‘= You keep’, ‘= Inflow’ and the December bonus are green (#006300); the information boxes sit on the blue tint with a blue rule, the warning on the red tint in ink, the pre-answer on the green tint; Edit ⌄ and Done ⌃ are brand green at 800; ‘Add another property’ is a filled green button. The type stays on the app’s scale (11 · 13 · 15 · 17 · 20) and the choices keep the 12-point corner (DEC-0231), where the phones draw 10 to 14.5 points and square choices.",
   "His words, or where it came from": "Not a decision of his: the lead’s, on the Cash flow drawing check of 2026-10-24 (IN-13, IN-14, IN-15), made without asking him, under his DEC-0093 (one right edge), DEC-0079 (square green bars) and DEC-0231 (one corner for every choice), and the screen standard 2.3 to 2.5. One word from him reverses it. To reverse: the headings go back to grey capitals on the page.",
   "Record": "DEC-0093 · DEC-0079 · DEC-0231 · standard 2.3, 2.4, 2.5",
   "State": "In the code"
  },
  {
   "Ruled": "2026-10-25",
-  "What changed, against the phones below": "How do you file your taxes? opened with nothing entered (from the Tax organizer, not drawn): “Set to Single because you have not entered a spouse. Change it if that is not right.” — it said “because you entered it is just you” when nothing had been entered. With an answer already on record that differs from the pre-answer: “Set to Head of household because you entered it.” (it said “Set to Single” beside Head of household). The drawn sentences stand wherever they are true.",
+  "What changed, against the phones below": "How do you file your taxes? opened with nothing entered (from the Tax organizer, not drawn): ‘Set to Single because you have not entered a spouse. Change it if that is not right.’ — it said ‘because you entered it is just you’ when nothing had been entered. With an answer already on record that differs from the pre-answer: ‘Set to Head of household because you entered it.’ (it said ‘Set to Single’ beside Head of household). The drawn sentences stand wherever they are true.",
   "His words, or where it came from": "Not a decision of his: the lead’s, on the Cash flow drawing check of 2026-10-24 (IN-17), made without asking him, under his tenet 1 (DEC-3523: an untrue sentence beside a figure ends trust). One word from him reverses it. To reverse: print the drawn sentence whatever was entered.",
   "Record": "DEC-3523 (tenet 1)",
   "State": "In the code"
  },
  {
   "Ruled": "2026-10-25",
-  "What changed, against the phones below": "Your base pay (phone 8’s sentence, wherever it shows): “using your tax band read on the $X you have entered so far” names everything the band is read on — wages, rent kept, a bonus, interest and dividends ($84,000 for phone 8’s household, wages only) — and “add … later” lists only what is not entered yet: one earner with $2,000 a month of rent reads “add a bonus or a spouse’s wage later”; with all three entered the clause is left off. It read “add rent, a bonus or a spouse’s wage later” beside rent already entered, and named the wages alone.",
+  "What changed, against the phones below": "Your base pay (phone 8’s sentence, wherever it shows): ‘using your tax band read on the $X you have entered so far’ names everything the band is read on — wages, rent kept, a bonus, interest and dividends ($84,000 for phone 8’s household, wages only) — and ‘add … later’ lists only what is not entered yet: one earner with $2,000 a month of rent reads ‘add a bonus or a spouse’s wage later’; with all three entered the clause is left off. It read ‘add rent, a bonus or a spouse’s wage later’ beside rent already entered, and named the wages alone.",
   "His words, or where it came from": "Not a decision of his: the lead’s, on the outside Cash flow measure (CFR-5, found F3), made without asking him, under tenet 1 (an untrue sentence beside a figure). One word from him reverses it. To reverse: print the drawn sentence whatever is entered.",
   "Record": "DEC-3523 (tenet 1) · MK-CF-O-001 · MK-CF-M-076",
   "State": "In the code"
  },
  {
   "Ruled": "2026-10-25",
-  "What changed, against the phones below": "Your base pay (phone 7), pay that varies: the three figures are checked in the months that have pay — a month typed $0 has no pay, so no 401(k) comes out of it and nothing is reconciled — and the month is named in words: “These three cannot all be right in March 2026.” It read “… in 2026-01. $0 gross, less $501 into your 401(k), leaves -$501” for a month with no pay.",
+  "What changed, against the phones below": "Your base pay (phone 7), pay that varies: the three figures are checked in the months that have pay — a month typed $0 has no pay, so no 401(k) comes out of it and nothing is reconciled — and the month is named in words: ‘These three cannot all be right in March 2026.’ It read ‘… in 2026-01. $0 gross, less $501 into your 401(k), leaves -$501’ for a month with no pay.",
   "His words, or where it came from": "Not a decision of his: the lead’s, on the outside Cash flow measure (CFR-5, found F6), made without asking him, under tenets 1 and 8. One word from him reverses it. To reverse: check every month, paid or not.",
   "Record": "DEC-3523 (tenets 1, 8) · MK-CF-F-146 · MK-CF-O-001",
   "State": "In the code"
  },
  {
   "Ruled": "2026-10-25",
-  "What changed, against the phones below": "A state income tax rate entered on the Tax organizer (not a drawn state). The app’s tax then holds it, so the words say so wherever the calculated tax is printed: the row reads Calculated tax , never “Calculated federal tax”, with “federal income tax, plus the 5.00% state rate you entered; assumes you take the standard deduction” under it (Your base pay) — the Income summary keeps its own line under it; the warning reads “Only federal income tax and the 5.00% state rate you entered are taken out here …”, without “and your state may take more”; and the estimate sentence reads “It holds the 5.00% state rate you entered but knows nothing about your insurance”. For one earner on $60,000 with 5.00% typed, ≈$533/month: $370 federal and $163 state. Canon row 25.",
-  "His words, or where it came from": "The lead’s ruling of 2026-10-25 on the outside Cash flow measure (MK-CF-M-033 and MK-CF-M-044, test 8): “federal” is never on a figure that is not federal only. Not a decision of his; made without asking him, under tenet 1. One word from him reverses it. To reverse: label it “Calculated federal tax” and print the federal-only words.",
+  "What changed, against the phones below": "A state income tax rate entered on the Tax organizer (not a drawn state). The app’s tax then holds it, so the words say so wherever the calculated tax is printed: the row reads Calculated tax , never ‘Calculated federal tax’, with ‘federal income tax, plus the 5.00% state rate you entered; assumes you take the standard deduction’ under it (Your base pay) — the Income summary keeps its own line under it; the warning reads ‘Only federal income tax and the 5.00% state rate you entered are taken out here …’, without ‘and your state may take more’; and the estimate sentence reads ‘It holds the 5.00% state rate you entered but knows nothing about your insurance’. For one earner on $60,000 with 5.00% typed, ≈$533/month: $370 federal and $163 state. Canon row 25.",
+  "His words, or where it came from": "The lead’s ruling of 2026-10-25 on the outside Cash flow measure (MK-CF-M-033 and MK-CF-M-044, test 8): ‘federal’ is never on a figure that is not federal only. Not a decision of his; made without asking him, under tenet 1. One word from him reverses it. To reverse: label it ‘Calculated federal tax’ and print the federal-only words.",
   "Record": "DEC-3523 (tenet 1) · DEC-7608 · DEC-7798 · MK-CF-M-033 · MK-CF-M-044 · canon row 25",
   "State": "In the code"
  },
  {
   "Ruled": "2026-10-25",
-  "What changed, against the phones below": "Tax organizer (not drawn), How you file : the line names the status the tax below is worked on. With a spouse entered and the filing question never answered it reads Married, filing jointly with “Assumed — we have never asked” under it, above the $32,200 joint deduction; it read “Single” there. Under the Standard deduction row, on a joint return whose 65-or-older answer was never given: “Your spouse counted as under 65 — not entered ›” , opening How do you file your taxes?, where the question is asked. With nothing entered, his empty-screen rule (Q48, DEC-0431): the INCOME card keeps its layout — Gross income $0 , with “Nothing entered yet. Add your income ›” under it — and the lines that need an assumption stay off: no 401(k), no Standard deduction −$16,100 (it rests on a filing status nobody answered), no Taxable income and no rate line. Interest & dividends on the Tax organizer is the records of the year it names (1 January to today), reinvested payouts counted, from accounts whose income is taxed when paid (a pre-tax or Roth account is left out), to the cent until shown: “Tax organizer · 2026” with $500 paid 2025-11-14 and $700 paid 2026-03-13 reads $700 (it read $1,200); with no record in the year the figure you entered stands. A payout with no amount on record is named under the income lines: “Not counted: 1 payment — amount not on record.”",
+  "What changed, against the phones below": "Tax organizer (not drawn), How you file : the line names the status the tax below is worked on. With a spouse entered and the filing question never answered it reads Married, filing jointly with ‘Assumed — we have never asked’ under it, above the $32,200 joint deduction; it read ‘Single’ there. Under the Standard deduction row, on a joint return whose 65-or-older answer was never given: ‘Your spouse counted as under 65 — not entered ›’ , opening How do you file your taxes?, where the question is asked. With nothing entered, his empty-screen rule (Q48, DEC-0431): the INCOME card keeps its layout — Gross income $0 , with ‘Nothing entered yet. Add your income ›’ under it — and the lines that need an assumption stay off: no 401(k), no Standard deduction −$16,100 (it rests on a filing status nobody answered), no Taxable income and no rate line. Interest & dividends on the Tax organizer is the records of the year it names (1 January to today), reinvested payouts counted, from accounts whose income is taxed when paid (a pre-tax or Roth account is left out), to the cent until shown: ‘Tax organizer · 2026’ with $500 paid 2025-11-14 and $700 paid 2026-03-13 reads $700 (it read $1,200); with no record in the year the figure you entered stands. A payout with no amount on record is named under the income lines: ‘Not counted: 1 payment — amount not on record.’",
   "His words, or where it came from": "Not a decision of his: the lead’s, on the outside audit of 2026-10-24 (OpenAI, Cash flow part 17), made without asking him, under his DEC-7944 (the status in force), his DEC-0298 (“a tax figure requires a YEAR”), DEC-0179 (the tax on reinvested income still comes out), DEC-0264 (full precision), tenet 3 (DEC-3523) and Q48 (DEC-0431); the spouse’s line is the lead’s ruling of 2026-10-25 on the measurer’s open question (count the person only, and say so). One word from him reverses any of it. To reverse: print the stored answer (Single when blank), drop the spouse line, print the walk with nothing entered, and read the twelve months ending today.",
   "Record": "DEC-7944 · DEC-0298 · DEC-0179 · DEC-0264 · DEC-3523 (tenet 3) · DEC-0431 (Q48) · MK-CF-O-007 · MK-MN-M-027 · MK-MN-M-028",
   "State": "In the code"
  },
  {
   "Ruled": "2026-10-25",
-  "What changed, against the phones below": "Interest & dividends (phone 11), From your accounts : a payout dated after today is not counted yet — a $500 dividend dated 1 December, read in September, is not in the year (it read $920, now $420); a dividend logged as reinvested counts, at its amount or the shares it bought × their price (1.2 VTI at $100: $540, it read $420), as the screen already says these are counted as income you are taxed on; an account inside a pre-tax or Roth wrapper (an IRA, a 401(k), an HSA, a Roth IRA, a 529) is not listed and not named as not counted, since its income is not taxed when paid; a payout with no amount on record is named: “Not counted: 1 payment from Brokerage — amount not on record.” The line words “paid out over the trailing twelve months” stay. The Tax organizer reads the same rule for its tax year.",
-  "His words, or where it came from": "Not a decision of his: the lead’s, on the outside audit of 2026-10-24 (OpenAI, Cash flow part 17), made without asking him, under his DEC-0179 clause 2 (“the tax on them still comes out”), DEC-0198, DEC-7171 (the twelve months ending today) and tenet 3 (DEC-3523); found by the measurers (parts 5 and 17, the screens check MK-CF-M-066). One word from him reverses it. To reverse: leave reinvested payouts out, let the window run past today, and count every account.",
+  "What changed, against the phones below": "Interest & dividends (phone 11), From your accounts : a payout dated after today is not counted yet — a $500 dividend dated 1 December, read in September, is not in the year (it read $920, now $420); a dividend logged as reinvested counts, at its amount or the shares it bought × their price (1.2 VTI at $100: $540, it read $420), as the screen already says these are counted as income you are taxed on; an account inside a pre-tax or Roth wrapper (an IRA, a 401(k), an HSA, a Roth IRA, a 529) is not listed and not named as not counted, since its income is not taxed when paid; a payout with no amount on record is named: ‘Not counted: 1 payment from Brokerage — amount not on record.’ The line words ‘paid out over the trailing twelve months’ stay. The Tax organizer reads the same rule for its tax year.",
+  "His words, or where it came from": "Not a decision of his: the lead’s, on the outside audit of 2026-10-24 (OpenAI, Cash flow part 17), made without asking him, under his DEC-0179 clause 2 (‘the tax on them still comes out’), DEC-0198, DEC-7171 (the twelve months ending today) and tenet 3 (DEC-3523); found by the measurers (parts 5 and 17, the screens check MK-CF-M-066). One word from him reverses it. To reverse: leave reinvested payouts out, let the window run past today, and count every account.",
   "Record": "DEC-0179 · DEC-0198 · DEC-7171 · DEC-3523 (tenet 3) · MK-CF-F-183 · MK-CF-F-184 · MK-CF-M-066",
   "State": "In the code"
  },
  {
   "Ruled": "2026-10-25",
-  "What changed, against the phones below": "Tax organizer (not drawn), two more lines. Interest & dividends is the one figure for the year, tried in order: the year’s records (“from your accounts’ records for 2026”), else the figure you entered on Interest & dividends (“you entered”), else calculated from your accounts’ rates, with its working and ≈ (“≈$400 · calculated from your accounts — 4% on $10,000”), else no line. The rate line reads in Base pay’s and the Income summary’s words (canon row 25): “Calculated federal tax ≈7% of the year’s income — assumes you take the standard deduction.”; with a state rate entered “Calculated tax ≈12% of the year’s income — federal income tax, plus the 5.00% state rate you entered; assumes you take the standard deduction.”; with a rate typed “Tax · your rate, 24%.” (from the take-home entered, “Tax · your figures, 28%.”). It read “Est. effective federal rate ~7%” whatever the rate held. “Figures are your entries/estimates — verify against your official forms.” stays. Equity / RSUs vested counts the shares that vest in the year the organizer names; a grant with no vest date is not counted and the line under the income says so: “Not counted: shares that vest — vest date not entered.”",
-  "His words, or where it came from": "Not a decision of his: the lead’s rulings of 2026-10-25 (one interest-and-dividends figure: records, else entered, else calculated ≈, else not entered — from his DEC-0179 and the figure’s own rule “records where they exist”; the rate in canon row 25’s words, as Base pay carries them), made without asking him. One word from him reverses either. To reverse: read the records or the entered figure only, and print “Est. effective federal rate”.",
+  "What changed, against the phones below": "Tax organizer (not drawn), two more lines. Interest & dividends is the one figure for the year, tried in order: the year’s records (‘from your accounts’ records for 2026’), else the figure you entered on Interest & dividends (‘you entered’), else calculated from your accounts’ rates, with its working and ≈ (‘≈$400 · calculated from your accounts — 4% on $10,000’), else no line. The rate line reads in Base pay’s and the Income summary’s words (canon row 25): ‘Calculated federal tax ≈7% of the year’s income — assumes you take the standard deduction.’; with a state rate entered ‘Calculated tax ≈12% of the year’s income — federal income tax, plus the 5.00% state rate you entered; assumes you take the standard deduction.’; with a rate typed ‘Tax · your rate, 24%.’ (from the take-home entered, ‘Tax · your figures, 28%.’). It read ‘Est. effective federal rate ~7%’ whatever the rate held. ‘Figures are your entries/estimates — verify against your official forms.’ stays. Equity / RSUs vested counts the shares that vest in the year the organizer names; a grant with no vest date is not counted and the line under the income says so: ‘Not counted: shares that vest — vest date not entered.’",
+  "His words, or where it came from": "Not a decision of his: the lead’s rulings of 2026-10-25 (one interest-and-dividends figure: records, else entered, else calculated ≈, else not entered — from his DEC-0179 and the figure’s own rule ‘records where they exist’; the rate in canon row 25’s words, as Base pay carries them), made without asking him. One word from him reverses either. To reverse: read the records or the entered figure only, and print ‘Est. effective federal rate’.",
   "Record": "DEC-0179 · DEC-0298 · DEC-0431 (Q48) · canon row 25 · MK-CF-O-007 · MK-CF-F-181",
   "State": "In the code"
  },
  {
   "Ruled": "2026-10-26",
-  "What changed, against the phones below": "Your base pay, pay for part of the year (not drawn: a pay table with months typed $0). Every “/month” in the section and on the household card is a month the wage is paid. A take-home typed is what lands in each month with pay; the 401(k) comes out of those months only; Everything else taken out is a paid month’s. Paid $10,000.05 a month July to December, $501.13 into a 401(k), take-home typed $3,799.17: Everything else taken out $5,700/month · 57% (it read $700/month · 14%); the year’s 401(k)s $3,007 and take-home $22,795 (they read $6,014 and $45,590). The take-home calculated, $10,000 a month from July with $1,000 into a 401(k): $10,000 gross − $717 tax − $1,000 of 401(k)s = $8,283 (it read $5,000 − $358 − $1,000 = $3,642). The Cash flow months land the same take-home in each paid month ($3,799.17; they landed $7,598.34).",
-  "His words, or where it came from": "Not a decision of his: the lead’s, on the outside Cash flow audit of 2026-10-24 (OpenAI), made without asking him, under his DEC-7938, DEC-0176 (“if they told us, that IS take-home”) and DEC-0376, and tenets 1 and 4 of DEC-3523: one rule for part-year pay. One word from him reverses it. To reverse: count the take-home and the 401(k) twelve times.",
+  "What changed, against the phones below": "Your base pay, pay for part of the year (not drawn: a pay table with months typed $0). Every ‘/month’ in the section and on the household card is a month the wage is paid. A take-home typed is what lands in each month with pay; the 401(k) comes out of those months only; Everything else taken out is a paid month’s. Paid $10,000.05 a month July to December, $501.13 into a 401(k), take-home typed $3,799.17: Everything else taken out $5,700/month · 57% (it read $700/month · 14%); the year’s 401(k)s $3,007 and take-home $22,795 (they read $6,014 and $45,590). The take-home calculated, $10,000 a month from July with $1,000 into a 401(k): $10,000 gross − $717 tax − $1,000 of 401(k)s = $8,283 (it read $5,000 − $358 − $1,000 = $3,642). The Cash flow months land the same take-home in each paid month ($3,799.17; they landed $7,598.34).",
+  "His words, or where it came from": "Not a decision of his: the lead’s, on the outside Cash flow audit of 2026-10-24 (OpenAI), made without asking him, under his DEC-7938, DEC-0176 (‘if they told us, that IS take-home’) and DEC-0376, and tenets 1 and 4 of DEC-3523: one rule for part-year pay. One word from him reverses it. To reverse: count the take-home and the 401(k) twelve times.",
   "Record": "DEC-7938 · DEC-0176 · DEC-0376 · DEC-3523 (tenets 1, 4) · MK-CF-F-233 · MK-CF-F-144 · MK-CF-F-145 · MK-CF-F-171 · MK-CF-F-180 · MK-CF-F-181 · MK-CF-F-188 · MK-CF-O-001 · MK-CF-M-031 · MK-CF-M-034 · MK-CF-M-036",
   "State": "In the code"
  },
  {
   "Ruled": "2026-10-26",
-  "What changed, against the phones below": "Your base pay, paid by the hour (phones 2 to 7 draw the Hourly choice and no hours). Choosing Hourly shows a money box “Hours a week” under “Gross an hour”, hint “The hours you are usually paid for.” Until it is filled the section reads “Hours a week not entered — your hourly pay is not counted until it is.” in the warning box, the closed line reads “Hourly · hours a week not entered”, and the household card shows that sentence in place of its figures. A typed 0 is 0 hours. It read a 40-hour week nobody entered: $25 an hour was $4,333.33 a month, on every screen.",
+  "What changed, against the phones below": "Your base pay, paid by the hour (phones 2 to 7 draw the Hourly choice and no hours). Choosing Hourly shows a money box ‘Hours a week’ under ‘Gross an hour’, hint ‘The hours you are usually paid for.’ Until it is filled the section reads ‘Hours a week not entered — your hourly pay is not counted until it is.’ in the warning box, the closed line reads ‘Hourly · hours a week not entered’, and the household card shows that sentence in place of its figures. A typed 0 is 0 hours. It read a 40-hour week nobody entered: $25 an hour was $4,333.33 a month, on every screen.",
   "His words, or where it came from": "His DEC-0296 (2026-08-20): “an unknown input produces no number and a reason — never a default”; tenet 3 of DEC-3523. The box is the lead’s, made without asking him, so the missing answer can be given where it is missing. To reverse: remove the box and read 40 hours.",
   "Record": "DEC-0296 · DEC-3523 (tenet 3) · MK-CF-F-059 · MK-CF-F-130 · MK-CF-F-141 · MK-CF-O-001",
   "State": "In the code"
  },
  {
   "Ruled": "2026-10-26",
-  "What changed, against the phones below": "Your base pay, Federal tax bracket, with rent, a bonus or interest entered (not drawn). The band is the Income summary’s: on the wages less their 401(k)s plus everything else taxed. $60,000 of wages and $50,000 of rent kept, single: 22% (it read 12%, on the wages alone). With two wages and other income the note under it reads “on both wages and your other income, filing jointly”.",
+  "What changed, against the phones below": "Your base pay, Federal tax bracket, with rent, a bonus or interest entered (not drawn). The band is the Income summary’s: on the wages less their 401(k)s plus everything else taxed. $60,000 of wages and $50,000 of rent kept, single: 22% (it read 12%, on the wages alone). With two wages and other income the note under it reads ‘on both wages and your other income, filing jointly’.",
   "His words, or where it came from": "His DEC-0178 and DEC-0191: the band is worked out once, on everything taxed together, and every screen reads it; tenet 4 of DEC-3523.",
   "Record": "DEC-0178 · DEC-0191 · DEC-3523 (tenet 4) · MK-CF-O-001 · MK-CF-M-032 · MK-CF-M-043",
   "State": "In the code"
  },
  {
   "Ruled": "2026-10-26",
-  "What changed, against the phones below": "Your base pay, a take-home typed as $0 (not drawn). It is his figure: the section reads take-home $0 and Everything else taken out is the gross less the 401(k) — $5,000 a month with $500 into a 401(k): $4,500/month · 90%. It read a calculated take-home in its place. A blank box is still “not entered”.",
+  "What changed, against the phones below": "Your base pay, a take-home typed as $0 (not drawn). It is his figure: the section reads take-home $0 and Everything else taken out is the gross less the 401(k) — $5,000 a month with $500 into a 401(k): $4,500/month · 90%. It read a calculated take-home in its place. A blank box is still ‘not entered’.",
   "His words, or where it came from": "Not a decision of his: the lead’s, on the outside Cash flow audit of 2026-10-24 (OpenAI), made without asking him (the lead’s ruling 3 on the measure CFR-1: a typed $0 is an answer), under tenet 5 of DEC-3523 (the person’s word outranks the app’s guess). To reverse: read a typed 0 as blank.",
   "Record": "DEC-3523 (tenet 5) · MK-CF-F-144 · MK-CF-F-180 · MK-CF-F-233 · MK-CF-M-031 · MK-CF-M-036",
   "State": "In the code"
  },
  {
   "Ruled": "2026-10-26",
-  "What changed, against the phones below": "Your base pay (phone 7), pay that varies: every month is read before the section speaks. When one month only warns (“higher than most”) and a later month cannot be right, the later month’s “These three cannot all be right in February 2026 …” is shown and Save waits — $500.13 into a 401(k) and a take-home of $2,800.19: January’s $10,000.17 leaves 67% going elsewhere (a warning), February’s $3,000.17 − $500.13 − $2,800.19 = −$300.15 cannot be right. It showed January’s warning and saved.",
+  "What changed, against the phones below": "Your base pay (phone 7), pay that varies: every month is read before the section speaks. When one month only warns (‘higher than most’) and a later month cannot be right, the later month’s ‘These three cannot all be right in February 2026 …’ is shown and Save waits — $500.13 into a 401(k) and a take-home of $2,800.19: January’s $10,000.17 leaves 67% going elsewhere (a warning), February’s $3,000.17 − $500.13 − $2,800.19 = −$300.15 cannot be right. It showed January’s warning and saved.",
   "His words, or where it came from": "Not a decision of his: the lead’s, on the outside Cash flow audit of 2026-10-24 (OpenAI), made without asking him, under tenet 1 of DEC-3523 (a wrong number ends trust). To reverse: stop at the first month that warns.",
   "Record": "DEC-3523 (tenet 1) · MK-CF-F-146 · MK-CF-O-001",
   "State": "In the code"
@@ -3205,84 +3205,84 @@ Its dated rows, every one, as written on the drawing (57):
  },
  {
   "Ruled": "2026-10-25",
-  "What changed, against the phones below": "Your income (phone 16, frame 5a), What it is taxed on : one row for every source the year is taxed on, signed, and they add up to “= Gross /year”. After the drawn rows (Your gross, Sam’s gross, Rent, net, Interest & dividends, Bonus) come, when entered: Self-employment, a Signing bonus or one-time payment of this year, Stock vesting (this year’s), Other income, Unemployment, Retirement income and Social Security, the part that is taxed (IRS Publication 915 — printed even at $0, so a retiree sees where it went). A $7,000 wage, $1,000 of self-employment, $2,000 of Social Security and $500 of other income: $84,000 + $12,000 + $6,000 + $20,400 = $122,400 (the rows read $84,000 under $126,000). A rental losing $500/month: Your gross $86,400 · Rent, net −$6,000 · = Gross /year $80,400.",
+  "What changed, against the phones below": "Your income (phone 16, frame 5a), What it is taxed on : one row for every source the year is taxed on, signed, and they add up to ‘= Gross /year’. After the drawn rows (Your gross, Sam’s gross, Rent, net, Interest & dividends, Bonus) come, when entered: Self-employment, a Signing bonus or one-time payment of this year, Stock vesting (this year’s), Other income, Unemployment, Retirement income and Social Security, the part that is taxed (IRS Publication 915 — printed even at $0, so a retiree sees where it went). A $7,000 wage, $1,000 of self-employment, $2,000 of Social Security and $500 of other income: $84,000 + $12,000 + $6,000 + $20,400 = $122,400 (the rows read $84,000 under $126,000). A rental losing $500/month: Your gross $86,400 · Rent, net −$6,000 · = Gross /year $80,400.",
   "His words, or where it came from": "Not a decision of his: the lead’s, on the outside Cash flow audit of 2026-10-24 (OpenAI), made without asking him, under his DEC-0376 (a total agrees with the lines printed above it) and tenet 2. To reverse: print the wage, rent, interest and bonus rows only.",
   "Record": "DEC-0376 · DEC-3523 (tenet 2) · MK-CF-M-042 · MK-CF-M-076 · MK-CF-O-004 · MK-CF-F-084",
   "State": "In the code"
  },
  {
   "Ruled": "2026-10-25",
-  "What changed, against the phones below": "Your income (phone 16), Take-home each month : a rental that loses money is a row, signed — “Rent · after running costs · −$500” — and the total counts it: $7,200 of pay and a rental losing $500/month read $6,700, as the Cash flow months read it (it read $7,200). Child support alone shows its amount ($1,000), never $0 and “Nothing entered yet.”. Unemployment pay is its own row, after tax; the rest of the benefits stay “not taxed”. Social Security lands whole except the tax on its taxed part.",
+  "What changed, against the phones below": "Your income (phone 16), Take-home each month : a rental that loses money is a row, signed — ‘Rent · after running costs · −$500’ — and the total counts it: $7,200 of pay and a rental losing $500/month read $6,700, as the Cash flow months read it (it read $7,200). Child support alone shows its amount ($1,000), never $0 and ‘Nothing entered yet.’. Unemployment pay is its own row, after tax; the rest of the benefits stay ‘not taxed’. Social Security lands whole except the tax on its taxed part.",
   "His words, or where it came from": "Not a decision of his: the lead’s, on the outside Cash flow audit of 2026-10-24 (OpenAI), made without asking him, under tenets 1, 3 and 4 and his DEC-0376. To reverse: drop rows below $0 again (the month table would then disagree).",
   "Record": "DEC-0376 · DEC-3523 (tenets 1, 3, 4) · MK-CF-M-037 · MK-CF-M-038",
   "State": "In the code"
  },
  {
   "Ruled": "2026-10-25",
-  "What changed, against the phones below": "Your income (phone 16), two more sentences in the blue box, in the dividends’ sentence’s words: “Your $30,000 of stock vesting this year is not here — it vests as shares, not money to spend. It is taxed, so it appears below.” (shares kept when they vest), and one line for each thing entered and counted nowhere yet: “A stock grant with no vest date is not counted — vest date not entered.”, “Your Gift is not counted — year not entered.”, “Your signing bonus is not counted — date not entered.”, “Hours a week not entered — your hourly pay is not counted until it is.” Interest and dividends calculated from the accounts’ rates are a taxed row with ≈ and “calculated from your accounts” (≈$400 for $10,000 at 4%).",
+  "What changed, against the phones below": "Your income (phone 16), two more sentences in the blue box, in the dividends’ sentence’s words: ‘Your $30,000 of stock vesting this year is not here — it vests as shares, not money to spend. It is taxed, so it appears below.’ (shares kept when they vest), and one line for each thing entered and counted nowhere yet: ‘A stock grant with no vest date is not counted — vest date not entered.’, ‘Your Gift is not counted — year not entered.’, ‘Your signing bonus is not counted — date not entered.’, ‘Hours a week not entered — your hourly pay is not counted until it is.’ Interest and dividends calculated from the accounts’ rates are a taxed row with ≈ and ‘calculated from your accounts’ (≈$400 for $10,000 at 4%).",
   "His words, or where it came from": "Not a decision of his: the lead’s, on the outside Cash flow audit of 2026-10-24 (OpenAI), made without asking him: vested shares are taxed, not cash unless sold at vest (the same shape as his DEC-0179 for reinvested dividends); a figure calculated from the accounts counts in the tax (DEC-0179, DEC-0198); tenet 3 (unknown is not zero). To reverse: count a vest as cash in its month.",
   "Record": "DEC-0179 · DEC-0198 · DEC-0012 · DEC-0296 · MK-CF-M-040 · MK-CF-M-041 · MK-CF-M-042",
   "State": "In the code"
  },
  {
   "Ruled": "2026-10-25",
-  "What changed, against the phones below": "Your income (phone 12, frame 3d): entered means recorded . A rental whose rent and costs were typed is entered whatever it nets — “Rent ✓ · One property · −$500/month net” (it sat under “Anything else?” as “Rent from a property”). Stock that vests with no job is its own row, “Bonus and stock ✓ · $10,000/year · vests through the year”, opening Bonus and stock. The job’s line ends “· hours a week not entered” for an hourly wage with no hours; Retirement income ends “· Social Security not received yet” when Social Security is answered “Not yet”; Something else ends “· year not entered” for a one-time payment with no year.",
+  "What changed, against the phones below": "Your income (phone 12, frame 3d): entered means recorded . A rental whose rent and costs were typed is entered whatever it nets — ‘Rent ✓ · One property · −$500/month net’ (it sat under ‘Anything else?’ as ‘Rent from a property’). Stock that vests with no job is its own row, ‘Bonus and stock ✓ · $10,000/year · vests through the year’, opening Bonus and stock. The job’s line ends ‘· hours a week not entered’ for an hourly wage with no hours; Retirement income ends ‘· Social Security not received yet’ when Social Security is answered ‘Not yet’; Something else ends ‘· year not entered’ for a one-time payment with no year.",
   "His words, or where it came from": "Not a decision of his: the lead’s, on the outside Cash flow audit of 2026-10-24 (OpenAI), made without asking him, under tenets 3 and 5 (what is entered is never shown as not entered). To reverse: list a source only above $0.",
   "Record": "DEC-3523 (tenets 3, 5) · MK-CF-M-027 · MK-CF-O-019",
   "State": "In the code"
  },
  {
   "Ruled": "2026-10-25",
-  "What changed, against the phones below": "Bonus and stock (phone 9) and the grants’ editor: “Do you sell the shares when they vest?” · Keep them / Sell them (Keep them chosen until he picks), with the line “Kept, they are shares, not money to spend. They are still taxed in the year they vest.” or “Sold, they land as money in the month they vest, after tax.” Each vest counts in the year its date names: the grants’ callout reads “$30,000 vests in 2026” (it read “$20,000/year average while vesting”); a grant with no date reads “One grant has no vest date — vest date not entered, so it is not counted yet.”; a date with a year and no month counts in that year and in no month.",
-  "His words, or where it came from": "Not a decision of his: the lead’s, on the outside Cash flow audit of 2026-10-24 (OpenAI), made without asking him: vests land in their own year and month (his DEC-0012 “shares that vest land in the month they vest on every screen”, DEC-0003); not cash unless sold at vest (like DEC-0179). To reverse: average the vest years again.",
+  "What changed, against the phones below": "Bonus and stock (phone 9) and the grants’ editor: ‘Do you sell the shares when they vest?’ · Keep them / Sell them (Keep them chosen until he picks), with the line ‘Kept, they are shares, not money to spend. They are still taxed in the year they vest.’ or ‘Sold, they land as money in the month they vest, after tax.’ Each vest counts in the year its date names: the grants’ callout reads ‘$30,000 vests in 2026’ (it read ‘$20,000/year average while vesting’); a grant with no date reads ‘One grant has no vest date — vest date not entered, so it is not counted yet.’; a date with a year and no month counts in that year and in no month.",
+  "His words, or where it came from": "Not a decision of his: the lead’s, on the outside Cash flow audit of 2026-10-24 (OpenAI), made without asking him: vests land in their own year and month (his DEC-0012 ‘shares that vest land in the month they vest on every screen’, DEC-0003); not cash unless sold at vest (like DEC-0179). To reverse: average the vest years again.",
   "Record": "DEC-0012 · DEC-0003 · DEC-0179 · DEC-0296 · MK-CF-M-009 · MK-CF-F-063 · MK-CF-F-066",
   "State": "In the code"
  },
  {
   "Ruled": "2026-10-25",
-  "What changed, against the phones below": "Rent from a property (phone 10): a mortgage payment typed here and added to Debts is saved with its balance and its rate not entered — Net worth reads “Value not entered” and the Debts tab “rate not entered” — never $0 and 0%. A rent box left blank, or text that is not a number (“about 2k”), gives no net and the entry counts nowhere until the rent is typed; a typed 0 is $0 rent, and its costs are a loss.",
-  "His words, or where it came from": "Not a decision of his: the lead’s, on the outside Cash flow audit of 2026-10-24 (OpenAI), made without asking him, under tenet 3 and his DEC-3768c (“it counts as not entered”) and DEC-0296. To reverse: save the mortgage at $0 and 0%.",
+  "What changed, against the phones below": "Rent from a property (phone 10): a mortgage payment typed here and added to Debts is saved with its balance and its rate not entered — Net worth reads ‘Value not entered’ and the Debts tab ‘rate not entered’ — never $0 and 0%. A rent box left blank, or text that is not a number (‘about 2k’), gives no net and the entry counts nowhere until the rent is typed; a typed 0 is $0 rent, and its costs are a loss.",
+  "His words, or where it came from": "Not a decision of his: the lead’s, on the outside Cash flow audit of 2026-10-24 (OpenAI), made without asking him, under tenet 3 and his DEC-3768c (‘it counts as not entered’) and DEC-0296. To reverse: save the mortgage at $0 and 0%.",
   "Record": "DEC-3768c · DEC-0296 · MK-CF-F-219 · MK-CF-F-067",
   "State": "In the code"
  },
  {
   "Ruled": "2026-10-25",
-  "What changed, against the phones below": "Sign-up (not drawn on this page): the Benefits step with Unemployment chosen reads “Unemployment pay is taxed, so we count it in what you are taxed on.” (it read “We won’t tax this income.”; IRC §85(a), IRS Publication 525); chosen beside another kind it reads “Unemployment pay is taxed and the rest is not — we count the unemployment part in what you are taxed on.” and asks “How much of that is unemployment, per month?”, counting all of it as taxed until that is typed (“Not entered yet — until it is, all $1,300/month is counted as taxed.”). The Bonuses step asks the signing bonus “Which month is it paid?” — the month is stored with its year, the next time it comes — and reads “Date not entered — it is not counted until you pick its month.” until then, “Counted once, in Oct 2026.” after.",
+  "What changed, against the phones below": "Sign-up (not drawn on this page): the Benefits step with Unemployment chosen reads ‘Unemployment pay is taxed, so we count it in what you are taxed on.’ (it read ‘We won’t tax this income.’; IRC §85(a), IRS Publication 525); chosen beside another kind it reads ‘Unemployment pay is taxed and the rest is not — we count the unemployment part in what you are taxed on.’ and asks ‘How much of that is unemployment, per month?’, counting all of it as taxed until that is typed (‘Not entered yet — until it is, all $1,300/month is counted as taxed.’). The Bonuses step asks the signing bonus ‘Which month is it paid?’ — the month is stored with its year, the next time it comes — and reads ‘Date not entered — it is not counted until you pick its month.’ until then, ‘Counted once, in Oct 2026.’ after.",
   "His words, or where it came from": "Not a decision of his: the lead’s, on the outside Cash flow audit of 2026-10-24 (OpenAI), made without asking him: unemployment pay is taxed by law (IRC §85(a)); money that lands once lands in its own month (his DEC-0447, DEC-7940). To reverse: untax benefits again; land the signing bonus in January.",
   "Record": "DEC-0447 · DEC-7940 · MK-CF-F-071 · MK-CF-F-079",
   "State": "In the code"
  },
  {
   "Ruled": "2026-10-25",
-  "What changed, against the phones below": "Sign-up (not drawn on this page), the Other income step, “One time”: nothing is picked for him — no month is lit until he taps one — and the step asks both “Which month does it land?” and “Which year?” (this year or next). Until both are given it reads “Month and year not entered — it is not counted until you pick both.” (or only the one missing), and every screen says the payment is not counted, “year not entered” (or “month not entered”). It lit January and saved neither, so the payment landed in no year it was told.",
-  "His words, or where it came from": "Not a decision of his: the lead’s follow-up on the outside Cash flow audit of 2026-10-24 (OpenAI), made without asking him, under tenet 3 (unknown is not zero) and his DEC-0447 (“lands in its own month”) and DEC-7940 (“lands once”). To reverse: light January and take the next time the month comes as its year.",
+  "What changed, against the phones below": "Sign-up (not drawn on this page), the Other income step, ‘One time’: nothing is picked for him — no month is lit until he taps one — and the step asks both ‘Which month does it land?’ and ‘Which year?’ (this year or next). Until both are given it reads ‘Month and year not entered — it is not counted until you pick both.’ (or only the one missing), and every screen says the payment is not counted, ‘year not entered’ (or ‘month not entered’). It lit January and saved neither, so the payment landed in no year it was told.",
+  "His words, or where it came from": "Not a decision of his: the lead’s follow-up on the outside Cash flow audit of 2026-10-24 (OpenAI), made without asking him, under tenet 3 (unknown is not zero) and his DEC-0447 (‘lands in its own month’) and DEC-7940 (‘lands once’). To reverse: light January and take the next time the month comes as its year.",
   "Record": "DEC-0447 · DEC-7940 · DEC-3523 (tenet 3) · MK-CF-F-071 · MK-CF-F-073",
   "State": "In the code"
  },
  {
   "Ruled": "2026-10-26",
-  "What changed, against the phones below": "Your base pay (phone 8’s sentence, wherever it shows): when the band is read on interest and dividends nobody typed, the sentence says so. Since 2026-10-26 the band is read on the accounts’ interest and dividends too, typed or not (the one profile every tax figure reads), so “the $X you have entered so far” was untrue for it. With $10,000 of savings at 4% and nothing typed, one earner at $5,000/month reads “We’ll calculate ≈$4,580/month, using your tax band read on $60,400 — what you have entered so far and the interest and dividends calculated from your accounts. Add rent, a bonus or a spouse’s wage later and the band is calculated again, so this figure moves.” ($60,000 of wages + $400 calculated = $60,400.) Interest read from the accounts’ records says “the interest and dividends from your accounts’ records”. With interest typed, or none, phone 8’s sentence is unchanged. Line added 2026-10-26.",
-  "His words, or where it came from": "Not a decision of his: the lead’s, made without asking him, as his order of 2026-09-30 says; built by CLEANUP-LEFT. Under tenet 1 (DEC-3523: no untrue sentence beside a figure) and canon row 0b (“calculated” for a figure the app works out). One word from him reverses it. To reverse: “the $X you have entered so far” whatever the band is read on.",
+  "What changed, against the phones below": "Your base pay (phone 8’s sentence, wherever it shows): when the band is read on interest and dividends nobody typed, the sentence says so. Since 2026-10-26 the band is read on the accounts’ interest and dividends too, typed or not (the one profile every tax figure reads), so ‘the $X you have entered so far’ was untrue for it. With $10,000 of savings at 4% and nothing typed, one earner at $5,000/month reads ‘We’ll calculate ≈$4,580/month, using your tax band read on $60,400 — what you have entered so far and the interest and dividends calculated from your accounts. Add rent, a bonus or a spouse’s wage later and the band is calculated again, so this figure moves.’ ($60,000 of wages + $400 calculated = $60,400.) Interest read from the accounts’ records says ‘the interest and dividends from your accounts’ records’. With interest typed, or none, phone 8’s sentence is unchanged. Line added 2026-10-26.",
+  "His words, or where it came from": "Not a decision of his: the lead’s, made without asking him, as his order of 2026-09-30 says; built by CLEANUP-LEFT. Under tenet 1 (DEC-3523: no untrue sentence beside a figure) and canon row 0b (‘calculated’ for a figure the app works out). One word from him reverses it. To reverse: ‘the $X you have entered so far’ whatever the band is read on.",
   "Record": "DEC-3523 (tenet 1) · DEC-0179 · DEC-0198 · MK-CF-O-001 · MK-CF-M-076",
   "State": "In the code since 2026-10-26"
  },
  {
   "Ruled": "2026-10-26",
-  "What changed, against the phones below": "Sign-up (not drawn on this page), the “Your income” recap: “Take-home / year” is the twelve months’ take-home added up — the figure the “≈ $X/month average” beside it is worked from , so money that is taxed but never reaches the bank is in neither. It counted interest and dividends that are reinvested, and stock kept as shares when it vests, as money in the bank, while the monthly average left them out. Under WHAT’S TAKEN OUT the card names each, so its lines still add up to “Available /year”: “Interest & dividends, reinvested — not money to spend” and “Stock vesting, kept as shares, after its tax — not money to spend”. Pat ($5,000/month, $400/month into a 401(k)) with $3,600/year of interest reinvested: Take-home / year $50,324 (it read $53,924), ≈ $4,194/month average; $63,600 − $4,876 − $4,800 − $3,600 = $50,324. The same with $10,000 of savings at 4% and nothing typed: $50,708 (it read $51,108), the $400 calculated. Paid to the bank, or sold when they vest, they are money to spend and no line is shown. Line added 2026-10-26.",
+  "What changed, against the phones below": "Sign-up (not drawn on this page), the ‘Your income’ recap: ‘Take-home / year’ is the twelve months’ take-home added up — the figure the ‘≈ $X/month average’ beside it is worked from , so money that is taxed but never reaches the bank is in neither. It counted interest and dividends that are reinvested, and stock kept as shares when it vests, as money in the bank, while the monthly average left them out. Under WHAT’S TAKEN OUT the card names each, so its lines still add up to ‘Available /year’: ‘Interest & dividends, reinvested — not money to spend’ and ‘Stock vesting, kept as shares, after its tax — not money to spend’. Pat ($5,000/month, $400/month into a 401(k)) with $3,600/year of interest reinvested: Take-home / year $50,324 (it read $53,924), ≈ $4,194/month average; $63,600 − $4,876 − $4,800 − $3,600 = $50,324. The same with $10,000 of savings at 4% and nothing typed: $50,708 (it read $51,108), the $400 calculated. Paid to the bank, or sold when they vest, they are money to spend and no line is shown. Line added 2026-10-26.",
   "His words, or where it came from": "Not a decision of his: the lead’s, made without asking him, as his order of 2026-09-30 says; built by CLEANUP-LEFT. Under his DEC-0198 (does this reach your bank?) and DEC-0179, the lead’s ruling of 2026-10-25 for vests kept as shares, and tenet 4 (DEC-3523: one thing, one number). One word from him reverses it. To reverse: take-home a year = total − tax − 401(k) again.",
   "Record": "DEC-0198 · DEC-0179 · DEC-3523 (tenet 4) · MK-XS-F-027 takeHomeMonthly · MK-CF-M-040",
   "State": "In the code since 2026-10-26"
  },
  {
   "Ruled": "2026-10-26",
-  "What changed, against the phones below": "Sign-up (not drawn on this page), the “Your income” recap, when the rate is the person’s own — typed, or worked from a take-home typed — and rent or interest is entered: the rows add up to “Available /year” . This drawing’s rule 5 and phone 16: the take-home someone enters IS the take-home and their own rate is for their pay, so the months take no tax on rent or interest (phone 16’s “Rent after running costs $1,200” lands whole), while the year’s tax is their rate on every source (phone 16’s “Tax · your rate, 24% · $40,176/year”). Both stand, as drawn. The card follows the months: its tax row reads “Tax taken out of your pay”, and one line under the card gives the year’s tax and the difference. 20% typed, $5,000/month of wages, $400/month into a 401(k), $1,200/month of rent, $3,600/year reinvested: $78,000 − $12,000 tax taken out of pay − $4,800 401(k) − $3,600 reinvested = $57,600, the twelve months’ take-home; under it “Your tax for the year is $15,600, at your 20.00% rate. $3,600 of it is on your rent, interest and dividends — your own rate is for your pay, so it is not taken out of your take-home.” It printed Tax −$15,600 above a $57,600 box, so its rows gave $54,000. With the calculated rate nothing changes: the months take the tax on every source. Line added 2026-10-26.",
+  "What changed, against the phones below": "Sign-up (not drawn on this page), the ‘Your income’ recap, when the rate is the person’s own — typed, or worked from a take-home typed — and rent or interest is entered: the rows add up to ‘Available /year’ . This drawing’s rule 5 and phone 16: the take-home someone enters IS the take-home and their own rate is for their pay, so the months take no tax on rent or interest (phone 16’s ‘Rent after running costs $1,200’ lands whole), while the year’s tax is their rate on every source (phone 16’s ‘Tax · your rate, 24% · $40,176/year’). Both stand, as drawn. The card follows the months: its tax row reads ‘Tax taken out of your pay’, and one line under the card gives the year’s tax and the difference. 20% typed, $5,000/month of wages, $400/month into a 401(k), $1,200/month of rent, $3,600/year reinvested: $78,000 − $12,000 tax taken out of pay − $4,800 401(k) − $3,600 reinvested = $57,600, the twelve months’ take-home; under it ‘Your tax for the year is $15,600, at your 20.00% rate. $3,600 of it is on your rent, interest and dividends — your own rate is for your pay, so it is not taken out of your take-home.’ It printed Tax −$15,600 above a $57,600 box, so its rows gave $54,000. With the calculated rate nothing changes: the months take the tax on every source. Line added 2026-10-26.",
   "His words, or where it came from": "Not a decision of his: the lead’s, made without asking him; built by CLEANUP-LEFT. Under this drawing’s rule 5 and phone 16 (the approved drawing wins over our own rule, tenet 6 of DEC-3523), his DEC-0376 (a total agrees with the lines printed above it) and tenet 4. One word from him reverses it. To reverse: print the year’s tax as the row again.",
   "Record": "rule 5 · phone 16 · DEC-0376 · DEC-3523 (tenets 4, 6) · MK-XS-F-027 takeHomeMonthly · MK-CF-O-004",
   "State": "In the code since 2026-10-26"
  },
  {
   "Ruled": "2026-10-26",
-  "What changed, against the phones below": "The rate in force (MK-CF-M-081) prints to two decimals wherever it shows , one figure written one way. Your base pay: “· 24.00%” beside Everything else taken out, “We’ll use 24.00% everywhere your take-home matters …” and “… using the 24.00% rate you entered.” and the same rate written in words — “Tax · your rate, 24.00%”, “your figures, 17.39%”, “calculated, 7.41%”, “The 17.39% is your own figures …”, “calculated at your 24.00% rate, less 401(k)” — where phones 2 to 8 draw “24%” or “17%”, they read “24.00%” and “17.39%” (the phones are not redrawn). Your income (phone 16): “Your 24.00%, used on every figure built from your take-home.” Sign-up (not drawn on this page): the Taxes step “~7.41% federal income tax” and “Use the calculated rate (~7.41%)”; the “Your income” recap “Tax (~7.41% on taxable income)” for Pat ($4,444 ÷ $60,000 = 7.4067%) — they read “~7%”, while the sentence under the recap, with the person’s own rate, already wrote it “20.00%”. The Tax organizer’s “Calculated federal tax ≈7.41% of the year’s income”. The bracket (12%, 22%) is a published rate and stays whole. Line added 2026-10-26.",
+  "What changed, against the phones below": "The rate in force (MK-CF-M-081) prints to two decimals wherever it shows , one figure written one way. Your base pay: ‘· 24.00%’ beside Everything else taken out, ‘We’ll use 24.00% everywhere your take-home matters …’ and ‘… using the 24.00% rate you entered.’ and the same rate written in words — ‘Tax · your rate, 24.00%’, ‘your figures, 17.39%’, ‘calculated, 7.41%’, ‘The 17.39% is your own figures …’, ‘calculated at your 24.00% rate, less 401(k)’ — where phones 2 to 8 draw ‘24%’ or ‘17%’, they read ‘24.00%’ and ‘17.39%’ (the phones are not redrawn). Your income (phone 16): ‘Your 24.00%, used on every figure built from your take-home.’ Sign-up (not drawn on this page): the Taxes step ‘~7.41% federal income tax’ and ‘Use the calculated rate (~7.41%)’; the ‘Your income’ recap ‘Tax (~7.41% on taxable income)’ for Pat ($4,444 ÷ $60,000 = 7.4067%) — they read ‘~7%’, while the sentence under the recap, with the person’s own rate, already wrote it ‘20.00%’. The Tax organizer’s ‘Calculated federal tax ≈7.41% of the year’s income’. The bracket (12%, 22%) is a published rate and stays whole. Line added 2026-10-26.",
   "His words, or where it came from": "Not a decision of his: the lead’s, made without asking him, on PF-TOOLS’s finding; built by CLEANUP-LEFT. His Q49: percents to two decimals, rounded once, when printed; one figure, one way (tenet 4). One word from him reverses it. To reverse: print the rate whole again.",
   "Record": "MK-CF-M-081 · Q49 · DEC-3523 (tenet 4)",
   "State": "In the code since 2026-10-26"
@@ -3342,6 +3342,76 @@ Its dated rows, every one, as written on the drawing (57):
   "His words, or where it came from": "One sentence, spelled one way (tenet 4, DEC-3523): the lead’s rule of 2026-10-25 (DEC-8336), carried to every screen on 2026-10-27 and held by src/__tests__/curly_apostrophe_everywhere.test.ts, which now carries no debt for the sign-up screen. Not a decision of his: the lead’s ruling of 2026-10-30, made without asking him, as his order of 2026-09-30 says; built by CLEANUP-TESTS. One word from him reverses it. To reverse: type a straight ' in these strings again.",
   "Record": "DEC-8336 · DEC-3523 · DEC-0059 · DEC-0177",
   "State": "In the code since 2026-10-30"
+ },
+ {
+  "Ruled": "2026-10-31",
+  "What changed, against the phones below": "Approved before: no drawing of this step (the design record: no drawing traced for sign-up’s steps); what the rate means is this drawing’s, phone 3 (v02 approved 2026-08-27 (‘yes’, DEC-0177), v07 approved 2026-09-02): ‘Everything that comes out, as a share of your gross’. His words: none on this line. New: two words on sign-up’s income recap, and a correction to the row of 2026-10-26 above. — Sign-up’s ‘Your income’ recap, the tax line, and a correction to the row of 2026-10-26 (‘The rate in force … prints to two decimals’). That row wrote the line as ‘Tax (~7.41% on taxable income)’ for Pat; but $4,444 ÷ $60,000 = 7.41% is a share of his gross , while what he is taxed on is $55,200, on which the same $4,444 would be 8.05%. The line reads ‘Tax (~7.41% of your gross)’ — the meaning this drawing gives the rate, and the full recap’s own words, ‘Tax · ~20.00% of gross’. The figures do not change. Line added 2026-10-31, before the code.",
+  "His words, or where it came from": "Not a decision of his: the lead’s, on the Cash flow drawing check of 2026-10-31 (SU3-01, REC3-03), made without asking him, under the lead’s ruling R14 and tenet 1 (DEC-3523: an untrue sentence beside a figure). One word from him reverses it. To reverse: print ‘on taxable income’ and work the rate on the $55,200 (8.05%).",
+  "Record": "DEC-3523 (tenet 1) · R14 · MK-CF-M-081 · MK-CF-M-044 · src/onboarding/modules.tsx (IncomeRecap)",
+  "State": "In the code"
+ },
+ {
+  "Ruled": "2026-10-31",
+  "What changed, against the phones below": "Approved before: no drawing of this step (the design record: no drawing traced for sign-up’s steps). His words: none on this line. New: the line under ‘Saving about $X this year’ names only what was entered. — Sign-up, How much can you save? The line said ‘Set more aside in Jan & Feb — your equity & bonus months.’ for the household of the row of 2026-10-27 above, who entered no bonus and no stock: January and February stood out only beside December, the month of the $1,200 bill ($2,000 a month left, $800 in December). Now the line names a month only for a bonus or stock sold when it vests that the person entered: a $12,000 bonus paid in December reads ‘Set more aside in Dec — your bonus month.’; with neither entered it reads ‘About $1,900/month on average.’ (11 × $2,000 + $800 = $22,800 ÷ 12). Line added 2026-10-31, before the code.",
+  "His words, or where it came from": "Not a decision of his: the lead’s, on the Cash flow drawing check of 2026-10-31 (SU3-03), made without asking him, under the lead’s ruling R15 (a tip names only what the person entered) and tenet 1. One word from him reverses it. To reverse: name the two months that stand out above the lowest, whatever caused them.",
+  "Record": "DEC-3523 (tenet 1) · R15 · MK-CF-F-011 savingsByMonth · src/onboarding/modules.tsx (SavingsEditor)",
+  "State": "In the code"
+ },
+ {
+  "Ruled": "2026-10-31",
+  "What changed, against the phones below": "Approved before: phones 5, 6 and 11, v02 approved 2026-08-27 (‘yes’, DEC-0177), v07 approved 2026-09-02. His words on a cash account’s rate: “Return on cash - use 2 decimals” (DEC-0221, 2026-09-14); his Q49 of 2026-09-09, percents to two decimals. New: three shares printed whole now read to two decimals. — Percents to two decimals, worked once. Your base pay, an open section (phones 5 and 6): ‘17.14% of your gross’ — $1,200 ÷ $7,000 — where phone 5 draws ‘17%’, and each person’s section the same way; the share is worked by Base pay’s own function, not on the screen. Interest & dividends (phone 11): ‘3.80% on $18,400’ and ‘4.20% on $30,000’, where the phone draws ‘3.8%’ and ‘4.2%’, beside a CD’s ‘5.05%’; the figures stay $699 and $1,260; wherever the app writes an account’s or a bond’s rate beside what it is paid on, the same: ‘4.50% coupon on $25,000 face’, and the Tax organizer’s ‘calculated from your accounts — 4.00% on $10,000’ (the rows of 2026-10-24 and 2026-10-25 above write ‘4.5%’ and ‘4%’). Sign-up’s retirement expenses: ‘80.00% of what you spend today’ ($1,600 of $2,000; it read 80%). The phones are not redrawn. Line added 2026-10-31, before the code.",
+  "His words, or where it came from": "Not a decision of his: the lead’s, on the Cash flow drawing check of 2026-10-31 (IN3-01, IN3-04), made without asking him, under his Q49 and DEC-0221, and tenet 4 (one figure, one form). One word from him reverses it. To reverse: print these shares whole again.",
+  "Record": "Q49 · DEC-0221 · DEC-3523 (tenet 4) · MK-CF-O-001 basePay · MK-CF-F-184 incomeFromAccounts",
+  "State": "In the code"
+ },
+ {
+  "Ruled": "2026-10-31",
+  "What changed, against the phones below": "Approved before: no drawing of this step (the design record: no drawing traced for sign-up’s steps); the row of 2026-10-27 above put seven of sign-up’s box titles on bars. His words (2026-10-27, DEC-8839): “the standard design says box titles in dark green bar, and sub-titles in light green bar”. New: nine more box titles, and the first step’s group names as sub-titles. — Sign-up, the rest of its box titles on dark-green bars , edge to edge, square: ‘Surplus by month’ (How much can you save?, and the investing step), ‘Monthly cash flow’ (the income recap), ‘Each month: tax · expenses · savings’ (the full recap), ‘Vesting schedule’ and ‘Annual vesting cash flow’ (stock), and ‘From your accounts’ on sign-up’s Interest & dividends step — the dark bar phone 11 draws over the same words; and on the last step, ‘What’s active — tap to open’ and ‘Unlock next — whenever you’re ready’, each the bar of one square card, the modules to unlock as its rows, where they were grey capitals over a stack of rounded cards. On the first step, ‘What brings you to MoneyKeel?’, each group’s name (‘Manage money now’, ‘Plan ahead’ and the rest) is a light-green bar, edge to edge of the phone, where it was grey capitals. The two pop-ups keep their own titles (‘Vesting month’, ‘Guaranteed retirement income’). No word and no figure changes. Line added 2026-10-31, before the code.",
+  "His words, or where it came from": "His DEC-8839, made app-wide by the lead’s ruling R1 of 2026-10-27; this pass by the lead on the Cash flow drawing check of 2026-10-31 (SU3-04), made without asking him. One word from him reverses it. To reverse: the bold black titles again.",
+  "Record": "DEC-8839 · R1 · DEC-0079 · src/__tests__/guard_box_titles_on_bars.test.ts (now reads what opens every sign-up card)",
+  "State": "In the code"
+ },
+ {
+  "Ruled": "2026-10-31",
+  "What changed, against the phones below": "Approved before: no drawing of this step (the design record: no drawing traced for sign-up’s steps); this drawing’s row of 2026-10-25 (‘An empty box shows what an empty box counts’). His words: none on this box. New: one box opens empty. — Sign-up, Benefits, Unemployment chosen beside another kind (the row of 2026-10-25 above): ‘How much of that is unemployment, per month?’ opens empty . It showed a grey ‘$0’ while the line under it said ‘Not entered yet — until it is, all $1,300/month is counted as taxed.’ — an empty box counts all of it, so ‘$0’ was the one answer it does not mean. Line added 2026-10-31, before the code.",
+  "His words, or where it came from": "Not a decision of his: the lead’s, on the Cash flow drawing check of 2026-10-31 (SU3-05), made without asking him, under the lead’s ruling R16 (a box nobody filled opens empty) and his DEC-0296 (an unknown input produces no number). One word from him reverses it. To reverse: show the grey ‘$0’ again.",
+  "Record": "DEC-0296 · R16 · DEC-3523 (tenet 3) · src/onboarding/modules.tsx (income_benefits)",
+  "State": "In the code"
+ },
+ {
+  "Ruled": "2026-10-31",
+  "What changed, against the phones below": "Approved before: no drawing of this step (the design record: no drawing traced for sign-up’s steps); cash-flow v01’s row of 2026-10-27 (the $ printed once). His words: none on these boxes. New: the budget step’s boxes. — Sign-up, Your budget, each category’s box beside its $ / % switch: an empty box opens empty, and a typed one reads ‘1,200’ with its thousands mark beside the ‘$’ switch — the unit printed once, as every money box with a $ / % switch in the app does. It read ‘$0’ then ‘$’ when empty, and ‘1200’ then ‘$’. A % box reads ‘40’ beside ‘%’. The stored amounts do not change. Line added 2026-10-31, before the code.",
+  "His words, or where it came from": "Not a decision of his: the lead’s, on the Cash flow drawing check of 2026-10-31 (SU3-06), made without asking him, under tenet 4 (one figure, one form) and the lead’s ruling R16. One word from him reverses it. To reverse: print ‘$0’ in an empty box and plain digits in a typed one.",
+  "Record": "DEC-3523 (tenet 4) · R16 · DEC-8385 · src/components/MoneyBox.tsx (unitBeside)",
+  "State": "In the code"
+ },
+ {
+  "Ruled": "2026-10-31",
+  "What changed, against the phones below": "Approved before: this drawing, phones 2 to 6: the ‘Your 401(k)s’ row and the card’s own sum print a whole amount whole (‘$1,200’). His words: none on this row. New: nothing on this screen changes, and no drawn figure moves. — Contribution room now prints a monthly amount typed with cents to the cent (‘At $3,333.33/month’, contribution-room v02, row 7), so its year adds up. This card keeps the same amount to the dollar (‘$3,333/month’), because its own sentence, gross − tax − 401(k)s = take-home, adds up to the dollar. An amount typed whole reads the same on both screens. Line added 2026-10-31.",
+  "His words, or where it came from": "Not a decision of his: the lead’s ruling R13 of 2026-10-31 (CR3-01), applied by FX-CF-C without asking him. Tenet 2 (rows add up) outranks tenet 4 (one figure, one form), so the difference stays only for an amount typed with cents. One word from him reverses it. To reverse: cents on this card too, with every row of its sum to the cent.",
+  "Record": "DEC-3523 (tenets 2 and 4) · MK-CF-M-034 · MK-MN-M-032 · CR3-01",
+  "State": "In the code (no change on this screen)"
+ },
+ {
+  "Ruled": "2026-11-01",
+  "What changed, against the phones below": "Approved before: this drawing, approved 2026-09-02. Phones 2 to 4 draw a note under the card — ‘Both figures are what you entered — nothing here is calculated.’, the card’s own sum, and the two take-homes — in a box whose colours the drawing names nowhere (var(--surf2), var(--ok)), so the note draws as plain text. His feedback: His words, 2026-10-11 (DEC-4529): “leave the drawing, add line detailing correction.” New: DRAWING ERROR, phones 2 to 4 — the note sits on the app’s light grey #F6F7F5 with a 3-point green rule, #178F6B, down its left side; its words are 13 points in #1A1A18, as the app draws it. No word or figure moves. The phones are not redrawn. Line added 2026-11-01.",
+  "His words, or where it came from": "A drawing error gets a dated line, not a silent redraw (DEC-4529). Found by the drawing match round 3 (REC3-02). Not a decision of his: the lead’s correction, made without asking him, as his order of 2026-09-30 says. To reverse: delete this line.",
+  "Record": "DEC-4529 · REC3-02",
+  "State": "In the code (the app already draws it so)"
+ },
+ {
+  "Ruled": "2026-11-01",
+  "What changed, against the phones below": "Approved before: this drawing, approved 2026-09-02. Phone 9 draws a grey ‘$0’ in the ‘Stock that vests, a year’ box, which is left blank. His feedback: His words, 2026-08-20 (DEC-0296): “an unknown input produces no number and a reason — never a default”; 2026-10-31 (DEC-9228): “I will review the screens in testflight”. New: DRAWING CORRECTION, phone 9: the stock box left blank is empty — no grey ‘$0’ in it; ‘Leave blank if you have none.’ above it stays. Nothing else moves. The phone is not redrawn.",
+  "His words, or where it came from": "Empty means empty (the lead’s ruling R16 of 2026-10-31, under DEC-0296 and tenet 3, DEC-3523: unknown is not zero): a box nobody filled shows no figure that could be read as an entry. Not a decision of his: the lead’s, made without asking him, as his order of 2026-09-30 says. To reverse: the grey ‘$0’ in the empty box again. Row written after the code (the box was emptied 2026-11-01 in the R16 sweep).",
+  "Record": "DEC-0296 · DEC-3523 · DEC-9228 · R16",
+  "State": "In the code since 2026-11-01"
+ },
+ {
+  "Ruled": "2026-11-01",
+  "What changed, against the phones below": "Approved before: this drawing, approved 2026-09-02. His feedback: His words, 2026-08-20 (DEC-0296): “an unknown input produces no number and a reason — never a default”; 2026-10-31 (DEC-9228): “I will review the screens in testflight”. New: STATES NOT DRAWN AS WRITTEN HERE, the sign-up steps and Your base pay: every money box nobody filled opens empty — the grey ‘$0’ in the sign-up’s money boxes, ‘$0’ in ‘Into your 401(k) each month’, ‘0’ and ‘50’ in the number boxes, ‘$0 /year’ in the yearly box, ‘100’ and ‘$0’ in the stock-grant rows, and the examples ‘24’ (the tax share), ‘65’ (target age), ‘90’ (to age) and ‘6.5’ (a debt’s rate) are gone. Kept: the word examples (‘e.g. 80’, ‘YYYY-MM’, ‘Name’), the month table’s greyed typical month (phone 6: the figure the app counts, as drawn), the tax box’s calculated rate (‘Leave it blank to use the calculated rate’) and the savings months’ suggested figures (under ‘Use suggested’). Nothing else moves. The phones are not redrawn.",
+  "His words, or where it came from": "Empty means empty (the lead’s ruling R16 of 2026-10-31, under DEC-0296 and tenet 3, DEC-3523: unknown is not zero): a box nobody filled shows no figure that could be read as an entry. Not a decision of his: the lead’s, made without asking him, as his order of 2026-09-30 says. To reverse: the grey examples in the empty boxes again. Row written before the code.",
+  "Record": "DEC-0296 · DEC-3523 · DEC-9228 · R16",
+  "State": "In the code since 2026-11-01"
  }
 ]
 ```
@@ -3421,7 +3491,7 @@ Its phones that hold the screens in this part (2, 3, 4, 8, 9, 10, 11, 12, 16, 17
   "$8,740/month",
   "Save",
   "The bracket is named, the estimate says what it assumed, and the rate is changed where it is shown.",
-  "The words \"effective tax rate\" appear nowhere: TurboTax divides by adjusted gross income, the textbook divides by taxable income, others divide by total income — three products, three answers for one return. A payslip figure is what a person can actually check, so that is what we ask for.",
+  "The words &lsquo;effective tax rate' appear nowhere: TurboTax divides by adjusted gross income, the textbook divides by taxable income, others divide by total income — three products, three answers for one return. A payslip figure is what a person can actually check, so that is what we ask for.",
   "2a-iii · one entered, one calculated"
  ],
  "phone 4": [
@@ -3622,7 +3692,7 @@ Its phones that hold the screens in this part (2, 3, 4, 8, 9, 10, 11, 12, 16, 17
   "The code reads a filing status, finds nothing, and falls back to",
   "single",
   "— for everyone, including the couple who just said they have a spouse. Five surfaces use it: every month’s withholding rate, the effective rate, the Roth conversion, the retirement tax rate, and the base-pay estimate.",
-  "4a · they said “just me”"
+  "4a · they said ‘just me’"
  ],
  "phone 16": [
   "Your income",
@@ -3718,10 +3788,10 @@ Its phones that hold the screens in this part (2, 3, 4, 8, 9, 10, 11, 12, 16, 17
   "The app holds the accounts, so it shows what they pay and lets the person correct it. Asking invites a second, different answer to the same question with nothing to reconcile them.",
   "8e ·",
   "The card adds up, and every figure says whose it is.",
-  "Gross − tax − 401(k)s = take-home, on the card itself, in every state. Entered beats calculated, per person, never blended; a mixed household shows no single tax row, because one number cannot explain a figure that is half theirs and half ours. Assumptions are stated where they act: \"assumed filing jointly — both of you earn\". [Founder 2026-09-02]",
+  "Gross − tax − 401(k)s = take-home, on the card itself, in every state. Entered beats calculated, per person, never blended; a mixed household shows no single tax row, because one number cannot explain a figure that is half theirs and half ours. Assumptions are stated where they act: &lsquo;assumed filing jointly — both of you earn'. [Founder 2026-09-02]",
   "8d ·",
   "Name the bracket, and say what the estimate assumed.",
-  "\"Federal tax bracket\" and \"estimated federal tax — assumes you take the standard deduction\". Never \"effective tax rate\": three products compute it three ways, so it is a number a person cannot check. One rate, typed once, used for every tax figure in the app. [Founder 2026-08-28]",
+  "&lsquo;Federal tax bracket' and &lsquo;estimated federal tax — assumes you take the standard deduction'. Never &lsquo;effective tax rate': three products compute it three ways, so it is a number a person cannot check. One rate, typed once, used for every tax figure in the app. [Founder 2026-08-28]",
   "\\n8c ·",
   "A figure is corrected where it is shown.",
   "The tax rate could only be changed on a screen buried in the guided questionnaire; it belongs beside the number it moves. And an estimate says what it leaves out in MONEY, beside itself — never only as a percentage. [Founder 2026-08-28]",
@@ -3734,7 +3804,7 @@ Its phones that hold the screens in this part (2, 3, 4, 8, 9, 10, 11, 12, 16, 17
 
 ## The match tests — each test that holds one of these screens to a drawing phone, its code and its result at this build
 
-**phone 10 · Rent from a property — two figures, and what is kept** — `src/screens/__tests__/income_manager_matches_v07.test.tsx`, lines 127–138, phones 10: **passed**
+**phone 10 · Rent from a property — two figures, and what is kept** — `src/screens/__tests__/income_manager_matches_v07.test.tsx`, lines 134–145, phones 10: **passed**
 
 ```ts
 test('phone 10 · Rent from a property — two figures, and what is kept', () => {
@@ -3751,7 +3821,7 @@ test('phone 10 · Rent from a property — two figures, and what is kept', () =>
 })
 ```
 
-**phone 11 · Interest & dividends — calculated from the accounts, taxed, and not spendable** — `src/screens/__tests__/income_manager_matches_v07.test.tsx`, lines 140–150, phones 11: **passed**
+**phone 11 · Interest & dividends — calculated from the accounts, taxed, and not spendable** — `src/screens/__tests__/income_manager_matches_v07.test.tsx`, lines 147–159, phones 11: **passed**
 
 ```ts
 test('phone 11 · Interest & dividends — calculated from the accounts, taxed, and not spendable', () => {
@@ -3760,6 +3830,8 @@ test('phone 11 · Interest & dividends — calculated from the accounts, taxed, 
     ['= We work out', '= We calculate', 'difference 5 (canon)'],
     ['VTI and holdings 1.3% dividend yield', 'VTI and holdings paid out over the trailing twelve months', 'difference 6 (MK-CF-F-184, Q35)'],
     ['never land in your bank account', 'never reach your bank account', 'difference 7 (canon)'],
+    ['3.8% on $18,400', '3.80% on $18,400', 'v07 row of 2026-10-31 (IN3-04; Q49, DEC-0221): a rate to two decimals'],
+    ['4.2% on $30,000', '4.20% on $30,000', 'v07 row of 2026-10-31 (IN3-04)'],
   ]);
   expect(want.split(' ').length).toBeGreaterThan(95);
   // by hand: 3.8% × $18,400 = $699.20; 4.2% × $30,000 = $1,260; $1,041 paid; $699 + $1,260 + $1,041 = $3,000 on the band and the sum
@@ -3767,19 +3839,21 @@ test('phone 11 · Interest & dividends — calculated from the accounts, taxed, 
 })
 ```
 
-**phone 12 · Your income — what is entered, one line each, and the seven not picked one tap away** — `src/screens/__tests__/income_manager_matches_v07.test.tsx`, lines 99–105, phones 12: **passed**
+**phone 12 · Your income — what is entered, one line each, and the seven not picked one tap away** — `src/screens/__tests__/income_manager_matches_v07.test.tsx`, lines 99–107, phones 12: **passed**
 
 ```ts
 test('phone 12 · Your income — what is entered, one line each, and the seven not picked one tap away', () => {
   show();
-  const want = drawn(12, /^Done$/);
+  // the drawing's CSS prints the bar in capitals, the count with it — 'YOU ENTERED ABOUT · 3 SOURCES'; the build writes the count in
+  // capitals and leaves the title's capitals to the bar (IN3-05, 2026-10-31)
+  const want = drawn(12, /^Done$/, [['3 sources', '3 SOURCES', 'IN3-05: the count in the bar’s capitals']]);
   expect(want.split(' ').length).toBeGreaterThan(55);
   // by hand: $5,000 + $3,300 = $8,300 a month; $1,800 − $600 = $1,200 a month net; $3,000 a year
   expect(firstDifference(want, built())).toBe('');
 })
 ```
 
-**phone 9 · Bonus and stock — who, how much, which month, and what December will look like** — `src/screens/__tests__/income_manager_matches_v07.test.tsx`, lines 116–125, phones 9: **passed**
+**phone 9 · Bonus and stock — who, how much, which month, and what December will look like** — `src/screens/__tests__/income_manager_matches_v07.test.tsx`, lines 120–132, phones 9: **passed**
 
 ```ts
 test('phone 9 · Bonus and stock — who, how much, which month, and what December will look like', () => {
@@ -3787,9 +3861,12 @@ test('phone 9 · Bonus and stock — who, how much, which month, and what Decemb
   const want = drawn(9, /^Save$/, [
     ['Mar Jun Sep Dec', 'Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec', 'difference 3: all twelve months'],
     ['bonus, after tax $18,860', 'bonus, after tax $18,620', 'difference 10: $9,500 + $12,000 × 76% = $18,620'],
+    // THE ROW OF 2026-11-01 (R16, FX-PF): the stock box left blank is empty — read only where the drawing carries that row
+    ...(R16_V07.test(V07_HTML) ? [['Leave blank if you have none. $0 December', 'Leave blank if you have none. December', 'v07 row of 2026-11-01 (R16): the blank stock box is empty']] as [string, string, string][] : []),
   ]);
+  expect(V07_HTML).toMatch(R16_V07);
   expect(want.split(' ').length).toBeGreaterThan(90);
-  // the boxes as drawn: "$12,000" typed, "$0" greyed in the stock box left blank
+  // the boxes as drawn: "$12,000" typed; the stock box left blank, empty (R16, the row of 2026-11-01)
   expect(firstDifference(want, built())).toBe('');
 })
 ```

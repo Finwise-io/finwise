@@ -137,7 +137,7 @@ describe('income from onboarding (full job inflows + rental + tax config)', () =
   // so a rename can't silently make Equity / Rental / Self-employment uneditable again.
   test('source labels match the income-manager editor mapping', () => {
     const doc = incomeFromOnboarding('u1', {
-      baseSalary: '100000', salaryFreq: 'annual',
+      baseSalary: '100000', salaryFreq: 'annually',   // the app's word for a yearly salary (SALARY_PERIODS); 'annual' read as a month, $1.2M (2026-11-01)
       equityType: 'rsu', rsuGrants: [{ shares: '100', price: '400', date: `${new Date().getFullYear()}-06` }],   // a vest of this year (2026-10-25)
       rentals: [{ type: 'long', income: '2000', expenses: '500', property_id: 'p1' }],
       seAmount: '30000', seFreq: 'annual',

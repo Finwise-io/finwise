@@ -78,7 +78,7 @@ describe('2 · the Tax organizer', () => {
     expect(screen.getByText('Married, filing jointly')).toBeOnTheScreen();          // it read "Single" (DEC-7944)
     expect(screen.queryByText('Single')).toBeNull();
     expect(screen.getByText('Assumed — we have never asked')).toBeOnTheScreen();
-    expect(screen.getByText('− $32,200')).toBeOnTheScreen();
+    expect(screen.getByText('−$32,200')   /* one minus writer since 2026-11-01 (CF4-10) */).toBeOnTheScreen();
     expect(screen.getByText('Your spouse counted as under 65 — not entered ›')).toBeOnTheScreen();
     fireEvent.press(screen.getByLabelText('Your spouse counted as under 65 — not entered. Answer it'));
     expect(mockPushes).toContain('/filing-status');
@@ -103,7 +103,7 @@ describe('2 · the Tax organizer', () => {
     expect(screen.getByText('$0')).toBeOnTheScreen();
     expect(screen.getByLabelText('Nothing entered yet. Add your income ›')).toBeOnTheScreen();
     expect(screen.queryByText('Taxable income')).toBeNull();
-    expect(screen.queryByText('− $16,100')).toBeNull();
+    expect(screen.queryByText('−$16,100')).toBeNull();
     expect(screen.queryByText(/Calculated (federal )?tax|Est\. effective/)).toBeNull();
   });
 

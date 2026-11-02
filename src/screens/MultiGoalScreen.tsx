@@ -10,7 +10,7 @@ import { ScrollView, View, Text, StyleSheet, TouchableOpacity, Switch } from 're
 import { SectionBand } from '../components/SectionBand';
 import { useRouter } from 'expo-router';
 import { useStore } from '../store/useStore';
-import { Colors, Spacing, Radii } from '../utils/theme';
+import { Colors, Spacing, Radii, Tap } from '../utils/theme';
 import { weighGoals, trimHints, retireAgeWithContribution, type GoalDial } from '../domain/planning/multiGoal';
 import { willItLastInputs, selectWillItLast } from '../domain/retirement/willItLast';
 import { monthlySavings } from '../domain/savings';
@@ -117,9 +117,9 @@ export default function MultiGoalScreen() {
             </View>
             {d.on && (
               <View style={s.stepRow}>
-                <TouchableOpacity accessibilityRole="button" style={s.stepBtn} onPress={() => setDial(d.id, { monthlyAmount: bump(d.monthlyAmount, -STEP) })}
+                <TouchableOpacity hitSlop={Tap.slop} accessibilityRole="button" style={s.stepBtn} onPress={() => setDial(d.id, { monthlyAmount: bump(d.monthlyAmount, -STEP) })}
                   accessibilityLabel={`Lower ${d.label} by $100/month`}><Text style={s.stepTxt}>−</Text></TouchableOpacity>
-                <TouchableOpacity accessibilityRole="button" style={s.stepBtn} onPress={() => setDial(d.id, { monthlyAmount: bump(d.monthlyAmount, STEP) })}
+                <TouchableOpacity hitSlop={Tap.slop} accessibilityRole="button" style={s.stepBtn} onPress={() => setDial(d.id, { monthlyAmount: bump(d.monthlyAmount, STEP) })}
                   accessibilityLabel={`Raise ${d.label} by $100/month`}><Text style={s.stepTxt}>＋</Text></TouchableOpacity>
                 {weighed.goalEnds[d.id] && <Text style={s.endDate}>done {weighed.goalEnds[d.id]}</Text>}
               </View>
@@ -138,9 +138,9 @@ export default function MultiGoalScreen() {
             </View>
             {extraDebt > 0 && (
               <View style={s.stepRow}>
-                <TouchableOpacity accessibilityRole="button" style={s.stepBtn} onPress={() => setExtraDebt(bump(extraDebt, -STEP))}
+                <TouchableOpacity hitSlop={Tap.slop} accessibilityRole="button" style={s.stepBtn} onPress={() => setExtraDebt(bump(extraDebt, -STEP))}
                   accessibilityLabel="Lower extra debt payment by $100/month"><Text style={s.stepTxt}>−</Text></TouchableOpacity>
-                <TouchableOpacity accessibilityRole="button" style={s.stepBtn} onPress={() => setExtraDebt(bump(extraDebt, STEP))}
+                <TouchableOpacity hitSlop={Tap.slop} accessibilityRole="button" style={s.stepBtn} onPress={() => setExtraDebt(bump(extraDebt, STEP))}
                   accessibilityLabel="Raise extra debt payment by $100/month"><Text style={s.stepTxt}>＋</Text></TouchableOpacity>
                 {weighed.debtPayoff && <Text style={s.endDate}>paid off {weighed.debtPayoff.month} · saves {maskedMoney(weighed.debtPayoff.interestSaved)} interest</Text>}
               </View>
@@ -155,9 +155,9 @@ export default function MultiGoalScreen() {
             <Text style={s.dialAmt}>{maskedMoney(retirementMonthly)}/month</Text>
           </View>
           <View style={s.stepRow}>
-            <TouchableOpacity accessibilityRole="button" style={s.stepBtn} onPress={() => setRetirementMonthly(bump(retirementMonthly, -STEP))}
+            <TouchableOpacity hitSlop={Tap.slop} accessibilityRole="button" style={s.stepBtn} onPress={() => setRetirementMonthly(bump(retirementMonthly, -STEP))}
               accessibilityLabel="Lower retirement saving by $100/month"><Text style={s.stepTxt}>−</Text></TouchableOpacity>
-            <TouchableOpacity accessibilityRole="button" style={s.stepBtn} onPress={() => setRetirementMonthly(bump(retirementMonthly, STEP))}
+            <TouchableOpacity hitSlop={Tap.slop} accessibilityRole="button" style={s.stepBtn} onPress={() => setRetirementMonthly(bump(retirementMonthly, STEP))}
               accessibilityLabel="Raise retirement saving by $100/month"><Text style={s.stepTxt}>＋</Text></TouchableOpacity>
           </View>
         </View>
@@ -171,7 +171,7 @@ export default function MultiGoalScreen() {
         <Text style={[s.verdict, { color: weighed.covered ? Colors.primary : Colors.red }]}>
           {weighed.covered ? `Covered — ${maskedMoney(weighed.spare)}/month to spare` : `Short ${maskedMoney(Math.abs(weighed.spare))}/month`}
         </Text>
-        <TouchableOpacity accessibilityRole="button" onPress={() => setWhereOpen(!whereOpen)} accessibilityLabel="Where the money goes">
+        <TouchableOpacity hitSlop={Tap.slop} accessibilityRole="button" onPress={() => setWhereOpen(!whereOpen)} accessibilityLabel="Where the money goes">
           <Text style={s.link}>where the money goes {whereOpen ? '▴' : '▾'}</Text>
         </TouchableOpacity>
         {whereOpen && (

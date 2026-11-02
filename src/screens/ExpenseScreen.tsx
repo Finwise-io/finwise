@@ -201,7 +201,7 @@ export default function ExpenseScreen() {
                 <Text style={{ fontSize: 38, marginBottom: 12 }}>🧾</Text>
                 <Text style={styles.emptyTitle}>No expenses yet</Text>
                 <Text style={styles.emptySub}>Tap "Add new" to log your first expense</Text>
-                <TouchableOpacity style={styles.emptyBtn} onPress={() => setTab('add')}>
+                <TouchableOpacity hitSlop={Tap.slop} style={styles.emptyBtn} onPress={() => setTab('add')}>
                   <Text style={styles.emptyBtnText}>+ Add expense</Text>
                 </TouchableOpacity>
               </View>
@@ -238,7 +238,7 @@ export default function ExpenseScreen() {
             {editId && (
               <View style={styles.editBanner}>
                 <Text style={styles.editBannerText}>✏️ Editing entry — save to update</Text>
-                <TouchableOpacity onPress={() => { resetForm(); setTab('list'); }}>
+                <TouchableOpacity hitSlop={Tap.slop} onPress={() => { resetForm(); setTab('list'); }}>
                   <Text style={styles.editCancel}>Cancel</Text>
                 </TouchableOpacity>
               </View>
@@ -395,7 +395,7 @@ export default function ExpenseScreen() {
               <Text style={styles.inputLabel}>Frequency</Text>
               <View style={{ flexDirection: 'row', gap: Spacing.sm, marginBottom: Spacing.sm }}>
                 {(['weekly', 'biweekly', 'monthly'] as const).map(f => (
-                  <TouchableOpacity key={f}
+                  <TouchableOpacity hitSlop={Tap.slop} key={f}
                     style={[styles.catBtn, { flex: 1, width: undefined }, recurFreq === f && styles.catBtnOn]}
                     onPress={() => setRecurFreq(f)}>
                     <Text style={[styles.catLabel, recurFreq === f && styles.catLabelOn]}>

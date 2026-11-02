@@ -56,9 +56,11 @@ const isoInMonths = (months: number, now: Date): string => {
 
 // EMPTY MEANS EMPTY (2026-10-31, the lead's ruling R16; drawing match round 3, NW3-07): a box nobody filled opens empty — no grey '0', '$0',
 // '6.5', '19.99' or '0%' that reads as an answer, and a date box says 'mm/yyyy', not '03/2047' (which sat above "paid off by April 2049").
+// THE DUE DAY'S RANGE IS IN ITS LABEL, 'Due day (1–31)', not grey in the empty box (R16; NW4-05, 2026-11-01; debt editor v03 row 10)
 export function DebtEditorSheet({ state, onClose }: { state: { open: boolean; edit?: Debt }; onClose: () => void }) {
   const store = useStore() as any;
   const editing = state.edit;
+  const fromSetup = editing != null && editing.setup_loan != null && String(editing.debt_id).startsWith('setup-loan-');   // a setup loan's row (R22)
   const [kind, setKind] = useState<DebtType>('CREDIT_CARD'); const [inst, setInst] = useState('');
   const [bal, setBal] = useState(''); const [apr, setApr] = useState(''); const [pay, setPay] = useState('');
   const [due, setDue] = useState(''); const [monthly, setMonthly] = useState('');
@@ -148,7 +150,9 @@ export function DebtEditorSheet({ state, onClose }: { state: { open: boolean; ed
           // the real payment IS the obligation (there's no separate "minimum" on a mortgage)
           ? { ...base, minimum_monthly_payment: installmentKnown ? calcPayment : undefined, monthly_payment: installmentKnown ? calcPayment : undefined, due_day: dd, payoff_date: calcPayoffIso, first_payment_date: startIso }
           : { ...base, minimum_monthly_payment: pay.trim() === '' ? undefined : num(pay), monthly_payment: monthly.trim() === '' ? undefined : (num(monthly) || num(pay)), due_day: dd, payoff_date: undefined };
-    if (editing) store.updateLiability?.(editing.debt_id, patch); else store.addLiability?.(patch);
+    // a student loan from setup is not a saved debt yet: saving its row saves it as one, marked as that loan, so it is counted once (R22)
+    if (fromSetup) store.addLiability?.({ ...patch, setup_loan: editing!.setup_loan });
+    else if (editing) store.updateLiability?.(editing.debt_id, patch); else store.addLiability?.(patch);
     onClose();
   };
   // walk row 23: same confirm rule for debts — a deleted debt RAISES net worth silently otherwise.
@@ -222,7 +226,7 @@ export function DebtEditorSheet({ state, onClose }: { state: { open: boolean; ed
       </>) : shape === 'installment' ? (<>
         <View style={{ flexDirection: 'row', gap: Spacing.sm }}>
           <View style={{ flex: 1 }}><Text style={sh.lbl}>Interest rate %</Text><TextInput style={sh.input} accessibilityLabel="Interest rate percent" keyboardType="decimal-pad" value={apr} onChangeText={setApr} /></View>
-          <View style={{ flex: 1 }}><Text style={sh.lbl}>Due day</Text><TextInput style={sh.input} accessibilityLabel="Due day" keyboardType="number-pad" placeholder="1–31" placeholderTextColor={Colors.textTertiary} value={due} onChangeText={setDue} /></View>
+          <View style={{ flex: 1 }}><Text style={sh.lbl}>Due day (1–31)</Text><TextInput style={sh.input} accessibilityLabel="Due day" keyboardType="number-pad" value={due} onChangeText={setDue} /></View>
         </View>
         <View style={{ flexDirection: 'row', gap: Spacing.sm }}>
           <View style={{ flex: 1 }}><Text style={sh.lbl}>Monthly payment (what you pay)</Text><MoneyBox bare a11y="Monthly payment, what you pay" style={sh.input} value={monthly} onChangeText={(t) => { setMonthly(t); setDrives('payment'); }} /></View>
@@ -236,7 +240,7 @@ export function DebtEditorSheet({ state, onClose }: { state: { open: boolean; ed
       </>) : (<>
         <View style={{ flexDirection: 'row', gap: Spacing.sm }}>
           <View style={{ flex: 1 }}><Text style={sh.lbl}>Interest rate %</Text><TextInput style={sh.input} accessibilityLabel="Interest rate percent" keyboardType="decimal-pad" value={apr} onChangeText={setApr} /></View>
-          <View style={{ flex: 1 }}><Text style={sh.lbl}>Due day</Text><TextInput style={sh.input} accessibilityLabel="Due day" keyboardType="number-pad" placeholder="1–31" placeholderTextColor={Colors.textTertiary} value={due} onChangeText={setDue} /></View>
+          <View style={{ flex: 1 }}><Text style={sh.lbl}>Due day (1–31)</Text><TextInput style={sh.input} accessibilityLabel="Due day" keyboardType="number-pad" value={due} onChangeText={setDue} /></View>
         </View>
         <View style={{ flexDirection: 'row', gap: Spacing.sm }}>
           <View style={{ flex: 1 }}><Text style={sh.lbl}>Min payment /month</Text><MoneyBox bare a11y="Minimum payment a month" style={sh.input} value={pay} onChangeText={setPay} /></View>
@@ -250,7 +254,7 @@ export function DebtEditorSheet({ state, onClose }: { state: { open: boolean; ed
       </>)}
 
       <TouchableOpacity style={[sh.save, !ready && { opacity: 0.4 }]} disabled={!ready} accessibilityRole="button" accessibilityLabel={editing ? 'Save debt' : 'Add debt'} onPress={save}><Text style={sh.saveTxt}>{editing ? 'Save' : 'Add'} {shape === 'revolving' ? 'card' : shape === 'due_in_full' ? 'loan' : (debtKind(kind)?.label.toLowerCase() ?? 'debt')}</Text></TouchableOpacity>
-      {editing && <TouchableOpacity accessibilityRole="button" accessibilityLabel="Remove debt" style={{ minHeight: 44, justifyContent: 'center' }} onPress={remove}><Text style={sh.remove}>Remove</Text></TouchableOpacity>}
+      {editing && !fromSetup && <TouchableOpacity accessibilityRole="button" accessibilityLabel="Remove debt" style={{ minHeight: 44, justifyContent: 'center' }} onPress={remove}><Text style={sh.remove}>Remove</Text></TouchableOpacity>}
     </KeyboardAwareSheet>
   );
 }

@@ -1266,6 +1266,7 @@
    "src/screens/__tests__/income_drawing_fixes_2026_10_25.test.tsx",
    "src/screens/__tests__/income_fixes_fx_cf_b_2026_10_31.test.tsx",
    "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
+   "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx",
    "src/screens/__tests__/plan_one_call_changes_2026_10_26.test.tsx"
   ]
  },
@@ -1351,6 +1352,7 @@
    "src/screens/__tests__/income_drawing_fixes_2026_10_25.test.tsx",
    "src/screens/__tests__/income_fixes_fx_cf_b_2026_10_31.test.tsx",
    "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
+   "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx",
    "src/screens/__tests__/plan_one_call_changes_2026_10_26.test.tsx"
   ]
  },
@@ -1436,6 +1438,7 @@
    "src/screens/__tests__/income_drawing_fixes_2026_10_25.test.tsx",
    "src/screens/__tests__/income_fixes_fx_cf_b_2026_10_31.test.tsx",
    "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
+   "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx",
    "src/screens/__tests__/plan_one_call_changes_2026_10_26.test.tsx"
   ]
  },
@@ -1519,6 +1522,7 @@
    "src/onboarding/signup_cashflow_rate_agreement_2026_10_24.test.tsx",
    "src/screens/__tests__/bill_calendar_fcc.test.tsx",
    "src/screens/__tests__/goals_drawing_v02.test.tsx",
+   "src/screens/__tests__/one_debt_total_r22_2026_11_01.test.tsx",
    "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
    "src/screens/__tests__/payoff_debts_and_plan_agree_2026_10_25.test.tsx"
   ]
@@ -1603,6 +1607,7 @@
    "src/onboarding/signup_cashflow_rate_agreement_2026_10_24.test.tsx",
    "src/screens/__tests__/bill_calendar_fcc.test.tsx",
    "src/screens/__tests__/goals_drawing_v02.test.tsx",
+   "src/screens/__tests__/one_debt_total_r22_2026_11_01.test.tsx",
    "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
    "src/screens/__tests__/payoff_debts_and_plan_agree_2026_10_25.test.tsx"
   ]
@@ -1687,6 +1692,7 @@
    "src/onboarding/signup_cashflow_rate_agreement_2026_10_24.test.tsx",
    "src/screens/__tests__/bill_calendar_fcc.test.tsx",
    "src/screens/__tests__/goals_drawing_v02.test.tsx",
+   "src/screens/__tests__/one_debt_total_r22_2026_11_01.test.tsx",
    "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
    "src/screens/__tests__/payoff_debts_and_plan_agree_2026_10_25.test.tsx"
   ]
@@ -1771,6 +1777,7 @@
    "src/onboarding/signup_cashflow_rate_agreement_2026_10_24.test.tsx",
    "src/screens/__tests__/bill_calendar_fcc.test.tsx",
    "src/screens/__tests__/goals_drawing_v02.test.tsx",
+   "src/screens/__tests__/one_debt_total_r22_2026_11_01.test.tsx",
    "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
    "src/screens/__tests__/payoff_debts_and_plan_agree_2026_10_25.test.tsx"
   ]
@@ -1855,6 +1862,7 @@
    "src/onboarding/signup_cashflow_rate_agreement_2026_10_24.test.tsx",
    "src/screens/__tests__/bill_calendar_fcc.test.tsx",
    "src/screens/__tests__/goals_drawing_v02.test.tsx",
+   "src/screens/__tests__/one_debt_total_r22_2026_11_01.test.tsx",
    "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
    "src/screens/__tests__/payoff_debts_and_plan_agree_2026_10_25.test.tsx"
   ]
@@ -1939,6 +1947,7 @@
    "src/onboarding/signup_cashflow_rate_agreement_2026_10_24.test.tsx",
    "src/screens/__tests__/bill_calendar_fcc.test.tsx",
    "src/screens/__tests__/goals_drawing_v02.test.tsx",
+   "src/screens/__tests__/one_debt_total_r22_2026_11_01.test.tsx",
    "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
    "src/screens/__tests__/payoff_debts_and_plan_agree_2026_10_25.test.tsx"
   ]
@@ -2023,6 +2032,7 @@
    "src/onboarding/signup_cashflow_rate_agreement_2026_10_24.test.tsx",
    "src/screens/__tests__/bill_calendar_fcc.test.tsx",
    "src/screens/__tests__/goals_drawing_v02.test.tsx",
+   "src/screens/__tests__/one_debt_total_r22_2026_11_01.test.tsx",
    "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
    "src/screens/__tests__/payoff_debts_and_plan_agree_2026_10_25.test.tsx"
   ]
@@ -2107,6 +2117,7 @@
    "src/onboarding/signup_cashflow_rate_agreement_2026_10_24.test.tsx",
    "src/screens/__tests__/bill_calendar_fcc.test.tsx",
    "src/screens/__tests__/goals_drawing_v02.test.tsx",
+   "src/screens/__tests__/one_debt_total_r22_2026_11_01.test.tsx",
    "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
    "src/screens/__tests__/payoff_debts_and_plan_agree_2026_10_25.test.tsx"
   ]
@@ -2191,6 +2202,7 @@
    "src/onboarding/signup_cashflow_rate_agreement_2026_10_24.test.tsx",
    "src/screens/__tests__/bill_calendar_fcc.test.tsx",
    "src/screens/__tests__/goals_drawing_v02.test.tsx",
+   "src/screens/__tests__/one_debt_total_r22_2026_11_01.test.tsx",
    "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
    "src/screens/__tests__/payoff_debts_and_plan_agree_2026_10_25.test.tsx"
   ]
@@ -2275,6 +2287,7 @@
    "src/onboarding/signup_cashflow_rate_agreement_2026_10_24.test.tsx",
    "src/screens/__tests__/bill_calendar_fcc.test.tsx",
    "src/screens/__tests__/goals_drawing_v02.test.tsx",
+   "src/screens/__tests__/one_debt_total_r22_2026_11_01.test.tsx",
    "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
    "src/screens/__tests__/payoff_debts_and_plan_agree_2026_10_25.test.tsx"
   ]
@@ -2359,6 +2372,7 @@
    "src/onboarding/signup_cashflow_rate_agreement_2026_10_24.test.tsx",
    "src/screens/__tests__/bill_calendar_fcc.test.tsx",
    "src/screens/__tests__/goals_drawing_v02.test.tsx",
+   "src/screens/__tests__/one_debt_total_r22_2026_11_01.test.tsx",
    "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
    "src/screens/__tests__/payoff_debts_and_plan_agree_2026_10_25.test.tsx"
   ]
@@ -2443,6 +2457,7 @@
    "src/onboarding/signup_cashflow_rate_agreement_2026_10_24.test.tsx",
    "src/screens/__tests__/bill_calendar_fcc.test.tsx",
    "src/screens/__tests__/goals_drawing_v02.test.tsx",
+   "src/screens/__tests__/one_debt_total_r22_2026_11_01.test.tsx",
    "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
    "src/screens/__tests__/payoff_debts_and_plan_agree_2026_10_25.test.tsx"
   ]
@@ -2527,6 +2542,7 @@
    "src/onboarding/signup_cashflow_rate_agreement_2026_10_24.test.tsx",
    "src/screens/__tests__/bill_calendar_fcc.test.tsx",
    "src/screens/__tests__/goals_drawing_v02.test.tsx",
+   "src/screens/__tests__/one_debt_total_r22_2026_11_01.test.tsx",
    "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
    "src/screens/__tests__/payoff_debts_and_plan_agree_2026_10_25.test.tsx"
   ]
@@ -2611,6 +2627,7 @@
    "src/onboarding/signup_cashflow_rate_agreement_2026_10_24.test.tsx",
    "src/screens/__tests__/bill_calendar_fcc.test.tsx",
    "src/screens/__tests__/goals_drawing_v02.test.tsx",
+   "src/screens/__tests__/one_debt_total_r22_2026_11_01.test.tsx",
    "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
    "src/screens/__tests__/payoff_debts_and_plan_agree_2026_10_25.test.tsx"
   ]
@@ -2695,6 +2712,7 @@
    "src/onboarding/signup_cashflow_rate_agreement_2026_10_24.test.tsx",
    "src/screens/__tests__/bill_calendar_fcc.test.tsx",
    "src/screens/__tests__/goals_drawing_v02.test.tsx",
+   "src/screens/__tests__/one_debt_total_r22_2026_11_01.test.tsx",
    "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
    "src/screens/__tests__/payoff_debts_and_plan_agree_2026_10_25.test.tsx"
   ]
@@ -2779,6 +2797,7 @@
    "src/onboarding/signup_cashflow_rate_agreement_2026_10_24.test.tsx",
    "src/screens/__tests__/bill_calendar_fcc.test.tsx",
    "src/screens/__tests__/goals_drawing_v02.test.tsx",
+   "src/screens/__tests__/one_debt_total_r22_2026_11_01.test.tsx",
    "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
    "src/screens/__tests__/payoff_debts_and_plan_agree_2026_10_25.test.tsx"
   ]
@@ -2863,6 +2882,7 @@
    "src/onboarding/signup_cashflow_rate_agreement_2026_10_24.test.tsx",
    "src/screens/__tests__/bill_calendar_fcc.test.tsx",
    "src/screens/__tests__/goals_drawing_v02.test.tsx",
+   "src/screens/__tests__/one_debt_total_r22_2026_11_01.test.tsx",
    "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
    "src/screens/__tests__/payoff_debts_and_plan_agree_2026_10_25.test.tsx"
   ]
@@ -2947,6 +2967,7 @@
    "src/onboarding/signup_cashflow_rate_agreement_2026_10_24.test.tsx",
    "src/screens/__tests__/bill_calendar_fcc.test.tsx",
    "src/screens/__tests__/goals_drawing_v02.test.tsx",
+   "src/screens/__tests__/one_debt_total_r22_2026_11_01.test.tsx",
    "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
    "src/screens/__tests__/payoff_debts_and_plan_agree_2026_10_25.test.tsx"
   ]
@@ -3031,6 +3052,7 @@
    "src/onboarding/signup_cashflow_rate_agreement_2026_10_24.test.tsx",
    "src/screens/__tests__/bill_calendar_fcc.test.tsx",
    "src/screens/__tests__/goals_drawing_v02.test.tsx",
+   "src/screens/__tests__/one_debt_total_r22_2026_11_01.test.tsx",
    "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
    "src/screens/__tests__/payoff_debts_and_plan_agree_2026_10_25.test.tsx"
   ]
@@ -3115,6 +3137,7 @@
    "src/onboarding/signup_cashflow_rate_agreement_2026_10_24.test.tsx",
    "src/screens/__tests__/bill_calendar_fcc.test.tsx",
    "src/screens/__tests__/goals_drawing_v02.test.tsx",
+   "src/screens/__tests__/one_debt_total_r22_2026_11_01.test.tsx",
    "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
    "src/screens/__tests__/payoff_debts_and_plan_agree_2026_10_25.test.tsx"
   ]
@@ -3199,6 +3222,7 @@
    "src/onboarding/signup_cashflow_rate_agreement_2026_10_24.test.tsx",
    "src/screens/__tests__/bill_calendar_fcc.test.tsx",
    "src/screens/__tests__/goals_drawing_v02.test.tsx",
+   "src/screens/__tests__/one_debt_total_r22_2026_11_01.test.tsx",
    "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
    "src/screens/__tests__/payoff_debts_and_plan_agree_2026_10_25.test.tsx"
   ]
@@ -3383,6 +3407,7 @@
    "src/screens/__tests__/old_rent_figure_moved.test.tsx",
    "src/screens/__tests__/onboarding_rent_strict_reader.test.tsx",
    "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
+   "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx",
    "src/screens/__tests__/plan_one_call_changes_2026_10_26.test.tsx",
    "src/screens/__tests__/plan_reads_interest_records_2026_10_26.test.tsx"
   ]
@@ -3487,6 +3512,7 @@
    "src/screens/__tests__/old_rent_figure_moved.test.tsx",
    "src/screens/__tests__/onboarding_rent_strict_reader.test.tsx",
    "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
+   "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx",
    "src/screens/__tests__/plan_one_call_changes_2026_10_26.test.tsx",
    "src/screens/__tests__/plan_reads_interest_records_2026_10_26.test.tsx"
   ]
@@ -3591,6 +3617,7 @@
    "src/screens/__tests__/old_rent_figure_moved.test.tsx",
    "src/screens/__tests__/onboarding_rent_strict_reader.test.tsx",
    "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
+   "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx",
    "src/screens/__tests__/plan_one_call_changes_2026_10_26.test.tsx",
    "src/screens/__tests__/plan_reads_interest_records_2026_10_26.test.tsx"
   ]
@@ -3736,6 +3763,7 @@
    "src/screens/__tests__/cashflow_journeys_entering_2026_10_24.test.tsx",
    "src/screens/__tests__/onboarding_rent_strict_reader.test.tsx",
    "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
+   "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx",
    "src/screens/__tests__/plan_one_call_changes_2026_10_26.test.tsx"
   ]
  },
@@ -3772,6 +3800,7 @@
    "src/screens/__tests__/cashflow_journeys_entering_2026_10_24.test.tsx",
    "src/screens/__tests__/onboarding_rent_strict_reader.test.tsx",
    "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
+   "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx",
    "src/screens/__tests__/plan_one_call_changes_2026_10_26.test.tsx"
   ]
  },
@@ -3808,6 +3837,7 @@
    "src/screens/__tests__/cashflow_journeys_entering_2026_10_24.test.tsx",
    "src/screens/__tests__/onboarding_rent_strict_reader.test.tsx",
    "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
+   "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx",
    "src/screens/__tests__/plan_one_call_changes_2026_10_26.test.tsx"
   ]
  },
@@ -3844,6 +3874,7 @@
    "src/screens/__tests__/cashflow_journeys_entering_2026_10_24.test.tsx",
    "src/screens/__tests__/onboarding_rent_strict_reader.test.tsx",
    "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
+   "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx",
    "src/screens/__tests__/plan_one_call_changes_2026_10_26.test.tsx"
   ]
  },
@@ -3880,6 +3911,7 @@
    "src/screens/__tests__/cashflow_journeys_entering_2026_10_24.test.tsx",
    "src/screens/__tests__/onboarding_rent_strict_reader.test.tsx",
    "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
+   "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx",
    "src/screens/__tests__/plan_one_call_changes_2026_10_26.test.tsx"
   ]
  },
@@ -3916,6 +3948,7 @@
    "src/screens/__tests__/cashflow_journeys_entering_2026_10_24.test.tsx",
    "src/screens/__tests__/onboarding_rent_strict_reader.test.tsx",
    "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
+   "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx",
    "src/screens/__tests__/plan_one_call_changes_2026_10_26.test.tsx"
   ]
  },
@@ -3952,6 +3985,7 @@
    "src/screens/__tests__/cashflow_journeys_entering_2026_10_24.test.tsx",
    "src/screens/__tests__/onboarding_rent_strict_reader.test.tsx",
    "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
+   "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx",
    "src/screens/__tests__/plan_one_call_changes_2026_10_26.test.tsx"
   ]
  },
@@ -3988,6 +4022,7 @@
    "src/screens/__tests__/cashflow_journeys_entering_2026_10_24.test.tsx",
    "src/screens/__tests__/onboarding_rent_strict_reader.test.tsx",
    "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
+   "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx",
    "src/screens/__tests__/plan_one_call_changes_2026_10_26.test.tsx"
   ]
  },
@@ -4024,6 +4059,7 @@
    "src/screens/__tests__/cashflow_journeys_entering_2026_10_24.test.tsx",
    "src/screens/__tests__/onboarding_rent_strict_reader.test.tsx",
    "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
+   "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx",
    "src/screens/__tests__/plan_one_call_changes_2026_10_26.test.tsx"
   ]
  },
@@ -4060,6 +4096,7 @@
    "src/screens/__tests__/cashflow_journeys_entering_2026_10_24.test.tsx",
    "src/screens/__tests__/onboarding_rent_strict_reader.test.tsx",
    "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
+   "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx",
    "src/screens/__tests__/plan_one_call_changes_2026_10_26.test.tsx"
   ]
  },
@@ -4096,6 +4133,7 @@
    "src/screens/__tests__/cashflow_journeys_entering_2026_10_24.test.tsx",
    "src/screens/__tests__/onboarding_rent_strict_reader.test.tsx",
    "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
+   "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx",
    "src/screens/__tests__/plan_one_call_changes_2026_10_26.test.tsx"
   ]
  },
@@ -4132,6 +4170,7 @@
    "src/screens/__tests__/cashflow_journeys_entering_2026_10_24.test.tsx",
    "src/screens/__tests__/onboarding_rent_strict_reader.test.tsx",
    "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
+   "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx",
    "src/screens/__tests__/plan_one_call_changes_2026_10_26.test.tsx"
   ]
  },
@@ -4168,6 +4207,7 @@
    "src/screens/__tests__/cashflow_journeys_entering_2026_10_24.test.tsx",
    "src/screens/__tests__/onboarding_rent_strict_reader.test.tsx",
    "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
+   "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx",
    "src/screens/__tests__/plan_one_call_changes_2026_10_26.test.tsx"
   ]
  },
@@ -4204,6 +4244,7 @@
    "src/screens/__tests__/cashflow_journeys_entering_2026_10_24.test.tsx",
    "src/screens/__tests__/onboarding_rent_strict_reader.test.tsx",
    "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
+   "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx",
    "src/screens/__tests__/plan_one_call_changes_2026_10_26.test.tsx"
   ]
  },
@@ -4240,6 +4281,7 @@
    "src/screens/__tests__/cashflow_journeys_entering_2026_10_24.test.tsx",
    "src/screens/__tests__/onboarding_rent_strict_reader.test.tsx",
    "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
+   "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx",
    "src/screens/__tests__/plan_one_call_changes_2026_10_26.test.tsx"
   ]
  },
@@ -4276,6 +4318,7 @@
    "src/screens/__tests__/cashflow_journeys_entering_2026_10_24.test.tsx",
    "src/screens/__tests__/onboarding_rent_strict_reader.test.tsx",
    "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
+   "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx",
    "src/screens/__tests__/plan_one_call_changes_2026_10_26.test.tsx"
   ]
  },
@@ -4312,6 +4355,7 @@
    "src/screens/__tests__/cashflow_journeys_entering_2026_10_24.test.tsx",
    "src/screens/__tests__/onboarding_rent_strict_reader.test.tsx",
    "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
+   "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx",
    "src/screens/__tests__/plan_one_call_changes_2026_10_26.test.tsx"
   ]
  },
@@ -4348,6 +4392,7 @@
    "src/screens/__tests__/cashflow_journeys_entering_2026_10_24.test.tsx",
    "src/screens/__tests__/onboarding_rent_strict_reader.test.tsx",
    "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
+   "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx",
    "src/screens/__tests__/plan_one_call_changes_2026_10_26.test.tsx"
   ]
  },
@@ -4384,6 +4429,7 @@
    "src/screens/__tests__/cashflow_journeys_entering_2026_10_24.test.tsx",
    "src/screens/__tests__/onboarding_rent_strict_reader.test.tsx",
    "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
+   "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx",
    "src/screens/__tests__/plan_one_call_changes_2026_10_26.test.tsx"
   ]
  },
@@ -4420,6 +4466,7 @@
    "src/screens/__tests__/cashflow_journeys_entering_2026_10_24.test.tsx",
    "src/screens/__tests__/onboarding_rent_strict_reader.test.tsx",
    "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
+   "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx",
    "src/screens/__tests__/plan_one_call_changes_2026_10_26.test.tsx"
   ]
  },
@@ -4456,6 +4503,7 @@
    "src/screens/__tests__/cashflow_journeys_entering_2026_10_24.test.tsx",
    "src/screens/__tests__/onboarding_rent_strict_reader.test.tsx",
    "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
+   "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx",
    "src/screens/__tests__/plan_one_call_changes_2026_10_26.test.tsx"
   ]
  },
@@ -4492,6 +4540,7 @@
    "src/screens/__tests__/cashflow_journeys_entering_2026_10_24.test.tsx",
    "src/screens/__tests__/onboarding_rent_strict_reader.test.tsx",
    "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
+   "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx",
    "src/screens/__tests__/plan_one_call_changes_2026_10_26.test.tsx"
   ]
  },
@@ -4528,6 +4577,7 @@
    "src/screens/__tests__/cashflow_journeys_entering_2026_10_24.test.tsx",
    "src/screens/__tests__/onboarding_rent_strict_reader.test.tsx",
    "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
+   "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx",
    "src/screens/__tests__/plan_one_call_changes_2026_10_26.test.tsx"
   ]
  },
@@ -4564,6 +4614,7 @@
    "src/screens/__tests__/cashflow_journeys_entering_2026_10_24.test.tsx",
    "src/screens/__tests__/onboarding_rent_strict_reader.test.tsx",
    "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
+   "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx",
    "src/screens/__tests__/plan_one_call_changes_2026_10_26.test.tsx"
   ]
  },
@@ -4600,6 +4651,7 @@
    "src/screens/__tests__/cashflow_journeys_entering_2026_10_24.test.tsx",
    "src/screens/__tests__/onboarding_rent_strict_reader.test.tsx",
    "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
+   "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx",
    "src/screens/__tests__/plan_one_call_changes_2026_10_26.test.tsx"
   ]
  },
@@ -4636,6 +4688,7 @@
    "src/screens/__tests__/cashflow_journeys_entering_2026_10_24.test.tsx",
    "src/screens/__tests__/onboarding_rent_strict_reader.test.tsx",
    "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
+   "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx",
    "src/screens/__tests__/plan_one_call_changes_2026_10_26.test.tsx"
   ]
  },
@@ -4672,6 +4725,7 @@
    "src/screens/__tests__/cashflow_journeys_entering_2026_10_24.test.tsx",
    "src/screens/__tests__/onboarding_rent_strict_reader.test.tsx",
    "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
+   "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx",
    "src/screens/__tests__/plan_one_call_changes_2026_10_26.test.tsx"
   ]
  },
@@ -4708,6 +4762,7 @@
    "src/screens/__tests__/cashflow_journeys_entering_2026_10_24.test.tsx",
    "src/screens/__tests__/onboarding_rent_strict_reader.test.tsx",
    "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
+   "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx",
    "src/screens/__tests__/plan_one_call_changes_2026_10_26.test.tsx"
   ]
  },
@@ -4744,6 +4799,7 @@
    "src/screens/__tests__/cashflow_journeys_entering_2026_10_24.test.tsx",
    "src/screens/__tests__/onboarding_rent_strict_reader.test.tsx",
    "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
+   "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx",
    "src/screens/__tests__/plan_one_call_changes_2026_10_26.test.tsx"
   ]
  },
@@ -4780,6 +4836,7 @@
    "src/screens/__tests__/cashflow_journeys_entering_2026_10_24.test.tsx",
    "src/screens/__tests__/onboarding_rent_strict_reader.test.tsx",
    "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
+   "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx",
    "src/screens/__tests__/plan_one_call_changes_2026_10_26.test.tsx"
   ]
  },
@@ -4816,6 +4873,7 @@
    "src/screens/__tests__/cashflow_journeys_entering_2026_10_24.test.tsx",
    "src/screens/__tests__/onboarding_rent_strict_reader.test.tsx",
    "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
+   "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx",
    "src/screens/__tests__/plan_one_call_changes_2026_10_26.test.tsx"
   ]
  },
@@ -4852,6 +4910,7 @@
    "src/screens/__tests__/cashflow_journeys_entering_2026_10_24.test.tsx",
    "src/screens/__tests__/onboarding_rent_strict_reader.test.tsx",
    "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
+   "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx",
    "src/screens/__tests__/plan_one_call_changes_2026_10_26.test.tsx"
   ]
  },
@@ -4888,6 +4947,7 @@
    "src/screens/__tests__/cashflow_journeys_entering_2026_10_24.test.tsx",
    "src/screens/__tests__/onboarding_rent_strict_reader.test.tsx",
    "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
+   "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx",
    "src/screens/__tests__/plan_one_call_changes_2026_10_26.test.tsx"
   ]
  },
@@ -6168,6 +6228,7 @@
    "src/screens/__tests__/income_drawing_fixes_2026_10_25.test.tsx",
    "src/screens/__tests__/income_fixes_fx_cf_b_2026_10_31.test.tsx",
    "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
+   "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx",
    "src/screens/__tests__/plan_one_call_changes_2026_10_26.test.tsx"
   ]
  },
@@ -6253,6 +6314,7 @@
    "src/screens/__tests__/income_drawing_fixes_2026_10_25.test.tsx",
    "src/screens/__tests__/income_fixes_fx_cf_b_2026_10_31.test.tsx",
    "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
+   "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx",
    "src/screens/__tests__/plan_one_call_changes_2026_10_26.test.tsx"
   ]
  },
@@ -6338,6 +6400,7 @@
    "src/screens/__tests__/income_drawing_fixes_2026_10_25.test.tsx",
    "src/screens/__tests__/income_fixes_fx_cf_b_2026_10_31.test.tsx",
    "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
+   "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx",
    "src/screens/__tests__/plan_one_call_changes_2026_10_26.test.tsx"
   ]
  },
@@ -6392,7 +6455,8 @@
    "src/domain/income/level_months.test.ts",
    "src/domain/income/tax-rate.test.ts",
    "src/onboarding/match_year_one_rule_2026_10_26.test.tsx",
-   "src/screens/__tests__/account_interest_one_rate_2026_10_26.test.tsx"
+   "src/screens/__tests__/account_interest_one_rate_2026_10_26.test.tsx",
+   "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx"
   ]
  },
  "MK-CF-F-129": {
@@ -6440,6 +6504,7 @@
    "src/screens/__tests__/cashflow_journeys_entering_2026_10_24.test.tsx",
    "src/screens/__tests__/onboarding_rent_strict_reader.test.tsx",
    "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
+   "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx",
    "src/screens/__tests__/plan_one_call_changes_2026_10_26.test.tsx"
   ]
  },
@@ -7054,7 +7119,8 @@
    "src/domain/income/level_months.test.ts",
    "src/domain/income/tax-rate.test.ts",
    "src/onboarding/match_year_one_rule_2026_10_26.test.tsx",
-   "src/screens/__tests__/account_interest_one_rate_2026_10_26.test.tsx"
+   "src/screens/__tests__/account_interest_one_rate_2026_10_26.test.tsx",
+   "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx"
   ]
  },
  "MK-CF-F-141": {
@@ -7074,7 +7140,8 @@
    "src/domain/income/level_months.test.ts",
    "src/domain/income/tax-rate.test.ts",
    "src/onboarding/match_year_one_rule_2026_10_26.test.tsx",
-   "src/screens/__tests__/account_interest_one_rate_2026_10_26.test.tsx"
+   "src/screens/__tests__/account_interest_one_rate_2026_10_26.test.tsx",
+   "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx"
   ]
  },
  "MK-CF-F-142": {
@@ -7094,7 +7161,8 @@
    "src/domain/income/level_months.test.ts",
    "src/domain/income/tax-rate.test.ts",
    "src/onboarding/match_year_one_rule_2026_10_26.test.tsx",
-   "src/screens/__tests__/account_interest_one_rate_2026_10_26.test.tsx"
+   "src/screens/__tests__/account_interest_one_rate_2026_10_26.test.tsx",
+   "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx"
   ]
  },
  "MK-CF-F-143": {
@@ -7114,7 +7182,8 @@
    "src/domain/income/level_months.test.ts",
    "src/domain/income/tax-rate.test.ts",
    "src/onboarding/match_year_one_rule_2026_10_26.test.tsx",
-   "src/screens/__tests__/account_interest_one_rate_2026_10_26.test.tsx"
+   "src/screens/__tests__/account_interest_one_rate_2026_10_26.test.tsx",
+   "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx"
   ]
  },
  "MK-CF-F-144": {
@@ -7134,7 +7203,8 @@
    "src/domain/income/level_months.test.ts",
    "src/domain/income/tax-rate.test.ts",
    "src/onboarding/match_year_one_rule_2026_10_26.test.tsx",
-   "src/screens/__tests__/account_interest_one_rate_2026_10_26.test.tsx"
+   "src/screens/__tests__/account_interest_one_rate_2026_10_26.test.tsx",
+   "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx"
   ]
  },
  "MK-CF-F-145": {
@@ -7154,7 +7224,8 @@
    "src/domain/income/level_months.test.ts",
    "src/domain/income/tax-rate.test.ts",
    "src/onboarding/match_year_one_rule_2026_10_26.test.tsx",
-   "src/screens/__tests__/account_interest_one_rate_2026_10_26.test.tsx"
+   "src/screens/__tests__/account_interest_one_rate_2026_10_26.test.tsx",
+   "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx"
   ]
  },
  "MK-CF-F-146": {
@@ -7174,7 +7245,8 @@
    "src/domain/income/level_months.test.ts",
    "src/domain/income/tax-rate.test.ts",
    "src/onboarding/match_year_one_rule_2026_10_26.test.tsx",
-   "src/screens/__tests__/account_interest_one_rate_2026_10_26.test.tsx"
+   "src/screens/__tests__/account_interest_one_rate_2026_10_26.test.tsx",
+   "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx"
   ]
  },
  "MK-CF-F-148": {
@@ -7397,6 +7469,7 @@
    "src/screens/__tests__/income_drawing_fixes_2026_10_25.test.tsx",
    "src/screens/__tests__/income_fixes_fx_cf_b_2026_10_31.test.tsx",
    "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
+   "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx",
    "src/screens/__tests__/plan_one_call_changes_2026_10_26.test.tsx"
   ]
  },
@@ -7511,7 +7584,8 @@
    "src/domain/income/level_months.test.ts",
    "src/domain/income/tax-rate.test.ts",
    "src/onboarding/match_year_one_rule_2026_10_26.test.tsx",
-   "src/screens/__tests__/account_interest_one_rate_2026_10_26.test.tsx"
+   "src/screens/__tests__/account_interest_one_rate_2026_10_26.test.tsx",
+   "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx"
   ]
  },
  "MK-CF-F-172": {
@@ -7612,6 +7686,7 @@
    "src/screens/__tests__/cashflow_journeys_entering_2026_10_24.test.tsx",
    "src/screens/__tests__/onboarding_rent_strict_reader.test.tsx",
    "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
+   "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx",
    "src/screens/__tests__/plan_one_call_changes_2026_10_26.test.tsx"
   ]
  },
@@ -7648,6 +7723,7 @@
    "src/screens/__tests__/cashflow_journeys_entering_2026_10_24.test.tsx",
    "src/screens/__tests__/onboarding_rent_strict_reader.test.tsx",
    "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
+   "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx",
    "src/screens/__tests__/plan_one_call_changes_2026_10_26.test.tsx"
   ]
  },
@@ -7668,7 +7744,8 @@
    "src/domain/income/level_months.test.ts",
    "src/domain/income/tax-rate.test.ts",
    "src/onboarding/match_year_one_rule_2026_10_26.test.tsx",
-   "src/screens/__tests__/account_interest_one_rate_2026_10_26.test.tsx"
+   "src/screens/__tests__/account_interest_one_rate_2026_10_26.test.tsx",
+   "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx"
   ]
  },
  "MK-CF-F-180": {
@@ -7764,7 +7841,8 @@
    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part16.test.ts",
    "MoneyKeel/functions/cashflow/part_year_one_rule_2026_10_26.test.ts",
    "src/domain/income/take-home-mode-migration.test.ts",
-   "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx"
+   "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
+   "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx"
   ]
  },
  "MK-CF-F-186": {
@@ -7774,7 +7852,8 @@
    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part16.test.ts",
    "MoneyKeel/functions/cashflow/part_year_one_rule_2026_10_26.test.ts",
    "src/domain/income/take-home-mode-migration.test.ts",
-   "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx"
+   "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
+   "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx"
   ]
  },
  "MK-CF-F-187": {
@@ -7966,7 +8045,8 @@
    "src/domain/income/level_months.test.ts",
    "src/domain/income/tax-rate.test.ts",
    "src/onboarding/match_year_one_rule_2026_10_26.test.tsx",
-   "src/screens/__tests__/account_interest_one_rate_2026_10_26.test.tsx"
+   "src/screens/__tests__/account_interest_one_rate_2026_10_26.test.tsx",
+   "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx"
   ]
  },
  "MK-CF-F-199": {
@@ -8007,6 +8087,7 @@
    "src/screens/__tests__/cashflow_journeys_entering_2026_10_24.test.tsx",
    "src/screens/__tests__/income_drawing_fixes_2026_10_25.test.tsx",
    "src/screens/__tests__/income_fixes_fx_cf_b_2026_10_31.test.tsx",
+   "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx",
    "src/screens/__tests__/plan_one_call_changes_2026_10_26.test.tsx"
   ]
  },
@@ -8082,6 +8163,7 @@
    "src/screens/__tests__/cashflow_journeys_entering_2026_10_24.test.tsx",
    "src/screens/__tests__/onboarding_rent_strict_reader.test.tsx",
    "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
+   "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx",
    "src/screens/__tests__/plan_one_call_changes_2026_10_26.test.tsx"
   ]
  },
@@ -8105,6 +8187,7 @@
    "src/screens/__tests__/cashflow_journeys_entering_2026_10_24.test.tsx",
    "src/screens/__tests__/income_drawing_fixes_2026_10_25.test.tsx",
    "src/screens/__tests__/income_fixes_fx_cf_b_2026_10_31.test.tsx",
+   "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx",
    "src/screens/__tests__/plan_one_call_changes_2026_10_26.test.tsx"
   ]
  },
@@ -8128,6 +8211,7 @@
    "src/screens/__tests__/cashflow_journeys_entering_2026_10_24.test.tsx",
    "src/screens/__tests__/income_drawing_fixes_2026_10_25.test.tsx",
    "src/screens/__tests__/income_fixes_fx_cf_b_2026_10_31.test.tsx",
+   "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx",
    "src/screens/__tests__/plan_one_call_changes_2026_10_26.test.tsx"
   ]
  },
@@ -8209,6 +8293,7 @@
    "src/screens/__tests__/cashflow_journeys_entering_2026_10_24.test.tsx",
    "src/screens/__tests__/onboarding_rent_strict_reader.test.tsx",
    "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
+   "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx",
    "src/screens/__tests__/plan_one_call_changes_2026_10_26.test.tsx"
   ]
  },
@@ -8693,6 +8778,7 @@
    "src/screens/__tests__/income_drawing_fixes_2026_10_25.test.tsx",
    "src/screens/__tests__/income_fixes_fx_cf_b_2026_10_31.test.tsx",
    "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
+   "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx",
    "src/screens/__tests__/plan_one_call_changes_2026_10_26.test.tsx"
   ]
  },
@@ -8729,6 +8815,7 @@
    "src/screens/__tests__/cashflow_journeys_entering_2026_10_24.test.tsx",
    "src/screens/__tests__/onboarding_rent_strict_reader.test.tsx",
    "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
+   "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx",
    "src/screens/__tests__/plan_one_call_changes_2026_10_26.test.tsx"
   ]
  },
@@ -8765,6 +8852,7 @@
    "src/screens/__tests__/cashflow_journeys_entering_2026_10_24.test.tsx",
    "src/screens/__tests__/onboarding_rent_strict_reader.test.tsx",
    "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
+   "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx",
    "src/screens/__tests__/plan_one_call_changes_2026_10_26.test.tsx"
   ]
  },
@@ -8848,6 +8936,7 @@
    "src/onboarding/signup_cashflow_rate_agreement_2026_10_24.test.tsx",
    "src/screens/__tests__/bill_calendar_fcc.test.tsx",
    "src/screens/__tests__/goals_drawing_v02.test.tsx",
+   "src/screens/__tests__/one_debt_total_r22_2026_11_01.test.tsx",
    "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
    "src/screens/__tests__/payoff_debts_and_plan_agree_2026_10_25.test.tsx"
   ]
@@ -8932,6 +9021,7 @@
    "src/onboarding/signup_cashflow_rate_agreement_2026_10_24.test.tsx",
    "src/screens/__tests__/bill_calendar_fcc.test.tsx",
    "src/screens/__tests__/goals_drawing_v02.test.tsx",
+   "src/screens/__tests__/one_debt_total_r22_2026_11_01.test.tsx",
    "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
    "src/screens/__tests__/payoff_debts_and_plan_agree_2026_10_25.test.tsx"
   ]
@@ -8970,7 +9060,8 @@
    "src/domain/income/level_months.test.ts",
    "src/domain/income/tax-rate.test.ts",
    "src/onboarding/match_year_one_rule_2026_10_26.test.tsx",
-   "src/screens/__tests__/account_interest_one_rate_2026_10_26.test.tsx"
+   "src/screens/__tests__/account_interest_one_rate_2026_10_26.test.tsx",
+   "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx"
   ]
  },
  "MK-CF-F-239": {
@@ -8990,7 +9081,8 @@
    "src/domain/income/level_months.test.ts",
    "src/domain/income/tax-rate.test.ts",
    "src/onboarding/match_year_one_rule_2026_10_26.test.tsx",
-   "src/screens/__tests__/account_interest_one_rate_2026_10_26.test.tsx"
+   "src/screens/__tests__/account_interest_one_rate_2026_10_26.test.tsx",
+   "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx"
   ]
  },
  "MK-CF-F-240": {
@@ -9010,7 +9102,8 @@
    "src/domain/income/level_months.test.ts",
    "src/domain/income/tax-rate.test.ts",
    "src/onboarding/match_year_one_rule_2026_10_26.test.tsx",
-   "src/screens/__tests__/account_interest_one_rate_2026_10_26.test.tsx"
+   "src/screens/__tests__/account_interest_one_rate_2026_10_26.test.tsx",
+   "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx"
   ]
  },
  "MK-CF-F-241": {
@@ -9064,7 +9157,8 @@
    "src/domain/income/level_months.test.ts",
    "src/domain/income/tax-rate.test.ts",
    "src/onboarding/match_year_one_rule_2026_10_26.test.tsx",
-   "src/screens/__tests__/account_interest_one_rate_2026_10_26.test.tsx"
+   "src/screens/__tests__/account_interest_one_rate_2026_10_26.test.tsx",
+   "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx"
   ]
  },
  "MK-CF-F-244": {
@@ -9084,7 +9178,8 @@
    "src/domain/income/level_months.test.ts",
    "src/domain/income/tax-rate.test.ts",
    "src/onboarding/match_year_one_rule_2026_10_26.test.tsx",
-   "src/screens/__tests__/account_interest_one_rate_2026_10_26.test.tsx"
+   "src/screens/__tests__/account_interest_one_rate_2026_10_26.test.tsx",
+   "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx"
   ]
  },
  "MK-CF-F-245": {
@@ -9104,7 +9199,8 @@
    "src/domain/income/level_months.test.ts",
    "src/domain/income/tax-rate.test.ts",
    "src/onboarding/match_year_one_rule_2026_10_26.test.tsx",
-   "src/screens/__tests__/account_interest_one_rate_2026_10_26.test.tsx"
+   "src/screens/__tests__/account_interest_one_rate_2026_10_26.test.tsx",
+   "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx"
   ]
  },
  "MK-CF-F-246": {
@@ -9554,6 +9650,7 @@
    "src/screens/__tests__/income_drawing_fixes_2026_10_25.test.tsx",
    "src/screens/__tests__/income_fixes_fx_cf_b_2026_10_31.test.tsx",
    "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
+   "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx",
    "src/screens/__tests__/plan_one_call_changes_2026_10_26.test.tsx"
   ]
  },
@@ -9637,6 +9734,7 @@
    "src/onboarding/signup_cashflow_rate_agreement_2026_10_24.test.tsx",
    "src/screens/__tests__/bill_calendar_fcc.test.tsx",
    "src/screens/__tests__/goals_drawing_v02.test.tsx",
+   "src/screens/__tests__/one_debt_total_r22_2026_11_01.test.tsx",
    "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
    "src/screens/__tests__/payoff_debts_and_plan_agree_2026_10_25.test.tsx"
   ]
@@ -9741,6 +9839,7 @@
    "src/screens/__tests__/cashflow_journeys_entering_2026_10_24.test.tsx",
    "src/screens/__tests__/onboarding_rent_strict_reader.test.tsx",
    "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
+   "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx",
    "src/screens/__tests__/plan_one_call_changes_2026_10_26.test.tsx"
   ]
  },
@@ -9777,6 +9876,7 @@
    "src/screens/__tests__/cashflow_journeys_entering_2026_10_24.test.tsx",
    "src/screens/__tests__/onboarding_rent_strict_reader.test.tsx",
    "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
+   "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx",
    "src/screens/__tests__/plan_one_call_changes_2026_10_26.test.tsx"
   ]
  },
@@ -9813,6 +9913,7 @@
    "src/screens/__tests__/cashflow_journeys_entering_2026_10_24.test.tsx",
    "src/screens/__tests__/onboarding_rent_strict_reader.test.tsx",
    "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
+   "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx",
    "src/screens/__tests__/plan_one_call_changes_2026_10_26.test.tsx"
   ]
  },
@@ -9849,6 +9950,7 @@
    "src/screens/__tests__/cashflow_journeys_entering_2026_10_24.test.tsx",
    "src/screens/__tests__/onboarding_rent_strict_reader.test.tsx",
    "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
+   "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx",
    "src/screens/__tests__/plan_one_call_changes_2026_10_26.test.tsx"
   ]
  },
@@ -9885,6 +9987,7 @@
    "src/screens/__tests__/cashflow_journeys_entering_2026_10_24.test.tsx",
    "src/screens/__tests__/onboarding_rent_strict_reader.test.tsx",
    "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
+   "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx",
    "src/screens/__tests__/plan_one_call_changes_2026_10_26.test.tsx"
   ]
  },
@@ -9921,6 +10024,7 @@
    "src/screens/__tests__/cashflow_journeys_entering_2026_10_24.test.tsx",
    "src/screens/__tests__/onboarding_rent_strict_reader.test.tsx",
    "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
+   "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx",
    "src/screens/__tests__/plan_one_call_changes_2026_10_26.test.tsx"
   ]
  },
@@ -9957,6 +10061,7 @@
    "src/screens/__tests__/cashflow_journeys_entering_2026_10_24.test.tsx",
    "src/screens/__tests__/onboarding_rent_strict_reader.test.tsx",
    "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
+   "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx",
    "src/screens/__tests__/plan_one_call_changes_2026_10_26.test.tsx"
   ]
  },
@@ -9993,6 +10098,7 @@
    "src/screens/__tests__/cashflow_journeys_entering_2026_10_24.test.tsx",
    "src/screens/__tests__/onboarding_rent_strict_reader.test.tsx",
    "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
+   "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx",
    "src/screens/__tests__/plan_one_call_changes_2026_10_26.test.tsx"
   ]
  },
@@ -10029,6 +10135,7 @@
    "src/screens/__tests__/cashflow_journeys_entering_2026_10_24.test.tsx",
    "src/screens/__tests__/onboarding_rent_strict_reader.test.tsx",
    "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
+   "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx",
    "src/screens/__tests__/plan_one_call_changes_2026_10_26.test.tsx"
   ]
  },
@@ -10065,6 +10172,7 @@
    "src/screens/__tests__/cashflow_journeys_entering_2026_10_24.test.tsx",
    "src/screens/__tests__/onboarding_rent_strict_reader.test.tsx",
    "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
+   "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx",
    "src/screens/__tests__/plan_one_call_changes_2026_10_26.test.tsx"
   ]
  },
@@ -10101,6 +10209,7 @@
    "src/screens/__tests__/cashflow_journeys_entering_2026_10_24.test.tsx",
    "src/screens/__tests__/onboarding_rent_strict_reader.test.tsx",
    "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
+   "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx",
    "src/screens/__tests__/plan_one_call_changes_2026_10_26.test.tsx"
   ]
  },
@@ -10137,6 +10246,7 @@
    "src/screens/__tests__/cashflow_journeys_entering_2026_10_24.test.tsx",
    "src/screens/__tests__/onboarding_rent_strict_reader.test.tsx",
    "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
+   "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx",
    "src/screens/__tests__/plan_one_call_changes_2026_10_26.test.tsx"
   ]
  },
@@ -10173,6 +10283,7 @@
    "src/screens/__tests__/cashflow_journeys_entering_2026_10_24.test.tsx",
    "src/screens/__tests__/onboarding_rent_strict_reader.test.tsx",
    "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
+   "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx",
    "src/screens/__tests__/plan_one_call_changes_2026_10_26.test.tsx"
   ]
  },
@@ -10455,6 +10566,7 @@
    "src/screens/__tests__/income_fixes_fx_cf_b_2026_10_27.test.tsx",
    "src/screens/__tests__/income_fixes_fx_cf_b_2026_10_31.test.tsx",
    "src/screens/__tests__/income_manager.test.tsx",
+   "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx",
    "src/screens/__tests__/tax_rate_on_income.test.tsx"
   ]
  },
@@ -10953,6 +11065,764 @@
   "tests": [
    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part09.test.ts",
    "MoneyKeel/functions/cashflow/the-debts.test.ts"
+  ]
+ },
+ "MK-CF-F-297": {
+  "source": "MoneyKeel/functions/cashflow/base-pay.ts",
+  "declared": true,
+  "tests": [
+   "MoneyKeel/functions/cashflow/base-pay.test.ts",
+   "MoneyKeel/functions/cashflow/outside_cashflow_openai_part01.test.ts",
+   "MoneyKeel/functions/cashflow/outside_cashflow_openai_part15.test.ts",
+   "MoneyKeel/functions/cashflow/outside_cashflow_openai_part17.test.ts",
+   "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts",
+   "MoneyKeel/functions/cashflow/part_year_one_rule_2026_10_26.test.ts",
+   "MoneyKeel/functions/cashflow/payroll-tax.test.ts",
+   "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts",
+   "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_tax.test.ts",
+   "src/__tests__/cf_audit_package_figures.test.ts",
+   "src/domain/income/level_months.test.ts",
+   "src/domain/income/tax-rate.test.ts",
+   "src/onboarding/match_year_one_rule_2026_10_26.test.tsx",
+   "src/screens/__tests__/account_interest_one_rate_2026_10_26.test.tsx",
+   "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx"
+  ]
+ },
+ "MK-CF-F-298": {
+  "source": "src/domain/debt/index.ts",
+  "declared": true,
+  "tests": [
+   "Calculation Module code/bench/__tests__/bench.test.ts",
+   "Calculation Module code/probes/debt-budget-txn.probe.test.ts",
+   "Calculation Module code/probes/debt.probe.test.ts",
+   "Calculation Module code/probes/feeds-and-seeds.probe.test.ts",
+   "MoneyKeel/functions/cashflow/expenses.test.ts",
+   "MoneyKeel/functions/cashflow/outside_cashflow_openai_part01.test.ts",
+   "MoneyKeel/functions/cashflow/outside_cashflow_openai_part02.test.ts",
+   "MoneyKeel/functions/cashflow/outside_cashflow_openai_part09.test.ts",
+   "MoneyKeel/functions/cashflow/outside_cashflow_openai_part10.test.ts",
+   "MoneyKeel/functions/cashflow/outside_cashflow_openai_part13.test.ts",
+   "MoneyKeel/functions/cashflow/part_year_one_rule_2026_10_26.test.ts",
+   "MoneyKeel/functions/cashflow/the-debts.test.ts",
+   "MoneyKeel/functions/cashflow/this-month.test.ts",
+   "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts",
+   "src/__tests__/adversarial_plan_redesign.test.tsx",
+   "src/__tests__/brief_figures_guard.test.ts",
+   "src/__tests__/build_audit_calculations.test.ts",
+   "src/__tests__/cf_functions_direct_2026_10_26.test.ts",
+   "src/__tests__/decisions_are_held.test.ts",
+   "src/__tests__/edge_extremes.test.ts",
+   "src/__tests__/golden.test.ts",
+   "src/__tests__/journeys.test.ts",
+   "src/domain/alternatives/alternatives.test.ts",
+   "src/domain/assets/agreement.test.ts",
+   "src/domain/assets/classification.test.ts",
+   "src/domain/assets/dec4059_tax_unstated.test.ts",
+   "src/domain/assets/history_coverage.test.ts",
+   "src/domain/assets/itemize.test.ts",
+   "src/domain/assets/outside_review_openai_final_fixes.test.ts",
+   "src/domain/assets/plural_words.test.ts",
+   "src/domain/assets/q08_foreign_currency.test.ts",
+   "src/domain/assets/selectors.test.ts",
+   "src/domain/bonds/a46_a47_coupon_and_accrued.test.ts",
+   "src/domain/bonds/bonds.test.ts",
+   "src/domain/bonds/coupons_per_year.test.ts",
+   "src/domain/bonds/dec3837_cd_bought.test.ts",
+   "src/domain/bonds/dec_rate_move_one_point.test.ts",
+   "src/domain/bonds/g11_no_maturity.test.ts",
+   "src/domain/bonds/income.test.ts",
+   "src/domain/bonds/outside_final_openai_fixes.test.ts",
+   "src/domain/budget/budget.test.ts",
+   "src/domain/budget/spend_agreement.test.ts",
+   "src/domain/cashflow/cashflow.test.ts",
+   "src/domain/completeness/completeness.test.ts",
+   "src/domain/debt/payment.test.ts",
+   "src/domain/debt/payoff.test.ts",
+   "src/domain/decumulation/decumulation.test.ts",
+   "src/domain/gaps/gaps.test.ts",
+   "src/domain/goals/funding.test.ts",
+   "src/domain/goals/goalsplanning.test.ts",
+   "src/domain/grid/grid.test.ts",
+   "src/domain/insights/insights.test.ts",
+   "src/domain/modules.test.ts",
+   "src/domain/outside_openai_final_fixes.test.ts",
+   "src/domain/paycheck/paycheck.test.ts",
+   "src/domain/performance/lookBack.test.ts",
+   "src/domain/performance/performance.test.ts",
+   "src/domain/performance/q06_q09_contracts_and_units.test.ts",
+   "src/domain/performance/short_history.test.ts",
+   "src/domain/performance/start_date_month_end.test.ts",
+   "src/domain/planning/planning.test.ts",
+   "src/domain/planning/roth_worked_examples_2026_10_31.test.ts",
+   "src/domain/retirement/col.test.ts",
+   "src/domain/retirement/g7_no_default_tax_rate.test.ts",
+   "src/domain/retirement/odds_exact.test.ts",
+   "src/domain/retirement/paymentsThatEnd.test.ts",
+   "src/domain/savings/savings.test.ts",
+   "src/domain/savings/surplus_agreement.test.ts",
+   "src/domain/scenarios.test.ts",
+   "src/domain/transactions/flags.test.ts",
+   "src/domain/transactions/sale_takes_oldest_first.test.ts",
+   "src/domain/transactions/transactions.test.ts",
+   "src/domain/transactions/undo_round_trip.test.ts",
+   "src/onboarding/signup_cashflow_rate_agreement_2026_10_24.test.tsx",
+   "src/screens/__tests__/bill_calendar_fcc.test.tsx",
+   "src/screens/__tests__/goals_drawing_v02.test.tsx",
+   "src/screens/__tests__/one_debt_total_r22_2026_11_01.test.tsx",
+   "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
+   "src/screens/__tests__/payoff_debts_and_plan_agree_2026_10_25.test.tsx"
+  ]
+ },
+ "MK-CF-F-299": {
+  "source": "src/domain/debt/index.ts",
+  "declared": true,
+  "tests": [
+   "Calculation Module code/bench/__tests__/bench.test.ts",
+   "Calculation Module code/probes/debt-budget-txn.probe.test.ts",
+   "Calculation Module code/probes/debt.probe.test.ts",
+   "Calculation Module code/probes/feeds-and-seeds.probe.test.ts",
+   "MoneyKeel/functions/cashflow/expenses.test.ts",
+   "MoneyKeel/functions/cashflow/outside_cashflow_openai_part01.test.ts",
+   "MoneyKeel/functions/cashflow/outside_cashflow_openai_part02.test.ts",
+   "MoneyKeel/functions/cashflow/outside_cashflow_openai_part09.test.ts",
+   "MoneyKeel/functions/cashflow/outside_cashflow_openai_part10.test.ts",
+   "MoneyKeel/functions/cashflow/outside_cashflow_openai_part13.test.ts",
+   "MoneyKeel/functions/cashflow/part_year_one_rule_2026_10_26.test.ts",
+   "MoneyKeel/functions/cashflow/the-debts.test.ts",
+   "MoneyKeel/functions/cashflow/this-month.test.ts",
+   "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts",
+   "src/__tests__/adversarial_plan_redesign.test.tsx",
+   "src/__tests__/brief_figures_guard.test.ts",
+   "src/__tests__/build_audit_calculations.test.ts",
+   "src/__tests__/cf_functions_direct_2026_10_26.test.ts",
+   "src/__tests__/decisions_are_held.test.ts",
+   "src/__tests__/edge_extremes.test.ts",
+   "src/__tests__/golden.test.ts",
+   "src/__tests__/journeys.test.ts",
+   "src/domain/alternatives/alternatives.test.ts",
+   "src/domain/assets/agreement.test.ts",
+   "src/domain/assets/classification.test.ts",
+   "src/domain/assets/dec4059_tax_unstated.test.ts",
+   "src/domain/assets/history_coverage.test.ts",
+   "src/domain/assets/itemize.test.ts",
+   "src/domain/assets/outside_review_openai_final_fixes.test.ts",
+   "src/domain/assets/plural_words.test.ts",
+   "src/domain/assets/q08_foreign_currency.test.ts",
+   "src/domain/assets/selectors.test.ts",
+   "src/domain/bonds/a46_a47_coupon_and_accrued.test.ts",
+   "src/domain/bonds/bonds.test.ts",
+   "src/domain/bonds/coupons_per_year.test.ts",
+   "src/domain/bonds/dec3837_cd_bought.test.ts",
+   "src/domain/bonds/dec_rate_move_one_point.test.ts",
+   "src/domain/bonds/g11_no_maturity.test.ts",
+   "src/domain/bonds/income.test.ts",
+   "src/domain/bonds/outside_final_openai_fixes.test.ts",
+   "src/domain/budget/budget.test.ts",
+   "src/domain/budget/spend_agreement.test.ts",
+   "src/domain/cashflow/cashflow.test.ts",
+   "src/domain/completeness/completeness.test.ts",
+   "src/domain/debt/payment.test.ts",
+   "src/domain/debt/payoff.test.ts",
+   "src/domain/decumulation/decumulation.test.ts",
+   "src/domain/gaps/gaps.test.ts",
+   "src/domain/goals/funding.test.ts",
+   "src/domain/goals/goalsplanning.test.ts",
+   "src/domain/grid/grid.test.ts",
+   "src/domain/insights/insights.test.ts",
+   "src/domain/modules.test.ts",
+   "src/domain/outside_openai_final_fixes.test.ts",
+   "src/domain/paycheck/paycheck.test.ts",
+   "src/domain/performance/lookBack.test.ts",
+   "src/domain/performance/performance.test.ts",
+   "src/domain/performance/q06_q09_contracts_and_units.test.ts",
+   "src/domain/performance/short_history.test.ts",
+   "src/domain/performance/start_date_month_end.test.ts",
+   "src/domain/planning/planning.test.ts",
+   "src/domain/planning/roth_worked_examples_2026_10_31.test.ts",
+   "src/domain/retirement/col.test.ts",
+   "src/domain/retirement/g7_no_default_tax_rate.test.ts",
+   "src/domain/retirement/odds_exact.test.ts",
+   "src/domain/retirement/paymentsThatEnd.test.ts",
+   "src/domain/savings/savings.test.ts",
+   "src/domain/savings/surplus_agreement.test.ts",
+   "src/domain/scenarios.test.ts",
+   "src/domain/transactions/flags.test.ts",
+   "src/domain/transactions/sale_takes_oldest_first.test.ts",
+   "src/domain/transactions/transactions.test.ts",
+   "src/domain/transactions/undo_round_trip.test.ts",
+   "src/onboarding/signup_cashflow_rate_agreement_2026_10_24.test.tsx",
+   "src/screens/__tests__/bill_calendar_fcc.test.tsx",
+   "src/screens/__tests__/goals_drawing_v02.test.tsx",
+   "src/screens/__tests__/one_debt_total_r22_2026_11_01.test.tsx",
+   "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
+   "src/screens/__tests__/payoff_debts_and_plan_agree_2026_10_25.test.tsx"
+  ]
+ },
+ "MK-CF-F-300": {
+  "source": "src/domain/debt/index.ts",
+  "declared": true,
+  "tests": [
+   "Calculation Module code/bench/__tests__/bench.test.ts",
+   "Calculation Module code/probes/debt-budget-txn.probe.test.ts",
+   "Calculation Module code/probes/debt.probe.test.ts",
+   "Calculation Module code/probes/feeds-and-seeds.probe.test.ts",
+   "MoneyKeel/functions/cashflow/expenses.test.ts",
+   "MoneyKeel/functions/cashflow/outside_cashflow_openai_part01.test.ts",
+   "MoneyKeel/functions/cashflow/outside_cashflow_openai_part02.test.ts",
+   "MoneyKeel/functions/cashflow/outside_cashflow_openai_part09.test.ts",
+   "MoneyKeel/functions/cashflow/outside_cashflow_openai_part10.test.ts",
+   "MoneyKeel/functions/cashflow/outside_cashflow_openai_part13.test.ts",
+   "MoneyKeel/functions/cashflow/part_year_one_rule_2026_10_26.test.ts",
+   "MoneyKeel/functions/cashflow/the-debts.test.ts",
+   "MoneyKeel/functions/cashflow/this-month.test.ts",
+   "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts",
+   "src/__tests__/adversarial_plan_redesign.test.tsx",
+   "src/__tests__/brief_figures_guard.test.ts",
+   "src/__tests__/build_audit_calculations.test.ts",
+   "src/__tests__/cf_functions_direct_2026_10_26.test.ts",
+   "src/__tests__/decisions_are_held.test.ts",
+   "src/__tests__/edge_extremes.test.ts",
+   "src/__tests__/golden.test.ts",
+   "src/__tests__/journeys.test.ts",
+   "src/domain/alternatives/alternatives.test.ts",
+   "src/domain/assets/agreement.test.ts",
+   "src/domain/assets/classification.test.ts",
+   "src/domain/assets/dec4059_tax_unstated.test.ts",
+   "src/domain/assets/history_coverage.test.ts",
+   "src/domain/assets/itemize.test.ts",
+   "src/domain/assets/outside_review_openai_final_fixes.test.ts",
+   "src/domain/assets/plural_words.test.ts",
+   "src/domain/assets/q08_foreign_currency.test.ts",
+   "src/domain/assets/selectors.test.ts",
+   "src/domain/bonds/a46_a47_coupon_and_accrued.test.ts",
+   "src/domain/bonds/bonds.test.ts",
+   "src/domain/bonds/coupons_per_year.test.ts",
+   "src/domain/bonds/dec3837_cd_bought.test.ts",
+   "src/domain/bonds/dec_rate_move_one_point.test.ts",
+   "src/domain/bonds/g11_no_maturity.test.ts",
+   "src/domain/bonds/income.test.ts",
+   "src/domain/bonds/outside_final_openai_fixes.test.ts",
+   "src/domain/budget/budget.test.ts",
+   "src/domain/budget/spend_agreement.test.ts",
+   "src/domain/cashflow/cashflow.test.ts",
+   "src/domain/completeness/completeness.test.ts",
+   "src/domain/debt/payment.test.ts",
+   "src/domain/debt/payoff.test.ts",
+   "src/domain/decumulation/decumulation.test.ts",
+   "src/domain/gaps/gaps.test.ts",
+   "src/domain/goals/funding.test.ts",
+   "src/domain/goals/goalsplanning.test.ts",
+   "src/domain/grid/grid.test.ts",
+   "src/domain/insights/insights.test.ts",
+   "src/domain/modules.test.ts",
+   "src/domain/outside_openai_final_fixes.test.ts",
+   "src/domain/paycheck/paycheck.test.ts",
+   "src/domain/performance/lookBack.test.ts",
+   "src/domain/performance/performance.test.ts",
+   "src/domain/performance/q06_q09_contracts_and_units.test.ts",
+   "src/domain/performance/short_history.test.ts",
+   "src/domain/performance/start_date_month_end.test.ts",
+   "src/domain/planning/planning.test.ts",
+   "src/domain/planning/roth_worked_examples_2026_10_31.test.ts",
+   "src/domain/retirement/col.test.ts",
+   "src/domain/retirement/g7_no_default_tax_rate.test.ts",
+   "src/domain/retirement/odds_exact.test.ts",
+   "src/domain/retirement/paymentsThatEnd.test.ts",
+   "src/domain/savings/savings.test.ts",
+   "src/domain/savings/surplus_agreement.test.ts",
+   "src/domain/scenarios.test.ts",
+   "src/domain/transactions/flags.test.ts",
+   "src/domain/transactions/sale_takes_oldest_first.test.ts",
+   "src/domain/transactions/transactions.test.ts",
+   "src/domain/transactions/undo_round_trip.test.ts",
+   "src/onboarding/signup_cashflow_rate_agreement_2026_10_24.test.tsx",
+   "src/screens/__tests__/bill_calendar_fcc.test.tsx",
+   "src/screens/__tests__/goals_drawing_v02.test.tsx",
+   "src/screens/__tests__/one_debt_total_r22_2026_11_01.test.tsx",
+   "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
+   "src/screens/__tests__/payoff_debts_and_plan_agree_2026_10_25.test.tsx"
+  ]
+ },
+ "MK-CF-F-301": {
+  "source": "src/domain/debt/index.ts",
+  "declared": true,
+  "tests": [
+   "Calculation Module code/bench/__tests__/bench.test.ts",
+   "Calculation Module code/probes/debt-budget-txn.probe.test.ts",
+   "Calculation Module code/probes/debt.probe.test.ts",
+   "Calculation Module code/probes/feeds-and-seeds.probe.test.ts",
+   "MoneyKeel/functions/cashflow/expenses.test.ts",
+   "MoneyKeel/functions/cashflow/outside_cashflow_openai_part01.test.ts",
+   "MoneyKeel/functions/cashflow/outside_cashflow_openai_part02.test.ts",
+   "MoneyKeel/functions/cashflow/outside_cashflow_openai_part09.test.ts",
+   "MoneyKeel/functions/cashflow/outside_cashflow_openai_part10.test.ts",
+   "MoneyKeel/functions/cashflow/outside_cashflow_openai_part13.test.ts",
+   "MoneyKeel/functions/cashflow/part_year_one_rule_2026_10_26.test.ts",
+   "MoneyKeel/functions/cashflow/the-debts.test.ts",
+   "MoneyKeel/functions/cashflow/this-month.test.ts",
+   "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts",
+   "src/__tests__/adversarial_plan_redesign.test.tsx",
+   "src/__tests__/brief_figures_guard.test.ts",
+   "src/__tests__/build_audit_calculations.test.ts",
+   "src/__tests__/cf_functions_direct_2026_10_26.test.ts",
+   "src/__tests__/decisions_are_held.test.ts",
+   "src/__tests__/edge_extremes.test.ts",
+   "src/__tests__/golden.test.ts",
+   "src/__tests__/journeys.test.ts",
+   "src/domain/alternatives/alternatives.test.ts",
+   "src/domain/assets/agreement.test.ts",
+   "src/domain/assets/classification.test.ts",
+   "src/domain/assets/dec4059_tax_unstated.test.ts",
+   "src/domain/assets/history_coverage.test.ts",
+   "src/domain/assets/itemize.test.ts",
+   "src/domain/assets/outside_review_openai_final_fixes.test.ts",
+   "src/domain/assets/plural_words.test.ts",
+   "src/domain/assets/q08_foreign_currency.test.ts",
+   "src/domain/assets/selectors.test.ts",
+   "src/domain/bonds/a46_a47_coupon_and_accrued.test.ts",
+   "src/domain/bonds/bonds.test.ts",
+   "src/domain/bonds/coupons_per_year.test.ts",
+   "src/domain/bonds/dec3837_cd_bought.test.ts",
+   "src/domain/bonds/dec_rate_move_one_point.test.ts",
+   "src/domain/bonds/g11_no_maturity.test.ts",
+   "src/domain/bonds/income.test.ts",
+   "src/domain/bonds/outside_final_openai_fixes.test.ts",
+   "src/domain/budget/budget.test.ts",
+   "src/domain/budget/spend_agreement.test.ts",
+   "src/domain/cashflow/cashflow.test.ts",
+   "src/domain/completeness/completeness.test.ts",
+   "src/domain/debt/payment.test.ts",
+   "src/domain/debt/payoff.test.ts",
+   "src/domain/decumulation/decumulation.test.ts",
+   "src/domain/gaps/gaps.test.ts",
+   "src/domain/goals/funding.test.ts",
+   "src/domain/goals/goalsplanning.test.ts",
+   "src/domain/grid/grid.test.ts",
+   "src/domain/insights/insights.test.ts",
+   "src/domain/modules.test.ts",
+   "src/domain/outside_openai_final_fixes.test.ts",
+   "src/domain/paycheck/paycheck.test.ts",
+   "src/domain/performance/lookBack.test.ts",
+   "src/domain/performance/performance.test.ts",
+   "src/domain/performance/q06_q09_contracts_and_units.test.ts",
+   "src/domain/performance/short_history.test.ts",
+   "src/domain/performance/start_date_month_end.test.ts",
+   "src/domain/planning/planning.test.ts",
+   "src/domain/planning/roth_worked_examples_2026_10_31.test.ts",
+   "src/domain/retirement/col.test.ts",
+   "src/domain/retirement/g7_no_default_tax_rate.test.ts",
+   "src/domain/retirement/odds_exact.test.ts",
+   "src/domain/retirement/paymentsThatEnd.test.ts",
+   "src/domain/savings/savings.test.ts",
+   "src/domain/savings/surplus_agreement.test.ts",
+   "src/domain/scenarios.test.ts",
+   "src/domain/transactions/flags.test.ts",
+   "src/domain/transactions/sale_takes_oldest_first.test.ts",
+   "src/domain/transactions/transactions.test.ts",
+   "src/domain/transactions/undo_round_trip.test.ts",
+   "src/onboarding/signup_cashflow_rate_agreement_2026_10_24.test.tsx",
+   "src/screens/__tests__/bill_calendar_fcc.test.tsx",
+   "src/screens/__tests__/goals_drawing_v02.test.tsx",
+   "src/screens/__tests__/one_debt_total_r22_2026_11_01.test.tsx",
+   "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
+   "src/screens/__tests__/payoff_debts_and_plan_agree_2026_10_25.test.tsx"
+  ]
+ },
+ "MK-CF-F-302": {
+  "source": "src/domain/debt/index.ts",
+  "declared": true,
+  "tests": [
+   "Calculation Module code/bench/__tests__/bench.test.ts",
+   "Calculation Module code/probes/debt-budget-txn.probe.test.ts",
+   "Calculation Module code/probes/debt.probe.test.ts",
+   "Calculation Module code/probes/feeds-and-seeds.probe.test.ts",
+   "MoneyKeel/functions/cashflow/expenses.test.ts",
+   "MoneyKeel/functions/cashflow/outside_cashflow_openai_part01.test.ts",
+   "MoneyKeel/functions/cashflow/outside_cashflow_openai_part02.test.ts",
+   "MoneyKeel/functions/cashflow/outside_cashflow_openai_part09.test.ts",
+   "MoneyKeel/functions/cashflow/outside_cashflow_openai_part10.test.ts",
+   "MoneyKeel/functions/cashflow/outside_cashflow_openai_part13.test.ts",
+   "MoneyKeel/functions/cashflow/part_year_one_rule_2026_10_26.test.ts",
+   "MoneyKeel/functions/cashflow/the-debts.test.ts",
+   "MoneyKeel/functions/cashflow/this-month.test.ts",
+   "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts",
+   "src/__tests__/adversarial_plan_redesign.test.tsx",
+   "src/__tests__/brief_figures_guard.test.ts",
+   "src/__tests__/build_audit_calculations.test.ts",
+   "src/__tests__/cf_functions_direct_2026_10_26.test.ts",
+   "src/__tests__/decisions_are_held.test.ts",
+   "src/__tests__/edge_extremes.test.ts",
+   "src/__tests__/golden.test.ts",
+   "src/__tests__/journeys.test.ts",
+   "src/domain/alternatives/alternatives.test.ts",
+   "src/domain/assets/agreement.test.ts",
+   "src/domain/assets/classification.test.ts",
+   "src/domain/assets/dec4059_tax_unstated.test.ts",
+   "src/domain/assets/history_coverage.test.ts",
+   "src/domain/assets/itemize.test.ts",
+   "src/domain/assets/outside_review_openai_final_fixes.test.ts",
+   "src/domain/assets/plural_words.test.ts",
+   "src/domain/assets/q08_foreign_currency.test.ts",
+   "src/domain/assets/selectors.test.ts",
+   "src/domain/bonds/a46_a47_coupon_and_accrued.test.ts",
+   "src/domain/bonds/bonds.test.ts",
+   "src/domain/bonds/coupons_per_year.test.ts",
+   "src/domain/bonds/dec3837_cd_bought.test.ts",
+   "src/domain/bonds/dec_rate_move_one_point.test.ts",
+   "src/domain/bonds/g11_no_maturity.test.ts",
+   "src/domain/bonds/income.test.ts",
+   "src/domain/bonds/outside_final_openai_fixes.test.ts",
+   "src/domain/budget/budget.test.ts",
+   "src/domain/budget/spend_agreement.test.ts",
+   "src/domain/cashflow/cashflow.test.ts",
+   "src/domain/completeness/completeness.test.ts",
+   "src/domain/debt/payment.test.ts",
+   "src/domain/debt/payoff.test.ts",
+   "src/domain/decumulation/decumulation.test.ts",
+   "src/domain/gaps/gaps.test.ts",
+   "src/domain/goals/funding.test.ts",
+   "src/domain/goals/goalsplanning.test.ts",
+   "src/domain/grid/grid.test.ts",
+   "src/domain/insights/insights.test.ts",
+   "src/domain/modules.test.ts",
+   "src/domain/outside_openai_final_fixes.test.ts",
+   "src/domain/paycheck/paycheck.test.ts",
+   "src/domain/performance/lookBack.test.ts",
+   "src/domain/performance/performance.test.ts",
+   "src/domain/performance/q06_q09_contracts_and_units.test.ts",
+   "src/domain/performance/short_history.test.ts",
+   "src/domain/performance/start_date_month_end.test.ts",
+   "src/domain/planning/planning.test.ts",
+   "src/domain/planning/roth_worked_examples_2026_10_31.test.ts",
+   "src/domain/retirement/col.test.ts",
+   "src/domain/retirement/g7_no_default_tax_rate.test.ts",
+   "src/domain/retirement/odds_exact.test.ts",
+   "src/domain/retirement/paymentsThatEnd.test.ts",
+   "src/domain/savings/savings.test.ts",
+   "src/domain/savings/surplus_agreement.test.ts",
+   "src/domain/scenarios.test.ts",
+   "src/domain/transactions/flags.test.ts",
+   "src/domain/transactions/sale_takes_oldest_first.test.ts",
+   "src/domain/transactions/transactions.test.ts",
+   "src/domain/transactions/undo_round_trip.test.ts",
+   "src/onboarding/signup_cashflow_rate_agreement_2026_10_24.test.tsx",
+   "src/screens/__tests__/bill_calendar_fcc.test.tsx",
+   "src/screens/__tests__/goals_drawing_v02.test.tsx",
+   "src/screens/__tests__/one_debt_total_r22_2026_11_01.test.tsx",
+   "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
+   "src/screens/__tests__/payoff_debts_and_plan_agree_2026_10_25.test.tsx"
+  ]
+ },
+ "MK-CF-F-303": {
+  "source": "src/domain/debt/index.ts",
+  "declared": true,
+  "tests": [
+   "Calculation Module code/bench/__tests__/bench.test.ts",
+   "Calculation Module code/probes/debt-budget-txn.probe.test.ts",
+   "Calculation Module code/probes/debt.probe.test.ts",
+   "Calculation Module code/probes/feeds-and-seeds.probe.test.ts",
+   "MoneyKeel/functions/cashflow/expenses.test.ts",
+   "MoneyKeel/functions/cashflow/outside_cashflow_openai_part01.test.ts",
+   "MoneyKeel/functions/cashflow/outside_cashflow_openai_part02.test.ts",
+   "MoneyKeel/functions/cashflow/outside_cashflow_openai_part09.test.ts",
+   "MoneyKeel/functions/cashflow/outside_cashflow_openai_part10.test.ts",
+   "MoneyKeel/functions/cashflow/outside_cashflow_openai_part13.test.ts",
+   "MoneyKeel/functions/cashflow/part_year_one_rule_2026_10_26.test.ts",
+   "MoneyKeel/functions/cashflow/the-debts.test.ts",
+   "MoneyKeel/functions/cashflow/this-month.test.ts",
+   "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts",
+   "src/__tests__/adversarial_plan_redesign.test.tsx",
+   "src/__tests__/brief_figures_guard.test.ts",
+   "src/__tests__/build_audit_calculations.test.ts",
+   "src/__tests__/cf_functions_direct_2026_10_26.test.ts",
+   "src/__tests__/decisions_are_held.test.ts",
+   "src/__tests__/edge_extremes.test.ts",
+   "src/__tests__/golden.test.ts",
+   "src/__tests__/journeys.test.ts",
+   "src/domain/alternatives/alternatives.test.ts",
+   "src/domain/assets/agreement.test.ts",
+   "src/domain/assets/classification.test.ts",
+   "src/domain/assets/dec4059_tax_unstated.test.ts",
+   "src/domain/assets/history_coverage.test.ts",
+   "src/domain/assets/itemize.test.ts",
+   "src/domain/assets/outside_review_openai_final_fixes.test.ts",
+   "src/domain/assets/plural_words.test.ts",
+   "src/domain/assets/q08_foreign_currency.test.ts",
+   "src/domain/assets/selectors.test.ts",
+   "src/domain/bonds/a46_a47_coupon_and_accrued.test.ts",
+   "src/domain/bonds/bonds.test.ts",
+   "src/domain/bonds/coupons_per_year.test.ts",
+   "src/domain/bonds/dec3837_cd_bought.test.ts",
+   "src/domain/bonds/dec_rate_move_one_point.test.ts",
+   "src/domain/bonds/g11_no_maturity.test.ts",
+   "src/domain/bonds/income.test.ts",
+   "src/domain/bonds/outside_final_openai_fixes.test.ts",
+   "src/domain/budget/budget.test.ts",
+   "src/domain/budget/spend_agreement.test.ts",
+   "src/domain/cashflow/cashflow.test.ts",
+   "src/domain/completeness/completeness.test.ts",
+   "src/domain/debt/payment.test.ts",
+   "src/domain/debt/payoff.test.ts",
+   "src/domain/decumulation/decumulation.test.ts",
+   "src/domain/gaps/gaps.test.ts",
+   "src/domain/goals/funding.test.ts",
+   "src/domain/goals/goalsplanning.test.ts",
+   "src/domain/grid/grid.test.ts",
+   "src/domain/insights/insights.test.ts",
+   "src/domain/modules.test.ts",
+   "src/domain/outside_openai_final_fixes.test.ts",
+   "src/domain/paycheck/paycheck.test.ts",
+   "src/domain/performance/lookBack.test.ts",
+   "src/domain/performance/performance.test.ts",
+   "src/domain/performance/q06_q09_contracts_and_units.test.ts",
+   "src/domain/performance/short_history.test.ts",
+   "src/domain/performance/start_date_month_end.test.ts",
+   "src/domain/planning/planning.test.ts",
+   "src/domain/planning/roth_worked_examples_2026_10_31.test.ts",
+   "src/domain/retirement/col.test.ts",
+   "src/domain/retirement/g7_no_default_tax_rate.test.ts",
+   "src/domain/retirement/odds_exact.test.ts",
+   "src/domain/retirement/paymentsThatEnd.test.ts",
+   "src/domain/savings/savings.test.ts",
+   "src/domain/savings/surplus_agreement.test.ts",
+   "src/domain/scenarios.test.ts",
+   "src/domain/transactions/flags.test.ts",
+   "src/domain/transactions/sale_takes_oldest_first.test.ts",
+   "src/domain/transactions/transactions.test.ts",
+   "src/domain/transactions/undo_round_trip.test.ts",
+   "src/onboarding/signup_cashflow_rate_agreement_2026_10_24.test.tsx",
+   "src/screens/__tests__/bill_calendar_fcc.test.tsx",
+   "src/screens/__tests__/goals_drawing_v02.test.tsx",
+   "src/screens/__tests__/one_debt_total_r22_2026_11_01.test.tsx",
+   "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
+   "src/screens/__tests__/payoff_debts_and_plan_agree_2026_10_25.test.tsx"
+  ]
+ },
+ "MK-CF-F-304": {
+  "source": "src/domain/debt/index.ts",
+  "declared": true,
+  "tests": [
+   "Calculation Module code/bench/__tests__/bench.test.ts",
+   "Calculation Module code/probes/debt-budget-txn.probe.test.ts",
+   "Calculation Module code/probes/debt.probe.test.ts",
+   "Calculation Module code/probes/feeds-and-seeds.probe.test.ts",
+   "MoneyKeel/functions/cashflow/expenses.test.ts",
+   "MoneyKeel/functions/cashflow/outside_cashflow_openai_part01.test.ts",
+   "MoneyKeel/functions/cashflow/outside_cashflow_openai_part02.test.ts",
+   "MoneyKeel/functions/cashflow/outside_cashflow_openai_part09.test.ts",
+   "MoneyKeel/functions/cashflow/outside_cashflow_openai_part10.test.ts",
+   "MoneyKeel/functions/cashflow/outside_cashflow_openai_part13.test.ts",
+   "MoneyKeel/functions/cashflow/part_year_one_rule_2026_10_26.test.ts",
+   "MoneyKeel/functions/cashflow/the-debts.test.ts",
+   "MoneyKeel/functions/cashflow/this-month.test.ts",
+   "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts",
+   "src/__tests__/adversarial_plan_redesign.test.tsx",
+   "src/__tests__/brief_figures_guard.test.ts",
+   "src/__tests__/build_audit_calculations.test.ts",
+   "src/__tests__/cf_functions_direct_2026_10_26.test.ts",
+   "src/__tests__/decisions_are_held.test.ts",
+   "src/__tests__/edge_extremes.test.ts",
+   "src/__tests__/golden.test.ts",
+   "src/__tests__/journeys.test.ts",
+   "src/domain/alternatives/alternatives.test.ts",
+   "src/domain/assets/agreement.test.ts",
+   "src/domain/assets/classification.test.ts",
+   "src/domain/assets/dec4059_tax_unstated.test.ts",
+   "src/domain/assets/history_coverage.test.ts",
+   "src/domain/assets/itemize.test.ts",
+   "src/domain/assets/outside_review_openai_final_fixes.test.ts",
+   "src/domain/assets/plural_words.test.ts",
+   "src/domain/assets/q08_foreign_currency.test.ts",
+   "src/domain/assets/selectors.test.ts",
+   "src/domain/bonds/a46_a47_coupon_and_accrued.test.ts",
+   "src/domain/bonds/bonds.test.ts",
+   "src/domain/bonds/coupons_per_year.test.ts",
+   "src/domain/bonds/dec3837_cd_bought.test.ts",
+   "src/domain/bonds/dec_rate_move_one_point.test.ts",
+   "src/domain/bonds/g11_no_maturity.test.ts",
+   "src/domain/bonds/income.test.ts",
+   "src/domain/bonds/outside_final_openai_fixes.test.ts",
+   "src/domain/budget/budget.test.ts",
+   "src/domain/budget/spend_agreement.test.ts",
+   "src/domain/cashflow/cashflow.test.ts",
+   "src/domain/completeness/completeness.test.ts",
+   "src/domain/debt/payment.test.ts",
+   "src/domain/debt/payoff.test.ts",
+   "src/domain/decumulation/decumulation.test.ts",
+   "src/domain/gaps/gaps.test.ts",
+   "src/domain/goals/funding.test.ts",
+   "src/domain/goals/goalsplanning.test.ts",
+   "src/domain/grid/grid.test.ts",
+   "src/domain/insights/insights.test.ts",
+   "src/domain/modules.test.ts",
+   "src/domain/outside_openai_final_fixes.test.ts",
+   "src/domain/paycheck/paycheck.test.ts",
+   "src/domain/performance/lookBack.test.ts",
+   "src/domain/performance/performance.test.ts",
+   "src/domain/performance/q06_q09_contracts_and_units.test.ts",
+   "src/domain/performance/short_history.test.ts",
+   "src/domain/performance/start_date_month_end.test.ts",
+   "src/domain/planning/planning.test.ts",
+   "src/domain/planning/roth_worked_examples_2026_10_31.test.ts",
+   "src/domain/retirement/col.test.ts",
+   "src/domain/retirement/g7_no_default_tax_rate.test.ts",
+   "src/domain/retirement/odds_exact.test.ts",
+   "src/domain/retirement/paymentsThatEnd.test.ts",
+   "src/domain/savings/savings.test.ts",
+   "src/domain/savings/surplus_agreement.test.ts",
+   "src/domain/scenarios.test.ts",
+   "src/domain/transactions/flags.test.ts",
+   "src/domain/transactions/sale_takes_oldest_first.test.ts",
+   "src/domain/transactions/transactions.test.ts",
+   "src/domain/transactions/undo_round_trip.test.ts",
+   "src/onboarding/signup_cashflow_rate_agreement_2026_10_24.test.tsx",
+   "src/screens/__tests__/bill_calendar_fcc.test.tsx",
+   "src/screens/__tests__/goals_drawing_v02.test.tsx",
+   "src/screens/__tests__/one_debt_total_r22_2026_11_01.test.tsx",
+   "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
+   "src/screens/__tests__/payoff_debts_and_plan_agree_2026_10_25.test.tsx"
+  ]
+ },
+ "MK-CF-F-305": {
+  "source": "src/domain/debt/index.ts",
+  "declared": true,
+  "tests": [
+   "Calculation Module code/bench/__tests__/bench.test.ts",
+   "Calculation Module code/probes/debt-budget-txn.probe.test.ts",
+   "Calculation Module code/probes/debt.probe.test.ts",
+   "Calculation Module code/probes/feeds-and-seeds.probe.test.ts",
+   "MoneyKeel/functions/cashflow/expenses.test.ts",
+   "MoneyKeel/functions/cashflow/outside_cashflow_openai_part01.test.ts",
+   "MoneyKeel/functions/cashflow/outside_cashflow_openai_part02.test.ts",
+   "MoneyKeel/functions/cashflow/outside_cashflow_openai_part09.test.ts",
+   "MoneyKeel/functions/cashflow/outside_cashflow_openai_part10.test.ts",
+   "MoneyKeel/functions/cashflow/outside_cashflow_openai_part13.test.ts",
+   "MoneyKeel/functions/cashflow/part_year_one_rule_2026_10_26.test.ts",
+   "MoneyKeel/functions/cashflow/the-debts.test.ts",
+   "MoneyKeel/functions/cashflow/this-month.test.ts",
+   "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts",
+   "src/__tests__/adversarial_plan_redesign.test.tsx",
+   "src/__tests__/brief_figures_guard.test.ts",
+   "src/__tests__/build_audit_calculations.test.ts",
+   "src/__tests__/cf_functions_direct_2026_10_26.test.ts",
+   "src/__tests__/decisions_are_held.test.ts",
+   "src/__tests__/edge_extremes.test.ts",
+   "src/__tests__/golden.test.ts",
+   "src/__tests__/journeys.test.ts",
+   "src/domain/alternatives/alternatives.test.ts",
+   "src/domain/assets/agreement.test.ts",
+   "src/domain/assets/classification.test.ts",
+   "src/domain/assets/dec4059_tax_unstated.test.ts",
+   "src/domain/assets/history_coverage.test.ts",
+   "src/domain/assets/itemize.test.ts",
+   "src/domain/assets/outside_review_openai_final_fixes.test.ts",
+   "src/domain/assets/plural_words.test.ts",
+   "src/domain/assets/q08_foreign_currency.test.ts",
+   "src/domain/assets/selectors.test.ts",
+   "src/domain/bonds/a46_a47_coupon_and_accrued.test.ts",
+   "src/domain/bonds/bonds.test.ts",
+   "src/domain/bonds/coupons_per_year.test.ts",
+   "src/domain/bonds/dec3837_cd_bought.test.ts",
+   "src/domain/bonds/dec_rate_move_one_point.test.ts",
+   "src/domain/bonds/g11_no_maturity.test.ts",
+   "src/domain/bonds/income.test.ts",
+   "src/domain/bonds/outside_final_openai_fixes.test.ts",
+   "src/domain/budget/budget.test.ts",
+   "src/domain/budget/spend_agreement.test.ts",
+   "src/domain/cashflow/cashflow.test.ts",
+   "src/domain/completeness/completeness.test.ts",
+   "src/domain/debt/payment.test.ts",
+   "src/domain/debt/payoff.test.ts",
+   "src/domain/decumulation/decumulation.test.ts",
+   "src/domain/gaps/gaps.test.ts",
+   "src/domain/goals/funding.test.ts",
+   "src/domain/goals/goalsplanning.test.ts",
+   "src/domain/grid/grid.test.ts",
+   "src/domain/insights/insights.test.ts",
+   "src/domain/modules.test.ts",
+   "src/domain/outside_openai_final_fixes.test.ts",
+   "src/domain/paycheck/paycheck.test.ts",
+   "src/domain/performance/lookBack.test.ts",
+   "src/domain/performance/performance.test.ts",
+   "src/domain/performance/q06_q09_contracts_and_units.test.ts",
+   "src/domain/performance/short_history.test.ts",
+   "src/domain/performance/start_date_month_end.test.ts",
+   "src/domain/planning/planning.test.ts",
+   "src/domain/planning/roth_worked_examples_2026_10_31.test.ts",
+   "src/domain/retirement/col.test.ts",
+   "src/domain/retirement/g7_no_default_tax_rate.test.ts",
+   "src/domain/retirement/odds_exact.test.ts",
+   "src/domain/retirement/paymentsThatEnd.test.ts",
+   "src/domain/savings/savings.test.ts",
+   "src/domain/savings/surplus_agreement.test.ts",
+   "src/domain/scenarios.test.ts",
+   "src/domain/transactions/flags.test.ts",
+   "src/domain/transactions/sale_takes_oldest_first.test.ts",
+   "src/domain/transactions/transactions.test.ts",
+   "src/domain/transactions/undo_round_trip.test.ts",
+   "src/onboarding/signup_cashflow_rate_agreement_2026_10_24.test.tsx",
+   "src/screens/__tests__/bill_calendar_fcc.test.tsx",
+   "src/screens/__tests__/goals_drawing_v02.test.tsx",
+   "src/screens/__tests__/one_debt_total_r22_2026_11_01.test.tsx",
+   "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
+   "src/screens/__tests__/payoff_debts_and_plan_agree_2026_10_25.test.tsx"
+  ]
+ },
+ "MK-CF-F-306": {
+  "source": "src/domain/income/pay-frequency.ts",
+  "declared": true,
+  "tests": [
+   "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx"
+  ]
+ },
+ "MK-CF-F-307": {
+  "source": "src/domain/income/pay-frequency.ts",
+  "declared": true,
+  "tests": [
+   "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx"
+  ]
+ },
+ "MK-CF-F-308": {
+  "source": "src/domain/income/pay-frequency.ts",
+  "declared": true,
+  "tests": [
+   "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx"
+  ]
+ },
+ "MK-CF-F-309": {
+  "source": "src/domain/income/take-home-mode-migration.ts",
+  "declared": true,
+  "tests": [
+   "MoneyKeel/functions/cashflow/outside_cashflow_openai_part16.test.ts",
+   "MoneyKeel/functions/cashflow/part_year_one_rule_2026_10_26.test.ts",
+   "src/domain/income/take-home-mode-migration.test.ts",
+   "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
+   "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx"
+  ]
+ },
+ "MK-CF-F-310": {
+  "source": "src/domain/income/take-home-mode-migration.ts",
+  "declared": true,
+  "tests": [
+   "MoneyKeel/functions/cashflow/outside_cashflow_openai_part16.test.ts",
+   "MoneyKeel/functions/cashflow/part_year_one_rule_2026_10_26.test.ts",
+   "src/domain/income/take-home-mode-migration.test.ts",
+   "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
+   "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx"
+  ]
+ },
+ "MK-CF-F-311": {
+  "source": "src/domain/income/pay-frequency.ts",
+  "declared": true,
+  "tests": [
+   "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx"
+  ]
+ },
+ "MK-CF-F-312": {
+  "source": "src/domain/income/pay-frequency.ts",
+  "declared": true,
+  "tests": [
+   "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx"
   ]
  }
 }

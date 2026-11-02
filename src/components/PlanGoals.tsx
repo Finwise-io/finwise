@@ -231,7 +231,7 @@ function GoalForm({ form, setForm, debts, surplus, now, onCancel, onSave, onDele
                 <Text style={s.rBig}>Needs {maskedMoney2(plan.need)}/month</Text>
                 <Text style={s.rSub}>to clear {maskedMoney(plan.balance)} by {plan.lastMonth} — {maskedMoney2(plan.extra)} more than the {maskedMoney(plan.payment)}/month you pay now.</Text>
               </View>
-              <Text style={s.how}>How: {maskedMoney(plan.balance)} at {pct2(plan.rate)}/year is {pct2(plan.monthlyRate)}/month. {plan.months} equal payments, {plan.firstMonth} to {plan.lastMonth}, clear it: {maskedMoney2(plan.need)}/month, {maskedMoney2(plan.interest)} of interest.{plan.clears && plan.saved != null
+              <Text style={s.how}>How: {maskedMoney(plan.balance)} at {pct2(plan.rate)}/year is {pct2(plan.monthlyRate)}/month. {plan.months} equal payments, {plan.firstMonth} to {plan.lastMonth}, clear it: {maskedMoney2(plan.need)}/month, {maskedMoney(plan.interest)} of interest.{plan.clears && plan.saved != null
                 ? ` At ${maskedMoney(plan.payment)}/month it clears in ${plan.clears.when}, with ${maskedMoney(plan.clears.interest)} of interest — paying it by ${plan.lastMonth} saves about ${maskedMoney(plan.saved)}.`
                 : ` At ${maskedMoney(plan.payment)}/month it does not clear.`}</Text>
               <Text style={s.how}>{plan.extra <= surplus
@@ -311,7 +311,7 @@ const s = StyleSheet.create({
   pickOn: { borderColor: Colors.primary, backgroundColor: Colors.primaryLight },
   pickMark: { fontSize: 15, color: Colors.textPrimary },
   pickT: { flex: 1, fontSize: 15, fontWeight: '600', color: Colors.textPrimary },
-  pickR: { fontSize: 13, color: Colors.textSecondary },
+  pickR: { fontSize: 13, fontWeight: '600', color: Colors.textSecondary },   // as goals v03 draws the debt rows (CF4-05, 2026-11-01)
   dateRow: { flexDirection: 'row', gap: 8, marginTop: 6 },
   in: { flex: 1, borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radii.md, padding: 12, fontSize: 17, color: Colors.textPrimary },
   in1: { borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radii.md, padding: 12, fontSize: 17, color: Colors.textPrimary, marginTop: 6 },

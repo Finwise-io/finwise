@@ -2646,10 +2646,10 @@
   "rows": "Performance and the account page: windows that start before the daily record (MK-NW-F-091)",
   "status": "RULED",
   "code": "Answered by his own later decision, DEC-5291 of 2026-10-13: price history counts, so a window before the daily record is worked back from each holding’s price history.",
-  "proof": "src/screens/__tests__/perf_matches_v17.test.tsx",
+  "proof": "src/screens/__tests__/perf_matches_v17.test.tsx · src/__tests__/no_stale_window_start_r19.test.ts",
   "coded": "",
   "verified": "",
-  "notes": "Recorded 2026-11-01 from the drawings that quote it, where DRAW-HYGIENE found his words missing from the decision log (round-3 closing). A question of his, settled by DEC-5291.",
+  "notes": "Recorded 2026-11-01 from the drawings that quote it, where DRAW-HYGIENE found his words missing from the decision log (round-3 closing). A question of his, settled by DEC-5291. 2026-11-01: the lead's R19 (DEC-9486) starts a market window from a close at most 7 days old, and R19a (DEC-9487) starts a hand-priced value from its last value however old; both held by src/__tests__/no_stale_window_start_r19.test.ts.",
   "screen_only": true
  },
  {

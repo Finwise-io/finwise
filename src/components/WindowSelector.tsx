@@ -52,7 +52,10 @@ export function WindowSelector({ windows, chosen, figures, onPick }: {
                   when its figure is a dash (.segOn .segV — day one). The dash of the chosen window used to turn grey. */}
               <Text numberOfLines={1} style={[styles.segK, on && styles.segOnT, greyed && styles.segNoK]}>{w.label}</Text>
               <Text numberOfLines={1} adjustsFontSizeToFit style={[styles.segV, on && styles.segOnT, greyed && styles.segNoV]}>
-                {ret == null ? '—' : fig('MK-PF-M-017', ret)}
+                {/* A RETURN OVER MORE THAN A YEAR SAYS "A YEAR" (2026-11-01, FX-PF; the lead's ruling R20, NW4-03; DEC-0237, DEC-0404): the
+                    2Y figure is a yearly rate, so it reads '+11.79%/year' — v17's own mark 18 — where it printed bare; it was already
+                    said 'a year'. The window's own total stays in the sentence under the summary. To reverse: drop the '/year'. */}
+                {ret == null ? '—' : `${fig('MK-PF-M-017', ret)}${perYear ? '/year' : ''}`}
               </Text>
             </TouchableOpacity>
           </React.Fragment>

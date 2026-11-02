@@ -47,6 +47,10 @@ describe('1 · DEC-3656 — a holding that bought more inside the window: its st
     const p = thePerformance({ windowStart: windowStartKey('1Y', [], TODAY), windowLabel: 'the past year', today: TODAY, snapshotDays: [],
       investmentAccountIds: new Set(['s']), transactions: [{ txn_id: 'd', account_id: 's', type: 'DEPOSIT', amount: 1100, date: '2026-04-01' }],
       accounts: [{ asset_id: 's', label: 'Brokerage', kind: 'brokerage', asset_class: 'stocks_etf', balance: 2420, positions: [X] }] as any,
+      // R18 (2026-11-01): an account whose total was typed takes its walk's own return, split at the day money came in — which needs the
+      // holding's closes to value that day: just before Apr 1, 10 shares × $110 = $1,100 (1,100 ÷ 1,000 = 1.10); just after $2,200;
+      // to today 2,420 ÷ 2,200 = 1.10; together 1.21 − 1 = +21.00%, the holding's own (its holdings are its whole total)
+      priceOf: () => X_PRICES,
       holdings: [toppedUp()] as any });
     expect(p.workedBack).toBe(true);
     near(p.walk!.beginning, 2420 - 320 - 1100, 6);          // $1,000 — what the 10 shares were worth when the window began

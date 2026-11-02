@@ -13,7 +13,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useStore } from '../store/useStore';
 // Say plainly when a window reaches further back than this holding's price history (priceHistoryShortSentence).
 // Founder 2026-08-18: a chip may name a longer period than we can actually see.
-import { Colors, Spacing, Radii } from '../utils/theme';
+import { Colors, Spacing, Radii, Tap } from '../utils/theme';
 import { money } from '../domain/_shared/num';
 import { maskedMoney, maskedMoney2, maskedPrice, coinQuantity, spokenMoney } from '../components/useMoney';
 import { theHolding, undatedGainSentence, SECTION_1256_LINE, NOT_CAPITAL_GAINS_LINE, yardstickName, gapWords, purchaseQuantityWords, holdingRowsIn, SHARE_COUNT_NOT_STATED } from '../../MoneyKeel/functions/networth-and-performance/holding';
@@ -239,7 +239,7 @@ export default function HoldingDetailScreen() {
     <ScrollView style={s.root} contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
       <View style={s.topRow}>
         <View />
-        <TouchableOpacity accessibilityRole="button" onPress={() => setEditOpen(true)} accessibilityLabel="Edit this holding" hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+        <TouchableOpacity accessibilityRole="button" onPress={() => setEditOpen(true)} accessibilityLabel="Edit this holding" hitSlop={Tap.slop}>
           <Text style={s.back}>✎ Edit</Text>
         </TouchableOpacity>
       </View>

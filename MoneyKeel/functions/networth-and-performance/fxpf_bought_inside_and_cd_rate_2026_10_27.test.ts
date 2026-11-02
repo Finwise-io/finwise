@@ -35,20 +35,32 @@ describe('PF-4 · a holding bought inside the window counts (R4)', () => {
   const PHONE4 = [acct('van', 'Vanguard', 301_610, [pos('p1', 'VTI', 900, 330, 300, T), pos('p3', 'KEYBANK CD 4.00%', 4610, 1, 1, T, 'bond')]),
     acct('etr', 'E*TRADE', 52_704, [pos('p2', 'VOO', 90, 550, 500, T)], 3_204)];
   const P4 = { VTI: closes('VTI', [[T, 330]]), VOO: closes('VOO', [[T, 550]]) };
-  test.each([['1M'], ['YTD'], ['1Y']])('%s: 351,110 ÷ 319,610 − 1 = +9.86%; the CD at $4,610 ÷ $4,610 − 1 = +0.00%, named nowhere', (w) => {
+  // R18 (2026-11-01): both accounts are typed totals (no derive_balance), so each one's Return is its own walk's and the summary folds the
+  // two walks: Vanguard $274,610 → $301,610 (its holdings are its whole total), E*TRADE $48,204 → $52,704 (VOO's $4,500 beside $3,204
+  // of cash), together 354,314 ÷ 322,814 − 1 = +9.76%. R4's +9.86% (the holdings' own, 351,110 ÷ 319,610 − 1) is kept below as test.failing.
+  test.each([['1M'], ['YTD'], ['1Y']])('%s: 354,314 ÷ 322,814 − 1 = +9.76% (R18); the CD at $4,610 ÷ $4,610 − 1 = +0.00%, named nowhere', (w) => {
     const { f, rows } = windowOf(w, PHONE4, P4);
     const cd = rows.find((r: any) => r.position.ticker === 'KEYBANK CD 4.00%')!;
     expect([cd.marketValue, cd.periodTotal, cd.paidInside, cd.cappedSince]).toEqual([4_610, 0, 4_610, T]);
-    expect(pct(f.cumulative)).toBe('+9.86%');
-    expect(f.cumulative).toBeCloseTo(351_110 / 319_610 - 1, 12);
+    expect(pct(f.cumulative)).toBe('+9.76%');
+    expect(f.cumulative).toBeCloseTo(354_314 / 322_814 - 1, 12);
     expect(f.walk!.beginning).toBe(354_314 - 27_000 - 4_500 - 0);   // $322,814
     expect(f.notIncluded).toBe('');
   });
-  test('2Y: (351,110 ÷ 319,610)^(365 ÷ 731) − 1 = +4.81% a year', () => {
+  test('2Y: (354,314 ÷ 322,814)^(365 ÷ 731) − 1 = +4.76% a year (R18)', () => {
     const { f } = windowOf('2Y', PHONE4, P4);
     expect(f.years).toBeCloseTo(731 / 365, 12);
-    expect(f.perYear).toBeCloseTo(Math.pow(351_110 / 319_610, 365 / 731) - 1, 12);
-    expect(pct(f.perYear)).toBe('+4.81%');
+    expect(f.perYear).toBeCloseTo(Math.pow(354_314 / 322_814, 365 / 731) - 1, 12);
+    expect(pct(f.perYear)).toBe('+4.76%');
+  });
+  test.failing('the answer until 2026-11-01, kept (no longer the app\'s): 351,110 ÷ 319,610 − 1 = +9.86%, the holdings\' own (R4)', () => {
+    const { f } = windowOf('1M', PHONE4, P4);
+    expect(pct(f.cumulative)).toBe('+9.86%');
+  });
+  test('E*TRADE alone: its walk 52,704 ÷ 48,204 − 1 = +9.34% (R18; VOO\'s own +10.00% beside $3,204 of cash)', () => {
+    const { f } = windowOf('1M', [PHONE4[1]], P4);
+    expect(f.cumulative).toBeCloseTo(52_704 / 48_204 - 1, 12);
+    expect(pct(f.cumulative)).toBe('+9.34%');
   });
   test('Vanguard alone: 301,610 ÷ 274,610 − 1 = +9.83%', () => {
     const { f } = windowOf('1M', [PHONE4[0]], P4);

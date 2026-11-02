@@ -115,6 +115,7 @@ export interface Itemising {
  *               MK-NW-M-039 · MK-NW-M-040 · MK-NW-M-062 · MK-NW-M-073
  * Reads ....... MK-XS-I-001 account balance
  *               MK-XS-I-005 holding price
+ *               MK-XS-I-008 transaction amount
  *               MK-XS-I-009 transaction date
  *               MK-XS-I-024 logged expenses
  * Ruled by .... DEC-0008 · DEC-0010 · DEC-0019 · DEC-0045 · DEC-0051 · DEC-0070
@@ -188,8 +189,11 @@ export function theAccount(input: {
       ticker: t.ticker ?? null,
       // a transfer INTO this account is what left the other one; everything else is its effect on cash — both read by the
       // one rule for a stored amount (moneyIntoAccount, 2026-10-21), so a broker's −$500 deposit is −$500 here
+      // OPENING CASH PRINTS WHAT WAS RECORDED (2026-11-01, FX-PF; the lead's ruling R18, PF4-2): it is the account's cash as entered,
+      // not money that moved, so its effect on the totals is $0 — and the row printed "Opening cash … $0", said "opening cash of
+      // $0", for the $5,000 entered. To reverse: cashEffect(t) for it again.
       amount: (String(t.counter_account_id) === String(account.asset_id) && t.type === 'TRANSFER')
-        ? 0 - (moneyIntoAccount(t) ?? 0) : cashEffect(t),
+        ? 0 - (moneyIntoAccount(t) ?? 0) : t.type === 'OPENING_CASH' ? Math.abs(Number(t.amount) || 0) : cashEffect(t),
       mine: t.source !== 'connected',
       // AN AMOUNT NOT ON RECORD IS NOT $0 (2026-10-21, DEC-3523 tenet 3): interest the broker sent with no amount showed
       // $0 here while the return refused across its day. The row now shows a dash where the amount would be.

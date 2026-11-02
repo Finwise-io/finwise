@@ -31,7 +31,7 @@ import { personalFlowTotals } from '../../Calculation Module code/engines/ledger
 import { connectionFreshness } from '../services/sync';
 import { moneyCompact, currencySymbol } from '../domain/_shared/money';
 import { buildAssetsState, ASSET_KINDS, ASSET_SECTIONS, assetKind, assetClassOf, AssetAccount, TaxBucket, assetAllocation, investableAssets, ASSET_CLASS_LABEL, type AssetClass, wrapperAccount, maturityClass, accountDisplayNames, accountClassBreakdown, classPortionLabel, type AddWrapper, HELD_IN_CHOICES, sourceWording, CASH_GROUP_LABEL, uberGroupRows, type UberGroup, uberGroupOf, asksCashOrInvestments, CASH_OR_INVESTMENTS_ASK, TAX_TYPE_NOT_STATED } from '../domain/assets';
-import { buildDebtState, debtKind, TOXIC_APR, rateNotEntered, Debt } from '../domain/debt';
+import { buildDebtState, debtKind, TOXIC_APR, rateNotEntered, setupLoanSentences, Debt } from '../domain/debt';
 // ONE DOOR (MK-NW-O-003 theNetWorth, Q-NW-1 ruled 2026-09-27). This tab and Home each built
 // their own net worth; they read one answer now.
 import { theNetWorth, ledgerGroups, barSegments, barDrawnWidths, accountsInClasses, isPartOfAccount, valueChanged } from '../../MoneyKeel/functions/networth-and-performance/net-worth';
@@ -375,7 +375,7 @@ export default function NetWorthScreen() {
           </TouchableOpacity>
         ))}
         {isOpen && members.length > 5 && !showAllClassRows[r.key] && (
-          <TouchableOpacity accessibilityRole="button" onPress={() => setShowAllClassRows((m) => ({ ...m, [r.key]: true }))}
+          <TouchableOpacity hitSlop={Tap.slop} accessibilityRole="button" onPress={() => setShowAllClassRows((m) => ({ ...m, [r.key]: true }))}
             accessibilityLabel={`Show all ${members.length} ${r.label} accounts`}>
             <Text style={styles.acctMore}>all {members.length} ›</Text>
           </TouchableOpacity>
@@ -529,7 +529,7 @@ export default function NetWorthScreen() {
       </View>
       <View style={styles.card}>
         {liabilities.length === 0
-          ? <TouchableOpacity accessibilityRole="button" accessibilityLabel={DEBTS_DOOR_WORDS} onPress={() => setDebtSheet({ open: true })}><Text style={styles.empty}>{EMPTY_DOORS.debts.label}</Text></TouchableOpacity>   /* was "Add a debt →" (DEC-4528, 2026-10-11) */
+          ? <TouchableOpacity hitSlop={Tap.slop} accessibilityRole="button" accessibilityLabel={DEBTS_DOOR_WORDS} onPress={() => setDebtSheet({ open: true })}><Text style={styles.empty}>{EMPTY_DOORS.debts.label}</Text></TouchableOpacity>   /* was "Add a debt →" (DEC-4528, 2026-10-11) */
           : (<>
             {liabilities.map((d, i) => {
               const hot = d.interest_rate_apr > TOXIC_APR;
@@ -640,7 +640,7 @@ export default function NetWorthScreen() {
             {nwDoor.count >= 3
               ? <Text style={styles.rowSub}>a sample, not your number — 3 answers make it yours</Text>
               : nwDoor.count > 0 && (
-                <TouchableOpacity accessibilityRole="button"
+                <TouchableOpacity hitSlop={Tap.slop} accessibilityRole="button"
                   onPress={() => router.push(`/(tabs)/plan${nwDoor.count === 1 ? `?focus=${encodeURIComponent(nwDoor.missing[0])}` : ''}` as any)}
                   accessibilityLabel={`${sampleAskLine(nwDoor.missing)}. Opens ${nwDoor.count === 1 ? 'that question' : 'the questions'}.`}>
                   <Text style={styles.rowSub}>{sampleAskLine(nwDoor.missing)} ›</Text>
@@ -719,7 +719,7 @@ export default function NetWorthScreen() {
           })()}
         </ScrollView>
         <View style={styles.footer}>
-          {step > 0 && <TouchableOpacity style={styles.btnSec} onPress={() => setStep((s) => s - 1)}><Text style={styles.btnSecTxt}>← Back</Text></TouchableOpacity>}
+          {step > 0 && <TouchableOpacity hitSlop={Tap.slop} style={styles.btnSec} onPress={() => setStep((s) => s - 1)}><Text style={styles.btnSecTxt}>← Back</Text></TouchableOpacity>}
           <TouchableOpacity style={styles.btnPri} onPress={() => (last ? store.setNwSetupChoice?.('self') : setStep((s) => s + 1))}>
             <Text style={styles.btnPriTxt}>{last ? 'Finish' : 'Next →'}</Text>
           </TouchableOpacity>
@@ -841,7 +841,7 @@ export default function NetWorthScreen() {
             {/* Build-43 feedback #3: change + date render ALWAYS, matching the approved mock — an
                 honest first-day line instead of a bare number when history hasn't built yet */}
             {deltaText != null ? (
-              <TouchableOpacity accessibilityRole="button" onPress={() => setWalkOpen(true)}
+              <TouchableOpacity hitSlop={Tap.slop} accessibilityRole="button" onPress={() => setWalkOpen(true)}
                 accessibilityLabel={`${deltaText}. ${deltaZero ? 'A flat total can hide offsetting moves — opens' : 'Opens'} what drove this change.`}>
                 <Text style={[styles.glanceDelta, { color: deltaDown ? Colors.amber : Colors.gainText }]}>
                   {deltaZero ? '' : deltaRounded! > 0 ? '▲ ' : '▼ '}{deltaText} ›
@@ -888,7 +888,7 @@ export default function NetWorthScreen() {
               {/* Founder finding 2026-08-11: this line NAMES one missing answer, so it must land on
                   that answer — not on the Plan hub, and not on the seven-item completeness list two
                   hops further on. Same rule the fix-it sheet already holds itself to. */}
-              <TouchableOpacity accessibilityRole="button"
+              <TouchableOpacity hitSlop={Tap.slop} accessibilityRole="button"
                 onPress={(e: any) => { e?.stopPropagation?.(); router.push(`/(tabs)/plan${nwDoor.count === 1 ? `?focus=${encodeURIComponent(nwDoor.missing[0])}` : ''}` as any); }}
                 accessibilityLabel={`${sampleAskLine(nwDoor.missing)}. Opens ${nwDoor.count === 1 ? 'that question' : 'the questions'}.`}>
                 <Text style={styles.rowSub}>{sampleAskLine(nwDoor.missing)} ›</Text>
@@ -1060,19 +1060,24 @@ export default function NetWorthScreen() {
             </TouchableOpacity>
           ))}
 
+        {/* A STUDENT LOAN FROM SETUP THAT IS NOT OWED YET, OR HAS NO START MONTH, IS SAID IN WORDS (R22a, 2026-11-01; v08 row of that
+            date) — the same sentences as Debts, from the one rule (setupLoanSentences) */}
+        {setupLoanSentences(store.onboardingProfile, (store.liabilities ?? []) as Debt[], (n) => fig('MK-NW-M-010', Math.round(n))).map((t) => (
+          <Text key={t} style={[styles.firstDayAsk, styles.ledgerPad]}>{t}</Text>
+        ))}
         {/* EVERY MORTGAGE IS ON A PROPERTY (his rule, 2026-10-04, DEC-1925). One that is on none is named
             here, and a tap opens it so the person can say which property it is on. */}
         {/* A HOLDING NOTHING COULD CLASS IS ASKED ABOUT, NOT GUESSED (his ruling, 2026-09-30, master Q11:
             "Refuse the line and ask"). A tap opens the holding, where the person says what it is. */}
         {worth.unclassed.length > 0 && (
-          <TouchableOpacity accessibilityRole="button" style={styles.ledgerPad}
+          <TouchableOpacity hitSlop={Tap.slop} accessibilityRole="button" style={styles.ledgerPad}
             accessibilityLabel={`${worth.unclassedSentence} Opens that holding.`}
             onPress={() => router.push(`/holding-detail?account=${worth.unclassed[0].accountId}&position=${worth.unclassed[0].positionId}` as any)}>
             <Text style={[styles.cushionMath, { color: Colors.amber }]}>{worth.unclassedSentence}</Text>
           </TouchableOpacity>
         )}
         {!worth.mortgageCheck.ok && (
-          <TouchableOpacity accessibilityRole="button" style={styles.ledgerPad}
+          <TouchableOpacity hitSlop={Tap.slop} accessibilityRole="button" style={styles.ledgerPad}
             accessibilityLabel={`${worth.mortgageCheck.sentence} Opens that mortgage.`}
             onPress={() => { const d = liabilities.find((x: any) => String(x.debt_id) === worth.mortgageCheck.unmatched[0]?.id); if (d) setDebtSheet({ open: true, edit: d }); }}>
             <Text style={[styles.cushionMath, { color: Colors.amber }]}>{worth.mortgageCheck.sentence}</Text>

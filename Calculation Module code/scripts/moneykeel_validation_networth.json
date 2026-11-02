@@ -1005,7 +1005,7 @@
   "verdict": "LEAVES A TRACE",
   "check": "TRACE",
   "governs": "MK-NW-O-008 thePerformance · MK-PF-F-026 moneyWeighted",
-  "notes": "31 of 39 of his words appear in what implements it: account amount approved beginning beneath built"
+  "notes": "32 of 39 of his words appear in what implements it: account amount approved beginning beneath built"
  },
  {
   "id": "DEC-0644",
@@ -3053,10 +3053,10 @@
  },
  {
   "id": "DEC-8931",
-  "verdict": "LEAVES A TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "src/components/MoneySheets.tsx · src/components/DebtEd",
-  "notes": "17 of 23 of his words appear in what implements it: account drawn draws editor equivalents frame"
+  "notes": "17 of 23 of his words appear in what implements it: account drawn draws editor equivalents frame; cited by identifier in BondsScreen.tsx"
  },
  {
   "id": "DEC-8932",
@@ -3316,5 +3316,68 @@
   "check": "TRACE",
   "governs": "src/screens/NetWorthScreen.tsx · src/components/MoneyS",
   "notes": "none of 11 of his words appear anywhere that implements it: asking lead's needed order read-only reverse reverses"
+ },
+ {
+  "id": "DEC-9484",
+  "verdict": "LEAVES A TRACE",
+  "check": "TRACE",
+  "governs": "MK-NW-O-008 thePerformance (flowTwr, typedAdjust) · Mo",
+  "notes": "18 of 29 of his words appear in what implements it: account beginning beside dividend-adjusted dividends interest"
+ },
+ {
+  "id": "DEC-9485",
+  "verdict": "FAINT TRACE",
+  "check": "TRACE",
+  "governs": "MK-NW-O-008 thePerformance (notIncluded) · src/screens",
+  "notes": "only 11 of 30 appear — present: account category history holding investment · absent: asking folded folds holdings lead's"
+ },
+ {
+  "id": "DEC-9487",
+  "verdict": "LEAVES A TRACE",
+  "check": "TRACE",
+  "governs": "MK-PF-F-029 closeAsOf · MK-PF-F-088 valuedByYouWords ·",
+  "notes": "24 of 33 of his words appear in what implements it: byhand claude covered dated earlier holds"
+ },
+ {
+  "id": "DEC-9490",
+  "verdict": "FAINT TRACE",
+  "check": "TRACE",
+  "governs": "MK-CF-F-299 setupStudentLoans · MK-CF-F-303 setupLoans",
+  "notes": "only 9 of 25 appear — present: amount debts editor entered leave · absent: asking borrowed counted dollar equals"
+ },
+ {
+  "id": "DEC-9491",
+  "verdict": "FAINT TRACE",
+  "check": "TRACE",
+  "governs": "MK-CF-F-301 setupLoansSplit · MK-CF-F-302 setupLoanSen",
+  "notes": "only 6 of 19 appear — present: count counts entered month setup · absent: asking counted lead's mk-cf-f- order"
+ },
+ {
+  "id": "DEC-9494",
+  "verdict": "FAINT TRACE",
+  "check": "TRACE",
+  "governs": "src/screens/BondsScreen.tsx · src/screens/OtherInvestm",
+  "notes": "only 7 of 19 appear — present: alternatives amount bonds current enter · absent: asking boxes empty hints labelled"
+ },
+ {
+  "id": "DEC-9495",
+  "verdict": "FAINT TRACE",
+  "check": "TRACE",
+  "governs": "src/screens/BondsScreen.tsx · src/screens/OtherInvestm",
+  "notes": "only 7 of 20 appear — present: frame handle investment padding performance · absent: asking bottom draws lead's order"
+ },
+ {
+  "id": "DEC-9496",
+  "verdict": "FAINT TRACE",
+  "check": "TRACE",
+  "governs": "MK-NW-O-002 theAccount · src/screens/AccountPortfolioS",
+  "notes": "only 4 of 17 appear — present: account amount recorded reverse · absent: asking edit-record heard lead's mk-nw-o-"
+ },
+ {
+  "id": "DEC-9523",
+  "verdict": "FAINT TRACE",
+  "check": "TRACE",
+  "governs": "src/utils/theme.ts (Tap.slop) · src/components/UI.tsx ",
+  "notes": "only 10 of 29 appear — present: accounts budget button drawn entered · absent: activity asking cockpit files floor"
  }
 ]

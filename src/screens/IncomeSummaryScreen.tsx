@@ -49,7 +49,10 @@ export default function IncomeSummaryScreen() {
           value={`${approx(sum.ready && sum.lands.approx)}${fig('MK-CF-M-037', sum.ready ? sum.lands.usualMonth : 0)}`} />   {/* Q48: $0, never a dash */}
         {!sum.ready ? (
           /* Q48 (MK-MN-M-011/013): the one line and its door — once (IN-11, 2026-10-25: the same door printed twice in a row) */
-          <EmptyNote door="income" onPress={() => router.push('/base-pay' as any)} />
+          // a wage entered that cannot be counted is not "nothing entered": its reason, in Your base pay's words (R23, 2026-11-01)
+          sum.notCounted.length
+            ? <>{sum.notCounted.map((t) => <Text key={t} style={s.info}>{t}</Text>)}</>
+            : <EmptyNote door="income" onPress={() => router.push('/base-pay' as any)} />
         ) : (
           <>
             {sum.lands.lines.map((l) => <Row key={l.label} label={l.label} note={l.note} value={`${approx(l.approx)}${fig('MK-CF-M-038', l.amount)}`} />)}

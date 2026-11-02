@@ -18,7 +18,27 @@ test('$120,000 salary, $20,000 into the 401(k), single → the four lines, taxab
   expect(screen.getByText(/^Standard deduction/)).toBeOnTheScreen();
   expect(screen.getByText('Taxable income')).toBeOnTheScreen();
   expect(screen.getAllByText('$120,000').length).toBe(2);       // the Wages line and the Gross income line
-  expect(screen.getByText('− $20,000')).toBeOnTheScreen();
-  expect(screen.getByText('− $16,100')).toBeOnTheScreen();
+  // the one minus, against the figure (CF4-10, 2026-11-01): it read "− $20,000". By hand: $1,666.6667 × 12 = $20,000; 120,000 − 20,000 − 16,100 = 83,900
+  expect(screen.getByText('−$20,000')).toBeOnTheScreen();
+  expect(screen.getByText('−$16,100')).toBeOnTheScreen();
   expect(screen.getByText('$83,900')).toBeOnTheScreen();
+});
+
+test('nothing into a 401(k): the line is still one of the four, and reads $0 (DEC-0252) — taxable $120,000 − $0 − $16,100 = $103,900', () => {
+  useStore.getState().resetAll();
+  useStore.setState({ hideBalances: false, onboardingComplete: true, onboardingProfile: {
+    status: 'employed', incomeSources: ['employment'], baseSalary: '10000', salaryFreq: 'monthly', salaryMode: 'gross', filingStatus: 'single',
+  } } as any);
+  render(<TaxOrganizerScreen />);
+  expect(screen.getByText('401(k) contribution')).toBeOnTheScreen();
+  expect(screen.getByText('$0')).toBeOnTheScreen();
+  expect(screen.getByText('$103,900')).toBeOnTheScreen();
+});
+test.failing('the screen from 2026-11-01 until restored, pinned: with no 401(k) the line was not drawn', () => {
+  useStore.getState().resetAll();
+  useStore.setState({ hideBalances: false, onboardingComplete: true, onboardingProfile: {
+    status: 'employed', incomeSources: ['employment'], baseSalary: '10000', salaryFreq: 'monthly', salaryMode: 'gross', filingStatus: 'single',
+  } } as any);
+  render(<TaxOrganizerScreen />);
+  expect(screen.queryByText('401(k) contribution')).toBeNull();
 });

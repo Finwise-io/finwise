@@ -36,8 +36,9 @@ describe('performance — cost basis & value', () => {
 
 describe('performance — period returns', () => {
   // 1 year of monthly points ending 2025-06-01 at 110, started 2024-06-01 at 100 → +10% 1Y
+  // a close near each window's start (R19, 2026-11-01): 2024-12-31 at $106, the price the YTD figure measured from (the Dec 1 close)
   const s = series('AAPL', [
-    ['2024-06-01', 100], ['2024-09-01', 104], ['2024-12-01', 106], ['2025-03-01', 108], ['2025-06-01', 110],
+    ['2024-06-01', 100], ['2024-09-01', 104], ['2024-12-01', 106], ['2024-12-31', 106], ['2025-03-01', 108], ['2025-06-01', 110],
   ]);
   const now = new Date('2025-06-01');
   test('latest close + 1Y price return', () => {

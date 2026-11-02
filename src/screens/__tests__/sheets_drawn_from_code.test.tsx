@@ -278,6 +278,34 @@ const R16_GREY: Record<string, number> = { 'moneykeel_pres_mock_record-activity-
 const sheetBoxes = () => screen.UNSAFE_root.findAll((n: any) => n.type === 'Modal').flatMap((m: any) => m.findAll((n: any) => n.type === 'TextInput'))
   .map((n: any) => ({ value: String(n.props.value ?? ''), placeholder: String(n.props.placeholder ?? '') }));
 
+/** THE ROW OF 2026-11-01 ON EDIT-RECORD v03 (R18 PAGE FIGURES; the lead's rulings R18, R19, R20; FX-PF): the page under states D to I,
+ *  read as the row gives each figure, worked by hand there — VTI $90 at the close before each window, $100 today, Vanguard's total
+ *  typed at $50,000. Each drawn line is read once, by the first pair whose drawn words it is; only on a drawing carrying the row. */
+const R18_ROW = /2026-11-01<\/td>(?:(?!<\/tr>)[\s\S])*R18 PAGE FIGURES — DRAWING CORRECTION, the page under states D to I/;
+const ALL_WINDOWS = (r: string, y: string): [string, string][] => [['+11.11%', r], ['+42.86%', r], ['+11.79%', y]];
+const R18_PAGE: Record<string, [string, string][]> = {
+  D: ALL_WINDOWS('+2.04%', '+2.05%/year'),                                       // 49,200 ÷ 49,200 × 50,000 ÷ 49,000 − 1; 2Y 1.04158 over 2.003 years
+  E: ALL_WINDOWS('+2.04%', '+2.04%/year'),                                       // 50,000 ÷ 50,000 × 50,000 ÷ 49,000 − 1; 2Y 1.04123
+  F: [...ALL_WINDOWS('+2.11%', '+2.10%/year'), ['$1,000', '$1,035'], ['$965', '$1,000'], ['$49,000', '$48,965'],   // 50,000 ÷ 48,965 − 1
+    ['HOW $49,000 BECAME $50,000 · THIS ACCOUNT', 'HOW $48,965 BECAME $50,000 · THIS ACCOUNT']],
+  G: [...ALL_WINDOWS('+2.03%', '+2.05%/year'), ['$1,000', '$995'], ['$49,000', '$49,005'],                          // 50,000 ÷ 49,005 − 1
+    ['HOW $49,000 BECAME $50,000 · THIS ACCOUNT', 'HOW $49,005 BECAME $50,000 · THIS ACCOUNT']],
+  H: ALL_WINDOWS('+2.04%', '+2.06%/year'),                                       // 50,000 ÷ 49,000 − 1; 2Y 50,000 ÷ 48,000 over 2.003 years
+  I: [['+7.07%', '+2.25%']],                                                     // 1Y from the $90 close: the same walk as 1M
+};
+function r18Page(html: string, key: string, dPage: Line[]): Line[] {
+  if (!R18_ROW.test(html) || !R18_PAGE[key]) return dPage;
+  // the account's figures only — its window chips, its summary, its walk and its Total row — never a holding's own row
+  const table = dPage.findIndex((y) => y.t === 'BY CATEGORY & HOLDING'), total = dPage.findIndex((y) => y.t === 'Total');
+  return dPage.map((l, j) => {
+    // H: the opening-cash row prints the cash entered, '$5,000' — the figure after its 'Sep 1 · you entered this' line
+    if (key === 'H' && l.t === '$0' && dPage[j - 1]?.t === 'Sep 1 · you entered this' && dPage[j - 2]?.t === 'Opening cash') return { ...l, t: '$5,000' };
+    if (!(j < table || j === total + 2)) return l;
+    const hit = R18_PAGE[key].find(([was]) => was === l.t);
+    return hit ? { ...l, t: hit[1] } : l;
+  });
+}
+
 /** the true number of sheet choices under 44 points tall on 2026-10-31 (NW3-S05) — it may only fall */
 const RATCHET_SHORT_CHOICES = 0;    // 0 of 900 on 2026-11-01, after FX-SHARED's Tap.slop (92 of 900 that morning; 628 on 2026-10-31, before Tap.min): it may only fall
 /** FX-SHARED'S ROW OF 2026-10-31 ON THE TRADE SHEET, THE HOLDING EDITOR AND THE RECORDER (DEC-0141, NW3-16/17): "every choice on the sheet
@@ -328,7 +356,7 @@ describe.each(SHEETS.map((s) => [s.file, s] as [string, Sheet]))('%s', (_file, s
     const bSheet = built.filter((l) => l.sheet);
     const emptied = drawn.filter((l) => l.sheet && R16_ROW.test(D.html) && greyFigure(l)).length;
     const dSheet = tapRow(D.html, moneyBoxRow(D.html, emptyRow(D.html, drawn.filter((l) => l.sheet)), bSheet), bSheet);
-    const dPage = asCorrected(D.html, k, drawn.filter((l) => !l.sheet)), bPage = built.filter((l) => !l.sheet).slice(0, dPage.length);
+    const dPage = r18Page(D.html, k, asCorrected(D.html, k, drawn.filter((l) => !l.sheet))), bPage = built.filter((l) => !l.sheet).slice(0, dPage.length);
     const diff = firstDifference(dSheet.map((l) => l.t), bSheet.map((l) => l.t)) ?? firstDifference(dPage.map((l) => l.t), bPage.map((l) => l.t));
     REPORT.push(`${sheet.id} ${k}: sheet ${dSheet.length} of ${bSheet.length} lines drawn; page ${dPage.length} lines drawn above it${diff ? ` — ${diff}` : ', identical'}`);
     if (diff) throw new Error(`state ${k}: ${diff}`);
