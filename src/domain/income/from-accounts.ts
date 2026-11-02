@@ -20,7 +20,8 @@ import { plural } from '../_shared/plural';
 import { isoLocalDate, dateShown } from '../_shared/dates';
 import { moneyIntoAccount } from '../../../Calculation Module code/engines/ledger';
 // a bond's or CD's year of interest has ONE rule (MK-NW-F-126 yearlyInterestNow, DEC-2748c/d) — read here, never re-derived
-import { bondInfo, yearlyInterestNow, isPastMaturity } from '../bonds';
+import { bondInfo, yearlyInterestNow, isPastMaturity, heldBondInterest } from '../bonds';
+import { percentDigits } from '../../../MoneyKeel/functions/_figure-spec';   // the one percent writer (R24, 2026-11-01)
 
 export interface AccountIncomeLine {
   label: string;        // the account, as the person named it
@@ -46,9 +47,9 @@ export interface AccountIncome {
  * Formula .....
  *     the answer = (r × 100) followed by '%'
  *
- * Called by ... MK-CF-F-184 incomeFromAccounts
+ * Called by ... MK-CF-F-184 incomeFromAccounts · MK-CF-F-316 bondWhy
  *
- * Reaches ..... 478 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 485 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -58,17 +59,14 @@ export interface AccountIncome {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 460 more — the full list is on functions_from_code
+ *               … and 467 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- *
- * Decides .....
- *     · Shows 2 decimal places.
  *
  * Formula also on the master file · functions_from_code · MK-CF-F-182
  * Changed ..... not in git yet (—)
  */
-const asPercent = (r: number) => `${(r * 100).toFixed(2)}%`;
+const asPercent = (r: number) => `${percentDigits(r, 2)}%`;
 // TWO DECIMALS, ALWAYS (2026-10-31, FX-CF-B, IN3-04; his Q49 and DEC-0221 "Return on cash - use 2 decimals"; v07 row of that day):
 // "3.80% on $18,400" beside a CD's "5.05%" — one form for one kind of figure (tenet 4). It cut trailing zeros: "3.8%", "4%".
 
@@ -95,7 +93,7 @@ const asPercent = (r: number) => `${(r * 100).toFixed(2)}%`;
  *
  * Called by ... MK-CF-F-184 incomeFromAccounts · MK-CF-F-264 interestAndDividendsForYear
  *
- * Reaches ..... 478 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 484 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -105,7 +103,7 @@ const asPercent = (r: number) => `${(r * 100).toFixed(2)}%`;
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 460 more — the full list is on functions_from_code
+ *               … and 466 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -166,7 +164,7 @@ function paidOutByAccount(
  *
  * Called by ... MK-CF-F-184 incomeFromAccounts · MK-CF-F-264 interestAndDividendsForYear
  *
- * Reaches ..... 478 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 484 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -176,7 +174,7 @@ function paidOutByAccount(
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 460 more — the full list is on functions_from_code
+ *               … and 466 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -186,6 +184,45 @@ function paidOutByAccount(
 function incomeIsTaxedWhenPaid(a: AssetAccount): boolean {
   const t = taxTreatmentOf(a);
   return t !== 'tax_deferred' && t !== 'tax_free';
+}
+
+/** A bond's or CD's line, in words, written in one place for an account that is the bond and for a bond held inside one (2026-11-02) */
+/* ─ MK-CF-F-316 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * bondWhy
+ *
+ * Answers ..... A bond's or CD's line, in words, written in one place for an account that is the bond and for a bond held inside one (2026-11-02)
+ *
+ * Formula .....
+ *     `${as percent(rate)} coupon on ${money(face as number)} face`   when kind = 'face'
+ *     `${as percent(rate)} on ${money(balance)}`   when kind = 'balance'
+ *     `${as percent(rate)} coupon — face value not entered, so ${tail}`
+ *
+ * Called by ... MK-CF-F-184 incomeFromAccounts
+ *
+ * Reaches ..... 484 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
+ *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
+ *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
+ *               … and 466 more — the full list is on functions_from_code
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-001 account balance
+ *               MK-XS-I-011 bond face value
+ *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-F-316
+ * Changed ..... not in git yet (—)
+ */
+function bondWhy(kind: 'face' | 'balance' | 'no face', rate: number, face: number | null, balance: number, tail = ''): string {
+  if (kind === 'face') return `${asPercent(rate)} coupon on ${money(face as number)} face`;
+  if (kind === 'balance') return `${asPercent(rate)} on ${money(balance)}`;
+  return `${asPercent(rate)} coupon — face value not entered, so ${tail}`;
 }
 
 /** One line per account that pays something, and the total.
@@ -215,7 +252,7 @@ function incomeIsTaxedWhenPaid(a: AssetAccount): boolean {
  *
  * Called by ... MK-CF-F-207 SOURCE · MK-CF-F-264 interestAndDividendsForYear
  *
- * Reaches ..... 478 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 484 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -225,7 +262,7 @@ function incomeIsTaxedWhenPaid(a: AssetAccount): boolean {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 460 more — the full list is on functions_from_code
+ *               … and 466 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
@@ -291,14 +328,14 @@ export function incomeFromAccounts(
         lines.push({ label, why: `no coupon rate entered — counted as $0 on ${money(balance)} until one is`, annual: 0, assumed: true });
       } else if (yearly == null) {
         // a dated bond with a rate and no face value: its coupon is paid on the face (DEC-3523 tenet 3), so nothing is counted, said so
-        lines.push({ label, why: `${asPercent(b.couponRate)} coupon — face value not entered, so counted as $0 until it is`, annual: 0, assumed: true });
+        lines.push({ label, why: bondWhy('no face', b.couponRate, null, balance, 'counted as $0 until it is'), annual: 0, assumed: true });
       } else if (isPastMaturity(b.maturity, now)) {
         lines.push({ label, why: `matured ${dateShown(b.maturity)} — it pays no more interest`, annual: 0, assumed: false });
       } else if (b.face != null) {
-        lines.push({ label, why: `${asPercent(b.couponRate)} coupon on ${money(b.face)} face`, annual: yearly, assumed: false });
+        lines.push({ label, why: bondWhy('face', b.couponRate, b.face, balance), annual: yearly, assumed: false });
       } else {
         // a CD bought from the bank typed by its balance, or a bond fund: its rate on that balance (DEC-2748c, DEC-3837)
-        lines.push({ label, why: `${asPercent(b.couponRate)} on ${money(balance)}`, annual: yearly, assumed: false });
+        lines.push({ label, why: bondWhy('balance', b.couponRate, null, balance), annual: yearly, assumed: false });
       }
       continue;
     }
@@ -307,7 +344,17 @@ export function incomeFromAccounts(
       continue;
     }
     if (a.kind === 'foreign_currency') continue;   // Q08 (founder, 2026-08-26): cash held in that currency — no interest, nothing to count or to miss
-    if (balance > 0) unseen.push(label);
+    // A BOND OR CD HELD INSIDE THE ACCOUNT (2026-11-02, FX-NW; his DEC-2748c): face × rate, by the one reader — named, and named as not
+    // counted when its rate or face is missing. An account whose payouts are on record took the record above, so nothing is added twice.
+    const held = heldBondInterest(a, now);
+    for (const h of held) {
+      const named = `${h.label} (in ${label})`;
+      if (h.why === 'counted') lines.push({ label: named, why: bondWhy('face', h.couponRate as number, h.face, 0), annual: h.yearly as number, assumed: false });
+      else if (h.why === 'matured') lines.push({ label: named, why: 'matured — it pays no more interest', annual: 0, assumed: false });
+      else lines.push({ label: named, why: h.why === 'no rate' ? 'no coupon rate entered — not counted until one is' : bondWhy('no face', h.couponRate as number, null, 0, 'not counted until it is'), annual: 0, assumed: true });
+    }
+    const othersHeld = ((a as any).positions ?? []).length > held.length;
+    if (balance > 0 && (held.length === 0 || othersHeld)) unseen.push(label);
   }
 
   return {
@@ -382,7 +429,7 @@ export interface InterestAndDividendsForYear {
  * Called by ... MK-CF-F-084 taxableAnnual · MK-CF-F-274 taxedSourcesAnnual
  *               MK-CF-F-275 profileWithAccountIncome · MK-CF-O-007 theTaxOrganizer
  *
- * Reaches ..... 478 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 484 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -392,7 +439,7 @@ export interface InterestAndDividendsForYear {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 460 more — the full list is on functions_from_code
+ *               … and 466 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-003 institution name

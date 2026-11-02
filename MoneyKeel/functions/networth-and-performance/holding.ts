@@ -498,17 +498,19 @@ const HOLD = () => theHolding({ position: EXAMPLE_POSITION, accountId: 'a2', pri
  *
  * Called by ... MK-NW-F-035 blendedVolatility · MK-NW-F-143 gainRowBetween
  *               MK-NW-F-167 COMPARE · MK-NW-F-185 valueChanged
- *               MK-PF-F-007 totalROI · MK-PF-F-010 periodReturn
- *               MK-PF-F-011 periodReturnSince · MK-PF-F-014 buildPerformance
- *               MK-PF-F-029 closeAsOf · MK-PF-F-033 quantityWithUnit
- *               MK-PF-F-034 closeOnOrBefore · MK-PF-F-038 periodTotalReturn
- *               MK-PF-F-039 periodReturnParts · MK-PF-F-040 returnSincePurchases
- *               MK-PF-F-055 valueAtClose · MK-PF-F-056 purchasePieces
- *               MK-PF-F-060 closeDayOnOrBefore · MK-PF-F-070 holdingPath
- *               MK-PF-F-077 eventPath · MK-PF-F-086 staleStartClose
- *               MK-PF-F-088 valuedByYouWords · MK-XS-F-192 typedValueDatedBack
+ *               MK-NW-O-008 thePerformance · MK-PF-F-007 totalROI
+ *               MK-PF-F-010 periodReturn · MK-PF-F-011 periodReturnSince
+ *               MK-PF-F-014 buildPerformance · MK-PF-F-029 closeAsOf
+ *               MK-PF-F-033 quantityWithUnit · MK-PF-F-034 closeOnOrBefore
+ *               MK-PF-F-038 periodTotalReturn · MK-PF-F-039 periodReturnParts
+ *               MK-PF-F-040 returnSincePurchases · MK-PF-F-055 valueAtClose
+ *               MK-PF-F-056 purchasePieces · MK-PF-F-060 closeDayOnOrBefore
+ *               MK-PF-F-070 holdingPath · MK-PF-F-077 eventPath
+ *               MK-PF-F-086 staleStartClose · MK-PF-F-088 valuedByYouWords
+ *               MK-PF-F-089 closeAsOfInside · MK-PF-F-090 staleWindowStart
+ *               MK-XS-F-192 typedValueDatedBack
  *
- * Reaches ..... 479 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 485 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -518,7 +520,7 @@ const HOLD = () => theHolding({ position: EXAMPLE_POSITION, accountId: 'a2', pri
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 461 more — the full list is on functions_from_code
+ *               … and 467 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance

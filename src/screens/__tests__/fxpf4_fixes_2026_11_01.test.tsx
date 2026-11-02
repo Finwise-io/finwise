@@ -83,8 +83,20 @@ describe('R18 · a typed-total account\'s Return is its walk\'s own — one func
     const l = builtLines(screen.toJSON());
     expect(after(l, 'Return', l.findIndex((x) => x.startsWith('THIS ACCOUNT ·')))).toBe(pct(49_200 / 49_200 * (50_000 / 49_000) - 1));
   });
-  test('a day whose value cannot be worked back still refuses, in words (FX-PF decision 2 of round 3, kept by R18)', () => {
-    // the same account with only a close 17 days before a deposit's day: that day's value is not on record
+  // R19b (2026-11-01): a day inside the window takes its own day's close, however old — $500 put in Sep 15 is valued from VTI's Aug 28
+  // close, $90: just before it $50,000 − $1,000 (VTI since) − $500 = $48,500, the beginning; after $49,000; 50,000 ÷ 49,000 − 1 = +2.04%.
+  // Until R19b this refused (kept below as test.failing); a refusal stands where shares traded inside the window (fxpf3, NW3-02).
+  test('R19b: a deposit valued from the close before its day, inside the window — 48,500 ÷ 48,500 × 50,000 ÷ 49,000 − 1 = +2.04%', () => {
+    const st = state('D'); mockParams = st.params;
+    const s: any = useStore.getState();
+    useStore.setState({ priceCache: { ...s.priceCache, VTI: { ...s.priceCache.VTI, points: s.priceCache.VTI.points.filter((p: any) => p.date !== '2026-09-04') } },
+      transactions: [{ id: 'd1', account_id: 'van', source: 'manual', created_at: '', type: 'DEPOSIT', amount: 500, date: '2026-09-15' }] } as any);
+    render(React.createElement(require('../AccountPortfolioScreen').default));
+    pick('1M');
+    const l = builtLines(screen.toJSON());
+    expect(after(l, 'Return', l.findIndex((x) => x.startsWith('THIS ACCOUNT ·')))).toBe(pct(48_500 / 48_500 * (50_000 / 49_000) - 1));
+  });
+  test.failing('the answer until R19b, kept (no longer the app\'s): the deposit\'s day, 17 days after the last close, refused', () => {
     const st = state('D'); mockParams = st.params;
     const s: any = useStore.getState();
     useStore.setState({ priceCache: { ...s.priceCache, VTI: { ...s.priceCache.VTI, points: s.priceCache.VTI.points.filter((p: any) => p.date !== '2026-09-04') } },
@@ -199,5 +211,91 @@ describe('R19a · a holding priced by hand starts from its last value, however o
     expect(staleStartClose(marks as any, '2026-06-30')).toBeNull();
     expect(valuedByYouWords(marks, '2026-06-30', dateShown)).toBe('valued by you on May 29, 2026');
     expect(valuedByYouWords({ ...marks, byHand: undefined }, '2026-06-30', dateShown)).toBeNull();   // a market series says nothing of the kind
+  });
+});
+
+// ═══ A MONEY DAY WITH A TRADE SINCE (the lead's note on R18, 2026-11-01; account-page v01 row 96) ══════════════════════
+describe('a money day after which shares traded: worked back by undoing each trade — refused only where a trade is not on record', () => {
+  // a sale with no price and no amount: what VTI made is not known, so his ruling DEC-5068 reads it — the Return is on the holdings with
+  // what they made known (here none of VTI's sold part), and the sentence names the sale with no amount; flowTwr is never reached
+  test('a sale with no price and no amount after the deposit: the sale is named, as DEC-5068 has it (never a figure for that day)', () => {
+    const st = state('D'); mockParams = st.params;
+    useStore.setState({ transactions: [
+      { id: 'd1', account_id: 'van', source: 'manual', created_at: '', type: 'DEPOSIT', amount: 500, date: '2026-09-15' },
+      { id: 's1', account_id: 'van', source: 'manual', created_at: '', type: 'SELL', ticker: 'VTI', shares: 10, date: '2026-09-20' }] } as any);
+    render(React.createElement(require('../AccountPortfolioScreen').default));
+    pick('1M');
+    const l = builtLines(screen.toJSON());
+    expect(l.some((x) => /a sale with no amount in your records/.test(x))).toBe(true);
+  });
+});
+
+// ═══ PF6-1 · THE HOLDING PAGE UNDER ACTIVITY A, PAST YEAR, WORKED BY HAND (2026-11-02) ══════════════════════════════════
+// Apple in Fidelity: bought 100 (Mar 14, 2023, $168) and 40 (Jan 9, 2026, $192.50); 10 sold Sep 15 at $230.00 (no fee), taken off the
+// oldest first, as the trade sheet does (the test below) — 90 and 40 today, 130 shares, worth 130 × $241.84 = $31,439. The year starts
+// on the Sep 29, 2025 close, $175; held then 130 + 10 − 40 = 100 (DEC-3656, DEC-7221):
+//   piece 1, to the evening before the buy (the Dec 31 close, $175): 100 × 175 ÷ 100 × 175 = 1
+//   piece 2, from the buy at $192.50 to the evening before the sale (the Aug 28 close, $175): 140 × 175 ÷ (100 × 175 + 40 × 192.50) = 24,500 ÷ 25,200
+//   piece 3, the sale day: (130 × 175 + 10 × 230) ÷ (140 × 175) = 25,050 ÷ 24,500
+//   piece 4, to today: 241.84 ÷ 175
+// = 1.37372 − 1 = +37.37% — the outside working. The page read +37.43% from a fixture holding 140 beside the sale, a state the app
+// cannot make (fixed 2026-11-02; activity v02's row of that date); that answer is kept below as test.failing.
+describe('PF6-1 · the Holding page under activity A, past year: +37.37%, every piece by hand', () => {
+  const open = () => {
+    const { ACTIVITY_SHEET } = require('../../testing/sheetStates');
+    const st: any = ACTIVITY_SHEET.states.find((s: any) => s.key === 'A');
+    useStore.getState().resetAll(); useStore.setState({ onboardingComplete: true, hideBalances: false, ...st.store } as any);
+    mockParams = { ...st.params, period: '1Y' };
+    render(React.createElement(require('../HoldingDetailScreen').default));
+    return builtLines(screen.toJSON());
+  };
+  test('Your return, past year: 24,500 ÷ 25,200 × 25,050 ÷ 24,500 × 241.84 ÷ 175 − 1 = +37.37%', () => {
+    const l = open();
+    const exact = 1 * (24_500 / 25_200) * ((130 * 175 + 2_300) / (140 * 175)) * (241.84 / 175) - 1;
+    expect(pct(exact)).toBe('+37.37%');
+    expect([after(l, 'Quantity'), after(l, 'Current value')]).toEqual(['130 shares', '$31,439']);
+    expect(after(l, 'Your return, past year')).toBe(pct(exact));
+  });
+  test.failing('the answer until 2026-11-02, kept (no longer the app\'s): +37.43%, read from 140 shares held beside the sale', () => {
+    expect(after(open(), 'Your return, past year')).toBe('+37.43%');
+  });
+});
+
+// ═══ NW6-01 · A TRADE WITH NO PRICE ON A TYPED-TOTAL ACCOUNT (2026-11-02; account-page v01's row of that date) ══════════
+// Vanguard, $50,000 typed with 100 VTI; 10 more VTI bought Sep 20, saved without a price. What VTI made over 1M cannot be known (the
+// 10 began at an unknown cost), so the walk's own change cannot be either: Return '—', and the sentence names the purchase. It read
+// +11.11% (VTI's own $90 → $100) beside wealth generated $0.
+describe('NW6-01 · a buy saved without its price: Return "—", the purchase named — never VTI\'s own move', () => {
+  test('the account page, 1M', () => {
+    const st = state('H'); mockParams = st.params;
+    const s: any = useStore.getState();
+    const accts = s.assetAccounts.map((a: any) => a.asset_id !== 'van' ? a : { ...a, positions: a.positions.map((p: any) => ({ ...p,
+      lots: [...p.lots, { lot_id: 'np', shares: 10, purchase_date: '2026-09-20' }] })) });
+    useStore.setState({ assetAccounts: accts, transactions: [{ id: 'b1', account_id: 'van', source: 'manual', created_at: '', type: 'BUY', ticker: 'VTI', shares: 10, date: '2026-09-20' }] } as any);
+    render(React.createElement(require('../AccountPortfolioScreen').default));
+    pick('1M');
+    const l = builtLines(screen.toJSON());
+    expect(after(l, 'Return', l.findIndex((x) => x.startsWith('THIS ACCOUNT ·')))).toBe('—');
+    expect(l.some((x) => /has a purchase with no price paid on record, so its gains are not included\./.test(x))).toBe(true);
+    expect(l.join(' ')).not.toMatch(/Return \+11\.11%/);
+  });
+});
+
+// ═══ PF6-1 FOLLOW-UP · CAN THE APP PRODUCE ACTIVITY A'S STATE? (2026-11-02) ════════════════════════════════════════════
+describe('PF6-1 · a sale recorded through the real trade sheet takes its shares off the holding', () => {
+  test('lots of 100 and 40, sell 10 at $230 from the Holding page: the holding reads 130 shares afterwards', () => {
+    const { TRADE_SHEET } = require('../../testing/sheetStates');
+    const st: any = TRADE_SHEET.states.find((s: any) => s.key === 'L');
+    useStore.getState().resetAll(); useStore.setState({ onboardingComplete: true, hideBalances: false, ...st.store } as any);
+    mockParams = st.params;
+    render(React.createElement(require('../HoldingDetailScreen').default));
+    fireEvent.press(screen.getByLabelText('Record a buy or sell for AAPL'));
+    fireEvent.press(screen.getByLabelText('Transaction type: Sell'));
+    const boxes = screen.getAllByLabelText(/^(Shares|Contracts|Price per share|Amount)$/);
+    fireEvent.changeText(boxes[0], '10'); fireEvent.changeText(boxes[1], '230');
+    fireEvent.press(screen.getByText('Record sell'));
+    const pos = (useStore.getState() as any).assetAccounts.find((a: any) => a.asset_id === 'fid').positions.find((p: any) => p.ticker === 'AAPL');
+    const held = pos.lots.reduce((t: number, l: any) => t + Number(l.shares), 0);
+    expect(held).toBe(130);
   });
 });

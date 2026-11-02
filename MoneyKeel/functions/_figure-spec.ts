@@ -44,37 +44,173 @@ export type FigureUnit =
  * Answers ..... A RATE HELD AS 0…1, WRITTEN AS A PERCENT TO TWO DECIMALS, rounded half away from zero (2026-10-19, DEC-6212).
  *
  * Formula .....
- *     pct = (math.abs(rate) × 100).to precision(12) read as a number
- *     hundredths = round((pct × 100).to precision(12) read as a number)
- *     the answer = `${rate < 0 and hundredths ! = 0 ? '-' : ''}${(hundredths ÷ 100).to fixed(2)}`
+ *     points digits(rate × 100, digits)
  *
- * Called by ... MK-NW-F-163 yardstickName · MK-NW-F-164 gapWords
- *               MK-XS-F-183 writeFigure
+ * Called by ... MK-CF-F-144 takeHomeAsEntered · MK-CF-F-146 payFiguresAgree
+ *               MK-CF-F-181 rateInForce · MK-CF-F-182 asPercent
+ *               MK-CF-O-001 basePay · MK-CF-O-004 incomeSummary
+ *               MK-HM-F-005 pctTxt · MK-NW-F-163 yardstickName
+ *               MK-NW-F-164 gapWords · MK-NW-F-179 balanceWithBondTakenOut
+ *               MK-PL-F-089 drawAssumptionsSaid · MK-PL-F-090 rateWordsOf
+ *               MK-XS-F-183 writeFigure · MK-XS-F-215 isWholeToTheCent
  *
- * Reaches ..... 18 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-088 BENCH · MK-NW-F-167 COMPARE
- *               MK-NW-F-140 LEFT_OUT · MK-NW-F-083 PERF
- *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
- *               MK-NW-F-144 beforeTheRecordSentence · MK-CF-F-107 buildPaycheckYear
- *               MK-PL-F-089 drawAssumptionsSaid · MK-CF-O-017 futurePaycheck
- *               MK-NW-F-164 gapWords · MK-CF-F-282 growthUsed
- *               MK-NW-F-130 notIncludedSentence · MK-CF-F-279 paycheckReturn
- *               MK-NW-O-008 thePerformance · MK-NW-F-105 whyNoReturn
- *               MK-XS-F-183 writeFigure · MK-NW-F-163 yardstickName
+ * Reaches ..... 493 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
+ *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
+ *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
+ *               … and 475 more — the full list is on functions_from_code
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-185
+ * Changed ..... not in git yet (—)
+ */
+export function percentDigits(rate: number, digits = 2): string {
+  return pointsDigits(rate * 100, digits);
+}
+
+/** WHOLE TO THE CENT? (2026-11-02, FX-CF-C; R28): an amount is whole when, rounded to the cent, it has no cents — $20,000.0004 (a stored
+ *  $1,666.6667 × 12) is $20,000.00, whole; $20,000.04 (a typed $1,666.67 × 12) is not. Under half a cent from a whole dollar is a whole dollar.
+ *  The one test for it: the as-typed writers (src/components/figure.ts) and the Tax organizer's PDF ask this, and compute nothing themselves. */
+/* ─ MK-XS-F-215 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * isWholeToTheCent
+ *
+ * Answers ..... WHOLE TO THE CENT?
+ *
+ * Formula .....
+ *     size of(v − round(v)) < 0.005
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
  * Decides .....
  *     · Rounds the answer to a whole number.
- *     · Shows 2 decimal places.
  *
- * Formula also on the master file · functions_from_code · MK-XS-F-185
+ * Formula also on the master file · functions_from_code · MK-XS-F-215
  * Changed ..... not in git yet (—)
  */
-export function percentDigits(rate: number): string {
-  const pct = Number((Math.abs(rate) * 100).toPrecision(12));
-  const hundredths = Math.round(Number((pct * 100).toPrecision(12)));
-  return `${rate < 0 && hundredths !== 0 ? '-' : ''}${(hundredths / 100).toFixed(2)}`;
+export function isWholeToTheCent(v: number): boolean {
+  return Math.abs(v - Math.round(v)) < 0.005;
+}
+
+/** THE ONE PERCENT WRITER, FOR A FIGURE ALREADY IN PERCENT (2026-11-01, FX-CF-C; R24, CF5-08): "10.975" → "10.98", "2.675" → "2.68",
+ *  "0.125" → "0.13" — half away from zero on the DECIMAL value. The binary noise past the twelfth significant figure is cleared before
+ *  rounding, which toFixed never does: 13,170 ÷ 120,000 = 10.975% is held as 10.97499…, and toFixed(2) wrote 10.97. Every percent the app
+ *  prints is written here or through percentDigits (a rate held 0…1); src/__tests__/guard_one_percent_writer.test.ts holds it. */
+/* ─ MK-XS-F-211 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * pointsDigits
+ *
+ * Answers ..... THE ONE PERCENT WRITER, FOR A FIGURE ALREADY IN PERCENT (2026-11-01, FX-CF-C; R24, CF5-08): "10.975" → "10.98", "2.675" → "2.68", "0.125" → "0.13" — half away from zero on the DECIMAL value.
+ *
+ * Formula .....
+ *     scale = 10 ×  × digits
+ *     abs = size of(points).to precision(12) read as a number
+ *     units = round((abs × scale).to precision(12) read as a number)
+ *     the answer = `${points < 0 and units ! = 0 ? '−' : ''}${(units ÷ scale).to fixed(digits)}`
+ *
+ * Called by ... MK-HM-F-007 percent2 · MK-XS-F-185 percentDigits
+ *               MK-XS-F-213 pointsValue
+ *
+ * Reaches ..... 500 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
+ *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
+ *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
+ *               … and 482 more — the full list is on functions_from_code
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Decides .....
+ *     · Rounds the answer to a whole number.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-211
+ * Changed ..... not in git yet (—)
+ */
+export function pointsDigits(points: number, digits = 2): string {
+  const scale = 10 ** digits;
+  const abs = Number(Math.abs(points).toPrecision(12));
+  const units = Math.round(Number((abs * scale).toPrecision(12)));
+  return `${points < 0 && units !== 0 ? '−' : ''}${(units / scale).toFixed(digits)}`;   // the minus sign, never a hyphen (CF6-19, 2026-11-02)
+}
+
+/** THE SAME ROUNDING, AS A NUMBER (2026-11-02, CLEANUP-TESTS): the writer prints the minus sign '−' (CF6-19), which a number cannot
+ *  read — +'−1.53' is NaN, so the mortgage comparison's gap, Insights' points behind the benchmark and every other figure worked from
+ *  the writer's text went NaN once the gap was negative. A figure the code goes on computing with reads this; the screen prints the writer. */
+/* ─ MK-XS-F-213 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * pointsValue
+ *
+ * Answers ..... THE SAME ROUNDING, AS A NUMBER (2026-11-02, CLEANUP-TESTS): the writer prints the minus sign '−' (CF6-19), which a number cannot read — +'−1.53' is NaN, so the mortgage comparison's gap, Insights' points behind the benchmark and every other figure worked from the writer's text went NaN once the gap was negative.
+ *
+ * Formula .....
+ *     points digits(points, digits).replace('−', '-') read as a number
+ *
+ * Called by ... MK-NW-F-180 barSegments · MK-XS-F-214 percentValue
+ *
+ * Reaches ..... 489 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
+ *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
+ *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
+ *               … and 471 more — the full list is on functions_from_code
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-213
+ * Changed ..... not in git yet (—)
+ */
+export function pointsValue(points: number, digits = 2): number {
+  return Number(pointsDigits(points, digits).replace('−', '-'));
+}
+/** pointsValue for a rate held 0…1: 0.031 − 0.0463 → −1.53 */
+/* ─ MK-XS-F-214 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * percentValue
+ *
+ * Answers ..... pointsValue for a rate held 0…1: 0.031 − 0.0463 → −1.53
+ *
+ * Formula .....
+ *     points value(rate × 100, digits)
+ *
+ * Called by ... MK-CF-F-043 compareMortgageToTreasury · MK-HM-F-007 percent2
+ *               MK-NW-F-070 accruedInterestCaveat · MK-PL-F-022 goalProgressPct
+ *               MK-PL-F-033 educationPlan · MK-PL-F-044 planTarget
+ *               MK-XS-F-001 planCompleteness
+ *
+ * Reaches ..... 487 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
+ *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
+ *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
+ *               … and 469 more — the full list is on functions_from_code
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-214
+ * Changed ..... not in git yet (—)
+ */
+export function percentValue(rate: number, digits = 2): number {
+  return pointsValue(rate * 100, digits);
 }
 
 /** WRITE A FIGURE THE WAY THE SCREEN WRITES IT — one writer, two callers (2026-09-28).
@@ -126,7 +262,7 @@ export function writeFigure(spec: FigureSpec, value: number | null, opts?: { spo
     spec.unit === 'money' ? formatMoney(value)
     : spec.unit === 'money-compact' ? moneyCompact(value, 'MM')
     : spec.unit === 'money-cents' ? formatMoneyCents(value)
-    : spec.unit === 'percent' ? `${Math.round(value * 100)}%`
+    : spec.unit === 'percent' ? `${percentDigits(value, 0)}%`
     : spec.unit === 'percent-2dp' ? `${percentDigits(value)}%`
     : spec.unit === 'percent-signed' ? `${value < 0 ? '−' : '+'}${percentDigits(Math.abs(value))}%`
     : spec.unit === 'months' ? plural(value, 'month', (Math.round(value * 10) / 10).toFixed(1))
@@ -237,7 +373,7 @@ export function walkShown(w: Omit<WalkLines, 'wealthGenerated'> & { wealthGenera
  * Called by ... MK-CF-F-255 spendByMonthByCategory · MK-CF-F-256 budgetEditorBuckets
  *               MK-XS-F-195 monthShown · MK-XS-F-204 centsShown
  *
- * Reaches ..... 480 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 486 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -247,7 +383,7 @@ export function walkShown(w: Omit<WalkLines, 'wealthGenerated'> & { wealthGenera
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 462 more — the full list is on functions_from_code
+ *               … and 468 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -287,7 +423,7 @@ export function partsShown(parts: number[]): { parts: number[]; total: number } 
  *
  * Called by ... MK-CF-F-204 line
  *
- * Reaches ..... 478 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 484 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -297,7 +433,7 @@ export function partsShown(parts: number[]): { parts: number[]; total: number } 
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 460 more — the full list is on functions_from_code
+ *               … and 466 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -522,7 +658,7 @@ export type FigureDeclaration = Record<string, FigureSpec>;
  *               MK-NW-F-167 COMPARE · MK-NW-F-179 balanceWithBondTakenOut
  *               MK-NW-F-185 valueChanged · MK-PL-F-083 inflationRateInForce
  *
- * Reaches ..... 480 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 486 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -532,7 +668,7 @@ export type FigureDeclaration = Record<string, FigureSpec>;
  *               MK-CF-F-237 LATER · MK-NW-F-081 LB
  *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
  *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
- *               … and 462 more — the full list is on functions_from_code
+ *               … and 468 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

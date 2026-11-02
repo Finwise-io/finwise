@@ -17,7 +17,7 @@ export type EntityId = string;   // asset_id | debt_id | goal_id | income_source
  *               MK-NW-F-040 assetsFromOnboarding · MK-PL-F-013 goalsFromOnboarding
  *               MK-XS-F-102 ingestSync · MK-XS-F-199 profileOnTheWayIn
  *
- * Reaches ..... 20 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 21 functions. Change the arithmetic above and these change with it:
  *               MK-CF-F-138 addLot · MK-CF-F-111 applyTransaction
  *               MK-NW-F-040 assetsFromOnboarding · MK-XS-F-031 buildSnapshot
  *               MK-CF-F-038 debtsFromOnboarding · MK-PL-F-023 goalStatus
@@ -27,7 +27,7 @@ export type EntityId = string;   // asset_id | debt_id | goal_id | income_source
  *               MK-CF-F-224 openingRecordsOf · MK-XS-F-199 profileOnTheWayIn
  *               MK-CF-F-290 purchaseRecordsAfterHoldingRemoved · MK-CF-F-289 purchaseRecordsFollowEdit
  *               MK-CF-F-291 purchaseRecordsFollowReimport · MK-XS-F-033 resolveNetWorthRows
- *               … and 2 more — the full list is on functions_from_code
+ *               … and 3 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

@@ -155,21 +155,21 @@ describe('CF-09 · CF-11 · CF-12 · CF-23 · CF-24', () => {
     const amber = screen.getByText('Your mortgage “Chase” is not on a property. A mortgage is always on a property — open it and say which one.');
     expect(flat(amber).color).toBe(Colors.amber);
   });
-  test('CF-24 · a calculated take-home wears ≈ on This month, the Income tab and Home; a typed one never does', () => {
+  test('CF-24 · a calculated take-home wears ~ on This month, the Income tab and Home; a typed one never does', () => {
     // $8,000 a month, $1,000 into a 401(k), single (E2E-79 worked it): ≈$6,196
     H.householdFreshD();
     useStore.setState({ onboardingProfile: { status: 'employed', incomeSources: ['employment'], birthYear: '1981', baseSalary: '8000', salaryFreq: 'monthly', c_401k: '1000', hasPartner: 'no' } } as any);
     render(<CashFlowScreen />);
     let L = lines();
-    expect([L[L.indexOf('Inflow (income (take-home))') + 1], L[L.indexOf('Actual inflow (income (take-home))') + 1]]).toEqual(['≈$6,196', '≈$6,196']);
+    expect([L[L.indexOf('Inflow (income (take-home))') + 1], L[L.indexOf('Actual inflow (income (take-home))') + 1]]).toEqual(['~$6,196', '~$6,196']);
     tab('Income');
     L = lines();
-    expect([L[L.indexOf('THIS MONTH') + 1], L[L.indexOf('Salary — steady') + 1]]).toEqual(['≈$6,196', 'before tax · monthly · ≈$6,196/month take-home']);
+    expect([L[L.indexOf('THIS MONTH') + 1], L[L.indexOf('Salary — steady') + 1]]).toEqual(['~$6,196', 'before tax · monthly · ~$6,196/month take-home']);
     screen.unmount();
     const HomeScreen = require('../HomeScreen').default;
     render(<HomeScreen />);
     L = lines();
-    expect(L[L.indexOf('Income', L.indexOf("THIS MONTH’S CASH FLOW")) + 1]).toBe('≈$6,196');
+    expect(L[L.indexOf('Income', L.indexOf("THIS MONTH’S CASH FLOW")) + 1]).toBe('~$6,196');
     screen.unmount();
     H.householdWithData();
     render(<CashFlowScreen />);

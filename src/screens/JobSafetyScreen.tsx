@@ -69,7 +69,9 @@ export default function JobSafetyScreen() {
   const rent = asked.rentalIncomeMonthly;
   const target = asked.targetFor(months)?.target ?? 0;
   const gap = Math.max(0, target - available);
-  const covered = ess > 0 && gap <= 0;
+  // NO ACCOUNT IT COUNTS IS ENTERED (NW6-02, 2026-11-02; DEC-0296): no gap from a $0 nobody typed — it says so (Net worth v08 row of that date)
+  const noneEntered = !emergencyFund.cashEntered && (basis === 'savings' || totalInvestments === 0);
+  const covered = ess > 0 && gap <= 0 && !noneEntered;
   const monthsToClose = gap > 0 ? Math.ceil(gap / EXAMPLE_PACE) : 0;
   const basisWord = basis === 'savings' ? 'savings' : 'savings and investments';
 
@@ -118,9 +120,11 @@ export default function JobSafetyScreen() {
           </>
         ) : (
           <>
-            <Text style={[s.hero, { color: covered ? Colors.gainText : Colors.amber }]}>{covered ? '✓ Covered' : money(gap)}</Text>
+            {noneEntered
+              ? <Text style={s.askLine}>No {basis === 'savings' ? 'savings' : 'savings or investment'} account entered yet — add one to see what you still need.</Text>
+              : <Text style={[s.hero, { color: covered ? Colors.gainText : Colors.amber }]}>{covered ? '✓ Covered' : money(gap)}</Text>}
             <Text style={s.heroLine}>
-              {months} months of essentials is {money(target)} ({money(ess)}/month{rent > 0 ? ` − ${figPer('MK-NW-M-064', rent)} rent from your property, which keeps arriving` : ''}) — your {basisWord} cover {money(Math.min(available, target))} of it.
+              {months} months of essentials is {money(target)} ({money(ess)}/month{rent > 0 ? ` − ${figPer('MK-NW-M-064', rent)} rent from your property, which keeps arriving` : ''}){noneEntered ? '.' : <> — your {basisWord} cover {money(Math.min(available, target))} of it.</>}
             </Text>
             {/* RENT NOT KNOWN (DEC-3836, 2026-10-10 — the DEC-3769 line, carried from Net worth): a property's rent
                 is blank or not a plain number, so the months of essentials above are costed without it. The same

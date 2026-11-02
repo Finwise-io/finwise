@@ -17,7 +17,7 @@
  */
 import { useStore } from '../store/useStore';
 import { figureSpec } from '../../MoneyKeel/functions/figures';
-import { writeFigure, type FigureSpec } from '../../MoneyKeel/functions/_figure-spec';
+import { writeFigure, isWholeToTheCent, type FigureSpec } from '../../MoneyKeel/functions/_figure-spec';
 
 export const BALANCE_MASK = '••••';
 
@@ -45,7 +45,9 @@ function print(id: string, raw: number | null, spoken: boolean, withPeriod: bool
   const value = raw != null && Number.isFinite(raw) ? raw : null;
   const declared = figureSpec(id);
   // AS TYPED (2026-10-31, CR3-01): an amount the person typed with cents keeps them; typed whole, it prints whole
-  const spec = asTyped && value != null && !Number.isInteger(value) && declared.unit === 'money' ? { ...declared, unit: 'money-cents' as const } : declared;
+  // to the cent FIRST, then whole or not (2026-11-02, R28 follow-up): $1,666.6667 × 12 = $20,000.0004 is $20,000.00 — whole, printed whole;
+  // $1,666.67 × 12 = $20,000.04 keeps its cents. Under half a cent from a whole dollar is a whole dollar.
+  const spec = asTyped && value != null && !isWholeToTheCent(value) && declared.unit === 'money' ? { ...declared, unit: 'money-cents' as const } : declared;
   const hidden = useStore.getState().hideBalances;
   let text = write(spec, value, hidden, spoken);
   const per = perOverride ?? spec.per;   // a figure that is yearly only sometimes names its period here (2026-10-21)
@@ -93,6 +95,21 @@ export const figPer = (id: string, value: number | null): string => print(id, va
  * Changed ..... not in git yet (—)
  */
 export const figPerAsTyped = (id: string, value: number | null): string => print(id, value, false, true, undefined, true);
+/** THE SAME, WITHOUT A PERIOD (R28, 2026-11-02): a year worked from a typed month — the Tax organizer's 401(k), $1,666.67 × 12 = $20,000.04,
+ *  and the taxable income it leaves, $83,899.96 — to the cent when not whole, so the printed lines work to the printed rate. */
+/* ─ MK-XS-F-212 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * figAsTyped
+ *
+ * Answers ..... A figure worked from a typed amount, printed as typed with no period after it: whole when whole, to the cent when not (R28); it calculates nothing.
+ *
+ * Called by ... TaxOrganizerScreen
+ *
+ * Numbered by hand 2026-11-02 (PF-TOOLS, the lead's instruction): the scan that issues identifiers reads functions in the
+ *               calculation folders only, so this screen helper has no generated record; this one is written by hand in the generated form,
+ *               as MK-NW-F-145's is
+ * Changed ..... not in git yet (—)
+ */
+export const figAsTyped = (id: string, value: number | null): string => print(id, value, false, false, undefined, true);
 /** The figure as a screen reader says it — with the label, so it is a sentence and not a bare number. */
 export const figSpoken = (id: string, value: number | null): string => `${figureSpec(id).label}: ${print(id, value, true, true)}`;
 /** THE FIGURE AS A SCREEN READER SAYS IT, WITHOUT ITS LABEL — for the middle of a sentence.

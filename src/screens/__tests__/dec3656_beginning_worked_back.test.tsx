@@ -60,10 +60,19 @@ describe('the account page (DEC-3656, 2026-10-09)', () => {
     seed([BOND], { transactions: [interest('b1')] });
     render(<AccountPortfolioScreen />);
     expect(screen.getByText('Fidelity Brokerage ($8,000) has no price history, so its gains are not included.')).toBeOnTheScreen();
-    // its value taken as unchanged: beginning $8,000 − $0 gained − $0 moved = $8,000, and the walk is drawn
+    // its value taken as unchanged ($0 gained), and its $100 of interest is income on its own line (R18, NW5-03, 2026-11-01): beginning
+    // $8,000 − $0 gained − $100 interest − $0 moved = $7,900; interest $100; change in investment value $0. It read 'HOW $8,000 BECAME
+    // $8,000' with a change of −$100, a loss nobody measured (kept below as test.failing).
     expect(screen.getByText(`Beginning market value (${dateShown(YEAR_START)})`)).toBeOnTheScreen();
-    expect(screen.getByText('HOW $8,000 BECAME $8,000 · THIS ACCOUNT')).toBeOnTheScreen();
+    expect(screen.getByText('HOW $7,900 BECAME $8,000 · THIS ACCOUNT')).toBeOnTheScreen();
+    expect(screen.queryByText('−$100')).toBeNull();                                          // no unmeasured loss
     expect(screen.queryByText(/can't be worked back/)).toBeNull();
+  });
+  test.failing('the answer until 2026-11-01, kept (no longer the app\'s): HOW $8,000 BECAME $8,000, the interest carved out of an unknown move', () => {
+    mockParams = { id: 'b1' };
+    seed([BOND], { transactions: [interest('b1')] });
+    render(<AccountPortfolioScreen />);
+    expect(screen.getByText('HOW $8,000 BECAME $8,000 · THIS ACCOUNT')).toBeOnTheScreen();
   });
 
   test('unchanged · day one (no record, nothing moved): the bond keeps the approved day-one page', () => {

@@ -80,22 +80,22 @@ describe('the rate: sign-up and Cash flow give one person one rate', () => {
     expect(L).toContain('Use the calculated rate (~7.41%)');
     expect(L.some((l) => /^~7\.41% federal income tax · 12% bracket/.test(l))).toBe(true);
   });
-  test('sign-up\'s income recap: tax $4,444 at ~7%, take-home $50,756 a year — the same as its own monthly average, ≈ $4,230', () => {
+  test('sign-up\'s income recap: tax $4,444 at ~7%, take-home $50,756 a year — the same as its own monthly average, ~ $4,230', () => {
     const L = signUp('recap_income');
     expect(L[L.indexOf('Take-home / year') + 1]).toBe(money(50_756));
-    expect(L).toContain(`≈${money(4_229.67)}/month average`);
+    expect(L).toContain(`~${money(4_229.67)}/month average`);
     expect(L[L.indexOf('Tax (~7.41% of your gross)') + 1]).toBe(money(-(4_444)));
     expect(L[L.indexOf('Available /year') + 1]).toBe(money(50_756));
   });
-  test('Cash flow\'s income summary, same person: take-home $4,230 a month and calculated tax ≈$4,444 a year — sign-up\'s two figures', () => {
+  test('Cash flow\'s income summary, same person: take-home $4,230 a month and calculated tax ~$4,444 a year — sign-up\'s two figures', () => {
     const L = cashFlow();
     // the band is drawn in capitals; a take-home the app works out with its calculated rate wears ≈ there too, as sign-up's own
     // "≈ $4,230/month average" does (IN-03, 2026-10-25; drawing v07 rule 9)
-    expect(L[L.indexOf('TAKE-HOME EACH MONTH') + 1]).toBe(`≈${money(4_229.67)}`);
-    expect(L[L.indexOf('Calculated federal tax') + 2]).toBe(`≈${money(4_444)}/year`);
+    expect(L[L.indexOf('TAKE-HOME EACH MONTH') + 1]).toBe(`~${money(4_229.67)}`);
+    expect(L[L.indexOf('Calculated federal tax') + 2]).toBe(`~${money(4_444)}/year`);
     const S = signUp('recap_income');
     expect(S[S.indexOf('Tax (~7.41% of your gross)') + 1]).toBe(money(-(4_444)));
-    expect(S).toContain(`≈${money(4_229.67)}/month average`);
+    expect(S).toContain(`~${money(4_229.67)}/month average`);
   });
 });
 
@@ -182,12 +182,12 @@ describe('the bracket reads the income the tax is worked on — sign-up and Cash
     expect(taxedAfterPreTax(SEVENTY)).toBeCloseTo(60_000, 6);
     expect(incomeTaxRate(SEVENTY) * 70_000).toBeCloseTo(5_020, 6);
   });
-  test('Cash flow: Gross /year $70,000, What it is taxed on $60,000 · Federal tax bracket 12% · tax ≈$5,020 — sign-up: ~7% · 12% bracket', () => {
+  test('Cash flow: Gross /year $70,000, What it is taxed on $60,000 · Federal tax bracket 12% · tax ~$5,020 — sign-up: ~7% · 12% bracket', () => {
     const { cf, su } = screens();
     expect(cf[cf.indexOf('WHAT IT IS TAXED ON') + 1]).toBe(money(60_000));   // $70,000 − the $10,000 401(k) (DEC-0283)
     expect(cf[cf.indexOf('= Gross /year') + 1]).toBe(money(70_000));
     expect(cf[cf.indexOf('Federal tax bracket') + 2]).toBe('12%');
-    expect(cf[cf.indexOf('Calculated federal tax') + 2]).toBe(`≈${money(5_020)}/year`);
+    expect(cf[cf.indexOf('Calculated federal tax') + 2]).toBe(`~${money(5_020)}/year`);
     expect(su).toContain('~7.17% federal income tax · 12% bracket (2026)');   // $5,020 ÷ $70,000 = 7.1714% (the tax on $60,000 taxed)
     expect(su.join(' ')).not.toMatch(/22% bracket/);   // the gross band, read until 2026-10-24
   });
@@ -269,9 +269,9 @@ describe('the Income summary shows what it is taxed on being made, and a calcula
     // the bracket is read on the $150,000: less $32,200, $117,800 is in the 22% joint band
     expect(L[L.indexOf('Federal tax bracket') + 2]).toBe('22%');
   });
-  test('MK-CF-M-044, no rate typed: ≈$15,340 a year — federal tax on $150,000 less $32,200 ($2,480 + $9,120 + 22% × $17,000)', () => {
+  test('MK-CF-M-044, no rate typed: ~$15,340 a year — federal tax on $150,000 less $32,200 ($2,480 + $9,120 + 22% × $17,000)', () => {
     const L = summary(COUPLE);
-    expect(L[L.indexOf('Calculated federal tax') + 2]).toBe(`≈${money(15_340)}/year`);
+    expect(L[L.indexOf('Calculated federal tax') + 2]).toBe(`~${money(15_340)}/year`);
     expect(incomeTaxRate(COUPLE) * 169_200).toBeCloseTo(15_340, 6);
   });
   test('with a typed 22% the tax row is that share of the gross, $37,224, and the taxed rows read the same', () => {

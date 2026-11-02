@@ -123,19 +123,19 @@ describe('2 · the Tax organizer', () => {
     const base = { baseSalary: '6000', salaryFreq: 'monthly', filingStatus: 'single' };
     useStore.setState({ hideBalances: false, onboardingProfile: base } as any);
     const a = render(<TaxOrganizerScreen />);
-    expect(screen.getByText(/^Calculated federal tax ≈\d+\.\d{2}% of the year’s income — assumes you take the standard deduction\. Figures are/)).toBeOnTheScreen();
+    expect(screen.getByText(/^Calculated federal tax ~\d+\.\d{2}% of the year’s income — assumes you take the standard deduction\. Figures are/)).toBeOnTheScreen();
     expect(screen.queryByText(/Est\. effective federal rate/)).toBeNull();
     a.unmount();
     useStore.setState({ onboardingProfile: { ...base, stateTaxRate: '5' } } as any);
     const b = render(<TaxOrganizerScreen />);
-    expect(screen.getByText(/^Calculated tax ≈\d+\.\d{2}% of the year’s income — federal income tax, plus the 5\.00% state rate you entered; assumes you take the standard deduction\./)).toBeOnTheScreen();
+    expect(screen.getByText(/^Calculated tax ~\d+\.\d{2}% of the year’s income — federal income tax, plus the 5\.00% state rate you entered; assumes you take the standard deduction\./)).toBeOnTheScreen();
     b.unmount();
     useStore.setState({ onboardingProfile: { ...base, taxMode: 'manual', manualTaxRate: '24' } } as any);
     render(<TaxOrganizerScreen />);
     expect(screen.getByText(/^Tax · your rate, 24\.00%\. Figures are/)).toBeOnTheScreen();   // two decimals since 2026-10-26 (MK-CF-M-081)
   });
 
-  test('Interest & dividends on the Tax organizer says where the figure came from: records, you entered, calculated ≈', () => {
+  test('Interest & dividends on the Tax organizer says where the figure came from: records, you entered, calculated ~', () => {
     const y = new Date().getFullYear();
     const savings = { asset_id: 's', label: 'Savings', kind: 'savings', asset_class: 'cash', tax_bucket: 'TAXABLE', balance: 10_000, coupon_rate: 0.04 };
     useStore.setState({ hideBalances: false, onboardingProfile: { baseSalary: '6000', salaryFreq: 'monthly', invAnnual: '1000' }, assetAccounts: [savings],
@@ -152,7 +152,7 @@ describe('2 · the Tax organizer', () => {
     useStore.setState({ onboardingProfile: { baseSalary: '6000', salaryFreq: 'monthly' } } as any);
     render(<TaxOrganizerScreen />);
     expect(screen.getByText('  calculated from your accounts — 4.00% on $10,000')).toBeOnTheScreen();   // two decimals (IN3-04, 2026-10-31)
-    expect(screen.getByText('≈$400')).toBeOnTheScreen();
+    expect(screen.getByText('~$400')).toBeOnTheScreen();
   });
 });
 

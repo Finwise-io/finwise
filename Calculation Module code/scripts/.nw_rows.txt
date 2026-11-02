@@ -170,3 +170,4 @@
   ['MK-NW-F-184', 'MoneyKeel/functions/networth-and-performance/net-worth.ts', 'MoneyKeel/functions/cashflow/budget-counted.test.ts'],
   ['MK-NW-F-185', 'MoneyKeel/functions/networth-and-performance/net-worth.ts', 'MoneyKeel/functions/cashflow/budget-counted.test.ts'],
   ['MK-NW-F-186', 'src/domain/bonds/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
+  ['MK-NW-F-187', 'src/domain/bonds/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],

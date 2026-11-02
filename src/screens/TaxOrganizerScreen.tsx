@@ -5,8 +5,14 @@ import React, { useMemo, useState } from 'react';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Alert, TextInput } from 'react-native';
 import { useStore } from '../store/useStore';
 import { SectionBand } from '../components/SectionBand';
-import { Colors, Spacing, Radii } from '../utils/theme';
+import { Colors, Spacing, Radii, Tap } from '../utils/theme';
 import { money } from '../domain/_shared/num';
+import { figAsTyped } from '../components/figure';
+/** A YEAR FROM A TYPED MONTH, AS TYPED (R28, 2026-11-02): $1,666.67/month of 401(k) is $20,000.04/year, so the 401(k) line, and the
+ *  taxable income it leaves, print to the cent when not whole — the printed lines then work to the printed rate (10.97%). Whole, whole. */
+const asTyped = (n: number) => figAsTyped('MK-MN-M-028', n);   // the walk's own figure, by its identifier
+/** the same, in the exported document: unmasked, as the rest of that file writes money */
+const asTypedInPdf = (n: number) => `$${n.toLocaleString('en-US', isWholeToTheCent(n) ? { maximumFractionDigits: 0 } : { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;   // money-mask-ok: generated HTML export document, not an on-screen display
 import type { TaxOrganizer } from '../domain/planning';
 import { investmentIncomeAnnual } from '../domain/transactions';
 import { interestIncomeAnnual } from '../domain/bonds';
@@ -14,6 +20,7 @@ import { useRouter } from 'expo-router';
 import { theTaxOrganizer } from '../../MoneyKeel/functions/cashflow/tax-organizer';
 import { filingStatusOf } from '../domain/income';
 import { EmptyNote } from '../components/UI';
+import { percentDigits, isWholeToTheCent } from '../../MoneyKeel/functions/_figure-spec';   // the one percent writer (R24, 2026-11-01)
 
 export default function TaxOrganizerScreen() {
   const router = useRouter();
@@ -78,7 +85,7 @@ export default function TaxOrganizerScreen() {
           <Text style={styles.fileGo}>Change ›</Text>
         </TouchableOpacity>
         <Text style={styles.fieldL}>State income tax % (optional — leave blank for no state tax)</Text>
-        <TextInput style={styles.stateInput} keyboardType="decimal-pad"
+        <TextInput hitSlop={Tap.slop} style={styles.stateInput} keyboardType="decimal-pad"
           placeholderTextColor={Colors.textTertiary}
           value={String(store.onboardingProfile?.stateTaxRate ?? '')}
           onChangeText={(t: string) => store.setOnboardingProfile?.({ ...(store.onboardingProfile ?? {}), stateTaxRate: t })}
@@ -94,23 +101,31 @@ export default function TaxOrganizerScreen() {
             {/* the interest line says where its figure came from — the year's records, you entered, or calculated ≈ with its
                 working (the lead's ruling of 2026-10-25: one interest-and-dividends figure) */}
             <Text style={styles.rowL}>{l.label}{!l.taxable ? <Text style={styles.tag}>  tax-free</Text> : null}{l.note ? <Text style={styles.tag}>  {l.note}</Text> : null}</Text>
-            <Text style={styles.rowV}>{l.approx ? '≈' : ''}{money(l.amount)}</Text>
+            <Text style={styles.rowV}>{l.approx ? '~' : ''}{money(l.amount)}</Text>
           </View>
         ))}
         {!!org.notCounted && <Text style={styles.note}>{org.notCounted}</Text>}
         {/* Q46 (founder ruling 2026-09-08): the four lines a return shows, in order */}
-        <View style={[styles.row, styles.total]}><Text style={styles.totalL}>Gross income</Text><Text style={styles.totalV}>{money(org.grossIncome)}</Text></View>
+        {/* A WAGE THAT CANNOT BE COUNTED NEVER PRINTS AS $0 (R27, CF6-14, 2026-11-02): the total counts what it can and says it leaves the
+            wage out — as the Income summary's "= Gross /year, not counting your wage" — and with nothing else to count there is no figure,
+            only R23's sentence below. It read "Gross income $0". */}
+        {!(org.wageRefusal && org.grossIncome <= 0) && (
+          <View style={[styles.row, styles.total]}><Text style={styles.totalL}>{org.wageRefusal ? 'Gross income, not counting your wage' : 'Gross income'}</Text><Text style={styles.totalV}>{money(org.grossIncome)}</Text></View>
+        )}
         {/* NOTHING ENTERED (his Q48, DEC-0431 — the reversal of 2026-10-25): the layout stays, Gross income reads $0, the one line
             says why and the door sits beneath; the lines that need an assumption stay off — the −$16,100 deduction rests on a
             filing status nobody answered, and there is no rate (MK-CF-O-007-C02, tenet 3) */}
-        {org.steps == null && <EmptyNote door="income" onPress={() => router.push('/income-manager')} />}
+        {/* a wage entered that cannot be read is not "nothing entered": its reason, and no walk on a $0 wage (R23a, 2026-11-01) */}
+        {org.steps == null && (org.wageRefusal
+          ? <Text style={styles.note}>{org.wageRefusal}</Text>
+          : <EmptyNote door="income" onPress={() => router.push('/income-manager')} />)}
         {org.steps != null && (
           <>
             {/* a minus sign written as the one figure writer writes it, against the figure: "−$39,850" (2026-11-01, CF4-10; tenet 4) — it read
                 "− $39,850"; and a 401(k) of $0 takes nothing off, so its row is not printed (it read "− $0") */}
             {/* THE 401(k) LINE IS ALWAYS ONE OF THE FOUR (his DEC-0252, Q46: "the tax organizer shows gross income, 401(k) contribution, standard
                 deduction and taxable income"): with nothing put in it reads $0, never vanishes (restored 2026-11-01, CLEANUP-TESTS) */}
-            <View style={styles.row}><Text style={styles.rowL}>401(k) contribution</Text><Text style={styles.rowV}>{org.steps.preTaxContributions > 0 ? `−${money(org.steps.preTaxContributions)}` : money(0)}</Text></View>
+            <View style={styles.row}><Text style={styles.rowL}>401(k) contribution</Text><Text style={styles.rowV}>{org.steps.preTaxContributions > 0 ? `−${asTyped(org.steps.preTaxContributions)}` : asTyped(0)}</Text></View>
             <View style={styles.row}><Text style={styles.rowL}>Standard deduction{org.steps.deductionIncludes.length ? <Text style={styles.tag}>  includes {org.steps.deductionIncludes.join(' and ')}</Text> : null}</Text><Text style={styles.rowV}>−{money(org.steps.standardDeduction)}</Text></View>
             {/* the spouse's age never answered on a joint return: counted as under 65, said, with the door to the question
                 (the lead's ruling of 2026-10-25 on CFR-4's needs-ruling 4) */}
@@ -120,7 +135,7 @@ export default function TaxOrganizerScreen() {
                 <Text style={styles.spouseT}>Your spouse counted as under 65 — not entered ›</Text>
               </TouchableOpacity>
             )}
-            <View style={[styles.row, styles.total]}><Text style={styles.totalL}>Taxable income</Text><Text style={styles.totalV}>{money(org.steps.taxableIncome)}</Text></View>
+            <View style={[styles.row, styles.total]}><Text style={styles.totalL}>Taxable income</Text><Text style={styles.totalV}>{asTyped(org.steps.taxableIncome)}</Text></View>
           </>
         )}
         {org.nonTaxableTotal > 0 && <View style={styles.row}><Text style={styles.rowL}>Non-taxable</Text><Text style={styles.rowV}>{money(org.nonTaxableTotal)}</Text></View>}
@@ -130,7 +145,7 @@ export default function TaxOrganizerScreen() {
         {org.estTaxRate != null && org.rate != null && (
           <Text style={styles.note}>
             {org.rate.estimated
-              ? `${org.rate.stateWords ? 'Calculated tax' : 'Calculated federal tax'} ≈${(org.estTaxRate * 100).toFixed(2)}% of the year’s income — ${org.rate.stateWords ? `federal income tax, plus ${org.rate.stateWords}; assumes` : 'assumes'} you take the standard deduction.`
+              ? `${org.rate.stateWords ? 'Calculated tax' : 'Calculated federal tax'} ~${percentDigits(org.estTaxRate, 2)}% of the year’s income — ${org.rate.stateWords ? `federal income tax, plus ${org.rate.stateWords}; assumes` : 'assumes'} you take the standard deduction.`
               : `Tax · ${org.rate.whose}.`}
             {' '}Figures are your entries/estimates — verify against your official forms.
           </Text>
@@ -169,9 +184,9 @@ export default function TaxOrganizerScreen() {
   );
 }
 
-function orgToHtml(o: TaxOrganizer): string {
+export function orgToHtml(o: TaxOrganizer): string {   // exported for its test (2026-11-02)
   const rows = (lines: { label: string; amount: number }[]) =>
-    lines.map((l) => `<tr><td>${l.label}</td><td style="text-align:right">$${Math.round(l.amount).toLocaleString()}</td></tr>`).join(''); // money-mask-ok: generated HTML export document the user shares with their accountant, not an on-screen display
+    lines.map((l: { label: string; amount: number; approx?: boolean }) => `<tr><td>${l.label}</td><td style="text-align:right">${l.approx ? '~' : ''}$${Math.round(l.amount).toLocaleString()}</td></tr>`).join('');   // '~' on a calculated figure, as on screen (2026-11-02) // money-mask-ok: generated HTML export document the user shares with their accountant, not an on-screen display
   return `<html><head><meta name="viewport" content="width=device-width"><style>
     body{font-family:-apple-system,Helvetica,Arial;padding:28px;color:#1a1a1a}
     h1{font-size:22px;margin:0 0 2px} .sub{color:#666;font-size:12px;margin-bottom:18px}
@@ -182,11 +197,11 @@ function orgToHtml(o: TaxOrganizer): string {
   </style></head><body>
     <h1>Tax Organizer — ${o.year}</h1>
     <div class="sub">Prepared in MoneyKeel · a summary for your accountant, not a tax return</div>
-    <h2>INCOME</h2>${o.steps == null ? `<table><tr class="total"><td>Gross income</td><td style="text-align:right">$${Math.round(o.grossIncome).toLocaleString()}</td></tr></table><div>${o.refusal ?? ''}</div><!-- money-mask-ok: generated HTML export document, not an on-screen display -->` : `<table>${rows(o.income)}
+    <h2>INCOME</h2>${o.steps == null ? `<table>${rows(o.income)}${o.wageRefusal && o.grossIncome <= 0 ? '' : `<tr class="total"><td>${o.wageRefusal ? 'Gross income, not counting your wage' : 'Gross income'}</td><td style="text-align:right">$${Math.round(o.grossIncome).toLocaleString()}</td></tr>`}</table><div>${o.wageRefusal ?? o.refusal ?? ''}</div><!-- money-mask-ok: generated HTML export document, not an on-screen display -->` : `<table>${rows(o.income)}
       <tr class="total"><td>Gross income</td><td style="text-align:right">$${Math.round(o.steps.grossIncome).toLocaleString()}</td></tr><!-- money-mask-ok: generated HTML export document, not an on-screen display -->
-      <tr><td>401(k) contribution</td><td style="text-align:right">−$${Math.round(o.steps.preTaxContributions).toLocaleString()}</td></tr><!-- money-mask-ok: generated HTML export document, not an on-screen display -->
+      <tr><td>401(k) contribution</td><td style="text-align:right">${o.steps.preTaxContributions > 0 ? `−${asTypedInPdf(o.steps.preTaxContributions)}` : asTypedInPdf(0)}</td></tr><!-- money-mask-ok: generated HTML export document, not an on-screen display -->
       <tr><td>Standard deduction${o.steps.deductionIncludes.length ? ` (includes ${o.steps.deductionIncludes.join(' and ')})` : ''}${o.steps.spouseAgeNotEntered ? ' — your spouse counted as under 65, not entered' : ''}</td><td style="text-align:right">−$${Math.round(o.steps.standardDeduction).toLocaleString()}</td></tr><!-- money-mask-ok: generated HTML export document, not an on-screen display -->
-      <tr class="total"><td>Taxable income</td><td style="text-align:right">$${Math.round(o.steps.taxableIncome).toLocaleString()}</td></tr></table>`}<!-- money-mask-ok: generated HTML export document, not an on-screen display -->
+      <tr class="total"><td>Taxable income</td><td style="text-align:right">${asTypedInPdf(o.steps.taxableIncome)}</td></tr></table>`}<!-- money-mask-ok: generated HTML export document, not an on-screen display -->
     ${o.notCounted ? `<div>${o.notCounted}</div>` : ''}
     ${o.contributions.length ? `<h2>RETIREMENT CONTRIBUTIONS</h2><table>${rows(o.contributions)}</table>` : ''}
     ${o.accounts.length ? `<h2>ACCOUNTS (YEAR-END)</h2><table>${rows(o.accounts.map((a) => ({ label: `${a.label} (${a.kind})`, amount: a.balance })))}</table>` : ''}

@@ -26,6 +26,7 @@ import { surplusByMonth } from '../domain/savings';
 import { modalAnimation } from '../hooks/reducedMotion';
 import { monthKey } from '../domain/income/salary-months';
 import { localDay } from '../domain/_shared/dates';
+import { percentDigits, pointsDigits } from '../../MoneyKeel/functions/_figure-spec';   // the one percent writer (R24, 2026-11-01)
 
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
 const monthsToDate = (m: number) => { const d = new Date(); d.setMonth(d.getMonth() + m); return d.toLocaleDateString(undefined, { month: 'short', year: 'numeric' }); };
@@ -78,7 +79,7 @@ export default function GoalsScreen() {
   // DEBT-TO-INCOME IS MEASURED ON THE OBLIGATION (2026-10-25, FIX-BILLS; his DEC-0641 "the minimum stays … for debt-to-income"):
   // the minimums, never what someone chooses to pay — a card with a $200 minimum paid at $600 on $5,000/month read 12%, not 4%
   const dti = useMemo(() => debtToIncome(minimumDebtService(liabilities), grossMonthly, homeowner), [liabilities, grossMonthly, homeowner]);
-  // student-loan outlook (borrowed now, repaid after graduation)
+  // student-loan outlook: what was borrowed in setup, and its repayment once it is being repaid (when that starts is not entered)
   const loans = (Array.isArray(op.loans) ? op.loans : []) as any[];
   const loanOutlook = useMemo(() => {
     let borrowed = 0, monthly = 0, interest = 0;
@@ -122,7 +123,7 @@ export default function GoalsScreen() {
       {sink.monthly > 0 && !hasSinkingGoal && (
         <View style={styles.suggestCard}>
           <SectionBand light inCard title="💡 SUGGESTED: A SINKING FUND" />
-          <Text style={styles.suggestSub}>Your non-monthly budget{sinkBasis.allPct ? ` (${sinkBasis.pct.toFixed(2)}% of take-home pay)` : ''} comes to ~{money(sink.annual)}/year. Set aside {money(sink.monthly)}/month so non-monthly costs (travel, gifts, repairs) never blow the budget.</Text>
+          <Text style={styles.suggestSub}>Your non-monthly budget{sinkBasis.allPct ? ` (${pointsDigits(sinkBasis.pct, 2)}% of take-home pay)` : ''} comes to ~{money(sink.annual)}/year. Set aside {money(sink.monthly)}/month so non-monthly costs (travel, gifts, repairs) never blow the budget.</Text>
           <TouchableOpacity hitSlop={Tap.slop} onPress={() => store.addGoal({ label: 'Non-monthly fund', icon: '🛟', target: sink.annual, saved: 0, duration: '12', color: Colors.primary })}>
             <Text style={styles.suggestCta}>Create this goal ›</Text>
           </TouchableOpacity>
@@ -146,7 +147,7 @@ export default function GoalsScreen() {
         const barColor = fullyFunded ? Colors.blue : onTrack ? Colors.successGreen : behind ? Colors.amber : (g.color || Colors.primary);
         return (
           <TouchableOpacity key={g.id} style={styles.card} onPress={() => setEdit(g)}>
-            <SectionBand light inCard onRowEdges title={`${g.icon || '🎯'} ${g.label}`} value={`${pct.toFixed(2)}%`} />
+            <SectionBand light inCard onRowEdges title={`${g.icon || '🎯'} ${g.label}`} value={`${pointsDigits(pct, 2)}%`} />
             {/* P0 (design audit G-1): status TEXT uses the AA green (gainText) — successGreen is a mark color (~2:1 on white) */}
             <Text style={[styles.goalStatus, { color: fullyFunded ? Colors.blue : onTrack ? Colors.gainText : behind ? Colors.amber : Colors.textSecondary }]}>
               {fullyFunded ? '🔵 Fully funded' : noDate ? 'Set a date' : onTrack ? '🟢 On track' : '🟡 Behind'}
@@ -198,8 +199,8 @@ export default function GoalsScreen() {
             <Text style={styles.loanBig}>{money(loanOutlook.borrowed)} <Text style={styles.loanBigSub}>borrowed</Text></Text>
             {loanOutlook.monthly > 0 ? (
               <>
-                <Text style={styles.loanLine}>≈<Text style={{ fontWeight: '800' }}>{money(loanOutlook.monthly)}/month</Text> once you’re repaying · {money(loanOutlook.interest)} total interest</Text>
-                {grossMonthly > 0 && <Text style={styles.note}>That’s ~{(loanOutlook.projDti * 100).toFixed(2)}% of today’s income — keeping total debt under 20% keeps you comfortable.</Text>}
+                <Text style={styles.loanLine}>~<Text style={{ fontWeight: '800' }}>{money(loanOutlook.monthly)}/month</Text> once you’re repaying · {money(loanOutlook.interest)} total interest</Text>
+                {grossMonthly > 0 && <Text style={styles.note}>That’s ~{percentDigits(loanOutlook.projDti, 2)}% of today’s income — keeping total debt under 20% keeps you comfortable.</Text>}
               </>
             ) : (
               <Text style={styles.note}>Add an interest rate and term to each loan (in setup) to see the monthly repayment.</Text>
@@ -214,7 +215,7 @@ export default function GoalsScreen() {
           <View style={styles.pageBleed}><SectionBand title="DEBT-TO-INCOME" /></View>
           <View style={styles.card}>
             <View style={styles.dtiHead}>
-              <Text style={[styles.dtiPct, { color: dti.status === 'good' ? Colors.primary : dti.status === 'caution' ? Colors.amber : Colors.red }]}>{(dti.ratio * 100).toFixed(2)}%</Text>
+              <Text style={[styles.dtiPct, { color: dti.status === 'good' ? Colors.primary : dti.status === 'caution' ? Colors.amber : Colors.red }]}>{percentDigits(dti.ratio, 2)}%</Text>
               <View style={{ flex: 1 }}>
                 <Text style={styles.dtiTitle}>{dti.status === 'good' ? 'Healthy' : dti.status === 'caution' ? 'Getting high' : 'High'}</Text>
                 <Text style={styles.dtiSub}>{money(dti.monthlyDebt)}/month in minimum debt payments ÷ {money(dti.grossMonthly)}/month income</Text>

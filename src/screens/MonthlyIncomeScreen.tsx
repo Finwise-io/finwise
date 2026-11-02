@@ -132,7 +132,7 @@ export default function MonthlyIncomeScreen() {
             <MoneyBox bare style={styles.input} value={ss} onChangeText={setSs}
               placeholder="—" a11y="Social Security amount each month" />
             <Text style={styles.label}>Arrives on day (optional)</Text>
-            <TextInput style={styles.inputSm} keyboardType="number-pad" value={ssDay} onChangeText={setSsDay}
+            <TextInput hitSlop={Tap.slop} style={styles.inputSm} keyboardType="number-pad" value={ssDay} onChangeText={setSsDay}
               placeholder="—" accessibilityLabel="day of month Social Security arrives" />
           </>
         ) : (

@@ -584,6 +584,11 @@
   "file": "src/domain/bonds/index.ts",
   "category": "3 · DEPENDENT"
  },
+ "bondWhy": {
+  "id": "MK-CF-F-316",
+  "file": "src/domain/income/from-accounts.ts",
+  "category": "3 · DEPENDENT"
+ },
  "brokerClassOf": {
   "id": "MK-ST-F-086",
   "file": "Calculation Module code/engines/holding-class.ts",
@@ -849,6 +854,11 @@
   "file": "src/domain/performance/index.ts",
   "category": "3 · DEPENDENT"
  },
+ "closeAsOfInside": {
+  "id": "MK-PF-F-089",
+  "file": "src/domain/performance/index.ts",
+  "category": "3 · DEPENDENT"
+ },
  "closeDayOnOrBefore": {
   "id": "MK-PF-F-060",
   "file": "src/domain/performance/index.ts",
@@ -1066,6 +1076,11 @@
  },
  "debtToIncome": {
   "id": "MK-CF-F-033",
+  "file": "src/domain/debt/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "debtsEntered": {
+  "id": "MK-CF-F-315",
   "file": "src/domain/debt/index.ts",
   "category": "2 · DISPLAYED"
  },
@@ -1637,7 +1652,7 @@
  "hasMonthlySalaryTable": {
   "id": "MK-CF-F-166",
   "file": "src/domain/income/salary-months.ts",
-  "category": "2 · DISPLAYED"
+  "category": "3 · DEPENDENT"
  },
  "hasOldRentFigure": {
   "id": "MK-CF-F-217",
@@ -1653,6 +1668,11 @@
   "id": "MK-CF-F-172",
   "file": "src/domain/income/earners.ts",
   "category": "1 · ACTION"
+ },
+ "heldBondInterest": {
+  "id": "MK-NW-F-187",
+  "file": "src/domain/bonds/index.ts",
+  "category": "3 · DEPENDENT"
  },
  "heldInOf": {
   "id": "MK-NW-F-150",
@@ -1997,6 +2017,11 @@
  "isWholeAccountPart": {
   "id": "MK-NW-F-169",
   "file": "MoneyKeel/functions/networth-and-performance/account.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "isWholeToTheCent": {
+  "id": "MK-XS-F-215",
+  "file": "MoneyKeel/functions/_figure-spec.ts",
   "category": "2 · DISPLAYED"
  },
  "isYm": {
@@ -2854,6 +2879,11 @@
   "file": "MoneyKeel/functions/_figure-spec.ts",
   "category": "2 · DISPLAYED"
  },
+ "percentValue": {
+  "id": "MK-XS-F-214",
+  "file": "MoneyKeel/functions/_figure-spec.ts",
+  "category": "2 · DISPLAYED"
+ },
  "periodReturn": {
   "id": "MK-PF-F-010",
   "file": "src/domain/performance/index.ts",
@@ -2933,6 +2963,16 @@
   "id": "MK-NW-F-067",
   "file": "src/domain/_shared/plural.ts",
   "category": "2 · DISPLAYED"
+ },
+ "pointsDigits": {
+  "id": "MK-XS-F-211",
+  "file": "MoneyKeel/functions/_figure-spec.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "pointsValue": {
+  "id": "MK-XS-F-213",
+  "file": "MoneyKeel/functions/_figure-spec.ts",
+  "category": "3 · DEPENDENT"
  },
  "portfolioActualReturn": {
   "id": "MK-NW-F-004",
@@ -3694,10 +3734,15 @@
   "file": "src/domain/bonds/index.ts",
   "category": "2 · DISPLAYED"
  },
+ "setupEntered": {
+  "id": "MK-CF-F-314",
+  "file": "MoneyKeel/functions/cashflow/setup-gate.ts",
+  "category": "2 · DISPLAYED"
+ },
  "setupLoanDebts": {
   "id": "MK-CF-F-305",
   "file": "src/domain/debt/index.ts",
-  "category": "3 · DEPENDENT (feeds an action only)"
+  "category": "2 · DISPLAYED"
  },
  "setupLoanSentences": {
   "id": "MK-CF-F-302",
@@ -3893,6 +3938,11 @@
   "id": "MK-PF-F-086",
   "file": "src/domain/performance/index.ts",
   "category": "3 · DEPENDENT"
+ },
+ "staleWindowStart": {
+  "id": "MK-PF-F-090",
+  "file": "src/domain/performance/index.ts",
+  "category": "2 · DISPLAYED"
  },
  "startDateFor": {
   "id": "MK-PF-F-008",
@@ -4463,6 +4513,11 @@
   "id": "MK-CF-F-277",
   "file": "src/domain/income/onboarding.ts",
   "category": "3 · DEPENDENT"
+ },
+ "wageRefusalOf": {
+  "id": "MK-CF-F-313",
+  "file": "src/domain/income/pay-frequency.ts",
+  "category": "2 · DISPLAYED"
  },
  "wagesLandingByMonth": {
   "id": "MK-CF-F-234",

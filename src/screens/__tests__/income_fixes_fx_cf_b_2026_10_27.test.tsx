@@ -283,7 +283,7 @@ describe('Q49 in sign-up · every share printed as a percent reads to two decima
     screen.unmount();
     expect(step('flexBuckets', A)).toContain('52.50% of your take-home is spoken for');                                 // 2,100 ÷ 4,000
     screen.unmount();
-    expect(step('savingsRateTarget', A)).toContain('≈$1,900/month average · 47.50% of take-home');                      // 1,900 ÷ 4,000
+    expect(step('savingsRateTarget', A)).toContain('~$1,900/month average · 47.50% of take-home');                      // 1,900 ÷ 4,000
     screen.unmount();
     // by hand: $60,000 gross, $12,000 tax (20.00%), $25,200 of expenses (42.00%), $22,800 surplus (38.00%)
     const R = step('recap_spend', A);

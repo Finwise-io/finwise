@@ -140,9 +140,11 @@ const compile = (file: string, start: RegExp, end: string, name: string, imports
   const js = ts.transpileModule(code, { compilerOptions: { target: ts.ScriptTarget.ES2019 } }).outputText;
   return new Function(...Object.keys(imports), `${js}\nreturn ${name};`)(...Object.values(imports));
 };
+import { percentDigits } from '../_figure-spec';   // the one percent writer (R24, 2026-11-01)
 const FROM_ACCOUNTS = '../../../src/domain/income/from-accounts.ts';
 const CALC = '../../../src/domain/income/calc.ts';
-const asPercent: (r: number) => string = compile(FROM_ACCOUNTS, /const asPercent = \(r: number\)/, ';', 'asPercent');
+// since 2026-11-01 (FX-CF-C, R24) asPercent writes through the one percent writer, handed in under its own name
+const asPercent: (r: number) => string = compile(FROM_ACCOUNTS, /const asPercent = \(r: number\)/, ';', 'asPercent', { percentDigits });
 const paidOutByAccount: (t: any[], now: Date) => Map<string, number> =
   compile(FROM_ACCOUNTS, /function paidOutByAccount\(/, '\n}\n', 'paidOutByAccount', { isoLocalDate, moneyIntoAccount });
 const isRental: (t: any) => boolean = compile(CALC, /const isRental = \(t: string\)/, ';', 'isRental');

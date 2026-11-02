@@ -6,7 +6,7 @@ import { View, Text, ScrollView, StyleSheet, TextInput, TouchableOpacity, Alert 
 import { KeyboardAwareScreen } from '../components/KeyboardAwareScreen';
 import { useRouter } from 'expo-router';
 import { useStore } from '../store/useStore';
-import { Colors, Spacing, Radii } from '../utils/theme';
+import { Colors, Spacing, Radii, Tap } from '../utils/theme';
 import { money } from '../domain/_shared/num';
 import { educationPlan } from '../domain/planning';
 
@@ -44,7 +44,7 @@ export default function EducationScreen() {
         {/* a $ figure is a money box — it prints "$30,000" itself, so its $ is not repeated after it (DEC-8385, 2026-10-27) */}
         {suffix === '$'
           ? <MoneyBox bare style={styles.input} value={v} onChangeText={set} a11y={label} />
-          : <TextInput style={styles.input} keyboardType="decimal-pad" value={v} onChangeText={set} placeholderTextColor={Colors.textTertiary} />}
+          : <TextInput hitSlop={Tap.slop} style={styles.input} keyboardType="decimal-pad" value={v} onChangeText={set} placeholderTextColor={Colors.textTertiary} />}
         {suffix && suffix !== '$' ? <Text style={styles.suffix}>{suffix}</Text> : null}
       </View>
     </View>

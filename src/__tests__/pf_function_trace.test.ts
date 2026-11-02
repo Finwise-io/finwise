@@ -101,6 +101,8 @@ const FUNCTIONS: [string, string, string][] = [
   ['MK-PF-F-086', 'src/domain/performance/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
   ['MK-PF-F-087', 'src/domain/performance/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
   ['MK-PF-F-088', 'src/domain/performance/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
+  ['MK-PF-F-089', 'src/domain/performance/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
+  ['MK-PF-F-090', 'src/domain/performance/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
 ];
 
 /** Every MK-PF-F record in the code, read from the code: the header rule printed directly above each function (the one the card
@@ -127,13 +129,13 @@ describe('every Performance function traces to its proof in one hop (step 3.c)',
     // 35 on 2026-10-12: six unused functions removed (DEC-4642 — MK-PF-F-003, 016, 017, 018, 019, 021), the
     // eleven helpers MK-PF-F-035..044 that were missing from this table added, and MK-PF-F-045 / 046 new
     // (DEC-4641, DEC-4643). MK-PF-F-026 is a retired number the code only mentions in a comment.
-    expect(FUNCTIONS.length).toBeGreaterThanOrEqual(76);   // 76 on 2026-11-01 (PF-TOOLS: MK-PF-F-086 to 088, round 4); 73 on 2026-10-30 (PF-TOOLS: MK-PF-F-081 to 085, FX-PF's five); 68 on 2026-10-26: 33 rows were missing (MK-PF-F-047 to 080) — the typed floor of 35 passed them
+    expect(FUNCTIONS.length).toBeGreaterThanOrEqual(78);   // 78 on 2026-11-02 (PF-TOOLS: MK-PF-F-089, 090, round 5); 76 on 2026-11-01 (PF-TOOLS: MK-PF-F-086 to 088, round 4); 73 on 2026-10-30 (PF-TOOLS: MK-PF-F-081 to 085, FX-PF's five); 68 on 2026-10-26: 33 rows were missing (MK-PF-F-047 to 080) — the typed floor of 35 passed them
     expect(new Set(FUNCTIONS.map((r) => r[0])).size).toBe(FUNCTIONS.length);
     // THE GUARD PROVES IT LOOKED (2026-10-26, PF-TOOLS): it read a typed floor and nothing else, so every function numbered after the
     // table was printed passed unseen — the CF table's fault of 2026-10-24. The table must be exactly the code's MK-PF-F records.
     const code = headersInCode();
     console.log(`pf_function_trace: ${code.size} MK-PF-F records in the code, ${FUNCTIONS.length} rows in the table`);
-    expect(code.size).toBeGreaterThanOrEqual(76);
+    expect(code.size).toBeGreaterThanOrEqual(78);
     const table = new Set(FUNCTIONS.map((r) => r[0]));
     expect([...code.keys()].filter((id) => !table.has(id)).sort()).toEqual([]);   // in the code, missing from the table
     expect([...table].filter((id) => !code.has(id)).sort()).toEqual([]);          // in the table, gone from the code

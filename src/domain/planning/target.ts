@@ -11,6 +11,7 @@
 // money-you'll-need-later target would read "48% of the way" for someone genuinely 78% of the way,
 // which is the exact contradiction this design exists to avoid.
 import { simulate, ssStreamOf, withSsStream, type RetirementInputs } from '../retirement';
+import { percentDigits, percentValue } from '../../../MoneyKeel/functions/_figure-spec';   // the one percent writer (R24, NW6-05)
 
 /** 80% is not a round number picked for looks — it is where the odds stop being a coin toss and
  *  the plan holds in four futures out of five. */
@@ -315,7 +316,6 @@ export interface PlanTarget {
  *
  * Decides .....
  *     · If annual contribution is missing it uses 0.
- *     · Rounds the answer to a whole number.
  *
  * Formula also on the master file · functions_from_code · MK-PL-F-044
  * Changed ..... 2026-08-15 (5670c43)
@@ -337,12 +337,12 @@ export function planTarget(base: RetirementInputs, annualIncome?: number, roomAn
     typedTarget: typed,
     // ours is offered ONLY while theirs is blank; the moment they type, our number stops existing
     suggestedTarget: typed == null ? target : null,
-    targetPct: typed == null ? null : Math.round((base.start_balance / typed) * 100),
+    targetPct: typed == null ? null : percentValue(base.start_balance / typed, 0),
     shortOfTarget: typed == null ? null : typed - base.start_balance,
     savingToTarget,
     targetAtRetirement: target,
     projectedAtRetirement: projected,
-    progressPct: target && target > 0 ? Math.round((projected / target) * 100) : null,
+    progressPct: target && target > 0 ? percentValue(projected / target, 0) : null,
     requiredExtraAnnual: extra,
     requiredExtraMonthly: extra == null ? null : extra / 12,   // Q49
     yearsToRetire: Math.max(0, base.retire_age - base.current_age),

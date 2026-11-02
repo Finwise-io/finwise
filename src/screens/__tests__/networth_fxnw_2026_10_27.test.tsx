@@ -586,3 +586,103 @@ describe('drawing match round 3 — the Net worth fixes', () => {
     void SS;
   });
 });
+
+/** ROUND 5 OF THE DRAWING MATCH (2026-11-01): NW5-01, NW5-05, NW5-06 and NW5-09, each with its row written before the code. */
+describe('drawing match round 5 — the Net worth fixes', () => {
+  const NetWorth = () => React.createElement(require('../NetWorthScreen').default);
+  const Account = () => React.createElement(require('../AccountPortfolioScreen').default);
+  const real = jest.requireActual('fs') as typeof import('fs');
+  const face = (f: string) => real.readFileSync(require('path').join(__dirname, '..', '..', '..', 'MoneyKeel/documents/networth-and-performance', f), 'utf8');
+  test('NW5-01 · every category bar on the account page takes the touch margin — 44 to the touch; row 94 corrects row 92', () => {
+    const src = real.readFileSync(require('path').join(__dirname, '..', 'AccountPortfolioScreen.tsx'), 'utf8');
+    expect(src).toMatch(/<TouchableOpacity style=\{s\.classBand\} hitSlop=\{Tap\.slop\}/);
+    const { Tap } = require('../../utils/theme');
+    expect(11 * 1.2 + Tap.slop.top + Tap.slop.bottom).toBeGreaterThanOrEqual(44);   // the bar's 11-point caps alone, 13.2 + 32 = 45.2
+    expect(face('moneykeel_pres_mock_account-page_v01.html')).toMatch(/2026-11-01 · Correction to row 92\./);
+  });
+  test('NW5-05 · a typed total dated Sep 1, 2026, nothing recorded since, on Nov 1, 2026: its date, and why there is no return', () => {
+    jest.useFakeTimers({ now: new Date('2026-11-01T12:00:00'), doNotFake: ['nextTick', 'setImmediate', 'queueMicrotask'] });
+    set({ ...V08, assetAccounts: [{ asset_id: 'chb', label: 'Chase Brokerage', institution: 'Chase', kind: 'brokerage', tax_bucket: 'TAXABLE', balance: 50_000, value_as_of: '2026-09-01' }], transactions: [], snapshotDays: [], nwDaily: {} });
+    mockParams = { id: 'chb' }; render(Account()); mockParams = {};
+    const ls = lines();
+    expect(ls).toContain('Its value was entered as of Sep 1, 2026, and nothing has been recorded since, so there is no change to measure. Wealth generated and Return show once a record or a new value is entered.');
+    expect(ls).not.toContain('You added this account today, so its figures start today.');
+    expect(ls).not.toContain('Since today');
+    expect(ls.at(ls.indexOf('Return') + 1)).toBe('—');                       // no second value: no figure, never +0.00%
+    jest.useRealTimers();
+  });
+  test('NW5-05 · the same account typed today still reads the approved day-one line (DEC-6075)', () => {
+    set({ ...V08, assetAccounts: [{ asset_id: 'chb', label: 'Chase Brokerage', institution: 'Chase', kind: 'brokerage', tax_bucket: 'TAXABLE', balance: 50_000, value_as_of: require('../../domain/_shared/dates').isoLocalDate(new Date()) }], transactions: [], snapshotDays: [], nwDaily: {} });
+    mockParams = { id: 'chb' }; render(Account()); mockParams = {};
+    expect(lines()).toContain('You added this account today, so its figures start today.');
+  });
+  test('NW5-06 · the debts step: a setup loan starting Sep 2027 is not counted, and the step says so in Net worth’s words', () => {
+    jest.useFakeTimers({ now: new Date('2026-11-01T12:00:00'), doNotFake: ['nextTick', 'setImmediate', 'queueMicrotask'] });
+    set({ ...V08, nwSetupChoice: 'guided', assetAccounts: [], liabilities: [{ debt_id: 'v', label: 'Visa', debt_type: 'CREDIT_CARD', remaining_balance: 3_200, interest_rate_apr: 0.229, minimum_monthly_payment: 90 }],
+      onboardingProfile: { ...V08.onboardingProfile, loans: [{ label: 'Student loan', amount: '30000', months: [9], year: '2027' }, { label: 'Student loan', amount: '12000' }] } });
+    render(NetWorth());
+    for (let i = 0; i < 4; i++) fireEvent.press(screen.getByText('Next →'));
+    const ls = lines();
+    expect(ls).toContain('Step 5 of 5');
+    // by hand: the Visa $3,200 + the undated $12,000 loan (owed today) = $15,200; the Sep 2027 loan is not owed yet
+    expect(ls).toContain('$15,200');
+    expect(ls).toContain('A $30,000 student loan starts in Sep 2027, not counted until then.');
+    expect(ls).toContain('The $12,000 student loan has no start month entered, so it counts as owed today.');
+    jest.useRealTimers();
+  });
+  test('NW5-09 · a net worth below zero prints its minus sign once: ‘−$38,000’, said ‘minus $38,000’', () => {
+    set({ ...V08, assetAccounts: [{ asset_id: 'c', label: 'Checking', kind: 'checking', tax_bucket: 'CASH', balance: 5_000 }],
+      liabilities: [{ debt_id: 'l', label: 'Car loan', debt_type: 'AUTO', remaining_balance: 43_000, interest_rate_apr: 0.06, minimum_monthly_payment: 500 }] });
+    render(NetWorth());
+    const ls = lines();
+    expect(ls).toContain('−$38,000');                                        // 5,000 − 43,000
+    expect(ls.join(' ')).not.toMatch(/\(negative\)/);
+    expect(screen.getByLabelText('minus $38,000')).toBeOnTheScreen();
+    expect(face('moneykeel_pres_mock_net-worth-quiet-instrument_v08.html')).toMatch(/A net worth below zero is printed with its minus sign only\./);
+  });
+  // THE OLD ANSWER, KEPT (NW5-09, 2026-11-01)
+  test.failing('the old answer: ‘−$38,000  (negative)’', () => {
+    set({ ...V08, assetAccounts: [{ asset_id: 'c', label: 'Checking', kind: 'checking', tax_bucket: 'CASH', balance: 5_000 }],
+      liabilities: [{ debt_id: 'l', label: 'Car loan', debt_type: 'AUTO', remaining_balance: 43_000, interest_rate_apr: 0.06, minimum_monthly_payment: 500 }] });
+    render(NetWorth());
+    expect(lines()).toContain('−$38,000  (negative)');
+  });
+});
+
+/** ROUND 6 (2026-11-02): NW6-02 — no cash account, no months worked from a $0 nobody typed (DEC-0296), on every screen that prints the fund */
+describe('drawing match round 6 — NW6-02, the emergency fund with no cash account', () => {
+  const { theEmergencyFund } = require('../../../MoneyKeel/functions/networth-and-performance/emergency-fund');
+  const CARLOAN = { debt_id: 'car', label: 'Car loan', debt_type: 'AUTO', remaining_balance: 9_800, interest_rate_apr: 0.069, minimum_monthly_payment: 250, payment_type: 'installment' };
+  const PROFILE = { status: 'employed', monthlySpending: '3000' };
+  test('the door: no cash account → no months; a $5,000 checking account → 5,000 ÷ (3,000 + 250) = 1.54 months; a $0 typed → 0', () => {
+    const none = theEmergencyFund({ accounts: [], expenses: [], profile: PROFILE, debts: [CARLOAN] });
+    expect([none.cashEntered, none.monthsCovered, none.monthsCoveredAtPlannedSpend]).toEqual([false, null, null]);
+    const five = theEmergencyFund({ accounts: [{ asset_id: 'c', label: 'Checking', kind: 'checking', tax_bucket: 'CASH', balance: 5_000 }], expenses: [], profile: PROFILE, debts: [CARLOAN] });
+    expect(five.cashEntered).toBe(true);
+    expect(five.monthsCovered).toBeCloseTo(5_000 / (five.essentialsMonthly), 12);
+    const zero = theEmergencyFund({ accounts: [{ asset_id: 'c', label: 'Checking', kind: 'checking', tax_bucket: 'CASH', balance: 0 }], expenses: [], profile: PROFILE, debts: [CARLOAN] });
+    expect([zero.cashEntered, zero.monthsCovered]).toEqual([true, 0]);          // a $0 typed is entered: 0.0 months
+    expect(theEmergencyFund({ accounts: [], expenses: [], profile: PROFILE, debts: [CARLOAN], cashOverride: 1_000 }).cashEntered).toBe(true);   // Stress test's typed cash
+  });
+  test('Net worth: debts and expenses, no cash account — ‘— months’ and the words, never ‘0.0 months · Tight ⚠’', () => {
+    set({ ...V08, assetAccounts: [], liabilities: [CARLOAN], onboardingProfile: { ...V08.onboardingProfile, monthlySpending: '3000' } });
+    render(React.createElement(require('../NetWorthScreen').default));
+    const ls = lines();
+    const at = ls.lastIndexOf('EMERGENCY FUND');
+    expect(ls.slice(at + 1, at + 3)).toEqual(['— months', 'No cash account entered yet — it appears with your first cash account.']);
+    expect(ls.join(' ')).not.toMatch(/0\.0 months|Tight ⚠/);
+  });
+  test('Job safety: no account it counts — no gap from $0, it says so', () => {
+    set({ ...V08, assetAccounts: [], liabilities: [CARLOAN], onboardingProfile: { ...V08.onboardingProfile, monthlySpending: '3000' } });
+    render(React.createElement(require('../JobSafetyScreen').default));
+    const ls = lines();
+    expect(ls).toContain('No savings account entered yet — add one to see what you still need.');   // savings only, the screen's first choice
+    expect(ls).toContain('6 months of essentials is $19,500 ($3,250/month).');                     // 6 × (3,000 + the car loan's 250): the target stands
+    expect(ls.join(' ')).not.toMatch(/cover \$0 of it/);
+  });
+  test.failing('the old answer (NW6-02): Net worth reads ‘0.0 months’ with no cash account', () => {
+    set({ ...V08, assetAccounts: [], liabilities: [CARLOAN], onboardingProfile: { ...V08.onboardingProfile, monthlySpending: '3000' } });
+    render(React.createElement(require('../NetWorthScreen').default));
+    expect(lines()).toContain('0.0 months');
+  });
+});

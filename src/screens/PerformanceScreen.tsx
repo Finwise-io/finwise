@@ -50,6 +50,7 @@ import { theBonds } from '../../MoneyKeel/functions/networth-and-performance/bon
 import { COUPONS_PER_YEAR_QUESTION, COUPONS_PER_YEAR_CHOICES, type CouponsPerYear } from '../constants/couponsPerYear';   // the one wording (DEC-3390)
 import { isoLocalDate, dateShown } from '../domain/_shared/dates';
 import { rebuiltSentence } from '../../Calculation Module code/engines/rebuild-history';
+import { percentDigits, percentValue } from '../../MoneyKeel/functions/_figure-spec';   // the one percent writer (R24, 2026-11-01)
 
 /** the width of the right gutter: an arrow column, as on Net worth (ARROW 16) */
 const GUTTER = 16;
@@ -707,7 +708,7 @@ export function HoldingEditor({ open, accounts, existing, onClose, onSave, onDel
       setKind(asked ? null : existing.position.kind ?? 'stocks_etf'); setLots(existing.position.lots.length ? existing.position.lots : [blankLot()]);
       setPerContract(String(existing.position.multiplier != null && existing.position.multiplier > 0 ? existing.position.multiplier : 100));
       setBondFace(existing.position.face_value != null ? String(existing.position.face_value) : '');
-      setBondRate(existing.position.coupon_rate != null ? String(+(existing.position.coupon_rate * 100).toFixed(6)) : '');
+      setBondRate(existing.position.coupon_rate != null ? String(percentValue(existing.position.coupon_rate, 6)) : '');
       setBondMaturity(existing.position.maturity_date ?? '');
       setCouponsPerYear(existing.position.coupons_per_year === 1 || existing.position.coupons_per_year === 2 ? existing.position.coupons_per_year : null);
     }
@@ -783,7 +784,7 @@ export function HoldingEditor({ open, accounts, existing, onClose, onSave, onDel
           <Text style={styles.sheetT}>Edit holding</Text>
 
           <Text style={styles.fieldL}>Ticker</Text>
-          <TextInput style={styles.input} value={ticker} onChangeText={setTicker} autoCapitalize="characters" autoCorrect={false}
+          <TextInput hitSlop={Tap.slop} style={styles.input} value={ticker} onChangeText={setTicker} autoCapitalize="characters" autoCorrect={false}
             onFocus={() => setTickerFocus(true)} onBlur={() => setTimeout(() => setTickerFocus(false), 150)}
             placeholder="e.g. AAPL, VTI, SPY" placeholderTextColor={Colors.textTertiary} />
           {suggestions.length > 0 && (
@@ -806,7 +807,7 @@ export function HoldingEditor({ open, accounts, existing, onClose, onSave, onDel
             <Text style={styles.tickerWarn}>That doesn’t look like a ticker symbol — check for a typo (e.g. AAPL, VTI).</Text>
           )}
           <Text style={styles.fieldL}>Name (optional)</Text>
-          <TextInput style={styles.input} value={label} onChangeText={setLabel} placeholder="e.g. Apple Inc." placeholderTextColor={Colors.textTertiary} />
+          <TextInput hitSlop={Tap.slop} style={styles.input} value={label} onChangeText={setLabel} placeholder="e.g. Apple Inc." placeholderTextColor={Colors.textTertiary} />
 
           <Text style={styles.fieldL}>Type (sets the benchmark{kind ? ` — ${benchmarkTicker(kind)}` : ''})</Text>
           <View style={styles.kindWrap}>
@@ -827,7 +828,7 @@ export function HoldingEditor({ open, accounts, existing, onClose, onSave, onDel
           {isOption && (
             <>
               <Text style={styles.fieldL}>Shares per contract</Text>
-              <TextInput style={styles.input} keyboardType="number-pad" value={perContract} onChangeText={setPerContract}
+              <TextInput hitSlop={Tap.slop} style={styles.input} keyboardType="number-pad" value={perContract} onChangeText={setPerContract}
                 accessibilityLabel="Shares per contract" />
               <Text style={styles.beginnerHint}>100 for a standard option; 10 for a mini option. Value and cost are multiplied by it.</Text>
             </>
@@ -837,7 +838,7 @@ export function HoldingEditor({ open, accounts, existing, onClose, onSave, onDel
           <Text style={styles.beginnerHint}>New to this? Just enter {isOption ? 'contracts' : 'shares'} — cost &amp; date are optional (add them later for return-since-purchase).</Text>
           {lots.map((l, i) => (
             <View key={i} style={styles.lotRow}>
-              <View style={styles.lotCell}><Text style={styles.lotL}>{isOption ? 'Contracts' : 'Shares'}</Text><TextInput style={styles.lotIn} keyboardType="decimal-pad" value={lotVal(i, 'shares', l.shares)} onChangeText={(t) => setLotNum(i, 'shares', t)} accessibilityLabel={isOption ? 'Contracts' : 'Shares'} /></View>
+              <View style={styles.lotCell}><Text style={styles.lotL}>{isOption ? 'Contracts' : 'Shares'}</Text><TextInput hitSlop={Tap.slop} style={styles.lotIn} keyboardType="decimal-pad" value={lotVal(i, 'shares', l.shares)} onChangeText={(t) => setLotNum(i, 'shares', t)} accessibilityLabel={isOption ? 'Contracts' : 'Shares'} /></View>
               <View style={styles.lotCell}><Text style={styles.lotL}>Cost / share (opt)</Text><MoneyBox bare style={styles.lotIn} value={lotVal(i, 'cost_per_share', l.cost_per_share)} onChangeText={(t) => setLotNum(i, 'cost_per_share', t)} placeholder="—" /></View>
               <View style={styles.lotCell}><Text style={styles.lotL}>Date (opt)</Text><DateField value={l.purchase_date ?? ''} onChange={(iso) => setLot(i, { purchase_date: iso })} label="purchase date" style={styles.lotIn} maximumDate={new Date()} /></View>
               {lots.length > 1 && <TouchableOpacity hitSlop={Tap.slop} accessibilityRole="button" accessibilityLabel={`Remove lot ${i + 1}`} onPress={() => setLots((ls) => ls.filter((_, j) => j !== i))}><Text style={styles.lotDel}>✕</Text></TouchableOpacity>}
@@ -850,7 +851,7 @@ export function HoldingEditor({ open, accounts, existing, onClose, onSave, onDel
               <Text style={styles.fieldL}>Face value (optional)</Text>
               <MoneyBox bare style={styles.input} value={bondFace} onChangeText={setBondFace} a11y="Face value" />
               <Text style={styles.fieldL}>Interest rate % (optional)</Text>
-              <TextInput style={styles.input} keyboardType="decimal-pad" value={bondRate} onChangeText={setBondRate} accessibilityLabel="Coupon percent" />
+              <TextInput hitSlop={Tap.slop} style={styles.input} keyboardType="decimal-pad" value={bondRate} onChangeText={setBondRate} accessibilityLabel="Coupon percent" />
               {!isCdHolding && (
                 <>
                   {/* (2026-10-21, under DEC-3390) how often a held bond pays — the yield to maturity's accrued-interest estimate
@@ -1114,7 +1115,7 @@ export function TransactionSheet({ open, accounts, onClose, onSave, prefill }: {
           )}
 
           {isBuy && (<><Text style={styles.fieldL}>Ticker</Text>
-            <TextInput style={styles.input} value={ticker} onChangeText={setTicker} autoCapitalize="characters" autoCorrect={false} placeholder="e.g. AAPL" placeholderTextColor={Colors.textTertiary} /></>)}
+            <TextInput hitSlop={Tap.slop} style={styles.input} value={ticker} onChangeText={setTicker} autoCapitalize="characters" autoCorrect={false} placeholder="e.g. AAPL" placeholderTextColor={Colors.textTertiary} /></>)}
 
           {/* a ticker this account does not hold yet: its type, in the holding editor's question, chips and words (2026-10-25,
               drawing v03 row 16) — nothing chosen for the person, and the buy waits until one is */}
@@ -1131,7 +1132,7 @@ export function TransactionSheet({ open, accounts, onClose, onSave, prefill }: {
             {buyKind == null && <Text style={styles.beginnerHint}>{tickerUp} isn’t held in this account yet — choose its type to record the buy.</Text>}
             {askOption && (<>
               <Text style={styles.fieldL}>Shares per contract</Text>
-              <TextInput style={styles.input} keyboardType="number-pad" value={buyPerContract} onChangeText={setBuyPerContract}
+              <TextInput hitSlop={Tap.slop} style={styles.input} keyboardType="number-pad" value={buyPerContract} onChangeText={setBuyPerContract}
                 accessibilityLabel="Shares per contract" />
               <Text style={styles.beginnerHint}>100 for a standard option; 10 for a mini option. Value and cost are multiplied by it.</Text>
             </>)}
@@ -1165,7 +1166,7 @@ export function TransactionSheet({ open, accounts, onClose, onSave, prefill }: {
               Each box is named as the ✎ sheet names it (‘Shares’, ‘Price per share’, ‘Amount’): VoiceOver read the grey ‘0’ as its name */}
           {(isTrade || (isDiv && reinvest)) && (
             <View style={[styles.lotRow, { marginTop: 12 }]}>
-              <View style={styles.lotCell}><Text style={styles.lotL}>{inContracts ? 'Contracts' : 'Shares'}</Text><TextInput style={styles.lotIn} keyboardType="decimal-pad" value={shares} onChangeText={setShares} accessibilityLabel={inContracts ? 'Contracts' : 'Shares'} /></View>
+              <View style={styles.lotCell}><Text style={styles.lotL}>{inContracts ? 'Contracts' : 'Shares'}</Text><TextInput hitSlop={Tap.slop} style={styles.lotIn} keyboardType="decimal-pad" value={shares} onChangeText={setShares} accessibilityLabel={inContracts ? 'Contracts' : 'Shares'} /></View>
               <View style={styles.lotCell}><Text style={styles.lotL}>Price / share</Text><MoneyBox bare style={styles.lotIn} value={price} onChangeText={setPrice} a11y="Price per share" /></View>
               <View style={styles.lotCell}><Text style={styles.lotL}>Date</Text><DateField value={date} onChange={setDate} label="transaction date" style={styles.lotIn} maximumDate={new Date()} /></View>
             </View>

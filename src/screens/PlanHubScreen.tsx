@@ -38,6 +38,7 @@ import { figWords } from '../components/figure';   // the odds and the retiremen
 import { useCashflowModel } from '../hooks/useCashflowModel';
 import { salaryAnnual } from '../domain/income';
 import { dateShown } from '../domain/_shared/dates';   // every stored date in words, the one date writer (MK-ST-F-078)
+import { percentDigits } from '../../MoneyKeel/functions/_figure-spec';   // the one percent writer (R24, 2026-11-01)
 
 /** How a withdrawal rate reads in words — ONE home for it, in the module that owns the band
  *  (DEC-0036 reworded it to his own-math framing, DEC-0215 says it changes on every screen). */
@@ -334,12 +335,12 @@ export default function PlanHubScreen() {
             {planSpend > 0 && (paycheckTotal >= planSpend ? (
               <Text style={styles.payOk}>
                 ✓ covers your {maskedMoney(planSpend)}/month expenses. You’re drawing {maskedMoney(Math.round(drawUsed))}/month
-                {wplan?.withdrawalRate != null ? ` — ${(wplan.withdrawalRate * 100).toFixed(1)}% of your savings a year, ${rateWords(wplan.rateBand)}` : ''}. You could draw up to {maskedMoney(Math.round(payMonth.safeDraw))}.
+                {wplan?.withdrawalRate != null ? ` — ${percentDigits(wplan.withdrawalRate, 1)}% of your savings a year, ${rateWords(wplan.rateBand)}` : ''}. You could draw up to {maskedMoney(Math.round(payMonth.safeDraw))}.
               </Text>
             ) : (
               <Text style={styles.payWarn}>
                 your {maskedMoney(planSpend)}/month of expenses run {maskedMoney(Math.round(planSpend - paycheckTotal))} above this paycheck — worth a look below
-                {wplan?.withdrawalRate != null ? `. You’d be drawing ${(wplan.withdrawalRate * 100).toFixed(1)}% of your savings a year — ${rateWords(wplan.rateBand)}` : ''}
+                {wplan?.withdrawalRate != null ? `. You’d be drawing ${percentDigits(wplan.withdrawalRate, 1)}% of your savings a year — ${rateWords(wplan.rateBand)}` : ''}
               </Text>
             ))}
             <Text style={styles.payNote}>The same paycheck as Home’s card — one function, one set of numbers.</Text>

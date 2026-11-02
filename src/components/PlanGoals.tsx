@@ -24,8 +24,9 @@ import { goalsCapacity, debtGoalPlan, monthYear, type DebtGoalPlan } from '../do
 import { monthKey } from '../domain/income/salary-months';
 import { monthYearShown } from '../domain/_shared/dates';   // the one month writer
 import type { Debt } from '../domain/debt';
+import { percentDigits } from '../../MoneyKeel/functions/_figure-spec';   // the one percent writer (R24, 2026-11-01)
 
-const pct2 = (r: number) => `${(r * 100).toFixed(2)}%`;   // a rate held 0…1, printed to two decimals (Q49)
+const pct2 = (r: number) => `${percentDigits(r, 2)}%`;   // a rate held 0…1, printed to two decimals (Q49)
 const num = (v: string) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return Number.isFinite(n) ? n : 0; };
 const ymOf = (month: string, year: string): string | null => {
   const m = Math.round(num(month)), y = Math.round(num(year));

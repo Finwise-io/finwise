@@ -31,7 +31,7 @@ import { personalFlowTotals } from '../../Calculation Module code/engines/ledger
 import { connectionFreshness } from '../services/sync';
 import { moneyCompact, currencySymbol } from '../domain/_shared/money';
 import { buildAssetsState, ASSET_KINDS, ASSET_SECTIONS, assetKind, assetClassOf, AssetAccount, TaxBucket, assetAllocation, investableAssets, ASSET_CLASS_LABEL, type AssetClass, wrapperAccount, maturityClass, accountDisplayNames, accountClassBreakdown, classPortionLabel, type AddWrapper, HELD_IN_CHOICES, sourceWording, CASH_GROUP_LABEL, uberGroupRows, type UberGroup, uberGroupOf, asksCashOrInvestments, CASH_OR_INVESTMENTS_ASK, TAX_TYPE_NOT_STATED } from '../domain/assets';
-import { buildDebtState, debtKind, TOXIC_APR, rateNotEntered, setupLoanSentences, Debt } from '../domain/debt';
+import { buildDebtState, debtKind, TOXIC_APR, rateNotEntered, setupLoanSentences, debtsEntered, Debt } from '../domain/debt';
 // ONE DOOR (MK-NW-O-003 theNetWorth, Q-NW-1 ruled 2026-09-27). This tab and Home each built
 // their own net worth; they read one answer now.
 import { theNetWorth, ledgerGroups, barSegments, barDrawnWidths, accountsInClasses, isPartOfAccount, valueChanged } from '../../MoneyKeel/functions/networth-and-performance/net-worth';
@@ -57,6 +57,7 @@ import { isoLocalDate } from '../domain/_shared/dates';
 import { DateField } from '../components/DateField';   // (DEC-4059b, 2026-10-10) bond and CD dates are picked, never typed
 import { theBonds } from '../../MoneyKeel/functions/networth-and-performance/bonds';   // the bonds door says what a CD is (MK-NW-O-001)
 import { CD_BOUGHT_QUESTION, CD_BOUGHT_CHOICES, type CdBought } from '../constants/cdBought';   // the one wording (DEC-3837)
+import { percentDigits, percentValue } from '../../MoneyKeel/functions/_figure-spec';   // the one percent writer (R24, 2026-11-01)
 
 // asset class → glossary term, so the By-class group headers carry an in-context "what is this?" dot.
 const CLASS_TO_TERM: Partial<Record<AssetClass, GlossaryTerm>> = {
@@ -284,7 +285,7 @@ export default function NetWorthScreen() {
   const topClass = [...classRows].sort((a, b) => b.total - a.total)[0];
   const investable = worth.investable;   // NW-12: cash + investments (excludes home & belongings) — the ONE figure (Q-NW-1)
   const debtRatio = totalAssets > 0 ? dState.total_debt_balance / totalAssets : 0;
-  const pctOf = (v: number) => (totalAssets > 0 ? Math.round((v / totalAssets) * 100) : 0);
+  const pctOf = (v: number) => (totalAssets > 0 ? percentValue(v / totalAssets, 0) : 0);   // the one percent writer (R24, NW6-05)
 
   // Legacy helper: jump to the accounts that make up a class.
   const scrollRef = useRef<ScrollView>(null);
@@ -521,6 +522,17 @@ export default function NetWorthScreen() {
     );
   };
 
+  /** the setup loans not owed yet, or with no start month, in words (R22a) — the same lines on the ledger and the debts step (NW5-06) */
+  /** a payment not entered, split by its reason (R22d, 2026-11-02; v08 row of that date): a student loan from setup has no payment because
+   *  setup never asks when repayment starts — it is named by that reason; any other debt by the plain one */
+  const isStartUnknown = (id: string) => !!(liabilities.find((d: any) => String(d.debt_id) === id) as any)?.repayment_start_unknown;
+  const notEnteredLines = (missing: { id: string; label: string }[]) => {
+    const start = missing.filter((m) => isStartUnknown(m.id)), plain = missing.filter((m) => !isStartUnknown(m.id));
+    return { start: start.map((m) => `${m.label}: when repayment starts is not entered, so its payment is not included.`), plain };
+  };
+  const loanLines = () => setupLoanSentences(store.onboardingProfile, (store.liabilities ?? []) as Debt[], (n) => fig('MK-NW-M-010', Math.round(n))).map((t) => (
+    <Text key={t} style={[styles.firstDayAsk, styles.ledgerPad]}>{t}</Text>
+  ));
   const renderDebtSection = () => (
     <View>
       <View style={styles.secHead}>
@@ -542,7 +554,7 @@ export default function NetWorthScreen() {
                       {costliest?.debt_id === d.debt_id && <View style={styles.hotPill}><Text style={styles.hotPillTxt}>pay first</Text></View>}
                     </View>
                     {/* a payment never entered reads so, never a made-up $0/month (2026-10-21, DEC-3523 tenet 3) */}
-                    <Text style={[styles.rowSub, hot && { color: Colors.red }]}>{rateNotEntered(d) ? 'rate not entered' : `${(d.interest_rate_apr * 100).toFixed(2)}% APR`} · {worth.debtPaymentsNotEntered.some((x) => x.id === String(d.debt_id)) ? figWords('MK-NW-M-011', 'payment not entered') : figPer('MK-NW-M-011', d.minimum_monthly_payment)}</Text>
+                    <Text style={[styles.rowSub, hot && { color: Colors.red }]}>{rateNotEntered(d) ? 'rate not entered' : `${percentDigits(d.interest_rate_apr, 2)}% APR`} · {(d as any).repayment_start_unknown ? figWords('MK-NW-M-011', 'repayment start not entered') : worth.debtPaymentsNotEntered.some((x) => x.id === String(d.debt_id)) ? figWords('MK-NW-M-011', 'payment not entered') : figPer('MK-NW-M-011', d.minimum_monthly_payment)}</Text>
                   </View>
                   <Text style={styles.rowVal}>{fig('MK-NW-M-010', d.remaining_balance)}</Text>
                 </TouchableOpacity>
@@ -556,11 +568,18 @@ export default function NetWorthScreen() {
                 obligation is the right figure. */}
             <View style={[styles.row, styles.divider]}><Text style={[styles.rowSub, { flex: 1 }]}>Monthly debt payments</Text><Text style={styles.rowVal}>{figPer('MK-NW-M-012', worth.monthlyDebtPayments)}</Text></View>
             {/* the sum above leaves out a payment never entered, and says so beside it (2026-10-21, DEC-3523 tenet 3) */}
-            {worth.debtPaymentsNotEntered.length > 0 && (
-              <Text style={styles.rowSub}>{worth.debtPaymentsNotEntered.map((x) => x.label).join(', ')} {plural(worth.debtPaymentsNotEntered.length, 'payment', '·')} not entered, so {worth.debtPaymentsNotEntered.length === 1 ? 'it is' : 'they are'} not included.</Text>
-            )}
+            {(() => {
+              const { start, plain } = notEnteredLines(worth.debtPaymentsNotEntered);
+              return (<>
+                {plain.length > 0 && (
+                  <Text style={styles.rowSub}>{plain.map((x) => x.label).join(', ')} {plural(plain.length, 'payment', '·')} not entered, so {plain.length === 1 ? 'it is' : 'they are'} not included.</Text>
+                )}
+                {start.map((t) => <Text key={t} style={styles.rowSub}>{t}</Text>)}
+              </>);
+            })()}
           </>)}
       </View>
+      {loanLines()}
     </View>
   );
 
@@ -835,8 +854,10 @@ export default function NetWorthScreen() {
                 Own {fig('MK-NW-M-004', Math.round(totalAssets))} − Owe {fig('MK-NW-M-009', Math.round(dState.total_debt_balance))}
               </Text>
             )}
-            <HeroAmount style={[styles.glanceVal, nw.net_worth < 0 && !store.hideBalances && { color: Colors.red }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.6}>
-              {store.hideBalances ? '••••' : fig('MK-XS-M-001', Math.round(nw.net_worth))}{nw.net_worth < 0 && !store.hideBalances ? '  (negative)' : ''}
+            {/* below zero: the minus sign says it, once (NW5-09, 2026-11-01; v08 row of that date) — it also printed '  (negative)'; VoiceOver says 'minus' */}
+            <HeroAmount style={[styles.glanceVal, nw.net_worth < 0 && !store.hideBalances && { color: Colors.red }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.6}
+              accessibilityLabel={nw.net_worth < 0 && !store.hideBalances ? `minus ${figSaid('MK-XS-M-001', Math.round(-nw.net_worth))}` : undefined}>
+              {store.hideBalances ? '••••' : fig('MK-XS-M-001', Math.round(nw.net_worth))}
             </HeroAmount>
             {/* Build-43 feedback #3: change + date render ALWAYS, matching the approved mock — an
                 honest first-day line instead of a bare number when history hasn't built yet */}
@@ -1025,7 +1046,9 @@ export default function NetWorthScreen() {
               "Nothing entered yet." and the door row "Add your debts ›" under it, the same two parts the first day draws. It was one line with
               an inline link here and two parts on the first day: one section, two shapes (2026-10-31, drawing match round 3, NW3-10). */}
           {liabilities.length === 0 && (<>
-            <Text style={[styles.firstDayAsk, styles.ledgerPad]}>Nothing entered yet.</Text>
+            {/* only when nothing at all is entered: a student loan from setup that starts later IS entered (CF6-02, 2026-11-02) */}
+            {!debtsEntered(store.onboardingProfile, (store.liabilities ?? []) as Debt[]) && <Text style={[styles.firstDayAsk, styles.ledgerPad]}>Nothing entered yet.</Text>}
+            {loanLines()}   {/* the loan's sentence, then the door (v08 row of 2026-11-02) */}
             <TouchableOpacity style={styles.ledgerRow} accessibilityRole="button" accessibilityLabel={DEBTS_DOOR_WORDS}
               onPress={() => setDebtSheet({ open: true })}>
               <Text style={styles.doorTxt}>{DEBTS_DOOR_WORDS}</Text>
@@ -1062,9 +1085,7 @@ export default function NetWorthScreen() {
 
         {/* A STUDENT LOAN FROM SETUP THAT IS NOT OWED YET, OR HAS NO START MONTH, IS SAID IN WORDS (R22a, 2026-11-01; v08 row of that
             date) — the same sentences as Debts, from the one rule (setupLoanSentences) */}
-        {setupLoanSentences(store.onboardingProfile, (store.liabilities ?? []) as Debt[], (n) => fig('MK-NW-M-010', Math.round(n))).map((t) => (
-          <Text key={t} style={[styles.firstDayAsk, styles.ledgerPad]}>{t}</Text>
-        ))}
+        {liabilities.length > 0 && loanLines()}
         {/* EVERY MORTGAGE IS ON A PROPERTY (his rule, 2026-10-04, DEC-1925). One that is on none is named
             here, and a tap opens it so the person can say which property it is on. */}
         {/* A HOLDING NOTHING COULD CLASS IS ASKED ABOUT, NOT GUESSED (his ruling, 2026-09-30, master Q11:
@@ -1141,8 +1162,9 @@ export default function NetWorthScreen() {
               {/* A PAYMENT NEVER ENTERED IS NOT $0 (2026-10-21, DEC-3523 tenet 3): the months above leave that debt out, and the
                   card names it — the shape of his rent line (DEC-3769, "rent not included. Enter rent to include."), and the
                   words open that debt's editor */}
-              {emergencyFund.paymentsNotEntered.length > 0 && (() => {
-                const missing = emergencyFund.paymentsNotEntered;
+              {notEnteredLines(emergencyFund.paymentsNotEntered).start.map((t) => <Text key={t} style={styles.cushionMath}>{t}</Text>)}
+              {notEnteredLines(emergencyFund.paymentsNotEntered).plain.length > 0 && (() => {
+                const missing = notEnteredLines(emergencyFund.paymentsNotEntered).plain;
                 const one = missing.length === 1;
                 const names = one ? missing[0].label : `${missing.slice(0, -1).map((m) => m.label).join(', ')} and ${missing[missing.length - 1].label}`;
                 const said = `${names} ${plural(missing.length, 'payment', '·')} not entered, so ${one ? 'it is' : 'they are'} not included. Enter ${one ? 'it' : 'them'} to include.`;
@@ -1181,6 +1203,16 @@ export default function NetWorthScreen() {
               <Text style={styles.link}>Answer one question in Cash flow ›</Text>
             </View>
           </TouchableOpacity>
+        ) : !emergencyFund.cashEntered && (assets.length + liabilities.length) > 0 ? (
+          // NO CASH ACCOUNT ENTERED (NW6-02, 2026-11-02; v08 row of that date): the fund as frame C draws it — no months worked from a $0
+          // nobody typed (DEC-0296)
+          <View>
+            <View style={styles.flushBand}><SectionBand title="EMERGENCY FUND" trailing={RIGHT_SLOT} /></View>
+            <View style={[styles.ledgerPad, styles.cushPad]}>
+              <Text style={styles.cushionEmpty}>— months</Text>
+              <Text style={styles.cushionMath}>No cash account entered yet — it appears with your first cash account.</Text>
+            </View>
+          </View>
         ) : null}
         </View>
 

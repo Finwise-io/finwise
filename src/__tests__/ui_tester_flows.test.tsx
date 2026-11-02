@@ -274,15 +274,26 @@ describe('EDGE 4 · deleting the OTHER side of a transfer must not break history
   });
 });
 
+// THE OLD ANSWER, KEPT (NW5-09, 2026-11-01): the hero also printed the word '(negative)'
+test.failing("the old answer: a debts-only user's hero reads '(negative)'", () => {
+  useStore.setState({ onboardingProfile: { ...WORKER, name: 'Sam' }, onboardingComplete: true, nwSeeded: true, assetAccounts: [],
+    liabilities: [{ debt_id: 'd1', label: 'Card', debt_type: 'CREDIT_CARD', remaining_balance: 22000, interest_rate_apr: 0.24, minimum_monthly_payment: 400 }] } as any);
+  render(<NetWorthScreen />);
+  expect(screen.getByText(/\(negative\)/)).toBeOnTheScreen();
+});
+
 describe('EDGE 5 · a debts-only user: negative net worth is shown, in words', () => {
-  test("the glance says the number AND the word 'negative'; Home still stands", () => {
+  test("the glance says the number with its minus sign, and VoiceOver says 'minus'; Home still stands", () => {
     useStore.setState({
       onboardingProfile: { ...WORKER, name: 'Sam' }, onboardingComplete: true, nwSeeded: true,
       assetAccounts: [],
       liabilities: [{ debt_id: 'd1', label: 'Card', debt_type: 'CREDIT_CARD', remaining_balance: 22000, interest_rate_apr: 0.24, minimum_monthly_payment: 400 }],
     } as any);
     const nw = render(<NetWorthScreen />);
-    expect(screen.getByText(/\(negative\)/)).toBeOnTheScreen();            // the word, never color alone
+    // never colour alone: the minus sign says it, and VoiceOver says 'minus' (NW5-09, 2026-11-01; v08 row of that date) — it also printed
+    // '  (negative)'. By hand: $0 of assets − $22,000 owed on the card = −$22,000
+    expect(screen.getAllByText('−$22,000').length).toBeGreaterThanOrEqual(1);   // the hero, and the Debts bar beside it
+    expect(screen.getByLabelText('minus $22,000')).toBeOnTheScreen();
     expect(screen.getByLabelText(/you owe \$22,000/)).toBeOnTheScreen();
     nw.unmount();
 

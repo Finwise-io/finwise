@@ -5,7 +5,7 @@
  *  are handed out here, with their inputs and an example that runs.
  */
 import { declareFigures } from '../_figure-spec';
-import { payoffPlan, minimumDebtService, totalDebtMonthly, requiredPayment, rateNotEntered, debtToIncome, loanPayment, setupStudentLoans, type Debt, type PayoffMethod, type PayoffResult } from '../../../src/domain/debt';
+import { payoffPlan, minimumDebtService, totalDebtMonthly, requiredPayment, rateNotEntered, debtToIncome, loanPayment, setupLoansSplit, type Debt, type PayoffMethod, type PayoffResult } from '../../../src/domain/debt';
 import { totalGrossAnnual } from '../../../src/domain/income';
 import { mortgagesByProperty, type MortgageCheck } from '../networth-and-performance/net-worth';   // which property each mortgage is on (DEC-1925)
 
@@ -63,9 +63,10 @@ export interface TheDebts {
  *
  * Called by ... MK-CF-F-211 DEBTS · MK-CF-F-296 LOAD
  *
- * Reaches ..... 9 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 11 functions. Change the arithmetic above and these change with it:
  *               MK-CF-F-211 DEBTS · MK-CF-F-296 LOAD
- *               MK-CF-F-295 debtLoad · MK-CF-F-305 setupLoanDebts
+ *               MK-CF-F-295 debtLoad · MK-CF-F-315 debtsEntered
+ *               MK-CF-F-314 setupEntered · MK-CF-F-305 setupLoanDebts
  *               MK-CF-F-302 setupLoanSentences · MK-CF-F-304 setupLoansAll
  *               MK-CF-F-303 setupLoansNotEntered · MK-CF-F-301 setupLoansSplit
  *               MK-CF-F-299 setupStudentLoans
@@ -141,9 +142,10 @@ export function theDebts(input: { debts: Debt[]; extraMonthly?: number; method?:
  *
  * Called by ... MK-CF-O-018 theDebts
  *
- * Reaches ..... 10 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 12 functions. Change the arithmetic above and these change with it:
  *               MK-CF-F-211 DEBTS · MK-CF-F-296 LOAD
- *               MK-CF-F-295 debtLoad · MK-CF-F-305 setupLoanDebts
+ *               MK-CF-F-295 debtLoad · MK-CF-F-315 debtsEntered
+ *               MK-CF-F-314 setupEntered · MK-CF-F-305 setupLoanDebts
  *               MK-CF-F-302 setupLoanSentences · MK-CF-F-304 setupLoansAll
  *               MK-CF-F-303 setupLoansNotEntered · MK-CF-F-301 setupLoansSplit
  *               MK-CF-F-299 setupStudentLoans · MK-CF-O-018 theDebts
@@ -177,18 +179,24 @@ export function payoffRefusal(notEntered: { label: string; what: ('payment' | 'r
  *
  * Formula .....
  *     op = profile (or none when missing)
- *     num = (v: unknown) => { const n = parse float(string(v ?? '').replace( ÷ [^0 − 9.] ÷ g, '')); return number.is finite(n) ? n : 0; }
  *     gross monthly = total gross annual(op) ÷ 12
  *     homeowner = (debts ?? []).some((d) => debt type = 'MORTGAGE')
- *     list = (array.is array(op.loans) ? op.loans : []) as any[]
+ *     split = setup loans split(op, [])
+ *     not debts = setup loans split(op, debts ?? [])
+ *     as debt = not debts.owed.length + not debts.later.length = 0
+ *     all = [...split.owed, ...split.later]
  *     borrowed = 0, monthly = 0, interest = 0
+ *     starts later = for each of split.owed.length = 0 and split.later.length > 0 ? split.later: starts on!.sort()[0] : nothing
  *     loans = borrowed = borrowed
  *     monthly = monthly
  *     interest = interest
  *     share of income = monthly ÷ gross monthly   if gross monthly > 0
- *     nothing   otherwise   if borrowed > 0
+ *     nothing   otherwise
+ *     starts later = starts later
+ *     as debt = as debt   if borrowed > 0
  *     nothing   otherwise
  *     the answer = { dti, loans }
+ *     … the first steps only — the rest of the body needs reading by hand.
  *
  * Called by ... MK-CF-F-296 LOAD
  *
@@ -200,27 +208,37 @@ export function payoffRefusal(notEntered: { label: string; what: ('payment' | 'r
  *               MK-XS-I-015 debt interest rate
  *               MK-XS-I-016 debt minimum payment
  *
+ * Decides .....
+ *     · If apr percent is missing it uses 0.
+ *     · If term years is missing it uses 0.
+ *
  * Formula also on the master file · functions_from_code · MK-CF-F-295
  * Changed ..... not in git yet (—)
  */
 export function debtLoad(profile: any, debts: Debt[]): {
   dti: { ratio: number; monthlyDebt: number; grossMonthly: number; guideline: number; status: 'good' | 'caution' | 'high'; homeowner: boolean } | null;
-  loans: { borrowed: number; monthly: number; interest: number; shareOfIncome: number | null } | null;
+  loans: { borrowed: number; monthly: number; interest: number; shareOfIncome: number | null; startsLater: string | null; asDebt: boolean } | null;
 } {
   const op = profile ?? {};
-  const num = (v: unknown) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return Number.isFinite(n) ? n : 0; };
   const grossMonthly = totalGrossAnnual(op) / 12;
   const homeowner = (debts ?? []).some((d) => d.debt_type === 'MORTGAGE');
   const dti = (debts ?? []).length > 0 && grossMonthly > 0
     ? { ...debtToIncome(minimumDebtService(debts), grossMonthly, homeowner), homeowner } : null;
-  const list = (Array.isArray(op.loans) ? op.loans : []) as any[];
+  // EVERY SETUP LOAN NO DEBT ENTERED IS, OWED TODAY OR PAID OUT LATER (2026-11-01, the lead's R22b; CF5-02): the outlook showed only
+  // for a loan owed today, so a loan paid out from Sep 2027 — the one state "once you're repaying" is written for — had no box
+  // EVERY LOAN ENTERED IN SETUP, ONCE (2026-11-02, round 6, CF6-05): one also entered as a debt is counted once, as that debt — but its
+  // outlook still shows; the split is read with no debts so a matched loan is not dropped from the box (asDebt: every one is a debt)
+  const split = setupLoansSplit(op, []);
+  const notDebts = setupLoansSplit(op, debts ?? []);
+  const asDebt = notDebts.owed.length + notDebts.later.length === 0;
+  const all = [...split.owed, ...split.later];
   let borrowed = 0, monthly = 0, interest = 0;
-  for (const l of list) {
-    borrowed += num(l?.amount);
-    if (num(l?.apr) > 0 && num(l?.termYears) > 0) { const p = loanPayment(num(l.amount), num(l.apr), num(l.termYears)); monthly += p.monthly; interest += p.totalInterest; }
+  for (const l of all) {
+    borrowed += l.amount;
+    if ((l.aprPct ?? 0) > 0 && (l.termYears ?? 0) > 0) { const p = loanPayment(l.amount, l.aprPct!, l.termYears!); monthly += p.monthly; interest += p.totalInterest; }
   }
-  borrowed = setupStudentLoans(op).owed;   // the one reader of the setup loans (R22): the outlook's "borrowed" is YOUR DEBT's share of them
-  const loans = borrowed > 0 ? { borrowed, monthly, interest, shareOfIncome: grossMonthly > 0 ? monthly / grossMonthly : null } : null;
+  const startsLater = split.owed.length === 0 && split.later.length > 0 ? split.later.map((l) => l.startsOn!).sort()[0] : null;
+  const loans = borrowed > 0 ? { borrowed, monthly, interest, shareOfIncome: grossMonthly > 0 ? monthly / grossMonthly : null, startsLater, asDebt } : null;
   return { dti, loans };
 }
 
@@ -244,8 +262,9 @@ const GIVEN = 'A $9,000 card at 24% with a $200 minimum and a $14,000 car loan a
  *
  * Called by ... MK-CF-F-296 LOAD · MK-CF-F-304 setupLoansAll
  *
- * Reaches ..... 8 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 10 functions. Change the arithmetic above and these change with it:
  *               MK-CF-F-296 LOAD · MK-CF-F-295 debtLoad
+ *               MK-CF-F-315 debtsEntered · MK-CF-F-314 setupEntered
  *               MK-CF-F-305 setupLoanDebts · MK-CF-F-302 setupLoanSentences
  *               MK-CF-F-304 setupLoansAll · MK-CF-F-303 setupLoansNotEntered
  *               MK-CF-F-301 setupLoansSplit · MK-CF-F-299 setupStudentLoans

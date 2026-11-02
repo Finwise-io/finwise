@@ -13,6 +13,7 @@ import { selectWillItLast } from '../domain/retirement/willItLast';
 import { resolveNetWorthRows } from '../domain/snapshot';
 import { maskedMoney } from '../components/useMoney';
 import { EstimateTag } from '../components/UI';
+import { percentDigits } from '../../MoneyKeel/functions/_figure-spec';   // the one percent writer (R24, 2026-11-01)
 
 export default function WillItLastScreen() {
   const router = useRouter();
@@ -52,8 +53,8 @@ export default function WillItLastScreen() {
     { label: 'Monthly expenses in retirement', value: maskedMoney(inp.retire_monthly_spend_today), source: A.spendMonthly != null ? 'you entered' : 'calculated from your data', route: '/retirement' },
     { label: 'Guaranteed income', value: `${maskedMoney(inp.guaranteed_monthly_income)}/month from age ${inp.guaranteed_start_age ?? inp.retire_age}`, source: A.ssMonthly != null || A.ssClaimAge != null ? 'you entered' : 'from your setup answers', route: '/ss-timing' },
     ...(inp.retire_age > inp.current_age ? [{ label: 'Monthly saving until then', value: `${maskedMoney(inp.annual_contribution / 12)}/month`, source: A.contribMonthly != null ? 'you entered' : 'calculated from your data', route: '/multi-goal' }] : []),
-    { label: 'Yearly growth assumed', value: `${((inp.mean_return ?? 0) * 100).toFixed(1)}%`, source: A.returnBasis === 'actual' ? 'your reported returns' : A.returnBasis === 'scenario' ? 'you entered' : 'the blended benchmark for your mix', route: '/retirement' },
-    { label: 'Inflation assumed', value: `${((inp.inflation ?? 0) * 100).toFixed(1)}%`, source: A.inflation != null ? 'you entered' : 'from economic data', route: '/retirement' },
+    { label: 'Yearly growth assumed', value: `${percentDigits((inp.mean_return ?? 0), 1)}%`, source: A.returnBasis === 'actual' ? 'your reported returns' : A.returnBasis === 'scenario' ? 'you entered' : 'the blended benchmark for your mix', route: '/retirement' },
+    { label: 'Inflation assumed', value: `${percentDigits((inp.inflation ?? 0), 1)}%`, source: A.inflation != null ? 'you entered' : 'from economic data', route: '/retirement' },
   ];
 
   return (

@@ -30,12 +30,8 @@ const CARRIED_CALC: { file: string; code: string; n: number; why: string }[] = [
     why: 'months held, cut DOWN to one decimal so a year less a day never reads "12.0" (outside review 2026-10-07); a stated precision of a kept figure — owner: Net worth' },
   { file: 'src/domain/debt/index.ts', code: 'Math.ceil(monthly * 100) / 100', n: 1,
     why: 'MK-CF-F-030 paymentToClearBy: a payment a person makes is whole cents, rounded UP so the stated payment meets the stated date — a payment rule, not a precision loss; called by nothing today' },
-  { file: 'src/domain/debt/mortgageVsTreasury.ts', code: '+((annualRate - yieldUsed) * 100).toFixed(2)', n: 1,
-    why: 'MK-CF-F-043 the gap in points, cut to two decimals before "too close" is judged on it — owner FIX-ROOM (mortgageVsTreasury.ts), 2026-10-25' },
-  { file: 'src/domain/debt/mortgageVsTreasury.ts', code: '+(annualRate * 100).toFixed(2)', n: 1,
-    why: 'MK-CF-F-043 the mortgage rate as a percent with two decimals, kept on the result the card prints — owner FIX-ROOM, 2026-10-25' },
-  { file: 'src/domain/debt/mortgageVsTreasury.ts', code: '+(treasuryYield * 100).toFixed(2)', n: 1,
-    why: 'MK-CF-F-043 the Treasury yield as a percent with two decimals, kept on the result the card prints — owner FIX-ROOM, 2026-10-25' },
+  // mortgageVsTreasury's three percents left 2026-11-01 (FX-CF-C, R24): they are written by the one percent writer, percentDigits, which
+  // rounds half up on the decimal value — toFixed cut 6.875% to 6.87 (held 6.87499…)
   { file: 'src/domain/retirement/willItLast.ts', code: 'Math.round(chance * 1e6) / 1e6', n: 1,
     why: 'displayOdds: the same — floating-point noise only, never a real digit (400 futures give quarters, 1,000 give tenths)' },
   { file: 'Calculation Module code/engines/ledger.ts', code: 'Math.round(n * 1e8) / 1e8', n: 1,
@@ -70,8 +66,10 @@ test('no calculation rounds inside itself — any power of ten, read off the syn
   // …and that the detector still fires on this code: 12 shortening roundings found on 2026-10-25 (7 carried + 5 that become words);
   // 11 since 2026-10-31 (FX-CF-B, IN3-04): MK-CF-F-182 asPercent prints its two decimals as written, `(r × 100).toFixed(2)`, where
   // `+(…).toFixed(2)` shortened them first and dropped the trailing zero ("3.8%") — one fewer, the true count
-  expect(shortening).toBeGreaterThanOrEqual(11);
-  expect(words).toBeGreaterThanOrEqual(4);   // 5 → 4 the same day, for the same reason: asPercent's was one that became words
+  // 7 since 2026-11-01 (FX-CF-C, R24, the one percent writer): mortgageVsTreasury's three percents and bonds' coupon words
+  // (`+(rate × 100).toFixed(3)`) go through percentDigits, which rounds half up on the decimal value — four fewer, the true count
+  expect(shortening).toBeGreaterThanOrEqual(7);
+  expect(words).toBeGreaterThanOrEqual(3);   // 4 → 3 the same day: bonds' coupon was one that became words
   const stale = CARRIED_CALC.filter((c) => (count[`${c.file} | ${c.code}`] ?? 0) !== c.n)
     .map((c) => `${c.file} — "${c.code}" is carried ${c.n}× but found ${count[`${c.file} | ${c.code}`] ?? 0}× — correct CARRIED_CALC to the true number`);
   // eslint-disable-next-line no-console
@@ -312,7 +310,9 @@ test('DEC-0403 — "held as a float, decimals shown only for prices": nothing is
   // cockpit's sliders started from the plan's rates rounded to a tenth of a point (retPct, inflPct, salGrow: 3 at start, 2 on reset,
   // 3 on loading a scenario) and its scenario table printed them so (2); Roth conversion rounded its rate to a whole percent before
   // working the tax (1). Each now keeps the figure whole and prints it with toFixed(2), which this detector does not count
-  expect(shortening.length).toBeGreaterThanOrEqual(5);
+  // 4 since 2026-11-01 (FX-CF-C, R24): the Performance trade sheet's coupon box seed, `+(rate × 100).toFixed(6)`, goes through the one
+  // percent writer, percentDigits(rate, 6) — one fewer, the true count
+  expect(shortening.length).toBeGreaterThanOrEqual(4);
   expect(words.length).toBeGreaterThanOrEqual(6);
 
   const key = (file: string, verdict: string, code: string) => `${file} | ${verdict} | ${code}`;

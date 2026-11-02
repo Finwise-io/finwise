@@ -34,15 +34,16 @@
  *               MK-CF-F-218 moveOldRentFigure · MK-CF-F-233 earnerWageShares
  *               MK-CF-F-240 PAY_LANDS_TYPED · MK-CF-F-257 budgetEntered
  *               MK-CF-F-264 interestAndDividendsForYear · MK-CF-F-297 freqNotRecognised
- *               MK-CF-O-004 incomeSummary · MK-CF-O-005 theContributionRoom
- *               MK-CF-O-010 theMonth · MK-NW-F-009 maturityClass
- *               MK-NW-F-071 isCertificateOfDeposit · MK-NW-F-079 EF
- *               MK-NW-F-108 taxWordsOf · MK-NW-F-124 maturityParts
- *               MK-NW-O-008 thePerformance · MK-PF-F-028 realizedFromLedger
- *               MK-PL-F-044 planTarget · MK-PL-F-102 planRetireAgeOf
- *               MK-XS-F-187 fixStoredMoney · MK-XS-F-192 typedValueDatedBack
+ *               MK-CF-F-313 wageRefusalOf · MK-CF-O-004 incomeSummary
+ *               MK-CF-O-005 theContributionRoom · MK-CF-O-010 theMonth
+ *               MK-NW-F-009 maturityClass · MK-NW-F-071 isCertificateOfDeposit
+ *               MK-NW-F-079 EF · MK-NW-F-108 taxWordsOf
+ *               MK-NW-F-124 maturityParts · MK-NW-O-008 thePerformance
+ *               MK-PF-F-028 realizedFromLedger · MK-PL-F-044 planTarget
+ *               MK-PL-F-102 planRetireAgeOf · MK-XS-F-187 fixStoredMoney
+ *               MK-XS-F-192 typedValueDatedBack
  *
- * Reaches ..... 483 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 489 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -52,7 +53,7 @@
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 465 more — the full list is on functions_from_code
+ *               … and 471 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

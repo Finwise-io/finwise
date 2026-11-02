@@ -35,7 +35,7 @@
     "src/screens/RothScreen.tsx": 34,
     "src/screens/SsTimingScreen.tsx": 8,
     "src/screens/StressTestScreen.tsx": 6,
-    "src/screens/TaxOrganizerScreen.tsx": 9,
+    "src/screens/TaxOrganizerScreen.tsx": 6,
     "src/screens/TipsScreen.tsx": 6,
     "src/screens/WhatIfScreen.tsx": 6,
     "src/screens/WillItLastScreen.tsx": 4,
@@ -52,7 +52,7 @@
     "src/domain/cashflow/index.ts": 1,
     "src/domain/glossary.ts": 1,
     "src/domain/grid/index.ts": 2,
-    "src/domain/income/from-accounts.ts": 4,
+    "src/domain/income/from-accounts.ts": 6,
     "src/domain/performance/index.ts": 2,
     "src/domain/performance/realized.ts": 1,
     "src/domain/planning/hub.ts": 2,
@@ -106,5 +106,6 @@
   "_about_widened": "Widened 2026-10-26 (PF-TOOLS): both tests read every place a figure is written for a person — the screens, the components, the sign-up steps (src/onboarding), the hooks, the store, the domain and the doors (MoneyKeel/functions) — where they read the screens and components only. A sentence a function composes put figures on screen that no line here counted: the draw sheet's percents and $49,450 left the sheet for src/domain/decumulation on 2026-10-25 and its line fell from 3 to 0 with nothing declared; they are counted there now. The lines added that day are the debt that was always there, outside the guard's sight — the true number, which may only fall. The same day: ContributionRoomScreen and DrawSteerSheet fell to 0 (every figure declared through its door, MK-MN-M-003 to 005 and 031 to 033 on MK-CF-O-005; the draw sheet's inflation MK-CF-M-083 on MK-CF-O-017), and their lines were deleted. A figure is declared only through the orchestrator that hands it to the screen (the lead's ruling, 2026-10-26): the mortgage comparison card's rates and dollar figures, the draw sheet's rates and the cockpit's catch-up have none, so they stay on this list at their true count. The sign-up recap's lines rose the same day (CLEANUP-LEFT, the tax taken out of pay and the year's tax beside it): of its seven new places, the year's tax (twice) and the rate in the line above it now print under MK-CF-M-044 and MK-CF-M-081, which MK-CF-O-004 hands; the tax taken out of pay, the part not taken out, the rental loss and the two-decimal rate are calculated on the step itself, so they stay here — 138 dollar places and 33 percents, its true count.",
   "_about_roth": "2026-10-31 (PF-TOOLS, the lead's ruling that day): src/screens/RothScreen.tsx 14 → 34, its true count. Roth conversion's figures MK-PL-M-008, 022 to 024, 026 and 038 to 044 were declared on 2026-10-27/30 under MK-PL-F-032, a function, which is no door; no orchestrator hands them, so they are not declared and the screen prints its 20 places of them itself, as before the declarations. They stay in this guard's sight as undeclared debt, their numbers stay reserved on the metric register (DEC-8890), and the worked examples run in src/domain/planning/roth_worked_examples_2026_10_31.test.ts. The count falls the day Roth has its door (Q-PL-5).",
   "_about_plan_goals": "2026-10-31 (FX-PLAN): src/components/PlanGoals.tsx 2 → 37 dollar figures and 3 percents, their true count. The Goals sub-tab was built to goals v03 that day (his DEC-9228; DEC-8889): what can go toward goals and its three rows, each goal's target, saved, monthly need and what is still to go, and a debt goal's balance, rate, monthly need, the extra over the payment set and the interest each way. By the lead's ruling of 2026-10-31 a figure is declared on its door and a door is an orchestrator; the Plan doors wait on Q-PL-5 (workplan #121), so the sub-tab prints them itself, in this guard's sight. They are worked in src/domain/goals/planGoals.ts and pinned by hand in src/screens/__tests__/goals_drawing_v03.test.tsx. The count falls the day Plan has its door. OtherInvestmentsScreen 3 → 2 percents: its true count that day.",
-  "_about_tax_organizer": "2026-11-01 (PF-TOOLS): src/screens/TaxOrganizerScreen.tsx 8 → 9, its true count. CLEANUP-TESTS restored the $0 401(k) line his DEC-0252 draws, which the screen prints itself; it falls the day the line is declared on MK-CF-O-007 theTaxOrganizer."
+  "_about_tax_organizer": "2026-11-01 (PF-TOOLS): src/screens/TaxOrganizerScreen.tsx 8 → 9, its true count. CLEANUP-TESTS restored the $0 401(k) line his DEC-0252 draws, which the screen prints itself; it falls the day the line is declared on MK-CF-O-007 theTaxOrganizer.",
+  "_about_from_accounts": "2026-11-02 (PF-TOOLS, round 6): src/domain/income/from-accounts.ts 4 → 6, its true count. FX-NW's DEC-2748c work (a bond or CD held inside an account has its own interest line) writes each line's words in one place, bondWhy (MK-CF-F-316): the face and the balance in its words are two places the guard reads, in its sight."
 }

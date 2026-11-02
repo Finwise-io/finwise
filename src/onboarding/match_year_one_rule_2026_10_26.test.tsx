@@ -77,9 +77,9 @@ describe('the worked example: the match is $3,000 a year and the 401(k) $6,000, 
     expect(p.earners[0].pay.matchMonthly).toBe(500);
     expect(p.earners[0].pay.matchMonthly * p.earners[0].pay.paidMonths).toBe(householdEmployerMatchAnnual(JULY));
   });
-  test('sign-up\'s "Employer match" step: "≈$500/month of free money" and "About $3,000/year" (it read $6,000)', () => {
+  test('sign-up\'s "Employer match" step: "~$500/month of free money" and "About $3,000/year" (it read $6,000)', () => {
     const L = signUp('employerContribution', JULY);
-    expect(L).toContain('≈$500/month of free money');   // one form for ≈ since 2026-11-01 (CF4-02, approx_mark_one_form)
+    expect(L).toContain('~$500/month of free money');   // one form for ≈ since 2026-11-01 (CF4-02, approx_mark_one_form)
     expect(L).toContain('About $3,000/year your employer adds on top of your own savings.');
   });
   test('the stored income record (what IncomeDetailScreen prints as "Employer 401(k) match $X/year"): $3,000', () => {

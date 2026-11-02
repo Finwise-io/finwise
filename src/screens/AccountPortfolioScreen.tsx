@@ -318,6 +318,13 @@ export default function AccountPortfolioScreen() {
    *  1Y and 2Y open before it and are worked back from each holding's price history (state D); only the window that
    *  begins today reads as day one (state C). The Performance tab's own rule. */
   const dayOneView = dayOne && !now?.workedBack;
+  /** A VALUE TYPED BEFORE TODAY, WITH NOTHING RECORDED SINCE (NW5-05, 2026-11-01; account page row 95): not an account added today —
+   *  its value is dated, and there is no second value or record to measure a change against, so Wealth generated and Return stay '—'
+   *  and the line says why (tenet 2; unknown is not zero, tenet 3). */
+  // only a typed total with nothing behind it: no holdings (their prices can work a window back) and no record at all (a record moves
+  // money on its day, so 'nothing has been recorded since' would be untrue) — trade M–O and edit-record J are neither (2026-11-01)
+  const typedBefore = dayOne && source !== 'connected' && !!account.value_as_of && String(account.value_as_of).slice(0, 10) < todayKey
+    && !(account.positions?.length) && movedDays.length === 0;
   /** The day the figures start from, as the drawing writes it: the record's first day. */
   // read from the record: its first day; from the activity records alone: the first day money moved — for SINCE only. ANY
   // OTHER WINDOW BEGINS WHERE THE DOOR SAYS (beginningAsOf), as on the Performance tab (2026-10-21, one date for one window):
@@ -713,7 +720,7 @@ export default function AccountPortfolioScreen() {
         // the Since window names ITS OWN first day — the record's — whichever window is picked. It named the picked
         // window's beginning, so with 1Y picked it read "Since Sep 29, 2025" on a record that begins today (state D of
         // the account-page drawing, found 2026-10-19, DEC-6212)
-        windows={WINDOW_KEYS.map((k) => ({ key: k, label: k === 'SINCE' ? (dayOne || !dataStart || dataStart >= todayKey ? 'Since today' : `Since ${dateShown(dataStart)}`) : WINDOW_WORDS[k] }))}
+        windows={WINDOW_KEYS.map((k) => ({ key: k, label: k === 'SINCE' ? (typedBefore ? `Since ${dateShown(String(account.value_as_of).slice(0, 10))}` : dayOne || !dataStart || dataStart >= todayKey ? 'Since today' : `Since ${dateShown(dataStart)}`) : WINDOW_WORDS[k] }))}
         // A BALANCE NEVER ENTERED IS NEVER $0 (DEC-3657, the drawing's row 16): no window has a figure — they read
         // −100.00% when the missing balance was counted as nothing (found 2026-10-19)
         chosen={period} figures={(hasValue ? byWindow : Object.fromEntries(WINDOW_KEYS.map((k) => [k, { ...byWindow[k], ret: null, perYear: null }]))) as any}
@@ -754,6 +761,8 @@ export default function AccountPortfolioScreen() {
                  account WITH past activity is not day one — its history is rebuilt. */
               ? (source === 'connected'
                 ? `You linked this account today. ${who} sent no past activity, so its figures start today.`
+                : typedBefore
+                ? `Its value was entered as of ${dateShown(String(account.value_as_of).slice(0, 10))}, and nothing has been recorded since, so there is no change to measure. Wealth generated and Return show once a record or a new value is entered.`
                 : 'You added this account today, so its figures start today.')
               : walk == null
               /* a refusal is an answer (D4): no daily record reaching back, so no beginning — say so */
@@ -902,7 +911,7 @@ export default function AccountPortfolioScreen() {
                 {/* the light-green class band, hand-built for ONE reason: SectionBand carries a single
                     trailing figure and this row carries two (market value AND return). Same band
                     colour, same 11-point caps, same square edge-to-edge bar as every other band. */}
-                <TouchableOpacity style={s.classBand} disabled={inClass.length === 0} activeOpacity={0.8}
+                <TouchableOpacity style={s.classBand} hitSlop={Tap.slop} disabled={inClass.length === 0} activeOpacity={0.8}   /* 44 to the touch (NW5-01; row 94) */
                   onPress={() => setClosed((c) => ({ ...c, [k]: !c[k] }))}
                   accessibilityRole={inClass.length ? 'button' : undefined}
                   accessibilityState={inClass.length ? { expanded: open } : undefined}
@@ -1338,7 +1347,7 @@ function ReportedReturnCard({ account }: { account: AssetAccount }) {
       <Text style={s.bondNote}>{HISTORIC_TTM_BODY}</Text>
       {editing ? (
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 4 }}>
-          <TextInput style={s.ttmInput} keyboardType="numbers-and-punctuation" placeholder="e.g. 2.1"
+          <TextInput hitSlop={Tap.slop} style={s.ttmInput} keyboardType="numbers-and-punctuation" placeholder="e.g. 2.1"
             placeholderTextColor={Colors.textTertiary} value={val} onChangeText={setVal} autoFocus
             accessibilityLabel="Historic 12-month return on your holdings, in percent" />
           <Text style={s.bondLine}>%</Text>
@@ -1349,7 +1358,7 @@ function ReportedReturnCard({ account }: { account: AssetAccount }) {
       ) : (
         <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 4 }}>
           <Text style={[s.bondLine, { flex: 1 }]}>{ttm != null ? fig('MK-NW-M-073', ttm) : figWords('MK-NW-M-073', 'Not entered')}</Text>
-          <TouchableOpacity hitSlop={Tap.slop} accessibilityRole="button" onPress={() => { setVal(ttm != null ? String((ttm * 100).toFixed(2)) : ''); setEditing(true); }}
+          <TouchableOpacity hitSlop={Tap.slop} accessibilityRole="button" onPress={() => { setVal(ttm != null ? percentDigits(ttm, 2).replace('−', '-') : ''); setEditing(true); }}
             accessibilityLabel={ttm != null ? 'Edit historic 12-month return' : 'Add historic 12-month return'}>
             <Text style={s.linkTxt}>{ttm != null ? 'Edit' : 'Add'}</Text>
           </TouchableOpacity>

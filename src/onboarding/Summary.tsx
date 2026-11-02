@@ -10,7 +10,7 @@ import { Status, Track } from './steps';
 import { num, grossAnnual, retirementMonthlyIncome } from './modules';
 import { rsuAnnual, rentalNetAnnual } from '../domain/income';
 import Mascot from './Mascot';
-import { salaryAnnual } from '../domain/income';
+import { setupEntered } from '../../MoneyKeel/functions/cashflow/setup-gate';   // R26, 2026-11-02: the one set-up gate
 
 // onOpen: finish onboarding FIRST, then deep-link into the module (wired by OnboardingScreen) —
 // navigating away without finishing would bounce the user straight back into onboarding.
@@ -24,7 +24,8 @@ function joinHuman(parts: string[]): string {
 
 function incomeStreams(a: Record<string, any>): string {
   const p: string[] = [];
-  if (salaryAnnual(a as any) > 0) p.push('salary');
+  // a salary entered is monitored, read or not (2026-11-02, R26; onboarding-flow v03's row): the one set-up gate's answer
+  if (setupEntered({ op: a }).wageEntered) p.push('salary');
   if (num(a.bonusAnnual) > 0 || num(a.signingOnetime) > 0) p.push('bonus');
   if ((rsuAnnual(a) ?? 0) > 0) p.push('equity');
   if (rentalNetAnnual(a) > 0) p.push('rental');
@@ -40,7 +41,9 @@ export default function Summary({ status, tracks, answers: a, name, onOpen }: Pr
   const hasGoals = tracks.includes('goals');
   const hasInvest = tracks.includes('invest');
 
-  const incomeActive = grossAnnual(a) > 0 || retirementMonthlyIncome(a) > 0;
+  // ANY INCOME ENTERED IS ENTERED (2026-11-02, R26): the one set-up gate Cash flow, Home and Insights read — a wage that cannot be
+  // read, rent or any other inflow among them. A $100,000 wage whose frequency was not recognised showed 'Capture salary, …'
+  const incomeActive = grossAnnual(a) > 0 || retirementMonthlyIncome(a) > 0 || setupEntered({ op: a }).inflow;
   const netWorthActive = hasInvest || num(a.investmentHoldings) > 0
     || num(a.currentRetirementSavings) > 0 || num(a.currentSavingsPortfolio) > 0;
   const retireActive = hasAcc || hasDec;

@@ -196,6 +196,7 @@ const FUNCTIONS: [string, string, string][] = [
   ['MK-NW-F-184', 'MoneyKeel/functions/networth-and-performance/net-worth.ts', 'MoneyKeel/functions/cashflow/budget-counted.test.ts'],
   ['MK-NW-F-185', 'MoneyKeel/functions/networth-and-performance/net-worth.ts', 'MoneyKeel/functions/cashflow/budget-counted.test.ts'],
   ['MK-NW-F-186', 'src/domain/bonds/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
+  ['MK-NW-F-187', 'src/domain/bonds/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
 ];
 
 /** Every MK-NW-F record in the code, read from the code: the header rule printed directly above each function (the one the card
@@ -226,13 +227,13 @@ describe('every Net worth function traces to its proof in one hop (step 3.c)', (
     // MK-NW-F-013, -015, -017, -018, -019, -020, -038; nothing in the app called them. The floor carries the true number.
     // 90, not 91 (2026-10-19, same day): the eighth, MK-NW-F-006 isCashKind, followed once the Net worth screen's unused
     // import of it was taken out. The floor carries the true number.
-    expect(FUNCTIONS.length).toBeGreaterThanOrEqual(171);   // 171 on 2026-10-30 (PF-TOOLS: MK-NW-F-186, FX-NW's accruedFrequencyAssumed); 170 on 2026-10-26: 80 rows were missing (MK-NW-F-103 to 185) — the typed floor of 90 passed them
+    expect(FUNCTIONS.length).toBeGreaterThanOrEqual(172);   // 172 on 2026-11-02 (PF-TOOLS round 6: MK-NW-F-187 heldBondInterest); 171 on 2026-10-30 (PF-TOOLS: MK-NW-F-186, FX-NW's accruedFrequencyAssumed); 170 on 2026-10-26: 80 rows were missing (MK-NW-F-103 to 185) — the typed floor of 90 passed them
     expect(new Set(FUNCTIONS.map((r) => r[0])).size).toBe(FUNCTIONS.length);
     // THE GUARD PROVES IT LOOKED (2026-10-26, PF-TOOLS): it read a typed floor and nothing else, so every function numbered after the
     // table was printed passed unseen — the CF table's fault of 2026-10-24. The table must be exactly the code's MK-NW-F records.
     const code = headersInCode();
     console.log(`nw_function_trace: ${code.size} MK-NW-F records in the code, ${FUNCTIONS.length} rows in the table`);
-    expect(code.size).toBeGreaterThanOrEqual(171);
+    expect(code.size).toBeGreaterThanOrEqual(172);
     const table = new Set(FUNCTIONS.map((r) => r[0]));
     expect([...code.keys()].filter((id) => !table.has(id)).sort()).toEqual([]);   // in the code, missing from the table
     expect([...table].filter((id) => !code.has(id)).sort()).toEqual([]);          // in the table, gone from the code

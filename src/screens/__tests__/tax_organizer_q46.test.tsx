@@ -19,6 +19,9 @@ test('$120,000 salary, $20,000 into the 401(k), single → the four lines, taxab
   expect(screen.getByText('Taxable income')).toBeOnTheScreen();
   expect(screen.getAllByText('$120,000').length).toBe(2);       // the Wages line and the Gross income line
   // the one minus, against the figure (CF4-10, 2026-11-01): it read "− $20,000". By hand: $1,666.6667 × 12 = $20,000; 120,000 − 20,000 − 16,100 = 83,900
+  // R28 (2026-11-02, FX-CF-C; follow-up the same day): a year from a monthly amount prints to the cent only when, rounded to the cent, it is
+  // not whole — $1,666.6667 × 12 = $20,000.0004 → $20,000.00, whole, so "−$20,000"; taxable $120,000 − $20,000.0004 − $16,100 = $83,899.9996
+  // → $83,900.00, whole, so "$83,900". A typed $1,666.67 × 12 = $20,000.04 keeps its cents (tax_organizer_round6_2026_11_02).
   expect(screen.getByText('−$20,000')).toBeOnTheScreen();
   expect(screen.getByText('−$16,100')).toBeOnTheScreen();
   expect(screen.getByText('$83,900')).toBeOnTheScreen();

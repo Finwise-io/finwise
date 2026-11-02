@@ -48,9 +48,9 @@ export const num = (v: any): number => {
 import { money } from '../domain/_shared/num';
 export { money };
 // compact form for tight spots like chart bar labels — always in thousands with a "K":
-// $0.9K, $2.1K, $12K, -$1K (currency-aware symbol)
+// $0.9K, $2.1K, $12K, −$1K (currency-aware symbol; the minus sign is the one writer's, CF6-19, 2026-11-02 — it wrote '-$1.2K')
 export const moneyShort = (n: number) => {
-  const k = n / 1000, s = k < 0 ? '-' : '', a = Math.abs(k);
+  const k = n / 1000, s = k < 0 ? MINUS : '', a = Math.abs(k);
   return `${s}${currencySymbol()}${a >= 10 ? a.toFixed(0) : a.toFixed(1)}K`;
 };
 
@@ -396,11 +396,12 @@ export function retirementMonthlyIncome(a: Record<string, any>): number {
     .reduce((t, k) => t + num(a['ri_' + k]) / (CAD_DIV[a['ri_' + k + '_freq']] ?? 1), 0);
 }
 import { employerMatchMonthly, rentEntryMonthly } from '../domain/income/onboarding';
-import { hasMonthlySalaryTable, salaryCalendarYear, salaryYearFromCells, salaryMonths } from '../domain/income/salary-months';
+import { salaryCalendarYear, salaryYearFromCells, salaryMonths } from '../domain/income/salary-months';
 import { FilingStatusQuestions, over65Shown } from '../screens/FilingStatusScreen';
 import { incomeFromAccounts } from '../domain/income/from-accounts';
 import { assetClassOf } from '../domain/assets';
 import BasePayScreen from '../screens/BasePayScreen';
+import { percentDigits, pointsDigits, percentValue } from '../../MoneyKeel/functions/_figure-spec';   // the one percent writer (R24, 2026-11-01)
 export { employerMatchMonthly };
 export function monthlyContributions(a: Record<string, any>): number {
   return ['c_401k', 'c_roth', 'c_invest', 'c_property'].reduce((t, k) => t + num(a[k]), 0) + employerMatchMonthly(a);
@@ -763,7 +764,7 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
                 <Text style={s.dueLabel}>When does it land? (pick the months)</Text>
                 <MonthMultiSelect value={Array.isArray(row.months) ? row.months : []} onChange={(v) => setRow(i, { months: v })} />
                 <WhenField day={row.day} year={row.year} onDay={(t) => setRow(i, { day: t })} onYear={(t) => setRow(i, { year: t })} />
-                <Text style={[s.label, { marginTop: 12 }]}>Repayment, once you graduate (optional)</Text>
+                <Text style={[s.label, { marginTop: 12 }]}>Rate and years to pay it off (optional)</Text>
                 <View style={{ flexDirection: 'row', gap: Spacing.sm }}>
                   <View style={{ flex: 1 }}>
                     <Text style={s.dueLabel}>Interest rate %</Text>
@@ -778,7 +779,7 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
                 </View>
                 {num(row.apr) > 0 && num(row.termYears) > 0 && (() => {
                   const lp = loanPayment(num(row.amount), num(row.apr), num(row.termYears));
-                  return <Text style={s.note2}>≈<Text style={{ fontWeight: '800' }}>{money(lp.monthly)}/month</Text> for {num(row.termYears)} years · {money(lp.totalInterest)} total interest.</Text>;
+                  return <Text style={s.note2}>~<Text style={{ fontWeight: '800' }}>{money(lp.monthly)}/month</Text> for {num(row.termYears)} years · {money(lp.totalInterest)} total interest.</Text>;
                 })()}
               </>
             )}
@@ -792,8 +793,9 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
             <View style={s.callout}>
               <Text style={s.calloutIcon}>🏦</Text>
               <View style={{ flex: 1 }}>
-                <Text style={s.calloutTxt}>{money(borrowed)} borrowed{repay > 0 ? ` · ≈${money(repay)}/month after graduation` : ''}</Text>
-                <Text style={s.calloutSub}>It lands as cash now in your bill calendar; repayment starts after you graduate.</Text>
+                <Text style={s.calloutTxt}>{money(borrowed)} borrowed{repay > 0 ? ` · ~${money(repay)}/month once repayment starts` : ''}</Text>
+                {/* nothing entered says when repayment starts, so the card does not say it (2026-11-01; v07 row of that day; Debts' words) */}
+                <Text style={s.calloutSub}>It lands as cash now in your bill calendar. When repayment starts is not entered.</Text>
               </View>
             </View>
           ) : null;
@@ -902,7 +904,7 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
         </Card>
         {/* the year is the months the wage is paid (MK-CF-F-178 × payrollMonths; 2026-10-26, FIX-INCOME-A): $500/month of match
             from July is $3,000 this year, never × 12 */}
-        {matchMonthly > 0 && <Callout text={`≈${money(matchMonthly)}/month of free money`}
+        {matchMonthly > 0 && <Callout text={`~${money(matchMonthly)}/month of free money`}
           sub={`About ${money(householdEmployerMatchAnnual(a as any))}/year your employer adds on top of your own savings.`} />}
       </>);
     }
@@ -976,8 +978,8 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
       // read with the accounts' interest and dividends, as every income screen reads it (useIncomeProfile; 2026-10-26, FIX-INCOME-A)
       const taxed = incomeSummary({ ...incomeProfileNow(a), taxMode: undefined, manualTaxRate: undefined }).taxed;
       const gross = taxed.taxedOn;   // what it is taxed on: the gross less the 401(k)s (MK-CF-M-041, DEC-0283)
-      const estPct = (taxed.rate * 100).toFixed(2);   // the rate in force, MK-CF-M-081, to two decimals (2026-10-26; Q49)
-      const brkPct = Math.round(taxed.bracket * 100);
+      const estPct = percentDigits(taxed.rate, 2);   // the rate in force, MK-CF-M-081, to two decimals (2026-10-26; Q49)
+      const brkPct = percentValue(taxed.bracket, 0);
       const state = stateRateOf(a as any);
       return (<>
         <Header emoji="🧾" title="Taxes" sub="What comes out of your pay?" />
@@ -989,7 +991,7 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
         {gross > 0 && <Callout text={`~${estPct}% federal income tax · ${brkPct}% bracket (${TAX_YEAR})`}
           sub={`On the ~${money(gross)} it is taxed on — your gross less your 401(k) — from the IRS schedule after the standard deduction. `
             + (state > 0
-              ? `It includes the ${(state * 100).toFixed(2)}% state rate you entered, and does NOT include Social Security and Medicare — about another 7.7% of a wage.`
+              ? `It includes the ${percentDigits(state, 2)}% state rate you entered, and does NOT include Social Security and Medicare — about another 7.7% of a wage.`
               : 'It does NOT include Social Security and Medicare — about another 7.7% of a wage — or any state tax.')} />}
         <Card>
           <Choice ctx={ctx} k="taxMode" options={[
@@ -1017,8 +1019,8 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
       return (<><Header emoji="🧾" title={retired ? 'Your monthly expenses' : 'What are your average monthly expenses?'}
         sub={MONTHLY_SPENDING_LINE} />
         <Card><HeroAmount ctx={ctx} k="monthlySpending" label="Per month" /></Card>
-        {spend > 0 && inc > 0 && <Callout text={`That’s ${pct.toFixed(2)}% of your monthly income`}
-          sub={pct <= 80 ? `You keep ${(100 - pct).toFixed(2)}% to save & invest — healthy.` : `Leaves ${Math.max(0, 100 - pct).toFixed(2)}% to save — we’ll help you stretch it.`}
+        {spend > 0 && inc > 0 && <Callout text={`That’s ${pointsDigits(pct, 2)}% of your monthly income`}
+          sub={pct <= 80 ? `You keep ${pointsDigits(100 - pct, 2)}% to save & invest — healthy.` : `Leaves ${pointsDigits(Math.max(0, 100 - pct), 2)}% to save — we’ll help you stretch it.`}
           warn={pct > 100} />}
       </>);
     }
@@ -1065,7 +1067,7 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
       const rs = num(a.expectedRetirementSpending), now = num(a.monthlySpending);
       return (<><Header emoji="💸" title="Expected expenses in retirement" sub="Per month, in today’s dollars." />
         <Card><HeroAmount ctx={ctx} k="expectedRetirementSpending" label="Monthly (retirement)" /></Card>
-        {rs > 0 && <Callout text={now > 0 ? `${((rs / now) * 100).toFixed(2)}% of what you spend today` : `${money(rs * 12)}/year`}
+        {rs > 0 && <Callout text={now > 0 ? `${percentDigits((rs / now), 2)}% of what you spend today` : `${money(rs * 12)}/year`}
           sub={`About ${money(rs * 12)}/year in today’s dollars.`} />}
       </>);
     }
@@ -1140,7 +1142,7 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
     case 'retLocation': {
       const loc = String(a.retLocation ?? '').trim();
       const col = colFactor(loc);
-      const pct = (Math.abs(1 - col.factor) * 100).toFixed(2);   // printed to two decimals (Q49; 2026-10-27)
+      const pct = percentDigits(Math.abs(1 - col.factor), 2);   // printed to two decimals (Q49; 2026-10-27)
       return (<><Header emoji="🌍" title={retired ? 'Where do you live in retirement?' : 'Where do you plan to retire?'} sub="We adjust your retirement expenses to local living costs (optional)." />
         <Card><TextRow ctx={ctx} k="retLocation" label="Country / region" ph="e.g. Portugal" /></Card>
         {col.name && col.factor !== 1 && <Callout
@@ -1258,7 +1260,7 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
           <MoneyRow ctx={ctx} k="debtPayment" label="Monthly payment" /></Card>
         {bal > 0 && pay > 0 && (interestOnly
           ? <Callout warn text="Your payment barely covers the interest" sub="At this rate the balance won’t go down — worth paying more." />
-          : <Callout text={`Paid off in ~${payoff}`} sub={`At ${money(pay)}/month and ${(rate * 100).toFixed(2)}% interest.`} />)}
+          : <Callout text={`Paid off in ~${payoff}`} sub={`At ${money(pay)}/month and ${percentDigits(rate, 2)}% interest.`} />)}
       </>);
     }
 
@@ -1321,7 +1323,7 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
         <Card>
           <RecapStat label={a.debtName || 'Debt'} value={money(bal)} />
           <RecapStat plain label="Monthly payment" value={`${money(pay)}/month`} />
-          <RecapStat plain label="Interest rate" value={`${(rate * 100).toFixed(2)}%`} />
+          <RecapStat plain label="Interest rate" value={`${percentDigits(rate, 2)}%`} />
           {months > 0 && (<>
             <View style={s.divider} />
             <RecapStat label="Debt-free" value={debtFree ? `${MONTHS[debtFree.getMonth()]} ${debtFree.getFullYear()}` : '—'} color={Colors.primary} />
@@ -1464,7 +1466,7 @@ export function RsuEditor({ ctx }: { ctx: StepCtx }) {
               : c.key === 'price'
               ? <MoneyBox bare key={c.key} style={[s.schedCell, { flex: 1 }]} placeholder={c.ph} a11y={c.label}
                   value={r[c.key] ?? ''} onChangeText={(t) => setCell(i, c.key, t)} />
-              : <TextInput key={c.key} style={[s.schedCell, { flex: 1 }]} keyboardType={c.kb} accessibilityLabel={c.label}
+              : <TextInput hitSlop={Tap.slop} key={c.key} style={[s.schedCell, { flex: 1 }]} keyboardType={c.kb} accessibilityLabel={c.label}
                   placeholder={c.ph} placeholderTextColor={Colors.textTertiary}
                   value={r[c.key] ?? ''} onChangeText={(t) => setCell(i, c.key, t)} />
             ))}
@@ -1601,7 +1603,7 @@ function IncomeRecap({ ctx }: { ctx: StepCtx }) {
     <View style={s.heroCard}>
       <Text style={s.heroCardLabel}>Take-home / year</Text>
       <Text style={s.heroCardValue}>{money(availableYr)}</Text>
-      <Text style={s.heroCardSub}>≈{money(avgMo)}/month average</Text>
+      <Text style={s.heroCardSub}>~{money(avgMo)}/month average</Text>
     </View>
 
     {/* insight: typical month + the lean stretch + the windfall months */}
@@ -1757,12 +1759,12 @@ function CashflowRecap({ ctx }: { ctx: StepCtx }) {
   const availableYr = cf.availableYr;
   const saveYr = cf.saveYr;                                                   // FREE to save — === Σ savingsByMonth
   const totalSaveYr = saveYr + k401Yr;            // all savings incl. 401(k) — a deficit NETS against it (no floor)
-  const keep = grossYr > 0 ? Math.round((netYr / grossYr) * 100) : 0;        // take-home per $100
+  const keep = grossYr > 0 ? percentValue(netYr / grossYr, 0) : 0;        // take-home per $100
   // each share kept whole and printed to two decimals, rounded once where it is shown (Q49; 2026-10-27, FX-CF-B)
-  const taxPct = (grossYr > 0 ? (taxYr / grossYr) * 100 : 0).toFixed(2);       // the tax as a share of gross
-  const savePctGross = (grossYr > 0 ? Math.max(0, (totalSaveYr / grossYr) * 100) : 0).toFixed(2);
+  const taxPct = pointsDigits(grossYr > 0 ? (taxYr / grossYr) * 100 : 0, 2);       // the tax as a share of gross
+  const savePctGross = pointsDigits(grossYr > 0 ? Math.max(0, (totalSaveYr / grossYr) * 100) : 0, 2);
   const C401 = Colors.primaryDark;
-  const spendPct = (grossYr > 0 ? (spendYr / grossYr) * 100 : 0).toFixed(2);
+  const spendPct = pointsDigits(grossYr > 0 ? (spendYr / grossYr) * 100 : 0, 2);
   const grossGrid = incomeMonthlyGrid(a, 'gross');
   const netGrid = incomeMonthlyGrid(a, 'net');    // per-month net → per-month tax is EXACT, not rate×gross
   const maxG = Math.max(...grossGrid.map((m) => m.amount), 1);
@@ -1855,7 +1857,7 @@ function SavingsEditor({ ctx }: { ctx: StepCtx }) {
   const annual = months.reduce((t, m) => t + m.amount, 0);
   const avg = annual / 12;
   const net = domainTakeHomeMonthly(a);   // "% of take-home" must use true take-home (after 401k), same as every other screen
-  const pct = (net > 0 ? (avg / net) * 100 : 0).toFixed(2);   // printed to two decimals (Q49; 2026-10-27)
+  const pct = pointsDigits(net > 0 ? (avg / net) * 100 : 0, 2);   // printed to two decimals (Q49; 2026-10-27)
   const maxA = Math.max(...months.map((m) => m.amount), 1);
 
   const setMonth = (i: number, val: string) => {
@@ -1888,7 +1890,7 @@ function SavingsEditor({ ctx }: { ctx: StepCtx }) {
     <View style={s.heroCard}>
       <Text style={s.heroCardLabel}>Surplus / year</Text>
       <Text style={[s.heroCardValue, annual < 0 && { color: Colors.red }]}>{money(annual)}</Text>
-      <Text style={s.heroCardSub}>≈{money(avg)}/month average{net > 0 ? ` · ${pct}% of take-home` : ''}</Text>
+      <Text style={s.heroCardSub}>~{money(avg)}/month average{net > 0 ? ` · ${pct}% of take-home` : ''}</Text>
     </View>
 
     {/* column chart of monthly savable amount */}
@@ -2031,7 +2033,7 @@ function RetireOutlook({ ctx }: { ctx: StepCtx }) {
       <Text style={[s.hint, { marginTop: 8 }]}>
         Projected {money(projected)} = your {money(retireStart)} retirement savings
         {otherSavings > 0 ? ` + ${money(otherSavings)} investments` : ''}
-        {monthlyContrib > 0 ? ` + ${money(monthlyContrib)}/month you add` : ''}, growing ≈{(realAcc * 100).toFixed(2)}%/year
+        {monthlyContrib > 0 ? ` + ${money(monthlyContrib)}/month you add` : ''}, growing ~{percentDigits(realAcc, 2)}%/year
         after inflation for {plural(years, 'year')}.
         {otherSavings <= 0 ? " It does NOT include other investments, property, or accounts not captured yet — add them in Net worth and this updates." : ''}
       </Text>
@@ -2043,12 +2045,12 @@ function RetireOutlook({ ctx }: { ctx: StepCtx }) {
         value={guaranteedMo > 0 ? `−${money(guaranteedMo)}/month` : 'Set it'} />
       <WfRow label="To fund from savings" value={`${money(need.netAnnual)}/year`} topline />
       <WfRow label={`Funded years (${rAge} → ${horizon})`} value={`× ${need.years} yrs`} />
-      <WfRow label={`Savings keep earning ~${(realDraw * 100).toFixed(2)}%/year real`} value={`→ × ${need.annuityFactor}`} />
+      <WfRow label={`Savings keep earning ~${percentDigits(realDraw, 2)}%/year real`} value={`→ × ${need.annuityFactor}`} />
       {bequest > 0 && <WfRow label="Leave behind (your legacy goal)" value={`+${money(need.pvBequest)}`} />}
       <WfRow label="Capital needed" value={money(need.needed)} strong color={Colors.primaryDark} topline />
       <Text style={s.hint}>
-        Real returns = growth minus {infl.toFixed(2)}% inflation (live CPI): ~7% growth (≈{(realAcc * 100).toFixed(2)}% real) while saving,
-        a conservative ~5.5% (≈{(realDraw * 100).toFixed(2)}% real) while retired.
+        Real returns = growth minus {pointsDigits(infl, 2)}% inflation (live CPI): ~7% growth (~{percentDigits(realAcc, 2)}% real) while saving,
+        a conservative ~5.5% (~{percentDigits(realDraw, 2)}% real) while retired.
         {bequest <= 0 ? ' Assumes the money is spent down to zero — add a "leave money to family" goal to plan a bequest.' : ''}
         {otherSavings <= 0 ? ' Counts only retirement savings + your investing plan; add other accounts in Net worth to complete the picture.' : ''}
       </Text>
@@ -2104,7 +2106,7 @@ function SavePlanScreen({ ctx }: { ctx: StepCtx }) {
       <View style={s.heroCard}>
         <Text style={s.heroCardLabel}>Surplus / year</Text>
         <Text style={[s.heroCardValue, annualSave < 0 && { color: Colors.red }]}>{money(annualSave)}</Text>
-        <Text style={s.heroCardSub}>≈{money(annualSave / 12)}/month average — but it varies, see below</Text>
+        <Text style={s.heroCardSub}>~{money(annualSave / 12)}/month average — but it varies, see below</Text>
       </View>
       <Card style={BANDED_CARD}>
         <SectionBand inCard inset={Spacing.base} title="Surplus by month" />
@@ -2152,14 +2154,14 @@ function SavePlanScreen({ ctx }: { ctx: StepCtx }) {
         })}
       </View>
       {num(raw) > 0 && (unit === 'pct'
-        ? <Text style={s.hint}>{num(raw)}% of your yearly free cash = {money(investMo * 12)}/year (≈{money(investMo)}/month)</Text>
-        : <Text style={s.hint}>≈{money(investMo)}/month</Text>)}
+        ? <Text style={s.hint}>{num(raw)}% of your yearly free cash = {money(investMo * 12)}/year (~{money(investMo)}/month)</Text>
+        : <Text style={s.hint}>~{money(investMo)}/month</Text>)}
       <Text style={s.hint}>What’s left funds your goals and cash buffer. The Roth-vs-brokerage split comes later — the Retirement tab walks you through the tax-smart way.</Text>
     </Card>
     {investMo > 0 && (() => {
       const investYr = investMo * 12;
       const leftover = annualSave - investYr;
-      if (!hasCashflow) return <Callout text={`Investing ${money(investYr)}/year (≈${money(investMo)}/month)`} />;
+      if (!hasCashflow) return <Callout text={`Investing ${money(investYr)}/year (~${money(investMo)}/month)`} />;
       // GENUINELY over the year's net free cash → the only case where "less" is the answer
       if (investYr > annualSave) {
         return <Callout warn text={`${money(investYr)}/year is more than your ${money(annualSave)} of free cash`}
@@ -2170,7 +2172,7 @@ function SavePlanScreen({ ctx }: { ctx: StepCtx }) {
         return <Callout text={`Funded for the year — timing matters`}
           sub={`In ${monthRanges(leanIdx, sug.map((m) => m.label))} free cash runs below ${money(investMo)}/month, so those deposits come from the surplus you bank in the strong months — keep that surplus in cash until then. ${leftover > 0 ? `${money(leftover)}/year is left for goals and buffer.` : 'At 100%, nothing is left for goals or emergencies — any surprise breaks the plan.'}`} />;
       }
-      return <Callout text={`Investing ${money(investYr)}/year (≈${money(investMo)}/month)`}
+      return <Callout text={`Investing ${money(investYr)}/year (~${money(investMo)}/month)`}
         sub={`Covered by your free cash in every month; ${money(Math.max(0, leftover))}/year is left for goals and your cash buffer.`} />;
     })()}
   </>);
@@ -2275,7 +2277,7 @@ function SpendingEditor({ ctx }: { ctx: StepCtx }) {
   const coversTyped = totalMo - datedMo;                    // what the categories put in every month
   const spend = plannedMonthlySpend(a);                     // MK-CF-F-002, the one planned monthly figure
   const uncategorized = Math.max(0, spend - totalMo);       // the figure typed not yet broken into categories
-  const pctOfNet = (net > 0 ? (spend / net) * 100 : 0).toFixed(2);   // printed to two decimals (Q49; 2026-10-27)
+  const pctOfNet = pointsDigits(net > 0 ? (spend / net) * 100 : 0, 2);   // printed to two decimals (Q49; 2026-10-27)
   const save = net - spend;
   const denom = Math.max(net, spend, 1);
   const seg = (v: number): any => `${(v / denom) * 100}%`;
@@ -2293,7 +2295,7 @@ function SpendingEditor({ ctx }: { ctx: StepCtx }) {
       <View key={cat.id} style={{ paddingVertical: 3 }}>
         <View style={s.spendRow}>
           {custom
-            ? <TextInput style={[s.spendName, s.spendNameInput]} placeholder="Category" placeholderTextColor={Colors.textTertiary}
+            ? <TextInput hitSlop={Tap.slop} style={[s.spendName, s.spendNameInput]} placeholder="Category" placeholderTextColor={Colors.textTertiary}
                 value={e.label ?? ''} onChangeText={(t) => upsert(cat.id, { label: t }, seed)} />
             : <Text style={s.spendName} numberOfLines={1}>{cat.icon} {cat.label}{isNonMonthly ? <Text style={s.perYr}>  /year</Text> : null}</Text>}
           {/* an empty box opens empty, and a typed one reads "1,200" beside its $ / % switch — the unit printed once (2026-10-31, SU3-06;

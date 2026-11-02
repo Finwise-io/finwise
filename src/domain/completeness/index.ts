@@ -1,3 +1,4 @@
+import { percentDigits, percentValue } from '../../../MoneyKeel/functions/_figure-spec';   // the one percent writer (R24, NW6-05)
 // "Sharpen your plan" — completeness checks. Surfaces the steps a user skipped during onboarding
 // (or hasn't done yet) so they can fill them in, each routing to an existing edit surface.
 export interface PlanCheck { key: string; label: string; detail: string; done: boolean; route: string; }
@@ -24,15 +25,12 @@ export interface CompletenessInput {
  *     checks = checks
  *     done count = done count
  *     total = total
- *     pct = round((done count ÷ total) × 100)
+ *     pct = percent value(done count ÷ total, 0)
  *
  * Called by ... nothing — it is an entry point, or nothing reaches it
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-027 goals (target, saved, date)
- *
- * Decides .....
- *     · Rounds the answer to a whole number.
  *
  * Formula also on the master file · functions_from_code · MK-XS-F-001
  * Changed ..... 2026-06-06 (abfe24a)
@@ -48,5 +46,5 @@ export function planCompleteness(i: CompletenessInput): { checks: PlanCheck[]; d
   ];
   const doneCount = checks.filter((c) => c.done).length;
   const total = checks.length;
-  return { checks, doneCount, total, pct: Math.round((doneCount / total) * 100) };
+  return { checks, doneCount, total, pct: percentValue(doneCount / total, 0) };
 }

@@ -87,7 +87,7 @@ test('every choice the app draws is at least 44 points tall — and the guard sa
   console.log(`every choice is 44 points: ${files} files, ${touchables} touchables, ${all.length} choices`);
   // counted 2026-10-31 from the disk, not typed from memory: 148 files, 628 touchables, 113 choices (51 were short). Floors just under.
   expect(files).toBeGreaterThanOrEqual(148);       // the true counts at the end of 2026-11-01 (PF-TOOLS): 148 files, 631 touchables, 113 choices
-  expect(touchables).toBeGreaterThanOrEqual(631);
+  expect(touchables).toBeGreaterThanOrEqual(632);   // 632 on 2026-11-02 (PF-TOOLS, round 6)
   expect(all.length).toBeGreaterThanOrEqual(113);
   expect(short).toEqual([]);
 });
@@ -284,7 +284,7 @@ test('every line and every link that acts has a 44-point tap area — and the gu
   // counted 2026-11-01 from the disk: 148 files, 488 lines and links; 131 short. 31 were in the Net worth module and the shared parts it
   // draws, each given Tap.slop (or made a touchable that takes it); 99 are left in other agents' files, and the info dot is named above.
   expect(files).toBeGreaterThanOrEqual(148);
-  expect(all.length).toBeGreaterThanOrEqual(488);
+  expect(all.length).toBeGreaterThanOrEqual(489);   // 489 lines and links on 2026-11-02 (PF-TOOLS, round 6)
   const over = Object.entries(byFile).filter(([f, n]) => n > (LINES_SHORT_ON_2026_11_01[f] ?? 0))
     .map(([f, n]) => `${f}: ${n} short (may be ${LINES_SHORT_ON_2026_11_01[f] ?? 0}) — ${short.filter((c) => c.at.startsWith(f + ':')).map((c) => `${c.at.split(':')[1]} ${c.name} ${c.tall == null ? 'unreadable' : Math.round(c.tall)}`).join('; ')}`);
   expect(over).toEqual([]);
@@ -302,4 +302,104 @@ test('the line guard catches what it is for (fed one of each)', () => {
     const f = <TouchableOpacity onPress={go}><View /><Text>not only words</Text></TouchableOpacity>;`;
   const r = linesIn(path.join(ROOT, 'probe.tsx'), probe);
   expect(r.map((c) => (c.tall == null ? null : Math.round(c.tall * 10) / 10))).toEqual([15.6, 42, 44, 35.6, 18]);   // f is not a line
+});
+
+/** EVERY BOX A PERSON TYPES IN IS 44 POINTS TO THE TOUCH (CF6-20, 2026-11-02, FX-SHARED; DEC-0141). A TextInput takes no touch margin, so
+ *  its tap area is its own frame: its minHeight or height; else the box it fills (the View it sits in, when that View sets a height and
+ *  the box sets none); else its words' line (lineHeight, or 1.2 × its size, 15 when unset) with its padding and border. A MoneyBox the
+ *  screen styles itself (`bare`, or a style of its own) is read the same way, from the style it is handed. A box that keeps its drawn
+ *  size and reaches 44 does it the info dot's way: padding added inside and the same margin taken off outside (`TAP_BOX_PAD`), read
+ *  here as padding. A size that cannot be read fails. */
+const MONEYBOX_SLOP = /<TextInput hitSlop=\{Tap\.slop\}/.test(fs.readFileSync(path.join(ROOT, 'src/components/MoneyBox.tsx'), 'utf8'));
+export function boxesIn(file: string, text: string) {
+  const Spacing: Record<string, number> = SPACING, sizes: Record<string, number> = Typography.sizes;
+  const sf = ts.createSourceFile(file, text, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+  const styles: Record<string, Record<string, string>> = {};
+  const readStyles = (n: any) => {
+    if (ts.isCallExpression(n) && /StyleSheet\.create$/.test(n.expression.getText(sf)) && n.arguments[0] && ts.isObjectLiteralExpression(n.arguments[0])) {
+      const owner = ts.isVariableDeclaration(n.parent) ? n.parent.name.getText(sf) : '?';
+      for (const p of n.arguments[0].properties) {
+        if (!ts.isPropertyAssignment(p) || !ts.isObjectLiteralExpression(p.initializer)) continue;
+        const o: Record<string, string> = {};
+        for (const q of p.initializer.properties) {
+          if (ts.isPropertyAssignment(q)) o[q.name.getText(sf)] = q.initializer.getText(sf);
+          if (ts.isSpreadAssignment(q) && /TAP_BOX_PAD/.test(q.expression.getText(sf))) o.tapBox = 'true';
+        }
+        styles[`${owner}.${p.name.getText(sf)}`] = o;
+      }
+    }
+    ts.forEachChild(n, readStyles);
+  };
+  readStyles(sf);
+  const num = (e?: string): number | null => {
+    if (e == null) return null; const t = e.trim();
+    if (/^Tap\.min$/.test(t)) return Tap.min;
+    const sp = t.match(/^Spacing\.(\w+)$/); if (sp) return Spacing[sp[1]] ?? null;
+    const ty = t.match(/^Typography\.sizes\.(\w+)$/); if (ty) return sizes[ty[1]] ?? null;
+    const n = Number(t); return Number.isFinite(n) ? n : null;
+  };
+  const merged = (expr: string): Record<string, string> => {
+    const o: Record<string, string> = {};
+    for (const m of expr.matchAll(/\b([A-Za-z_]+\.[A-Za-z_0-9]+)\b/g)) Object.assign(o, styles[m[1]] ?? {});
+    for (const m of expr.matchAll(/\b(minHeight|height|padding|paddingVertical|paddingTop|paddingBottom|fontSize|lineHeight|borderWidth):\s*([\w.]+)/g)) o[m[1]] = m[2];
+    if (/TAP_BOX_PAD/.test(expr)) o.tapBox = 'true';
+    return o;
+  };
+  const vpad = (o: Record<string, string>) => {
+    const p = num(o.padding) ?? 0, v = num(o.paddingVertical);
+    return (num(o.paddingTop) ?? v ?? p) + (num(o.paddingBottom) ?? v ?? p) + 2 * (num(o.borderWidth) ?? 0);
+  };
+  const attrsOf = (o: any) => { const a: Record<string, string> = {}; for (const x of o.attributes.properties) if (ts.isJsxAttribute(x)) a[x.name.getText(sf)] = x.initializer ? x.initializer.getText(sf) : 'true'; return a; };
+  const found: { at: string; name: string; tall: number | null; drawsOwn?: boolean }[] = [];
+  const visit = (n: any) => {
+    const open = ts.isJsxSelfClosingElement(n) ? n : ts.isJsxElement(n) ? n.openingElement : null;
+    const tag = open ? open.tagName.getText(sf) : '';
+    if (open && (tag === 'TextInput' || (tag === 'MoneyBox' && /\b(bare|style)\b/.test(open.attributes.getText(sf))))) {
+      const a = attrsOf(open);
+      if (tag === 'MoneyBox' && !a.style) { ts.forEachChild(n, visit); return; }   // MoneyBox's own box: read in MoneyBox.tsx
+      const o = merged(a.style ?? '');
+      let own = num(o.minHeight) ?? num(o.height);
+      if (own == null) {                                  // the box it fills: the View it sits in
+        let p = n.parent; while (p && !(ts.isJsxElement(p))) p = p.parent;
+        if (p && /^(View|Pressable|TouchableOpacity)$/.test(p.openingElement.tagName.getText(sf))) {
+          const po = merged(attrsOf(p.openingElement).style ?? ''); own = num(po.minHeight) ?? num(po.height);
+        }
+      }
+      const lh = num(o.lineHeight); const fs = o.fontSize == null ? 15 : num(o.fontSize);
+      const body = fs == null && lh == null ? null : (lh ?? (fs as number) * 1.2) + vpad(o);
+      // a box takes a touch margin on iOS like any view: hitSlop={Tap.slop} on it — or, for a MoneyBox, on the one box MoneyBox draws
+      const slopped = /^\{Tap\.slop\}$/.test(a.hitSlop ?? '') || (tag === 'MoneyBox' && MONEYBOX_SLOP);
+      const tall0 = own != null ? Math.max(own, body ?? 0) : body;
+      const tall = slopped ? Math.max(tall0 ?? 0, Tap.min) : tall0;
+      const drawsOwn = /border|backgroundColor/.test(Object.keys(o).join(' ')) || /border|backgroundColor/.test(a.style ?? '');
+      found.push({ drawsOwn, at: `${path.relative(ROOT, file)}:${sf.getLineAndCharacterOfPosition(n.getStart(sf)).line + 1}`, name: (a.accessibilityLabel ?? a.placeholder ?? tag).slice(0, 40), tall });
+    }
+    ts.forEachChild(n, visit);
+  };
+  visit(sf);
+  return found;
+}
+
+test('every box a person types in has a 44-point tap area (CF6-20) — and the guard says how much it read', () => {
+  let files = 0; const all: { at: string; name: string; tall: number | null }[] = [];
+  for (const root of ['src', 'app']) for (const f of walk(path.join(ROOT, root))) { files += 1; all.push(...boxesIn(f, fs.readFileSync(f, 'utf8'))); }
+  const short = all.filter((c) => c.tall == null || c.tall < Tap.min - 0.05);
+  console.log(`every box is 44 points to the touch: ${files} files, ${all.length} boxes, ${short.length} short:\n  ${short.map((c) => `${c.at} ${c.name} ${c.tall == null ? 'unreadable' : Math.round(c.tall * 10) / 10}${(c as any).drawsOwn ? ' OWN' : ''}`).join('\n  ')}`);
+  expect(files).toBeGreaterThanOrEqual(148);
+  expect(all.length).toBeGreaterThanOrEqual(BOXES_FLOOR);
+  expect(short.length).toBeLessThanOrEqual(BOXES_SHORT);
+});
+// counted 2026-11-02 from the disk: 148 files, 190 boxes; 47 were short (Cash flow's budget editor and search 38–40, the Tax organizer's
+// state-tax box 43.4, Performance's lot boxes 34.6, the cockpit 33, a category box 26…). Every MoneyBox took Tap.slop in MoneyBox.tsx (25),
+// and the 22 raw boxes took it on themselves; nothing drawn moved. The ratchet is the true number left: 0.
+const BOXES_FLOOR = 190, BOXES_SHORT = 0;   // 190 boxes read on 2026-11-02 (PF-TOOLS, round 6), 0 short
+
+test('the box guard catches what it is for (fed one of each)', () => {
+  const probe = `const s = StyleSheet.create({ wrap: { height: 38 }, box: { fontSize: 15, paddingVertical: 0 }, own: { borderWidth: 1, padding: 10, fontSize: 17 }, tall: { minHeight: 44 } });
+    const a = <View style={s.wrap}><TextInput style={s.box} /></View>;
+    const b = <TextInput style={s.own} />;
+    const c = <TextInput hitSlop={Tap.slop} style={s.own} />;
+    const d = <TextInput style={s.tall} />;`;
+  const r = boxesIn(path.join(ROOT, 'probe.tsx'), probe);
+  expect(r.map((c) => (c.tall == null ? null : Math.round(c.tall * 10) / 10))).toEqual([38, 42.4, 44, 44]);   // b: 17 × 1.2 = 20.4 + 10 + 10 padding + 1 + 1 border = 42.4
 });

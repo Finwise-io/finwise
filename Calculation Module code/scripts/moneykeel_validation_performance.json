@@ -2035,5 +2035,61 @@
   "check": "TRACE",
   "governs": "src/__tests__/source_always_date_only_when_stale.test.",
   "notes": "14 of 21 of his words appear in what implements it: domain guard lead's mk-pf-f- order performance"
+ },
+ {
+  "id": "DEC-9587",
+  "verdict": "FAINT TRACE",
+  "check": "TRACE",
+  "governs": "MK-PF-F-089 closeAsOfInside · MK-PF-F-090 staleWindowS",
+  "notes": "only 15 of 35 appear — present: beside check close comparison count · absent: all-stale asking caught closeasof closeasofinside"
+ },
+ {
+  "id": "DEC-9588",
+  "verdict": "LEAVES A TRACE",
+  "check": "TRACE",
+  "governs": "MK-NW-O-008 thePerformance (flowTwr) · MoneyKeel/funct",
+  "notes": "19 of 30 of his words appear in what implements it: bought close deposit dividend holding holdings"
+ },
+ {
+  "id": "DEC-9589",
+  "verdict": "LEAVES A TRACE",
+  "check": "TRACE",
+  "governs": "MK-NW-O-008 thePerformance · MoneyKeel/functions/netwo",
+  "notes": "14 of 26 of his words appear in what implements it: account beginning design generated history holdings"
+ },
+ {
+  "id": "DEC-9590",
+  "verdict": "FAINT TRACE",
+  "check": "TRACE",
+  "governs": "MK-NW-O-008 thePerformance (typedInstrument) · src/scr",
+  "notes": "only 7 of 19 appear — present: became coupon income interest reverse · absent: asking carved lead's measured nobody"
+ },
+ {
+  "id": "DEC-9600",
+  "verdict": "FAINT TRACE",
+  "check": "TRACE",
+  "governs": "src/screens/AccountPortfolioScreen.tsx",
+  "notes": "only 2 of 14 appear — present: category reverse · absent: asking floor lead's margin meets"
+ },
+ {
+  "id": "DEC-9601",
+  "verdict": "LEAVES A TRACE",
+  "check": "TRACE",
+  "governs": "src/screens/AccountPortfolioScreen.tsx",
+  "notes": "12 of 24 of his words appear in what implements it: account added entered holding holdings measure"
+ },
+ {
+  "id": "DEC-9675",
+  "verdict": "LEAVES A TRACE",
+  "check": "TRACE",
+  "governs": "MK-NW-F-187 heldBondInterest · MoneyKeel/functions/net",
+  "notes": "16 of 23 of his words appear in what implements it: bonds brokerage count counted earns interest"
+ },
+ {
+  "id": "DEC-9678",
+  "verdict": "LEAVES A TRACE",
+  "check": "TRACE",
+  "governs": "MK-NW-O-008 thePerformance (tradeNotOnRecord) · src/sc",
+  "notes": "12 of 24 of his words appear in what implements it: beside bought generated performance price record"
  }
 ]

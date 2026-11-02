@@ -58,7 +58,8 @@ const phone = (n: number, first: RegExp, last: RegExp): string[] => {
   const seg = LINES.slice(STARTS[n - 1], STARTS[n] ?? LINES.length).filter((l) => !['9:41', '▮▮▮ ⌁'].includes(l));
   const a = seg.findIndex((l) => first.test(l)), b = seg.findIndex((l, i) => i >= a && last.test(l));
   expect(a).toBeGreaterThanOrEqual(0); expect(b).toBeGreaterThan(a + 3);        // the run was found, and it has a body
-  return seg.slice(a, b + 1);
+  // R25 (the drawing's row of 2026-11-01, the lead's ruling): one mark for 'about' — the drawn '≈' reads '~', every figure as drawn
+  return seg.slice(a, b + 1).map((l) => l.replace(/≈/g, '~'));
 };
 /** The built screen's lines, boxes included, from the line matching `first` to the line matching `last` (or to the end). */
 const builtRun = (first: RegExp, last?: RegExp): string[] => {
@@ -116,9 +117,9 @@ const PHONE_3 = { baseSalary: '7000', salaryFreq: 'monthly', c_401k: '800', ...C
 test('phone 3 · nobody entered a take-home — the household card, before a rate is typed', () => {
   show(PHONE_3);
   const want = applyNamed(normPrinted(phone(3, /^Your household$/, /^Everything that comes out, as a share of your gross/)), [
-    ['≈$9,242/month', '≈$9,427/month', 'difference 11 (DEC-0283): $11,500 − $873 − $1,200 = $9,427', 2],
+    ['~$9,242/month', '~$9,427/month', 'difference 11 (DEC-0283): $11,500 − $873 − $1,200 = $9,427', 2],
     ['both of you earn 22%', 'both of you earn 12%', 'difference 10: $138,000 − $14,400 − $32,200 = $91,400'],
-    ['≈$1,058/month', '≈$873/month', 'difference 11: the year’s tax on $91,400, $10,472, ÷ 12 = $873'],
+    ['~$1,058/month', '~$873/month', 'difference 11: the year’s tax on $91,400, $10,472, ÷ 12 = $873'],
     ['$11,500 gross − $1,058 tax − $1,200 of 401(k)s = $9,242. The rows on this card always add up — a card whose own rows disagree is a wrong number wearing a layout.',
      '$11,500 gross − $873 tax − $1,200 of 401(k)s = $9,427.', 'differences 6 (DEC-1625) and 11'],
   ]) + ' calculated, 7.59% Save';   // $10,472 ÷ $138,000 = 7.588% — two decimals (difference 12, 2026-10-26)                                                                                       // 5
@@ -138,7 +139,7 @@ test('phone 3 · once a rate is typed — where it is used, and the take-home un
   expect(firstDifference(want, got)).toBe('');
 });
 
-test('phone 3, a rate typed (READ THIS FIRST 2026-10-25, IN-03) · the rate is his: "Tax · your rate, 24%", and no ≈ on his figures', () => {
+test('phone 3, a rate typed (READ THIS FIRST 2026-10-25, IN-03) · the rate is his: "Tax · your rate, 24%", and no ~ on his figures', () => {
   show({ ...PHONE_3, taxMode: 'manual', manualTaxRate: '24' });
   // by hand: 24% × $11,500 = $2,760; $11,500 − $2,760 − $1,200 = $7,540; You $7,000 × 76% − $800 = $4,520; Sam $4,500 × 76% − $400 = $3,020
   expect(normPrinted(builtRun(/^Your household$/, /^\$11,500 gross/))).toBe(
@@ -147,7 +148,7 @@ test('phone 3, a rate typed (READ THIS FIRST 2026-10-25, IN-03) · the rate is h
   const all = builtLinesWithBoxes(screen.toJSON());
   expect(all).toContain('We’ll calculate $4,520/month, using the 24.00% rate you entered.');   // difference 12 (2026-10-26)
   expect(all).toContain('Monthly · the same each month · take-home $3,020 (calculated)');
-  expect(all.join(' ')).not.toMatch(/Calculated federal tax|≈/);
+  expect(all.join(' ')).not.toMatch(/Calculated federal tax|~/);
 });
 
 test('phone 4 · one entered, one calculated — a labelled fact per person and no tax row', () => {
@@ -155,10 +156,10 @@ test('phone 4 · one entered, one calculated — a labelled fact per person and 
   closeYours();
   const want = applyNamed(normPrinted(phone(4, /^Each person’s pay$/, /^Save$/)), [
     ...AS_PHONE_2,
-    ['Monthly · the same · take-home ≈$3,686 (calculated)', 'Monthly · the same each month · take-home ≈$3,759 (calculated)', 'differences 3 and 11: $4,500 less 7.59% tax less $400'],
-    ['≈$8,686/month', '≈$8,759/month', 'difference 11: $5,000 + $3,759', 2],
+    ['Monthly · the same · take-home ~$3,686 (calculated)', 'Monthly · the same each month · take-home ~$3,759 (calculated)', 'differences 3 and 11: $4,500 less 7.59% tax less $400'],
+    ['~$8,686/month', '~$8,759/month', 'difference 11: $5,000 + $3,759', 2],
     ['both of you earn 22%', 'both of you earn 12%', 'difference 10'],
-    ['≈$3,686', '≈$3,759', 'difference 11'],
+    ['~$3,686', '~$3,759', 'difference 11'],
   ]);
   const got = normPrinted(builtRun(/^Each person’s pay$/)).replace(/ ✓/g, '');                                       // 4
   expect(want.split(' ').length).toBeGreaterThan(55);
@@ -210,7 +211,7 @@ test('phone 8 · the same screen inside sign-up — the title, its own hints, th
   show({ baseSalary: '7000', salaryFreq: 'monthly', hasPartner: 'yes', partnerName: 'Sam', whoEarns: 'you' }, 'onboarding');
   const want = applyNamed(normPrinted(phone(8, /^Your base pay$/, /higher than it will really be\.$/)), [
     ['401(k) , because', '401(k), because', 'the space a bold tag leaves before a comma in the drawing’s markup'],
-    ['≈$6,196', '≈$6,523', 'difference 11: a spouse entered, taxed jointly until asked — $7,000 − $477 = $6,523', 2],
+    ['~$6,196', '~$6,523', 'difference 11: a spouse entered, taxed jointly until asked — $7,000 − $477 = $6,523', 2],
     // THE ROW OF 2026-11-01 ON v07 (R16, FX-PF): the 401(k) box nobody filled is empty — read only where the drawing carries that row
     ...(R16_SIGNUP.test(V07_HTML) ? [['Leave blank if you don’t contribute. $0 Your take-home', 'Leave blank if you don’t contribute. Your take-home', 'v07 row of 2026-11-01 (R16)']] as [string, string, string][] : []),
   ]);

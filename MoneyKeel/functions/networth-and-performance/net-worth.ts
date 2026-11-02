@@ -11,7 +11,7 @@
 // WHAT THE DOOR REFUSES: it never invents a baseline. A change figure and a return need a day the
 // record actually holds; with none, they are null and the screen says so rather than printing a
 // movement from a day that was never recorded.
-import { declareFigures } from '../_figure-spec';
+import { declareFigures, pointsDigits, pointsValue } from '../_figure-spec';
 import { formatMoney } from '../../../src/domain/_shared/money';
 import type { AssetAccount } from '../../../src/domain/assets';
 import {
@@ -46,7 +46,7 @@ import { isoLocalDate } from '../../../src/domain/_shared/dates';
  * Called by ... MK-CF-F-156 plannedMonthFlow · MK-NW-O-003 theNetWorth
  *               MK-NW-O-004 theEmergencyFund
  *
- * Reaches ..... 478 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 484 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -56,7 +56,7 @@ import { isoLocalDate } from '../../../src/domain/_shared/dates';
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 460 more — the full list is on functions_from_code
+ *               … and 466 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
@@ -147,7 +147,7 @@ export interface TheNetWorth {
  * Called by ... MK-NW-F-076 ALT · MK-NW-F-082 NW
  *               MK-NW-F-185 valueChanged
  *
- * Reaches ..... 478 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 484 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -157,7 +157,7 @@ export interface TheNetWorth {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 460 more — the full list is on functions_from_code
+ *               … and 466 more — the full list is on functions_from_code
  *
  * Serves ...... MK-MN-M-016 · MK-NW-M-001 · MK-NW-M-002 · MK-NW-M-004
  *               MK-NW-M-005 · MK-NW-M-006 · MK-NW-M-007 · MK-NW-M-008
@@ -353,7 +353,7 @@ export interface MortgageCheck {
  * Called by ... MK-CF-O-018 theDebts · MK-CF-O-020 theBudgetCounted
  *               MK-NW-O-003 theNetWorth
  *
- * Reaches ..... 478 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 484 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -363,7 +363,7 @@ export interface MortgageCheck {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 460 more — the full list is on functions_from_code
+ *               … and 466 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -438,7 +438,7 @@ export type PropertyUse = 'home' | 'rental' | 'second';
  *
  * Called by ... MK-CF-O-020 theBudgetCounted
  *
- * Reaches ..... 478 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 484 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -448,7 +448,7 @@ export type PropertyUse = 'home' | 'rental' | 'second';
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 460 more — the full list is on functions_from_code
+ *               … and 466 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-024 logged expenses
@@ -524,7 +524,7 @@ export interface LedgerGroup {
  *
  * Called by ... MK-NW-F-097 LEDGER
  *
- * Reaches ..... 478 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 484 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -534,7 +534,7 @@ export interface LedgerGroup {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 460 more — the full list is on functions_from_code
+ *               … and 466 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
@@ -662,10 +662,11 @@ const GIVEN =
  * Formula .....
  *     the net worth(EXAMPLE)
  *
- * Called by ... MK-CF-F-299 setupStudentLoans · MK-CF-F-304 setupLoansAll
- *               MK-CF-O-020 theBudgetCounted · MK-NW-F-185 valueChanged
+ * Called by ... MK-CF-F-299 setupStudentLoans · MK-CF-F-302 setupLoanSentences
+ *               MK-CF-F-304 setupLoansAll · MK-CF-O-020 theBudgetCounted
+ *               MK-NW-F-185 valueChanged
  *
- * Reaches ..... 478 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 484 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -675,7 +676,7 @@ const GIVEN =
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 460 more — the full list is on functions_from_code
+ *               … and 466 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
@@ -720,7 +721,7 @@ const LEDGER_GIVEN =
  *
  * Called by ... MK-NW-F-097 LEDGER
  *
- * Reaches ..... 478 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 484 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -730,7 +731,7 @@ const LEDGER_GIVEN =
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 460 more — the full list is on functions_from_code
+ *               … and 466 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-048 the person’s own asset-class answer
@@ -754,7 +755,7 @@ const CLASS_LABEL_OF = (a: any) => ({
  *
  * Called by ... MK-NW-F-097 LEDGER
  *
- * Reaches ..... 478 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 484 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -764,7 +765,7 @@ const CLASS_LABEL_OF = (a: any) => ({
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 460 more — the full list is on functions_from_code
+ *               … and 466 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-048 the person’s own asset-class answer
@@ -786,7 +787,7 @@ const CLASS_KEY_OF = (a: any) => String(a.asset_class);
  * Called by ... MK-NW-F-082 NW · MK-NW-F-098 LEDGER_BAND
  *               MK-NW-F-185 valueChanged
  *
- * Reaches ..... 478 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 484 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -796,7 +797,7 @@ const CLASS_KEY_OF = (a: any) => String(a.asset_class);
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 460 more — the full list is on functions_from_code
+ *               … and 466 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-003 institution name
@@ -845,7 +846,7 @@ const TREND_GIVEN =
  *
  * Called by ... MK-CF-F-070 benefitAnnual · MK-NW-F-100 TREND
  *
- * Reaches ..... 478 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 484 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -855,7 +856,7 @@ const TREND_GIVEN =
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 460 more — the full list is on functions_from_code
+ *               … and 466 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -928,7 +929,7 @@ const PLAN_INPUTS = {
  * Called by ... MK-CF-F-013 budgetFromOnboarding · MK-CF-F-014 budgetVsActual
  *               MK-CF-F-199 ROOM · MK-HM-F-007 percent2
  *
- * Reaches ..... 478 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 484 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -938,7 +939,7 @@ const PLAN_INPUTS = {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 460 more — the full list is on functions_from_code
+ *               … and 466 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-018 retirement age
@@ -981,7 +982,7 @@ const BAR_MIN_W = 1.5;   // % width floor, so a sliver is still visible as a mar
  *     raw = for each of rows: ...each = ...each
  *     exact = (math.max(0, total) ÷ sum) × 100
  *     out = for each of raw: ...each = ...each
- *     pct = round(exact)
+ *     pct = points value(exact, 0)
  *     drift = Σ over 100 − out of (pct)
  *     biggest = out.reduce((a, b) => (exact > exact ? b : a))
  *     the answer:
@@ -994,7 +995,6 @@ const BAR_MIN_W = 1.5;   // % width floor, so a sliver is still visible as a mar
  *
  * Decides .....
  *     · Never lets total fall below 0.
- *     · Rounds the answer to a whole number.
  *
  * Formula also on the master file · functions_from_code · MK-NW-F-180
  * Changed ..... not in git yet (—)
@@ -1003,7 +1003,8 @@ export function barSegments<T extends { key: string; label: string; color: strin
   const sum = rows.reduce((t, r) => t + Math.max(0, r.total), 0);
   if (sum <= 0) return [] as (T & { exact: number; pct: number; width: number })[];
   const raw = rows.map((r) => ({ ...r, exact: (Math.max(0, r.total) / sum) * 100 }));
-  const out = raw.map((r) => ({ ...r, pct: Math.round(r.exact) }));
+  // the one percent writer, whole percents (his Q6), half up on the decimal value (R24/NW6-05, 2026-11-01): 14.5% is held 14.4999…
+  const out = raw.map((r) => ({ ...r, pct: pointsValue(r.exact, 0) }));
   const drift = 100 - out.reduce((t, r) => t + r.pct, 0);
   if (drift !== 0) {
     const biggest = out.reduce((a, b) => (b.exact > a.exact ? b : a));

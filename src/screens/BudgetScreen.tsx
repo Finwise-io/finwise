@@ -33,6 +33,7 @@ import { theBudgetCounted, expensesAsCounted } from '../../MoneyKeel/functions/c
 import { SectionBand } from '../components/SectionBand';
 import { DebtEditorSheet } from '../components/DebtEditorSheet';   // B47 finding 11: THE one debt editor (same sheet as Net worth)
 import { money, money2 } from '../domain/_shared/num';
+import { MINUS } from '../domain/_shared/money';   // the one minus sign (CF6-19)
 import { Swipeable } from 'react-native-gesture-handler';
 import { format } from 'date-fns';
 import { modalAnimation } from '../hooks/reducedMotion';
@@ -343,7 +344,13 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
   // worth door, the one list Net worth names them from. Its row says so, the line under the total names it, and the payoff plan refuses
   // a debt-free date rather than reading the payment as $0 ("never at this rate").
   const nwIn = useNetWorthInputs();
-  const payNotEntered = theNetWorth(nwIn).debtPaymentsNotEntered.filter((x) => activeDebts.some((d) => String(d.debt_id) === x.id));
+  // ONE COUNT AND ONE PAYMENT TOTAL WITH NET WORTH (2026-11-01, the lead's R22b and NW5-02; CF5-01): Debts read 'across 2 debts · $410/month
+  // in payments' under a total that held a $30,000 setup loan, while Net worth counted 3 debts and the loan's $325.58 repayment. Both now
+  // read Net worth's one door, MK-NW-O-003 theNetWorth, whose debts are the ones entered plus each setup loan owed today (setupLoanDebts)
+  const worth = theNetWorth(nwIn);
+  const debtCount = worth.debtLines.length;
+  const payNotEntered = worth.debtPaymentsNotEntered;
+  const payNotEnteredEntered = payNotEntered.filter((x) => activeDebts.some((d) => String(d.debt_id) === x.id));   // a setup loan's has its own words (R22d)
   const payIsNotEntered = (d: any) => payNotEntered.some((x) => x.id === String(d.debt_id));
   // WHAT IS PAID ON ONE DEBT, IN WORDS THAT ARE TRUE (2026-10-25, MK-CF-M-073 tenets 1 and 5): a $300 payment chosen on a $200
   // minimum read "$300/month min" — the person's payment called the minimum. The figure is requiredPayment's (the one function the
@@ -356,7 +363,16 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
   };
   const totalMinMonthly = Math.round(minimumDebtService(activeDebts));   // canonical DTI obligation, single source
   const totalInterestMonthly = Math.round(activeDebts.reduce((t, d) => t + (d.remaining_balance || 0) * (d.interest_rate_apr || 0) / 12, 0));
-  const plan = payoffPlan(rawDebts, num(extraPay), payoffMethod);
+  // THE PLAN PAYS EVERY DEBT COUNTED, ONCE (2026-11-01, the lead's ruling on FX-CF-A's round-5 'Left'; cash-flow_v01's round-5b row): the
+  // plan walked the debts entered only, so beside 'across 3 debts · $736/month in payments' it read '$410/month total' — a $30,000 setup
+  // loan owed today, and its $325.58, left out. It walks Net worth's one list (entered + each setup loan owed, setupLoanDebts); a loan
+  // paid out later is not in that list, and the plan names it in Debts' words
+  // R22d (2026-11-02, round 6): a setup loan's payment is not assumed — when its repayment starts is never asked — so the plan pays the
+  // debts entered and names the setup loan as not in it; the rows still list it (its balance is owed) with 'payment not entered'
+  const planDebts: Debt[] = nwIn.debts;
+  const setupOwed = (planDebts as any[]).filter((d) => d.setup_loan != null && (d.remaining_balance || 0) > 0);
+  const setupWords = setupOwed.length === 1 ? 'the student loan’s payment is' : 'the student loans’ payments are';
+  const plan = payoffPlan(activeDebts, num(extraPay), payoffMethod);
   // the biggest long-term loan — a mortgage for anyone who has one. Cards are excluded: at 22% the
   // comparison is not a question, and printing one would make it look like one.
   // the plan as committed, so the retirement consequence can be a real run rather than a guess
@@ -380,16 +396,21 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
   // debts with a rate first and each debt whose rate is not entered after them; while a rate is not entered no debt is "pay first"
   // under that order and none is "the costliest" — both turn on the rate nobody gave. The Lake house mortgage, rate not entered,
   // read "pay first" above a car loan at 6.90% marked "— the costliest". Smallest balance first ranks on balances, which are entered.
-  const rateMissing = activeDebts.some((d) => rateNotEntered(d));
-  const orderedDebts = activeDebts.slice().sort((a, b) => payoffMethod === 'avalanche'
+  const rateMissing = (planDebts as any[]).some((d) => (d.remaining_balance || 0) > 0 && rateNotEntered(d));   // every row ranked, the setup loan's among them (round 5c)
+  // THE ROWS ADD UP TO THE PLAN (2026-11-01, the lead's ruling, tenet 2; cash-flow_v01's round-5c row): the plan pays a setup loan owed
+  // today, so YOUR DEBTS lists it as its own row in the entered rows' form — $110 + $300 + $325.58 = the $736 '/month total'. It is
+  // changed in setup, so its row does not open, and 'Log a payment' offers only the debts entered (orderedDebts)
+  const fromSetup = (d: any) => d?.setup_loan != null;
+  const debtRows = (planDebts as any[]).filter((d) => (d.remaining_balance || 0) > 0).sort((a, b) => payoffMethod === 'avalanche'
     ? ((rateNotEntered(a) ? 1 : 0) - (rateNotEntered(b) ? 1 : 0)) || ((b.interest_rate_apr || 0) - (a.interest_rate_apr || 0))
     : (a.remaining_balance - b.remaining_balance));
-  const rankedFirst = activeDebts.length > 1 && !(payoffMethod === 'avalanche' && rateMissing);
+  const orderedDebts = debtRows.filter((d) => !fromSetup(d));
+  const rankedFirst = debtRows.length > 1 && !(payoffMethod === 'avalanche' && rateMissing);
   const payoffMonthFor = (id: string) => plan.order.find((o) => o.debt_id === id)?.payoffMonth;
 
   // the row's own words, as the drawing writes them: "22.90% — the costliest", "6.40% · 3 years left"
-  const costliest = activeDebts.length > 1 && !rateMissing
-    ? activeDebts.slice().sort((a, b) => (b.interest_rate_apr || 0) - (a.interest_rate_apr || 0))[0]?.debt_id : null;
+  const costliest = debtRows.length > 1 && !rateMissing
+    ? debtRows.slice().sort((a, b) => (b.interest_rate_apr || 0) - (a.interest_rate_apr || 0))[0]?.debt_id : null;
   const timeLeft = (months: number) => (months >= 12
     ? `${plural(Math.round(months / 12), 'year')} left`
     : `${plural(months, 'month')} left`);
@@ -399,6 +420,8 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
   // the plan's own figures and its refusal, from the door (2026-10-25, FIX-MONTH; MK-CF-O-018): what is paid plus the extra, and no date
   // when a payment or a rate was never entered
   const debtsDoor = theDebts({ debts: activeDebts as any, startOfYearDebt: firstSnap?.gross_debt ?? null, accounts: assetAccounts ?? [], extraMonthly: num(extraPay), method: payoffMethod });
+  // each row's own interest, the setup loan's among them (its rate is entered): the same door, over every row (R22d)
+  const rowsDoor = theDebts({ debts: planDebts as any, accounts: assetAccounts ?? [] });
   const debtProgress = debtsDoor.progress;
   const load = useMemo(() => debtLoad(op, activeDebts as any), [op, activeDebts]);   // what the debts ask of the income (2026-11-01)
   // which property each mortgage is on — Net worth's one reading, through the Debts tab's door (MK-CF-O-018; DEC-1925, CF-23)
@@ -463,7 +486,7 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
 
           <View style={styles.searchWrap}>
             <Text style={{ fontSize: 15 }}>🔍</Text>
-            <TextInput style={styles.searchInput} value={search} onChangeText={setSearch} placeholder="Search payee, category, note" placeholderTextColor={Colors.textTertiary} returnKeyType="search" />
+            <TextInput hitSlop={Tap.slop} style={styles.searchInput} value={search} onChangeText={setSearch} placeholder="Search payee, category, note" placeholderTextColor={Colors.textTertiary} returnKeyType="search" />
             {search.length > 0 && <TouchableOpacity accessibilityRole="button" accessibilityLabel="Clear search" hitSlop={Tap.slop} onPress={() => setSearch('')}><Text style={{ color: Colors.textSecondary, fontSize: 17, paddingHorizontal: 6 }}>✕</Text></TouchableOpacity>}
           </View>
 
@@ -536,7 +559,7 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
                       {(item as any).notes ? <Text style={styles.txNote} numberOfLines={1}>{(item as any).notes}</Text> : null}
                     </View>
                     <Text style={[styles.txAmt, { color: isIncome ? Colors.primary : Colors.red }]}>
-                      {isIncome ? '+' : '-'}{fig('MK-CF-M-014', (item as any).amount)}
+                      {isIncome ? '+' : MINUS}{fig('MK-CF-M-014', (item as any).amount)}
                     </Text>
                   </TouchableOpacity>
                 </Swipeable>
@@ -759,30 +782,31 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
               accessibilityLabel={`You owe ${figSaid('MK-NW-M-009', Math.round(totalDebt))}`}>{fig('MK-NW-M-009', Math.round(totalDebt))}</Text>
             {/* NOTHING ENTERED IS SAID, WITH ONE DOOR (Q48 — DEC-0260, DEC-0431; 2026-10-25, CF-18): a brand-new person read "across 0
                 debts · $0/month in payments · ~$0/month interest", a 🎉, an edit hint with nothing to tap and a second door */}
-            {activeDebts.length > 0
+            {debtCount > 0
               ? <SaidText style={styles.debtSub}>
                   {/* as drawn (frame 6, row 33): the payments only — each debt's interest is on its own line (row 6, DEC-1560); the total
                       also printed "· ~$113/month interest", a figure no row keeps (2026-10-27, CF2-03) */}
-                  across {plural(activeDebts.length, 'debt')} · {fig('MK-NW-M-012', Math.round(debtsDoor.paymentsMonthly))}/month in payments
+                  across {plural(debtCount, 'debt')} · {fig('MK-NW-M-012', Math.round(worth.monthlyDebtPayments))}/month in payments{setupOwed.length > 0 ? ` · ${setupWords} not counted: when repayment starts is not entered` : ''}
                 </SaidText>
-              : setupLoans.owed > 0 ? null : <EmptyNote door="debts" onPress={() => setDebtSheet({ open: true })} />}
-            {/* the student loans entered in setup are in the total, and said (R22, CF4-03) */}
+              : load.loans ? null : <EmptyNote door="debts" onPress={() => setDebtSheet({ open: true })} />}
+            {/* the student loans entered in setup are in the total, and said (R22, CF4-03) — with only what was entered: setup asks the month a
+                loan is paid out, never when repayment starts, so the screen says that start is not entered (2026-11-01, MM5-NW) */}
             {setupLoans.owed > 0 && (
-              <SaidText style={styles.debtSub}>Includes {fig('MK-CF-M-105', setupLoans.owed)} of student loans entered in setup — repayment starts after you graduate.</SaidText>
+              <SaidText style={styles.debtSub}>Includes {fig('MK-CF-M-105', setupLoans.owed)} of student loans entered in setup. When repayment starts is not entered.</SaidText>
             )}
             {/* a setup loan not owed yet, or with no start month, said in words — the one rule, the same sentences as Net worth (R22a, 2026-11-01) */}
             {setupLoanSentences(op, (liabilities ?? []) as Debt[], (n) => fig('MK-NW-M-010', Math.round(n))).map((t) => (
               <SaidText key={t} style={styles.debtSub}>{t}</SaidText>
             ))}
             {/* the payments above leave out one never entered, and say so in Net worth's words (2026-10-25) */}
-            {payNotEntered.length > 0 && (
-              <Text style={styles.debtSub}>{payNotEntered.map((x) => x.label).join(', ')} {plural(payNotEntered.length, 'payment', '·')} not entered, so {payNotEntered.length === 1 ? 'it is' : 'they are'} not included. Enter {payNotEntered.length === 1 ? 'it' : 'them'} to include.</Text>
+            {payNotEnteredEntered.length > 0 && (
+              <Text style={styles.debtSub}>{payNotEnteredEntered.map((x) => x.label).join(', ')} {plural(payNotEnteredEntered.length, 'payment', '·')} not entered, so {payNotEnteredEntered.length === 1 ? 'it is' : 'they are'} not included. Enter {payNotEnteredEntered.length === 1 ? 'it' : 'them'} to include.</Text>
             )}
             {/* a rate never entered: no interest figure, and the debt named (2026-10-25, FIX-MONTH; tenet 3) */}
             {!!debtsDoor.interestRefusal && <Text style={styles.debtSub}>{debtsDoor.interestRefusal}</Text>}
           </View>
 
-          {/* PAYOFF PLAN */}
+          {/* PAYOFF PLAN — shown for any debt counted, a setup loan owed today among them (round 5b) */}
           {activeDebts.length > 0 && (
             <Card style={styles.debtCard}>
               <SectionBand inCard onRowEdges inset={16} title="PAYOFF PLAN" />
@@ -794,6 +818,13 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
                 />
               </View>
               <Text style={styles.planNote}>{payoffMethod === 'avalanche' ? 'Highest interest rate first — saves the most interest.' : 'Smallest balance first — quick wins for momentum.'}</Text>
+              {/* a setup loan paid out later is not in the plan, said in the one rule's words (round 5b) */}
+              {setupOwed.length > 0 && (
+                <Text style={styles.planNote}>{setupOwed.length === 1 ? `The ${setupOwed[0].label.charAt(0).toLowerCase()}${setupOwed[0].label.slice(1)} is` : 'The student loans (from setup) are'} not in the plan until {setupOwed.length === 1 ? 'its' : 'their'} repayment start is entered.</Text>
+              )}
+              {setupLoanSentences(op, (liabilities ?? []) as Debt[], (n) => fig('MK-NW-M-010', Math.round(n))).filter((t) => t.endsWith('not counted until then.')).map((t) => (
+                <SaidText key={t} style={styles.planNote}>{t}</SaidText>
+              ))}
               <View style={[styles.limitRow, { marginTop: Spacing.sm }]}>
                 <Text style={styles.limitLabel} accessibilityLabel="Extra a month">Extra / month</Text>
                 <View style={styles.limitInputWrap}>
@@ -844,20 +875,35 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
               "Log a payment ›". No icons; "· " with its space; a time left only for a loan paid in fixed payments — a card's minimum
               floats with its balance, so the drawn Visa reads "22.90% — the costliest" (2026-10-25, CF-05, CF-06, CF-07); a mortgage
               names its property (DEC-1925, CF-23) */}
-          {activeDebts.length > 0 && (
+          {debtRows.length > 0 && (
             <View style={styles.debtCard}>
               <SectionBand inCard onRowEdges inset={16} title="YOUR DEBTS" />
-              {orderedDebts.map((d, idx) => {
-                const monthlyInterest = debtsDoor.interestByDebt[String(d.debt_id)] ?? 0;   // the door's figure, MK-CF-M-089 (2026-10-26) — it was calculated here
+              {debtRows.map((d, idx) => {
+                const monthlyInterest = rowsDoor.interestByDebt[String(d.debt_id)] ?? 0;   // the door's figure, MK-CF-M-089 (2026-10-26) — it was calculated here
                 const pm = paymentShape(d) === 'installment' ? payoffMonthFor(d.debt_id) : undefined;
                 // a rate never entered says so, never "0.00%"; a typed 0 is 0.00% (2026-10-25, FIX-MONTH; tenet 3)
                 const noRate = rateNotEntered(d);
-                const rate = noRate ? 'rate not entered' : `${((d.interest_rate_apr || 0) * 100).toFixed(2)}%`;   // printed on the row and said in its label — written once
+                const rate = noRate ? 'rate not entered' : `${percentDigits((d.interest_rate_apr || 0), 2)}%`;   // printed on the row and said in its label — written once
                 const interestWords = noRate ? '' : `~${fig('MK-CF-M-089', Math.round(monthlyInterest))}/month interest`;   // one debt's interest: its own number, MK-CF-M-089 (2026-10-26)
                 const isMortgage = String(d.debt_type ?? '').toUpperCase() === 'MORTGAGE';
                 const home = isMortgage ? mortgageOn.byProperty.find((b) => b.mortgageId === String(d.debt_id))?.property : undefined;
                 const homeless = isMortgage && mortgageOn.unmatched.some((u) => u.id === String(d.debt_id));
                 const head = `${rate}${costliest === d.debt_id ? ' — the costliest' : ''}${home ? ` · on ${home}` : ''}${pm ? ` · ${timeLeft(pm)}` : ''}`;
+                if (fromSetup(d)) return (
+                  <View key={d.debt_id} style={[styles.debtRow, idx > 0 && styles.debtRowRule]} accessible
+                    accessibilityLabel={saidSentence(`${d.label}${idx === 0 && rankedFirst ? ', pay first' : ''}, ${head.replace(/ · /g, ', ')}, ${payIsNotEntered(d) ? 'payment not entered' : payWords(d, 'minimum')}${interestWords ? `, ${interestWords}` : ''}, ${fig('MK-NW-M-010', Math.round(d.remaining_balance || 0))} owed. Changed in setup.`)}>
+                    <View style={{ flex: 1 }}>
+                      <View style={styles.catTitleRow}>
+                        <Text style={styles.debtName} numberOfLines={1}>{d.label}</Text>   {/* the name carries '(from setup)' itself, given once by setupLoanDebts (NW6-03) */}
+                        {idx === 0 && rankedFirst && <Text style={styles.payFirstTag}>pay first</Text>}
+                      </View>
+                      <Text style={styles.catLimit}>
+                        {head} · {payIsNotEntered(d) ? 'payment not entered' : payWords(d, 'min')}{interestWords ? ` · ${interestWords}` : ''}
+                      </Text>
+                    </View>
+                    <Text style={[styles.catAmt, { color: Colors.red, marginLeft: 8 }]}>−{fig('MK-NW-M-010', Math.round(d.remaining_balance || 0))}</Text>
+                  </View>
+                );
                 return (
                   <TouchableOpacity key={d.debt_id} style={[styles.debtRow, idx > 0 && styles.debtRowRule]} onPress={() => setDebtSheet({ open: true, edit: d })} onLongPress={() => handleDeleteDebt(d.debt_id)} activeOpacity={0.8}
                     // ONE ELEMENT THAT SAYS ITS ROW IN WORDS (2026-10-24, Cash flow journey E2E-78): it was heard as its printed run —
@@ -884,17 +930,20 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
               })}
               {/* ONE "Log a payment ›" under the list, as drawn — it asks which debt when there are several.
                   Each row carried its own button, so the same words repeated down the screen. */}
+              {orderedDebts.length > 0 && (
               <TouchableOpacity accessibilityRole="button" accessibilityLabel="Log a payment" style={{ minHeight: 44, justifyContent: 'center' }}
                 onPress={() => (orderedDebts.length === 1 ? openPay(orderedDebts[0])
                   : Alert.alert('Log a payment', 'Which debt did you pay?', [...orderedDebts.map((d) => ({ text: d.label, onPress: () => openPay(d) })), { text: 'Cancel', style: 'cancel' as const }]))}>
                 <Text style={styles.debtLink}>Log a payment ›</Text>
               </TouchableOpacity>
+              )}
             </View>
           )}
 
           {/* "+ Add debt account" UNDER THE LIST, as row 6 keeps it (DEC-1560; 2026-10-27, CF2-05) — it was printed after PROGRESS. The
               edit hint "Tap a debt to edit • Hold to delete" is on no drawing and no row (CF2-04): each row says it in words to a screen reader */}
-          {activeDebts.length > 0 && (
+          {/* with only a setup loan the door still shows (round 6, CF6-03) */}
+          {debtRows.length > 0 && (
             <TouchableOpacity hitSlop={Tap.slop} style={styles.setLimitsBtn} onPress={() => setDebtSheet({ open: true })} activeOpacity={0.8}
               accessibilityRole="button" accessibilityLabel="Add debt account">
               <Text style={styles.setLimitsBtnText}>+ Add debt account</Text>
@@ -916,10 +965,13 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
           {/* DEBT-TO-INCOME and STUDENT LOAN OUTLOOK — moved here from Goals (2026-11-01, the lead's ruling; cash-flow_v01's row of that date:
               Goals v03 sends every Goals door to Plan · Goals, so the old screen that held them opens from nowhere). The figures and words
               are the Goals screen's, from its own functions, unchanged — MK-CF-F-033 debtToIncome over MK-CF-F-025 minimumDebtService, and MK-CF-F-028 loanPayment — each under its number */}
-          {activeDebts.length > 0 && (
+          {(activeDebts.length > 0 || setupOwed.length > 0) && (
             <View style={styles.debtCard}>
               <SectionBand inCard onRowEdges inset={16} title="DEBT-TO-INCOME" />
-              {load.dti ? (<>
+              {/* only a setup loan, its payment not counted (R22d; round 6, CF6-01): the box stays and says why it has no figure */}
+              {activeDebts.length === 0 ? (
+                <Text style={styles.planNote2}>{setupWords.charAt(0).toUpperCase() + setupWords.slice(1)} not counted: when repayment starts is not entered, so there is no debt-to-income figure — we won’t guess one.</Text>
+              ) : load.dti ? (<>
                 <View style={styles.dtiHead}>
                   <Text style={[styles.dtiPct, { color: load.dti.status === 'good' ? Colors.gainText : load.dti.status === 'caution' ? Colors.amber : Colors.red }]}>{fig('MK-CF-M-102', load.dti.ratio)}</Text>
                   <View style={{ flex: 1 }}>
@@ -927,6 +979,8 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
                     <SaidText style={styles.dtiSub}>{figPer('MK-CF-M-103', load.dti.monthlyDebt)} in minimum debt payments ÷ {figPer('MK-CF-M-104', load.dti.grossMonthly)} income</SaidText>
                   </View>
                 </View>
+                {/* the minimums counted, said (R22d, 2026-11-02): a setup loan's payment is not among them */}
+                {setupOwed.length > 0 && <Text style={styles.planNote2}>{setupWords.charAt(0).toUpperCase() + setupWords.slice(1)} not counted here: when repayment starts is not entered.</Text>}
                 <Text style={styles.planNote2}>{load.dti.homeowner ? 'Aim for 36% or less (homeowners, incl. mortgage).' : 'Aim for 20% or less (renters; rent isn’t counted).'} {load.dti.status !== 'good' ? 'Paying debt down lowers this.' : 'You’re in good shape.'}</Text>
               </>) : (
                 <Text style={styles.planNote2}>Your income is not entered, so there is no debt-to-income figure — we won’t guess one.</Text>
@@ -938,10 +992,15 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
               <SectionBand inCard onRowEdges inset={16} title="STUDENT LOAN OUTLOOK" />
               <Text style={styles.loanBig}>{fig('MK-CF-M-105', load.loans.borrowed)} <Text style={styles.loanBigSub}>borrowed</Text></Text>
               {load.loans.monthly > 0 ? (<>
-                <SaidText style={styles.loanLine}>≈<Text style={{ fontWeight: '800' }}>{figPer('MK-CF-M-106', load.loans.monthly)}</Text> once you’re repaying · {fig('MK-CF-M-107', load.loans.interest)} total interest</SaidText>
+                <SaidText style={styles.loanLine}>~<Text style={{ fontWeight: '800' }}>{figPer('MK-CF-M-106', load.loans.monthly)}</Text> once you’re repaying · {fig('MK-CF-M-107', load.loans.interest)} total interest</SaidText>
+                <Text style={styles.planNote2}>{load.loans.asDebt ? 'An estimate from the rate and term entered in setup.' : 'An estimate from the rate and term entered in setup — not in your payments until repayment starts.'}</Text>
                 {load.loans.shareOfIncome != null && <Text style={styles.planNote2}>That’s ~{fig('MK-CF-M-108', load.loans.shareOfIncome)} of today’s income — keeping total debt under 20% keeps you comfortable.</Text>}
               </>) : (
                 <Text style={styles.planNote2}>Add an interest rate and term to each loan (in setup) to see the monthly repayment.</Text>
+              )}
+              {/* a loan paid out later says its payout month, the one date entered, and no more (2026-11-01, R22b CF5-02; MM5-NW) */}
+              {load.loans.startsLater && (
+                <Text style={styles.planNote2}>Paid out from {['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][Number(load.loans.startsLater.slice(5, 7)) - 1]} {load.loans.startsLater.slice(0, 4)}. When repayment starts is not entered.</Text>
               )}
             </View>
           )}
@@ -1205,7 +1264,7 @@ function TxnSheet({ state, onClose, onDelete }: { state: { open: boolean; editin
               <View style={styles.limitRow}>
                 <Text style={styles.limitLabel}>Payee</Text>
                 <View style={[styles.limitInputWrap, { flex: 1, minWidth: 0 }]}>
-                  <TextInput style={[styles.limitInput, { flex: 1 }]} value={payee} onChangeText={setPayee} placeholder="e.g. Trader Joe’s" placeholderTextColor={Colors.textTertiary} />
+                  <TextInput hitSlop={Tap.slop} style={[styles.limitInput, { flex: 1 }]} value={payee} onChangeText={setPayee} placeholder="e.g. Trader Joe’s" placeholderTextColor={Colors.textTertiary} />
                 </View>
               </View>
             </>
@@ -1213,7 +1272,7 @@ function TxnSheet({ state, onClose, onDelete }: { state: { open: boolean; editin
             <View style={styles.limitRow}>
               <Text style={styles.limitLabel}>Source</Text>
               <View style={[styles.limitInputWrap, { flex: 1, minWidth: 0 }]}>
-                <TextInput style={[styles.limitInput, { flex: 1 }]} value={src} onChangeText={setSrc} placeholder="e.g. Paycheck, Bonus, Gift" placeholderTextColor={Colors.textTertiary} />
+                <TextInput hitSlop={Tap.slop} style={[styles.limitInput, { flex: 1 }]} value={src} onChangeText={setSrc} placeholder="e.g. Paycheck, Bonus, Gift" placeholderTextColor={Colors.textTertiary} />
               </View>
             </View>
           )}
@@ -1235,7 +1294,7 @@ function TxnSheet({ state, onClose, onDelete }: { state: { open: boolean; editin
           <View style={styles.limitRow}>
             <Text style={styles.limitLabel}>Note</Text>
             <View style={[styles.limitInputWrap, { flex: 1, minWidth: 0 }]}>
-              <TextInput style={[styles.limitInput, { flex: 1 }]} value={notes} onChangeText={setNotes} placeholder="optional" placeholderTextColor={Colors.textTertiary} />
+              <TextInput hitSlop={Tap.slop} style={[styles.limitInput, { flex: 1 }]} value={notes} onChangeText={setNotes} placeholder="optional" placeholderTextColor={Colors.textTertiary} />
             </View>
           </View>
           {editing && (

@@ -99,7 +99,21 @@ describe('NW3-02 · R11: a typed total that sold inside the window — its Retur
     const l = builtLines(screen.toJSON());
     expect(after(l, 'Return', l.findIndex((x) => x.startsWith('THIS ACCOUNT ·')))).toBe('+13.28%');
   });
-  test('the same account with a deposit inside the window: no figure, and the sentence says why (DEC-1669, never another method)', () => {
+  // MONEY IN, THEN A SALE (2026-11-01, the lead's note on R18; account-page v01 row 96): the trades are recorded, so Sep 14's holding is
+  // worked back by undoing the sale — 90 + 10 = 100 VTI at the Aug 28 close, $90 = $9,000. Today $50,995 (50,000 + 1,000 − the $5 fee).
+  // Just before Sep 15: $50,995 − $9,000 (today's 90 × $100) + $9,000 − $1,000 put in − $1,195 the sale paid = $48,800, the beginning;
+  // just after $49,800; Return 50,995 ÷ 49,800 − 1 = +2.40%. Until then it refused (kept below as test.failing).
+  test('the same account with a deposit inside the window, then a sale: the sale undone, 48,800 ÷ 48,800 × 50,995 ÷ 49,800 − 1 = +2.40%', () => {
+    useStore.setState({ assetAccounts: [VANGUARD()], priceCache: { VTI } } as any);
+    useStore.getState().recordTransaction({ date: '2026-09-15', type: 'DEPOSIT', account_id: 'van', amount: 1_000 } as any);
+    useStore.getState().recordTransaction({ date: '2026-09-30', type: 'SELL', account_id: 'van', ticker: 'VTI', shares: 10, price: 120, fee: 5, fee_in_price: false } as any);
+    mockParams = { id: 'van' };
+    render(React.createElement(require('../AccountPortfolioScreen').default));
+    pick('1M');
+    const l = builtLines(screen.toJSON());
+    expect(l).toContain('HOW $48,800 BECAME $50,995 · THIS ACCOUNT');
+    expect(after(l, 'Return', l.findIndex((x) => x.startsWith('THIS ACCOUNT ·')))).toBe(`+${((50_995 / 49_800 - 1) * 100).toFixed(2)}%`);
+  });  test.failing('the answer until 2026-11-01, kept (no longer the app\'s): the deposit then the sale refused, with the sentence', () => {
     useStore.setState({ assetAccounts: [VANGUARD()], priceCache: { VTI } } as any);
     useStore.getState().recordTransaction({ date: '2026-09-15', type: 'DEPOSIT', account_id: 'van', amount: 1_000 } as any);
     useStore.getState().recordTransaction({ date: '2026-09-30', type: 'SELL', account_id: 'van', ticker: 'VTI', shares: 10, price: 120, fee: 5, fee_in_price: false } as any);

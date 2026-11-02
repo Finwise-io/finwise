@@ -17,6 +17,8 @@
 //
 // WE NEVER SAY WHAT TO DO. Both rates, the difference in dollars, stop. We are not advisers.
 
+import { percentDigits, percentValue } from '../../../MoneyKeel/functions/_figure-spec';   // the one percent writer (R24, 2026-11-01)
+
 export interface MortgageComparison {
   /** the loan's own rate, as a percentage for display */
   mortgagePct: number;
@@ -184,7 +186,7 @@ export function balanceGrownTo(start: number, monthly: number, rate: number, mon
  *     after tax = fr ≠ nothing and number.is finite(fr) and fr ≥ 0 and fr < 1
  *     yield used = treasury yield × (1 − fr!)   if after tax
  *     treasury yield   otherwise
- *     gap points = +((annual rate − yield used) × 100).to fixed(2)
+ *     gap points = percent value(annual rate − yield used, 2)
  *     too close = size of(gap points) < TOO_CLOSE_POINTS
  *     base = amortise(balance, annual rate, monthly payment)
  *     fast = amortise(balance, annual rate, monthly payment + extra monthly)
@@ -201,7 +203,6 @@ export function balanceGrownTo(start: number, monthly: number, rate: number, mon
  *
  * Decides .....
  *     · Uses a built-in lifetime of 0.
- *     · Shows 2 decimal places.
  *
  * Formula also on the master file · functions_from_code · MK-CF-F-043
  * Changed ..... 2026-08-15 (dc3368f)
@@ -226,7 +227,7 @@ export function compareMortgageToTreasury(args: {
   const afterTax = fr != null && Number.isFinite(fr) && fr >= 0 && fr < 1;
   const yieldUsed = afterTax ? treasuryYield * (1 - fr!) : treasuryYield;
 
-  const gapPoints = +((annualRate - yieldUsed) * 100).toFixed(2);
+  const gapPoints = percentValue(annualRate - yieldUsed, 2);   // the one percent writer, half up on the decimal value (R24)
   const tooClose = Math.abs(gapPoints) < TOO_CLOSE_POINTS;
 
   const base = amortise(balance, annualRate, monthlyPayment);
@@ -248,8 +249,8 @@ export function compareMortgageToTreasury(args: {
   }
 
   return {
-    mortgagePct: +(annualRate * 100).toFixed(2),
-    treasuryPct: +(treasuryYield * 100).toFixed(2),
+    mortgagePct: percentValue(annualRate, 2),
+    treasuryPct: percentValue(treasuryYield, 2),
     basis: afterTax ? 'after-tax' : 'before-tax',
     treasuryAfterTaxPct: afterTax ? yieldUsed * 100 : null,
     federalRatePct: afterTax ? fr! * 100 : null,

@@ -374,10 +374,11 @@ const FIGS: Record<string, Fig> = {
   'MK-CF-M-002': { main: 'CF_CF', text: '$3,450', label: '= Planned surplus', drawing: DRAW.cashflow,   // $1,150 until FIX-MONTH, 2026-10-25
     t4: () => { expect(first('CF_CF', 'MK-CF-M-002')).toBe('$3,450'); expect(R('CF_HOME').lines.join(' ')).not.toMatch(/Planned surplus/); } },
   'MK-CF-M-051': { main: 'CF_CF', text: '$7,200', label: 'Actual inflow (income (take-home))', drawing: DRAW.cashflow,
-    t3: () => { expect(R('CF_NOINCOME').lines).toContain('SET UP YOUR MONTH — 2 STEPS'); expect(R('CF_NOINCOME').lines.join(' ')).not.toMatch(/Actual inflow/); },
+    t3: () => { expect(R('CF_NOINCOME').lines).toContain('Your pay is not entered yet — add it ›'); expect(R('CF_NOINCOME').lines.join(' ')).not.toMatch(/Actual inflow/); },   // round 5e: no '$0' pay line
     t4: () => { expect(after('CF_CF', 'Actual inflow (income (take-home))')).toBe('$7,200'); expect(after('CF_HOME', 'Income')).toBe('$7,200'); } },
   'MK-CF-M-052': { main: 'CF_CF', text: '$3,248', label: 'Expenses entered by hand', drawing: DRAW.cashflow,
-    t3: () => { expect(R('CF_NOINCOME').lines.join(' ')).not.toMatch(/Expenses entered by hand/); } },
+    // round 5e (2026-11-01): what is logged prints — Groceries $512 + Eating out $186 = $698 (the $2,300 rent is the mortgage, in Debts; the $250 is the car loan's)
+    t3: () => { expect(after('CF_NOINCOME', 'Expenses entered by hand')).toBe('−$698'); expect(after('CF_NOINCOME', '= Actual surplus so far')).toBe('—'); } },
   'MK-CF-M-053': { main: 'CF_CF', text: '$3,952', label: '= Actual surplus so far', drawing: DRAW.cashflow,
     t2: () => { expect(7200 - 250 - 2998).toBe(dollars(first('CF_CF', 'MK-CF-M-003'))); } },
   // RE-MEASURED 2026-10-26 (CLEANUP-TESTS) after FIX-ROOM's words of 2026-10-25 (the lead's ruling 1: the plan arithmetic stays and
@@ -607,7 +608,9 @@ const CLASS: Record<string, Item> = {
   'MK-CF-M-002#3': { cls: 'APP WRONG',
     why: 'Missing income: no surplus at all, only the two set-up steps (held). Missing debt payment: the surplus refuses, but reads "+No budget set — there is no planned surplus…" while a $3,400 budget IS set, and the car loan\'s row prints "A section with nothing in it keeps its heading and says so." — the wrong reason, in a sentence written for the master file.',
     fix: 'MoneyKeel/functions/cashflow/this-month.ts plannedMonthFlow + src/screens/CashFlowScreen.tsx: a debt with no payment entered reads "Car loan — payment not entered", and the planned surplus "Not worked out — Car loan\'s payment is not entered", with no "+". Cash flow This month, words only.',
-    check: () => { expect(R('CF_NOINCOME').lines).toContain('SET UP YOUR MONTH — 2 STEPS'); expect(printed('CF_NOINCOME', 'MK-CF-M-002')).toEqual([]); },
+    // RE-WORKED 2026-11-01 (FX-CF-A, round 5e; the lead's ruling): a budget and debts are entered, so the month shows — and still no
+    // planned surplus on an income nobody entered: the band and the total read '—' (no MK-CF-M-002 printed). The old answer is held below
+    check: () => { expect(R('CF_NOINCOME').lines).not.toContain('SET UP YOUR MONTH — 2 STEPS'); expect(after('CF_NOINCOME', '= Planned surplus')).toBe('—'); expect(printed('CF_NOINCOME', 'MK-CF-M-002')).toEqual([]); },
     wrong: () => { const L = R('CF_NOPAY').lines; expect(L.some((l) => /No budget set/.test(l))).toBe(false); expect(L).not.toContain('A section with nothing in it keeps its heading and says so.'); },
     fixed: '2026-10-23: a debt whose payment was never entered reads "payment not entered", and the planned surplus is not given — the band reads —, and "Car loan’s payment is not entered, so there is no planned surplus — we won’t guess one." (tenet 3; MK-NW-F-147, the one test Net worth uses)',
     was: () => { const L = R('CF_NOPAY').lines; expect(L.some((l) => /No budget set/.test(l))).toBe(true); expect(L).toContain('A section with nothing in it keeps its heading and says so.'); } },
@@ -1110,4 +1113,11 @@ describe('FX-NW 2026-10-27 — the answers before R2, R7 and account-page row 85
   test.failing('MK-NW-M-013#1: "$18,000 cash ÷ $3,470/month essentials — you entered"', () => { expect(has('EF_NW', /\$18,000 cash ÷ \$3,470\/month essentials — you entered/)).toBe(true); });
   test.failing('MK-NW-M-024#3: "not entered · $0/year — coupon rate not entered"', () => { expect(after('B1_NOCOUPON', 'Interest payments')).toBe('not entered · $0/year — coupon rate not entered'); });
   test.failing('MK-NW-M-012: H_NW, no expenses typed, read "Both include $2,650/month…" beside 6.8 months', () => { expect(has('NW_NW', 'Both include $2,650/month of debt payments you cannot stop.')).toBe(true); });
+});
+
+// THE OLD ANSWERS, KEPT (2026-11-01, FX-CF-A round 5e): with no income and a budget, debts and expenses entered, Cash flow showed only
+// its two set-up steps. The lead's ruling opens the month whenever anything is entered (cash-flow_v01's round-5e row).
+test.failing('round 5e · the old answer, kept: CF_NOINCOME showed the set-up steps and no “Expenses entered by hand”', () => {
+  expect(R('CF_NOINCOME').lines).toContain('SET UP YOUR MONTH — 2 STEPS');
+  expect(R('CF_NOINCOME').lines.join(' ')).not.toMatch(/Expenses entered by hand/);
 });

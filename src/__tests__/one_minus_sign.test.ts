@@ -14,7 +14,7 @@ import { formatMoney, formatMoneyCents, moneyCompact, MINUS } from '../domain/_s
 import { money, money2 } from '../domain/_shared/num';
 
 const ROOT = path.join(__dirname, '..', '..');
-const MONEY_CALL = /^(money0?|money2|maskedMoney2?|maskedPrice|spokenMoney2?|typedAmount|formatMoney(Cents)?|moneyCompact|fig|figSaid|figPer|figSpoken)\(/;
+const MONEY_CALL = /^(money0?|money2|moneyShort|maskedMoney2?|maskedPrice|spokenMoney2?|typedAmount|formatMoney(Cents)?|moneyCompact|currencySymbol|fig|figSaid|figPer|figSpoken)\(/;
 
 function walk(d: string): string[] {
   return fs.readdirSync(d, { withFileTypes: true }).flatMap((e) => {
@@ -51,6 +51,14 @@ export function hyphenBeforeMoney(file: string, text: string): { hits: string[];
         const next = n.children[i + 1];
         if (ts.isJsxText(c) && /-\s?$/.test(c.text) && next && ts.isJsxExpression(next) && next.expression && isMoney(next.expression)) hits.push(`${at(c)} — JSX "-" before {${next.expression.getText(sf).slice(0, 30)}}`);
       });
+    }
+    // A SIGN BUILT BY HAND (CF6-19, 2026-11-02): `isIncome ? '+' : '-'` before {fig(…)} on All transactions, `k < 0 ? '-' : ''` in the
+    // sign-up bars' moneyShort ('-$1.2K'). Any choice whose branch is a lone hyphen against '' or '+' is a sign being written — the
+    // one minus writer (MINUS) writes it, never a hyphen.
+    if (ts.isConditionalExpression(n)) {
+      const lone = (e: ts.Expression) => ts.isStringLiteral(e) && /^\s?-\s?$/.test(e.text);
+      const other = (e: ts.Expression) => ts.isStringLiteral(e) && /^\s?\+?\s?$/.test(e.text);
+      if ((lone(n.whenTrue) && other(n.whenFalse)) || (lone(n.whenFalse) && other(n.whenTrue))) hits.push(`${at(n)} — a sign written as a hyphen: ${n.getText(sf).slice(0, 50)}`);
     }
     // a typed example "-$5"
     if ((ts.isStringLiteral(n) || ts.isNoSubstitutionTemplateLiteral(n) || ts.isTemplateHead(n) || ts.isTemplateMiddle(n) || ts.isTemplateTail(n) || ts.isJsxText(n))
@@ -91,8 +99,8 @@ test('no screen types a hyphen in front of a money figure, in src, app or MoneyK
   console.log(`one minus sign: ${files} files, ${moneyCalls} money calls looked beside`);
   // counted 2026-10-31 from the disk, not typed from memory: 285 files, 1,040 money calls. Floors just under, so a reader that stops
   // finding files goes red rather than quiet.
-  expect(files).toBeGreaterThanOrEqual(288);       // 288 files, 1,082 money calls on 2026-11-01 (PF-TOOLS)
-  expect(moneyCalls).toBeGreaterThanOrEqual(1082);
+  expect(files).toBeGreaterThanOrEqual(291);       // 291 files, 1,122 money calls on 2026-11-02 (PF-TOOLS, round 6)
+  expect(moneyCalls).toBeGreaterThanOrEqual(1122);
   expect(hits).toEqual([]);
 });
 
@@ -100,4 +108,10 @@ test('the guard catches what it is for (fed one of each)', () => {
   const probe = "const a = `-${money(x)}/year`; const b = '-' + money(y); const c = <T>-{maskedMoney(z)}</T>; const d = 'down -$5'; const ok = `${MINUS}${money(x)}`; const e = `pre-${money(x)}`;\n";
   const r = hyphenBeforeMoney(path.join(ROOT, 'probe.tsx'), probe);
   expect(r.hits).toHaveLength(4);   // the word-hyphen "pre-" is not a minus sign
+});
+
+test('the guard catches a sign written by hand (CF6-19: All transactions\' "-$15.00", the sign-up bars\' "-$1.2K")', () => {
+  const probe = "const a = <T>{isIncome ? '+' : '-'}{fig('MK', x)}</T>; const b = `${k < 0 ? '-' : ''}${currencySymbol()}${k}K`; const ok = <T>{isIncome ? '+' : MINUS}{fig('MK', x)}</T>; const c = a ? '-' : 'none';\n";
+  const r = hyphenBeforeMoney(path.join(ROOT, 'probe.tsx'), probe);
+  expect(r.hits).toHaveLength(2);   // a hyphen against a word ('none') is not a sign
 });

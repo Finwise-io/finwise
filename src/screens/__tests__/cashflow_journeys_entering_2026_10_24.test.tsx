@@ -259,7 +259,7 @@ describe('E2E-70 · a one-time $2,000 bonus lands in its own month, taxed at the
     // BEFORE. By hand: $72,000 − the $16,100 standard deduction = $55,900 → 10% × $12,400 + 12% × $38,000 + 22% × $5,500 =
     // $1,240 + $4,560 + $1,210 = $7,010 a year, 9.74% of $72,000 → $6,000 × (1 − 0.09736) = $5,415.83 a month
     open('/(tabs)/cashflow'); tab('Income');
-    expect(after(readLines(), 'THIS MONTH')).toBe('≈$5,416');   // the app's calculation wears ≈ (2026-10-25, CF-24)
+    expect(after(readLines(), 'THIS MONTH')).toBe('~$5,416');   // the app's calculation wears ≈ (2026-10-25, CF-24)
     const chooser = chooseInAlert('One-time income');
     press('Add your income');
     expect(chooser[0]).toEqual({ title: 'Add your income', buttons: ['Salary / take-home', 'Stock vesting (equity)', 'Rental property', 'Self-employment', 'Bonus', 'One-time income', 'Cancel'] });
@@ -299,20 +299,20 @@ describe('E2E-70 · a one-time $2,000 bonus lands in its own month, taxed at the
     // the Income tab: the month's take-home first, then every source with what it is
     open('/(tabs)/cashflow'); tab('Income');
     let L = readLines();
-    expect(block(L, 'THIS MONTH', 'Add your income ›', 0)).toEqual(['THIS MONTH', '≈$7,195', 'expected take-home', 'YOUR SOURCES',
-      'Salary — steady', 'before tax · monthly · ≈$5,396/month take-home', '$6,000 ›', 'Bonus', 'one-time · lands in September', '$2,000 ›', 'Add your income ›']);
+    expect(block(L, 'THIS MONTH', 'Add your income ›', 0)).toEqual(['THIS MONTH', '~$7,195', 'expected take-home', 'YOUR SOURCES',
+      'Salary — steady', 'before tax · monthly · ~$5,396/month take-home', '$6,000 ›', 'Bonus', 'one-time · lands in September', '$2,000 ›', 'Add your income ›']);
     // This month: the inflow names the bonus, and Planned and Actual read the one take-home
     tab('This month');
     L = readLines();
-    expect([after(L, 'Inflow (income (take-home) + bonus)', 2), after(L, 'Actual inflow (income (take-home) + bonus)')]).toEqual(['≈$7,195', '≈$7,195']);
+    expect([after(L, 'Inflow (income (take-home) + bonus)', 2), after(L, 'Actual inflow (income (take-home) + bonus)')]).toEqual(['~$7,195', '~$7,195']);
     // October: the plan, without it — not spread
     nextMonth(1);
     L = readLines();
-    expect(after(L, 'Planned inflow')).toBe('≈$5,396');
+    expect(after(L, 'Planned inflow')).toBe('~$5,396');
     tab('Income');
-    expect(after(readLines(), 'OCTOBER 2026')).toBe('≈$5,396');
+    expect(after(readLines(), 'OCTOBER 2026')).toBe('~$5,396');
     screen.unmount();
-    expect(after(homeBox(look('/(tabs)/home')), 'Income')).toBe('≈$7,195');
+    expect(after(homeBox(look('/(tabs)/home')), 'Income')).toBe('~$7,195');
 
     // and it never comes back: on Oct 15 the twelve months ahead (October to next September) carry no bonus, and nothing is
     // left "beyond the window" for a payment that has already landed
@@ -323,12 +323,12 @@ describe('E2E-70 · a one-time $2,000 bonus lands in its own month, taxed at the
     open('/(tabs)/cashflow'); nextMonth(11);
     expect(readLines()).toContain('September 2027 — planned');
     // the salary alone — at 2026's one rate, which still holds the bonus's tax (one rate in every month, his ruling G46)
-    expect(after(readLines(), 'Planned inflow')).toBe('≈$5,396');
+    expect(after(readLines(), 'Planned inflow')).toBe('~$5,396');
     screen.unmount();
     // in 2027 the bonus is no part of the year's income: $72,000 is taxed again, $5,416 a month (it stayed in every year)
     onDay('2027-01-15');
     expect(rateInForce(profile()).rate).toBeCloseTo(7010 / 72000, 10);
-    expect(after(look('/(tabs)/cashflow'), 'Inflow (income (take-home))', 2)).toBe('≈$5,416');
+    expect(after(look('/(tabs)/cashflow'), 'Inflow (income (take-home))', 2)).toBe('~$5,416');
   });
 });
 
@@ -356,17 +356,17 @@ describe('E2E-71 · base pay: the take-home on Your base pay, the Income summary
     // band → $1,240 + $4,560 + 22% × ($79,900 − $50,400) = $1,240 + $4,560 + $6,490 = $12,290 a year = $1,024.17 a month.
     // Take-home = $9,000 − $1,024.17 − $1,000 = $6,975.83 → $6,976
     const card = block(readLines(), 'YOUR HOUSEHOLD', '$9,000 gross − $1,024 tax − $1,000 of 401(k)s = $6,976.', 0);
-    expect(card).toEqual(['YOUR HOUSEHOLD', '≈$6,976/month', 'Gross /year', '$108,000', 'Federal tax bracket', 'what your next dollar costs', '22%',
-      'Calculated federal tax', 'assumes you take the standard deduction', '≈$1,024/month', 'Your 401(k)s', '$1,000/month',
-      '= Take-home', '≈$6,976/month', '$9,000 gross − $1,024 tax − $1,000 of 401(k)s = $6,976.']);
+    expect(card).toEqual(['YOUR HOUSEHOLD', '~$6,976/month', 'Gross /year', '$108,000', 'Federal tax bracket', 'what your next dollar costs', '22%',
+      'Calculated federal tax', 'assumes you take the standard deduction', '~$1,024/month', 'Your 401(k)s', '$1,000/month',
+      '= Take-home', '~$6,976/month', '$9,000 gross − $1,024 tax − $1,000 of 401(k)s = $6,976.']);
     press('Save your base pay');
     expect(mockNav.backs).toBe(1);
     screen.unmount();
     let t = takeHomes();
     // This month and Home read $7,976 here before the fix: the 401(k) was left in the month's take-home
-    expect([t.bp, t.sum, t.cf, t.actual, t.home]).toEqual(['≈$6,976/month', '≈$6,976', '≈$6,976', '≈$6,976', '≈$6,976']);   // one figure, one form: ≈ wherever it is the app's calculation (CF-24; the Income summary's by CF-MMFIX-B)
+    expect([t.bp, t.sum, t.cf, t.actual, t.home]).toEqual(['~$6,976/month', '~$6,976', '~$6,976', '~$6,976', '~$6,976']);   // one figure, one form: ≈ wherever it is the app's calculation (CF-24; the Income summary's by CF-MMFIX-B)
     expect([after(t.sumLines, '= What it is taxed on'), after(t.sumLines, 'Federal tax bracket', 2), after(t.sumLines, 'Calculated federal tax', 2)])
-      .toEqual(['$96,000', '22%', '≈$12,290/year']);
+      .toEqual(['$96,000', '22%', '~$12,290/year']);
 
     // FILING JOINTLY, from the Tax organizer's one door. By hand: $96,000 − $32,200 = $63,800, in the 12% band → 10% × $24,800
     // + 12% × $39,000 = $2,480 + $4,680 = $7,160 a year = $596.67 a month; take-home $9,000 − $596.67 − $1,000 = $7,403.33 → $7,403
@@ -383,10 +383,10 @@ describe('E2E-71 · base pay: the take-home on Your base pay, the Income summary
     press('Got it');
     screen.unmount();
     t = takeHomes();
-    expect([t.bp, t.sum, t.cf, t.actual, t.home]).toEqual(['≈$7,403/month', '≈$7,403', '≈$7,403', '≈$7,403', '≈$7,403']);
-    expect([after(t.bpLines, 'Federal tax bracket', 2), after(t.bpLines, 'Calculated federal tax', 2)]).toEqual(['12%', '≈$597/month']);
+    expect([t.bp, t.sum, t.cf, t.actual, t.home]).toEqual(['~$7,403/month', '~$7,403', '~$7,403', '~$7,403', '~$7,403']);
+    expect([after(t.bpLines, 'Federal tax bracket', 2), after(t.bpLines, 'Calculated federal tax', 2)]).toEqual(['12%', '~$597/month']);
     expect([after(t.sumLines, 'Federal tax bracket'), after(t.sumLines, 'Federal tax bracket', 2), after(t.sumLines, 'Calculated federal tax', 2)])
-      .toEqual(['filing jointly, every source counted', '12%', '≈$7,160/year']);
+      .toEqual(['filing jointly, every source counted', '12%', '~$7,160/year']);
 
     // A LARGER 401(k), back on Your base pay. By hand: $108,000 − $18,000 = $90,000; − $32,200 = $57,800 → $2,480 + 12% × $33,000 =
     // $6,440 a year = $536.67 a month; take-home $9,000 − $536.67 − $1,500 = $6,963.33 → $6,963
@@ -395,8 +395,8 @@ describe('E2E-71 · base pay: the take-home on Your base pay, the Income summary
     press('Save your base pay');
     screen.unmount();
     t = takeHomes();
-    expect([t.bp, t.sum, t.cf, t.actual, t.home]).toEqual(['≈$6,963/month', '≈$6,963', '≈$6,963', '≈$6,963', '≈$6,963']);
-    expect([after(t.sumLines, '= What it is taxed on'), after(t.sumLines, 'Calculated federal tax', 2)]).toEqual(['$90,000', '≈$6,440/year']);
+    expect([t.bp, t.sum, t.cf, t.actual, t.home]).toEqual(['~$6,963/month', '~$6,963', '~$6,963', '~$6,963', '~$6,963']);
+    expect([after(t.sumLines, '= What it is taxed on'), after(t.sumLines, 'Calculated federal tax', 2)]).toEqual(['$90,000', '~$6,440/year']);
   });
 
   test('E2E-71 · a take-home typed the old way, with their own 0%: Your base pay says the gross was worked back, and it is $5,000.00, not 5475.378787878787', () => {
@@ -414,7 +414,7 @@ describe('E2E-71 · base pay: the take-home on Your base pay, the Income summary
     open('/base-pay');
     let L = readLines();
     expect(screen.getByLabelText('Gross pay each month').props.value).toBe('$5,000.00');   // a money box shows its separator (CF-MMFIX-B, IN-06)
-    expect(after(L, 'Gross pay each month')).toBe('≈ Worked back from the take-home you entered. Type the gross from a payslip to replace it.');
+    expect(after(L, 'Gross pay each month')).toBe('~ Worked back from the take-home you entered. Type the gross from a payslip to replace it.');
     expect([after(L, 'Everything else taken out', 2, 'YOUR HOUSEHOLD'), after(L, '= Take-home')]).toEqual(['$0/month · 0.00%', '$5,000/month']);   // their own 0%, to two decimals since 2026-10-26 (MK-CF-M-081)
     expect(L).toContain('The take-home is what you entered; the gross was worked back from it.');
     expect(L).not.toContain('This is what you entered — nothing here is calculated.');

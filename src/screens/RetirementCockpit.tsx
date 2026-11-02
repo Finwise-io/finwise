@@ -44,6 +44,7 @@ const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/
 const big = (n: number) => moneyCompact(n, 'M');
 import { volOf, clamp, planRetireAgeOf } from '../domain/retirement/willItLast';   // one retirement age (R10)
 import { HISTORIC_TTM_BODY } from '../constants/historicReturn';   // the same words as the account page's card (DEC-6005)
+import { percentDigits, pointsDigits } from '../../MoneyKeel/functions/_figure-spec';   // the one percent writer (R24, 2026-11-01)
 const SECTION_COLOR: Record<string, string> = { Cash: Colors.primary, Investments: Colors.purple, Retirement: Colors.blue, Property: Colors.gold };
 const sectionOf = (a: AssetAccount) => assetKind(a.kind)?.section ?? (a.tax_bucket === 'CASH' ? 'Cash' : a.tax_bucket === 'PROPERTY' ? 'Property' : a.tax_bucket === 'TAXABLE' ? 'Investments' : 'Retirement');
 
@@ -350,14 +351,14 @@ export default function RetirementCockpit() {
         </View>
         {scRetired && (
           <Text style={[styles.note, { fontWeight: '700', color: scDeplete == null ? Colors.primaryDark : Colors.red }]}>
-            {scDeplete == null ? `✅ At ${retPct.toFixed(2)}% return, your money lasts past age ${horizon}.` : `⚠️ At ${retPct.toFixed(2)}% return and ${money(spendMo)}/month of expenses, your money runs low around age ${scDeplete}.`}
+            {scDeplete == null ? `✅ At ${pointsDigits(retPct, 2)}% return, your money lasts past age ${horizon}.` : `⚠️ At ${pointsDigits(retPct, 2)}% return and ${money(spendMo)}/month of expenses, your money runs low around age ${scDeplete}.`}
           </Text>
         )}
         {/* the abstract lump-sum framing, demoted from the headline */}
         <Text style={styles.note}>
           {scRetired
-            ? `“${scProjLabel}” rolls your ${big(nestEgg)} forward at ${retPct.toFixed(2)}%/year minus ${money(spendMo)}/month (rising with inflation) — raise the return or trim expenses and it climbs. To fully fund your plan to age ${horizon} you’d need about ${big(scProj.will_need)} today${scProj.shortfall > 0 ? ` (≈${big(scProj.shortfall)} short).` : ' — covered.'}`
-            : `Your ${big(nestEgg)} grows to ${big(scProjected)} by age ${rAge} at ${retPct.toFixed(2)}%/year. To fund ${money(spendMo)}/month to age ${horizon} you’d need about ${big(scProj.will_need)}${scProj.shortfall > 0 ? ` (≈${big(scProj.shortfall)} short).` : ' — covered.'}`}
+            ? `“${scProjLabel}” rolls your ${big(nestEgg)} forward at ${pointsDigits(retPct, 2)}%/year minus ${money(spendMo)}/month (rising with inflation) — raise the return or trim expenses and it climbs. To fully fund your plan to age ${horizon} you’d need about ${big(scProj.will_need)} today${scProj.shortfall > 0 ? ` (~${big(scProj.shortfall)} short).` : ' — covered.'}`
+            : `Your ${big(nestEgg)} grows to ${big(scProjected)} by age ${rAge} at ${pointsDigits(retPct, 2)}%/year. To fund ${money(spendMo)}/month to age ${horizon} you’d need about ${big(scProj.will_need)}${scProj.shortfall > 0 ? ` (~${big(scProj.shortfall)} short).` : ' — covered.'}`}
         </Text>
 
         {/* SLIDERS — with benchmark + current-plan reference markers */}
@@ -380,13 +381,13 @@ export default function RetirementCockpit() {
             </TouchableOpacity>
             <Text style={styles.horizonHint}>how long the money must last</Text>
           </View>
-          <SliderRow label="Expected return" valueLabel={`${retPct.toFixed(2)}%`} value={retPct} min={2} max={14} step={0.5} onChange={(v) => { setRetPct(v); invalidateMC(); }}
-            markers={[{ value: benchBlended * 100, label: 'bench' }, ...(actualBlended != null ? [{ value: actualBlended * 100, label: '12mo' }] : []), { value: planGrowth * 100, label: 'plan' }]} fmt={(v) => `${v.toFixed(2)}%`} />
+          <SliderRow label="Expected return" valueLabel={`${pointsDigits(retPct, 2)}%`} value={retPct} min={2} max={14} step={0.5} onChange={(v) => { setRetPct(v); invalidateMC(); }}
+            markers={[{ value: benchBlended * 100, label: 'bench' }, ...(actualBlended != null ? [{ value: actualBlended * 100, label: '12mo' }] : []), { value: planGrowth * 100, label: 'plan' }]} fmt={(v) => `${pointsDigits(v, 2)}%`} />
           {!scRetired && <SliderRow label="Save / month" valueLabel={money(saveMo)} value={saveMo} min={0} max={8000} step={100} onChange={(v) => { setSaveMo(v); invalidateMC(); }} markers={[{ value: planSave, label: 'plan' }]} fmt={(v) => money(v)} />}
-          {!scRetired && <SliderRow label="Pay raises / year" valueLabel={salGrow === 0 ? 'none' : `${salGrow.toFixed(2)}%`} value={salGrow} min={0} max={6} step={0.5} onChange={(v) => { setSalGrow(v); invalidateMC(); }} fmt={(v) => v === 0 ? 'none' : `${v.toFixed(2)}%`} />}
+          {!scRetired && <SliderRow label="Pay raises / year" valueLabel={salGrow === 0 ? 'none' : `${pointsDigits(salGrow, 2)}%`} value={salGrow} min={0} max={6} step={0.5} onChange={(v) => { setSalGrow(v); invalidateMC(); }} fmt={(v) => v === 0 ? 'none' : `${pointsDigits(v, 2)}%`} />}
           <SliderRow label="Planned spend / month" valueLabel={money(spendMo)} value={spendMo} min={1000} max={20000} step={100} onChange={(v) => { setSpendMo(v); invalidateMC(); }} markers={[{ value: planSpend, label: 'plan' }]} fmt={(v) => money(v)} />
-          <SliderRow label="Inflation" valueLabel={`${inflPct.toFixed(2)}%`} value={inflPct} min={0} max={6} step={0.5} onChange={(v) => { setInflPct(v); invalidateMC(); }} markers={[{ value: planInfl * 100, label: inflIsActual ? 'default' : 'plan' }]} fmt={(v) => `${v.toFixed(2)}%`} />
-          <Text style={styles.note}>Inflation default {INFLATION_DEFAULT.percent.toFixed(2)}% — the {INFLATION_DEFAULT.basis} ({INFLATION_DEFAULT.source}). Yours to change.</Text>
+          <SliderRow label="Inflation" valueLabel={`${pointsDigits(inflPct, 2)}%`} value={inflPct} min={0} max={6} step={0.5} onChange={(v) => { setInflPct(v); invalidateMC(); }} markers={[{ value: planInfl * 100, label: inflIsActual ? 'default' : 'plan' }]} fmt={(v) => `${pointsDigits(v, 2)}%`} />
+          <Text style={styles.note}>Inflation default {pointsDigits(INFLATION_DEFAULT.percent, 2)}% — the {INFLATION_DEFAULT.basis} ({INFLATION_DEFAULT.source}). Yours to change.</Text>
           <Text style={styles.note}>▲ marks your benchmark, current plan, and 12-mo actual where relevant — so you can see how far a what-if drifts from them.</Text>
         </View>
 
@@ -459,7 +460,7 @@ export default function RetirementCockpit() {
               ['Retire at', String(A.assumptions?.retireAge ?? '—'), String(B.assumptions?.retireAge ?? '—')],
               ['Saving / month', maskedMoney(A.assumptions?.contribMonthly ?? 0), maskedMoney(B.assumptions?.contribMonthly ?? 0)],
               ['Expenses /month', maskedMoney(A.assumptions?.spendMonthly ?? 0), maskedMoney(B.assumptions?.spendMonthly ?? 0)],
-              ['Expected return', `${((A.assumptions?.expectedReturn ?? 0) * 100).toFixed(2)}%`, `${((B.assumptions?.expectedReturn ?? 0) * 100).toFixed(2)}%`],
+              ['Expected return', `${percentDigits((A.assumptions?.expectedReturn ?? 0), 2)}%`, `${percentDigits((B.assumptions?.expectedReturn ?? 0), 2)}%`],
               ['Odds it lasts', `${displayOdds(rA.chance_of_success)}%`, `${displayOdds(rB.chance_of_success)}%`],
               ['At retirement (median)', maskedMoney(Math.round(rA.projected_at_retirement)), maskedMoney(Math.round(rB.projected_at_retirement))],
             ];
@@ -580,13 +581,13 @@ export default function RetirementCockpit() {
               <Text style={styles.heroSub}>{retireAtAge
                 ? `today’s ${big(nestEgg)} alone gets there by ${retireAtAge}`
                 : `today’s ${big(nestEgg)} alone doesn’t get there — even by 80`}</Text>
-              <Text style={styles.heroRoi}>growing at {(planGrowth * 100).toFixed(2)}%/year</Text>
+              <Text style={styles.heroRoi}>growing at {percentDigits(planGrowth, 2)}%/year</Text>
             </View>
             <View style={[styles.heroCardG, { marginLeft: 5 }]}>
               <Text style={styles.heroK}>AT YOUR TARGET, {Math.round(planRetireAge)}</Text>
               <Text style={styles.heroBig}>{big(projEnd)}</Text>
               <Text style={styles.heroSub}>{planChance == null ? 'projected nest egg' : `${planChance}% odds it lasts to ${horizon}`}</Text>
-              <Text style={styles.heroRoi}>at {(planGrowth * 100).toFixed(2)}%/year</Text>
+              <Text style={styles.heroRoi}>at {percentDigits(planGrowth, 2)}%/year</Text>
             </View>
           </View>
           {!simple && planChance != null && <Text style={styles.heroExplain}>“{planChance}% odds it lasts to {horizon}” = across 1,000 market simulations, your money doesn’t run out before {horizon} in {planChance}% of them.</Text>}
@@ -606,7 +607,7 @@ export default function RetirementCockpit() {
             <View style={[styles.dwRow, styles.dwTotal]}><Text style={[styles.dwL, { fontWeight: '800', color: Colors.textPrimary }]}>From your portfolio</Text><Text style={styles.dwV}>{money(dPlan.netWithdrawal)}/year</Text></View>
             {dPlan.withdrawalRate != null && dPlan.netWithdrawal > 0 && (
               <View style={[styles.rateBox, { backgroundColor: dPlan.rateBand === 'safe' ? Colors.primaryLight : dPlan.rateBand === 'moderate' ? Colors.amberLight : Colors.redLight }]}>
-                <Text style={[styles.ratePct, { color: rateColor }]}>{(dPlan.withdrawalRate * 100).toFixed(2)}%</Text>
+                <Text style={[styles.ratePct, { color: rateColor }]}>{percentDigits(dPlan.withdrawalRate, 2)}%</Text>
                 <Text style={styles.rateTxt}>withdrawal rate · {rateBandWords(dPlan.rateBand)}</Text>
               </View>
             )}
@@ -715,24 +716,24 @@ export default function RetirementCockpit() {
                 <TouchableOpacity style={styles.tColNum} onPress={() => setTtmEdit(a)}>
                   {ttm == null
                     ? <Text style={styles.ttmAdd}>+ Add</Text>
-                    : <Text style={[styles.instRet, { color: ttm >= info.ret ? Colors.gainText : Colors.red }]}>{(ttm * 100).toFixed(2)}%</Text>}
+                    : <Text style={[styles.instRet, { color: ttm >= info.ret ? Colors.gainText : Colors.red }]}>{percentDigits(ttm, 2)}%</Text>}
                 </TouchableOpacity>
                 {uncategorized
                   ? <Text style={[styles.tColNum, styles.instBench, { color: Colors.textTertiary }]}>—</Text>
-                  : <Text style={[styles.tColNum, styles.instBench]}>{(info.ret * 100).toFixed(2)}%</Text>}
+                  : <Text style={[styles.tColNum, styles.instBench]}>{percentDigits(info.ret, 2)}%</Text>}
               </View>
             );
           })}
           {/* weighted-average row (not editable) */}
           <View style={[styles.tRow, styles.tTotal]}>
             <Text style={[styles.instName, { flex: 1 }]}>Weighted average</Text>
-            <Text style={[styles.tColNum, styles.instRet, actualReturn == null && { color: Colors.textTertiary, fontWeight: '700' }]}>{actualReturn == null ? '—' : `${(actualReturn * 100).toFixed(2)}%`}</Text>
-            <Text style={[styles.tColNum, styles.instBench]}>{(benchBlended * 100).toFixed(2)}%</Text>
+            <Text style={[styles.tColNum, styles.instRet, actualReturn == null && { color: Colors.textTertiary, fontWeight: '700' }]}>{actualReturn == null ? '—' : `${percentDigits(actualReturn, 2)}%`}</Text>
+            <Text style={[styles.tColNum, styles.instBench]}>{percentDigits(benchBlended, 2)}%</Text>
           </View>
           <Text style={styles.tFoot}>
             {actualReturn == null
               ? 'Add historic 12-month return on each holding to see how you compare to the benchmark.'
-              : `You returned ${(actualReturn * 100).toFixed(2)}% over the last 12 months vs a ${(benchBlended * 100).toFixed(2)}% benchmark — ${beatBy! >= 0 ? `${(beatBy! * 100).toFixed(2)} pts ahead` : `${(Math.abs(beatBy!) * 100).toFixed(2)} pts behind`}.`}
+              : `You returned ${percentDigits(actualReturn, 2)}% over the last 12 months vs a ${percentDigits(benchBlended, 2)}% benchmark — ${beatBy! >= 0 ? `${percentDigits(beatBy!, 2)} pts ahead` : `${percentDigits(Math.abs(beatBy!), 2)} pts behind`}.`}
           </Text>
           {!simple && <Text style={styles.tFootMuted}>“Your 12-mo” = the historic 12-month return you enter on each holding. Benchmark = the asset class’s historical index return (not editable); past performance isn’t a guarantee, and a 12-mo actual vs a ~30-yr average is directional only.</Text>}
           <TouchableOpacity hitSlop={Tap.slop} onPress={() => router.push('/performance')}><Text style={[styles.editLink2, { marginTop: 10 }]}>📈 Track live performance vs benchmark ›</Text></TouchableOpacity>
@@ -758,7 +759,7 @@ export default function RetirementCockpit() {
                 style={[styles.basisPill, sel && styles.basisPillOn, disabled && { opacity: 0.4 }]}
                 onPress={() => commit({ returnBasis: o.k })}>
                 <Text style={[styles.basisPillT, sel && styles.basisPillTOn]} numberOfLines={1}>{o.label}{o.warn ? ' ⚠' : ''}</Text>
-                <Text style={[styles.basisPillR, sel && styles.basisPillTOn]}>{o.rate == null ? '— add' : `${(o.rate * 100).toFixed(2)}%`}</Text>
+                <Text style={[styles.basisPillR, sel && styles.basisPillTOn]}>{o.rate == null ? '— add' : `${percentDigits(o.rate, 2)}%`}</Text>
               </TouchableOpacity>
             );
           })}
@@ -771,7 +772,7 @@ export default function RetirementCockpit() {
       {!isRetired && nestEgg > 0 && projYears.length > 0 && (
         <View style={styles.card}>
           <SectionBand light inCard onRowEdges title="PROJECTED NEST EGG" value={`${big(projYears[projYears.length - 1].bal)} by ${projYears[projYears.length - 1].year}`} />
-          <Text style={styles.note}>If your {big(nestEgg)} grows at {(planGrowth * 100).toFixed(2)}% ({basisLabel}){planSave > 0 ? ` and you keep saving ${money(planSave)}/month` : ''}.{hasRetireBar ? ` Amber bar = retirement at ${Math.round(planRetireAge)}.` : ''}</Text>
+          <Text style={styles.note}>If your {big(nestEgg)} grows at {percentDigits(planGrowth, 2)}% ({basisLabel}){planSave > 0 ? ` and you keep saving ${money(planSave)}/month` : ''}.{hasRetireBar ? ` Amber bar = retirement at ${Math.round(planRetireAge)}.` : ''}</Text>
           <ProjectionChartAuto data={projYears} />
           <View style={styles.breakdown}>
             <View style={styles.bdItem}><Text style={styles.bdV}>{big(nestEgg)}</Text><Text style={styles.bdL}>now</Text></View>
@@ -788,12 +789,12 @@ export default function RetirementCockpit() {
       {/* IN RETIREMENT — spend, anchored to target age */}
       <View style={styles.card}>
         <SectionBand light inCard title={`IN RETIREMENT (FROM ${Math.round(spendEscFromAge)})`} />
-        <Text style={styles.note}>You plan to spend <Text style={{ fontWeight: '800', color: Colors.textPrimary }}>{money(planSpend)}/month</Text> in today’s dollars → about <Text style={{ fontWeight: '800', color: Colors.textPrimary }}>{big(spendHi)}/month</Text> by {horizon} as prices rise {(planInfl * 100).toFixed(2)}%/year <Text style={styles.srcTag}>{inflIsActual ? 'actual' : 'your plan'}</Text>.</Text>
+        <Text style={styles.note}>You plan to spend <Text style={{ fontWeight: '800', color: Colors.textPrimary }}>{money(planSpend)}/month</Text> in today’s dollars → about <Text style={{ fontWeight: '800', color: Colors.textPrimary }}>{big(spendHi)}/month</Text> by {horizon} as prices rise {percentDigits(planInfl, 2)}%/year <Text style={styles.srcTag}>{inflIsActual ? 'actual' : 'your plan'}</Text>.</Text>
         {/* B-32: when a recognized retirement location adjusts the figure, say so — don't apply COL silently */}
         {A.spendMonthly == null && (() => {
           const col = colFactor(op.retLocation);
           if (col.factor === 1 || !op.retLocation) return null;
-          return <Text style={[styles.note, { marginTop: 4 }]}>Adjusted for {col.name}’s cost of living ({col.factor < 1 ? `${((1 - col.factor) * 100).toFixed(2)}% lower` : `${((col.factor - 1) * 100).toFixed(2)}% higher`} than the US).</Text>;
+          return <Text style={[styles.note, { marginTop: 4 }]}>Adjusted for {col.name}’s cost of living ({col.factor < 1 ? `${percentDigits((1 - col.factor), 2)}% lower` : `${percentDigits((col.factor - 1), 2)}% higher`} than the US).</Text>;
         })()}
         {/* B-39: the projection doesn't subtract debt separately — make that explicit so a user with a
             mortgage includes its payment in the spend above rather than assuming it's handled. */}
@@ -812,7 +813,7 @@ export default function RetirementCockpit() {
           <Text style={[styles.note, { marginTop: 6 }]}>🏦 You can also contribute up to <Text style={{ fontWeight: '800', color: Colors.textPrimary }}>{money(annualIraLimit(age))}</Text> to an IRA{age >= 50 ? ' (incl. catch-up)' : ''}.</Text>
           {/* T09: the Roth/Traditional verdict shows in BOTH modes (was hidden in Simple); only the
               rationale + marginal-rate tag are Advisor-only, so Simple stays uncluttered. */}
-          <Text style={[styles.note, { marginTop: 6 }]}>⚖️ <Text style={{ fontWeight: '700', color: Colors.textPrimary }}>{rvt.lean === 'roth' ? 'Lean Roth' : rvt.lean === 'traditional' ? 'Lean Traditional' : 'Roth or Traditional'}</Text>{!simple && <Text style={styles.note}> — {rvt.why} <Text style={styles.srcTag}>marginal ~{Math.round(marginalNow * 100)}% now</Text></Text>}</Text>
+          <Text style={[styles.note, { marginTop: 6 }]}>⚖️ <Text style={{ fontWeight: '700', color: Colors.textPrimary }}>{rvt.lean === 'roth' ? 'Lean Roth' : rvt.lean === 'traditional' ? 'Lean Traditional' : 'Roth or Traditional'}</Text>{!simple && <Text style={styles.note}> — {rvt.why} <Text style={styles.srcTag}>marginal ~{percentDigits(marginalNow, 0)}% now</Text></Text>}</Text>
           <Text style={styles.tFootMuted}>General guidance, not tax advice.</Text>
         </View>
       )}
@@ -1001,7 +1002,7 @@ export function EarmarkSheet({ open, onClose, assets, nestEgg, onSet, onDone, re
                 </View>
                 {isProp ? <Text style={styles.counts}>—</Text> : (
                   <>
-                    <View style={styles.pctBox}><TextInput style={styles.pctIn} keyboardType="number-pad" value={String(pct)} onChangeText={(t) => onSet(a.asset_id, clamp(Math.round(num(t)), 0, 100))} /><Text style={styles.pctU}>%</Text></View>
+                    <View style={styles.pctBox}><TextInput hitSlop={Tap.slop} style={styles.pctIn} keyboardType="number-pad" value={String(pct)} onChangeText={(t) => onSet(a.asset_id, clamp(Math.round(num(t)), 0, 100))} /><Text style={styles.pctU}>%</Text></View>
                     <Text style={styles.counts}>{moneyCompact(earmarkedAmount(a, carId, homeId), 'M')}</Text>
                     {a.retirement_pct != null && (
                       <TouchableOpacity hitSlop={Tap.slop} accessibilityLabel={`Use the automatic share for ${a.institution?.trim() || a.label}`} onPress={() => onSet(a.asset_id, null)}>
@@ -1121,7 +1122,7 @@ function TtmEditor({ account, onClose, benchmark, onApply, onClear }: {
 }) {
   const open = account != null;
   const [val, setVal] = useState('');
-  useEffect(() => { if (account) setVal(account.actual_ttm != null ? (account.actual_ttm * 100).toFixed(2) : ''); }, [account]);
+  useEffect(() => { if (account) setVal(account.actual_ttm != null ? percentDigits(account.actual_ttm, 2) : ''); }, [account]);
   return (
     <Modal visible={open} transparent animationType="fade" onRequestClose={onClose}>
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
@@ -1129,9 +1130,9 @@ function TtmEditor({ account, onClose, benchmark, onApply, onClear }: {
       <View style={styles.dialog}>
         <Text style={styles.sheetT}>{account?.institution?.trim() || account?.label} — historic 12-month return</Text>
         {/* the same words as the account page's card for this one field (DEC-6005, 2026-10-19) */}
-        <Text style={styles.sheetS}>{HISTORIC_TTM_BODY} Benchmark for its type is {(benchmark * 100).toFixed(2)}%.</Text>
+        <Text style={styles.sheetS}>{HISTORIC_TTM_BODY} Benchmark for its type is {percentDigits(benchmark, 2)}%.</Text>
         <View style={styles.pctBox}>
-          <TextInput style={[styles.pctIn, { width: 90 }]} keyboardType="numbers-and-punctuation" value={val} onChangeText={setVal} accessibilityLabel="Historic 12-month return, percent" autoFocus />
+          <TextInput hitSlop={Tap.slop} style={[styles.pctIn, { width: 90 }]} keyboardType="numbers-and-punctuation" value={val} onChangeText={setVal} accessibilityLabel="Historic 12-month return, percent" autoFocus />
           <Text style={styles.pctU}>% over 12 months</Text>
         </View>
         <TouchableOpacity style={styles.applyBtn} onPress={() => onApply(clamp(num(val) * (val.trim().startsWith('-') ? -1 : 1), -90, 200) / 100)}><Text style={styles.applyT}>Save</Text></TouchableOpacity>

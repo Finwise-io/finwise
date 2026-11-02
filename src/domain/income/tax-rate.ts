@@ -25,6 +25,7 @@ import { toNum } from '../_shared/num';
 import { earnerWages, type EarnerWage } from './earners';
 import { salaryAnnual, taxableAnnual, filingStatusOf, stateRateOf, over65CountOf, householdK401ByMonth, wagePaidMonths } from './onboarding';
 import { taxOwedFor } from './tax';
+import { percentDigits } from '../../../MoneyKeel/functions/_figure-spec';   // the one percent writer (R24, 2026-11-01)
 
 
 export type RateSource = 'typed' | 'implied' | 'estimated';
@@ -53,7 +54,7 @@ export interface RateInForce {
  *
  * Called by ... MK-CF-F-181 rateInForce
  *
- * Reaches ..... 478 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 484 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -63,7 +64,7 @@ export interface RateInForce {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 460 more — the full list is on functions_from_code
+ *               … and 466 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -112,7 +113,7 @@ export function enteredLandsAnnual(op: OnboardingProfile | null): number | null 
  *               MK-CF-O-001 basePay · MK-CF-O-004 incomeSummary
  *               MK-PL-F-090 rateWordsOf · MK-XS-F-004 buildDatedGrid
  *
- * Reaches ..... 478 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 484 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -122,13 +123,10 @@ export function enteredLandsAnnual(op: OnboardingProfile | null): number | null 
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 460 more — the full list is on functions_from_code
+ *               … and 466 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-023 salary and other income
- *
- * Decides .....
- *     · Shows 2 decimal places.
  *
  * Formula also on the master file · functions_from_code · MK-CF-F-181
  * Changed ..... not in git yet (—)
@@ -141,7 +139,7 @@ export function rateInForce(op: OnboardingProfile | null): RateInForce {
   if (a.taxMode === 'manual') {
     const rate = Math.min(Math.max(toNum(a.manualTaxRate) / 100, 0), 1);
     return { rate, source: 'typed', mine: true,
-             label: `your rate, ${(rate * 100).toFixed(2)}%`,
+             label: `your rate, ${percentDigits(rate, 2)}%`,
              covers: 'everything that comes out of your pay, as you entered' };
   }
 
@@ -154,7 +152,7 @@ export function rateInForce(op: OnboardingProfile | null): RateInForce {
     const out = Math.max(0, gross - k401 - lands);
     const rate = Math.min(Math.max(out / gross, 0), 1);
     return { rate, source: 'implied', mine: true,
-             label: `your figures, ${(rate * 100).toFixed(2)}%`,
+             label: `your figures, ${percentDigits(rate, 2)}%`,
              covers: 'everything that comes out, calculated from the take-home you entered' };
   }
 
@@ -171,9 +169,9 @@ export function rateInForce(op: OnboardingProfile | null): RateInForce {
   // income (E10), and the words read "federal income tax only" whatever was typed on the Tax organizer
   const state = stateRateOf(op);
   return { rate, source: 'estimated', mine: false,
-           label: `calculated, ${(rate * 100).toFixed(2)}%`,
+           label: `calculated, ${percentDigits(rate, 2)}%`,
            covers: state > 0
-             ? `federal income tax, plus the ${(state * 100).toFixed(2)}% state rate you entered, assuming the standard deduction`
+             ? `federal income tax, plus the ${percentDigits(state, 2)}% state rate you entered, assuming the standard deduction`
              : 'federal income tax only, assuming the standard deduction' };
 }
 
@@ -194,7 +192,7 @@ export function rateInForce(op: OnboardingProfile | null): RateInForce {
  * Called by ... MK-CF-F-181 rateInForce · MK-CF-O-001 basePay
  *               MK-CF-O-004 incomeSummary
  *
- * Reaches ..... 478 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 484 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -204,7 +202,7 @@ export function rateInForce(op: OnboardingProfile | null): RateInForce {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 460 more — the full list is on functions_from_code
+ *               … and 466 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

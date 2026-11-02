@@ -21,7 +21,9 @@ import * as path from 'path';
 
 const ROOT = path.join(__dirname, '..', '..');
 const LEDGER = path.join(ROOT, 'Calculation Module code', 'scripts', 'moneykeel_one_decimal_percents.json');
-const ONE_DECIMAL = /toFixed\(1\)\}?\s*%|\* 100\)\.toFixed\(1\)/g;
+// since 2026-11-01 (FX-CF-C, R24) a percent is written by the one writer — percentDigits(rate, 1) / pointsDigits(points, 1) is a
+// one-decimal percent too, and stays in this ratchet's sight
+const ONE_DECIMAL = /toFixed\(1\)\}?\s*%|\* 100\)\.toFixed\(1\)|\b(?:percentDigits|pointsDigits)\((?:[^()]|\([^()]*\))*,\s*1\)/g;
 
 const walk = (dir: string): string[] => fs.readdirSync(dir, { withFileTypes: true }).flatMap((d) => {
   const p = path.join(dir, d.name);

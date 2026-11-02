@@ -10,6 +10,7 @@ import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
 import { creditScoreBand, type Debt } from '../domain/debt';
 import { theCreditLine } from '../../MoneyKeel/functions/cashflow/credit-line';
+import { percentDigits } from '../../MoneyKeel/functions/_figure-spec';   // the one percent writer (R24, 2026-11-01)
 
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
 
@@ -59,7 +60,7 @@ export default function CreditScreen() {
         {lim > 0 ? (
           <>
             <View style={styles.utilHead}>
-              <Text style={[styles.utilPct, { color: utilColor }]}>{Math.round(util.ratio * 100)}%</Text>
+              <Text style={[styles.utilPct, { color: utilColor }]}>{percentDigits(util.ratio, 0)}%</Text>
               <Text style={styles.utilStatus}>{util.status === 'good' ? 'Healthy — under 30%' : util.status === 'caution' ? 'A bit high — aim under 30%' : 'High — paying this down helps fast'}</Text>
             </View>
             <View style={styles.track}>

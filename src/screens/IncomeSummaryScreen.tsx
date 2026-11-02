@@ -28,6 +28,21 @@ import { fig, figPer } from '../components/figure';
 import { SectionBand } from '../components/SectionBand';
 
 
+/** The one sentence for rent that waits for its property — the Income summary, the Income tab and This month print it. */
+/* ─ MK-CF-F-317 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * rentWaitingSentence
+ *
+ * Answers ..... The sentence for rent typed with no property named, which is counted nowhere until its property is picked: "Your rent of $X/month is not counted until you pick its property." (R27); it calculates nothing.
+ *
+ * Called by ... IncomeSummaryScreen
+ *
+ * Numbered by hand 2026-11-02 (PF-TOOLS, the lead's instruction): the scan that issues identifiers reads functions in the
+ *               calculation folders only, so this screen helper has no generated record; this one is written by hand in the generated form,
+ *               as MK-NW-F-145's is
+ * Changed ..... not in git yet (—)
+ */
+export const rentWaitingSentence = (monthly: number) => `Your rent of ${fig('MK-CF-M-010', monthly)}/month is not counted until you pick its property.`;
+
 export default function IncomeSummaryScreen() {
   const router = useRouter();
   const store = useStore() as any;
@@ -35,7 +50,14 @@ export default function IncomeSummaryScreen() {
   // the accounts' interest and dividends count in the tax (2026-10-25, FIX-INCOME-B; the lead's ruling from DEC-0179): handed in
   const sum = useMemo(() => incomeSummary(op, { accounts: store.assetAccounts, transactions: store.transactions }), [op, store.assetAccounts, store.transactions]);
   // an estimate says so (rule 9): ≈ on every figure worked with the calculated rate, never on one of theirs (IN-03)
-  const approx = (on?: boolean) => (on ? '≈' : '');
+  const approx = (on?: boolean) => (on ? '~' : '');
+  // A WAGE ENTERED THAT CANNOT BE READ (R23a, 2026-11-01; a dated row on income-end-to-end_v07): no total, no bracket and no tax rest
+  // on it; the rows that do not rest on the wage, or on the calculated rate worked from it, still print
+  const refusal = sum.wageRefusal;
+  // only the rows of the wage that cannot be read go — a spouse's gross that does not rest on it stays, so the rows add up (R27, CF6-17)
+  const isWageRow = (label: string) => sum.unreadRows.includes(label);
+  // rent that names no property is counted nowhere (DEC-4059d), and said, its figure under its identifier (R27, 2026-11-02)
+  const notCounted = [...sum.notCounted, ...(sum.rentWaiting != null ? [rentWaitingSentence(sum.rentWaiting)] : [])];
 
   return (
     <View style={{ flex: 1, backgroundColor: Colors.bgSecondary }}>
@@ -46,13 +68,18 @@ export default function IncomeSummaryScreen() {
 
       <View style={s.group}>
         <SectionBand inCard inset={Spacing.base} onRowEdges title="Take-home each month"
-          value={`${approx(sum.ready && sum.lands.approx)}${fig('MK-CF-M-037', sum.ready ? sum.lands.usualMonth : 0)}`} />   {/* Q48: $0, never a dash */}
+          value={refusal ? undefined : `${approx(sum.ready && sum.lands.approx)}${fig('MK-CF-M-037', sum.ready ? sum.lands.usualMonth : 0)}`} />   {/* Q48: $0, never a dash */}
         {!sum.ready ? (
           /* Q48 (MK-MN-M-011/013): the one line and its door — once (IN-11, 2026-10-25: the same door printed twice in a row) */
           // a wage entered that cannot be counted is not "nothing entered": its reason, in Your base pay's words (R23, 2026-11-01)
-          sum.notCounted.length
-            ? <>{sum.notCounted.map((t) => <Text key={t} style={s.info}>{t}</Text>)}</>
+          notCounted.length
+            ? <>{notCounted.map((t) => <Text key={t} style={s.info}>{t}</Text>)}</>
             : <EmptyNote door="income" onPress={() => router.push('/base-pay' as any)} />
+        ) : refusal ? (
+          <>
+            {sum.lands.lines.filter((l) => !l.approx && !isWageRow(l.label)).map((l) => <Row key={l.label} label={l.label} note={l.note} value={fig('MK-CF-M-038', l.amount)} />)}
+            <Text style={s.info}>{refusal}</Text>
+          </>
         ) : (
           <>
             {sum.lands.lines.map((l) => <Row key={l.label} label={l.label} note={l.note} value={`${approx(l.approx)}${fig('MK-CF-M-038', l.amount)}`} />)}
@@ -81,11 +108,19 @@ export default function IncomeSummaryScreen() {
 
       <View style={s.group}>
         <SectionBand inCard light inset={Spacing.base} onRowEdges title="What it is taxed on"
-          value={fig('MK-CF-M-041', sum.ready ? sum.taxed.taxedOn : 0)} />   {/* Q48: $0, never a dash · the gross less the 401(k)s (DEC-0283, 2026-10-24) */}
+          value={refusal ? undefined : fig('MK-CF-M-041', sum.ready ? sum.taxed.taxedOn : 0)} />   {/* Q48: $0, never a dash · the gross less the 401(k)s (DEC-0283, 2026-10-24) */}
         {!sum.ready ? (
           /* Q48 (MK-MN-M-012): the sentence, and no second door — the one above opens the same place (IN2-12, 2026-10-27; the v07
              row of 2026-10-25 says "once") */
-          <Text style={s.empty}>Nothing entered yet.</Text>
+          // something entered and not counted says why, never "Nothing entered yet" (R27, 2026-11-02: rent waiting for its property)
+          notCounted.length ? <>{notCounted.map((t) => <Text key={t} style={s.info}>{t}</Text>)}</> : <Text style={s.empty}>Nothing entered yet.</Text>
+        ) : refusal ? (
+          <>
+            {/* the sources that do not rest on the wage, and their gross — said to leave the wage out; no 401(k), bracket or tax */}
+            {sum.taxed.lines.filter((l) => !isWageRow(l.label) && l.amount !== 0).map((l) => <Row key={l.label} label={l.label} note={l.note} value={`${approx(l.approx)}${fig('MK-CF-M-042', l.amount)}`} />)}
+            {sum.taxed.grossAnnual !== 0 && <Row label="= Gross /year, not counting your wage" value={fig('MK-CF-M-076', sum.taxed.grossAnnual)} strong />}
+            {notCounted.map((t) => <Text key={t} style={s.info}>{t}</Text>)}
+          </>
         ) : (
           <>
             {/* every source the year is taxed on, signed — they add to "= Gross /year" (2026-10-25, FIX-INCOME-B; DEC-0376) */}
@@ -103,14 +138,14 @@ export default function IncomeSummaryScreen() {
                  note={sum.taxed.estimated
                    ? 'assumes you take the standard deduction'
                    : `${sum.taxed.whose} (edit on Your base pay screen)`}
-                 value={`${sum.taxed.estimated ? '≈' : ''}${figPer('MK-CF-M-044', sum.taxed.tax)}`} />
+                 value={`${sum.taxed.estimated ? '~' : ''}${figPer('MK-CF-M-044', sum.taxed.tax)}`} />
             <Text style={s.info}>
               {/* the calculated rate holds a state rate the person entered, so the line says so (2026-10-24, DEC-7608's class) */}
               {sum.taxed.estimated ? sum.taxed.calculatedNote : sum.taxed.closing}
             </Text>
             {/* what was entered and is counted nowhere yet, and why (2026-10-25, tenet 3): a vest with no date, a one-time payment
                 with no year — never counted as $0 or as this year's */}
-            {sum.notCounted.map((t) => <Text key={t} style={s.info}>{t}</Text>)}
+            {notCounted.map((t) => <Text key={t} style={s.info}>{t}</Text>)}
           </>
         )}
       </View>

@@ -12,7 +12,7 @@
 import { declareFigures } from '../_figure-spec';
 import { formatMoney } from '../../../src/domain/_shared/money';
 import type { AssetAccount } from '../../../src/domain/assets';
-import { cashTotal, propertyUseMap } from '../../../src/domain/assets';
+import { cashTotal, propertyUseMap, assetClassOf } from '../../../src/domain/assets';
 import { rentFigure } from '../../../src/domain/_shared/num';
 import { emergencyTest, monthlyEssentials, plannedMonthlySpend } from '../../../src/domain/budget';
 import { paymentShape, type Debt } from '../../../src/domain/debt';
@@ -57,6 +57,9 @@ export interface EmergencyFund {
   /** How many months the cash covers. Null when there is no essentials figure to divide by, and
    *  null when the rent covers the month by itself. */
   monthsCovered: number | null;
+  /** A CASH FIGURE IS ON RECORD (2026-11-02, NW6-02; DEC-0296): a cash account entered with its balance, cash held inside an
+   *  account, or a figure typed on the screen. Without one there is no count of months — never one worked from a $0 nobody typed. */
+  cashEntered: boolean;
   /** What a target of N months costs, and how far off it is. */
   targetFor: (months: number) => { target: number; gap: number } | null;
   /** A sudden hit: what is left, and how long that would then last. */
@@ -141,6 +144,8 @@ export function theEmergencyFund(input: {
   essentialsOverride?: number;
 }): EmergencyFund {
   const cash = input.cashOverride != null ? input.cashOverride : cashTotal(input.accounts ?? []);
+  const cashEntered = input.cashOverride != null || cash !== 0
+    || (input.accounts ?? []).some((a) => assetClassOf(a) === 'cash' && a.balance != null && Number.isFinite(a.balance));
 
   // WHAT YOU CANNOT STOP PAYING (founder, 2026-09-28: "What about credit card debt, HELOC, car loan?").
   // He is right and they were in NEITHER figure: a household with a $250 car loan, a $120 card minimum
@@ -231,7 +236,7 @@ export function theEmergencyFund(input: {
     // a payment never entered is not $0: it is named beside the months (2026-10-21, DEC-3523 tenet 3)
     paymentsNotEntered: debts.filter(paymentNotEntered).map((d: any) => ({ id: String(d.debt_id ?? d.id ?? d.label), label: String(d.label ?? 'A debt') })),
     plannedSpendMonthly: planned,
-    monthsCoveredAtPlannedSpend: plannedFromCash > 0 ? cash / plannedFromCash : null,
+    monthsCoveredAtPlannedSpend: cashEntered && plannedFromCash > 0 ? cash / plannedFromCash : null,
     essentialsMonthly: monthly,
     essentialsBasis: basis,
     // the words that say where the month came from, whole (2026-10-30): a typed total, a figure calculated from the budget (and the
@@ -247,7 +252,8 @@ export function theEmergencyFund(input: {
     rentNotKnown,
     // never divided by nothing: with no essentials figure, or with the rent paying for the whole
     // month, there is no count of months to state
-    monthsCovered: fromCash > 0 ? cash / fromCash : null,
+    monthsCovered: cashEntered && fromCash > 0 ? cash / fromCash : null,
+    cashEntered,
     // NO ESSENTIALS FIGURE, NO TARGET AND NO MONTHS — a target of $0 reads as "you are covered" (outside
     // review). Where the rent pays for the month the target IS $0, and that is the true answer.
     targetFor: (months: number) => {

@@ -273,7 +273,7 @@ describe('the card adds up, and every figure says whose it is (mock v6, rule 8e)
     expect(p.tax.mode).toBe('mixed');
     expect(p.landsEstimated).toBe(true);                    // the total wears ≈
     expect(p.landsNote).toMatch(/Your take-home: \$5,000 \(you entered\)/);
-    expect(p.landsNote).toMatch(/Sam’s take-home: ≈\$[\d,]+ \(calculated/);
+    expect(p.landsNote).toMatch(/Sam’s take-home: ~\$[\d,]+ \(calculated/);
     // entered beats estimated: your figure is exactly what you entered
     expect(p.earners[0].pay.landsInBank).toBe(5000);
   });

@@ -38,6 +38,7 @@ import { EmptyNote } from '../components/UI';
 import { MoneyBox, amountInBox, plainAmount } from '../components/MoneyBox';
 import { useIncomeProfile } from '../hooks/useIncomeProfile';
 import { payFrequencyOf, PAY_FREQUENCY_NOT_RECOGNISED } from '../domain/income/pay-frequency';   // the one table (R23, 2026-11-01)
+import { percentDigits } from '../../MoneyKeel/functions/_figure-spec';   // the one percent writer (R24, 2026-11-01)
 
 type Who = 'you' | 'partner' | 'both';
 const FREQS: { k: string; label: string }[] = [
@@ -143,11 +144,11 @@ export default function BasePayScreen({ frame = 'screen', onDone }: {
       <View style={s.group}>
         <SectionBand inCard inset={Spacing.base} onRowEdges
           title={wages.length > 1 ? 'Each person’s pay' : wages[0]?.name === 'You' ? 'Your pay' : `${wages[0]?.name}’s pay`}
-          value={wages.length > 1 && pay.everyFigureAgrees ? figPer('MK-CF-M-030', pay.grossAnnual) : undefined}
-          valueSaid={wages.length > 1 && pay.everyFigureAgrees ? figSaid('MK-CF-M-030', pay.grossAnnual) : undefined} />
+          value={wages.length > 1 && pay.everyFigureAgrees && !pay.freqNotRecognised.length ? figPer('MK-CF-M-030', pay.grossAnnual) : undefined}
+          valueSaid={wages.length > 1 && pay.everyFigureAgrees && !pay.freqNotRecognised.length ? figSaid('MK-CF-M-030', pay.grossAnnual) : undefined} />
         {wages.map((e, i) => (
           <EarnerSection key={e.key} name={e.name} wage={e.w} onChange={e.set} frame={frame}
-            pay={pay.earners[i]?.pay} approx={!!pay.earners[i]?.approx} entered={!!pay.earners[i]?.entered} rate={pay.tax.rate}
+            pay={pay.earners[i]?.pay} approx={!!pay.earners[i]?.approx} entered={!!pay.earners[i]?.entered} rate={pay.tax.rate} waits={!!pay.earners[i]?.waits}
             band={{ on: pay.bandReadOn, add: pay.stillToAdd, state: pay.tax.stateWords, accounts: accountIncomeIn(reading) }}
             open={open === e.key} first={i === 0}
             onToggle={() => setOpen(open === e.key ? null : e.key)} />
@@ -160,7 +161,7 @@ export default function BasePayScreen({ frame = 'screen', onDone }: {
         <View style={s.group}>
           {/* an hourly wage with no hours a week is no number (DEC-0296): the band carries no total and the card says what is missing */}
           <SectionBand inCard light inset={Spacing.base} onRowEdges title="Your household"
-            value={pay.hoursNotEntered.length || pay.freqNotRecognised.length ? undefined : `${approx ? '≈' : ''}${figPer('MK-CF-M-031', pay.landsInBank)}`}
+            value={pay.hoursNotEntered.length || pay.freqNotRecognised.length ? undefined : `${approx ? '~' : ''}${figPer('MK-CF-M-031', pay.landsInBank)}`}
             valueSaid={pay.hoursNotEntered.length || pay.freqNotRecognised.length ? undefined : `${approx ? 'about ' : ''}${figSaid('MK-CF-M-031', pay.landsInBank)}`} />
           {pay.freqNotRecognised.length ? (
             <View style={s.warn}><Text style={s.warnT}>{PAY_FREQUENCY_NOT_RECOGNISED}</Text></View>
@@ -219,12 +220,12 @@ function HouseholdCard({ pay, wages, op, approx, onRate }: {
             /* a state rate entered is inside it, so it is not "federal" (the lead's ruling, 2026-10-25, MK-CF-M-033 t8; canon row 25) */
             ? <Row label={pay.tax.stateWords ? 'Calculated tax' : 'Calculated federal tax'}
                    note={pay.tax.stateWords ? `federal income tax, plus ${pay.tax.stateWords}; assumes you take the standard deduction` : 'assumes you take the standard deduction'}
-                   value={`≈${figPer('MK-CF-M-033', pay.tax.monthly)}`} />
+                   value={`~${figPer('MK-CF-M-033', pay.tax.monthly)}`} />
             : <Row label="Tax" note={pay.tax.whose} value={figPer('MK-CF-M-033', pay.tax.monthly)} />}
           {pay.monthly401k > 0 && <Row label="Your 401(k)s" value={figPer('MK-CF-M-034', pay.monthly401k)} />}
         </>
       )}
-      <Row label="= Take-home" value={`${approx ? '≈' : ''}${figPer('MK-CF-M-031', pay.landsInBank)}`} strong pos />
+      <Row label="= Take-home" value={`${approx ? '~' : ''}${figPer('MK-CF-M-031', pay.landsInBank)}`} strong pos />
       {pay.landsNote && <Text style={s.landsNote}>{pay.landsNote}</Text>}
       {pay.bandNote && <Text style={s.info}>{pay.bandNote}</Text>}
 
@@ -299,9 +300,11 @@ function accountIncomeIn(p: any): 'calculated' | 'records' | null {
   return p?.invBasis === 'records' ? 'records' : p?.invBasis === 'calculated' ? 'calculated' : null;
 }
 
-function EarnerSection({ name, wage, onChange, pay, approx, entered, rate, band, open, onToggle, frame }: {
+function EarnerSection({ name, wage, onChange, pay, approx, entered, rate, band, open, onToggle, frame, waits }: {
   name: string; wage: Record<string, any>; onChange: (u: Record<string, any>) => void;
   pay?: EarnerPay; approx: boolean; entered: boolean; rate: number; open: boolean; onToggle: () => void; frame: 'screen' | 'onboarding'; first: boolean;
+  /** this earner's calculated take-home rests on another wage that cannot be read: not worked (R27, 2026-11-02) */
+  waits?: boolean;
   /** what the band is read on, what is still to add, and a state rate entered — all from MK-CF-O-001 basePay (F3, t8); and whether
    *  the band holds interest and dividends nobody typed, read from the accounts (2026-10-26) */
   band: { on: number; add: string[]; state: string | null; accounts: 'calculated' | 'records' | null };
@@ -334,7 +337,9 @@ function EarnerSection({ name, wage, onChange, pay, approx, entered, rate, band,
     : pay?.hoursNotEntered && !open ? `${FREQ_WORD[freq]} · hours a week not entered`
     : !pay || !(pay.grossAnnualised > 0) || (onboarding && open) ? 'Tell us how you are paid'
     : open ? pattern
-    : `${pattern} · ${pay.landsIsEstimated ? `take-home ${approx ? '≈' : ''}${fig('MK-CF-M-031', pay.landsInBank)}${perMonthWord} (calculated)` : `take-home ${fig('MK-CF-M-031', pay.landsInBank)}${perMonthWord}`}`;
+    // the calculated take-home waits for the other wage (R27, 2026-11-02; CF6-15): it read "take-home ~$4,318 (calculated)" on a $0 wage
+    : waits ? `${pattern} · take-home not calculated — the other pay cannot be read yet`
+    : `${pattern} · ${pay.landsIsEstimated ? `take-home ${approx ? '~' : ''}${fig('MK-CF-M-031', pay.landsInBank)}${perMonthWord} (calculated)` : `take-home ${fig('MK-CF-M-031', pay.landsInBank)}${perMonthWord}`}`;
   const whose = isYou ? 'your' : `${midName}’s`;
   // THE THREE THAT CANNOT ALL BE RIGHT ARE MARKED, AND THEIR GREY LINES GIVE WAY TO THE WARNING (phone 7; IN-19, 2026-10-25)
   const disagree = !!pay && !pay.verdict.ok;
@@ -352,7 +357,7 @@ function EarnerSection({ name, wage, onChange, pay, approx, entered, rate, band,
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
             <Text style={s.who}>{name}</Text>
             {/* a tick is a finished section — never one with nothing entered (IN-08) */}
-            {!open && entered && pay?.verdict.ok && !pay.hoursNotEntered && <Text style={s.tick} accessibilityLabel="complete">✓</Text>}
+            {!open && entered && pay?.verdict.ok && !pay.hoursNotEntered && !pay.freqNotRecognised && <Text style={s.tick} accessibilityLabel="complete">✓</Text>}
           </View>
           <Text style={s.whoSub}>{summary}</Text>
         </View>
@@ -389,9 +394,10 @@ function EarnerSection({ name, wage, onChange, pay, approx, entered, rate, band,
           {/* A GROSS NOBODY TYPED SAYS SO (2026-10-24; tenet 3; drawing v07 rule 9, "every estimate is prefixed ≈ and says what
               it cannot see"): a take-home entered before 2026-08-28 had its gross worked back once, and this box showed it as if
               typed — "5475.378787878787". It is written to the cent, says where it came from, and goes once a gross is typed. */}
-          <Field label={freq === 'monthly' ? 'Gross pay each month' : `Gross ${PERIOD_WORD[freq]}`}
+          {/* a frequency outside the one table has no period to name: "Gross pay" (R23a, 2026-11-01) — it read "Gross undefined" */}
+          <Field label={freq === 'monthly' ? 'Gross pay each month' : PERIOD_WORD[freq] ? `Gross ${PERIOD_WORD[freq]}` : 'Gross pay'}
             hint={disagree ? undefined
-              : wage.grossWorkedBack ? '≈ Worked back from the take-home you entered. Type the gross from a payslip to replace it.'
+              : wage.grossWorkedBack ? '~ Worked back from the take-home you entered. Type the gross from a payslip to replace it.'
               : varies ? 'A typical one. Every month below starts from this.'
               : onboarding ? 'Before anything comes out. The only one we need.' : 'Before anything comes out.'}
             value={wage.grossWorkedBack && Number(wage.baseSalary) > 0 ? Number(wage.baseSalary).toFixed(2) : wage.baseSalary}
@@ -483,7 +489,7 @@ function EarnerSection({ name, wage, onChange, pay, approx, entered, rate, band,
 
           {/* nothing entered: say what we will calculate, on what, and what it cannot see (frame 2e) — and with a rate of his own,
               that it is his rate the figure is worked from, not a tax band (IN-03, 2026-10-25) */}
-          {pay && pay.landsIsEstimated && pay.grossAnnualised > 0 && (
+          {pay && pay.landsIsEstimated && pay.grossAnnualised > 0 && !waits && (
             <Text style={s.info}>
               {pay.monthly401k > 0 ? '' : <><Text style={{ fontWeight: '700' }}>Nothing is taken out for a 401(k)</Text>, because you have not entered one. </>}
               {approx ? (
@@ -493,19 +499,19 @@ function EarnerSection({ name, wage, onChange, pay, approx, entered, rate, band,
                       entered" was untrue when part of it was calculated — or read from the accounts' records — and never typed */}
                   {band.accounts ? (
                     <>
-                      We’ll calculate ≈{fig('MK-CF-M-031', pay.landsInBank)}/month, using your tax band read on <Text style={{ fontWeight: '700' }}>{fig('MK-CF-M-076', band.on)}</Text>
+                      We’ll calculate ~{fig('MK-CF-M-031', pay.landsInBank)}/month, using your tax band read on <Text style={{ fontWeight: '700' }}>{fig('MK-CF-M-076', band.on)}</Text>
                       {` — what you have entered${toAdd ? ' so far' : ''} and the interest and dividends ${band.accounts === 'records' ? 'from your accounts’ records' : 'calculated from your accounts'}.`}
                       {toAdd ? ` Add ${toAdd} later and the band is calculated again, so this figure moves.` : ''}{' '}
                     </>
                   ) : (
                     <>
-                      We’ll calculate ≈{fig('MK-CF-M-031', pay.landsInBank)}/month, using your tax band read on
+                      We’ll calculate ~{fig('MK-CF-M-031', pay.landsInBank)}/month, using your tax band read on
                       the <Text style={{ fontWeight: '700' }}>{fig('MK-CF-M-076', band.on)} you have entered{toAdd ? ' so far' : ''}</Text>
                       {toAdd ? ` — add ${toAdd} later and the band is calculated again, so this figure moves.` : '.'}{' '}
                     </>
                   )}
                   {band.state ? `It holds ${band.state} but knows nothing about your insurance` : 'It knows nothing about your state or your insurance'}, so
-                  the ≈{fig('MK-CF-M-031', pay.landsInBank)} is higher than it will really be.
+                  the ~{fig('MK-CF-M-031', pay.landsInBank)} is higher than it will really be.
                 </>
               ) : (
                 <>We’ll calculate {fig('MK-CF-M-031', pay.landsInBank)}/month, using the {fig('MK-CF-M-081', rate)} rate you entered.</>
@@ -520,7 +526,7 @@ function EarnerSection({ name, wage, onChange, pay, approx, entered, rate, band,
               <Row label="Everything else taken out" value={figPer('MK-CF-M-036', pay.everythingElseMonthly)} strong />
               <Text style={s.info}>
                 {/* the share worked once, by MK-CF-O-001 basePay, printed to two decimals (IN3-01, 2026-10-31; Q49) */}
-                {((pay.everythingElseShare ?? 0) * 100).toFixed(2)}% of {whose} gross. Tax,
+                {percentDigits((pay.everythingElseShare ?? 0), 2)}% of {whose} gross. Tax,
                 medical cover and anything else bought through work — we do not need to ask about each.
               </Text>
             </>

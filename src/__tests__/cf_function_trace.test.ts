@@ -318,6 +318,11 @@ const FUNCTIONS: [string, string, string][] = [
   ['MK-CF-F-310', 'src/domain/income/take-home-mode-migration.ts', 'MoneyKeel/functions/cashflow/outside_cashflow_openai_part16.test.ts'],
   ['MK-CF-F-311', 'src/domain/income/pay-frequency.ts', 'src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx'],
   ['MK-CF-F-312', 'src/domain/income/pay-frequency.ts', 'src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx'],
+  ['MK-CF-F-313', 'src/domain/income/pay-frequency.ts', 'src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx'],
+  ['MK-CF-F-314', 'MoneyKeel/functions/cashflow/setup-gate.ts', 'src/screens/__tests__/one_setup_gate_r26_2026_11_02.test.tsx'],
+  ['MK-CF-F-315', 'src/domain/debt/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
+  ['MK-CF-F-316', 'src/domain/income/from-accounts.ts', 'MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts'],
+  ['MK-CF-F-317', 'src/screens/IncomeSummaryScreen.tsx', 'src/screens/__tests__/fix_tax_2026_10_25.test.tsx'],
 ];
 
 /** Every MK-CF-F record in the code, read from the code: the header rule the header writer prints directly above each function
@@ -353,8 +358,8 @@ describe('every Cash flow function traces to its proof in one hop (step 3.c)', (
     // 2026-10-26, the 39 functions written in the 2026-10-25 fix wave numbered (MK-CF-F-243 to 281, PF-TOOLS)
     // 266 the same day: growthUsed (CLEANUP-LEFT), and three numbered by hand — PLANNED_GROUP_WORDS, federalBracketForComparison,
     // accountIncomeIn (the lead's instruction)
-    expect(code.size).toBeGreaterThanOrEqual(293);   // 293 at the end of 2026-11-01 (PF-TOOLS: MK-CF-F-297 to 312, round 4); 277 earlier that day (MK-CF-F-295 debtLoad, 296 its example helper); 275 on 2026-10-30 (PF-TOOLS: MK-CF-F-286 to 294, the fix wave's nine)
-    expect(FUNCTIONS.length).toBeGreaterThanOrEqual(293);
+    expect(code.size).toBeGreaterThanOrEqual(298);   // 298 on 2026-11-02 (PF-TOOLS round 6: MK-CF-F-314 to 317); 294 earlier that day (MK-CF-F-313 wageRefusalOf, round 5); 293 at the end of 2026-11-01 (PF-TOOLS: MK-CF-F-297 to 312, round 4); 277 earlier that day (MK-CF-F-295 debtLoad, 296 its example helper); 275 on 2026-10-30 (PF-TOOLS: MK-CF-F-286 to 294, the fix wave's nine)
+    expect(FUNCTIONS.length).toBeGreaterThanOrEqual(298);
     expect(new Set(FUNCTIONS.map((r) => r[0])).size).toBe(FUNCTIONS.length);
     const table = new Set(FUNCTIONS.map((r) => r[0]));
     expect([...code.keys()].filter((id) => !table.has(id)).sort()).toEqual([]);   // in the code, missing from the table

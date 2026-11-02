@@ -145,10 +145,18 @@ describe('this month: Home prints the Cash flow tab\'s own three figures', () =>
 
 describe('nothing entered: no answer where nothing is known', () => {
   const NOINCOME = { ...SEPT, onboardingProfile: { ...SEPT.onboardingProfile, baseSalary: '' }, expenses: [] };
-  test('F · Cash flow shows its two set-up steps, and Home shows no pace word, no share spent and no Left figure — never Over', () => {
+  // RE-WORKED 2026-11-01 (FX-CF-A, round 5e; the lead's ruling, cash-flow_v01's row of that date): a budget and debts ARE entered, so
+  // Cash flow shows its month — but no surplus rests on an income nobody entered: each reads '—', and the pay is offered in words
+  test.failing('F · the old answer, kept: Cash flow showed its two set-up steps over a budget and debts entered', () => {
+    expect(shoot('cashflow', NOINCOME, '2026-09-28')).toContain('SET UP YOUR MONTH — 2 STEPS');
+  });
+  test('F · Cash flow shows no surplus and offers the pay, and Home shows no pace word, no share spent and no Left figure — never Over', () => {
     const cf = shoot('cashflow', NOINCOME, '2026-09-28');
-    expect(cf).toContain('SET UP YOUR MONTH — 2 STEPS');
-    expect(cf).not.toContain('= Actual surplus so far');
+    expect(cf).not.toContain('SET UP YOUR MONTH — 2 STEPS');
+    expect(cf).toContain('Your pay is not entered yet — add it ›');
+    expect(after(cf, '= Actual surplus so far')).toBe('—');
+    expect(after(cf, 'ACTUAL · SO FAR')).toBe('—');
+    expect(cf.some((l) => /^Inflow|^Actual inflow/.test(l))).toBe(false);                   // no '$0' pay line for a pay not entered
     const box = homeBox(shoot('home', NOINCOME, '2026-09-28'));
     // no pace line at all before income — no word, no share spent, and no "day 28 of 30" (2026-10-25, HM-01)
     expect(box.slice(0, 9)).toEqual(["THIS MONTH’S CASH FLOW", 'Income', '$0', 'Nothing entered yet. Add your income ›',

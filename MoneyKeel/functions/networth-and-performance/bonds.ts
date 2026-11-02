@@ -12,7 +12,7 @@
 //
 // Two grains, one door: `theBonds({ accounts })` answers for every bond a person holds, and
 // `theBonds({ accounts, accountId })` also answers for the one they opened.
-import { declareFigures } from '../_figure-spec';
+import { declareFigures, percentDigits } from '../_figure-spec';
 import { formatMoney } from '../../../src/domain/_shared/money';
 import type { AssetAccount } from '../../../src/domain/assets';
 import {
@@ -161,7 +161,7 @@ export interface BondsInput {
  * Called by ... MK-NW-F-141 holdingBondFacts · MK-NW-O-001 theBonds
  *               MK-ST-F-093 typedValueOnItsDate
  *
- * Reaches ..... 478 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 484 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -171,7 +171,7 @@ export interface BondsInput {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 460 more — the full list is on functions_from_code
+ *               … and 466 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-003 institution name
@@ -300,7 +300,7 @@ export function holdingBondFacts(p: { position_id?: string | number; ticker?: st
  *
  * Called by ... MK-NW-F-077 ALL · MK-NW-F-078 ONE
  *
- * Reaches ..... 478 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 484 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -310,7 +310,7 @@ export function holdingBondFacts(p: { position_id?: string | number; ticker?: st
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 460 more — the full list is on functions_from_code
+ *               … and 466 more — the full list is on functions_from_code
  *
  * Serves ...... MK-NW-M-023 · MK-NW-M-024 · MK-NW-M-025 · MK-NW-M-026
  *               MK-NW-M-027 · MK-NW-M-041 · MK-NW-M-042 · MK-NW-M-043
@@ -473,7 +473,7 @@ const ALL = () => theBonds({ accounts: EXAMPLE, today: TODAY });
  *               MK-NW-F-127 gainOfRow · MK-NW-F-179 balanceWithBondTakenOut
  *               MK-NW-O-003 theNetWorth · MK-PF-F-044 startValues
  *
- * Reaches ..... 478 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 484 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -483,7 +483,7 @@ const ALL = () => theBonds({ accounts: EXAMPLE, today: TODAY });
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 460 more — the full list is on functions_from_code
+ *               … and 466 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -519,7 +519,6 @@ const ONE = () => theBonds({ accounts: EXAMPLE, accountId: 'b1', today: TODAY })
  *     · If coupon rate is missing it uses 0.
  *     · If years left is missing it uses 0.
  *     · If account balance is missing it counts as zero, so nothing recorded and a real zero look the same.
- *     · Shows 2 decimal places.
  *     · Shows 1 decimal place.
  *
  * Formula also on the master file · functions_from_code · MK-NW-F-179
@@ -685,7 +684,7 @@ export const BOND_FIGURES = declareFigures({
     worked: {
       given: GIVEN,
       answer: 'Ally 12-month CD — face $10,000, $505/year, 5.05%',
-      run: () => (() => { const r = ALL().rows.find((r) => r.label === 'Ally 12-month CD')!; return `${r.label} — face ${formatMoney(r.face ?? 0)}, ${formatMoney(r.couponPerYear ?? 0)}/year, ${((r.currentYield ?? 0) * 100).toFixed(2)}%`; })(),
+      run: () => (() => { const r = ALL().rows.find((r) => r.label === 'Ally 12-month CD')!; return `${r.label} — face ${formatMoney(r.face ?? 0)}, ${formatMoney(r.couponPerYear ?? 0)}/year, ${percentDigits((r.currentYield ?? 0), 2)}%`; })(),
     },
   },
   'MK-NW-M-023': {
@@ -720,7 +719,7 @@ export const BOND_FIGURES = declareFigures({
     worked: {
       given: GIVEN,
       answer: '$1,125/year — 4.50% of $25,000 face',
-      run: () => `${formatMoney(ONE().couponPerYear ?? 0)}/year — ${((ONE().couponRate ?? 0) * 100).toFixed(2)}% of ${formatMoney(ONE().face ?? 0)} face`,
+      run: () => `${formatMoney(ONE().couponPerYear ?? 0)}/year — ${percentDigits((ONE().couponRate ?? 0), 2)}% of ${formatMoney(ONE().face ?? 0)} face`,
     },
   },
   'MK-NW-M-025': {

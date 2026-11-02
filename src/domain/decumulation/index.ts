@@ -7,7 +7,7 @@ import { earmarkedAmount, primaryCarIdOf, primaryHomeIdOf, accountDisplayNames, 
 import { marketValue, paidOnRecord, contractMultiplier } from '../performance';
 import { moneyIntoAccount } from '../../../Calculation Module code/engines/ledger';
 import { ltcgTaxOnGain, ltcgRateFor, LTCG, type FilingStatus } from '../income/tax';   // a gain drawn from taxable is taxed stacked on the year's income (2026-10-25)
-import { writeFigure } from '../../../MoneyKeel/functions/_figure-spec';   // the inflation is written by its declaration, MK-CF-M-083 (2026-10-26)
+import { writeFigure, percentDigits } from '../../../MoneyKeel/functions/_figure-spec';   // the inflation is written by its declaration, MK-CF-M-083 (2026-10-26)
 import { money } from '../_shared/num';
 import { INFLATION_FIGURES } from '../retirement/inflation';
 
@@ -746,16 +746,13 @@ export function drawOrderOutcome(
  *
  * Formula .....
  *     f = draw assumption figures(o)
- *     pct = (r: number) => `${math.round(r × 100)}%`
+ *     pct = (r: number) => `${percent digits(r, 0)}%`
  *
  * Called by ... nothing — it is an entry point, or nothing reaches it
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-029 inflation rate
  *               MK-XS-I-030 tax filing status and age
- *
- * Decides .....
- *     · Rounds the answer to a whole number.
  *
  * Formula also on the master file · functions_from_code · MK-PL-F-089
  * Changed ..... not in git yet (—)
@@ -770,7 +767,7 @@ export function drawAssumptionsSaid(o: {
   // guard's ratchet at their true count; MK-CF-M-084 to 088 stay issued for them on the metric register. The inflation is the one
   // declared figure here, MK-CF-M-083 (MK-CF-O-017 futurePaycheck hands it); the return inside growthSaid is MK-CF-M-082.
   const f = drawAssumptionFigures(o);
-  const pct = (r: number) => `${Math.round(r * 100)}%`;
+  const pct = (r: number) => `${percentDigits(r, 0)}%`;
   const onGains = f.gainsNext != null && f.bandTop != null
     ? `on gains, ${pct(f.gainsFirst)} until your taxable income passes ${money(f.bandTop)}, then ${pct(f.gainsNext)}`
     : `${pct(f.gainsFirst)} on gains`;

@@ -281,7 +281,7 @@ const sheetBoxes = () => screen.UNSAFE_root.findAll((n: any) => n.type === 'Moda
 /** THE ROW OF 2026-11-01 ON EDIT-RECORD v03 (R18 PAGE FIGURES; the lead's rulings R18, R19, R20; FX-PF): the page under states D to I,
  *  read as the row gives each figure, worked by hand there — VTI $90 at the close before each window, $100 today, Vanguard's total
  *  typed at $50,000. Each drawn line is read once, by the first pair whose drawn words it is; only on a drawing carrying the row. */
-const R18_ROW = /2026-11-01<\/td>(?:(?!<\/tr>)[\s\S])*R18 PAGE FIGURES — DRAWING CORRECTION, the page under states D to I/;
+const R18_ROW = /2026-11-01(?:<\/td>| · )(?:(?!<\/tr>)[\s\S])*R18 PAGE FIGURES — DRAWING CORRECTION, the page under states D to I/;
 const ALL_WINDOWS = (r: string, y: string): [string, string][] => [['+11.11%', r], ['+42.86%', r], ['+11.79%', y]];
 const R18_PAGE: Record<string, [string, string][]> = {
   D: ALL_WINDOWS('+2.04%', '+2.05%/year'),                                       // 49,200 ÷ 49,200 × 50,000 ÷ 49,000 − 1; 2Y 1.04158 over 2.003 years
@@ -293,7 +293,22 @@ const R18_PAGE: Record<string, [string, string][]> = {
   H: ALL_WINDOWS('+2.04%', '+2.06%/year'),                                       // 50,000 ÷ 49,000 − 1; 2Y 50,000 ÷ 48,000 over 2.003 years
   I: [['+7.07%', '+2.25%']],                                                     // 1Y from the $90 close: the same walk as 1M
 };
+/** THE ROW OF 2026-11-01 ON EDIT-RECORD v03 (STATE J, THE COUPON; R18, NW5-03): each figure read after its own label, by hand there —
+ *  $9,850 typed, a $200 coupon: $9,650 + $200 + $0 = $9,850, where the drawing has −$200 of change nobody measured. */
+const J_ROW = /2026-11-01(?:<\/td>| · )(?:(?!<\/tr>)[\s\S])*STATE J, THE COUPON — DRAWING CORRECTION/;
+function jPage(html: string, key: string, dPage: Line[]): Line[] {
+  if (key !== 'J' || !J_ROW.test(html)) return dPage;
+  return dPage.map((l, j) => {
+    const before = dPage[j - 1]?.t;
+    if (l.t === 'HOW $9,850 BECAME $9,850 · THIS ACCOUNT') return { ...l, t: 'HOW $9,650 BECAME $9,850 · THIS ACCOUNT' };
+    if (before === 'Beginning market value (today)' && l.t === '$9,850') return { ...l, t: '$9,650' };
+    if (before === 'Wealth generated' && l.t === '$0') return { ...l, t: '$200' };
+    if (before === 'Change in investment value' && l.t === '−$200') return { ...l, t: '$0', color: norm(Colors.textPrimary) };   // no fall: the text colour
+    return l;
+  });
+}
 function r18Page(html: string, key: string, dPage: Line[]): Line[] {
+  dPage = jPage(html, key, dPage);
   if (!R18_ROW.test(html) || !R18_PAGE[key]) return dPage;
   // the account's figures only — its window chips, its summary, its walk and its Total row — never a holding's own row
   const table = dPage.findIndex((y) => y.t === 'BY CATEGORY & HOLDING'), total = dPage.findIndex((y) => y.t === 'Total');

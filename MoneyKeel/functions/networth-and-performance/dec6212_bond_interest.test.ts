@@ -54,7 +54,7 @@ describe('the pinned example — state A of the account-page drawing', () => {
     expect(r.periodReturn!).toBeCloseTo(0.02125, 12);
     expect(percentDigits(r.periodReturn!)).toBe('2.13');
     expect(percentDigits(0.0212499)).toBe('2.12');
-    expect(percentDigits(-0.02125)).toBe('-2.13');
+    expect(percentDigits(-0.02125)).toBe('−2.13');   // the one minus sign (CF6-19, 2026-11-02)
     expect(percentDigits(0)).toBe('0.00');
   });
   test('the Bonds & CDs category: $185 on $9,000 → +2.06%', () => {

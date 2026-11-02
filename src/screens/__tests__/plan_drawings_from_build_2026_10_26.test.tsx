@@ -143,7 +143,11 @@ test('Retirement cockpit v02 — Where you stand, Advisor mode: every rate to tw
 test('Retirement cockpit v02 — its what-if page, the second phone: the sliders start from the plan’s own rates, two decimals', () => {
   open('RetirementCockpit', 'advisor');
   fireEvent.press(screen.getByText(/Run scenario analysis/));
-  holds('moneykeel_pres_mock_retirement-cockpit_v02.html', 'cockpit-sandbox-content', 40);
+  // the drawing's row of 2026-11-01: the shortfall wears the one 'about' mark, ~ — $905K − $813K = $92K, the figure unchanged
+  const lines = applyRows(drawn('moneykeel_pres_mock_retirement-cockpit_v02.html', 'cockpit-sandbox-content')).map((l) => l.replace('(≈$92K short)', '(~$92K short)'));
+  expect(lines.filter((l) => l.includes('(~$92K short)'))).toHaveLength(1);   // the named change found, once
+  expect(firstDifference(normPrinted(lines), normPrinted(builtLinesWithBoxes(screen.toJSON())))).toBe('');
+  expect(lines.length).toBeGreaterThanOrEqual(40);
 });
 
 /** every bar of a rendered phone: on its fill, in its order, and reaching both edges of what it is drawn on (DEC-8839) */

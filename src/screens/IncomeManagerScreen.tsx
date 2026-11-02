@@ -78,8 +78,9 @@ export default function IncomeManagerScreen() {
     else if (key === 'retirement_income') router.push('/monthly-income' as any);
     else setView(key);
   };
-  const line = (x: ManagedSource) => [x.lead, `${x.estimated ? '≈' : ''}${fig(x.key === 'employment' ? 'MK-CF-M-031' : 'MK-CF-M-027', x.amount)}${x.per === 'one-time' ? '' : `/${x.per}`}`,
-    x.per === 'one-time' ? 'one-time' : '', x.tail].filter(Boolean).join(' ');
+  // a source entered that cannot be read carries no figure — never "≈$0" (R23a, 2026-11-01)
+  const line = (x: ManagedSource) => [x.lead, x.refused ? '' : `${x.estimated ? '~' : ''}${fig(x.key === 'employment' ? 'MK-CF-M-031' : 'MK-CF-M-027', x.amount)}${x.per === 'one-time' ? '' : `/${x.per}`}`,
+    x.per === 'one-time' && !x.refused ? 'one-time' : '', x.tail].filter(Boolean).join(' ');
 
   if (view === 'bonus') return <BonusAndStock op={op} set={set} onDone={() => setView(null)} />;
   if (view === 'rental') return <Rent op={op} set={set} onDone={() => setView(null)} />;
@@ -113,7 +114,8 @@ export default function IncomeManagerScreen() {
                 <View style={{ flex: 1 }}>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
                     <Text style={s.who}>{x.title}</Text>
-                    <Text style={s.tick} accessibilityLabel="entered">✓</Text>
+                    {/* no tick beside a source that cannot be read (R23a, 2026-11-01) */}
+                    {!x.refused && <Text style={s.tick} accessibilityLabel="entered">✓</Text>}
                   </View>
                   <Text style={s.whoSub}>{line(x)}</Text>
                 </View>
@@ -306,10 +308,10 @@ function BonusAndStock({ op, set, onDone }: { op: any; set: (p: Record<string, a
           <View style={s.group}>
             <SectionBand inCard light inset={Spacing.base} onRowEdges title={`${sum.lands.standoutMonth.label} will look different`} />
             {/* ≈ on a month worked with the calculated rate, as the Income summary prints it (IN-03, 2026-10-25) */}
-            <Row label={sum.lands.totalLabel.replace(/^= /, '')} value={`${sum.lands.approx ? '≈' : ''}${fig('MK-CF-M-037', sum.lands.usualMonth)}`} />
+            <Row label={sum.lands.totalLabel.replace(/^= /, '')} value={`${sum.lands.approx ? '~' : ''}${fig('MK-CF-M-037', sum.lands.usualMonth)}`} />
             {/* a plain row, its month regular and its figure green, as phone 9 draws it (IN2-05, 2026-10-27) */}
             <Row label={sum.lands.standoutMonth.label} note="bonus, after tax" pos
-                 value={`${sum.lands.standoutMonth.approx ? '≈' : ''}${fig('MK-CF-M-039', sum.lands.standoutMonth.amount)}`} />
+                 value={`${sum.lands.standoutMonth.approx ? '~' : ''}${fig('MK-CF-M-039', sum.lands.standoutMonth.amount)}`} />
             <Text style={s.info}>
               Cash flow will show that spike where it happens. Spreading it across twelve months would make every month wrong to make one look tidy.
             </Text>

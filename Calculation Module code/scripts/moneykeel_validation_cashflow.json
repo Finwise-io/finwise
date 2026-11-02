@@ -172,7 +172,7 @@
   "verdict": "LEAVES A TRACE",
   "check": "TRACE",
   "governs": "MoneyKeel/documents/cashflow/moneykeel_pres_mock_incom",
-  "notes": "20 of 25 of his words appear in what implements it: account bracket earner force fresh income"
+  "notes": "22 of 25 of his words appear in what implements it: account bracket earner force fresh income"
  },
  {
   "id": "DEC-0203",
@@ -424,7 +424,7 @@
   "verdict": "LEAVES A TRACE",
   "check": "TRACE",
   "governs": "MK-CF-M-037 · MK-CF-M-038 · MK-CF-M-041 · MK-CF-M-042 ",
-  "notes": "18 of 25 of his words appear in what implements it: account bonus comes fresh include income"
+  "notes": "20 of 25 of his words appear in what implements it: account bonus comes fresh include income"
  },
  {
   "id": "DEC-0389",
@@ -571,7 +571,7 @@
   "verdict": "CONFIRMED BY CITATION",
   "check": "CITED",
   "governs": "MK-NW-F-114 rentAmount · MK-CF-F-067 rentalList · MK-N",
-  "notes": "8 of 11 of his words appear in what implements it: approved counted counts entered field income; cited by identifier in IncomeManagerScreen.tsx"
+  "notes": "9 of 11 of his words appear in what implements it: approved counted counts digits entered field; cited by identifier in IncomeManagerScreen.tsx"
  },
  {
   "id": "DEC-6796",
@@ -683,7 +683,7 @@
   "verdict": "CONFIRMED BY CITATION",
   "check": "CITED",
   "governs": "src/onboarding/modules.tsx (incomeTaxRate, debtPayoff,",
-  "notes": "31 of 43 of his words appear in what implements it: asking beside built calculated clear clears; cited by identifier in outside_cashflow_openai_part10"
+  "notes": "32 of 43 of his words appear in what implements it: asking beside built calculated clear clears; cited by identifier in outside_cashflow_openai_part10"
  },
  {
   "id": "DEC-7796",
@@ -872,7 +872,7 @@
   "verdict": "FAINT TRACE",
   "check": "TRACE",
   "governs": "src/screens/BudgetScreen.tsx (Debts) · MK-CF-O-018 the",
-  "notes": "only 10 of 23 appear — present: balance costliest fixed interest minimum · absent: asking built card's floats guess"
+  "notes": "only 11 of 23 appear — present: balance costliest fixed interest minimum · absent: asking built card's floats guess"
  },
  {
   "id": "DEC-8361",
@@ -1453,7 +1453,7 @@
   "verdict": "FAINT TRACE",
   "check": "TRACE",
   "governs": "MK-CF-F-251 debtPaymentsMatched (MoneyKeel/functions/c",
-  "notes": "only 8 of 24 appear — present: counted debts expenses match month · absent: asking counts debt's lead's logged"
+  "notes": "only 9 of 24 appear — present: counted debts expenses match month · absent: asking counts debt's lead's logged"
  },
  {
   "id": "DEC-8459",
@@ -1544,7 +1544,7 @@
   "verdict": "FAINT TRACE",
   "check": "TRACE",
   "governs": "src/screens/GoalsScreen.tsx · src/screens/BudgetScreen",
-  "notes": "only 7 of 25 appear — present: balance debts interest minimum month · absent: asking cover don't faster goals"
+  "notes": "only 8 of 25 appear — present: balance debts interest minimum month · absent: asking cover don't faster goals"
  },
  {
   "id": "DEC-8519",
@@ -1887,14 +1887,14 @@
   "verdict": "FAINT TRACE",
   "check": "TRACE",
   "governs": "MK-CF-F-299 setupStudentLoans · MK-CF-F-303 setupLoans",
-  "notes": "only 10 of 25 appear — present: amount counted debts dollar editor · absent: asking borrowed equals includes lead's"
+  "notes": "only 12 of 25 appear — present: amount counted debts dollar editor · absent: asking borrowed equals includes lead's"
  },
  {
   "id": "DEC-9491",
   "verdict": "FAINT TRACE",
   "check": "TRACE",
   "governs": "MK-CF-F-301 setupLoansSplit · MK-CF-F-302 setupLoanSen",
-  "notes": "only 6 of 19 appear — present: count counted entered month start · absent: asking counts lead's mk-cf-f- order"
+  "notes": "only 8 of 19 appear — present: count counted entered month setup · absent: asking counts lead's mk-cf-f- order"
  },
  {
   "id": "DEC-9492",
@@ -1922,6 +1922,90 @@
   "verdict": "LEAVES A TRACE",
   "check": "TRACE",
   "governs": "MK-ST-F-094 withArticle (src/domain/_shared/plural.ts)",
-  "notes": "10 of 18 of his words appear in what implements it: asking correct minus order reverse ruling"
+  "notes": "11 of 18 of his words appear in what implements it: asking correct digits minus order reverse"
+ },
+ {
+  "id": "DEC-9591",
+  "verdict": "FAINT TRACE",
+  "check": "TRACE",
+  "governs": "MK-NW-O-003 theNetWorth · MK-CF-F-295 debtLoad · src/s",
+  "notes": "only 11 of 25 appear — present: balance count debts entered length · absent: activedebts asking counts later-loan lead's"
+ },
+ {
+  "id": "DEC-9593",
+  "verdict": "LEAVES A TRACE",
+  "check": "TRACE",
+  "governs": "MK-CF-M-072 · MK-CF-F-295 debtLoad · src/screens/Budge",
+  "notes": "11 of 20 of his words appear in what implements it: count debts entered interest mk-cf-m- month"
+ },
+ {
+  "id": "DEC-9595",
+  "verdict": "FAINT TRACE",
+  "check": "TRACE",
+  "governs": "src/screens/CashFlowScreen.tsx · MK-CF-F-313 wageRefus",
+  "notes": "only 5 of 20 appear — present: entered income month order salary · absent: asking doors known lead's refuses"
+ },
+ {
+  "id": "DEC-9597",
+  "verdict": "FAINT TRACE",
+  "check": "TRACE",
+  "governs": "MK-CF-F-313 wageRefusalOf · MK-CF-O-004 incomeSummary ",
+  "notes": "only 12 of 27 appear — present: annual bracket counting frequency gross · absent: asking lead's mk-cf-f- nobody order"
+ },
+ {
+  "id": "DEC-9598",
+  "verdict": "FAINT TRACE",
+  "check": "TRACE",
+  "governs": "MK-XS-F-185 percentDigits · MK-XS-F-211 pointsDigits (",
+  "notes": "only 13 of 28 appear — present: asking clear guard money order · absent: computer decimals files lead's mk-xs-f-"
+ },
+ {
+  "id": "DEC-9602",
+  "verdict": "LEAVES A TRACE",
+  "check": "TRACE",
+  "governs": "MK-CF-F-302 setupLoanSentences · src/screens/NetWorthS",
+  "notes": "13 of 18 of his words appear in what implements it: asking debts mk-cf-f- month order print"
+ },
+ {
+  "id": "DEC-9669",
+  "verdict": "LEAVES A TRACE",
+  "check": "TRACE",
+  "governs": "MK-CF-F-305 setupLoanDebts · MK-CF-F-295 debtLoad · MK",
+  "notes": "14 of 27 of his words appear in what implements it: balance count counted debts entered interest"
+ },
+ {
+  "id": "DEC-9670",
+  "verdict": "FAINT TRACE",
+  "check": "TRACE",
+  "governs": "MK-CF-F-033 debtToIncome · src/screens/BudgetScreen.ts",
+  "notes": "only 8 of 24 appear — present: dates debt-to-income debts entered month · absent: add-a-debt asking counts drawn keeps"
+ },
+ {
+  "id": "DEC-9671",
+  "verdict": "FAINT TRACE",
+  "check": "TRACE",
+  "governs": "MK-CF-F-314 setupEntered (MoneyKeel/functions/cashflow",
+  "notes": "only 16 of 37 appear — present: budget counted debts doors entered · absent: alone asking beside debtsentered entry"
+ },
+ {
+  "id": "DEC-9672",
+  "verdict": "FAINT TRACE",
+  "check": "TRACE",
+  "governs": "MK-CF-F-313 wageRefusalOf · MK-CF-F-317 rentWaitingSen",
+  "notes": "only 14 of 33 appear — present: earner entered frequency hourly hours · absent: asking couple lead's mk-cf-f- print"
+ },
+ {
+  "id": "DEC-9677",
+  "verdict": "LEAVES A TRACE",
+  "check": "TRACE",
+  "governs": "MK-CF-F-302 setupLoanSentences · src/screens/NetWorthS",
+  "notes": "11 of 16 of his words appear in what implements it: asking debts entered order reads reverse"
+ },
+ {
+  "id": "DEC-9681",
+  "verdict": "FAINT TRACE",
+  "check": "TRACE",
+  "governs": "MK-XS-F-213 pointsValue · MK-XS-F-214 percentValue (Mo",
+  "notes": "only 11 of 29 appear — present: asking insights mortgage order percent · absent: arithmetic comparison computed computes half-up"
  }
 ]

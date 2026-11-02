@@ -2233,7 +2233,7 @@ Rows of `MoneyKeel/documents/standards/moneykeel_pres_spec_design-each-screen-wa
 
 **READ THIS FIRST — ADDED AFTER THIS MOCKUP · BUILD 54. Each row says whose decision it is: his, in his own words with the day he gave them, or the lead’s, made without asking him under his order of 2026-09-30. (Corrected 2026-10-31: this line said every row was his ruling and approved, which was untrue of the lead’s rows.)** These were ruled after this drawing was approved, during work on Build 54 (the build on TestFlight). They are in the app’s code unless a line says ‘Not built yet’, and reach a phone with the next build cut. The phones below are not redrawn: where a line here and a phone disagree, this line is the design.
 
-Its dated rows, every one, as written on the drawing (80):
+Its dated rows, every one, as written on the drawing (83):
 
 ```json
 [
@@ -2736,7 +2736,7 @@ Its dated rows, every one, as written on the drawing (80):
  },
  {
   "Ruled": "2026-10-31",
-  "What changed, against the phones below": "Approved before: Cash flow v01, 2026-09-28 (DEC-0440: “Approved”). The YOUR FUTURE PAYCHECK card is not drawn (its lines of 2026-10-25 to 10-27). His feedback: His words, 2026-08-04 (DEC-0059): “make sure font size and color and overall design are same across all screens.” New: its figure line reads ‘At 67: ~$15/month’ with one space after the colon (it had two). No figure changes.",
+  "What changed, against the phones below": "Approved before: Cash flow v01, 2026-09-28 (DEC-0440: “Approved”). The YOUR FUTURE PAYCHECK card is not drawn (its lines of 2026-10-25 to 10-27). His feedback: His words, 2026-08-04 (DEC-0059): “make sure font size and color and overall design are same across all screens.” New: its figure line reads ‘At 65 (ours until you change it): ~$10/month’ for the register household, with one space after the colon (it had two). No figure changes. (Corrected 2026-11-01: this row’s example read ‘At 67: ~$15/month’, which the row of 2026-10-31 below and the app replaced: with no retirement age entered the card retires the person at 65, the plan’s one age. CF4-07.)",
   "His words, or where it came from": "Not a decision of his: the lead’s round-3 item CF3-07 (2026-10-31), made under his words above without asking him; under DEC-9228 he judges the built screens on TestFlight. Tenet 4 (DEC-3523). To reverse: two spaces.",
   "Record": "DEC-0059 · MK-CF-M-022",
   "State": "In the code since 2026-10-31 — row written before the code"
@@ -2785,7 +2785,7 @@ Its dated rows, every one, as written on the drawing (80):
  },
  {
   "Ruled": "2026-11-01",
-  "What changed, against the phones below": "Approved before: Cash flow v01, 2026-09-28 (DEC-0440: “Approved”). No phone draws these three boxes empty: Debts’ ‘Extra / month’, the ‘Log payment’ sheet’s ‘Amount’, and the ‘Add expense’ / ‘Add income’ sheet’s ‘Amount’. His feedback: His words, 2026-08-20 (DEC-0296): “an unknown input produces no number and a reason — never a default”; 2026-10-31 (DEC-9228): “I will review the screens in testflight”. New: each of the three boxes opens empty, with no grey ‘0’ in it; the ‘$’ beside it stays. The two sheet boxes that had no name of their own are named ‘Amount’, the word above them, so a screen reader no longer reads the grey ‘0’ as the name. Nothing else moves. The phones are not redrawn.",
+  "What changed, against the phones below": "Approved before: Cash flow v01, 2026-09-28 (DEC-0440: “Approved”). No phone draws these three boxes empty: Debts’ ‘Extra / month’, the ‘Log payment’ sheet’s ‘Amount’, and the ‘Amount’ on the ‘Log an expense’ sheet and on the income sheet’s ‘Add income’ tab. (Corrected 2026-11-01: this called the first ‘Add expense’; the rows of 2026-10-27 and 2026-10-31 above and the app title it ‘Log an expense’. CF4-08.) His feedback: His words, 2026-08-20 (DEC-0296): “an unknown input produces no number and a reason — never a default”; 2026-10-31 (DEC-9228): “I will review the screens in testflight”. New: each of the three boxes opens empty, with no grey ‘0’ in it; the ‘$’ beside it stays. The two sheet boxes that had no name of their own are named ‘Amount’, the word above them, so a screen reader no longer reads the grey ‘0’ as the name. Nothing else moves. The phones are not redrawn.",
   "His words, or where it came from": "Empty means empty (the lead’s ruling R16 of 2026-10-31, under DEC-0296 and tenet 3, DEC-3523: unknown is not zero): a box nobody filled shows no figure that could be read as an entry. Not a decision of his: the lead’s, made without asking him, as his order of 2026-09-30 says. To reverse: the grey ‘0’ in the empty boxes again. Row written before the code.",
   "Record": "DEC-0296 · DEC-3523 · DEC-9228 · R16",
   "State": "In the code since 2026-11-01"
@@ -2796,6 +2796,27 @@ Its dated rows, every one, as written on the drawing (80):
   "His words, or where it came from": "Empty means empty (the lead’s ruling R16 of 2026-10-31, under DEC-0296 and tenet 3, DEC-3523: unknown is not zero): a box nobody filled shows no figure that could be read as an entry. Not a decision of his: the lead’s, made without asking him, as his order of 2026-09-30 says. To reverse: the grey examples in the empty boxes again. Row written before the code.",
   "Record": "DEC-0296 · DEC-3523 · DEC-9228 · R16",
   "State": "In the code since 2026-11-01"
+ },
+ {
+  "Ruled": "2026-11-01",
+  "What changed, against the phones below": "Approved before: Cash flow v01, 2026-09-28 (DEC-0440: “Approved”); Debts is frame 6. The DEBT-TO-INCOME and STUDENT LOAN OUTLOOK boxes are the 2026-11-01 line’s, not drawn on a phone. His feedback: His words, 2026-08-20 (DEC-0296): “an unknown input produces no number and a reason — never a default”. New: (1) The sum in DEBT-TO-INCOME works as printed: the minimum payments are a payment, written to the cent, so a $386.42 minimum reads ‘$386.42/month in minimum debt payments ÷ $5,000/month income’ beside ‘7.73%’ (386.42 ÷ 5,000 = 7.7284%; it read ‘$386’, and 386 ÷ 5,000 = 7.72%). Frame 6’s household reads ‘$410.00/month …’ beside ‘8.20%’; this corrects ‘$410/month’ in the 2026-11-01 line. (2) The approximately mark is written one way, against the figure, ‘≈$326/month’, as the 2026-10-25 line on ≈ and 40 of the 45 marks on the live drawings write it (it read ‘≈ $326/month’, and the 2026-11-01 line wrote it so too, which this corrects). (3) A student loan entered in setup is a debt: YOUR DEBT counts it, and never says ‘Nothing entered yet’ above it. With only a $30,000 setup loan, YOUR DEBT reads ‘$30,000’ and under it ‘Includes $30,000 of student loans entered in setup — repayment starts after you graduate.’ (it read ‘$0 · Nothing entered yet. Add your debts ›’ above ‘$30,000 borrowed’). With a $3,200 Visa and a $9,800 car loan beside it: 3,200 + 9,800 + 30,000 = $43,000. (4) A YOUR DEBT of $0 is printed in the grey this drawing gives a $0 with nothing behind it (frame A’s ‘Car loan due 28th $0’, #6B6B66), never in the brand green #178F6B, which is for buttons and the picked tab; a debt above $0 stays red, as drawn. The phones are not redrawn.",
+  "His words, or where it came from": "Not a decision of his: the lead’s rulings R21 (a printed sum works as printed) and R22 (one debt total), and round-4 items CF4-02 and CF4-04, made under his words above and tenets 1, 2 and 4 (DEC-3523) without asking him; under DEC-9228 he judges the built screen on TestFlight. To reverse: the payment in whole dollars, ‘≈ ’ with a space, the setup loan left out of YOUR DEBT, and $0 in brand green.",
+  "Record": "DEC-0296 · DEC-3523 (tenets 1, 2, 4) · Q49 · MK-CF-M-103 · MK-CF-M-106 · MK-NW-M-009",
+  "State": "In the code since 2026-11-01 — row written before the code"
+ },
+ {
+  "Ruled": "2026-11-01",
+  "What changed, against the phones below": "Not a drawn state: A student loan entered in setup is owed from the month it is first paid out. One whose first month is still ahead is not owed today: it is not counted in DEBTS on Net worth or YOUR DEBT on Debts, and the screen says so in words — ‘A $30,000 student loan starts in Sep 2027, not counted until then.’ From Sep 2027 it counts. A loan entered with no month counts as owed today, and the screen says ‘The $30,000 student loan has no start month entered, so it counts as owed today.’ Example, on Nov 1, 2026: a $30,000 loan starting Sep 2027, a $3,200 Visa and a $9,800 car loan give DEBTS −$13,000 on Net worth and YOUR DEBT $13,000 on Debts (3,200 + 9,800); the same loan first paid out in Sep 2026 gives $43,000 on both. The phones are not redrawn. Line added 2026-11-01.",
+  "His words, or where it came from": "Nothing is owed before the money is lent (the lead’s ruling R22a of 2026-11-01, tenet 2, DEC-3523). One rule for both screens: setupStudentLoans and setupLoanDebts (src/domain/debt). Held by src/screens/__tests__/one_debt_total_r22_2026_11_01.test.tsx. Not a decision of his. To reverse: count every setup loan from the day it is entered.",
+  "Record": "R22a · R22 · MK-NW-M-009 · DEC-3523",
+  "State": "Drawn 2026-11-01, before the code"
+ },
+ {
+  "Ruled": "2026-11-01",
+  "What changed, against the phones below": "Approved before: Cash flow v01, 2026-09-28 (DEC-0440: “Approved”). It draws ‘Steer it’, ‘Why this order?’, ‘Show all’ and ‘Import a statement’ at the size of their words, under 44 points tall to the touch. His feedback: None on these taps. His standing rule is the 44-point tap (DEC-0141, 2026-08-13: a tap target raised to the 44-point minimum); and DEC-9228 (2026-10-31): he judges the built screens on TestFlight. New: each keeps its drawn size, words and place and takes a touch area 16 points above and below it (Tap.slop), so a finger lands on it across at least 44 points; that does not show on the phone. Nothing on the phones moves. The phones are not redrawn. Line added 2026-11-01.",
+  "His words, or where it came from": "One floor for every tap (tenet 4, DEC-3523): Tap.slop, held by src/__tests__/every_choice_is_44_points.test.tsx, whose count of short lines and links in the app is now 0 of 488 (99 that morning, FX-NW’s count, NW4-04). Not a decision of his: the lead’s, made without asking him, as his order of 2026-09-30 says. To reverse: take hitSlop={Tap.slop} off each of these buttons.",
+  "Record": "DEC-0440 · DEC-0141 · DEC-9228 · DEC-3523 · NW4-04 · NW3-16 · NW3-17",
+  "State": "In the code since 2026-11-01 — row written after the code"
  }
 ]
 ```

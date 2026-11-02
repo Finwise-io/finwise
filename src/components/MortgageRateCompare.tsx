@@ -19,6 +19,7 @@ import { InfoDot } from './UI';
 import { useStore } from '../store/useStore';
 import { useIncomeProfile } from '../hooks/useIncomeProfile';   // the one profile income figures read (2026-10-26)
 import { incomeSummary } from '../../MoneyKeel/functions/cashflow/income-summary';
+import { percentDigits } from '../../MoneyKeel/functions/_figure-spec';   // the one percent writer (R24, 2026-11-01)
 
 /** THE FEDERAL TAX BRACKET THE COMPARISON RUNS ON — the one the Income summary shows as "Federal tax bracket" (MK-CF-O-004
  *  incomeSummary), so the two screens can never name different brackets; null when no income is entered, and the card then
@@ -70,7 +71,7 @@ export function MortgageRateCompare({ balance, annualRate, monthlyPayment, extra
   // THE RATES TO TWO DECIMALS (his precision standard, Q49; cash-flow_v01 READ THIS FIRST 2026-10-26). The card works the comparison
   // out itself (MK-CF-F-043), so no orchestrator hands these figures and they are not declared: the percent guard counts them here
   // at their true number. The bracket is the Income summary's (MK-CF-O-004 hands it), so it prints under MK-CF-M-043.
-  const pct2 = (r: number) => `${(r * 100).toFixed(2)}%`;
+  const pct2 = (r: number) => `${percentDigits(r, 2)}%`;
   // AFTER FEDERAL TAX WHEN THE BRACKET IS KNOWN, AND SAID EITHER WAY (2026-10-25, FIX-ROOM; drawing cash-flow v01, READ THIS
   // FIRST row of 2026-10-25): the same sentence shape whichever way it falls (DEC-0161)
   const rates = c.basis === 'after-tax'

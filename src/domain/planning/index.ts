@@ -1,4 +1,5 @@
 // Life-stage planning calculators (529 education, life-insurance need, estate checklist, Roth conversion).
+import { wageRefusalOf } from '../income/pay-frequency';   // R23a, 2026-11-01
 import type { OnboardingProfile } from '../onboardingProfile';
 // Pure functions — no I/O — so they're easy to test and reuse across screens.
 import { toNum } from '../_shared/num';
@@ -8,6 +9,7 @@ import { salaryAnnual, tipsAnnual, rsuAnnual, rentalNetAnnual, currentRetirement
 import { deductionFor, seniorDeductionFor, TAX_TABLES } from '../income/tax';
 import { rateInForce } from '../income/tax-rate';
 import type { InterestAndDividendsForYear } from '../income/from-accounts';
+import { percentDigits, percentValue } from '../../../MoneyKeel/functions/_figure-spec';   // the one percent writer (R24, 2026-11-01)
 
 // ───────────────────────── Tax organizer (the "give this to your CPA" summary) ─────────────────────────
 // A year-end summary + a tailored document checklist. NOT a tax return — an organizer. Pure: the
@@ -40,6 +42,8 @@ export interface TaxOrganizer {
   refusal: string | null;
   /** payouts in the year whose amount is not on record, said under the income lines — never counted as $0 (tenet 3) */
   notCounted: string | null;
+  /** a wage entered that cannot be read (R23a, 2026-11-01): the walk and the rate are not given, and this says why */
+  wageRefusal: string | null;
   taxableTotal: number | null;     // = steps.taxableIncome (kept for callers that read the one figure)
   nonTaxableTotal: number;
   estTaxRate: number | null;
@@ -66,7 +70,7 @@ export interface TaxOrganizer {
  *
  * Called by ... MK-PL-F-031 taxOrganizer
  *
- * Reaches ..... 478 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 484 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -76,7 +80,7 @@ export interface TaxOrganizer {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 460 more — the full list is on functions_from_code
+ *               … and 466 more — the full list is on functions_from_code
  *
  * Serves ...... MK-MN-M-027 · MK-MN-M-028
  * Reads ....... MK-XS-I-030 tax filing status and age
@@ -126,13 +130,13 @@ export function taxableIncomeSteps(op: OnboardingProfile | null, grossIncome: nu
  *     state = state rate of(op)
  *     the answer:
  *     estimated = source = 'estimated'
- *     state words = `the ${(state × 100).to fixed(2)}% state rate you entered`   if source = 'estimated' and state > 0
+ *     state words = `the ${percent digits(state, 2)}% state rate you entered`   if source = 'estimated' and state > 0
  *     nothing   otherwise
  *     whose = label
  *
  * Called by ... MK-PL-F-031 taxOrganizer
  *
- * Reaches ..... 478 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 484 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -142,12 +146,9 @@ export function taxableIncomeSteps(op: OnboardingProfile | null, grossIncome: nu
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 460 more — the full list is on functions_from_code
+ *               … and 466 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- *
- * Decides .....
- *     · Shows 2 decimal places.
  *
  * Formula also on the master file · functions_from_code · MK-PL-F-090
  * Changed ..... not in git yet (—)
@@ -155,7 +156,7 @@ export function taxableIncomeSteps(op: OnboardingProfile | null, grossIncome: nu
 function rateWordsOf(op: OnboardingProfile | null): { estimated: boolean; stateWords: string | null; whose: string } {
   const r = rateInForce(op);
   const state = stateRateOf(op);   // the one reader of the state rate entered (MK-CF-F-086)
-  return { estimated: r.source === 'estimated', stateWords: r.source === 'estimated' && state > 0 ? `the ${(state * 100).toFixed(2)}% state rate you entered` : null, whose: r.label };
+  return { estimated: r.source === 'estimated', stateWords: r.source === 'estimated' && state > 0 ? `the ${percentDigits(state, 2)}% state rate you entered` : null, whose: r.label };
 }
 
 /** The year-end summary for the accountant: income lines, the four taxable-income steps, contributions, accounts, documents to gather. */
@@ -186,7 +187,7 @@ function rateWordsOf(op: OnboardingProfile | null): { estimated: boolean; stateW
  *
  * Called by ... MK-CF-O-007 theTaxOrganizer
  *
- * Reaches ..... 478 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 484 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -196,7 +197,7 @@ function rateWordsOf(op: OnboardingProfile | null): { estimated: boolean; stateW
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 460 more — the full list is on functions_from_code
+ *               … and 466 more — the full list is on functions_from_code
  *
  * Serves ...... MK-MN-M-027 · MK-MN-M-028
  * Reads ....... MK-XS-I-001 account balance
@@ -266,7 +267,9 @@ export function taxOrganizer(op: OnboardingProfile | null, opts: { accounts?: an
   // all the screen printed Gross income $0, Standard deduction −$16,100, Taxable income $0 and a ~0% rate — a tax answer for
   // nobody. Now the walk and the rate are not given, and the screen shows its one empty line and the door (Q48).
   const nothingEntered = income.length === 0;
-  const steps = nothingEntered ? null : taxableIncomeSteps(op, grossIncome);
+  // A WAGE ENTERED THAT CANNOT BE READ (R23a, 2026-11-01): no walk and no rate are worked on it as if it were $0 — the screen says why
+  const wageRefusal = wageRefusalOf(op);
+  const steps = nothingEntered || wageRefusal ? null : taxableIncomeSteps(op, grossIncome);
   const taxableTotal = steps ? steps.taxableIncome : null;
   const nonTaxableTotal = (income.filter((l) => !l.taxable).reduce((t, l) => t + l.amount, 0));
   const contributions: TaxLine[] = [
@@ -277,7 +280,8 @@ export function taxOrganizer(op: OnboardingProfile | null, opts: { accounts?: an
   const acct = accounts.map((x: any) => ({ label: x.institution?.trim() || x.label || x.kind || 'Account', kind: x.kind ?? x.tax_bucket ?? 'account', balance: x.balance || 0 }));
   const has = (k: string) => accounts.some((x: any) => (x.kind ?? '') === k);
   const docs: string[] = ["Last year’s tax return", 'SSN/ID for you and any dependents'];
-  if (salaryAnnual(op) > 0 || tipsAnnual(op) > 0) docs.push('W-2 from each employer');
+  // a wage entered that cannot be read is still a job: its W-2 is still to gather (CF6-14, R27, 2026-11-02 — it was dropped)
+  if (salaryAnnual(op) > 0 || tipsAnnual(op) > 0 || wageRefusal != null) docs.push('W-2 from each employer');
   if (seAnnual > 0) docs.push('1099-NEC / business income & expense records (Schedule C)');
   if (invDiv > 0 || has('brokerage')) docs.push('1099-INT, 1099-DIV, and 1099-B (brokerage)');
   if (rentalNetAnnual(op) > 0) docs.push('Rental income & expense records (Schedule E)');
@@ -294,8 +298,9 @@ export function taxOrganizer(op: OnboardingProfile | null, opts: { accounts?: an
     notCounted: [notOnRecord > 0 ? `Not counted: ${plural(notOnRecord, 'payment')} — amount not on record.` : '',
                  rsu == null ? 'Not counted: shares that vest — vest date not entered.' : ''].filter(Boolean).join(' ') || null,
     taxableTotal, nonTaxableTotal,
-    estTaxRate: nothingEntered ? null : (effectiveRate(op)),
-    rate: nothingEntered ? null : rateWordsOf(op),
+    estTaxRate: nothingEntered || wageRefusal ? null : (effectiveRate(op)),
+    rate: nothingEntered || wageRefusal ? null : rateWordsOf(op),
+    wageRefusal,
     grossIncome,
     contributions, accounts: acct, documents: docs,
   };
@@ -377,7 +382,6 @@ export interface EduPlan {
  * Decides .....
  *     · Uses a built-in future total cost of 0.
  *     · Turns a monthly figure into a year by multiplying by twelve.
- *     · Rounds the answer to a whole number.
  *
  * Formula also on the master file · functions_from_code · MK-PL-F-033
  * Changed ..... 2026-06-08 (8770420)
@@ -399,7 +403,7 @@ export function educationPlan(inp: EduPlanInput): EduPlan {
     savingsAtStart: (savingsAtStart),
     gap: (gap),
     monthlyNeeded: (monthlyNeeded),
-    onTrackPct: futureTotalCost > 0 ? Math.round((savingsAtStart / futureTotalCost) * 100) : 0,
+    onTrackPct: futureTotalCost > 0 ? percentValue(savingsAtStart / futureTotalCost, 0) : 0,
   };
 }
 

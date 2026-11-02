@@ -190,3 +190,12 @@ test.failing('IN3-04, as it read: "3.8% on $18,400"', () => {
   const r = incomeFromAccounts([{ asset_id: 'c', label: 'Chase savings', tax_bucket: 'CASH', kind: 'savings', balance: 18_400, coupon_rate: 0.038 }] as any, []);
   expect(r.lines[0].why).toBe('3.8% on $18,400');
 });
+
+// THE OLD ANSWER, KEPT (2026-11-01, R25 — one 'about' mark): the Income summary wrote a calculated figure with '≈'; it writes '~' now,
+// as outside_cashflow_openai_screens MK-CF-M-044 T8 and MK-CF-M-047 T6 read it
+test.failing('R25, as it read: the Income summary’s calculated take-home with "≈"', () => {
+  expect(show(IncomeSummaryScreen, PAT).some((l) => /^≈\$/.test(l))).toBe(true);
+});
+test('R25, as it reads: the same figure with "~"', () => {
+  expect(show(IncomeSummaryScreen, PAT).some((l) => /^~\$/.test(l))).toBe(true);
+});

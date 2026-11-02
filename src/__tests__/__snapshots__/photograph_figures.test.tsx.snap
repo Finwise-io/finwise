@@ -43,16 +43,17 @@ exports[`photograph — retiree HomeScreen 1`] = `
 
 exports[`photograph — retiree IncomeSummaryScreen 1`] = `
 [
-  "≈$2,400",
-  "≈$2,400",
-  "≈$2,400",
+  "[spoken] about $2,400",
+  "~$2,400",
+  "~$2,400",
+  "~$2,400",
   "$0",
   "$0",
   "$0",
   "$0",
   "$0",
   "10%",
-  "≈$0/year",
+  "~$0/year",
 ]
 `;
 
@@ -61,6 +62,7 @@ exports[`photograph — retiree NetWorthScreen 1`] = `
   "[spoken] Net worth $420,000. By asset class: Unclassified 95 percent, Cash 5 percent.",
   "$420,000",
   "$0",
+  "[spoken] $420,000",
   "$420,000",
   "[spoken] Your retirement plan: on course to last past 92, ~$685,000 to spare. Opens the Plan tab.",
   "93.2% odds of lasting to age 92",
@@ -277,6 +279,7 @@ exports[`photograph — worker NetWorthScreen 1`] = `
   "[spoken] Net worth $320,000. By asset class: Stocks / Funds 94 percent, Cash 6 percent.",
   "$320,000",
   "$0",
+  "[spoken] $320,000",
   "$320,000",
   "[spoken] Your retirement plan: retire at 65 with ~$634,000, running short around age 77. Opens the Plan tab.",
   "13.9% odds of lasting to age 92",
@@ -413,8 +416,8 @@ exports[`photograph — worker WillItLastScreen 1`] = `
   "$0/month from age 67",
   "[spoken] Monthly saving until then: $0/month, calculated from your data. Opens where you can change it.",
   "$0/month",
-  "[spoken] Yearly growth assumed: 7.6%, the blended benchmark for your mix. Opens where you can change it.",
-  "7.6%",
+  "[spoken] Yearly growth assumed: 7.7%, the blended benchmark for your mix. Opens where you can change it.",
+  "7.7%",
   "[spoken] Inflation assumed: 2.5%, from economic data. Opens where you can change it.",
   "2.5%",
 ]

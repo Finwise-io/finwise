@@ -32,14 +32,14 @@ const said = (op: any, accounts: any[], transactions: any[] = []) => {
   useStore.getState().resetAll();
   useStore.setState({ onboardingProfile: op, onboardingComplete: true, hideBalances: false, assetAccounts: accounts, transactions } as any);
   render(<BasePayScreen />);
-  const s = (builtLines(screen.toJSON()).find((l) => /We’ll calculate ≈/.test(l)) ?? '').replace(/^.*?(?=We’ll calculate)/, '');
+  const s = (builtLines(screen.toJSON()).find((l) => /We’ll calculate ~/.test(l)) ?? '').replace(/^.*?(?=We’ll calculate)/, '');
   screen.unmount();
   return s;
 };
 
 test('interest calculated from the accounts: "$60,400 — what you have entered so far and the interest and dividends calculated from your accounts"', () => {
   // by hand: $60,000 of wages + $10,000 × 4% = $400 calculated = $60,400; the take-home is the wage alone, $4,580 (FIX-INCOME-A)
-  expect(said(OP, [SAVINGS])).toBe('We’ll calculate ≈$4,580/month, using your tax band read on $60,400 — what you have entered so far and the interest and dividends calculated from your accounts. Add rent, a bonus or a spouse’s wage later and the band is calculated again, so this figure moves. It knows nothing about your state or your insurance, so the ≈$4,580 is higher than it will really be.');
+  expect(said(OP, [SAVINGS])).toBe('We’ll calculate ~$4,580/month, using your tax band read on $60,400 — what you have entered so far and the interest and dividends calculated from your accounts. Add rent, a bonus or a spouse’s wage later and the band is calculated again, so this figure moves. It knows nothing about your state or your insurance, so the ~$4,580 is higher than it will really be.');
 });
 
 test('interest from the accounts\' records: the records, said as the records', () => {

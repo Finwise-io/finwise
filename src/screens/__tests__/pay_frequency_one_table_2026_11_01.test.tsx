@@ -152,3 +152,197 @@ test('every reader of a period count reads the one table — counted off the sou
   const second = all.filter((f) => !f.endsWith('pay-frequency.ts') && /\b(biweekly|hourly)['"]?\s*:\s*(26|12|2080)\b/.test(fs.readFileSync(f, 'utf8')));
   expect(second.map((f) => path.relative(ROOT, f))).toEqual([]);
 });
+
+// ── R23a (2026-11-01, round 5): an unknown pay frequency gives no figure anywhere downstream ─────────────────────────────────────
+describe('R23a · every downstream reader refuses a wage it cannot read — and prints what does not rest on it', () => {
+  const { wageRefusalOf } = require('../../domain/income/pay-frequency');
+  const { taxOrganizer } = require('../../domain/planning');
+  const RENT = [{ type: 'long', income: '1800', expenses: '600', property_id: 'h' }];
+  const HOUSE = [{ asset_id: 'h', label: 'Rental', asset_class: 'real_estate', balance: 300_000 }];
+  const UNKNOWN = { ...wage('annual', '100000'), taxMode: undefined, manualTaxRate: undefined, incomeSources: ['employment', 'rental'], rentals: RENT };
+  const shown = (C: any, op: any) => {
+    useStore.getState().resetAll();
+    useStore.setState({ onboardingProfile: op, onboardingComplete: true, hideBalances: false, assetAccounts: HOUSE } as any);
+    render(<C />);
+    const L = builtLines(screen.toJSON()).filter((l) => !/^[-]+$/.test(l));
+    screen.unmount();
+    return L;
+  };
+  test('one refusal, read two ways, agrees: Base pay’s (through the Income summary) and the organizer’s, for every case', () => {
+    const cases: [any, string | null][] = [
+      ...FIVE.map(([f, amt]) => [wage(f, amt), null] as [any, null]),
+      [wage('annual', '100000'), PAY_FREQUENCY_NOT_RECOGNISED],
+      [wage('hourly', '25', { hoursPerWeek: '' }), 'Hours a week not entered — your hourly pay is not counted until it is.'],
+      [{ ...wage('monthly', '5000'), whoEarns: 'both', partnerWage: { baseSalary: '4000', salaryFreq: 'fortnightly' } }, PAY_FREQUENCY_NOT_RECOGNISED],
+    ];
+    for (const [op, want] of cases) {
+      expect(incomeSummary(op).wageRefusal).toBe(want);
+      expect(wageRefusalOf(op)).toBe(want);
+    }
+  });
+  test('Your base pay: "Gross pay", no "Gross undefined", no ✓ beside the refusal', () => {
+    const L = shown(BasePayScreen, UNKNOWN);
+    expect(L).toContain('Gross pay');
+    expect(L.join(' ')).not.toMatch(/undefined|✓/);
+  });
+  test('Your income: "You · pay frequency not recognised", no "≈$0/month", no ✓ on the job', () => {
+    const L = shown(IncomeManagerScreen, UNKNOWN);
+    expect(L).toContain('You · pay frequency not recognised');
+    expect(L.join(' ')).not.toMatch(/[~≈]\$0/);   // no about-zero in either mark ('~' since R25, 2026-11-01)
+    expect(L[L.indexOf('A job') + 1]).not.toBe('✓');
+    expect(L).toContain('One property · $1,200/month net');                           // the rent does not rest on the wage: it prints
+  });
+  test('the Income summary: no $0 total, no "Nothing entered yet", no bracket or tax on a $0 wage; the rent’s gross prints', () => {
+    const L = shown(IncomeSummaryScreen, UNKNOWN);
+    const t = L.join(' ');
+    expect(t).not.toMatch(/Nothing entered yet|\$0\b|Federal tax bracket|Calculated federal tax|10%/);
+    // by hand: ($1,800 − $600) × 12 = $14,400 of rent kept, the gross without the wage
+    expect(t).toMatch(/Rent, net \$14,400 = Gross \/year, not counting your wage \$14,400/);
+    expect(L.filter((l) => l === PAY_FREQUENCY_NOT_RECOGNISED).length).toBe(2);          // under each of the two bands
+  });
+  test('the Tax organizer: no walk and no rate on a $0 wage — the sentence instead', () => {
+    const org = taxOrganizer(UNKNOWN, { year: 2026, accounts: HOUSE, liabilities: [] });
+    expect(org.wageRefusal).toBe(PAY_FREQUENCY_NOT_RECOGNISED);
+    expect(org.steps).toBeNull();
+    expect(org.estTaxRate).toBeNull();
+    const ok = taxOrganizer({ ...UNKNOWN, salaryFreq: 'annually' }, { year: 2026, accounts: HOUSE, liabilities: [] });
+    expect(ok.wageRefusal).toBeNull();
+    expect(ok.steps).not.toBeNull();                                                   // $100,000 + $14,400 walked as before
+  });
+  // RE-WORKED 2026-11-02 (FX-PLAN, the lead's R26, CF6-09; ways-to-add v10's row of that date): the rent does not rest on the wage, so
+  // Home prints it as Cash flow's This month does — $1,800 − $600 = $1,200 — with the sentence under it; Left still reads —
+  test('Home’s THIS MONTH’S CASH FLOW: the rent the person entered, the sentence under it, Left —', () => {
+    const L = shown(require('../HomeScreen').default, UNKNOWN);
+    const i = L.indexOf('THIS MONTH’S CASH FLOW');
+    const box = L.slice(i, i + 12);
+    expect(box).toContain(PAY_FREQUENCY_NOT_RECOGNISED);
+    expect(box[box.indexOf('Income') + 1]).toBe('$1,200');
+    expect(box[box.indexOf('Income') + 2]).toBe(PAY_FREQUENCY_NOT_RECOGNISED);
+    expect(box[box.indexOf('Left') + 1]).toBe('—');
+  });
+  test.failing('the old answer, kept (CF6-09, 2026-11-02): Home’s Income read — beside $1,200 of rent entered', () => {
+    const L = shown(require('../HomeScreen').default, UNKNOWN);
+    const i = L.indexOf('THIS MONTH’S CASH FLOW');
+    const box = L.slice(i, i + 12);
+    expect(box[box.indexOf('Income') + 1]).toBe('—');
+  });
+  test('choose a frequency and every figure is back: $100,000 annually — bracket and tax print', () => {
+    const t = shown(IncomeSummaryScreen, { ...UNKNOWN, salaryFreq: 'annually' }).join(' ');
+    expect(t).toMatch(/Federal tax bracket/);
+    expect(t).not.toMatch(/not recognised/);
+  });
+});
+
+test('sign-up, Student loans: no claim about when repayment starts — it was never asked', () => {
+  const { renderStep } = require('../../onboarding/modules');
+  useStore.getState().resetAll();
+  render(<>{renderStep('income_loans', { status: 'student', tracks: [], answers: { loans: [{ label: 'Federal', amount: '20000', months: [9], apr: '5', termYears: '10' }] }, setAnswer: jest.fn() })}</>);
+  const t = builtLines(screen.toJSON()).join(' ');
+  // by hand: $20,000 at 5% over 10 years = $212.13/month
+  expect(t).toMatch(/\$20,000 borrowed · ~\$212\/month once repayment starts/);
+  expect(t).toMatch(/It lands as cash now in your bill calendar\. When repayment starts is not entered\./);
+  expect(t).not.toMatch(/after you graduate|after graduation/);
+});
+
+// ── R27 (2026-11-02, round 6): a wage that can't be counted never prints as $0, in any month or screen ───────────────────────────
+describe('R27 · no month and no screen prints a figure that rests on a wage it cannot read', () => {
+  const { fireEvent } = require('@testing-library/react-native');
+  const RENT = [{ type: 'long', income: '1800', expenses: '600', property_id: 'h' }];
+  const HOUSE = [{ asset_id: 'h', label: 'Rental', asset_class: 'real_estate', balance: 300_000 }];
+  const base = { status: 'employed', incomeSources: ['employment'], salaryMode: 'gross', monthlySpending: '2000' };
+  const UNKNOWN = { ...base, baseSalary: '100000', salaryFreq: 'annual' };
+  const HOURLY = { ...base, baseSalary: '25', salaryFreq: 'hourly' };
+  const COUPLE = { ...UNKNOWN, hasPartner: 'yes', partnerName: 'Sam', whoEarns: 'both', partnerWage: { baseSalary: '4500', salaryFreq: 'monthly' } };
+  const cash = (op: any, go?: (s: any) => void) => {
+    useStore.getState().resetAll();
+    useStore.setState({ onboardingProfile: op, onboardingComplete: true, hideBalances: false, assetAccounts: HOUSE } as any);
+    render(React.createElement(require('../CashFlowScreen').default));
+    if (go) go(screen);
+    const L = builtLines(screen.toJSON()).filter((l) => !/^[-]+$/.test(l));
+    screen.unmount();
+    return L;
+  };
+  test.each([['a frequency not recognised', UNKNOWN, PAY_FREQUENCY_NOT_RECOGNISED],
+             ['hourly, no hours', HOURLY, 'Hours a week not entered — your hourly pay is not counted until it is.'],
+             ['with rent', { ...UNKNOWN, incomeSources: ['employment', 'rental'], rentals: RENT }, PAY_FREQUENCY_NOT_RECOGNISED],
+             ['a couple', COUPLE, PAY_FREQUENCY_NOT_RECOGNISED]])('CF6-06 · This month, %s: no inflow figure, the reason, each surplus —', (_n, op, why) => {
+    const L = cash(op);
+    expect(L.filter((l) => /inflow/i.test(l) && /take-home/.test(l))).toEqual([]);   // no wage row: no "$0", no "~$4,318"
+    expect(L.filter((l) => l === why).length).toBe(2);                                 // under PLANNED and under ACTUAL
+    expect(L[L.indexOf('= Planned surplus') + 1]).toBe('—');
+    expect(L[L.indexOf('= Actual surplus so far') + 1]).toBe('—');
+  });
+  test('R27 · with rent, the rent row does not rest on the wage and prints: "Actual inflow (rent) $1,200" ($1,800 − $600)', () => {
+    const L = cash({ ...UNKNOWN, incomeSources: ['employment', 'rental'], rentals: RENT });
+    expect(L[L.indexOf('Actual inflow (rent)') + 1]).toBe('$1,200');
+    expect(L[L.indexOf('= Actual surplus so far') + 1]).toBe('—');                     // the surplus still rests on the wage
+  });
+  test('R25a · a surplus worked on a calculated take-home wears the mark before its sign; a typed one none', () => {
+    const calc = cash({ ...base, baseSalary: '8000', salaryFreq: 'monthly' });          // $8,000 gross, no rate: calculated
+    expect(calc[calc.indexOf('= Planned surplus') + 1]).toMatch(/^~[+−]\$/);
+    const typed = cash({ ...base, baseSalary: '8000', salaryFreq: 'monthly', landsTypical: '6000' });
+    expect(typed[typed.indexOf('= Planned surplus') + 1]).toBe('+$4,000');            // $6,000 − $2,000, no mark
+  });
+  test('CF6-07 · a later month: "Planned inflow —" and the reason, never "$0 · Nothing entered yet"; the surplus —', () => {
+    const L = cash({ ...UNKNOWN, incomeSources: ['employment', 'rental'], rentals: RENT }, (s) => fireEvent.press(s.getByLabelText('Next month')));
+    expect(L[L.indexOf('Planned inflow') + 1]).toBe('—');
+    expect(L).toContain(PAY_FREQUENCY_NOT_RECOGNISED);
+    expect(L.join(' ')).not.toMatch(/Nothing entered yet/);
+    const i = L.indexOf('= Planned surplus');
+    if (i >= 0) expect(L[i + 1]).toBe('—');
+  });
+  test('CF6-08 · a past month before tracking, rent only: "—" on each line, nothing recorded — never "$0 · $0 · +$0"', () => {
+    const L = cash({ ...base, incomeSources: ['rental'], rentals: RENT }, (s) => { for (let k = 0; k < 4; k++) fireEvent.press(s.getByLabelText('Previous month')); });
+    expect(L.join(' ')).toMatch(/Actual inflow — Outflow \(expenses \+ debt\) — = Surplus — Nothing recorded for this month — it predates your tracking\./);
+  });
+  test('CF6-12 · Income tab, hourly with no hours: "hours a week not entered", and "$25/hour"', () => {
+    const L = cash(HOURLY, (s) => fireEvent.press(s.getByLabelText(/^Income tab/)));
+    const t = L.join(' ');
+    expect(t).toMatch(/before tax · hours a week not entered \$25\/hour ›/);
+    expect(t).not.toMatch(/pay frequency not recognised/);
+  });
+  test('CF6-12 · the couple’s Income tab puts the refusal on the wage it belongs to, and Sam’s take-home waits', () => {
+    const t = cash(COUPLE, (s) => fireEvent.press(s.getByLabelText(/^Income tab/))).join(' ');
+    expect(t).toMatch(/You · Salary — steady before tax · pay frequency not recognised \$100,000/);
+    expect(t).toMatch(/Sam · Salary — steady before tax · monthly · take-home not calculated — the other pay cannot be read yet \$4,500/);
+  });
+  test('CF6-15 · Base pay: Sam’s calculated take-home is not worked on a $0 wage', () => {
+    const p = earnerPay; void p;
+    const L = (() => { useStore.getState().resetAll(); useStore.setState({ onboardingProfile: COUPLE, onboardingComplete: true, hideBalances: false } as any);
+      render(<BasePayScreen />); const x = builtLines(screen.toJSON()); screen.unmount(); return x; })();
+    expect(L).toContain('Monthly · the same each month · take-home not calculated — the other pay cannot be read yet');
+    expect(L.join(' ')).not.toMatch(/4,318/);
+  });
+  test('CF6-17 · the couple’s Income summary keeps Sam’s $54,000, so its rows add up: $54,000 + $14,400 = $68,400', () => {
+    useStore.getState().resetAll();
+    useStore.setState({ onboardingProfile: { ...COUPLE, incomeSources: ['employment', 'rental'], rentals: RENT }, onboardingComplete: true, hideBalances: false, assetAccounts: HOUSE } as any);
+    render(<IncomeSummaryScreen />);
+    const t = builtLines(screen.toJSON()).join(' ');
+    screen.unmount();
+    expect(t).toMatch(/Sam’s gross \$54,000 Rent, net \$14,400 = Gross \/year, not counting your wage \$68,400/);
+    expect(t).not.toMatch(/Your gross/);
+  });
+  test('CF6-11 · rent with no property named: every income screen says it waits for its property, never "Nothing entered yet"', () => {
+    const op = { ...base, incomeSources: ['rental'], rentals: [{ type: 'long', income: '1800', expenses: '600' }] };
+    const want = 'Your rent of $1,200/month is not counted until you pick its property.';   // $1,800 − $600
+    expect(cash(op)).toContain(want);
+    const tab = cash(op, (s) => fireEvent.press(s.getByLabelText(/^Income tab/)));
+    expect(tab).toContain(want);
+    expect(tab.join(' ')).not.toMatch(/Nothing entered yet/);
+    useStore.getState().resetAll();
+    useStore.setState({ onboardingProfile: op, onboardingComplete: true, hideBalances: false } as any);
+    render(<IncomeSummaryScreen />);
+    const t = builtLines(screen.toJSON());
+    screen.unmount();
+    expect(t).toContain(want);
+    expect(t.join(' ')).not.toMatch(/Nothing entered yet/);
+  });
+  test('CF6-16 · sign-up loans: the heading is what it asks', () => {
+    const { renderStep } = require('../../onboarding/modules');
+    useStore.getState().resetAll();
+    render(<>{renderStep('income_loans', { status: 'student', tracks: [], answers: { loans: [{ label: 'Federal', amount: '20000', months: [9] }] }, setAnswer: jest.fn() })}</>);
+    const t = builtLines(screen.toJSON()).join(' ');
+    expect(t).toMatch(/Rate and years to pay it off \(optional\)/);
+    expect(t).not.toMatch(/graduate/);
+  });
+});

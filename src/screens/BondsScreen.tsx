@@ -19,6 +19,7 @@ import { CD_BOUGHT_QUESTION, CD_BOUGHT_CHOICES } from '../constants/cdBought';  
 import { COUPONS_PER_YEAR_QUESTION, COUPONS_PER_YEAR_CHOICES, type CouponsPerYear } from '../constants/couponsPerYear';   // the one wording (DEC-3390)
 import { modalAnimation } from '../hooks/reducedMotion';
 import { isoLocalDate, maturityParts } from '../domain/_shared/dates';
+import { percentDigits } from '../../MoneyKeel/functions/_figure-spec';   // the one percent writer (R24, 2026-11-01)
 
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
 // ISO date helpers (local components, no TZ shift) for the maturity date picker
@@ -27,7 +28,7 @@ const fmtISO = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padSt
 // today's date or a guessed one — the picker opens on its default day and the text is shown as it was stored
 const parseISO = (s: string) => { const p = maturityParts(s); return p ? new Date(p[0], p[1] - 1, p[2]) : new Date(); };
 const humanDate = (s: string) => (maturityParts(s) ? parseISO(s).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : s);
-const pct = (v: number | null) => (v == null ? '—' : `${(v * 100).toFixed(2)}%`);
+const pct = (v: number | null) => (v == null ? '—' : `${percentDigits(v, 2)}%`);
 // WHAT A BOND IS WORTH BEFORE IT IS SAVED, by the one value rule the store saves it with (DEC-0281; settleBondValue, asked
 // through the bonds door): the market value typed, else what was paid, else the face value; nothing typed is $0 here.
 const worthOf = (f: { balance?: number; amount_paid?: number; face_value?: number }) =>
@@ -129,7 +130,7 @@ export default function BondsScreen() {
                 {/* THE · AS DRAWN (Bonds v02 phone 1, approved 2026-10-01, DEC-0650; its READ THIS FIRST row of 2026-10-25): in the line's own
                     grey at regular weight, as the · before the years already was. It was the darker bold separator of 2026-07-31 (DEC-0016);
                     a drawing he approved after it is the design (DEC-0808). */}
-                <Text style={styles.bondSub} numberOfLines={2}>{[r.face != null ? `face ${fig('MK-NW-M-055', r.face)}` : figWords('MK-NW-M-055', 'face value not entered'), figWords('MK-NW-M-045', r.couponRate != null ? `${(r.couponRate * 100).toFixed(2)}% coupon` : 'coupon rate not entered'), r.maturity ? `matures ${humanDate(r.maturity)}${yrs > 0 ? ` · ${Math.round(yrs)}y` : ''}` : MATURITY_NOT_ENTERED].join(' · ')}</Text>
+                <Text style={styles.bondSub} numberOfLines={2}>{[r.face != null ? `face ${fig('MK-NW-M-055', r.face)}` : figWords('MK-NW-M-055', 'face value not entered'), figWords('MK-NW-M-045', r.couponRate != null ? `${percentDigits(r.couponRate, 2)}% coupon` : 'coupon rate not entered'), r.maturity ? `matures ${humanDate(r.maturity)}${yrs > 0 ? ` · ${Math.round(yrs)}y` : ''}` : MATURITY_NOT_ENTERED].join(' · ')}</Text>
                 <View style={styles.bondMetrics}>
                   {/* no rate: coupon not entered; a rate and no face value on a bond (2026-10-24, tenet 3): the reason, never the rate on the value */}
                   <Text style={styles.metric}>{r.couponPerYear != null ? `${figPer('MK-NW-M-056', r.couponPerYear)} coupon` : figWords('MK-NW-M-056', r.couponRate == null ? 'coupon not entered' : 'coupon — face value not entered')}</Text>

@@ -9,7 +9,7 @@
 // reads "50% · $400/month" (typed 50, then "% · $400/month") or "$150/month · a set amount". It is said with the box.
 import React from 'react';
 import { View, Text, TextInput, StyleSheet, type TextStyle, type StyleProp, type ReturnKeyTypeOptions } from 'react-native';
-import { Colors, Radii } from '../utils/theme';
+import { Colors, Radii, Tap } from '../utils/theme';   // Tap.slop: every money box is 44 points to the touch (CF6-20)
 import { saidSentence } from './figure';   // the worth is heard in words: "a month", and "hidden" under hide-balances
 
 /** A typed amount, kept to digits and one decimal point ("$1,850.50" → "1850.50", "1.2.3" → "1.23"). */
@@ -135,7 +135,7 @@ export function MoneyBox({ value, onChangeText, a11y, placeholder, tail, share, 
   };
   if (bare) {
     return (
-      <TextInput ref={inputRef} style={style} keyboardType="decimal-pad" testID={testID} editable={editable} autoFocus={autoFocus}
+      <TextInput hitSlop={Tap.slop} ref={inputRef} style={style} keyboardType="decimal-pad" testID={testID} editable={editable} autoFocus={autoFocus}
         selectTextOnFocus={selectTextOnFocus} onBlur={onBlur} onFocus={onFocus} onSubmitEditing={onSubmitEditing} onEndEditing={onEndEditing} returnKeyType={returnKeyType}
         accessibilityLabel={a11y} accessibilityHint={accessibilityHint}
         placeholder={placeholder} placeholderTextColor={placeholderTextColor ?? Colors.textTertiary}

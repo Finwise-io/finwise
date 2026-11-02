@@ -25,6 +25,7 @@ import { ALT_KINDS_CAPTURE } from '../domain/alternatives';
 import { modalAnimation } from '../hooks/reducedMotion';
 import { useNetWorthInputs } from '../hooks/useNetWorthInputs';   // the Net worth family's inputs, built once (MK-NW-F-145, DEC-0345)
 import { isoLocalDate } from '../domain/_shared/dates';
+import { percentDigits } from '../../MoneyKeel/functions/_figure-spec';   // the one percent writer (R24, 2026-11-01)
 
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
 const ALT_HINT: Record<string, string> = {
@@ -94,7 +95,7 @@ export default function OtherInvestmentsScreen() {
               <View style={styles.row}><Text style={styles.name} numberOfLines={1}>{r.label}</Text><Text style={styles.val}>{fig('MK-NW-M-052', r.value)}</Text></View>
               {/* a part no priced holding explains is named, never "Other", and given no rate (DEC-4036h, 2026-10-10) */}
               <Text style={styles.sub}>{[r.institution, r.inside ?? assetKind(a?.kind)?.label ?? 'Other',
-                r.benchmark != null ? `~${(r.benchmark * 100).toFixed(2)}%/year expected` : '',
+                r.benchmark != null ? `~${percentDigits(r.benchmark, 2)}%/year expected` : '',
                 Math.abs(r.notClassified) > 0.005 ? `${fig('MK-NW-M-052', r.notClassified)} asset type not classified` : '',
               ].filter(Boolean).join(' · ')}</Text>
             </TouchableOpacity>
@@ -177,7 +178,7 @@ export function AltEditor({ item, open, onClose, onSave, onDelete, presetKind }:
           <View style={styles.chips}>{ALT_KINDS_CAPTURE.map((k) => (
             <TouchableOpacity key={k} style={[styles.chip, kind === k && styles.chipOn]} onPress={() => setKind(k)}><Text style={[styles.chipT, kind === k && styles.chipTOn]}>{assetKind(k)?.label ?? 'Other'}</Text></TouchableOpacity>
           ))}</View>
-          <Text style={styles.hint}>{ALT_HINT[kind]} ~{(benchmarkReturn(kind) * 100).toFixed(2)}%/year historical benchmark.</Text>
+          <Text style={styles.hint}>{ALT_HINT[kind]} ~{percentDigits(benchmarkReturn(kind), 2)}%/year historical benchmark.</Text>
           <Text style={styles.fieldL}>Name</Text>
           <TextInput style={styles.input} value={label} onChangeText={setLabel} placeholder="e.g. Bitcoin, Fund III, Gold" placeholderTextColor={Colors.textTertiary} />
           <Text style={styles.fieldL}>Where it’s held (institution)</Text>

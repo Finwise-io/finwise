@@ -4,6 +4,7 @@
 // then one quiet net-worth line, WHAT NEEDS YOU (top 3 from the ONE insights function), and the
 // will-it-last strip (reads the one selector's number — Home displays, it never re-derives).
 // Home only displays numbers; the single capture affordance is the '+ Expense' button (M4).
+import { setupEntered } from '../../MoneyKeel/functions/cashflow/setup-gate';   // R26, 2026-11-02: the one set-up gate
 import React, { useMemo, useState, useEffect } from 'react';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Alert, RefreshControl, Platform } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
@@ -24,7 +25,6 @@ import { pastMonthFlow } from '../../MoneyKeel/functions/cashflow/this-month';
 import { PaycheckCard } from '../components/PaycheckCard';
 import { Disclaimer } from '../components/Disclaimer';
 import { AllocateSavings } from '../components/MoneySheets';
-import { salaryAnnual, currentRetirementIncomeMonthly } from '../domain/income';
 import { assetClassOf } from '../domain/assets';
 import { DesktopInvestTable } from '../../desktop/platform/DesktopInvestTable';
 import { buildPerformance, portfolioBenchReturn, marketGap, type Position } from '../domain/performance';
@@ -50,6 +50,7 @@ import { DotJoined } from '../components/SepDot';
 import { isoLocalDate, localDay } from '../domain/_shared/dates';
 import { incomeSummary } from '../../MoneyKeel/functions/cashflow/income-summary';   // the take-home's own estimate flag (CF-24)
 import { DOORS, EMPTY_DOORS } from '../constants/doors';
+import { percentDigits, percentValue } from '../../MoneyKeel/functions/_figure-spec';   // the one percent writer (R24, NW6-05)
 // The connect door's words come from the one list of ways in (founder ruling 2026-09-14: "Connect your bank"),
 // so Home can never re-type them differently again — his build-53 note found Home using its own, different words.
 const CONNECT_DOOR = DOORS.find((d) => d.route === '/connect')!;
@@ -193,7 +194,12 @@ export default function HomeScreen() {
   }, [ym, cf, monthIn, bva, expenses, store.assetAccounts, store.liabilities, store.allocatedByMonth, store.nwSeeded]);
 
   // ── working-lens hero numbers (canonical helpers named by the design) ──
-  const hasIncomeEntered = salaryAnnual(op) > 0 || (store.incomes ?? []).length > 0 || currentRetirementIncomeMonthly(op) > 0;   // Q48: a real $0 income is not "nothing entered"
+  // THE ONE SET-UP GATE (2026-11-02, the lead's ruling R26; ways-to-add v10's row of 2026-11-02; CF6-09): the answer Cash flow,
+  // Insights and the sign-up summary read to "is anything entered yet?" — an inflow (a wage that cannot be read among them), an
+  // expense, a budget, a debt or a student loan from setup. Q48: a real $0 income is not "nothing entered"
+  const gate = useMemo(() => setupEntered({ op, accounts: store.assetAccounts ?? [], transactions: store.transactions ?? [], expenses, incomes: store.incomes ?? [], debts: store.liabilities ?? [] }),
+    [op, store.assetAccounts, store.transactions, expenses, store.incomes, store.liabilities]);
+  const hasIncomeEntered = gate.inflow;
   const positions: Position[] = useMemo(
     () => (store.assetAccounts ?? []).flatMap((a: any) => a.positions ?? []),
     [store.assetAccounts]);
@@ -259,9 +265,9 @@ export default function HomeScreen() {
   // AN EXPENSE OR AN INCOME LOGGED IS DATA TOO (2026-10-25, Cash flow drawing match HM-02): the THIS MONTH'S CASH FLOW box shows
   // "once anything is added" (ways-to-add v10, its 2026-10-23 row), and a person whose first act was to log a $40 expense saw
   // the first-day doors and no box
-  const hasMoneyData = resolvedRows.accounts.length > 0 || resolvedRows.liabilities.length > 0
-    || salaryAnnual(op) > 0 || currentRetirementIncomeMonthly(op) > 0
-    || (store.expenses ?? []).length > 0 || (store.incomes ?? []).length > 0;
+  // ONE GATE WITH CASH FLOW (2026-11-02, R26; CF6-09): a budget set, rent or any inflow, a wage that cannot be read, or a setup loan
+  // opens Home too — a $600 budget alone showed these doors while Cash flow opened its month. An account opens Home (its net worth)
+  const hasMoneyData = resolvedRows.accounts.length > 0 || resolvedRows.liabilities.length > 0 || gate.entered;
   if (!snap || !hasMoneyData) {
     // Home — first run, nothing connected yet (FCC detailed design v1.1, Home sheet): never fake
     // zeros or demo charts — one promise and the DOORS in: connect (honestly 'coming soon' until
@@ -619,14 +625,16 @@ export default function HomeScreen() {
           // the box showed the red "Over" above "Income $0 · Nothing entered yet · Left $0" — an answer where nothing is known
           // (outside re-run of Performance, MK-CF-M-053 tenet 3). Cash flow draws no surplus then (its two set-up steps), so
           // Home shows none either: Left reads — and the line under Income says why.
-          const incomeKnown = cf.inflow > 0 || hasIncomeEntered;
+          // a wage entered that cannot be read (R23a, 2026-11-01, FX-CF-B): no income figure rests on it — the line says why
+          const wageRefusal = gate.wageRefusal;
+          const incomeKnown = (cf.inflow > 0 || hasIncomeEntered) && !wageRefusal;
           const over = cf.outflow > cf.inflow;
           const fast = !over && cf.outflow > 0.7 * cf.inflow;
           const pace = !incomeKnown || (cf.inflow <= 0 && cf.outflow <= 0) ? null
             : over ? { word: 'Over', bg: Colors.redLight, fg: Colors.red }
             : fast ? { word: 'Expenses running fast', bg: Colors.amberLight, fg: Colors.amber }
             : { word: '✓ On pace', bg: Colors.primaryLight, fg: Colors.primaryDark };
-          const pctSpent = pace && cf.inflow > 0 ? Math.min(999, Math.round((cf.outflow / cf.inflow) * 100)) : null;
+          const pctSpent = pace && cf.inflow > 0 ? Math.min(999, percentValue(cf.outflow / cf.inflow, 0)) : null;
           const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
           // THE THREE AS THE CASH FLOW TAB PRINTS THEM (2026-10-24 — tenet 2; Cash flow journey E2E-69): Income less Outflow is
           // Left on the screen. A $6.50 coffee read Income $5,000 · Outflow $4,107 · Left $894, each rounded alone. The outflow is
@@ -634,12 +642,17 @@ export default function HomeScreen() {
           // from the rows here (it was monthShown of the rows until 2026-10-24 — the same dollars, from a second sum)
           const shown = flowShown(cf.inflow, cf.outflow);
           const left = shown.surplus;
+          // A FIGURE WORKED FROM AN ESTIMATE WEARS ITS MARK (2026-11-02, R26 round; CF6-18, tenet 4): Left is Income less Outflow, so
+          // when the take-home is the app's calculation Left wears the '~' Income wears — 'Income ~$3,995' read 'Left $3,995'
+          const approx = takeHomeCalculated && shown.inflow > 0 ? '~' : '';
+          const approxSaid = approx ? 'about ' : '';
+          const inSaid = `${approxSaid}${spokenMoney(shown.inflow)}`;   // the Income cell, said once (the inflow beside a wage not read, R26)
           return (
             <TouchableOpacity accessibilityRole="button" style={styles.box} activeOpacity={0.85} onPress={() => router.push('/(tabs)/cashflow')}
-              accessibilityLabel={`This month’s cash flow${pace ? `, ${pace.word.replace('✓ ', '')}` : ''}: income ${incomeKnown ? `${takeHomeCalculated ? 'about ' : ''}${spokenMoney(shown.inflow)}` : 'not entered'}, expenses and debt paid so far ${spokenMoney(shown.outflow)}, ${!incomeKnown ? 'nothing left is shown until your income is entered' : left >= 0 ? `${spokenMoney(left)} left, bills may still be coming` : `${spokenMoney(-left)} over`}. Opens the Cash flow tab.`}
+              accessibilityLabel={`This month’s cash flow${pace ? `, ${pace.word.replace('✓ ', '')}` : ''}: income ${wageRefusal ? `${shown.inflow > 0 ? `${inSaid}, ` : ''}${wageRefusal.replace(/\.$/, '')}` : incomeKnown ? inSaid : 'not entered'}, expenses and debt paid so far ${spokenMoney(shown.outflow)}, ${wageRefusal ? 'nothing left is shown until your pay can be read' : !incomeKnown ? 'nothing left is shown until your income is entered' : left >= 0 ? `${approxSaid}${spokenMoney(left)} left, bills may still be coming` : `${approxSaid}${spokenMoney(-left)} over`}. Opens the Cash flow tab.`}
               // THE DOOR INSIDE THE BOX, AS THE BOX'S ACTION (2026-10-24, Cash flow journey E2E-78): "Add your income ›" sits inside
               // this one element, so a screen reader could not reach it; it is offered as the box's action, in its own words
-              accessibilityActions={!incomeKnown ? [{ name: 'addIncome', label: EMPTY_DOORS.income.label.replace(' ›', '') }] : undefined}
+              accessibilityActions={!incomeKnown && !wageRefusal ? [{ name: 'addIncome', label: EMPTY_DOORS.income.label.replace(' ›', '') }] : undefined}
               onAccessibilityAction={(e) => { if (e.nativeEvent.actionName === 'addIncome') router.push(EMPTY_DOORS.income.route as any); }}>
               <SectionBand inCard title={"THIS MONTH’S CASH FLOW"} />
               <View style={styles.paceRow}>
@@ -656,14 +669,14 @@ export default function HomeScreen() {
               </View>
               <View style={styles.cfRow}>
                 {/* the tab's own form of the figure: a take-home the app calculated wears ≈, one typed never (2026-10-25, CF-24) */}
-                <View style={styles.cfCell}><Text style={styles.cfLabel}>Income</Text><Text style={styles.cfNum}>{takeHomeCalculated && shown.inflow > 0 ? '≈' : ''}{fig('MK-CF-M-051', shown.inflow)}</Text>{!incomeKnown && <EmptyNote door="income" />}</View>
+                <View style={styles.cfCell}><Text style={styles.cfLabel}>Income</Text>{wageRefusal && !(shown.inflow > 0) ? <Text style={styles.cfNum}>—</Text> : <Text style={styles.cfNum}>{approx}{fig('MK-CF-M-051', shown.inflow)}</Text>}{wageRefusal ? <Text style={styles.cfLabel}>{wageRefusal}</Text> : !incomeKnown && <EmptyNote door="income" />}</View>
                 {/* the expenses AND the debt paid — Cash flow's "Outflow (expenses + debt)" (DEC-0269). It read "Actual expenses so
                     far" and left the debt paid out (2026-10-23) */}
                 <View style={styles.cfCell}><Text style={styles.cfLabel}>Outflow (expenses + debt)</Text><Text style={styles.cfNum}>{fig('MK-CF-M-052', shown.outflow)}</Text></View>
                 <View style={styles.cfCell}>
                   <Text style={styles.cfLabel}>{!incomeKnown || left >= 0 ? 'Left' : 'Over'}</Text>
                   {/* the size rounded, then the word — as Cash flow writes its signed surplus, so the two read the same dollar */}
-                  <Text style={[styles.cfNum, { color: !incomeKnown ? Colors.textSecondary : left >= 0 ? Colors.primaryDark : Colors.red }]}>{incomeKnown ? fig('MK-CF-M-053', Math.abs(left)) : '—'}</Text>
+                  <Text style={[styles.cfNum, { color: !incomeKnown ? Colors.textSecondary : left >= 0 ? Colors.primaryDark : Colors.red }]}>{incomeKnown ? `${approx}${fig('MK-CF-M-053', Math.abs(left))}` : '—'}</Text>
                 </View>
               </View>
             </TouchableOpacity>

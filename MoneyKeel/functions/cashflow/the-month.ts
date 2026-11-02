@@ -57,7 +57,7 @@ export interface TheMonth {
  *
  * Called by ... MK-CF-F-203 MONTH
  *
- * Reaches ..... 478 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 484 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -67,7 +67,7 @@ export interface TheMonth {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 460 more — the full list is on functions_from_code
+ *               … and 466 more — the full list is on functions_from_code
  *
  * Serves ...... MK-CF-M-001 · MK-CF-M-002 · MK-CF-M-003 · MK-CF-M-004
  *               MK-CF-M-013 · MK-CF-M-014 · MK-CF-M-015 · MK-CF-M-020
@@ -180,7 +180,7 @@ const GIVEN =
  *               MK-NW-O-004 theEmergencyFund · MK-PF-F-045 priceHistoryShortSentence
  *               MK-PL-F-036 weighGoals · MK-XS-F-004 buildDatedGrid
  *
- * Reaches ..... 478 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 484 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -190,7 +190,7 @@ const GIVEN =
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 460 more — the full list is on functions_from_code
+ *               … and 466 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -211,20 +211,22 @@ const MONTH = () => theMonth(EXAMPLE);
  * Called by ... MK-CF-F-036 buildDebtState · MK-CF-F-157 debtPaymentsByDebt
  *               MK-CF-F-171 earnerPay · MK-CF-F-184 incomeFromAccounts
  *               MK-CF-F-199 ROOM · MK-CF-F-241 M
- *               MK-CF-F-246 expensesAsCounted · MK-CF-O-001 basePay
- *               MK-CF-O-006 theCreditLine · MK-CF-O-010 theMonth
- *               MK-CF-O-017 futurePaycheck · MK-CF-O-020 theBudgetCounted
+ *               MK-CF-F-246 expensesAsCounted · MK-CF-F-263 incomeIsTaxedWhenPaid
+ *               MK-CF-O-001 basePay · MK-CF-O-006 theCreditLine
+ *               MK-CF-O-010 theMonth · MK-CF-O-017 futurePaycheck
+ *               MK-CF-O-019 theIncomeManager · MK-CF-O-020 theBudgetCounted
  *               MK-NW-F-002 alternativesSummary · MK-NW-F-028 classPortionLabel
  *               MK-NW-F-088 BENCH · MK-NW-F-139 leftOutValueOf
  *               MK-NW-F-141 holdingBondFacts · MK-NW-F-147 paymentNotEntered
  *               MK-NW-F-167 COMPARE · MK-NW-F-185 valueChanged
- *               MK-NW-O-003 theNetWorth · MK-PF-F-015 topHoldingConcentration
- *               MK-PF-F-035 unknownFigure · MK-PF-F-053 isBroadIndexOption
- *               MK-ST-F-081 timeWeightedReturn · MK-XS-F-002 dataGaps
- *               MK-XS-F-004 buildDatedGrid · MK-XS-F-058 parseReceipt
- *               MK-XS-F-094 parseReceiptText · MK-XS-F-096 pickReceipt
+ *               MK-NW-O-003 theNetWorth · MK-NW-O-008 thePerformance
+ *               MK-PF-F-015 topHoldingConcentration · MK-PF-F-035 unknownFigure
+ *               MK-PF-F-053 isBroadIndexOption · MK-ST-F-081 timeWeightedReturn
+ *               MK-XS-F-002 dataGaps · MK-XS-F-004 buildDatedGrid
+ *               MK-XS-F-058 parseReceipt · MK-XS-F-094 parseReceiptText
+ *               MK-XS-F-096 pickReceipt
  *
- * Reaches ..... 478 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 484 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -234,7 +236,7 @@ const MONTH = () => theMonth(EXAMPLE);
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 460 more — the full list is on functions_from_code
+ *               … and 466 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)

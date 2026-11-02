@@ -11,7 +11,8 @@ import { Colors, Spacing, Radii } from '../utils/theme';
 import { ageFromProfile } from '../utils/persona';
 import { assetClassOf, blendedReturn, portfolioActualReturn, monthlyContributionsFromOnboarding } from '../domain/assets';
 import { theNetWorth } from '../../MoneyKeel/functions/networth-and-performance/net-worth';
-import { totalGrossAnnual, salaryAnnual } from '../domain/income';
+import { totalGrossAnnual } from '../domain/income';
+import { setupEntered } from '../../MoneyKeel/functions/cashflow/setup-gate';   // R26, 2026-11-02: the one set-up gate
 import { k401Headroom, IRS_LIMITS } from '../domain/income/limits';
 import { ownK401Annual } from '../domain/income/earners';   // one person's 401(k) a year, the months paid (FIX-INCOME-A, 2026-10-26)
 import { TOXIC_APR } from '../domain/debt';
@@ -30,9 +31,10 @@ import { usePlanCompleteness } from './SharpenPlanScreen';
 import { money } from '../domain/_shared/num';
 import { modalAnimation } from '../hooks/reducedMotion';
 import { monthKey } from '../domain/income/salary-months';
+import { percentDigits } from '../../MoneyKeel/functions/_figure-spec';   // the one percent writer (R24, 2026-11-01)
 
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
-const pct = (d: number) => `${(d * 100).toFixed(1)}%`;
+const pct = (d: number) => `${percentDigits(d, 1)}%`;
 type Detail = { label: string; value: string };
 
 const THEME_META: Record<InsightTheme, { label: string; icon: string }> = {
@@ -83,7 +85,7 @@ export function useInsights(limit?: number): Insight[] {
     const bench = blendedReturn(accounts, undefined, Array.isArray(op?.rentals) ? op.rentals : null);   // the home as Net worth reads it (DEC-4913)
     const gross = totalGrossAnnual(op);
     const nm = (a: any) => a.institution?.trim() || a.label;
-    const shareOf = (v: number) => (invested > 0 ? `${money(v)} · ${Math.round((v / invested) * 100)}%` : money(v));
+    const shareOf = (v: number) => (invested > 0 ? `${money(v)} · ${percentDigits((v / invested), 0)}%` : money(v));
 
     // ── FCC inputs ──
     // F10: the newest open worth-a-look flag leads; a user-flagged one keeps a quiet follow-up.
@@ -147,7 +149,9 @@ export function useInsights(limit?: number): Insight[] {
       cashMonths: ef.monthsCovered,                    // the door's figure, not a second division
       toxicDebt: toxic && toxic.interest_rate_apr > TOXIC_APR ? { label: toxic.label, apr: toxic.interest_rate_apr } : null,
       k401Remaining: k401Headroom(age, ownK401Annual(op)).remaining,   // your own 401(k) this year, the months you are paid (2026-10-26)
-      hasEarnedIncome: salaryAnnual(op) > 0,
+      // the one set-up gate's answer (2026-11-02, R26): a wage entered AND read — a wage that cannot be read gives no room figure,
+      // because the room rests on that wage (R23)
+      hasEarnedIncome: setupEntered({ op, accounts: store.assetAccounts ?? [], debts: liabilities }).wageRead,
       retireChance: typeof store.lastRetireChance === 'number' ? store.lastRetireChance : null,   // cached by the Retire cockpit; null until viewed
       topAccountPct: invested > 0 ? (topAccount / invested) * 100 : 0,
       topAccountAmount: topAccount,                       // walk row 9: dollar-first wording
@@ -165,7 +169,7 @@ export function useInsights(limit?: number): Insight[] {
         .concat([{ label: 'Total invested', value: money(invested) }]),
       'cash-drag': () => accounts.filter((a: any) => assetClassOf(a) === 'cash').map((a: any) => ({ label: nm(a), value: money(a.balance || 0) }))
         .concat([{ label: 'Cash total', value: money(cash) }, { label: 'Investable total', value: money(investable) },
-                 { label: 'Cash share', value: investable > 0 ? `${Math.round((cash / investable) * 100)}%` : '—' }]),
+                 { label: 'Cash share', value: investable > 0 ? `${percentDigits((cash / investable), 0)}%` : '—' }]),
       // the drill-down names the DEBT LINE too, so the figure can be followed by hand: his ruling of
       // 2026-09-28 counts debt minimums, and a person who cannot see them cannot check the months
       runway: () => [{ label: 'Cash on hand', value: money(ef.cash) },

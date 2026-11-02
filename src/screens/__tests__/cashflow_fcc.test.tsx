@@ -188,7 +188,7 @@ test('a gross biweekly salary is described truthfully and reconciles with the In
   render(<CashFlowScreen />);
   fireEvent.press(screen.getByText('Income'));
   // "≈$9,172", the one form of the approximate mark, as Your base pay prints it (2026-10-25, CF-24 — it read "≈ $9,172")
-  const bridge = 'before tax · every 2 weeks · ≈' + '$' + expectedNet.toLocaleString() + '/month take-home';
+  const bridge = 'before tax · every 2 weeks · ~' + '$' + expectedNet.toLocaleString() + '/month take-home';
   expect(screen.getByText(bridge)).toBeOnTheScreen();
   expect(screen.queryByText('take-home · monthly')).toBeNull();   // the old hardcoded lie
 });

@@ -934,7 +934,7 @@ function closedWith(days: any[], ids: Set<string>, today: string, ending: number
  * Changed ..... not in git yet (—)
  */
 function gainRowBetween(r: GainRow, from: string, to: string, priceOf: (ticker: string) => PriceSeries | null | undefined,
-  transactions: any[], accounts: any[], today?: string): GainRow | null {
+  transactions: any[], accounts: any[], today?: string, insideDay = false): GainRow | null {
   const p = r.position as any;
   // the row's money paid inside the window and its path across it are the whole window's, not these days' (2026-10-21): here
   // a purchase inside these days is in the start at what was paid, so what it gained is its value then less that start
@@ -956,7 +956,8 @@ function gainRowBetween(r: GainRow, from: string, to: string, priceOf: (ticker: 
   const firstPoint = [...(series?.points ?? [])].filter((x) => /^\d{4}-\d{2}-\d{2}/.test(String(x?.date ?? ''))).sort((x, y) => String(x.date).localeCompare(String(y.date)))[0];
   const closeTo = closeOnOrBefore(series, to);
   // R19 (2026-11-01): a close more than 7 days before those days' start is no start (staleStartClose)
-  const closeFrom = staleStartClose(series, from) ? null : closeOnOrBefore(series, from) ?? (firstPoint && String(firstPoint.date).slice(0, 10) <= to ? firstPoint.close : null);
+  // `insideDay`: a day inside the window (money moved), which takes its own day's close (R19b, 2026-11-01)
+  const closeFrom = !insideDay && staleStartClose(series, from) ? null : closeOnOrBefore(series, from) ?? (firstPoint && String(firstPoint.date).slice(0, 10) <= to ? firstPoint.close : null);
   // A CD WITH A STATED RATE, NO PRICES, HELD THROUGH THOSE DAYS (2026-10-27, FX-PF, PF-5; DEC-3656): it grows by its rate over
   // them, as it does over the whole window — its value on a day is its value today ÷ (1 + rate)^(the days from then to today ÷
   // 365). $10,400 at 4.00% with the record beginning 90 days ago, over 1Y: on the record's first day 10,400 ÷ 1.04^(90 ÷ 365),
@@ -1121,10 +1122,13 @@ const whyLeftOut = (r: GainRow): 'history' | 'paid' | 'sale' => (r.paidInside ==
  *               MK-PF-M-019 · MK-PF-M-020 · MK-PF-M-021 · MK-PF-M-022
  *               MK-PF-M-023 · MK-PF-M-024 · MK-PF-M-027 · MK-XS-M-004
  * Reads ....... MK-XS-I-001 account balance
+ *               MK-XS-I-004 holding quantity (shares)
  *               MK-XS-I-005 holding price
+ *               MK-XS-I-008 transaction amount
  *               MK-XS-I-009 transaction date
  *               MK-XS-I-012 bond coupon rate
  *               MK-XS-I-024 logged expenses
+ *               MK-XS-I-063 option contract multiplier — 100 unless the broker or the person states otherwise
  * Ruled by .... DEC-0008 · DEC-0015 · DEC-0046 · DEC-0056 · DEC-0063 · DEC-0064
  *               DEC-0065 · DEC-0084 · DEC-0093 · DEC-0097 · DEC-0106 · DEC-0112
  *               DEC-0126 · DEC-0133 · DEC-0134 · DEC-0135 · DEC-0136 · DEC-0142
@@ -1141,9 +1145,10 @@ const whyLeftOut = (r: GainRow): 'history' | 'paid' | 'sale' => (r.paidInside ==
  *     · If market value is missing it uses 0.
  *     · If g is missing it uses 0.
  *     · If priced gain is missing it uses 0.
- *     · If gap return is missing it uses 0.
  *     · If length is missing it uses 0.
+ *     · If gap return is missing it uses 0.
  *     · If typed adjust is missing it uses 0.
+ *     · If multiplier is missing it uses 1.
  *     · If balance is missing it counts as zero, so nothing recorded and a real zero look the same.
  *     · If amount is missing it counts as zero, so nothing recorded and a real zero look the same.
  *     · Treats a year as 365 days.
@@ -1357,7 +1362,11 @@ export function thePerformance(input: {
   // handing over a known dollar gain has said one exists. (DEC-5291, 2026-10-13)
   const hasHistory = (r: GainRow) => !!r.cappedSince || windowTotal(r.periodReturn, r.periodTotal, years) != null
     || (r.couponRate != null && Number.isFinite(r.couponRate) && r.couponRate >= 0);
-  const anyHistory = gainRows.some(hasHistory) || (!input.holdings && input.pricedGain != null && input.pricedGain !== 0);
+  // PRICES ON RECORD ARE A HISTORY, HOWEVER OLD (R19b, PF5-2, 2026-11-01): a holding whose only closes are too old to start this window
+  // from is worked back and named in R19's sentence — the window is not greyed, nor read as day one ('We never back-fill a year we
+  // didn't see'), when its prices go back to 2024
+  const pricesOnRecord = (r: GainRow) => { const tk = (r.position as any)?.ticker; return !!tk && !!input.priceOf && ((input.priceOf(String(tk))?.points?.length ?? 0) > 0); };
+  const anyHistory = gainRows.some(hasHistory) || gainRows.some(pricesOnRecord) || (!input.holdings && input.pricedGain != null && input.pricedGain !== 0);
   // A RECORD THAT EXISTS BUT BEGINS AFTER THE WINDOW OPENS. Until 2026-10-13 that greyed the window (DEC-3035i): no
   // walk, and "The record begins …". His approval of 2026-10-13 (DEC-5291, "approved."): let price history
   // count — a period that starts before the daily record is worked back from each holding's price history, and the
@@ -1579,8 +1588,16 @@ export function thePerformance(input: {
   const notIncluded = typedRest > 0.5 && notIncludedBase.startsWith(firstSentence)
     ? notIncludedBase.replace(firstSentence, `Return is on the ${fig21(countedValue + typedRest)}: ${fig21(countedValue)} with a price history and ${fig21(typedRest)} of ${typedCount > 1 ? 'accounts whose totals were typed' : 'an account whose total was typed'}, worked back from its records.`)
     : notIncludedBase;
+  // AN ACCOUNT WITH NO HOLDINGS LISTED, ITS VALUE TYPED AND ITS GAIN NOT KNOWN (2026-11-01, FX-PF; R18, NW5-03): a bond or a fund typed
+  // as a value, with no price history. Its own move is unknown, so it adds nothing — and its interest or coupon was carved out of that
+  // nothing: 'Change in investment value −$200' after a $200 coupon, a loss nobody measured. The coupon is income on its own line, so
+  // the beginning is worked back without it: the Treasury typed at $9,850, a $200 coupon Sep 30 → $9,650 → $9,850, interest $200,
+  // change in investment value $0. To reverse: drop typedInstrument.
+  const typedInstrument = !!oneAccount && oneAccount.derive_balance !== true && oneAccount.source !== 'connected'
+    && (oneAccount.positions?.length ?? 0) === 0 && measured == null && unknownNames.length > 0;
   const beginning = measured ?? (typedWalk
     ? ending - pricedGain - cashInterest + feesPaid - contributions + withdrawals
+    : typedInstrument ? ending - pricedGain - interest - contributions + withdrawals
     : ending - pricedGain - contributions + withdrawals - typedAdjustAll);
 
   const walk = unreachable ? null : buildChangeWalk({
@@ -1645,6 +1662,8 @@ export function thePerformance(input: {
   // $50,000 ÷ $49,000 − 1 = +2.04%. Where a day's value cannot be worked back, no figure, and the sentence says so.
   const flowTwr = (): number | null => {
     if (!walk || !(walk.beginning > 0) || !input.priceOf || !input.holdings || !windowStart) return null;
+    // SHARES MOVED IN KIND, OR A DIVIDEND REINVESTED: what was held that day is not worked back here — no figure, and the sentence
+    if (ledger.some((t: any) => t?.type === 'TRANSFER_IN_KIND' || (t?.type === 'DIVIDEND' && Number(t?.shares) > 0))) return null;
     const inWindow = moved.flows.filter((f: any) => String(f?.date) >= windowStart && String(f?.date) <= today);
     const days = [...new Set(inWindow.map((f: any) => String(f.date)))].sort();
     if (!days.length) return null;
@@ -1653,28 +1672,59 @@ export function thePerformance(input: {
       && (t?.type !== 'INTEREST' || !String(t?.ticker ?? '').trim()))   // a holding's own interest is inside its move, as above
       .reduce((t: number, x: any) => t + Math.abs(Number(x?.amount) || 0), 0);
     const movedSince = (d: string) => inWindow.filter((f: any) => String(f.date) >= d).reduce((t: number, f: any) => t + Number(f.amount || 0), 0);
-    const gainSince = (d: string): number | null => {
-      let g = 0;
-      for (const r of input.holdings!) {
-        const x = gainRowBetween(r, eve(d), today, input.priceOf!, input.transactions ?? [], input.accounts ?? [], today);
-        if (x == null) continue;
-        if (x.startValue == null || x.marketValue == null) return null;
-        g += x.marketValue - x.startValue;
+    // THE VALUE JUST BEFORE A DAY MONEY MOVED, WITH EACH TRADE SINCE UNDONE (2026-11-01, FX-PF; the lead's note on R18; account-page v01
+    // row 96): the shares held that day are today's plus those sold since less those bought since, at the close before that day (a day
+    // inside the window takes its own close, R19b); the value is today's total less today's holdings plus those, less the money put in
+    // since, the interest to its cash since and the sale proceeds since (net of their fees), plus the fees and the buy costs since.
+    // Vanguard, $1,000 in Sep 15, 10 VTI sold Sep 30 at $120 less $5: $50,995 − $9,000 + 100 × $90 − $1,000 − $1,195 = $48,800.
+    // A trade whose shares or price is not on record: no figure, and the sentence.
+    const valueBefore = (d: string): number | null => {
+      const ev = eve(d);
+      const tradesSince = ledger.filter((t: any) => (t?.type === 'BUY' || t?.type === 'SELL') && String(t?.date ?? '').slice(0, 10) >= d);
+      let hNow = 0, hEve = 0, tradeCash = 0;
+      for (const t of tradesSince) {
+        const sh = Number(t?.shares), px = Number(t?.price), mult = Number(t?.multiplier ?? 1) || 1;
+        const gross = sh > 0 && px > 0 ? sh * px * mult : Number(t?.amount) > 0 ? Number(t.amount) : NaN;
+        if (!(sh > 0) || !Number.isFinite(gross)) return null;
+        const fee = t?.fee_in_price ? 0 : Math.abs(Number(t?.fee) || 0);
+        tradeCash += t.type === 'SELL' ? gross - fee : -(gross + fee);
       }
-      return g;
+      for (const r of input.holdings!) {
+        const p: any = r.position ?? {};
+        const tk = String(p?.ticker ?? '').trim().toUpperCase();
+        if (!tk) return null;
+        const mine = tradesSince.filter((t: any) => String(t?.ticker ?? '').trim().toUpperCase() === tk);
+        const now = ((p.lots ?? []) as any[]).reduce((u, l) => u + (Number(l?.shares) || 0), 0);
+        const then = now + mine.filter((t: any) => t.type === 'SELL').reduce((u, t: any) => u + Number(t.shares), 0)
+          - mine.filter((t: any) => t.type === 'BUY').reduce((u, t: any) => u + Number(t.shares), 0);
+        if (then < -1e-9) return null;
+        const series = input.priceOf!(tk);
+        const cNow = latestClose(series), cEve = closeOnOrBefore(series, ev);
+        const mult = contractMultiplier(p);
+        if (now > 0) { if (cNow == null) return null; hNow += now * cNow * mult; }
+        if (then > 1e-9) { if (cEve == null) return null; hEve += then * cEve * mult; }
+      }
+      return ending - hNow + hEve - movedSince(d) - sumSince(d, ['INTEREST']) + sumSince(d, ['FEE']) - tradeCash;
     };
     let prev = walk.beginning, grown = 1;
     for (const d of days) {
-      const g = gainSince(d);
-      if (g == null) return null;
-      const before = ending - g - sumSince(d, ['INTEREST']) + sumSince(d, ['FEE']) - movedSince(d);
+      const before = valueBefore(d);
+      if (before == null) return null;
       if (!(before > 0) || !(prev > 0)) return null;
       grown *= before / prev;
       prev = before + inWindow.filter((f: any) => String(f.date) === d).reduce((t: number, f: any) => t + Number(f.amount || 0), 0);
     }
     return prev > 0 ? grown * (ending / prev) - 1 : null;
   };
-  const walkReturn: number | null | undefined = workedBack && typedWalk && walk && unknownNames.length === 0
+  // (a holding whose gain is not known keeps HIS ruling DEC-5068 — the Return is on the holdings with a history, and the one left out
+  // is named in the sentence under it; R18 does not override it)
+  // A TRADE WITH NO PRICE (2026-11-02, FX-PF; NW6-01; account-page v01's row of that date): a buy or a sale inside the window saved
+  // without its price leaves what the holdings made unknown, so the walk's own change cannot be known either — no figure, and the
+  // sentence under it names the record. It read VTI's own +11.11% beside wealth generated $0. A holding with no price history keeps
+  // DEC-5068 (above). To reverse: drop tradeNotOnRecord.
+  const tradeNotOnRecord = unknownNames.some((u) => u.why === 'paid' || u.why === 'sale');
+  const walkReturn: number | null | undefined = workedBack && typedWalk && walk && tradeNotOnRecord ? null
+    : workedBack && typedWalk && walk && unknownNames.length === 0
     ? (contributions === 0 && withdrawals === 0 && walk.beginning > 0 ? walk.ending / walk.beginning - 1 : flowTwr()) : undefined;
   const cumulative = covered ? verdict?.rate ?? null : workedBack ? (walkReturn !== undefined ? walkReturn : knownReturn) : null;
   // a yearly rate only for a window longer than a year: (1 + the return)^(365 ÷ days) − 1. "Since" is

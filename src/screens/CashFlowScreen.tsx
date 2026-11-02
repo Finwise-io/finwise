@@ -4,11 +4,12 @@
 //   working → THIS MONTH as the approved drawing has it (cash-flow_v01, frames A and B): what is
 //             planned and what has actually happened, every row spelled out, each ending in its surplus
 // Every number is a door's — this screen computes NOTHING of its own.
+import { rentWaitingSentence } from './IncomeSummaryScreen';   // the one sentence for rent waiting for its property (R27, 2026-11-02)
 import { MoneyBox } from '../components/MoneyBox';   // every money box, one component (DEC-8385)
 import { plural, withArticle } from '../domain/_shared/plural';   // the one list of words and plurals (DEC-4082, 2026-10-10)
 import { pastMonthFlow, addedAfterRecord, monthBeforeAnyRecord, type Line as MonthLine } from '../../MoneyKeel/functions/cashflow/this-month';
 import { fig, figPer, figSaid, figWords, saidSentence, monthShown, flowShown, partsShown } from '../components/figure';   // rule 11: a figure prints with its identifier
-import { centsShown } from '../../MoneyKeel/functions/_figure-spec';   // rows to the cent that add up to their printed total (R5, 2026-10-27)
+import { centsShown, percentDigits, percentValue } from '../../MoneyKeel/functions/_figure-spec';   // rows to the cent that add up to their printed total (R5, 2026-10-27)
 import { theBudgetCounted, expensesAsCounted } from '../../MoneyKeel/functions/cashflow/budget-counted';
 import { theMonth } from '../../MoneyKeel/functions/cashflow/the-month';
 import { futurePaycheck } from '../../MoneyKeel/functions/cashflow/future-paycheck';
@@ -21,7 +22,6 @@ import { useIncomeProfile } from '../hooks/useIncomeProfile';   // the one profi
 import { SectionBand } from '../components/SectionBand';
 import { Colors, Typography, Spacing, Radii, Tap } from '../utils/theme';
 import { budgetVsActual, plannedMonthlySpend } from '../domain/budget';
-import { retirementIncomeMonthly } from '../domain/income';
 import { incomeSummary } from '../../MoneyKeel/functions/cashflow/income-summary';
 import { taxBucketSplit, withdrawalOrder, RMD_NO_AGE } from '../domain/decumulation';
 import { CountedTaxableLines } from '../components/CountedTaxableLines';   // (DEC-4105, 2026-10-10)
@@ -39,8 +39,8 @@ import { EstimateTag, EmptyNote } from '../components/UI';
 import { HiddenBalancesBanner } from '../components/HiddenBalancesBanner';
 import { modalAnimation } from '../hooks/reducedMotion';
 import { DotJoined } from '../components/SepDot';
-import { hasMonthlySalaryTable } from '../domain/income/salary-months';
-import { salaryAnnual } from '../domain/income';
+import { wageRefusalOf } from '../domain/income/pay-frequency';   // R23a, 2026-11-01: a wage entered that cannot be read
+import { setupEntered } from '../../MoneyKeel/functions/cashflow/setup-gate';   // R26, 2026-11-02: the one set-up gate
 import { localDay } from '../domain/_shared/dates';   // the one reader of a stored day (CF-21, 2026-10-25)
 import { datedBillsIn } from '../domain/grid';   // a month's dated bills, read one way (2026-10-26)
 
@@ -99,8 +99,17 @@ export default function CashFlowScreen() {
   const selYm = `${selDate.getFullYear()}-${String(selDate.getMonth() + 1).padStart(2, '0')}`;
   const selLabel = selDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
     + (surfOffset < 0 ? ' — final' : surfOffset > 0 ? ' — planned' : '');
-  // the income question is ANSWERED when any source exists (the first-open gate)
-  const incomeReady = !!(salaryAnnual(op) > 0 || hasMonthlySalaryTable(op) || op?.seAmount || retirementIncomeMonthly(op) > 0);
+  // THE ONE SET-UP GATE (2026-11-02, the lead's ruling R26; cash-flow_v01's row of 2026-11-02; CF6-09, CF6-10): Cash flow, Home,
+  // Insights and the sign-up summary read one answer to "is anything entered yet?" (setupEntered). Any inflow (a wage that cannot be
+  // read among them — R23a, the round-5d row), any expense logged, a budget set, a debt or a student loan from setup opens the month;
+  // the doors are for a first day only (round 5e) and the pay still missing is offered in words where it would be. A $9,800 car loan
+  // alone showed the set-up doors beside a Debts tab listing it. With no inflow at all, no surplus rests on an income nobody entered
+  const gate = setupEntered({ op, accounts: store.assetAccounts ?? [], transactions: store.transactions ?? [], expenses, incomes: store.incomes ?? [], debts: liabilities });
+  const incomeReady = gate.payRead;
+  const wageRefusal = gate.wageRefusal;   // R23's sentence, wageRefusalOf — Base pay's own words
+  const inflowEntered = gate.inflow;
+  const monthReady = gate.entered;
+  const payMissing = !incomeReady && !wageRefusal;
 
   return (
     <View style={{ flex: 1, backgroundColor: Colors.bgSecondary }}>
@@ -134,7 +143,7 @@ export default function CashFlowScreen() {
         ))}
       </View>
 
-      {surfTab === 'This month' && (!incomeReady && lens !== 'retired' ? (
+      {surfTab === 'This month' && (!monthReady && lens !== 'retired' ? (
         /* FIRST OPEN (approved): no zeros — the two setup doors */
         <View style={styles.card}>
           {/* every box title on a dark-green bar, edge to edge (his words, DEC-8839; the lead's R1, 2026-10-27; cash-flow_v01's row of that date) — it was a quiet label (CF-19) */}
@@ -154,7 +163,7 @@ export default function CashFlowScreen() {
         lens === 'retired' ? (
           <RetiredMain year={year} accounts={accounts} bva={bva} onWhyOrder={() => { setWhyOrder(true); (useStore.getState() as any).setTransitionCheck?.('drawOrder', true); }} />
         ) : (
-          <WorkingMain grid={grid} bva={bva} op={op} budgetProfile={budget.profile} liabilities={liabilities} store={store} budgetSentence={budget.sentence} />
+          <WorkingMain grid={grid} bva={bva} op={op} budgetProfile={budget.profile} liabilities={liabilities} store={store} budgetSentence={budget.sentence} wageRefusal={wageRefusal} payMissing={payMissing} noInflow={!inflowEntered} />
         )
       ) : (
         <OtherMonthCard offset={surfOffset} ym={selYm} label={selLabel} grid={grid} store={store} onSpending={() => setSurfTab('Expenses')}
@@ -251,21 +260,25 @@ function OtherMonthCard({ offset, ym, label, grid, store, onSpending, budgetSet 
     // the month's dated bills, read one way (datedBillsIn, 2026-10-26 — the lead's ruling): never a monthly category or a debt
     const bigBills = datedBillsIn(cell).filter((b: any) => (b.amount ?? 0) >= 500);
     const plan = flowShown(cell.inflow, cell.outflow);   // the three add up as printed (2026-10-24, tenet 2)
+    const laterRefusal = wageRefusalOf(store.onboardingProfile);   // R27, 2026-11-02
     // the take-home the app calculated wears ≈ here too — one figure, one form across the tab (2026-10-25, CF-24)
     // the accounts' interest and dividends are in the tax here too (2026-10-26, FIX-INCOME-A; the one profile income figures read, src/hooks/useIncomeProfile.ts)
     const calculated = incomeSummary(store.onboardingProfile ?? null, { accounts: store.assetAccounts, transactions: store.transactions }).lands.lines.some((l: any) => l.estimated === true);
     return (
       <View style={styles.card}>
         <SectionBand inCard onRowEdges inset={16} title={`${bandMonth(label)} — THE PLAN (AN ESTIMATE)`} />
-        <Row label="Planned inflow" value={`${calculated && plan.inflow > 0 ? '≈' : ''}${fig('MK-CF-M-047', plan.inflow)}`} />
-        {(cell.incomeItems ?? []).length === 0 && <EmptyNote door="income" />}   {/* Q48 (MK-CF-M-001) */}
+        {/* A WAGE THAT CANNOT BE READ (R27, 2026-11-02, FX-CF-B; cash-flow_v01 row of that day): the planned inflow rests on it — no
+            figure, the reason instead of "Nothing entered yet"; the surplus below reads — */}
+        <Row label="Planned inflow" value={laterRefusal ? '—' : `${calculated && plan.inflow > 0 ? '~' : ''}${fig('MK-CF-M-047', plan.inflow)}`} />
+        {laterRefusal ? <Text style={styles.note}>{laterRefusal}</Text>
+          : (cell.incomeItems ?? []).length === 0 && <EmptyNote door="income" />}   {/* Q48 (MK-CF-M-001) */}
         {/* NO BUDGET, NO PLANNED SURPLUS — in This month's words (2026-10-25, MK-CF-M-049 tenet 3; DEC-7939): October read "Planned
             outflow $2,650 · = Planned surplus $4,550", the take-home less the debts, as if nothing were spent */}
         {budgetSet ? (<>
           <Row label={bigBills.length ? `Planned outflow (expenses + debt) · incl. ${bigBills[0].label}` : 'Planned outflow (expenses + debt)'} value={fig('MK-CF-M-048', plan.outflow)} dim />
           {plan.outflow === 0 && <EmptyNote door="bills" />}   {/* Q48 (MK-CF-M-002): $0 planned, nothing behind it */}
           {/* the surplus carries its sign, as This month prints it — "+$3,450" (2026-10-27, CF2-07; tenet 4) */}
-          <Row label="= Planned surplus" value={`${plan.surplus < 0 ? '−' : '+'}${fig('MK-CF-M-049', Math.abs(plan.surplus))}`} strong color={plan.surplus >= 0 ? Colors.gainText : Colors.red} />
+          <Row label="= Planned surplus" value={laterRefusal ? '—' : `${calculated && plan.inflow > 0 ? '~' : ''}${plan.surplus < 0 ? '−' : '+'}${fig('MK-CF-M-049', Math.abs(plan.surplus))}`} strong color={laterRefusal ? Colors.textPrimary : plan.surplus >= 0 ? Colors.gainText : Colors.red} />
         </>) : (<>
           <Row label="Planned outflow (expenses + debt)" value="— not set" dim />
           <Text style={styles.emptyP}>{hasDebts ? 'Your debts are here, but you haven’t set your budget.' : 'You haven’t set your budget.'} Until you do there is no planned surplus — we won’t guess one.</Text>
@@ -290,9 +303,11 @@ function OtherMonthCard({ offset, ym, label, grid, store, onSpending, budgetSet 
   return (
     <View style={styles.card}>
       <SectionBand inCard onRowEdges inset={16} title={`${bandMonth(label)} — WHAT ACTUALLY HAPPENED`} />
-      <Row label="Actual inflow" value={fig('MK-CF-M-051', inn)} />
-      <Row label="Outflow (expenses + debt)" value={fig('MK-CF-M-052', out)} dim />
-      <Row label="= Surplus" value={`${left < 0 ? '−' : '+'}${fig('MK-CF-M-053', Math.abs(left))}`} strong color={left >= 0 ? Colors.gainText : Colors.red} />
+      {/* NOTHING RECORDED IS NOT $0 (R27, 2026-11-02, FX-CF-B; tenet 3): a month before tracking reads — on each line, with the sentence
+          below — it read "$0 · $0 · +$0" beside an Income tab that expected $1,200 that month */}
+      <Row label="Actual inflow" value={predates ? '—' : fig('MK-CF-M-051', inn)} />
+      <Row label="Outflow (expenses + debt)" value={predates ? '—' : fig('MK-CF-M-052', out)} dim />
+      <Row label="= Surplus" value={predates ? '—' : `${left < 0 ? '−' : '+'}${fig('MK-CF-M-053', Math.abs(left))}`} strong color={predates ? Colors.textPrimary : left >= 0 ? Colors.gainText : Colors.red} />
       {/* ONE LINE SAYS WHAT THE FIGURES ARE, NEVER TWO THAT DISAGREE (2026-10-27, CF2-08; tenet 1): a month before anything was recorded
           predates the tracking, and says only that; it also said "Added up from what is logged …", which says it was added up */}
       {predates && <Text style={styles.note}>Nothing recorded for this month — it predates your tracking.</Text>}
@@ -343,11 +358,18 @@ function IncomeTab({ op, store, ym, expected, current, monthLabel, onSetup, onSu
       earnerAt += 1;
       const monthlyNet = Math.round(payRows[earnerAt]?.amount ?? 0);
       const approx = payRows[earnerAt]?.estimated !== false;
+      // a wage that cannot be read has no take-home and no period (R23a follow-on, 2026-11-01): it read 'before tax · yearly · ~$0/month
+      // take-home' for a $100,000 wage saved as 'annual' — Your income's words instead
+      // THIS wage's own refusal, on its own row (R27, 2026-11-02; CF6-12): it was guessed from the household, so hourly with no hours read
+      // "pay frequency not recognised", and a couple's readable wage wore its spouse's refusal
+      const unread = x.unread;
       sources.push({ label: x.label,
-        sub: x.note === 'by-month table' ? x.note
+        sub: unread ? [x.note, unread].filter(Boolean) as string[]
+          : sum.wageRefusal && approx ? [x.note, x.every ?? 'monthly', 'take-home not calculated — the other pay cannot be read yet'].filter(Boolean) as string[]
+          : x.note === 'by-month table' ? x.note
           : x.note === 'take-home' && x.every === 'monthly' ? 'take-home · monthly'
-          : [x.note, x.every ?? 'monthly', `${approx ? '≈' : ''}${fig('MK-CF-M-031', monthlyNet)}/month take-home`],   // "≈$6,976", the one form (CF-24)
-        amount: fig('MK-CF-M-006', Math.round(x.amount)), open: onSetup });
+          : [x.note, x.every ?? 'monthly', `${approx ? '~' : ''}${fig('MK-CF-M-031', monthlyNet)}/month take-home`],   // "≈$6,976", the one form (CF-24)
+        amount: x.hourly ? `${fig('MK-CF-M-006', x.amount)}/hour` : fig('MK-CF-M-006', Math.round(x.amount)), open: onSetup });   // '$25/hour' (CF6-12)
       continue;
     }
     // grants with no value yet read "—", as drawn ("Equity comp · RSU grants · — ›")
@@ -373,7 +395,7 @@ function IncomeTab({ op, store, ym, expected, current, monthLabel, onSetup, onSu
       { text: 'Cancel', style: 'cancel' },
     ]);
   };
-  const heroShown = `${calculated ? '≈' : ''}${fig('MK-CF-M-047', Math.round(expected))}`;
+  const heroShown = sum.wageRefusal ? '—' : `${calculated ? '~' : ''}${fig('MK-CF-M-047', Math.round(expected))}`;   // no take-home rests on a wage not read (R23a)
   return (
     <>
       {/* THE MONTH'S EXPECTED TAKE-HOME, first (cash-flow_v01, frame 5) — the figure the sources below add up to. The section
@@ -381,14 +403,17 @@ function IncomeTab({ op, store, ym, expected, current, monthLabel, onSetup, onSu
       <View style={styles.card}>
         {/* the box titles on dark-green bars (his words, DEC-8839; the lead's R1, 2026-10-27; cash-flow_v01's row of that date) — they were the drawing's quiet grey labels (CF-02) */}
         <SectionBand inCard onRowEdges inset={16} title={current ? 'THIS MONTH' : monthLabel.toUpperCase()} />
-        <Text style={styles.incomeHero} accessible accessibilityLabel={`${calculated ? 'about ' : ''}${figSaid('MK-CF-M-047', Math.round(expected))}, expected take-home`}>{heroShown}</Text>
+        <Text style={styles.incomeHero} accessible accessibilityLabel={sum.wageRefusal ? 'No expected take-home figure' : `${calculated ? 'about ' : ''}${figSaid('MK-CF-M-047', Math.round(expected))}, expected take-home`}>{heroShown}</Text>
         <Text style={styles.heroSub}>expected take-home</Text>
+        {!!sum.wageRefusal && <Text style={styles.note}>{sum.wageRefusal}</Text>}
       </View>
       <View style={styles.card}>
         <SectionBand inCard onRowEdges inset={16} title="YOUR SOURCES" />
         {/* ONE DOOR (Q48, DEC-0260): with nothing entered, the line that says so IS the door — the chooser — and it is not
             printed again under it (it read "Nothing entered yet. Add your income ›" then "Add your income ›"; CF-16) */}
-        {sources.length === 0 && <EmptyNote door="income" onPress={chooseIncome} />}
+        {/* rent that names no property is counted nowhere, and said — never "Nothing entered yet" (DEC-4059d; R27, 2026-11-02, FX-CF-B) */}
+        {sum.rentWaiting != null && <Text style={styles.note}>{rentWaitingSentence(sum.rentWaiting)}</Text>}
+        {sources.length === 0 && sum.rentWaiting == null && <EmptyNote door="income" onPress={chooseIncome} />}
         {sources.map((sc) => (
           <TouchableOpacity key={sc.label} accessibilityRole="button" activeOpacity={0.7} style={styles.mRow} onPress={sc.open}
             accessibilityLabel={`${sayRow(sc.label, ...(Array.isArray(sc.sub) ? sc.sub : [sc.sub]), sc.amount)}. Opens it to change.`}>
@@ -676,8 +701,8 @@ function RetiredMain({ year, accounts, bva, onWhyOrder }: { year: any; accounts:
   const m0 = year?.months[0];   // no birth year: no paycheck year, and the pace card is not drawn (2026-10-25, FIX-MONTH)
   const safePool = Math.max(0, Math.round(m0?.netSafeToSpend ?? 0));
   const now = new Date();
-  const monthPct = Math.round((now.getDate() / new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate()) * 100);
-  const spentPct = safePool > 0 ? Math.round((bva.spent_total / safePool) * 100) : 0;
+  const monthPct = percentValue(now.getDate() / new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate(), 0);
+  const spentPct = safePool > 0 ? percentValue(bva.spent_total / safePool, 0) : 0;
   return (
     <>
       <PaycheckCard />
@@ -758,7 +783,7 @@ function MonthRow({ line, onPress, shown, approx }: { line: MonthLine; onPress?:
     : line.notEntered ? 'payment not entered'   // a payment never entered is not $0 (2026-10-23) — Net worth's words
     // round the SIZE, then put the sign on: rounding a negative half-dollar goes the other way (−6.50 → −6)
     // a take-home the app calculated wears ≈; one the person typed never does (2026-10-25, CF-24; income v07 rule 9)
-    : `${amt < 0 ? '−' : ''}${approx ? '≈' : ''}${fig('MK-CF-M-004', Math.abs(amt))}`;
+    : `${amt < 0 ? '−' : ''}${approx ? '~' : ''}${fig('MK-CF-M-004', Math.abs(amt))}`;
   const said = sayRow(line.label, ...tags, ...subs, value);
   const body = (
     <View style={styles.mRow} accessible={!onPress} accessibilityLabel={onPress ? undefined : said}>
@@ -777,7 +802,7 @@ function MonthRow({ line, onPress, shown, approx }: { line: MonthLine; onPress?:
     : body;
 }
 
-function WorkingMain({ grid, bva, op, budgetProfile, liabilities, store, budgetSentence }: { grid: any; bva: any; op: any; budgetProfile: any; liabilities: any[]; store: any; budgetSentence?: string }) {
+function WorkingMain({ grid, bva, op, budgetProfile, liabilities, store, budgetSentence, wageRefusal, payMissing, noInflow }: { grid: any; bva: any; op: any; budgetProfile: any; liabilities: any[]; store: any; budgetSentence?: string; wageRefusal?: string | null; payMissing?: boolean; noInflow?: boolean }) {
   const router = useRouter();
   const [budgetOpen, setBudgetOpen] = useState(false);
   // ONE DOOR (MK-CF-O-010 theMonth, Q-CF-2), and THE FLOW SPELLED OUT. The approved design
@@ -789,7 +814,9 @@ function WorkingMain({ grid, bva, op, budgetProfile, liabilities, store, budgetS
     grid, bva, profile: budgetProfile, liabilities, expenses: store.expenses ?? [], commitments: (store.retirementAssumptions ?? {}).commitments ?? [],
   })), [grid, budgetProfile, liabilities, bva, store.expenses, store.retirementAssumptions]);
   const commitments = (((store.retirementAssumptions ?? {}).commitments ?? []) as { label: string; monthlyAmount: number }[]);
-  const signed = (id: string, n: number) => `${n < 0 ? '−' : '+'}${fig(id, Math.round(Math.abs(n)))}`;
+  // a surplus worked on a calculated take-home carries the one 'about' mark before its sign — '~+$5,022' (R25a, 2026-11-02; cash-flow_v01
+  // row of that day), as Home's Left reads '~$4,582'; on a take-home typed, none — '+$350', as drawn
+  const signed = (id: string, n: number) => `${calculated ? '~' : ''}${n < 0 ? '−' : '+'}${fig(id, Math.round(Math.abs(n)))}`;
   const { planned: plannedExact, actual: actualExact } = month;
   // EVERY ROW SHOWN ADDS UP TO THE SURPLUS SHOWN (2026-10-24, tenet 2; Cash flow journey E2E-69): the rows and the surplus as
   // printed, in whole dollars, by one writer Home's box reads too (monthShown). A $6.50 coffee read rows making $893 over +$894.
@@ -803,6 +830,27 @@ function WorkingMain({ grid, bva, op, budgetProfile, liabilities, store, budgetS
     [op, store.assetAccounts, store.transactions]);   // the accounts' interest in the tax (2026-10-26, FIX-INCOME-A; the one profile income figures read, src/hooks/useIncomeProfile.ts)
   const incomeOp = useIncomeProfile(op);   // read only — never saved
   const nothingLogged = actual.lines.filter((l) => l.kind === 'spend').every((l) => l.amount === 0);
+  // A WAGE THAT CANNOT BE READ (2026-11-01, R23a follow-on; cash-flow_v01's round-5d row): the rows that do not rest on it print, its
+  // sentence stands where it would be (after the last inflow row), and each surplus — which rests on it — reads '—'
+  // a pay line with no pay behind it is not printed as '$0' (tenet 3): the door below says the pay is not entered (round 5e)
+  // and with a wage that cannot be read, no inflow row prints at all: each rests on it — its take-home, or a rate it sets (R27, 2026-11-02)
+  // with a wage that cannot be read, an inflow row that holds a take-home rests on it and does not print; a row that holds none — 'Actual
+  // inflow (rent) $1,200' — still prints (R27, 2026-11-02); a pay line with no pay behind it is never '$0'
+  const unpaid = (l: MonthLine) => l.kind === 'in' && ((!!wageRefusal && (/take-home/.test(l.label) || !(Math.abs(l.amount) > 0)))
+    || (!!payMissing && !(Math.abs(l.amount) > 0)));
+  const lastIn = (lines: MonthLine[]) => lines.map((l) => (l.kind === 'in' && !unpaid(l) ? 'in' : '')).lastIndexOf('in');
+  const rentWaiting = useMemo(() => incomeSummary(op).rentWaiting, [op]);   // R27, 2026-11-02: rent waiting for its property, said
+  const wageLine = (key: string) => (<React.Fragment key={key}>
+    {!!wageRefusal && <Text style={[styles.note, { paddingHorizontal: 16 }]}>{wageRefusal}</Text>}
+    {rentWaiting != null && <Text style={[styles.note, { paddingHorizontal: 16 }]}>{rentWaitingSentence(rentWaiting)}</Text>}
+  </React.Fragment>);
+  // the pay not entered, offered where it would be — once, in PLANNED (round 5e); with no inflow at all every surplus reads '—'
+  const refused = !!wageRefusal || !!noInflow;
+  const payDoor = (key: string) => (payMissing ? (
+    <TouchableOpacity key={key} accessibilityRole="button" style={{ minHeight: 44, justifyContent: 'center', paddingHorizontal: 16 }} onPress={() => router.push('/base-pay' as any)}
+      accessibilityLabel="Your pay is not entered yet. Add it">
+      <Text style={styles.link}>Your pay is not entered yet — add it ›</Text>
+    </TouchableOpacity>) : null);
   const monthWord = MONTHS_LONG[new Date().getMonth()].toUpperCase();
   // YOUR FUTURE PAYCHECK — KEPT, AND IT IS NOT ON THE DRAWING (cash-flow_v01). Everything else the
   // drawing does not carry left this tab on 2026-10-03; this card stays because he ruled on its
@@ -826,15 +874,26 @@ function WorkingMain({ grid, bva, op, budgetProfile, liabilities, store, budgetS
     <>
       {/* PLANNED — what the month is meant to do */}
       <View style={styles.card}>
-        <SectionBand inCard onRowEdges inset={16} title={`PLANNED · ${monthWord}`} value={planned.planSet && !planned.refusal ? signed('MK-CF-M-002', planned.surplus) : '—'} />
+        <SectionBand inCard onRowEdges inset={16} title={`PLANNED · ${monthWord}`} value={planned.planSet && !planned.refusal && !refused ? signed('MK-CF-M-002', planned.surplus) : '—'} />
+        {lastIn(planned.lines) < 0 && wageLine('p-wage')}
+        {lastIn(planned.lines) < 0 && payDoor('p-pay')}
         {planned.lines.map((l, i) => (
-          <MonthRow key={`p-${l.label}-${i}`} line={l} shown={pShown.amounts[i]} approx={l.kind === 'in' && calculated} onPress={l.kind === 'spend' && !l.notSet ? () => setBudgetOpen(true) : undefined} />
+          <React.Fragment key={`p-${l.label}-${i}`}>
+            {!unpaid(l) && <MonthRow line={l} shown={pShown.amounts[i]} approx={l.kind === 'in' && calculated} onPress={l.kind === 'spend' && !l.notSet ? () => setBudgetOpen(true) : undefined} />}
+            {i === lastIn(planned.lines) && wageLine('p-wage')}
+            {i === lastIn(planned.lines) && payDoor('p-pay')}
+          </React.Fragment>
         ))}
         {!!budgetSentence && <Text style={[styles.note, { paddingHorizontal: 16 }]}>{budgetSentence}</Text>}
         {planned.planSet && planned.refusal ? (
           // A DEBT'S PAYMENT NEVER ENTERED (2026-10-23, tenet 3): no planned surplus, and the sentence names the debt — the
           // words of the no-budget sentence below. It read "+No budget set…" with a budget set.
           <Text style={styles.emptyP}>{planned.refusal}</Text>
+        ) : planned.planSet && refused ? (
+          <View style={[styles.mRow, styles.mTotal]} accessible accessibilityLabel={sayRow('= Planned surplus', 'no figure')}>
+            <Text style={[styles.rowL, { fontWeight: '800' }]}>= Planned surplus</Text>
+            <Text style={[styles.rowV, { fontWeight: '800' }]}>—</Text>
+          </View>
         ) : planned.planSet ? (
           <>
             <View style={[styles.mRow, styles.mTotal]} accessible accessibilityLabel={sayRow('= Planned surplus', signed('MK-CF-M-002', planned.surplus))}>
@@ -863,17 +922,26 @@ function WorkingMain({ grid, bva, op, budgetProfile, liabilities, store, budgetS
 
       {/* ACTUAL — what has happened so far. It needs no plan. */}
       <View style={styles.card}>
-        <SectionBand inCard onRowEdges inset={16} title="ACTUAL · SO FAR" value={signed('MK-CF-M-003', actual.surplus)} />
-        {actual.lines.map((l, i) => <MonthRow key={`a-${l.label}-${i}`} line={l} shown={aShown.amounts[i]} approx={l.kind === 'in' && calculated} />)}
-        <View style={[styles.mRow, styles.mTotal]} accessible accessibilityLabel={sayRow('= Actual surplus so far', signed('MK-CF-M-003', actual.surplus))}>
+        <SectionBand inCard onRowEdges inset={16} title="ACTUAL · SO FAR" value={refused ? '—' : signed('MK-CF-M-003', actual.surplus)} />
+        {lastIn(actual.lines) < 0 && wageLine('a-wage')}
+        {actual.lines.map((l, i) => (
+          <React.Fragment key={`a-${l.label}-${i}`}>
+            {!unpaid(l) && <MonthRow line={l} shown={aShown.amounts[i]} approx={l.kind === 'in' && calculated} />}
+            {i === lastIn(actual.lines) && wageLine('a-wage')}
+          </React.Fragment>
+        ))}
+        <View style={[styles.mRow, styles.mTotal]} accessible accessibilityLabel={sayRow('= Actual surplus so far', refused ? 'no figure' : signed('MK-CF-M-003', actual.surplus))}>
           <Text style={[styles.rowL, { fontWeight: '800' }]}>= Actual surplus so far</Text>
-          <Text style={[styles.rowV, { fontWeight: '800', color: actual.surplus >= 0 ? Colors.gainText : Colors.red }]}>{signed('MK-CF-M-003', actual.surplus)}</Text>
+          {refused
+            ? <Text style={[styles.rowV, { fontWeight: '800' }]}>—</Text>
+            : <Text style={[styles.rowV, { fontWeight: '800', color: actual.surplus >= 0 ? Colors.gainText : Colors.red }]}>{signed('MK-CF-M-003', actual.surplus)}</Text>}
         </View>
         {nothingLogged && (
           <Text style={styles.emptyP}>Nothing logged yet, and no card connected. Connect a card and your purchases arrive here on their own.</Text>
         )}
       </View>
-      {projection && (
+      {/* no projection worked on a wage not read, or on no income at all (R23a; round 5e) */}
+      {projection && !refused && (
         <TouchableOpacity accessibilityRole="button" style={styles.projCard} activeOpacity={0.85} onPress={() => router.push('/(tabs)/plan')}
           accessibilityLabel={`Your future paycheck — a projection, an estimate, not a promise. At ${projection.retireAge}${projection.retireAgeOurs ? ', ours until you change it,' : ''}: about ${figSaid('MK-CF-M-022', projection.monthly)}.`}>
           <SectionBand inCard onRowEdges inset={16} title="YOUR FUTURE PAYCHECK" />

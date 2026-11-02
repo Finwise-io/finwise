@@ -186,10 +186,18 @@ const MOVED_ON_PURPOSE: Record<string, { at: number; was: string; now: string | 
   // planned spend is the Cash flow tab's year ÷ 12: (2,900 × 12 + 3,600) ÷ 12 = $3,200, plus $4,670 of debt minimums = $7,870.
   // It read $7,570: the $5,200 taken to hold $300/month of the April premium. Months: $31,489 ÷ ($7,870 − $1,800) = 5.2 (was 5.5).
   'Net worth · by category': [
+    // 2026-11-01 (FX-NW, NW5-09): the hero is one string now ('(negative)' gone), so it is spoken whole as well as printed — the same
+    // figure read twice. By hand: assets 12,400 + 18,250.55 + 214,838 + 186,000 + 24,200 + 9,000 + 640,000 + 310,000 + 21,000 = 1,435,688.55;
+    // debts 402,000 + 228,000 + 6,000 + 14,000 = 650,000; net worth 785,688.55 → $785,689
+    { at: 13, was: '$785,689', now: ['$785,689', '$785,689'], why: 'the hero, printed and now spoken whole' },
     { at: 100, was: '5.5', now: '5.2', why: 'months at the planned spend: $31,489 ÷ ($7,870 − $1,800 rent) = 5.2' },
     { at: 102, was: '$7,570', now: '$7,870', why: 'the planned spend: (2,900 × 12 + the April premium 3,600) ÷ 12 = 3,200, + $4,670 of debt minimums' },
   ],
   'Net worth · by institution': [
+    // 2026-11-01 (FX-NW, NW5-09): the hero is one string now ('(negative)' gone), so it is spoken whole as well as printed — the same
+    // figure read twice. By hand: assets 12,400 + 18,250.55 + 214,838 + 186,000 + 24,200 + 9,000 + 640,000 + 310,000 + 21,000 = 1,435,688.55;
+    // debts 402,000 + 228,000 + 6,000 + 14,000 = 650,000; net worth 785,688.55 → $785,689
+    { at: 13, was: '$785,689', now: ['$785,689', '$785,689'], why: 'the hero, printed and now spoken whole' },
     { at: 108, was: '5.5', now: '5.2', why: 'months at the planned spend: $31,489 ÷ ($7,870 − $1,800 rent) = 5.2' },
     { at: 110, was: '$7,570', now: '$7,870', why: 'the planned spend: (2,900 × 12 + the April premium 3,600) ÷ 12 = 3,200, + $4,670 of debt minimums' },
   ],

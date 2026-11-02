@@ -191,8 +191,8 @@ test('D1b: a screen works no figure out — and the 2026-10-22 debt only shrinks
     }
   }
   // A GUARD MUST PROVE IT LOOKED: the files and the expressions it read, and what it set aside and why
-  expect(files).toBeGreaterThanOrEqual(140);
-  expect(read).toBeGreaterThanOrEqual(3000);
+  expect(files).toBeGreaterThanOrEqual(152);     // 152 files, 7,173 expressions read on 2026-11-02 (PF-TOOLS); 67 places work a figure out, in 23 files
+  expect(read).toBeGreaterThanOrEqual(7173);
   // THE NET WORTH AND PERFORMANCE SCREENS, BY NAME (2026-10-22, both modules launch-ready): each was read — at least the number
   // of expressions it held that day, less a margin, so a screen that stops being read goes red — and works out no figure
   const HELD_AT_ZERO: Record<string, number> = {

@@ -114,6 +114,6 @@ describe('row 4 — a take-home typed as $0 is the person\'s answer', () => {
     const all = lines();
     expect(all).toContain('$4,500/month · 90.00%');   // $4,500 ÷ $5,000 = 90.00% (MK-CF-M-081, two decimals since 2026-10-26)
     expect(all).toContain('$0/month');
-    expect(all.some((l) => /≈/.test(l))).toBe(false);      // nothing calculated
+    expect(all.some((l) => /[~≈]/.test(l))).toBe(false);      // nothing calculated: no about mark, '~' since R25 (2026-11-01) or the retired '≈'
   });
 });

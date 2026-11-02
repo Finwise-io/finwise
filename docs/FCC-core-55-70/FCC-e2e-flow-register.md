@@ -177,6 +177,16 @@ The closing full run, 2026-11-01: 593 suites, 10,904 tests, every red decided.
 - **The account page's state I** — 1Y +2.25% on the page, the tab's card and the summary, starting from the Sep 29, 2025 close (it read +7.07% from a close 424 days old) (DEC-9486).
 - **The Tax organizer test (CF4-10)** — its household now saves 'annually': wages $60,000, taxable $43,900, tax $5,020 (it read $720,000 from a frequency the app does not have).
 
+## Round 5 of the fix wave, 2026-11-02 — no flow added; figures moved, each worked by hand
+- **Debts and its payoff plan** — an owed $30,000 setup loan joins the debts: ‘across 3 debts · $736/month’ ($110 + $300 + $325.58), and the payoff plan pays it: $736/month, paid off Jul 2032, $8,794 of interest (DEC-9591, DEC-9593).
+- **The Tax organizer** — $13,170 ÷ $120,000 = 10.975% prints 10.98% (it printed 10.97%) (DEC-9598).
+- **Will my money last** — the worker’s growth, 24,480 ÷ 320,000 = 7.65% exactly, prints 7.7% (it printed 7.6%) (DEC-9598).
+
+## Round 6 of the fix wave, 2026-11-02 — no flow added; figures moved, each worked by hand
+- **Debts and its payoff plan** — a setup loan’s payment is not assumed: payments $410 (it read $736), the plan $410/month to Oct 2029 with $2,476 of interest (it read Jul 2032 and $8,794) (DEC-9669).
+- **The Tax organizer** — a $1,666.67 monthly 401(k) prints $20,000.04 a year, taxable $83,899.96, rate 10.97% (it read 10.98% on a rounded $20,000) (DEC-9674).
+- **A Treasury held in a brokerage** — $10,000 at 4.00% earns $400 a year on every screen (it earned nothing) (DEC-9675).
+
 ## Beyond the 92 — deeper feature journeys (also automated, also green)
 The connect flow (9), the Plan tab (16), draw-order steering (11), the bill calendar (7),
 multi-goal (6), scenario compare (3), holding detail (12), Invest fidelity (10), plus the

@@ -1,11 +1,11 @@
 {
  "package": "MoneyKeel_CashFlow_Evidence_Package_v01",
  "built_on": "2026-11-01",
- "commit": "1d95c471",
+ "commit": "77d36913",
  "uncommitted_files_at_build": [],
  "built_by": "Calculation Module code/scripts/build-cf-evidence-package.py",
  "generator": "Calculation Module code/scripts/cf-evidence/cf-evidence-94.gen.tsx",
- "built_from_tree": "a clean worktree of 1d95c471 (--at)",
+ "built_from_tree": "a clean worktree of 77d36913 (--at)",
  "cases_from": "MoneyKeel/documents/audit/outside-test-cases/returned/results/cashflow_openai_screens_results.json",
  "measurer": "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
  "measurer_regions_cut": {
@@ -78,15 +78,20 @@
    "tests": 10,
    "passed": 10
   },
+  "src/screens/__tests__/cashflow_drawing_fixes_2026_10_25.test.tsx": {
+   "suite": "passed",
+   "tests": 35,
+   "passed": 35
+  },
   "src/screens/__tests__/income_manager_matches_v07.test.tsx": {
    "suite": "passed",
    "tests": 8,
    "passed": 8
   },
-  "src/screens/__tests__/cashflow_drawing_fixes_2026_10_25.test.tsx": {
+  "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx": {
    "suite": "passed",
-   "tests": 35,
-   "passed": 35
+   "tests": 17,
+   "passed": 17
   },
   "src/screens/__tests__/income_matches_v07.test.tsx": {
    "suite": "passed",
@@ -108,15 +113,15 @@
    "tests": 8,
    "passed": 8
   },
-  "src/screens/__tests__/cashflow_journeys_viewing_2026_10_24.test.tsx": {
-   "suite": "passed",
-   "tests": 15,
-   "passed": 15
-  },
   "src/screens/__tests__/cashflow_journeys_entering_2026_10_24.test.tsx": {
    "suite": "passed",
    "tests": 14,
    "passed": 14
+  },
+  "src/screens/__tests__/cashflow_journeys_viewing_2026_10_24.test.tsx": {
+   "suite": "passed",
+   "tests": 15,
+   "passed": 15
   },
   "src/screens/__tests__/cashflow_fcc.test.tsx": {
    "suite": "passed",
@@ -125,8 +130,8 @@
   },
   "src/screens/__tests__/cashflow_fix_wave_2026_10_27.test.tsx": {
    "suite": "passed",
-   "tests": 49,
-   "passed": 49
+   "tests": 57,
+   "passed": 57
   },
   "src/screens/__tests__/cashflow_home_agreement_2026_10_23.test.tsx": {
    "suite": "passed",
@@ -206,7 +211,7 @@
     "DEC-8459",
     "DEC-8771"
    ],
-   "bytes": 279217
+   "bytes": 284904
   },
   {
    "file": "moneykeel_audit_cf-evidence_part-02-of-08.md",
@@ -249,7 +254,7 @@
     "DEC-8375",
     "DEC-8387"
    ],
-   "bytes": 207984
+   "bytes": 213665
   },
   {
    "file": "moneykeel_audit_cf-evidence_part-03-of-08.md",
@@ -280,7 +285,7 @@
     "DEC-8375",
     "DEC-8387"
    ],
-   "bytes": 163611
+   "bytes": 169292
   },
   {
    "file": "moneykeel_audit_cf-evidence_part-04-of-08.md",
@@ -317,7 +322,7 @@
     "DEC-8461",
     "DEC-8672"
    ],
-   "bytes": 181308
+   "bytes": 187004
   },
   {
    "file": "moneykeel_audit_cf-evidence_part-05-of-08.md",
@@ -408,7 +413,7 @@
     "DEC-8432",
     "DEC-8434"
    ],
-   "bytes": 217802
+   "bytes": 219758
   },
   {
    "file": "moneykeel_audit_cf-evidence_part-07-of-08.md",
@@ -487,7 +492,7 @@
     "DEC-8676",
     "DEC-8770"
    ],
-   "bytes": 242391
+   "bytes": 244347
   },
   {
    "file": "moneykeel_audit_cf-evidence_part-08-of-08.md",
@@ -2091,15 +2096,15 @@
  ],
  "files": {
   "moneykeel_audit_cf-evidence_answer-template_v01.jsonl": "8c14bd8f04758106",
-  "moneykeel_audit_cf-evidence_brief_v01.md": "4b0a40a95e1811da",
-  "moneykeel_audit_cf-evidence_index_v01.md": "a0f491bae691eee0",
-  "moneykeel_audit_cf-evidence_part-01-of-08.md": "8412894749fdc4af",
-  "moneykeel_audit_cf-evidence_part-02-of-08.md": "09e630ca0ed7fade",
-  "moneykeel_audit_cf-evidence_part-03-of-08.md": "8b3489921338bb39",
-  "moneykeel_audit_cf-evidence_part-04-of-08.md": "341e0e737d0902b8",
+  "moneykeel_audit_cf-evidence_brief_v01.md": "8aadf2372cc2110d",
+  "moneykeel_audit_cf-evidence_index_v01.md": "6183dc42b07a0488",
+  "moneykeel_audit_cf-evidence_part-01-of-08.md": "674835fab0c90ee3",
+  "moneykeel_audit_cf-evidence_part-02-of-08.md": "7b1f1a91b32f4244",
+  "moneykeel_audit_cf-evidence_part-03-of-08.md": "9b685d3b52997fd9",
+  "moneykeel_audit_cf-evidence_part-04-of-08.md": "bcb17f7daa693cc0",
   "moneykeel_audit_cf-evidence_part-05-of-08.md": "7281a22e8ea0ac42",
-  "moneykeel_audit_cf-evidence_part-06-of-08.md": "bf8e9412b437ee8c",
-  "moneykeel_audit_cf-evidence_part-07-of-08.md": "608380244e912dff",
+  "moneykeel_audit_cf-evidence_part-06-of-08.md": "4d9dda18314b28d8",
+  "moneykeel_audit_cf-evidence_part-07-of-08.md": "99f5b2030e56a2ca",
   "moneykeel_audit_cf-evidence_part-08-of-08.md": "03b4bb899b3282c9"
  }
 }

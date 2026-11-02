@@ -2,7 +2,7 @@
 // full story — what you own, what you paid, what it's worth, how it compares, and the tax facts
 // if you sold (clearly an estimate). Every number is the SAME helper the Invest main list uses;
 // nothing is recomputed differently here (r24: same row object, no recomputation).
-import { quantityWithUnit, heldQuantity, lotCostOnRecord, purchaseDateOnRecord, SECTION_1256_LONG_TERM_PERCENT } from '../domain/performance';
+import { quantityWithUnit, heldQuantity, lotCostOnRecord, purchaseDateOnRecord, SECTION_1256_LONG_TERM_PERCENT, staleWindowStart } from '../domain/performance';
 import { saleShortOfPurchasesSentence, gainOnPartSentence } from '../domain/performance/realized';
 import TopBar from '../components/TopBar';
 import React, { useMemo, useState } from 'react';
@@ -369,11 +369,21 @@ export default function HoldingDetailScreen() {
           <View style={s.pageBand}><SectionBand title={`VS ${(yardstick ?? 'the market').toUpperCase()}`} /></View>
           {/* a purchase with no date beside dated ones: no return since purchase, and the reason is that, not the prices
               (2026-10-21, MK-PF-F-040, the lead's decision under DEC-3523 tenet 3) */}
+          {/* A START R19 REFUSES SAYS SO, IN R19'S OWN WORDS (2026-11-01, FX-PF; the lead's ruling R19b, PF5-1, NW5-04): the holding's or the
+              market's last close before the window's start is named — never 'check back as prices fill in' where prices exist. A purchase
+              inside the window is not a start (it takes its own day's close), so only a holding held when the window began is asked. */}
           <Text style={s.note}>{yardstick == null
             ? 'This holding is Unclassified, so there is no market to compare it with.'
             : row?.undatedPurchase
             ? 'A purchase of this holding has no date on record, so its return since purchase cannot be measured.'
-            : 'Not enough price history for a fair comparison — check back as prices fill in.'}</Text>
+            : (() => {
+              const now = new Date();
+              const own = !row?.cappedSince ? staleWindowStart(series, period as any, now) : null;
+              const mkt = !row?.cappedSince && row?.benchTicker ? staleWindowStart(priceOf(row.benchTicker), period as any, now) : null;
+              return own ? `${ticker} has no price near the window’s start: its last close before it is ${dateShown(own.day)}.`
+                : mkt ? `The market (${row.benchTicker}) has no price near the window’s start: its last close before it is ${dateShown(mkt.day)}.`
+                : 'Not enough price history for a fair comparison — check back as prices fill in.';
+            })()}</Text>
         </View>
       ))}
 

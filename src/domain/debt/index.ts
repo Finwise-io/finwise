@@ -79,7 +79,7 @@ export interface Debt {
  *
  * Called by ... MK-CF-F-022 paymentShape
  *
- * Reaches ..... 488 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 494 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -89,7 +89,7 @@ export interface Debt {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 470 more — the full list is on functions_from_code
+ *               … and 476 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-042 how a stream is paid — monthly, yearly or one lump
@@ -118,7 +118,7 @@ export function defaultPaymentType(t: DebtType): NonNullable<Debt['payment_type'
  *               MK-CF-F-236 paymentInMonth · MK-NW-F-147 paymentNotEntered
  *               MK-NW-O-004 theEmergencyFund · MK-XS-F-004 buildDatedGrid
  *
- * Reaches ..... 487 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 493 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -128,7 +128,7 @@ export function defaultPaymentType(t: DebtType): NonNullable<Debt['payment_type'
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 469 more — the full list is on functions_from_code
+ *               … and 475 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-042 how a stream is paid — monthly, yearly or one lump
@@ -158,7 +158,7 @@ export function paymentShape(d: Debt): NonNullable<Debt['payment_type']> {
  *               MK-NW-F-106 mortgagesByProperty · MK-NW-O-003 theNetWorth
  *               MK-PL-F-101 debtGoalPlan · MK-XS-F-004 buildDatedGrid
  *
- * Reaches ..... 481 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 487 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -168,7 +168,7 @@ export function paymentShape(d: Debt): NonNullable<Debt['payment_type']> {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 463 more — the full list is on functions_from_code
+ *               … and 469 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-016 debt minimum payment
@@ -206,10 +206,11 @@ export function requiredPayment(d: Debt): number {
  *
  * Called by ... MK-CF-F-034 payoffPlan · MK-CF-O-018 theDebts
  *
- * Reaches ..... 14 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 16 functions. Change the arithmetic above and these change with it:
  *               MK-CF-F-211 DEBTS · MK-CF-F-296 LOAD
  *               MK-PL-F-101 debtGoalPlan · MK-CF-F-295 debtLoad
- *               MK-CF-F-034 payoffPlan · MK-CF-F-305 setupLoanDebts
+ *               MK-CF-F-315 debtsEntered · MK-CF-F-034 payoffPlan
+ *               MK-CF-F-314 setupEntered · MK-CF-F-305 setupLoanDebts
  *               MK-CF-F-302 setupLoanSentences · MK-CF-F-304 setupLoansAll
  *               MK-CF-F-303 setupLoansNotEntered · MK-CF-F-301 setupLoansSplit
  *               MK-CF-F-299 setupStudentLoans · MK-CF-O-018 theDebts
@@ -248,7 +249,7 @@ export function rateNotEntered(d: Debt | null | undefined): boolean {
  * Called by ... MK-CF-F-005 actualMonthFlow · MK-CF-F-156 plannedMonthFlow
  *               MK-CF-F-236 paymentInMonth
  *
- * Reaches ..... 480 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 486 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -258,7 +259,7 @@ export function rateNotEntered(d: Debt | null | undefined): boolean {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 462 more — the full list is on functions_from_code
+ *               … and 468 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-014 debt balance
@@ -297,7 +298,7 @@ export function paysInMonth(d: Debt, ym: string): boolean {
  *               MK-CF-F-153 radar · MK-CF-F-156 plannedMonthFlow
  *               MK-XS-F-004 buildDatedGrid
  *
- * Reaches ..... 479 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 485 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -307,7 +308,7 @@ export function paysInMonth(d: Debt, ym: string): boolean {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 461 more — the full list is on functions_from_code
+ *               … and 467 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-014 debt balance
@@ -331,7 +332,7 @@ export function paymentInMonth(d: Debt, ym: string): number {
  *
  * Called by ... MK-CF-F-026 actualDebtPayment
  *
- * Reaches ..... 478 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 484 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -341,7 +342,7 @@ export function paymentInMonth(d: Debt, ym: string): number {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 460 more — the full list is on functions_from_code
+ *               … and 466 more — the full list is on functions_from_code
  *
  * Serves ...... MK-NW-M-012
  * Ruled by .... DEC-0641
@@ -372,7 +373,7 @@ export function totalDebtMonthly(debts: Debt[]): number {
  *               MK-CF-F-252 payoffRefusal · MK-CF-F-295 debtLoad
  *               MK-CF-F-296 LOAD · MK-CF-O-018 theDebts
  *
- * Reaches ..... 480 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 486 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -382,7 +383,7 @@ export function totalDebtMonthly(debts: Debt[]): number {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 462 more — the full list is on functions_from_code
+ *               … and 468 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-016 debt minimum payment
@@ -409,7 +410,7 @@ export function minimumDebtService(debts: Debt[]): number {
  * Called by ... MK-CF-F-036 buildDebtState · MK-PL-F-098 goalsCapacity
  *               MK-XS-F-028 surplusByMonth
  *
- * Reaches ..... 478 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 484 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -419,7 +420,7 @@ export function minimumDebtService(debts: Debt[]): number {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 460 more — the full list is on functions_from_code
+ *               … and 466 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -441,7 +442,7 @@ export function actualDebtPayment(debts: Debt[]): number {
  *
  * Called by ... MK-CF-F-036 buildDebtState
  *
- * Reaches ..... 478 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 484 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -451,7 +452,7 @@ export function actualDebtPayment(debts: Debt[]): number {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 460 more — the full list is on functions_from_code
+ *               … and 466 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-014 debt balance
@@ -495,13 +496,11 @@ export interface LoanPlan { monthly: number; totalInterest: number; totalPaid: n
  *     total paid = total paid
  *
  * Called by ... MK-CF-F-295 debtLoad · MK-CF-F-296 LOAD
- *               MK-CF-F-305 setupLoanDebts · MK-PL-F-100 monthsFrom
- *               MK-PL-F-101 debtGoalPlan
+ *               MK-PL-F-100 monthsFrom · MK-PL-F-101 debtGoalPlan
  *
- * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
  *               MK-CF-F-296 LOAD · MK-PL-F-101 debtGoalPlan
  *               MK-CF-F-295 debtLoad · MK-PL-F-100 monthsFrom
- *               MK-CF-F-305 setupLoanDebts
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -607,7 +606,7 @@ export interface CreditUtil { ratio: number; status: 'good' | 'caution' | 'high'
  *
  * Called by ... MK-CF-O-006 theCreditLine
  *
- * Reaches ..... 478 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 484 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -617,7 +616,7 @@ export interface CreditUtil { ratio: number; status: 'good' | 'caution' | 'high'
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 460 more — the full list is on functions_from_code
+ *               … and 466 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
@@ -749,9 +748,10 @@ export const PAYOFF_HORIZON_MONTHS = 12_000;
  * Called by ... MK-CF-F-296 LOAD · MK-CF-O-018 theDebts
  *               MK-PL-F-036 weighGoals · MK-PL-F-101 debtGoalPlan
  *
- * Reaches ..... 13 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 15 functions. Change the arithmetic above and these change with it:
  *               MK-CF-F-211 DEBTS · MK-CF-F-296 LOAD
  *               MK-PL-F-101 debtGoalPlan · MK-CF-F-295 debtLoad
+ *               MK-CF-F-315 debtsEntered · MK-CF-F-314 setupEntered
  *               MK-CF-F-305 setupLoanDebts · MK-CF-F-302 setupLoanSentences
  *               MK-CF-F-304 setupLoansAll · MK-CF-F-303 setupLoansNotEntered
  *               MK-CF-F-301 setupLoansSplit · MK-CF-F-299 setupStudentLoans
@@ -908,7 +908,7 @@ export const TOXIC_APR = 0.07;
  * Called by ... MK-CF-F-041 getDebtState · MK-NW-O-003 theNetWorth
  *               MK-XS-F-031 buildSnapshot
  *
- * Reaches ..... 478 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 484 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -918,7 +918,7 @@ export const TOXIC_APR = 0.07;
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 460 more — the full list is on functions_from_code
+ *               … and 466 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-014 debt balance
@@ -967,10 +967,11 @@ export function buildDebtState(uid: UserId, debts: Debt[]): DebtState {
  *
  * Called by ... MK-CF-F-038 debtsFromOnboarding · MK-CF-F-304 setupLoansAll
  *
- * Reaches ..... 13 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 15 functions. Change the arithmetic above and these change with it:
  *               MK-CF-F-296 LOAD · MK-CF-F-295 debtLoad
- *               MK-CF-F-038 debtsFromOnboarding · MK-XS-F-199 profileOnTheWayIn
- *               MK-XS-F-033 resolveNetWorthRows · MK-CF-F-305 setupLoanDebts
+ *               MK-CF-F-315 debtsEntered · MK-CF-F-038 debtsFromOnboarding
+ *               MK-XS-F-199 profileOnTheWayIn · MK-XS-F-033 resolveNetWorthRows
+ *               MK-CF-F-314 setupEntered · MK-CF-F-305 setupLoanDebts
  *               MK-CF-F-302 setupLoanSentences · MK-CF-F-304 setupLoansAll
  *               MK-CF-F-303 setupLoansNotEntered · MK-CF-F-301 setupLoansSplit
  *               MK-CF-F-299 setupStudentLoans · MK-XS-F-032 snapshotFromOnboarding
@@ -1006,10 +1007,7 @@ export function inferDebtType(label: string | undefined): DebtType {
  *     owed = 0, count = 0
  *     the answer = { owed, count }
  *
- * Called by ... MK-CF-F-295 debtLoad
- *
- * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-296 LOAD · MK-CF-F-295 debtLoad
+ * Called by ... nothing — it is an entry point, or nothing reaches it
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -1051,8 +1049,9 @@ const MONTH3 = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', '
  *
  * Called by ... MK-CF-F-304 setupLoansAll
  *
- * Reaches ..... 8 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 10 functions. Change the arithmetic above and these change with it:
  *               MK-CF-F-296 LOAD · MK-CF-F-295 debtLoad
+ *               MK-CF-F-315 debtsEntered · MK-CF-F-314 setupEntered
  *               MK-CF-F-305 setupLoanDebts · MK-CF-F-302 setupLoanSentences
  *               MK-CF-F-304 setupLoansAll · MK-CF-F-303 setupLoansNotEntered
  *               MK-CF-F-301 setupLoansSplit · MK-CF-F-299 setupStudentLoans
@@ -1083,10 +1082,12 @@ function loanStartsOn(l: any): string | null {
  *     owed = all where starts on = nothing (or starts on ≤ now when missing or zero)
  *     later = all where starts on ≠ nothing and starts on > now
  *
- * Called by ... MK-CF-F-302 setupLoanSentences · MK-CF-F-303 setupLoansNotEntered
+ * Called by ... MK-CF-F-295 debtLoad · MK-CF-F-302 setupLoanSentences
+ *               MK-CF-F-303 setupLoansNotEntered · MK-CF-F-315 debtsEntered
  *
- * Reaches ..... 6 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 8 functions. Change the arithmetic above and these change with it:
  *               MK-CF-F-296 LOAD · MK-CF-F-295 debtLoad
+ *               MK-CF-F-315 debtsEntered · MK-CF-F-314 setupEntered
  *               MK-CF-F-305 setupLoanDebts · MK-CF-F-302 setupLoanSentences
  *               MK-CF-F-303 setupLoansNotEntered · MK-CF-F-299 setupStudentLoans
  *
@@ -1133,6 +1134,33 @@ export function setupLoanSentences(op: Record<string, any> | null | undefined, d
     ...owed.filter((l) => l.startsOn == null).map((l) => `The ${printed(l.amount)} ${named(l)} has no start month entered, so it counts as owed today.`),
   ];
 }
+/** ANY DEBT ENTERED (2026-11-02, FX-NW, CF6-02): a debt entered, or a student loan from setup — owed now or later. The one answer
+ *  to "has this person entered a debt?" — Net worth's DEBTS reads it for its 'Nothing entered yet.', and the set-up gate (R26) is to
+ *  read it for its debt part. Worked by hand: no debts, one setup loan starting Sep 2027 → true; no debts, no setup loans → false. */
+/* ─ MK-CF-F-315 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * debtsEntered
+ *
+ * Answers ..... ANY DEBT ENTERED (2026-11-02, FX-NW, CF6-02): a debt entered, or a student loan from setup — owed now or later.
+ *
+ * Formula .....
+ *     true   when (debts ?? []).length > 0
+ *     owed.length + later.length > 0
+ *
+ * Called by ... MK-CF-F-314 setupEntered
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-CF-F-314 setupEntered
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-F-315
+ * Changed ..... not in git yet (—)
+ */
+export function debtsEntered(op: Record<string, any> | null | undefined, debts: Debt[]): boolean {
+  if ((debts ?? []).length > 0) return true;
+  const { owed, later } = setupLoansSplit(op, debts ?? []);
+  return owed.length + later.length > 0;
+}
 /** owed today, the ones every total counts */
 /* ─ MK-CF-F-303 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * setupLoansNotEntered
@@ -1144,8 +1172,7 @@ export function setupLoanSentences(op: Record<string, any> | null | undefined, d
  *
  * Called by ... MK-CF-F-299 setupStudentLoans · MK-CF-F-305 setupLoanDebts
  *
- * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-296 LOAD · MK-CF-F-295 debtLoad
+ * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
  *               MK-CF-F-305 setupLoanDebts · MK-CF-F-299 setupStudentLoans
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
@@ -1178,8 +1205,9 @@ export function setupLoansNotEntered(op: Record<string, any> | null | undefined,
  *
  * Called by ... MK-CF-F-301 setupLoansSplit
  *
- * Reaches ..... 7 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 9 functions. Change the arithmetic above and these change with it:
  *               MK-CF-F-296 LOAD · MK-CF-F-295 debtLoad
+ *               MK-CF-F-315 debtsEntered · MK-CF-F-314 setupEntered
  *               MK-CF-F-305 setupLoanDebts · MK-CF-F-302 setupLoanSentences
  *               MK-CF-F-303 setupLoansNotEntered · MK-CF-F-301 setupLoansSplit
  *               MK-CF-F-299 setupStudentLoans
@@ -1216,7 +1244,7 @@ function setupLoansAll(op: Record<string, any> | null | undefined, debts: Debt[]
 /** THE SETUP LOANS NO DEBT IS, AS DEBTS (2026-11-01, FX-NW, R22): one row each, so Net worth's DEBTS, its total and every screen that
  *  reads Net worth's inputs count them once. Named as entered ('Student loan' when unnamed), the amount as the balance; the rate and the
  *  payment only when setup gave them (the payment worked by loanPayment from the rate and the years), else not entered. */
-/* ─ MK-CF-F-305 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+/* ─ MK-CF-F-305 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * setupLoanDebts
  *
  * Answers ..... THE SETUP LOANS NO DEBT IS, AS DEBTS (2026-11-01, FX-NW, R22): one row each, so Net worth's DEBTS, its total and every screen that reads Net worth's inputs count them once.
@@ -1240,10 +1268,13 @@ function setupLoansAll(op: Record<string, any> | null | undefined, debts: Debt[]
  */
 export function setupLoanDebts(op: Record<string, any> | null | undefined, debts: Debt[], today: Date = new Date()): Debt[] {
   return setupLoansNotEntered(op, debts, today).map((l) => ({
-    debt_id: `setup-loan-${l.index}`, label: l.label || 'Student loan', debt_type: 'STUDENT_LOAN', remaining_balance: l.amount,
+    debt_id: `setup-loan-${l.index}`, label: `${l.label || 'Student loan'} (from setup)`, debt_type: 'STUDENT_LOAN',   // one name on every screen (NW6-03, 2026-11-02)
+    remaining_balance: l.amount,
     interest_rate_apr: (l.aprPct != null ? l.aprPct / 100 : undefined) as any,
-    minimum_monthly_payment: (l.aprPct != null && l.termYears != null ? loanPayment(l.amount, l.aprPct, l.termYears).monthly : undefined) as any,
-    payment_type: 'installment', setup_loan: l.index,
+    // THE BALANCE IS OWED, THE PAYMENT IS NOT ASSUMED (2026-11-02, the lead's R22d; DEC-0296): setup never asks when repayment starts,
+    // so no monthly payment is counted — it read $325.58 worked from the rate and term (the outlook keeps that, as an estimate)
+    minimum_monthly_payment: undefined as any,
+    payment_type: 'installment', setup_loan: l.index, repayment_start_unknown: true,
   } as Debt));
 }
 
@@ -1261,12 +1292,14 @@ export function setupLoanDebts(op: Record<string, any> | null | undefined, debts
  *     user id = uid
  *     debts = debts
  *
- * Called by ... MK-XS-F-032 snapshotFromOnboarding · MK-XS-F-033 resolveNetWorthRows
- *               MK-XS-F-192 typedValueDatedBack · MK-XS-F-199 profileOnTheWayIn
+ * Called by ... MK-CF-F-314 setupEntered · MK-XS-F-032 snapshotFromOnboarding
+ *               MK-XS-F-033 resolveNetWorthRows · MK-XS-F-192 typedValueDatedBack
+ *               MK-XS-F-199 profileOnTheWayIn
  *
- * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
  *               MK-XS-F-199 profileOnTheWayIn · MK-XS-F-033 resolveNetWorthRows
- *               MK-XS-F-032 snapshotFromOnboarding · MK-XS-F-192 typedValueDatedBack
+ *               MK-CF-F-314 setupEntered · MK-XS-F-032 snapshotFromOnboarding
+ *               MK-XS-F-192 typedValueDatedBack
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-014 debt balance

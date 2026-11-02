@@ -30,6 +30,18 @@
  *  under hide-balances, never the dots — so the worker's photograph gains six "[spoken]" lines that repeat figures already printed
  *  ($7,200 in, +$2,700 planned, $0 by hand, +$7,200 so far, ~$2,455 from savings). Spoken labels only: no printed figure moved,
  *  and none was removed.
+ *  UPDATED 2026-11-01 (FX-CF-B, R25 — one 'about' mark; checked by hand before re-recording): the retiree's Income summary prints
+ *    its calculated figures with '~' where it printed '≈' — the band, the row and '= Inflow' all '~$2,400', the tax '~$0/year' (a real
+ *    $0: Social Security under the standard deduction, not a refused wage) — and the band's figure is now said aloud as figure.ts says
+ *    '~': '[spoken] about $2,400'. No dollar figure moved: $2,400 and $0 are the same as before.
+ *  UPDATED 2026-11-01 (FX-CF-C, R24 — the one percent writer; worked by hand before re-recording):
+ *  · Will my money last, worker: "Yearly growth assumed" 7.6% → 7.7%. The blend is (300,000 × 8% + 20,000 × 2.4%) ÷ 320,000 =
+ *    24,480 ÷ 320,000 = 7.65% exactly; half up at one decimal is 7.7%. toFixed wrote 7.6 because the computer holds 7.6499…
+ *    The retiree's 7.638…% stays 7.6%.
+ *  · Net worth, both people: one new "[spoken] $320,000" (worker: 300,000 + 20,000) and "[spoken] $420,000" (retiree: 400,000 +
+ *    20,000) on the hero. FX-NW's NW5-09 change (2026-11-01) dropped the hero's second text piece ('  (negative)'), so its text is one
+ *    string and HeroAmount speaks it by its own default (walk row 21) — "hidden" under hide-balances. Right: the figure printed is the
+ *    figure said. No printed figure moved.
  */
 import React from 'react';
 import { render, screen } from '@testing-library/react-native';

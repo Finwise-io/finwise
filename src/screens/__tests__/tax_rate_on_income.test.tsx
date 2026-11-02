@@ -41,7 +41,7 @@ test('the bracket is NAMED, and the estimate says what it assumed', () => {
   // the tax figure is MONEY, as a payslip shows it — never a percentage. Two rows carry a ≈$/month
   // figure here: the tax, and what lands. Neither may carry a % — that was the confusion.
   // v6: three ≈ figures — the band echo, the estimated tax, and the lands total (#7, #8)
-  expect(screen.getAllByText(/^≈\$[\d,]+\/month$/).length).toBeGreaterThanOrEqual(2);
+  expect(screen.getAllByText(/^~\$[\d,]+\/month$/).length).toBeGreaterThanOrEqual(2);
   expect(screen.queryByText(/\$[\d,]+ · \d+%$/)).toBeNull();
 });
 

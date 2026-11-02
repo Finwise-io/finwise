@@ -211,7 +211,7 @@ describe('MK-CF-O-001 basePay — five cases', () => {
     // the reviewer's tax_label point: in a mixed household the card shows NO household tax row (DEC-0207, frame 2a-iii) —
     // the take-home sentence names each person's figure instead
     // (the ≈ before Sam's figure is being changed in the working tree by CF-MMFIX-B, drawing check IN-03 — not asserted here)
-    expect(p.landsNote).toMatch(/^Your take-home: \$5,000 \(you entered\)\nSam’s take-home: ≈?\$3,336 \(calculated at your 15\.00% rate, less 401\(k\)\)$/);   // two decimals since 2026-10-26 (MK-CF-M-081)
+    expect(p.landsNote).toMatch(/^Your take-home: \$5,000 \(you entered\)\nSam’s take-home: ~?\$3,336 \(calculated at your 15\.00% rate, less 401\(k\)\)$/);   // two decimals since 2026-10-26 (MK-CF-M-081)
   }, 'mixed: no household tax row (DEC-0207 frame 2a-iii)');
   kase('MK-CF-O-001-C05', 'FIXED', (c) => {
     // DEC-0178: the band is worked out ONCE from everything taxed together; the Base pay card reads the wages alone

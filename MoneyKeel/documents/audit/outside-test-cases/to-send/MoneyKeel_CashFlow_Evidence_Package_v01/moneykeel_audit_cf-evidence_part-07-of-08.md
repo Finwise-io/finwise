@@ -2940,7 +2940,7 @@ Rows of `MoneyKeel/documents/standards/moneykeel_pres_spec_design-each-screen-wa
 
 **READ THIS FIRST — ADDED AFTER THIS MOCKUP · BUILD 54. Each row says whose decision it is: his, in his own words with the day he gave them, or the lead’s, made without asking him under his order of 2026-09-30. (Corrected 2026-10-31: this line said every row was his ruling and approved, which was untrue of the lead’s rows.)** These were ruled after this drawing was approved, during work on Build 54 (the build on TestFlight). They are in the app’s code unless a line says ‘Not built yet’, and reach a phone with the next build cut. The phones below are not redrawn: where a line here and a phone disagree, this line is the design.
 
-Its dated rows, every one, as written on the drawing (67):
+Its dated rows, every one, as written on the drawing (68):
 
 ```json
 [
@@ -3412,6 +3412,13 @@ Its dated rows, every one, as written on the drawing (67):
   "His words, or where it came from": "Empty means empty (the lead’s ruling R16 of 2026-10-31, under DEC-0296 and tenet 3, DEC-3523: unknown is not zero): a box nobody filled shows no figure that could be read as an entry. Not a decision of his: the lead’s, made without asking him, as his order of 2026-09-30 says. To reverse: the grey examples in the empty boxes again. Row written before the code.",
   "Record": "DEC-0296 · DEC-3523 · DEC-9228 · R16",
   "State": "In the code since 2026-11-01"
+ },
+ {
+  "Ruled": "2026-11-01",
+  "What changed, against the phones below": "Approved before: Your base pay, phones 2 to 8, v02 approved 2026-08-27 (‘yes’, DEC-0177), v07 approved 2026-09-02; the row of 2026-10-26 above (‘Hours a week not entered’). His words: none on this state; his DEC-0296 (2026-08-20) is the rule: an unknown input gives no number and a reason. New: one refusal, for a pay frequency the app does not know. — Your base pay, a pay frequency the app does not recognise (not drawn: a profile saved with a frequency outside the five, such as ‘annual’ or ‘fortnightly’ from an older screen). The app reads one table of pay periods a year — hourly 2,080 (40 hours × 52, the table’s own; an hourly wage is still worked on the hours a week entered), weekly 52, biweekly 26, monthly 12, annually 1. A frequency outside it gives no figure : the section and the household card read ‘Pay frequency not recognised — open Base pay to choose one.’ in the warning box, the closed line reads ‘Pay frequency not recognised’, the band carries no total, the Income summary names it under what is not counted, and Your income ends the job’s line ‘· pay frequency not recognised’. It was read as a month: $100,000 saved as ‘annual’ read $1,200,000 a year ($100,000 × 12). Choosing one of the four drawn choices brings the figures back. A profile with no frequency saved is the Monthly the screen shows chosen, as before. Line added 2026-11-01, before the code.",
+  "His words, or where it came from": "Not a decision of his: the lead’s ruling R23 of 2026-11-01 (one pay-frequency table; never a guess), made without asking him, under his DEC-0296 and tenets 2 and 3 (DEC-3523). One word from him reverses it. To reverse: read an unknown frequency as a month again.",
+  "Record": "DEC-0296 · DEC-3523 (tenets 2, 3) · R23 · src/domain/income/pay-frequency.ts · MK-CF-O-001 basePay",
+  "State": "In the code"
  }
 ]
 ```

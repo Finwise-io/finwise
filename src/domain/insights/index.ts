@@ -1,4 +1,5 @@
 import { plural } from '../_shared/plural';   // the one list of words and plurals (DEC-4082, 2026-10-10)
+import { pointsDigits, percentDigits, percentValue } from '../../../MoneyKeel/functions/_figure-spec';   // the one percent writer (R24, 2026-11-01)
 // Centralized insight service — one rules function that turns the user's financial state into a ranked
 // list of insights, instead of hardcoding them per screen. Each rule is a pure function returning an
 // Insight (or null). Screens compute the primitive inputs and render the top results.
@@ -55,13 +56,10 @@ export interface InsightInput {
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
- * Decides .....
- *     · Rounds the answer to a whole number.
- *
  * Formula also on the master file · functions_from_code · MK-HM-F-005
  * Changed ..... not in git yet (—)
  */
-const pctTxt = (d: number) => `${Math.round(d * 100)}%`;
+const pctTxt = (d: number) => `${percentDigits(d, 0)}%`;
 /* ─ MK-HM-F-006 ──────────────────────────────────────────────────────────────────── 1 · ACTION
  * money0
  *
@@ -72,7 +70,7 @@ const pctTxt = (d: number) => `${Math.round(d * 100)}%`;
  *
  * Called by ... MK-CF-O-001 basePay · MK-HM-F-007 percent2
  *
- * Reaches ..... 478 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 484 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -82,7 +80,7 @@ const pctTxt = (d: number) => `${Math.round(d * 100)}%`;
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 460 more — the full list is on functions_from_code
+ *               … and 466 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -110,14 +108,12 @@ const money0 = (n: number) => `$${Math.round(n).toLocaleString()}`;
  *               MK-XS-I-027 goals (target, saved, date)
  *
  * Decides .....
- *     · Rounds the answer to a whole number.
- *     · Shows 2 decimal places.
  *     · Shows 1 decimal place.
  *
  * Formula also on the master file · functions_from_code · MK-HM-F-007
  * Changed ..... not in git yet (—)
  */
-const percent2 = (pct: number) => `${pct.toFixed(2)}%`;
+const percent2 = (pct: number) => `${pointsDigits(pct, 2)}%`;   // the one percent writer (R24)
 
 type RawInsight = Omit<Insight, 'theme'>;   // rules return everything but the theme; buildInsights attaches it
 type Rule = (i: InsightInput) => RawInsight | null;
@@ -139,7 +135,7 @@ const RULES: Rule[] = [
   (i) => (i.retireChance != null && i.retireChance < 60) ? { id: 'retire-offtrack', priority: 1, icon: '🏖️', title: 'Your retirement plan needs attention', body: `Only a ${i.retireChance}% odds it lasts — adjust savings, age, or expenses in the scenario.`, route: '/retirement' } : null,
   // B-48: a 401(k) needs earned income — don't nudge a retiree / no-wage user to contribute.
   (i) => (i.k401Remaining > 1000 && i.hasEarnedIncome) ? { id: 'k401-room', priority: 2, icon: '💼', title: 'Room left in your 401(k)', body: `About ${money0(i.k401Remaining)} of this year’s tax-advantaged room looks unused — an estimate from what you entered you contribute, not from your payroll.`, route: '/contribution-room' } : null,
-  (i) => (i.beatBy != null && i.beatBy < -0.02) ? { id: 'behind-bench', priority: 2, icon: '📉', title: 'Trailing your benchmark', body: `Your portfolio is ${Math.abs(Math.round(i.beatBy * 100))} pts behind its benchmark — review your holdings.`, route: '/performance' } : null,
+  (i) => (i.beatBy != null && i.beatBy < -0.02) ? { id: 'behind-bench', priority: 2, icon: '📉', title: 'Trailing your benchmark', body: `Your portfolio is ${Math.abs(percentValue(i.beatBy, 0))} pts behind its benchmark — review your holdings.`, route: '/performance' } : null,
   // Cash drag CUT by the founder 2026-08-20 (brief §C, Q24): an opinion multiplied by an assumed
   // return. Months-of-cash (the runway rule above) is the kept cash fact.
   // FCC: HOLDING-level concentration — the same 25%+ fact Invest main shows, surfaced as an insight.

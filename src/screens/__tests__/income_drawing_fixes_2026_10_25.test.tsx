@@ -43,11 +43,11 @@ const flat = (node: any) => StyleSheet.flatten(node?.props?.style) ?? {};
 /** The View a Text sits in: the test renderer's parent of the host Text. */
 const holder = (text: string) => screen.getByText(text).parent?.parent ?? null;
 
-describe('IN-08 · Your base pay with nothing entered — the one line and its door (Q48), never ≈$0 or a bracket of nothing', () => {
+describe('IN-08 · Your base pay with nothing entered — the one line and its door (Q48), never ~$0 or a bracket of nothing', () => {
   test('one earner: "$0/month", "Nothing entered yet. Add your income", and no rows, no warning, no rate question', () => {
     const L = show(BasePayScreen, {});
     expect(run(L, /^Your household$/)).toBe('Your household $0/month Nothing entered yet. Add your income Save');
-    expect(L.join(' ')).not.toMatch(/≈|Federal tax bracket|10%|Calculated federal tax|roughly \$0|The tax rate you want us to use/);
+    expect(L.join(' ')).not.toMatch(/~|Federal tax bracket|10%|Calculated federal tax|roughly \$0|The tax rate you want us to use/);
   });
   test('two earners with nothing entered: no tick beside either, and the door opens the first person’s questions', () => {
     const L = show(BasePayScreen, { hasPartner: 'yes', partnerName: 'Sam', whoEarns: 'both' });
@@ -57,39 +57,39 @@ describe('IN-08 · Your base pay with nothing entered — the one line and its d
     fireEvent.press(screen.getByText('Add your income ›'));                             // … and the door opens it again
     expect(screen.getByText('How often you are paid')).toBeOnTheScreen();
   });
-  test('one earner entered, one not: the one with nothing is not "≈$0 calculated" — the card speaks of yours alone', () => {
+  test('one earner entered, one not: the one with nothing is not "~$0 calculated" — the card speaks of yours alone', () => {
     const L = show(BasePayScreen, { baseSalary: '7000', salaryFreq: 'monthly', c_401k: '800', landsTypical: '5000', hasPartner: 'yes', partnerName: 'Sam', whoEarns: 'both' });
     // by hand: $7,000 − $800 − $5,000 = $1,200 of everything else, 17% of $7,000; the take-home is $5,000, yours, as entered
     expect(L).toContain('This is what you entered — nothing here is calculated.');
-    expect(L.join(' ')).not.toMatch(/≈\$0|Sam’s take-home/);
+    expect(L.join(' ')).not.toMatch(/~\$0|Sam’s take-home/);
     expect(run(L, /^Your household$/, /^= Take-home$/)).toBe(
       'Your household $5,000/month Gross /year both wages $84,000 Federal tax bracket assumed filing jointly — both of you earn 12% '
       + 'Everything else taken out what you entered $1,200/month · 17.14% = Take-home');   // $1,200 ÷ $7,000 = 17.14%, two decimals since 2026-10-26 (MK-CF-M-081)
   });
 });
 
-describe('IN-03 · ≈ marks the app’s own estimate, on every income screen, and never a figure worked from his own rate', () => {
+describe('IN-03 · ~ marks the app’s own estimate, on every income screen, and never a figure worked from his own rate', () => {
   const COUPLE = { baseSalary: '7000', salaryFreq: 'monthly', c_401k: '800', hasPartner: 'yes', partnerName: 'Sam', whoEarns: 'both',
     partnerWage: { baseSalary: '4500', salaryFreq: 'monthly', c_401k: '400' } };
-  test('the calculated rate: Your base pay and the Income summary print one figure in one form, ≈$9,427', () => {
+  test('the calculated rate: Your base pay and the Income summary print one figure in one form, ~$9,427', () => {
     // by hand: $123,600 taxed − $32,200 = $91,400 → 10% × $24,800 + 12% × $66,600 = $10,472 a year, 7.59% of $138,000;
     // You $7,000 × (1 − 7.59%) − $800 = $5,669; Sam $4,500 × (1 − 7.59%) − $400 = $3,759; together $9,427
     const S = show(IncomeSummaryScreen, COUPLE);
-    expect(run(S, /^Take-home each month$/, /^= Inflow/)).toBe('Take-home each month ≈$9,427 Your pay after tax and 401(k) ≈$5,669 Sam’s pay after tax and 401(k) ≈$3,759 = Inflow (income (take-home))');
-    expect(S[S.indexOf('= Inflow (income (take-home))') + 1]).toBe('≈$9,427');
+    expect(run(S, /^Take-home each month$/, /^= Inflow/)).toBe('Take-home each month ~$9,427 Your pay after tax and 401(k) ~$5,669 Sam’s pay after tax and 401(k) ~$3,759 = Inflow (income (take-home))');
+    expect(S[S.indexOf('= Inflow (income (take-home))') + 1]).toBe('~$9,427');
     const B = show(BasePayScreen, COUPLE);
-    expect(B[B.indexOf('Your household') + 1]).toBe('≈$9,427/month');
+    expect(B[B.indexOf('Your household') + 1]).toBe('~$9,427/month');
   });
-  test('his rate typed: the same household reads $7,540 on both, with no ≈ — the rows say whose rate it is', () => {
+  test('his rate typed: the same household reads $7,540 on both, with no ~ — the rows say whose rate it is', () => {
     const S = show(IncomeSummaryScreen, { ...COUPLE, taxMode: 'manual', manualTaxRate: '24' });
     // by hand: $7,000 × 76% − $800 = $4,520; $4,500 × 76% − $400 = $3,020; $7,540
     expect(run(S, /^Take-home each month$/, /^= Inflow/)).toBe('Take-home each month $7,540 Your pay after tax and 401(k) $4,520 Sam’s pay after tax and 401(k) $3,020 = Inflow (income (take-home))');
-    expect(S.join(' ')).not.toContain('≈');
+    expect(S.join(' ')).not.toContain('~');
     // the Cash flow tab reads the same mark from the same rows (its source line: MK-CF-O-004, `estimated`)
     expect(incomeSummary({ ...COUPLE, taxMode: 'manual', manualTaxRate: '24' } as any).lands.lines.map((l) => l.estimated)).toEqual([false, false]);
     expect(incomeSummary(COUPLE as any).lands.lines.map((l) => l.estimated)).toEqual([true, true]);
   });
-  test('one take-home typed, one worked from his rate: "Sam’s take-home: $3,020 (calculated at your 24% rate, less 401(k))", no ≈', () => {
+  test('one take-home typed, one worked from his rate: "Sam’s take-home: $3,020 (calculated at your 24% rate, less 401(k))", no ~', () => {
     const L = show(BasePayScreen, { ...COUPLE, landsTypical: '5000', taxMode: 'manual', manualTaxRate: '24' });
     expect(L.join(' ')).toContain('Your take-home: $5,000 (you entered) Sam’s take-home: $3,020 (calculated at your 24.00% rate, less 401(k))');   // two decimals since 2026-10-26
   });
@@ -160,7 +160,7 @@ describe('IN-09 · a take-home typed the old way is converted when the profile l
     useStore.setState({ onboardingComplete: true, hideBalances: false } as any);
     render(<BasePayScreen />);
     const L = builtLinesWithBoxes(screen.toJSON());
-    expect(L).toContain('≈ Worked back from the take-home you entered. Type the gross from a payslip to replace it.');
+    expect(L).toContain('~ Worked back from the take-home you entered. Type the gross from a payslip to replace it.');
     expect(screen.getByLabelText('Gross pay each month').props.value).toBe('$5,000.00');
     expect(screen.getByLabelText('Your take-home each month').props.value).toBe('$5,000');
     expect(run(L, /^Your household$/)).toBe('Your household $5,000/month Gross /year $60,000 Federal tax bracket what your next dollar costs 12% '
@@ -280,13 +280,13 @@ describe('found by the outside measure (CFR-5, 2026-10-25), in these screens —
     // by hand: $60,000 − $4,800 − $16,100 = $39,100 taxed; federal $1,240 + 12% × $26,700 = $4,444 ($370.33 a month); state 5% ×
     // $39,100 = $1,955 ($162.92); together $6,399 a year, $533.25 a month → ≈$533
     const B = show(BasePayScreen, { ...ONE, stateTaxRate: '5' });
-    expect(run(B, /^Calculated tax$/, /^≈\$533\/month$/)).toBe('Calculated tax federal income tax, plus the 5.00% state rate you entered; assumes you take the standard deduction ≈$533/month');
+    expect(run(B, /^Calculated tax$/, /^~\$533\/month$/)).toBe('Calculated tax federal income tax, plus the 5.00% state rate you entered; assumes you take the standard deduction ~$533/month');
     const said = B.join(' ');
     expect(said).toContain('Only federal income tax and the 5.00% state rate you entered are taken out here.');
     expect(said).toContain('It holds the 5.00% state rate you entered but knows nothing about your insurance');
     expect(said).not.toMatch(/Calculated federal tax|knows nothing about your state|your state may take more/);
     const S = show(IncomeSummaryScreen, { ...ONE, stateTaxRate: '5' });
-    expect(run(S, /^Calculated tax$/, /^≈\$6,399\/year$/)).toBe('Calculated tax assumes you take the standard deduction ≈$6,399/year');
+    expect(run(S, /^Calculated tax$/, /^~\$6,399\/year$/)).toBe('Calculated tax assumes you take the standard deduction ~$6,399/year');
     expect(S).toContain('Federal income tax, plus the 5.00% state rate you entered — it knows nothing about Social Security or Medicare.');
     // with none entered, the federal-only words stand
     expect(show(BasePayScreen, ONE)).toContain('Calculated federal tax');

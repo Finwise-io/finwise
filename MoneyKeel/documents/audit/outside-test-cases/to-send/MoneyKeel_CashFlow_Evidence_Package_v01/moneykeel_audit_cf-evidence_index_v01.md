@@ -1,6 +1,6 @@
 # The 94 cases — an index
 
-94 of 197 FAILs are classed EVIDENCE GAP, as the file's own coverage line states (94). Read from the results of the 2026-10-25 review; built 2026-11-01 from `1d95c471`.
+94 of 197 FAILs are classed EVIDENCE GAP, as the file's own coverage line states (94). Read from the results of the 2026-10-25 review; built 2026-11-01 from `77d36913`.
 
 32 of 94 are settled by our own tests for words and figures, and 1 because the figure is retired; the other 61 are for the reviewer to settle. Our status is not the answer.
 

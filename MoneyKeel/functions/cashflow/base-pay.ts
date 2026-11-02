@@ -12,7 +12,7 @@
 // The 401(k) and the take-home are asked for and are optional. Nothing is ever grossed up.
 //
 // EVERY RULING BELOW IS THE FOUNDER'S, MADE 2026-08-27, and is named where it applies.
-import { declareFigures } from '../_figure-spec';
+import { declareFigures, percentDigits } from '../_figure-spec';
 import { PAY_FREQUENCIES, payPeriodsAYear } from '../../../src/domain/income/pay-frequency';   // the one table (R23, 2026-11-01)
 import { toNum } from '../../../src/domain/_shared/num';
 import { taxOwedFor, marginalBracketFor, type FilingStatus } from '../../../src/domain/income/tax';
@@ -64,7 +64,7 @@ export interface BasePayEntry {
  *
  * Called by ... MK-CF-F-141 perMonth · MK-CF-F-297 freqNotRecognised
  *
- * Reaches ..... 478 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 484 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -74,7 +74,7 @@ export interface BasePayEntry {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 460 more — the full list is on functions_from_code
+ *               … and 466 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -99,7 +99,7 @@ const periodsAYear = (e: BasePayEntry): number | null => payPeriodsAYear(e.freq)
  *               MK-CF-F-171 earnerPay · MK-CF-F-243 grossCalendarYear
  *               MK-CF-F-245 hoursNotEntered
  *
- * Reaches ..... 478 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 484 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -109,7 +109,7 @@ const periodsAYear = (e: BasePayEntry): number | null => payPeriodsAYear(e.freq)
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 460 more — the full list is on functions_from_code
+ *               … and 466 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-075 hours a week, for a wage paid by the hour
@@ -143,7 +143,7 @@ function perMonth(amount: any, e: BasePayEntry): number | null {
  * Called by ... MK-CF-F-128 grossByMonth · MK-CF-F-144 takeHomeAsEntered
  *               MK-CF-F-146 payFiguresAgree · MK-CF-F-243 grossCalendarYear
  *
- * Reaches ..... 478 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 484 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -153,7 +153,7 @@ function perMonth(amount: any, e: BasePayEntry): number | null {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 460 more — the full list is on functions_from_code
+ *               … and 466 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -179,7 +179,7 @@ function monthsOf(table: Record<string, any> | undefined): [string, number][] {
  * Called by ... MK-CF-F-146 payFiguresAgree · MK-CF-F-171 earnerPay
  *               MK-CF-F-243 grossCalendarYear
  *
- * Reaches ..... 478 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 484 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -189,7 +189,7 @@ function monthsOf(table: Record<string, any> | undefined): [string, number][] {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 460 more — the full list is on functions_from_code
+ *               … and 466 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -223,7 +223,7 @@ export function grossByMonth(e: BasePayEntry): [string, number][] {
  *               MK-CF-F-146 payFiguresAgree · MK-CF-F-171 earnerPay
  *               MK-CF-F-240 PAY_LANDS_TYPED
  *
- * Reaches ..... 478 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 484 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -233,7 +233,7 @@ export function grossByMonth(e: BasePayEntry): [string, number][] {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 460 more — the full list is on functions_from_code
+ *               … and 466 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -271,7 +271,7 @@ export function annualisedGross(e: BasePayEntry): number {
  *
  * Called by ... MK-CF-F-143 annualisedGross · MK-CF-F-244 paidMonthsOf
  *
- * Reaches ..... 478 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 484 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -281,7 +281,7 @@ export function annualisedGross(e: BasePayEntry): number {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 460 more — the full list is on functions_from_code
+ *               … and 466 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-023 salary and other income
@@ -318,7 +318,7 @@ export function grossCalendarYear(e: BasePayEntry): number[] {
  *               MK-CF-F-145 deductionsFromPay · MK-CF-F-146 payFiguresAgree
  *               MK-CF-F-171 earnerPay
  *
- * Reaches ..... 478 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 484 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -328,7 +328,7 @@ export function grossCalendarYear(e: BasePayEntry): number[] {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 460 more — the full list is on functions_from_code
+ *               … and 466 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -349,9 +349,9 @@ export function paidMonthsOf(e: BasePayEntry): number {
  *     string(freq) = 'hourly' and to num(gross typical) > 0 and per month(gross typical, e) = nothing
  *
  * Called by ... MK-CF-F-145 deductionsFromPay · MK-CF-F-171 earnerPay
- *               MK-CF-O-001 basePay
+ *               MK-CF-F-308 payPeriodsAYear · MK-CF-O-001 basePay
  *
- * Reaches ..... 478 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 484 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -361,7 +361,7 @@ export function paidMonthsOf(e: BasePayEntry): number {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 460 more — the full list is on functions_from_code
+ *               … and 466 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -384,7 +384,7 @@ export function hoursNotEntered(e: BasePayEntry): boolean {
  * Called by ... MK-CF-F-145 deductionsFromPay · MK-CF-F-171 earnerPay
  *               MK-CF-O-001 basePay
  *
- * Reaches ..... 478 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 484 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -394,7 +394,7 @@ export function hoursNotEntered(e: BasePayEntry): boolean {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 460 more — the full list is on functions_from_code
+ *               … and 466 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -436,7 +436,7 @@ export interface TakeHome { monthly: number; estimated: boolean; why: string; }
  * Called by ... MK-CF-F-145 deductionsFromPay · MK-CF-F-146 payFiguresAgree
  *               MK-CF-F-171 earnerPay
  *
- * Reaches ..... 478 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 484 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -446,14 +446,13 @@ export interface TakeHome { monthly: number; estimated: boolean; why: string; }
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 460 more — the full list is on functions_from_code
+ *               … and 466 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-030 tax filing status and age
  *
  * Decides .....
  *     · If over65 is missing it uses 0.
- *     · Rounds the answer to a whole number.
  *
  * Formula also on the master file · functions_from_code · MK-CF-F-144
  * Changed ..... not in git yet (—)
@@ -490,7 +489,7 @@ export function takeHomeAsEntered(e: BasePayEntry): TakeHome {
     // The household rate in force — typed, or the federal estimate on the WHOLE household. Never
     // this wage through the schedule alone: that hands every earner the full standard deduction.
     return { monthly: ((gross * (1 - e.estRate) - k401) / per), estimated: true,
-             why: `calculated at the household rate of ${Math.round(e.estRate * 100)}% — this take-home is higher than it will really be until the real figure is entered` };
+             why: `calculated at the household rate of ${percentDigits(e.estRate, 0)}% — this take-home is higher than it will really be until the real figure is entered` };
   }
   const taxable = Math.max(0, gross - k401);
   // The band is a property of EVERYTHING the household is taxed on, never of this wage alone
@@ -527,7 +526,7 @@ export function takeHomeAsEntered(e: BasePayEntry): TakeHome {
  *
  * Called by ... MK-CF-F-171 earnerPay
  *
- * Reaches ..... 478 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 484 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -537,7 +536,7 @@ export function takeHomeAsEntered(e: BasePayEntry): TakeHome {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 460 more — the full list is on functions_from_code
+ *               … and 466 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -597,7 +596,7 @@ export interface PayVerdict { ok: boolean; warn: boolean; say: string; }
  *
  * Called by ... MK-CF-F-171 earnerPay
  *
- * Reaches ..... 478 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 484 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -607,12 +606,9 @@ export interface PayVerdict { ok: boolean; warn: boolean; say: string; }
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 460 more — the full list is on functions_from_code
+ *               … and 466 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- *
- * Decides .....
- *     · Rounds the answer to a whole number.
  *
  * Formula also on the master file · functions_from_code · MK-CF-F-146
  * Changed ..... not in git yet (—)
@@ -655,7 +651,7 @@ export function payFiguresAgree(e: BasePayEntry): PayVerdict {
     if (!warning && gross > 0 && left / gross > HIGH_DEDUCTION_SHARE) {
       const when = inMonth(key);
       warning = { ok: true, warn: true, say:
-        `That leaves ${Math.round((left / gross) * 100)}% of your pay${when} going somewhere other ` +
+        `That leaves ${percentDigits((left / gross), 0)}% of your pay${when} going somewhere other ` +
         `than your bank, which is higher than most. Worth a look in case a figure went in for the ` +
         `wrong period — but if that is really your payslip, carry on.` };
     }
@@ -718,7 +714,7 @@ export interface EarnerPay {
  *
  * Called by ... MK-CF-F-240 PAY_LANDS_TYPED · MK-CF-O-001 basePay
  *
- * Reaches ..... 478 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 484 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -728,7 +724,7 @@ export interface EarnerPay {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 460 more — the full list is on functions_from_code
+ *               … and 466 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-030 tax filing status and age
@@ -818,7 +814,9 @@ export interface BasePay {
   /** `approx`: this earner's take-home is the app's own estimate — worked with the CALCULATED rate — so it wears ≈. A take-home
    *  worked from the person's own typed rate is theirs and does not (2026-10-25, IN-03; drawing v07 rule 9). `entered`: the
    *  earner has a gross or a take-home on record; one with nothing is left out of the household's sentences (IN-08). */
-  earners: { name: string; pay: EarnerPay; approx: boolean; entered: boolean }[];
+  /** `waits` (R27, 2026-11-02): this earner's take-home is calculated, and the shared rate it is calculated on rests on another wage
+   *  that cannot be read — so it is not worked (Sam's ~$4,318 was worked as if the other $100,000 were $0) */
+  earners: { name: string; pay: EarnerPay; approx: boolean; entered: boolean; waits: boolean }[];
   /** No earner has a gross or a take-home on record: the card shows the empty-state line (Q48), never ≈$0 (IN-08). */
   nothingEntered: boolean;
   /** THE EARNERS PAID BY THE HOUR WHOSE HOURS A WEEK ARE NOT ENTERED (2026-10-26, FIX-INCOME-A; DEC-0296, tenet 3): their pay is
@@ -900,7 +898,7 @@ const GIVEN_LAW =
  * Called by ... MK-CF-F-079 incomeFromOnboarding · MK-CF-F-233 earnerWageShares
  *               MK-CF-F-240 PAY_LANDS_TYPED
  *
- * Reaches ..... 478 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 484 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -910,7 +908,7 @@ const GIVEN_LAW =
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 460 more — the full list is on functions_from_code
+ *               … and 466 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-030 tax filing status and age
@@ -994,7 +992,7 @@ export const FIGURES = declareFigures({
     ruled: '2026-09-14',
     refusal: 'Shows $0 until a wage is entered.',
     // (2026-10-25, IN-03) ≈ is the app's own estimate only: a take-home worked from the person's typed rate is theirs
-    note: 'ONE figure over two sets: one earner, and the household — so a total and its parts cannot disagree (rule 2). It wears ≈ whenever the app worked it with the calculated rate; one entered, or worked from the person’s own typed rate, wears none.',
+    note: 'ONE figure over two sets: one earner, and the household — so a total and its parts cannot disagree (rule 2). It wears ~ whenever the app worked it with the calculated rate; one entered, or worked from the person’s own typed rate, wears none.',
     worked: {
       given: GIVEN,
       answer: '$9,398/month',
@@ -1148,7 +1146,7 @@ export const FIGURES = declareFigures({
     answers: 'The share of the gross the take-home is worked at — the rate the person typed, the share their own figures imply, or the calculated rate.',
     formula: 'the rate in force (MK-CF-F-181 rateInForce): a typed rate ÷ 100; else (gross − 401(k)s − take-homes) ÷ gross when every earner typed a take-home; else the year’s tax on what is taxed ÷ everything taxable',
     inputs: ['MK-CF-I-005 tax rate as entered', 'MK-CF-I-003 take-home as entered', 'MK-CF-M-030 gross a year'],
-    decisions: ['The person’s rate outranks the calculated one (tenet 5); a take-home worked from it wears no ≈ (2026-10-25).'],
+    decisions: ['The person’s rate outranks the calculated one (tenet 5); a take-home worked from it wears no ~ (2026-10-25).'],
     ruled: '2026-10-25',
     refusal: 'Not shown until a wage is entered.',
     worked: {
@@ -1177,17 +1175,18 @@ export const FIGURES = declareFigures({
  *     pay = pay
  *     entered = entered
  *     approx = entered and pay.lands is estimated and pre rate.source = 'estimated'
+ *     waits = false
+ *     any unread = earners.some((e) => pay.freq not recognised or pay.hours not entered)
  *     gross annual = Σ over earners of (pay.gross annualised)
  *     lands in bank = Σ over earners of (pay.lands in bank)
  *     first wage = earners[0].pay.gross annualised (or 0 when missing)
- *     k401 annual = Σ over earners of (pay.monthly401k × pay.paid months)
  *     … the first steps only — the rest of the body needs reading by hand.
  *
  * Called by ... MK-CF-F-238 PAY · MK-CF-F-239 PAY_ESTIMATED
  *               MK-CF-F-240 PAY_LANDS_TYPED · MK-CF-O-004 incomeSummary
  *               MK-CF-O-019 theIncomeManager
  *
- * Reaches ..... 478 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 484 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -1197,7 +1196,7 @@ export const FIGURES = declareFigures({
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 460 more — the full list is on functions_from_code
+ *               … and 466 more — the full list is on functions_from_code
  *
  * Serves ...... MK-CF-M-030 · MK-CF-M-031 · MK-CF-M-032 · MK-CF-M-033
  *               MK-CF-M-034 · MK-CF-M-035 · MK-CF-M-036 · MK-CF-M-045
@@ -1217,7 +1216,6 @@ export const FIGURES = declareFigures({
  *     · If paid months is missing it uses 0.
  *     · Uses a built-in f i c a s h a r e of 7.65%.
  *     · Rounds the answer to a whole number.
- *     · Shows 2 decimal places.
  *
  * Formula also on the master file · functions_from_code · MK-CF-O-001
  * Changed ..... not in git yet (—)
@@ -1237,8 +1235,12 @@ export function basePay(h: HouseholdPayInput): BasePay {
   const earners = (h.earners ?? []).map((e) => {
     const pay = earnerPay({ ...e.entry, filingStatus: status, over65, estRate: preRate.rate });
     const entered = pay.grossAnnualised > 0 || !pay.landsIsEstimated || pay.hoursNotEntered || pay.freqNotRecognised;   // $25 an hour typed is entered (DEC-0296)
-    return { name: e.name, pay, entered, approx: entered && pay.landsIsEstimated && preRate.source === 'estimated' };
+    return { name: e.name, pay, entered, approx: entered && pay.landsIsEstimated && preRate.source === 'estimated', waits: false };
   });
+  // A CALCULATED TAKE-HOME THAT RESTS ON A WAGE NOT READ (R27, 2026-11-02; CF6-15): the shared rate is worked on every wage, so with one
+  // unreadable the others' calculated take-homes wait — a take-home typed stands
+  const anyUnread = earners.some((e) => e.pay.freqNotRecognised || e.pay.hoursNotEntered);
+  for (const e of earners) e.waits = anyUnread && !e.pay.freqNotRecognised && !e.pay.hoursNotEntered && e.pay.landsIsEstimated;
 
   const grossAnnual = (earners.reduce((t, e) => t + e.pay.grossAnnualised, 0));
   const landsInBank = (earners.reduce((t, e) => t + e.pay.landsInBank, 0));
@@ -1265,7 +1267,7 @@ export function basePay(h: HouseholdPayInput): BasePay {
     const wrong = ((grossAnnual * bandOnOneWage) / 12);
     const right = ((grossAnnual * bandOnEveryWage) / 12);
     bandNote = `Filing ${status === 'married' ? 'jointly' : 'as you do'}, the band comes from what you earn together. `
-      + `On your pay alone we would have read ${Math.round(bandOnOneWage * 100)}% and shown about `
+      + `On your pay alone we would have read ${percentDigits(bandOnOneWage, 0)}% and shown about `
       + `${money(right - wrong)}/month more than your real take-home.`;
   }
 
@@ -1301,7 +1303,7 @@ export function basePay(h: HouseholdPayInput): BasePay {
     shortBy: inForce.source === 'estimated' ? earners.reduce((t, e) => t + payrollTaxWithheld(e.pay.grossAnnualised) / per(e), 0) : null,   // G4: per earner, the wage base respected; a paid month's
     mode,
     statusAssumed: (h.profile as any)?.filingStatus == null,
-    stateWords: stateRateOf(profile ?? null) > 0 ? `the ${(stateRateOf(profile ?? null) * 100).toFixed(2)}% state rate you entered` : null,
+    stateWords: stateRateOf(profile ?? null) > 0 ? `the ${percentDigits(stateRateOf(profile ?? null), 2)}% state rate you entered` : null,
   };
 
   // WHOSE FIGURE IS WHOSE — the sentence under the lands total, per person, with the dollars.
@@ -1322,11 +1324,11 @@ export function basePay(h: HouseholdPayInput): BasePay {
     // says WHAT the figure is (take-home), WHOSE it is, and whether it was entered or calculated —
     // his first reading of the prose version took the entered take-home for a gross.
     const how = inForce.mine
-      ? `calculated at your ${(inForce.rate * 100).toFixed(2)}% rate, less 401(k)`
+      ? `calculated at your ${percentDigits(inForce.rate, 2)}% rate, less 401(k)`
       : 'calculated — gross less federal tax and 401(k)';
     // ≈ only on the app's own estimate: a take-home at their typed rate is theirs (IN-03)
     const line = (e: { name: string; pay: EarnerPay; approx: boolean }) => e.pay.landsIsEstimated
-      ? `${e.name === 'You' ? 'Your' : `${e.name}’s`} take-home: ${e.approx ? '≈' : ''}${money0(e.pay.landsInBank)} (${how})`
+      ? `${e.name === 'You' ? 'Your' : `${e.name}’s`} take-home: ${e.approx ? '~' : ''}${money0(e.pay.landsInBank)} (${how})`
       : `${e.name === 'You' ? 'Your' : `${e.name}’s`} take-home: ${money0(e.pay.landsInBank)} (${e.name === 'You' ? 'you' : e.name} entered)`;
     landsNote = basis.map(line).join('\n');
   } else if (mode === 'estimated' && grossAnnual > 0) {
@@ -1342,7 +1344,7 @@ export function basePay(h: HouseholdPayInput): BasePay {
   // THE OWN-FIGURES SENTENCE STANDS ON ITS OWN (2026-10-24, CF-FIX): it rode on the band sentence, so once the bands are read
   // after the 401(k)s (B05) and agree, the drawing's "The 24% is your own figures — …" left with it. Two earners, entered.
   if (mode === 'entered' && basis.length > 1) {
-    bandNote = `${bandNote ? bandNote + ' ' : ''}The ${(inForce.rate * 100).toFixed(2)}% is your own figures — tax, Social Security, Medicare, everything.`;
+    bandNote = `${bandNote ? bandNote + ' ' : ''}The ${percentDigits(inForce.rate, 2)}% is your own figures — tax, Social Security, Medicare, everything.`;
   }
 
   // what the band is read on, and the drawn list of what can still be added, less what is already entered (F3)
@@ -1399,7 +1401,7 @@ export const MEDICARE_ADDITIONAL_THRESHOLD = 200_000; // wages above this carry 
  *
  * Called by ... MK-CF-O-001 basePay
  *
- * Reaches ..... 478 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 484 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -1409,7 +1411,7 @@ export const MEDICARE_ADDITIONAL_THRESHOLD = 200_000; // wages above this carry 
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 460 more — the full list is on functions_from_code
+ *               … and 466 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -1448,7 +1450,7 @@ export function payrollTaxWithheld(wageAnnual: number): number {
  *
  * Called by ... MK-CF-O-004 incomeSummary · MK-CF-O-019 theIncomeManager
  *
- * Reaches ..... 478 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 484 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -1458,7 +1460,7 @@ export function payrollTaxWithheld(wageAnnual: number): number {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 460 more — the full list is on functions_from_code
+ *               … and 466 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-039 how often each income arrives

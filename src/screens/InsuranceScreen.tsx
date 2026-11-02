@@ -6,7 +6,7 @@ import { View, Text, ScrollView, StyleSheet, TextInput, TouchableOpacity } from 
 import { KeyboardAwareScreen } from '../components/KeyboardAwareScreen';
 import { useRouter } from 'expo-router';
 import { useStore } from '../store/useStore';
-import { Colors, Spacing, Radii } from '../utils/theme';
+import { Colors, Spacing, Radii, Tap } from '../utils/theme';
 import { money } from '../domain/_shared/num';
 import { lifeInsuranceNeed } from '../domain/planning';
 import { totalGrossAnnual } from '../domain/income';
@@ -45,7 +45,7 @@ export default function InsuranceScreen() {
         {/* a $ figure is a money box — it prints "$250,000" itself, so no separate $ before it (DEC-8385, 2026-10-27) */}
         {suffix === '$'
           ? <MoneyBox bare style={styles.input} value={v} onChangeText={set} a11y={label} />
-          : <TextInput style={styles.input} keyboardType="decimal-pad" value={v} onChangeText={set} accessibilityLabel={label} />}
+          : <TextInput hitSlop={Tap.slop} style={styles.input} keyboardType="decimal-pad" value={v} onChangeText={set} accessibilityLabel={label} />}
         {suffix !== '$' ? <Text style={styles.suffix}>{suffix}</Text> : null}
       </View>
     </View>

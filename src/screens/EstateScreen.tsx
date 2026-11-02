@@ -4,6 +4,7 @@ import React from 'react';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
+import { percentDigits, percentValue } from '../../MoneyKeel/functions/_figure-spec';   // the one percent writer (R24, NW6-05)
 
 const ITEMS: { id: string; title: string; sub: string; who?: string }[] = [
   { id: 'will', title: 'Write a will', sub: 'Says who gets what and (if you have kids) who raises them. Without one, the state decides.' },
@@ -19,7 +20,7 @@ export default function EstateScreen() {
   const store = useStore() as any;
   const plan: Record<string, boolean> = store.estatePlan ?? {};
   const done = ITEMS.filter((i) => plan[i.id]).length;
-  const pct = Math.round((done / ITEMS.length) * 100);
+  const pct = percentValue(done / ITEMS.length, 0);
 
   return (
     <ScrollView style={{ flex: 1, backgroundColor: Colors.bgSecondary }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>

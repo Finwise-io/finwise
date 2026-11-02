@@ -87,13 +87,19 @@ describe('the one reader: which setup loans no debt entered is', () => {
     // by hand: r = 0.055 ÷ 12 = 0.0045833; n = 120; 30,000 × r ÷ (1 − (1 + r)^−120) = 325.58
     const r = 0.055 / 12;
     expect(Math.round(30_000 * r / (1 - Math.pow(1 + r, -120)) * 100) / 100).toBe(325.58);
-    expect(d).toMatchObject({ debt_id: 'setup-loan-0', label: 'Student loan', debt_type: 'STUDENT_LOAN', remaining_balance: 30_000, setup_loan: 0 });
+    expect(d).toMatchObject({ debt_id: 'setup-loan-0', label: 'Student loan (from setup)', debt_type: 'STUDENT_LOAN', remaining_balance: 30_000, setup_loan: 0 });   // one name on every screen (NW6-03)
     expect(d.interest_rate_apr).toBeCloseTo(0.055, 12);
-    expect(Math.round(d.minimum_monthly_payment * 100) / 100).toBe(325.58);
+    // R22d (2026-11-02, FX-CF-A): the payment is not assumed — when repayment starts is never asked in setup; the outlook keeps $325.58 as an estimate
+    expect(d.minimum_monthly_payment).toBeUndefined();
     // no rate given in setup: the rate and the payment are not entered, never 0
     const [bare] = setupLoanDebts({ loans: [{ amount: '12000' }] }, []);
-    expect([bare.label, bare.interest_rate_apr, bare.minimum_monthly_payment]).toEqual(['Student loan', undefined, undefined]);
+    expect([bare.label, bare.interest_rate_apr, bare.minimum_monthly_payment]).toEqual(['Student loan (from setup)', undefined, undefined]);
   });
+});
+
+test.failing('R22d · the round-5 answer, kept (FX-CF-A, 2026-11-02): the setup loan’s debt row carried the $325.58 worked from its rate and term', () => {
+  const [d] = setupLoanDebts({ loans: [LOAN] }, []);
+  expect(Math.round(d.minimum_monthly_payment * 100) / 100).toBe(325.58);
 });
 
 describe('Debts and Net worth agree on one household (the v08 row of 2026-11-01)', () => {
@@ -101,7 +107,7 @@ describe('Debts and Net worth agree on one household (the v08 row of 2026-11-01)
     setup([VISA, CAR]);
     const nw = netWorthDebts();
     expect(nw.debts).toBe('−$43,000');                                       // 30,000 + 3,200 + 9,800
-    expect(nw.rows).toContain('Student loan');                                 // its own row under DEBTS
+    expect(nw.rows).toContain('Student loan (from setup)');                    // its own row under DEBTS, named as on Debts (NW6-03)
     expect(nw.total).toMatch(/^−\$38,000/);                                     // 5,000 − 43,000
     expect(debtsTab()).toBe('$43,000');
     expect(theNetWorth(netWorthInputs(useStore.getState())).debts).toBe(43_000);
@@ -120,12 +126,12 @@ describe('Debts and Net worth agree on one household (the v08 row of 2026-11-01)
   test('the setup loan’s row opens the debt editor; saving it there makes it an entered debt — still $43,000, once', () => {
     setup([VISA, CAR]);
     const C = require('../NetWorthScreen').default; render(<C />);
-    fireEvent.press(screen.getByLabelText(/^Student loan, you owe \$30,000\. Opens the editor\.$/));
+    fireEvent.press(screen.getByLabelText(/^Student loan \(from setup\), you owe \$30,000\. Opens the editor\.$/));
     expect(screen.queryByLabelText('Remove debt')).toBeNull();                // a setup answer is not removed from here
     fireEvent.press(screen.getByLabelText('Save debt'));
     const saved = (useStore.getState() as any).liabilities;
     expect(saved).toHaveLength(3);
-    expect(saved.find((d: any) => d.setup_loan === 0)).toMatchObject({ label: 'Student loan', remaining_balance: 30_000, debt_type: 'STUDENT_LOAN' });
+    expect(saved.find((d: any) => d.setup_loan === 0)).toMatchObject({ label: 'Student loan', remaining_balance: 30_000, debt_type: 'STUDENT_LOAN' });   // saved, it is an entered debt, named as the editor names it (v08 row of 2026-11-02)
     expect(netWorthInputs(useStore.getState()).debts).toHaveLength(3);         // the saved debt is that loan: no setup row beside it
     expect(theNetWorth(netWorthInputs(useStore.getState())).debts).toBe(43_000);
   });
@@ -152,7 +158,7 @@ describe('R22a — a setup loan is owed from its first month paid out', () => {
     setup([VISA, CAR], [LATER]);
     const nw = netWorthDebts();
     expect(nw.debts).toBe('−$13,000');                                       // 3,200 + 9,800: the loan is not owed yet
-    expect(nw.rows).not.toContain('Student loan');
+    expect(nw.rows).not.toContain('Student loan (from setup)');
     expect(nw.rows).toContain(SAID_LATER);
     expect(nw.total).toMatch(/^−\$8,000/);                                     // 5,000 − 13,000
     const C = require('../CashFlowScreen').default; const r = render(<C />);
@@ -188,4 +194,49 @@ test.failing('the old answer: Net worth reads DEBTS −$13,000 beside a $30,000 
 test.failing('the old answer: a setup loan starting Sep 2027 counts in Debts on Nov 1, 2026 — $43,000', () => {
   setup([VISA, CAR], [{ label: 'Student loan', amount: '30000', months: [9], year: '2027' }]);
   expect(debtsTab()).toBe('$43,000');
+});
+
+/** NW6-03 (2026-11-02; v08 row of that date): one name on both screens — 'Student loan (from setup)', given once by setupLoanDebts */
+test('NW6-03 · the setup loan is ‘Student loan (from setup)’ on Net worth and on Debts', () => {
+  setup([VISA, CAR]);
+  expect(netWorthDebts().rows).toContain('Student loan (from setup)');
+  const C = require('../CashFlowScreen').default; const r = render(<C />);
+  fireEvent.press(screen.getByLabelText('Debts tab'));
+  const ls = lines(); r.unmount();
+  expect(ls).toContain('Student loan (from setup)');
+  expect(ls.join(' ')).not.toMatch(/\(from setup\) \(from setup\)/);
+});
+test.failing('the old answer (NW6-03): Net worth names the setup loan ‘Student loan’', () => {
+  setup([VISA, CAR]);
+  expect(netWorthDebts().rows).toContain('Student loan');
+});
+
+/** CF6-02 (2026-11-02; v08 row of that date): only a later setup loan is entered — Net worth does not say 'Nothing entered yet.' */
+test('CF6-02 · no debts, a $30,000 setup loan starting Sep 2027: DEBTS $0, the loan’s sentence, the door — no ‘Nothing entered yet.’', () => {
+  setup([], [{ label: 'Student loan', amount: '30000', months: [9], year: '2027' }]);
+  const { debtsEntered } = require('../../domain/debt');
+  expect(debtsEntered({ loans: [{ amount: '30000', months: [9], year: '2027' }] }, [])).toBe(true);
+  expect(debtsEntered({ loans: [] }, [])).toBe(false);
+  const C = require('../NetWorthScreen').default; render(<C />);
+  const ls = lines(); const at = ls.lastIndexOf('DEBTS');
+  expect(ls.slice(at, at + 6)).toEqual(['DEBTS', 'ⓘ', '$0', 'A $30,000 student loan starts in Sep 2027, not counted until then.', 'Add your debts', '›']);
+});
+test.failing('the old answer (CF6-02): ‘Nothing entered yet.’ above the later loan', () => {
+  setup([], [{ label: 'Student loan', amount: '30000', months: [9], year: '2027' }]);
+  const C = require('../NetWorthScreen').default; render(<C />);
+  const ls = lines(); expect(ls[ls.lastIndexOf('DEBTS') + 3]).toBe('Nothing entered yet.');
+});
+
+/** R22d on Net worth (2026-11-02; v08 row of that date): the setup loan's payment is not assumed — named by its reason */
+test('R22d · the emergency fund names the setup loan by why its payment is not included', () => {
+  setup([VISA, CAR]);
+  const C = require('../NetWorthScreen').default; render(<C />);
+  const ls = lines();
+  expect(ls).toContain('Student loan (from setup): when repayment starts is not entered, so its payment is not included.');
+  expect(ls.join(' ')).not.toMatch(/Student loan \(from setup\) payment not entered/);
+});
+test.failing('the old answer (R22d): ‘Student loan (from setup) payment not entered, so it is not included.’', () => {
+  setup([VISA, CAR]);
+  const C = require('../NetWorthScreen').default; render(<C />);
+  expect(lines().join(' ')).toMatch(/Student loan \(from setup\) payment not entered, so it is not included\./);
 });

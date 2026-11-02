@@ -101,9 +101,10 @@ export interface GridOptions {
  *               MK-CF-F-237 LATER · MK-CF-F-242 workedLineAmount
  *               MK-CF-O-008 whatsComing
  *
- * Reaches ..... 8 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 10 functions. Change the arithmetic above and these change with it:
  *               MK-CF-F-205 COMING · MK-CF-F-237 LATER
- *               MK-XS-F-004 buildDatedGrid · MK-CF-F-107 buildPaycheckYear
+ *               MK-CF-F-296 LOAD · MK-XS-F-004 buildDatedGrid
+ *               MK-CF-F-107 buildPaycheckYear · MK-CF-F-295 debtLoad
  *               MK-CF-O-017 futurePaycheck · MK-CF-F-212 receivedInMonth
  *               MK-CF-O-008 whatsComing · MK-CF-F-242 workedLineAmount
  *

@@ -6,9 +6,9 @@
 // number and is labelled as one. Mixing them is how a take-home figure comes to include a bonus
 // nobody has been paid yet — and how interest and dividends came to be counted as spendable when
 // they are reinvested where they are earned and never reach the bank.
-import { PAY_FREQUENCY_NOT_RECOGNISED } from '../../../src/domain/income/pay-frequency';   // R23, 2026-11-01
+import { PAY_FREQUENCY_NOT_RECOGNISED, payFrequencyOf, isPayFrequency } from '../../../src/domain/income/pay-frequency';   // R23, 2026-11-01
 import { plural } from '../../../src/domain/_shared/plural';   // the one list of words and plurals (DEC-4082, 2026-10-10)
-import { declareFigures } from '../_figure-spec';
+import { declareFigures, percentDigits } from '../_figure-spec';
 import { toNum } from '../../../src/domain/_shared/num';
 import { salaryAnnual, taxableAnnual, rentalNetAnnual, extraIncome, filingStatusOf,
          over65CountOf, incomeMonthlyGrid } from '../../../src/domain/income';
@@ -86,6 +86,16 @@ export interface IncomeSummary {
   /** How many earners have a wage entered — so a screen can say whose income a figure rests on. */
   wages: number;
   ready: boolean;             // false on a fresh account: the screen keeps its shape and shows no $0
+  /** A WAGE ENTERED THAT CANNOT BE READ (R23a, 2026-11-01): its pay frequency is outside the one table, or it is hourly with no hours
+   *  a week. The sentence that says why — or null. Every figure that rests on the wage (the take-home, the bracket, the tax, the
+   *  totals) refuses with it; a source that does not rest on it still prints. */
+  wageRefusal: string | null;
+  /** THE ROWS OF THE WAGE THAT CANNOT BE READ (R27, 2026-11-02): its take-home row and its gross row, by label ('Your pay', 'Your
+   *  gross') — a screen leaves out exactly these, and keeps a spouse's gross that does not rest on it, so its rows add to its total. */
+  unreadRows: string[];
+  /** RENT WAITING FOR ITS PROPERTY (DEC-4059d; R27, 2026-11-02): the rent kept a month that names no property, counted nowhere, or
+   *  null. A screen says it — "Your rent of $1,200/month is not counted until you pick its property." — with the figure under MK-CF-M-010. */
+  rentWaiting: number | null;
 }
 
 /** ── THE FIGURES THIS DOOR HANDS OUT (founder rule 11, 2026-09-14) ───────────────────────────────
@@ -132,7 +142,7 @@ const GIVEN =
  * Called by ... MK-CF-F-024 totalDebtMonthly · MK-CF-F-207 SOURCE
  *               MK-CF-F-296 LOAD · MK-PL-F-010 drawOrderOutcome
  *
- * Reaches ..... 478 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 484 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -142,7 +152,7 @@ const GIVEN =
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 460 more — the full list is on functions_from_code
+ *               … and 466 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -184,7 +194,7 @@ const SOURCES_GIVEN =
  *
  * Called by ... MK-CF-F-201 INCOME · MK-CF-O-016 incomeSources
  *
- * Reaches ..... 478 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 484 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -194,7 +204,7 @@ const SOURCES_GIVEN =
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 460 more — the full list is on functions_from_code
+ *               … and 466 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
@@ -504,6 +514,10 @@ export interface IncomeSource {
   every?: string;
   /** Which kind it is, for the row that opens its editor. */
   kind: 'salary' | 'self-employment' | 'bonus' | 'equity' | 'rental' | 'guaranteed' | 'benefits' | 'support' | 'interest' | 'other';
+  /** A salary that cannot be read, in words: 'pay frequency not recognised' or 'hours a week not entered' (R27, 2026-11-02). */
+  unread?: string;
+  /** A salary typed by the hour: its figure is an hourly rate, '$25/hour' (CF6-12). */
+  hourly?: boolean;
 }
 
 /** Which sources of income has this household entered, and what does each one bring in? */
@@ -519,8 +533,6 @@ export interface IncomeSource {
  *     freq word = monthly = 'monthly'
  *     biweekly = 'every 2 weeks'
  *     weekly = 'weekly'
- *     semimonthly = 'twice a month'
- *     annual = 'yearly'
  *     annually = 'yearly'
  *     hourly = 'an hour'
  *     varies = string((w as any).salary mode) = 'varies' (or !!(w as any).salary by month when missing or zero)
@@ -537,7 +549,7 @@ export interface IncomeSource {
  *
  * Called by ... MK-CF-F-207 SOURCE · MK-CF-O-004 incomeSummary
  *
- * Reaches ..... 478 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 484 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -547,7 +559,7 @@ export interface IncomeSource {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 460 more — the full list is on functions_from_code
+ *               … and 466 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-022 pension monthly amount
@@ -557,6 +569,7 @@ export interface IncomeSource {
  *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
  *               MK-XS-I-059 the month a bonus lands
  *               MK-XS-I-060 how a person is paid — weekly, fortnightly, monthly
+ *               MK-XS-I-075 hours a week, for a wage paid by the hour
  *
  * Decides .....
  *     · If vesting is missing it uses 0.
@@ -568,7 +581,9 @@ export function incomeSources(op: Record<string, any> | null): IncomeSource[] {
   const o = (op ?? {}) as any;
   const out: IncomeSource[] = [];
   const wages = earnerWages(o);
-  const FREQ_WORD: Record<string, string> = { monthly: 'monthly', biweekly: 'every 2 weeks', weekly: 'weekly', semimonthly: 'twice a month', annual: 'yearly', annually: 'yearly', hourly: 'an hour' };
+  // the five of the one pay-frequency table, in words (R23/R27, 2026-11-02): 'annual' and 'semimonthly' are not among them, so they are
+  // not given a word as if they were known — the row says the frequency is not recognised
+  const FREQ_WORD: Record<string, string> = { monthly: 'monthly', biweekly: 'every 2 weeks', weekly: 'weekly', annually: 'yearly', hourly: 'an hour' };
   for (const w of wages) {
     // NOTHING ENTERED IS NOT A SOURCE (his Q48 rule, 2026-09-09). My first draft pushed a row for every
     // earner whether or not they had typed a figure, so a fresh account showed "Salary — steady $0" —
@@ -582,7 +597,11 @@ export function incomeSources(op: Record<string, any> | null): IncomeSource[] {
       label: `${whose ? whose + ' · ' : ''}${varies ? 'Salary — varies' : 'Salary — steady'}`,
       note: varies ? 'by-month table' : basis,
       amount: toNum((w as any).baseSalary), per: 'as entered', kind: 'salary',
-      every: varies ? undefined : FREQ_WORD[String((w as any).salaryFreq ?? 'monthly')] ?? 'monthly',
+      every: varies ? undefined : FREQ_WORD[payFrequencyOf((w as any).salaryFreq)],
+      // THIS wage, if it cannot be read, and why — on its own row (R27, 2026-11-02; CF6-12): it was guessed from the household
+      unread: !isPayFrequency((w as any).salaryFreq) ? 'pay frequency not recognised'
+        : payFrequencyOf((w as any).salaryFreq) === 'hourly' && String((w as any).hoursPerWeek ?? '').trim() === '' ? 'hours a week not entered' : undefined,
+      hourly: payFrequencyOf((w as any).salaryFreq) === 'hourly' || undefined,
     });
   }
   // EVERY ENTERED SOURCE, IN ITS OWN PERIOD, A LOSS INCLUDED, IN THE INCOME TAB'S DRAWN WORDS AND ORDER (2026-10-25, FIX-INCOME-B; the
@@ -653,7 +672,7 @@ export function incomeSources(op: Record<string, any> | null): IncomeSource[] {
  *     wages = earner wages(op as any)
  *     inf = rate in force(op as any)
  *     typed state = state rate of(op as any)
- *     calculated covers = 'federal income tax, plus the ' + (typed state × 100).to fixed(2) + '% state rate you entered'   if typed state > 0
+ *     calculated covers = 'federal income tax, plus the ' + percent digits(typed state, 2) + '% state rate you entered'   if typed state > 0
  *     'federal income tax only'   otherwise
  *     r = inf.rate, theirs = inf.mine
  *     after tax = (x: number) => x × (1 − r)
@@ -665,9 +684,9 @@ export function incomeSources(op: Record<string, any> | null): IncomeSource[] {
  *     … the first steps only — the rest of the body needs reading by hand.
  *
  * Called by ... MK-CF-F-201 INCOME · MK-CF-F-207 SOURCE
- *               MK-NW-O-004 theEmergencyFund
+ *               MK-CF-F-314 setupEntered · MK-NW-O-004 theEmergencyFund
  *
- * Reaches ..... 478 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 484 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -677,7 +696,7 @@ export function incomeSources(op: Record<string, any> | null): IncomeSource[] {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 460 more — the full list is on functions_from_code
+ *               … and 466 more — the full list is on functions_from_code
  *
  * Serves ...... MK-CF-M-006 · MK-CF-M-007 · MK-CF-M-008 · MK-CF-M-009
  *               MK-CF-M-010 · MK-CF-M-011 · MK-CF-M-024 · MK-CF-M-027
@@ -699,9 +718,6 @@ export function incomeSources(op: Record<string, any> | null): IncomeSource[] {
  *               DEC-0208 · DEC-0209 · DEC-0389 · DEC-0431
  *               his decisions, in MoneyKeel/documents/decision-log/moneykeel_log_decisions_v01.xlsx.
  *               Change the arithmetic and one of those stops being obeyed — read them first.
- *
- * Decides .....
- *     · Shows 2 decimal places.
  *
  * Formula also on the master file · functions_from_code · MK-CF-O-004
  * Changed ..... not in git yet (—)
@@ -731,7 +747,7 @@ export function incomeSummary(op: Record<string, any> | null, from?: { accounts?
   const inf = rateInForce(op as any);
   // what the calculated rate covers, in words: federal income tax, and the state rate when one was typed (2026-10-23)
   const typedState = stateRateOf(op as any);
-  const calculatedCovers = typedState > 0 ? 'federal income tax, plus the ' + (typedState * 100).toFixed(2) + '% state rate you entered' : 'federal income tax only';
+  const calculatedCovers = typedState > 0 ? 'federal income tax, plus the ' + percentDigits(typedState, 2) + '% state rate you entered' : 'federal income tax only';
   const r = inf.rate, theirs = inf.mine;
   const afterTax = (x: number) => x * (1 - r);
   const landsLines: Line[] = pay.earners
@@ -813,9 +829,16 @@ export function incomeSummary(op: Record<string, any> | null, from?: { accounts?
 
   // ── what is entered and counted nowhere yet, said (tenet 3, 2026-10-25) ───────────────────────────────────────────────
   const notCounted: string[] = [];
+  // the wage entered that cannot be read (R23a, 2026-11-01; DEC-0296): no figure rests on it anywhere below
+  const wageRefusal: string | null = pay.freqNotRecognised.length ? PAY_FREQUENCY_NOT_RECOGNISED
+    : pay.hoursNotEntered.length ? 'Hours a week not entered — your hourly pay is not counted until it is.' : null;
   // an hourly wage with no hours a week is no number (FIX-INCOME-A, 2026-10-26; DEC-0296) — said here in Your base pay's words
   if (pay.hoursNotEntered.length) notCounted.push('Hours a week not entered — your hourly pay is not counted until it is.');
   if (pay.freqNotRecognised.length) notCounted.push(PAY_FREQUENCY_NOT_RECOGNISED);   // a frequency outside the one table (R23, 2026-11-01)
+  // RENT TYPED WITH NO PROPERTY NAMED (DEC-4059d) is counted nowhere — and now said (R27, 2026-11-02): it read "Nothing entered yet"
+  const unnamedRent = (Array.isArray(a.rentals) ? a.rentals : []).filter((r: any) => !(r?.property_id != null && String(r.property_id).trim() !== '') && toNum(r?.income) > 0);
+  const waitingMonthly = unnamedRent.reduce((t: number, r: any) => t + toNum(r?.income) - toNum(r?.expenses), 0);
+  const rentWaiting = unnamedRent.length ? waitingMonthly : null;
   const undated = vestsNotEntered(op as any).dateNotEntered;
   if (undated > 0) notCounted.push(`${undated === 1 ? 'A stock grant with no vest date is' : `${undated} stock grants with no vest date are`} not counted — vest date not entered.`);
   for (const o of landsOnce(op as any)) {
@@ -842,13 +865,13 @@ export function incomeSummary(op: Record<string, any> | null, from?: { accounts?
       taxedOn,
       k401Annual: grossAnnual - taxedOn,   // the rows add up: = Gross /year − Your 401(k)s = What it is taxed on
       calculatedNote: typedState > 0
-        ? 'Federal income tax, plus the ' + (typedState * 100).toFixed(2) + '% state rate you entered — it knows nothing about Social Security or Medicare.'
+        ? 'Federal income tax, plus the ' + percentDigits(typedState, 2) + '% state rate you entered — it knows nothing about Social Security or Medicare.'
         : 'Federal only — it knows nothing about your state, and nothing about Social Security or Medicare.',
       holdsState: typedState > 0,
       whose: inf.label,
       estimated: inf.source === 'estimated',
       filing,
-      closing: `${filing}, every source counted. Your ${(inf.rate * 100).toFixed(2)}%, used on every figure built from your take-home. `
+      closing: `${filing}, every source counted. Your ${percentDigits(inf.rate, 2)}%, used on every figure built from your take-home. `
         // a state rate typed on the Tax organizer is inside the calculated rate, so the sentence says so (2026-10-23, CF-FIX)
         + 'Without it we show the calculated rate — ' + calculatedCovers + ', assuming the standard deduction.',
     },
@@ -861,7 +884,11 @@ export function incomeSummary(op: Record<string, any> | null, from?: { accounts?
     wages: pay.earners.filter((e) => e.pay.grossAnnualised > 0).length,
     // SOMETHING ARRIVING IS SOMETHING ENTERED (2026-10-25, FIX-INCOME-B; the outside review's MK-CF-O-004-C05; tenets 1 and 3):
     // $1,000/month of child support and nothing else read "not ready", and the screen printed $0 and "Nothing entered yet."
-    ready: salaryAnnual(op as any) > 0 || grossAnnual !== 0 || landsLines.length > 0,
+    ready: salaryAnnual(op as any) > 0 || grossAnnual !== 0 || landsLines.length > 0 || wageRefusal != null,
+    wageRefusal,
+    unreadRows: pay.earners.flatMap((e, i) => (e.pay.freqNotRecognised || e.pay.hoursNotEntered
+      ? [i === 0 ? 'Your pay' : `${a.partnerName || 'Spouse'}’s pay`, i === 0 ? 'Your gross' : `${a.partnerName || 'Spouse'}’s gross`] : [])),
+    rentWaiting,
   };
 }
 
@@ -881,6 +908,8 @@ export interface ManagedSource {
   estimated: boolean;
   /** The words after the figure — "net", "· reinvested". */
   tail: string;
+  /** No figure: the source was entered but cannot be read (R23a, 2026-11-01) — the line is its lead and its tail, never "≈$0". */
+  refused?: boolean;
 }
 export interface IncomeManager {
   /** The sources that have an amount, in the picker's order. */
@@ -919,7 +948,7 @@ export interface IncomeManager {
  *
  * Called by ... MK-CF-F-207 SOURCE
  *
- * Reaches ..... 478 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 484 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -929,7 +958,7 @@ export interface IncomeManager {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 460 more — the full list is on functions_from_code
+ *               … and 466 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-023 salary and other income
@@ -973,10 +1002,11 @@ export function theIncomeManager(op: Record<string, any> | null): IncomeManager 
   const onceOther = landsOnce(op as any).find((o) => o.kind === 'other');
   // a Social Security amount answered "Not yet" is the Plan's estimate, not money arriving now (2026-10-25): its line says so
   const ssNotYet = socialSecurityNotYetMonthly(op as any) > 0;
+  const unreadable = pay.freqNotRecognised.length > 0 || pay.hoursNotEntered.length > 0;   // R23a, 2026-11-01
   const all: ManagedSource[] = [
     // an hourly wage with no hours a week is entered and not counted (FIX-INCOME-A's basePay, DEC-0296; 2026-10-26): the row says so in
     // Your base pay's words, never dropped
-    row('employment', '💼', 'A job', 'A job (wages or salary)', pay.landsInBank, 'month', `${who} · take-home`,
+    row('employment', '💼', 'A job', 'A job (wages or salary)', pay.landsInBank, 'month', unreadable ? who : `${who} · take-home`,
         pay.freqNotRecognised.length ? '· pay frequency not recognised' : pay.hoursNotEntered.length ? '· hours a week not entered' : '', pay.landsEstimated,
         pay.landsInBank > 0 || pay.hoursNotEntered.length > 0 || pay.freqNotRecognised.length > 0),
     row('self_employment', '🧰', 'Self-employed / side gig', 'Self-employed / side gig', toNum(a.seAmount), selfPer, '', 'net'),
@@ -995,6 +1025,8 @@ export function theIncomeManager(op: Record<string, any> | null): IncomeManager 
         onceOther?.missing ? `· ${onceOther.missing}` : ''),
   ];
   return {
+    // a wage that cannot be read prints no figure on its line (R23a, 2026-11-01): "You · pay frequency not recognised"
+    ...(() => { if (unreadable) all[0] = { ...all[0], refused: true }; return {}; })(),
     entered: all.filter((x) => x.entered), notEntered: all.filter((x) => !x.entered),
     // STOCK WITH NO JOB IS STILL STOCK (2026-10-25, FIX-INCOME-B; the outside review's MK-CF-O-019-C05; tenets 2 to 4): $10,000 of
     // vesting after a job ends appeared nowhere on the manager — "about 0 sources" — while the Cash flow tab listed it. A bonus or

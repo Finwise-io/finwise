@@ -148,6 +148,7 @@ const TSY_RECORDS = [
   { id: 'b5', account_id: 'fid', type: 'ADJUSTMENT', ticker: '91282CGM7', date: '2026-06-01', source: 'connected', created_at: '' },
   { id: 'b6', account_id: 'fid', type: 'SELL', ticker: '91282CGM7', shares: 10, price: 99.25, date: '2026-09-15', created_at: '' },
 ];
+const AAPL_AFTER_SALE = { ...AAPL, lots: [{ ...AAPL.lots[0], shares: 90 }, AAPL.lots[1]] };
 const AAPL_RECORDS = [
   { id: 'r1', account_id: 'fid', type: 'SELL', ticker: 'AAPL', shares: 10, price: 230, date: '2026-09-15', created_at: '' },
   { id: 'r2', account_id: 'fid', type: 'DIVIDEND', ticker: 'AAPL', amount: 134.4, date: '2026-08-02', created_at: '' },
@@ -156,7 +157,9 @@ const AAPL_RECORDS = [
 export const ACTIVITY_SHEET: Sheet = {
   id: 'activity', file: 'moneykeel_pres_mock_activity-sheet_v02.html', title: 'Activity',
   states: [
-    { key: 'A', label: 'Apple in Fidelity: a sale, a dividend and a buy, newest first', ...holding(fidelity(AAPL), { transactions: AAPL_RECORDS }), steps: () => press("See AAPL’s activity") },
+    // (2026-11-02, PF6-1; the row of that date on activity v02): the sale of 10 on Sep 15 is taken off the holding, the oldest shares first,
+    // as the trade sheet does — 100 and 40 become 90 and 40. It held 140 beside the sale, a state the app cannot make.
+    { key: 'A', label: 'Apple in Fidelity: a sale, a dividend and a buy, newest first', ...holding(fidelity(AAPL_AFTER_SALE), { transactions: AAPL_RECORDS }), steps: () => press("See AAPL’s activity") },
     { key: 'B', label: 'A holding with no records yet', ...holding(fidelity(AAPL)), steps: () => press("See AAPL’s activity") },
     // DRAWN FROM THE BUILD ON 2026-10-30 (FX-PF, workplan #358): every label a holding's record can carry besides Buy and Dividend
     { key: 'C', label: 'A Treasury in Fidelity: its opening holding, interest, a coupon, shares transferred in, a broker adjustment and a sale',

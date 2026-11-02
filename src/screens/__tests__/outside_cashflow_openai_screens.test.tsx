@@ -544,8 +544,8 @@ const CLASS: Record<string, Item> = {
     check: () => { expect(has('CF', 'Actual inflow (income (take-home))')).toBe(true); expect(has('CF', '= Actual surplus so far')).toBe(true); } },
   'MK-CF-M-006#4': { cls: 'REVIEWER WRONG',
     why: 'Each earner\'s row prints that earner\'s own entry in the period it was entered: "You · Salary — steady · before tax · every 2 weeks · $4,200" and "Sam · … monthly · $5,000". annualOfSource (MK-CF-F-210, the function the reviewer read) had no caller anywhere — retired 2026-10-25 by FIX-INCOME-B.',
-    check: () => { expect(text('INC_OK_TAB')).toMatch(/You · Salary — steady \| before tax · every 2 weeks · (≈ ?)?\$5,898\/month take-home \| \$4,200 ›/);
-      expect(text('INC_OK_TAB')).toMatch(/Sam · Salary — steady \| before tax · monthly · (≈ ?)?\$3,500\/month take-home \| \$5,000 ›/);
+    check: () => { expect(text('INC_OK_TAB')).toMatch(/You · Salary — steady \| before tax · every 2 weeks · (~ ?)?\$5,898\/month take-home \| \$4,200 ›/);
+      expect(text('INC_OK_TAB')).toMatch(/Sam · Salary — steady \| before tax · monthly · (~ ?)?\$3,500\/month take-home \| \$5,000 ›/);
       const callers = ['src', 'MoneyKeel/functions'].flatMap((d) => grep(d, /annualOfSource\(/)).filter((h) => !/export function annualOfSource/.test(h.line));
       expect(callers).toEqual([]); } },
   'MK-CF-M-009#1': { fixed: FIXINCB, cls: 'APP WRONG',
@@ -650,10 +650,11 @@ const CLASS: Record<string, Item> = {
     was: () => { expect(first('NOBUDGET_NEXT', 'MK-CF-M-049')).toBe('$4,550'); } },
   'MK-CF-M-051#8': { cls: 'REVIEWER WRONG',
     why: 'As MK-CF-M-003 tenet 8: "Actual inflow" is his drawing\'s word (DEC-0440) and the take-home is the settled inflow (DEC-7607). Tenet 6 outranks tenet 8.',
-    check: () => { expect(after('HOME', 'Income')).toMatch(/^≈?\$7,200$/); expect(has('CF', 'Actual inflow (income (take-home))')).toBe(true); } },
+    check: () => { expect(after('HOME', 'Income')).toMatch(/^~?\$7,200$/); expect(has('CF', 'Actual inflow (income (take-home))')).toBe(true); } },
   'MK-CF-M-053#3': { cls: 'REVIEWER WRONG',
     why: 'Rendered: no income → Cash flow draws its two set-up steps and no surplus; a past month with no record → "$0" with "Nothing recorded for this month — it predates your tracking." His Q48 rule (DEC-0431): the layout stays, the figure reads $0, the sentence says why. A real $0 with its reason, not a missing value dressed as a measured one.',
-    check: () => { expect(has('CF_NOINCOME', 'SET UP YOUR MONTH — 2 STEPS')).toBe(true); expect(printed('CF_NOINCOME', 'MK-CF-M-003')).toEqual([]);
+    // RE-WORKED 2026-11-01 (FX-CF-A, round 5e): the month shows what is entered, and no surplus on an income nobody entered ('—')
+    check: () => { expect(has('CF_NOINCOME', 'SET UP YOUR MONTH — 2 STEPS')).toBe(false); expect(after('CF_NOINCOME', '= Actual surplus so far')).toBe('—'); expect(printed('CF_NOINCOME', 'MK-CF-M-003')).toEqual([]);
       expect(has('CF_PAST_EMPTY', 'Nothing recorded for this month — it predates your tracking.')).toBe(true); } },
   'MK-CF-M-053#8': { cls: 'REVIEWER WRONG', why: 'As MK-CF-M-051 tenet 8 — the drawing\'s words (DEC-0440, DEC-7607). Tenet 6 outranks tenet 8.',
     check: () => { expect(has('CF', '= Actual surplus so far')).toBe(true); } },
@@ -719,7 +720,7 @@ const CLASS: Record<string, Item> = {
     why: 'With rent, Base pay\'s tax on the wage is the one calculated rate — the year\'s tax over everything taxed — laid on the wage, so the card adds up ($5,000 − $512 − $400 = $4,088). That is his rule: the rate is produced once, at total income (DEC-0178), one rate everywhere the take-home matters (DEC-0196), the card adds up (DEC-0380).',
     check: () => { expect(text('ONE_RENT_PAY')).toMatch(/\$5,000 gross − \$512 tax − \$400 of 401\(k\)s = \$4,088\./); } },
   'MK-CF-M-033#8': { fixed: FIXMMB, cls: 'APP WRONG', was: () => { expect(text('ONE_STATE_PAY')).toMatch(/knows nothing about your state/); },
-    why: 'A 5.00% state rate typed on the Tax organizer: Base pay\'s "Calculated federal tax ≈$533/month" carries it ($370 federal + $163 state), yet the card says "It knows nothing about your state" and "Only federal income tax is taken out here … your state may take more". The Income summary says "plus the 5.00% state rate you entered" (DEC-7798).',
+    why: 'A 5.00% state rate typed on the Tax organizer: Base pay\'s "Calculated federal tax ~$533/month" carries it ($370 federal + $163 state), yet the card says "It knows nothing about your state" and "Only federal income tax is taken out here … your state may take more". The Income summary says "plus the 5.00% state rate you entered" (DEC-7798).',
     fix: 'MoneyKeel/functions/cashflow/base-pay.ts basePay (tax.covers) and src/screens/BasePayScreen.tsx: the row and both sentences say what is in it — "federal, plus the 5.00% state rate you entered" (the Income summary\'s words). Owner: MK-CF-O-001.',
     check: () => { expect(first('ONE_STATE_PAY', 'MK-CF-M-033')).toBe('$533/month'); },
     wrong: () => { expect(text('ONE_STATE_PAY')).not.toMatch(/knows nothing about your state/); expect(text('ONE_STATE_PAY')).toMatch(/5\.00% state rate/); } },
@@ -774,8 +775,8 @@ const CLASS: Record<string, Item> = {
     wrong: () => { const f = figureSpec('MK-CF-M-043').formula; expect((f.match(/401\(k\)/g) ?? []).length).toBe(1); } },
   'MK-CF-M-044#8': { cls: 'APP WRONG', fixed: `${FIXMMB}: the lead ruled reading B (2026-10-25, MK-CF-M-033 and MK-CF-M-044 test 8; canon row 25) — with a state rate in it the row is "Calculated tax"`,
     fix: 'MoneyKeel/functions/cashflow/income-summary.ts and src/screens/IncomeSummaryScreen.tsx: with a state rate typed the row reads "Calculated tax" and the line under it names the state rate (canon row 25). Owner: MK-CF-O-004.',
-    was: () => { expect(text('ONE_STATE_SUM')).toMatch(/Calculated federal tax .*≈?\$6,399\/year \| Federal income tax, plus the 5\.00% state rate you entered/); },
-    wrong: () => { expect(text('ONE_STATE_SUM')).toMatch(/Calculated tax \| assumes you take the standard deduction \| ≈\$6,399\/year \| Federal income tax, plus the 5\.00% state rate you entered/); },
+    was: () => { expect(text('ONE_STATE_SUM')).toMatch(/Calculated federal tax .*~?\$6,399\/year \| Federal income tax, plus the 5\.00% state rate you entered/); },
+    wrong: () => { expect(text('ONE_STATE_SUM')).toMatch(/Calculated tax \| assumes you take the standard deduction \| ~\$6,399\/year \| Federal income tax, plus the 5\.00% state rate you entered/); },
     why: 'With a state rate typed, the Income summary\'s row is still called "Calculated federal tax", while the line under it says "Federal income tax, plus the 5.00% state rate you entered" (DEC-7798, which settled that line only). With a typed payslip rate the row is already "Tax · your rate" — that half of the reviewer\'s point holds.',
     ruling: { readingA: 'The label stays "Calculated federal tax"; the line under it names the state rate (as built, DEC-7798): $6,399/year = federal $4,444 + 5% state on $39,100.',
       readingB: 'With a state rate in it, the label is "Calculated tax" and the line names both — "federal" is not on a figure that is not federal only.',
@@ -858,9 +859,9 @@ const T5: Record<string, Item> = {
     check: () => { expect(has('LOSS_MGR', 'Rent from a property')).toBe(true); }, wrong: () => { expect(has('LOSS_MGR', 'Rent from a property')).toBe(false); } },
   'MK-CF-M-030#5': { fixed: `${FLIGHT}: useStore.ts loadFromCloud converts the take-home typed the old way: $5,000 on every screen, "The take-home is what you entered; the gross was worked back from it."`, cls: 'APP WRONG', why: OLD_WHY('Your base pay shows the $5,000 under "Gross pay each month" and "Gross /year $60,000"'), fix: OLD_FIX,
     check: () => { expect(first('OLD_CLOUD_PAY', 'MK-CF-M-030')).toBe('$60,000'); }, wrong: OLD('PAY', 'MK-CF-M-030') },
-  'MK-CF-M-031#5': { fixed: `${FLIGHT}: useStore.ts loadFromCloud converts the take-home typed the old way: $5,000 on every screen, "The take-home is what you entered; the gross was worked back from it."`, cls: 'APP WRONG', why: OLD_WHY('Your base pay reads "≈$4,582/month" calculated, with "Calculated federal tax ≈$418/month"'), fix: OLD_FIX,
+  'MK-CF-M-031#5': { fixed: `${FLIGHT}: useStore.ts loadFromCloud converts the take-home typed the old way: $5,000 on every screen, "The take-home is what you entered; the gross was worked back from it."`, cls: 'APP WRONG', why: OLD_WHY('Your base pay reads "~$4,582/month" calculated, with "Calculated federal tax ~$418/month"'), fix: OLD_FIX,
     check: () => { expect(printed('OLD_CLOUD_PAY', 'MK-CF-M-031')).toContain('$4,582/month'); }, wrong: OLD('PAY', 'MK-CF-M-031') },
-  'MK-CF-M-033#5': { fixed: `${FLIGHT}: useStore.ts loadFromCloud converts the take-home typed the old way: $5,000 on every screen, "The take-home is what you entered; the gross was worked back from it."`, cls: 'APP WRONG', why: OLD_WHY('a "Calculated federal tax ≈$418/month" row appears on a take-home the person typed'), fix: OLD_FIX,
+  'MK-CF-M-033#5': { fixed: `${FLIGHT}: useStore.ts loadFromCloud converts the take-home typed the old way: $5,000 on every screen, "The take-home is what you entered; the gross was worked back from it."`, cls: 'APP WRONG', why: OLD_WHY('a "Calculated federal tax ~$418/month" row appears on a take-home the person typed'), fix: OLD_FIX,
     check: () => { expect(first('OLD_CLOUD_PAY', 'MK-CF-M-033')).toBe('$418/month'); }, wrong: OLD('PAY', 'MK-CF-M-033') },
   'MK-CF-M-035#5': { fixed: `${FLIGHT}: useStore.ts loadFromCloud converts the take-home typed the old way: $5,000 on every screen, "The take-home is what you entered; the gross was worked back from it."`, cls: 'APP WRONG', why: OLD_WHY('the card warns "The take-home above is higher than it will really be, by roughly $383/month" over a take-home the person typed'), fix: OLD_FIX,
     check: () => { expect(first('OLD_CLOUD_PAY', 'MK-CF-M-035')).toBe('$383'); }, wrong: OLD('PAY', 'MK-CF-M-035') },
@@ -872,9 +873,9 @@ const T5: Record<string, Item> = {
     check: () => { expect(first('OLD_CLOUD_SUM', 'MK-CF-M-041')).toBe('$60,000'); }, wrong: OLD('SUM', 'MK-CF-M-041') },
   'MK-CF-M-042#5': { fixed: `${FLIGHT}: useStore.ts loadFromCloud converts the take-home typed the old way: $5,000 on every screen, "The take-home is what you entered; the gross was worked back from it."`, cls: 'APP WRONG', why: OLD_WHY('"Your gross $60,000" — the typed take-home ×12 shown as the gross'), fix: OLD_FIX,
     check: () => { expect(first('OLD_CLOUD_SUM', 'MK-CF-M-042')).toBe('$60,000'); }, wrong: OLD('SUM', 'MK-CF-M-042') },
-  'MK-CF-M-044#5': { fixed: `${FLIGHT}: useStore.ts loadFromCloud converts the take-home typed the old way: $5,000 on every screen, "The take-home is what you entered; the gross was worked back from it."`, cls: 'APP WRONG', why: OLD_WHY('"Calculated federal tax ≈$5,020/year" on the typed take-home'), fix: OLD_FIX,
+  'MK-CF-M-044#5': { fixed: `${FLIGHT}: useStore.ts loadFromCloud converts the take-home typed the old way: $5,000 on every screen, "The take-home is what you entered; the gross was worked back from it."`, cls: 'APP WRONG', why: OLD_WHY('"Calculated federal tax ~$5,020/year" on the typed take-home'), fix: OLD_FIX,
     check: () => { expect(first('OLD_CLOUD_SUM', 'MK-CF-M-044')).toBe('$5,020/year'); }, wrong: OLD('SUM', 'MK-CF-M-044') },
-  'MK-CF-M-047#5': { fixed: `${FLIGHT}: useStore.ts loadFromCloud converts the take-home typed the old way: $5,000 on every screen, "The take-home is what you entered; the gross was worked back from it."`, cls: 'APP WRONG', why: OLD_WHY('the Income tab\'s THIS MONTH reads "≈$4,582 expected take-home" above the source row "take-home · monthly $5,000"'), fix: OLD_FIX,
+  'MK-CF-M-047#5': { fixed: `${FLIGHT}: useStore.ts loadFromCloud converts the take-home typed the old way: $5,000 on every screen, "The take-home is what you entered; the gross was worked back from it."`, cls: 'APP WRONG', why: OLD_WHY('the Income tab\'s THIS MONTH reads "~$4,582 expected take-home" above the source row "take-home · monthly $5,000"'), fix: OLD_FIX,
     check: () => { expect(first('OLD_CLOUD_TAB', 'MK-CF-M-047')).toBe('$4,582'); }, wrong: OLD('TAB', 'MK-CF-M-047') },
   'MK-CF-M-051#5': { fixed: `${FLIGHT}: useStore.ts loadFromCloud converts the take-home typed the old way: $5,000 on every screen, "The take-home is what you entered; the gross was worked back from it."`, cls: 'APP WRONG', why: OLD_WHY('Home\'s box reads "Income $4,582"'), fix: OLD_FIX,
     check: () => { expect(first('OLD_CLOUD_HOME', 'MK-CF-M-051')).toBe('$4,582'); }, wrong: OLD('HOME', 'MK-CF-M-051') },
@@ -940,7 +941,7 @@ const T6: Record<string, Item> = {
     check: () => { expect(printed('CF_EXP', 'MK-CF-M-001')[0]).toBe('$1,100'); },
     wrong: () => { expect(text('CF_EXP')).toMatch(/PLANNED EXPENSES \| \$1,100 \| Your Rent \/ Mortgage budget line is not counted here: your mortgage, Mortgage, is in Debts and is counted from there\. Place it on your home in Net worth, so we know they are the same\. \| Groceries \| \$700 \| Eating out \| \$400/); } },
   'MK-CF-M-033#6': { was: () => { expect(text('PAY')).toMatch(/Calculated federal tax \| assumes you take the standard deduction/); }, fixed: `${FLIGHT}: with a typed rate the row reads "Tax · your rate, 22% · $3,102/month"`, cls: 'APP WRONG', mmcf: 'IN-03',
-    why: 'With their own rate typed, the drawing (v07 phone 3) draws "= Take-home $8,740/month" with no "Calculated federal tax" row; the screen adds "Calculated federal tax — assumes you take the standard deduction" at their rate × the gross (here 22% × $14,100 = ≈$3,102/month). A row the drawing does not draw, saying something untrue.',
+    why: 'With their own rate typed, the drawing (v07 phone 3) draws "= Take-home $8,740/month" with no "Calculated federal tax" row; the screen adds "Calculated federal tax — assumes you take the standard deduction" at their rate × the gross (here 22% × $14,100 = ~$3,102/month). A row the drawing does not draw, saying something untrue.',
     fix: 'src/screens/BasePayScreen.tsx: with a typed rate, no calculated-tax row (or "Tax · your rate, 22%", the Income summary\'s words). Owner: MK-CF-O-001.',
     check: () => { expect(first('PAY', 'MK-CF-M-031')).toMatch(/\$9,398\/month/); },
     wrong: () => { expect(text('PAY')).not.toMatch(/Calculated federal tax \| assumes you take the standard deduction/); } },
@@ -954,11 +955,11 @@ const T6: Record<string, Item> = {
     why: 'The drawing (v07 phones 9 and 16) prints "December · bonus, after tax $18,860" — the $12,000 bonus at 22%; the household\'s own rate is 24% and the screen prints $9,500 + $12,000 × 0.76 = $18,620. The drawing is wrong, with no correction line.',
     fix: 'income-end-to-end_v07: a READ THIS FIRST row — "$18,620". Records only.',
     check: () => { expect(9500 + 12000 * 0.76).toBe(18620); }, wrong: () => { expect(src(MOCK.income)).toMatch(/\$18,620/); } },
-  'MK-CF-M-047#6': { was: () => { expect(after('WSS_TAB', 'THIS MONTH')).toBe('$6,976'); }, fixed: `${FLIGHT}: THIS MONTH reads "≈$6,976"`, cls: 'APP WRONG', mmcf: 'CF-24',
-    why: 'A calculated take-home ($8,000 gross, no rate) printed "$6,976" with no ≈ as the Income tab\'s THIS MONTH, while its own source line and Your base pay print "≈$6,976" — the drawing\'s rule 9: every estimate wears ≈ (row 2026-10-24: one figure, one form).',
-    fix: 'src/screens/CashFlowScreen.tsx IncomeTab hero and the This month inflow row: ≈ on a calculated take-home (incomeSummary\'s flag). Owner: MK-CF-O-003 (CF-MMFIX had it in progress).',
-    check: () => { expect(text('WSS_TAB')).toMatch(/≈ ?\$6,976\/month take-home/); },
-    wrong: () => { expect(after('WSS_TAB', 'THIS MONTH')).toBe('≈$6,976'); } },
+  'MK-CF-M-047#6': { was: () => { expect(after('WSS_TAB', 'THIS MONTH')).toBe('$6,976'); }, fixed: `${FLIGHT}: THIS MONTH reads "~$6,976"`, cls: 'APP WRONG', mmcf: 'CF-24',
+    why: 'A calculated take-home ($8,000 gross, no rate) printed "$6,976" with no ~ as the Income tab\'s THIS MONTH, while its own source line and Your base pay print "~$6,976" — the drawing\'s rule 9: every estimate wears ~ (row 2026-10-24: one figure, one form).',
+    fix: 'src/screens/CashFlowScreen.tsx IncomeTab hero and the This month inflow row: ~ on a calculated take-home (incomeSummary\'s flag). Owner: MK-CF-O-003 (CF-MMFIX had it in progress).',
+    check: () => { expect(text('WSS_TAB')).toMatch(/~ ?\$6,976\/month take-home/); },
+    wrong: () => { expect(after('WSS_TAB', 'THIS MONTH')).toBe('~$6,976'); } },
   'MK-CF-M-052#6': { cls: 'APP WRONG', mmcf: 'HM-02',
     why: 'His row on the Home box (ways-to-add v10, 2026-10-23) says it shows once anything is added. A person whose first act is to log two expenses saw the first-day doors and no box — Home\'s gate ignored expenses.',
     fix: 'src/screens/HomeScreen.tsx hasMoneyData: an expense or an income logged is data (CF-MMFIX had it in progress).',
@@ -1359,4 +1360,8 @@ describe('FIX-MONTH 2026-10-25 — the answers before the mortgage was counted o
   test.failing('MK-CF-M-048: October planned outflow $6,050', () => { expect(first('CF_OCT', 'MK-CF-M-048')).toBe('$6,050'); });
   test.failing('MK-CF-M-056: the budget editor’s plan $3,400', () => { expect(has('CF_BUDGET', /left · of \$3,400 plan$/)).toBe(true); });
   test.failing('X4: ACTUAL EXPENSES $2,998', () => { expect(first('CF_EXP', 'MK-CF-M-013')).toBe('$2,998'); });
+});
+
+test.failing('round 5e · the old answer, kept (FX-CF-A, 2026-11-01): CF_NOINCOME showed only the two set-up steps', () => {
+  expect(has('CF_NOINCOME', 'SET UP YOUR MONTH — 2 STEPS')).toBe(true);
 });

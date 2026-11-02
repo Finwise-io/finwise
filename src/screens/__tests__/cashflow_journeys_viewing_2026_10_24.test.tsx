@@ -80,7 +80,7 @@ const heard = () => reachable().map((r) => r.said);
 /** the marks a screen reader spells out, never words: Performance's list (performance_journeys_viewing, E2E-68), with this
  *  surface's own — ≈ ("almost equal to"), the ⌃ ⌄ of an open or closed section, ✓, a "/month" after "hidden", and a line that
  *  starts with "=" ("equals") */
-const MARKS = /[▲▼⚠⏱›•~→＋▾▸≈⌃⌄✓ⓘ]|(\d|%|hidden)\/(year|month)|\d{4}-\d{2}-\d{2}|^=/;
+const MARKS = /[▲▼⚠⏱›•~→＋▾▸~⌃⌄✓ⓘ]|(\d|%|hidden)\/(year|month)|\d{4}-\d{2}-\d{2}|^=/;
 const markHeard = () => reachable().filter((r) => MARKS.test(r.said)).map((r) => r.said);
 /** the info dots a screen reader reaches, by what they say */
 const dotsSaid = () => heard().filter((l) => /^About /.test(l));
@@ -447,7 +447,7 @@ const homeBox = (ls = lines()) => { const i = ls.indexOf("THIS MONTH’S CASH FL
 const V10 = 'MoneyKeel/documents/home-screen/moneykeel_pres_mock_ways-to-add-an-account_v10.html';
 
 describe('E2E-77 · a brand-new person enters their pay', () => {
-  test('E2E-77 · empty tab and box → "Add your income ›" → the manager → Your base pay → Save → This month and Home read Your base pay\'s ≈$5,022', () => {
+  test('E2E-77 · empty tab and box → "Add your income ›" → the manager → Your base pay → Save → This month and Home read Your base pay\'s ~$5,022', () => {
     onDay(OCT);
     start(BRAND_NEW);
 
@@ -492,7 +492,7 @@ describe('E2E-77 · a brand-new person enters their pay', () => {
     fireEvent.changeText(screen.getByLabelText('Into your 401(k) each month'), '500');
     ls = lines();
     expect([after('Gross /year', 1, ls), after('what your next dollar costs', 1, ls), after('assumes you take the standard deduction', 1, ls), after('Your 401(k)s', 1, ls), after('= Take-home', 1, ls)])
-      .toEqual(['$72,000', '12%', '≈$478/month', '$500/month', '≈$5,022/month']);
+      .toEqual(['$72,000', '12%', '~$478/month', '$500/month', '~$5,022/month']);
     expect(ls).toContain('$6,000 gross − $478 tax − $500 of 401(k)s = $5,022.');
     expect(1_240 + (66_000 - 16_100 - 12_400) * 0.12).toBe(5_740);
     fireEvent.press(screen.getByLabelText('Save your base pay'));
@@ -510,8 +510,8 @@ describe('E2E-77 · a brand-new person enters their pay', () => {
       { why: 'this person has no debts', remove: ['Mortgage', 'debt', '−$2,000', 'Car loan', 'debt', '−$250'] },
       { why: 'this person has no debts', remove: ['Mortgage', 'paid', '−$2,000', 'Car loan', 'due 28th', '$0'] },
       { why: 'its opening clause is about the debts', replace: ['Your debts are here, but you haven’t set your budget. Until you do there is no planned surplus — we won’t guess one.', 'You haven’t set your budget. Until you do there is no planned surplus — we won’t guess one.'] },
-      { why: 'Your base pay’s take-home, calculated', replaceEvery: ['$5,000', '≈$5,022'] },
-      { why: '5,022 − 0', replaceEvery: ['+$3,000', '+$5,022'] },
+      { why: 'Your base pay’s take-home, calculated', replaceEvery: ['$5,000', '~$5,022'] },
+      { why: '5,022 − 0, on a calculated take-home: the mark before the sign (R25a, 2026-11-02)', replaceEvery: ['+$3,000', '~+$5,022'] },
       { why: 'DEC-1560: kept', append: ['＋ Expense'] },
     ]));
     // YOUR FUTURE PAYCHECK follows the two cards wherever there is a pot to project from (his ruling of 2026-09-08 on its arithmetic;
@@ -524,17 +524,108 @@ describe('E2E-77 · a brand-new person enters their pay', () => {
     // left in); nothing spent, so Inflow − Outflow = 5,022 − 0 = +$5,022
     // (2026-10-25: ≈ on the calculated take-home, CF-24; no line under the inflow with no budget, CF-11)
     expect([after('Inflow (income (take-home))', 1, ls), after('Actual inflow (income (take-home))', 1, ls), after('= Actual surplus so far', 1, ls)])
-      .toEqual(['≈$5,022', '≈$5,022', '+$5,022']);
+      .toEqual(['~$5,022', '~$5,022', '~+$5,022']);   // the surplus on a calculated take-home wears the mark (R25a, 2026-11-02)
     // the Income tab: its hero and its own source row read the same take-home, in one form
     tab('Income');
     ls = lines();
     expect([after('THIS MONTH', 1, ls), after('Salary — steady', 1, ls), after('Salary — steady', 2, ls)])
-      .toEqual(['≈$5,022', 'before tax · monthly · ≈$5,022/month take-home', '$6,000 ›']);
+      .toEqual(['~$5,022', 'before tax · monthly · ~$5,022/month take-home', '$6,000 ›']);
     screen.unmount();
 
     // HOME'S BOX FILLS with the same figures: in $5,022, out $0, left 5,022 − 0 = $5,022; 0% spent — on pace
     open('/(tabs)/home');
-    expect(homeBox()).toEqual(["THIS MONTH’S CASH FLOW", '✓ On pace', '0% spent · day 24 of 31', 'Income', '≈$5,022', 'Outflow (expenses + debt)', '$0', 'Left', '$5,022']);
+    // A LEFT WORKED FROM A CALCULATED TAKE-HOME WEARS ITS MARK (2026-11-02, FX-PLAN, the lead's R26 round, CF6-18; ways-to-add v10's row of
+    // that date): Left is Income less Outflow, ~$5,022 − $0 = ~$5,022, so it wears the '~' Income wears. The old answer is kept below
+    expect(homeBox()).toEqual(["THIS MONTH’S CASH FLOW", '✓ On pace', '0% spent · day 24 of 31', 'Income', '~$5,022', 'Outflow (expenses + debt)', '$0', 'Left', '~$5,022']);
+  });
+  test.failing('E2E-77 · the old answer, kept (CF6-18, 2026-11-02): Home\'s Left read $5,022 without the mark its ~$5,022 Income wears · empty tab and box → "Add your income ›" → the manager → Your base pay → Save → This month and Home read Your base pay\'s ~$5,022', () => {
+    onDay(OCT);
+    start(BRAND_NEW);
+
+    // THE EMPTY CASH FLOW TAB: its two set-up steps, and no figure — "No zeros shown until they're real"
+    open('/(tabs)/cashflow');
+    let ls = tabLines();
+    expect(ls.slice(ls.indexOf('SET UP YOUR MONTH — 2 STEPS'))).toEqual(['SET UP YOUR MONTH — 2 STEPS', '1 · Your base pay',
+      'one section per earner — bonus and other income come after', 'Set up ›', '2 · About what goes out monthly?', 'rent, food, bills — roughly', '$',
+      '✓ Answers save to your plan — Home, Plan and this screen use the same numbers. No zeros shown until they’re real.', '＋ Expense']);   // ’ (CF2-10)
+    expect(ls.filter((l) => /\$\d/.test(l))).toEqual([]);
+    // its first step is a door straight to Your base pay
+    fireEvent.press(screen.getByLabelText('Step 1: set up your income — your base pay, one section per earner'));
+    expect(mockPushes[mockPushes.length - 1]).toBe('/base-pay');
+    screen.unmount();
+
+    // HOME'S BOX, as its drawing's dated row words it: "Income $0 · Nothing entered yet. Add your income › · Outflow (expenses +
+    // debt) $0 · Left —" — no pace word, no share spent, never "Over"
+    open('/(tabs)/home');
+    const drawn = drawingLines(V10).join(' ').match(/Left reads — : (Income \$0 · Nothing entered yet\. Add your income › · Outflow \(expenses \+ debt\) \$0 · Left —)\./);
+    expect(drawn).not.toBeNull();
+    const box = homeBox();
+    // (2026-10-25, HM-01: no "day 24 of 31" before income — the pace line goes with the pace word, and the row lists neither)
+    expect(box).toEqual(["THIS MONTH’S CASH FLOW", 'Income', '$0', 'Nothing entered yet. Add your income ›', 'Outflow (expenses + debt)', '$0', 'Left', '—']);
+    expect([`${box[1]} ${box[2]}`, box[3], `${box[4]} ${box[5]}`, `${box[6]} ${box[7]}`].join(' · ')).toBe(drawn![1]);
+    for (const w of ['Over', '✓ On pace', 'Expenses running fast']) expect(box).not.toContain(w);
+
+    // THE DOOR TO ENTER PAY: "Add your income ›" opens the income manager, whose own door opens Your base pay
+    fireEvent.press(screen.getByText('Add your income ›'));
+    expect(follow()).toBe('/income-manager');
+    ls = lines();
+    // a fresh account: the one line and its door, and no count of no sources (CF-MMFIX-B, IN-12, 2026-10-25 — it read "You entered
+    // about 0 sources")
+    expect(ls).toContain('Nothing entered yet. Add your income ›');
+    expect(ls).not.toContain('You entered about');
+    fireEvent.press(screen.getAllByText('Add your income ›')[0]);
+    expect(follow()).toBe('/base-pay');
+
+    // YOUR BASE PAY: $6,000 gross a month, $500 into the 401(k). Taxed on (6,000 − 500) × 12 = 66,000 less the single deduction
+    // 16,100 = 49,900: 12,400 × 10% + (49,900 − 12,400) × 12% = 1,240 + 4,500 = $5,740 a year = $478.33 a month (bracket 12%).
+    // Take-home 6,000 − 478.33 − 500 = $5,021.67 → ≈$5,022
+    fireEvent.changeText(screen.getByLabelText('Gross pay each month'), '6000');
+    fireEvent.changeText(screen.getByLabelText('Into your 401(k) each month'), '500');
+    ls = lines();
+    expect([after('Gross /year', 1, ls), after('what your next dollar costs', 1, ls), after('assumes you take the standard deduction', 1, ls), after('Your 401(k)s', 1, ls), after('= Take-home', 1, ls)])
+      .toEqual(['$72,000', '12%', '~$478/month', '$500/month', '~$5,022/month']);
+    expect(ls).toContain('$6,000 gross − $478 tax − $500 of 401(k)s = $5,022.');
+    expect(1_240 + (66_000 - 16_100 - 12_400) * 0.12).toBe(5_740);
+    fireEvent.press(screen.getByLabelText('Save your base pay'));
+    expect(mockBacks.n).toBeGreaterThan(0);
+    screen.unmount();
+
+    // THIS MONTH FILLS: frame B of cash-flow_v01 (a fresh account, no plan set), word for word — without frame B's two debts, which
+    // this person has not entered, and with its sentence's opening clause, "Your debts are here, but", which is about them
+    open('/(tabs)/cashflow');
+    // figure for figure (2026-10-25): October, not the drawing's August; the take-home ≈$5,022, the app's calculation (it wears ≈,
+    // CF-24); nothing spent, so the surplus so far is 5,022 − 0 = +$5,022; no budget, so no line under the inflow (frame B, CF-11)
+    const want = normExact(asBuilt(cashflowPhone(2), [
+      { why: 'the journey’s own day', replaceEvery: ['August 2026', 'October 2026'] },
+      { why: 'the journey’s own day', replace: ['Planned · August', 'Planned · October'] },
+      { why: 'this person has no debts', remove: ['Mortgage', 'debt', '−$2,000', 'Car loan', 'debt', '−$250'] },
+      { why: 'this person has no debts', remove: ['Mortgage', 'paid', '−$2,000', 'Car loan', 'due 28th', '$0'] },
+      { why: 'its opening clause is about the debts', replace: ['Your debts are here, but you haven’t set your budget. Until you do there is no planned surplus — we won’t guess one.', 'You haven’t set your budget. Until you do there is no planned surplus — we won’t guess one.'] },
+      { why: 'Your base pay’s take-home, calculated', replaceEvery: ['$5,000', '~$5,022'] },
+      { why: '5,022 − 0, on a calculated take-home: the mark before the sign (R25a, 2026-11-02)', replaceEvery: ['+$3,000', '~+$5,022'] },
+      { why: 'DEC-1560: kept', append: ['＋ Expense'] },
+    ]));
+    // YOUR FUTURE PAYCHECK follows the two cards wherever there is a pot to project from (his ruling of 2026-09-08 on its arithmetic;
+    // not drawn; its figures are held by cashflow_fcc) — taken out here by its own words and nothing else
+    const got = normExact(tabLines()).replace(/ your future paycheck projection — an estimate, not a promise at \d+(?: \(ours until you change it\))?: ~\$[\d,]+\/month in today's dollars assumes an? [\d.]+%\/year return and [\d.]+%\/year inflation draw from savings ~\$[\d,]+/, '');   // "/year", canon row 14 (CF2-09)
+    expect(want.split(' ').length).toBeGreaterThan(30);
+    expect(firstDifference(want, got)).toBe('');
+    ls = lines();
+    // the inflow is Your base pay's take-home, $5,022 (FIXED 2026-10-24 by CJA, E2E-71 — found here too: it read $5,522, the 401(k)
+    // left in); nothing spent, so Inflow − Outflow = 5,022 − 0 = +$5,022
+    // (2026-10-25: ≈ on the calculated take-home, CF-24; no line under the inflow with no budget, CF-11)
+    expect([after('Inflow (income (take-home))', 1, ls), after('Actual inflow (income (take-home))', 1, ls), after('= Actual surplus so far', 1, ls)])
+      .toEqual(['~$5,022', '~$5,022', '~+$5,022']);   // the surplus on a calculated take-home wears the mark (R25a, 2026-11-02)
+    // the Income tab: its hero and its own source row read the same take-home, in one form
+    tab('Income');
+    ls = lines();
+    expect([after('THIS MONTH', 1, ls), after('Salary — steady', 1, ls), after('Salary — steady', 2, ls)])
+      .toEqual(['~$5,022', 'before tax · monthly · ~$5,022/month take-home', '$6,000 ›']);
+    screen.unmount();
+
+    // HOME'S BOX FILLS with the same figures: in $5,022, out $0, left 5,022 − 0 = $5,022; 0% spent — on pace
+    open('/(tabs)/home');
+    expect(homeBox()).toEqual(["THIS MONTH’S CASH FLOW", '✓ On pace', '0% spent · day 24 of 31', 'Income', '~$5,022', 'Outflow (expenses + debt)', '$0', 'Left', '$5,022']);
   });
 });
 
@@ -741,12 +832,12 @@ describe('E2E-79 · filing status, and the comparison it shows', () => {
     // BEFORE, single: 84,000 − 16,100 = 67,900 taxed: 1,240 + 38,000 × 12% (4,560) + 17,500 × 22% (3,850) = $9,650 a year, $804.17 a
     // month, bracket 22%; take-home 8,000 − 804.17 − 1,000 = $6,195.83 → $6,196
     expect(1_240 + 4_560 + (67_900 - 50_400) * 0.22).toBe(9_650);
-    expect(look('/base-pay', basePay)).toEqual(['22%', '≈$804/month', '≈$6,196/month']);
-    expect(look('/income-summary', summary)).toEqual(['≈$6,196', 'single, every source counted', '22%', '≈$9,650/year']);   // ≈ on a calculated take-home (CF-MMFIX-B, IN-03)
+    expect(look('/base-pay', basePay)).toEqual(['22%', '~$804/month', '~$6,196/month']);
+    expect(look('/income-summary', summary)).toEqual(['~$6,196', 'single, every source counted', '22%', '~$9,650/year']);   // ≈ on a calculated take-home (CF-MMFIX-B, IN-03)
 
     // Cash flow → Menu → Tax organizer
     open('/(tabs)/cashflow');
-    expect(after('Inflow (income (take-home))', 1)).toBe('≈$6,196');   // calculated: ≈ (CF-24); no budget, no line under it (CF-11)
+    expect(after('Inflow (income (take-home))', 1)).toBe('~$6,196');   // calculated: ≈ (CF-24); no budget, no line under it (CF-11)
     fireEvent.press(screen.getByLabelText('Menu'));
     fireEvent.press(screen.getByLabelText('Tax organizer'));
     expect(follow()).toBe('/tax-organizer');
@@ -785,16 +876,16 @@ describe('E2E-79 · filing status, and the comparison it shows', () => {
     // AFTER, on every screen: tax $476.67 a month, bracket 12%, take-home 8,000 − 476.67 − 1,000 = $6,523.33 → $6,523. The take-home
     // as printed moved $6,196 → $6,523 = $327, the comparison's figure
     expect(look('/tax-organizer', () => lines())).not.toContain('Assumed — we have never asked');
-    expect(look('/base-pay', basePay)).toEqual(['12%', '≈$477/month', '≈$6,523/month']);
-    expect(look('/income-summary', summary)).toEqual(['≈$6,523', 'filing jointly, every source counted', '12%', '≈$5,720/year']);
+    expect(look('/base-pay', basePay)).toEqual(['12%', '~$477/month', '~$6,523/month']);
+    expect(look('/income-summary', summary)).toEqual(['~$6,523', 'filing jointly, every source counted', '12%', '~$5,720/year']);
     expect(shown(5_720) - shown(9_650)).toBe(327);
     open('/(tabs)/cashflow');
-    expect([after('Inflow (income (take-home))', 1), after('Actual inflow (income (take-home))', 1)]).toEqual(['≈$6,523', '≈$6,523']);
+    expect([after('Inflow (income (take-home))', 1), after('Actual inflow (income (take-home))', 1)]).toEqual(['~$6,523', '~$6,523']);
     tab('Income');
-    expect(after('THIS MONTH', 1)).toBe('≈$6,523');
+    expect(after('THIS MONTH', 1)).toBe('~$6,523');
     screen.unmount();
     open('/(tabs)/home');
-    expect(homeBox().slice(3, 5)).toEqual(['Income', '≈$6,523']);
+    expect(homeBox().slice(3, 5)).toEqual(['Income', '~$6,523']);
   });
 
   test('E2E-79 · a fall is said too: jointly → separately, "$327/month less", and the take-home moves $6,523 → $6,196 on every screen', () => {
@@ -804,7 +895,7 @@ describe('E2E-79 · filing status, and the comparison it shows', () => {
     // over 65" row or clause: that row goes with a joint return.
     onDay(OCT);
     start({ onboardingProfile: { ...PAY, hasPartner: 'yes', partnerName: 'Sam', filingStatus: 'married', over65Who: 'neither' } });
-    expect(look('/base-pay', basePay)).toEqual(['12%', '≈$477/month', '≈$6,523/month']);
+    expect(look('/base-pay', basePay)).toEqual(['12%', '~$477/month', '~$6,523/month']);
     open('/filing-status');
     fireEvent.press(screen.getByLabelText('Married filing separately'));
     fireEvent.press(screen.getByLabelText('Save'));
@@ -813,9 +904,9 @@ describe('E2E-79 · filing status, and the comparison it shows', () => {
       '$327/month less take-home than we were showing you.', 'Your tax bracket is calculated from your income only.', 'Add your spouse’s income if you want it to be accurate.', 'Got it']);
     fireEvent.press(screen.getByLabelText('Got it'));
     screen.unmount();
-    expect(look('/base-pay', basePay)).toEqual(['22%', '≈$804/month', '≈$6,196/month']);
+    expect(look('/base-pay', basePay)).toEqual(['22%', '~$804/month', '~$6,196/month']);
     open('/(tabs)/cashflow');
-    expect(after('Inflow (income (take-home))', 1)).toBe('≈$6,196');   // calculated: ≈ (CF-24); no budget, no line under it (CF-11)
+    expect(after('Inflow (income (take-home))', 1)).toBe('~$6,196');   // calculated: ≈ (CF-24); no budget, no line under it (CF-11)
   });
 
   test('E2E-79 · the drawn couple (Sam, 67) is already taxed jointly: confirming it moves nothing, so no "$328/month more" is promised', () => {
@@ -826,7 +917,7 @@ describe('E2E-79 · filing status, and the comparison it shows', () => {
     onDay(OCT);
     start({ onboardingProfile: { ...PAY, birthYear: String(2026 - 67), hasPartner: 'yes', partnerName: 'Sam' } });
     expect(2_480 + (44_150 - 24_800) * 0.12).toBe(4_802);
-    expect(look('/base-pay', basePay)).toEqual(['12%', '≈$400/month', '≈$6,600/month']);
+    expect(look('/base-pay', basePay)).toEqual(['12%', '~$400/month', '~$6,600/month']);
     open('/filing-status');
     expect(lines()).toContain('Set to Married filing jointly because you entered Sam.');
     const backs = mockBacks.n;
@@ -836,9 +927,9 @@ describe('E2E-79 · filing status, and the comparison it shows', () => {
     expect(mockBacks.n).toBe(backs + 1);                                       // straight back, the answer saved
     expect((useStore.getState() as any).onboardingProfile).toMatchObject({ filingStatus: 'married', over65Who: 'me' });
     screen.unmount();
-    expect(look('/base-pay', basePay)).toEqual(['12%', '≈$400/month', '≈$6,600/month']);
+    expect(look('/base-pay', basePay)).toEqual(['12%', '~$400/month', '~$6,600/month']);
     open('/(tabs)/cashflow');
-    expect(after('Inflow (income (take-home))', 1)).toBe('≈$6,600');
+    expect(after('Inflow (income (take-home))', 1)).toBe('~$6,600');
   });
 
   test('E2E-79 · a 67-year-old filing single who now files jointly: 4c counts the over-65 deduction both sides, as the take-home does', () => {
@@ -850,7 +941,7 @@ describe('E2E-79 · filing status, and the comparison it shows', () => {
     start({ onboardingProfile: { ...PAY, birthYear: String(2026 - 67), hasPartner: 'no' } });
     expect(1_240 + 4_560 + (84_000 - 16_100 - 2_050 - (6_000 - 0.06 * (84_000 - 75_000)) - 50_400) * 0.22).toBeCloseTo(7_997.8, 6);
     expect((7_997.8 - 4_802) / 12).toBeCloseTo(266.32, 2);
-    expect(look('/base-pay', basePay)).toEqual(['22%', '≈$666/month', '≈$6,334/month']);
+    expect(look('/base-pay', basePay)).toEqual(['22%', '~$666/month', '~$6,334/month']);
     open('/filing-status');
     fireEvent.press(screen.getByLabelText('Married filing jointly'));
     fireEvent.press(screen.getByLabelText('Just me'));
@@ -862,7 +953,7 @@ describe('E2E-79 · filing status, and the comparison it shows', () => {
     expect(c).toContain('$266/month more take-home than we were showing you — $342 if you are both over 65.');
     fireEvent.press(screen.getByLabelText('Got it'));
     screen.unmount();
-    expect(look('/base-pay', basePay)).toEqual(['12%', '≈$400/month', '≈$6,600/month']);
+    expect(look('/base-pay', basePay)).toEqual(['12%', '~$400/month', '~$6,600/month']);
     expect((8_000 - 4_802 / 12 - 1_000) - (8_000 - 7_997.8 / 12 - 1_000)).toBeCloseTo(266.32, 2);
   });
 });

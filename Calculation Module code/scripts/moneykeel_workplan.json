@@ -5118,6 +5118,102 @@
     "status": "DONE 2026-11-01 — 22 functions and constants, input MK-XS-I-084; cards 513 of 513; headers 930 of 930; 597 suites, 10,977 tests, every red decided",
     "comments": "Decisions DEC-9499, DEC-9500, DEC-9501; the outside hand-priced case on MK-PF-F-029 settled under R19a at $10.538 (DEC-9487)."
    }
+  },
+  {
+   "task": "Net worth drawing match, round 5 (NW5-01 to NW5-09) and its fixes",
+   "todo": "Close every Net worth round-5 defect.",
+   "status": "DONE 2026-11-02 — 9 of 9: FX-NW 01, 05, 06, 09; FX-PF 03, 04; FX-CF-A 02; DRAW-HYGIENE 07, 08. The debt-shares item was cancelled: his ruling keeps whole percents",
+   "ref": "src/screens/__tests__/networth_fxnw_2026_10_27.test.tsx · src/__tests__/no_stale_window_start_r19.test.ts",
+   "date": "2026-11-02",
+   "comments": "Decisions DEC-9600, DEC-9601, DEC-9602, DEC-9603, DEC-9604.",
+   "_written": {
+    "status": "DONE 2026-11-02 — 9 of 9: FX-NW 01, 05, 06, 09; FX-PF 03, 04; FX-CF-A 02; DRAW-HYGIENE 07, 08. The debt-shares item was cancelled: his ruling keeps whole percents",
+    "comments": "Decisions DEC-9600, DEC-9601, DEC-9602, DEC-9603, DEC-9604."
+   }
+  },
+  {
+   "task": "Performance drawing match, round 5 (PF5-1, PF5-2) and its fixes",
+   "todo": "Close every Performance round-5 defect.",
+   "status": "DONE 2026-11-02 — 2 of 2 (R19b): the comparison prints again (+56.75% beside +53.00%); a stale start speaks R19’s sentence",
+   "ref": "src/__tests__/no_stale_window_start_r19.test.ts · src/screens/__tests__/fxpf3_fixes_2026_10_31.test.tsx",
+   "date": "2026-11-02",
+   "comments": "Decisions DEC-9587, DEC-9588, DEC-9589, DEC-9590.",
+   "_written": {
+    "status": "DONE 2026-11-02 — 2 of 2 (R19b): the comparison prints again (+56.75% beside +53.00%); a stale start speaks R19’s sentence",
+    "comments": "Decisions DEC-9587, DEC-9588, DEC-9589, DEC-9590."
+   }
+  },
+  {
+   "task": "Cash flow drawing match, round 5 (CF5-01 to CF5-08) and its fixes",
+   "todo": "Close every Cash flow round-5 defect.",
+   "status": "DONE 2026-11-02 — 8 of 8: FX-CF-A 01 to 03 (R22b, with 5b to 5e), FX-CF-B 04 to 07 (R23a), FX-CF-C 08 (R24, 10.98%)",
+   "ref": "src/screens/__tests__/cashflow_fix_wave_2026_10_27.test.tsx · src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx · src/__tests__/guard_one_percent_writer.test.ts",
+   "date": "2026-11-02",
+   "comments": "Decisions DEC-9591, DEC-9592, DEC-9593, DEC-9594, DEC-9595, DEC-9596, DEC-9597, DEC-9598, DEC-9599.",
+   "_written": {
+    "status": "DONE 2026-11-02 — 8 of 8: FX-CF-A 01 to 03 (R22b, with 5b to 5e), FX-CF-B 04 to 07 (R23a), FX-CF-C 08 (R24, 10.98%)",
+    "comments": "Decisions DEC-9591, DEC-9592, DEC-9593, DEC-9594, DEC-9595, DEC-9596, DEC-9597, DEC-9598, DEC-9599."
+   }
+  },
+  {
+   "task": "Closing round 5: identifiers and tooling (PF-TOOLS), and every red test (CLEANUP-TESTS)",
+   "todo": "Number the round; guards at their true counts; decide every red.",
+   "status": "DONE 2026-11-02 — MK-CF-F-313, MK-PF-F-089 and 090, MK-XS-F-211; cards 516 of 516; headers 934 of 934; 600 suites and 11,053 tests run, every red decided",
+   "ref": "Calculation Module code/scripts/moneykeel_function_register.json",
+   "date": "2026-11-02",
+   "comments": "The records and tools of this round were rebuilt after the scratchpad was wiped on 2026-11-02.",
+   "_written": {
+    "status": "DONE 2026-11-02 — MK-CF-F-313, MK-PF-F-089 and 090, MK-XS-F-211; cards 516 of 516; headers 934 of 934; 600 suites and 11,053 tests run, every red decided",
+    "comments": "The records and tools of this round were rebuilt after the scratchpad was wiped on 2026-11-02."
+   }
+  },
+  {
+   "task": "Cash flow drawing match, round 6 (CF6-01 to CF6-20) and its fixes",
+   "todo": "Close every Cash flow round-6 defect.",
+   "status": "DONE 2026-11-02 — 20 of 20: FX-CF-A 01, 03 to 05 (R22d); FX-NW 02; FX-CF-B 06 to 08, 11, 12, 15 to 17 (R27); FX-PLAN 09, 10, 13, 18 (R26); FX-CF-C 14 (R28); FX-SHARED 19, 20",
+   "ref": "src/screens/__tests__/cashflow_fix_wave_2026_10_27.test.tsx · src/screens/__tests__/one_setup_gate_r26_2026_11_02.test.tsx · src/screens/__tests__/tax_organizer_round6_2026_11_02.test.tsx",
+   "date": "2026-11-02",
+   "comments": "Decisions DEC-9669, DEC-9670, DEC-9671, DEC-9672, DEC-9674, DEC-9673, DEC-9680.",
+   "_written": {
+    "status": "DONE 2026-11-02 — 20 of 20: FX-CF-A 01, 03 to 05 (R22d); FX-NW 02; FX-CF-B 06 to 08, 11, 12, 15 to 17 (R27); FX-PLAN 09, 10, 13, 18 (R26); FX-CF-C 14 (R28); FX-SHARED 19, 20",
+    "comments": "Decisions DEC-9669, DEC-9670, DEC-9671, DEC-9672, DEC-9674, DEC-9673, DEC-9680."
+   }
+  },
+  {
+   "task": "Net worth and Performance, round 6 (NW6-01 to 06, PF6-1, PF6-2)",
+   "todo": "Close every Net worth and Performance round-6 defect.",
+   "status": "DONE 2026-11-02 — NW6-01 (a trade with no price), 02 (no months without cash), 03 (one loan name), 04 and PF6-2 (row shapes), 05 (the bar legend reads the one writer), 06 (the round-5 report’s +56.75% corrected: the build prints +34.36% beside +22.40%, right by hand); PF6-1 +37.37%",
+   "ref": "src/screens/__tests__/fxpf4_fixes_2026_11_01.test.tsx · src/screens/__tests__/networth_fxnw_2026_10_27.test.tsx",
+   "date": "2026-11-02",
+   "comments": "Decisions DEC-9678, DEC-9676, DEC-9677, DEC-9679, DEC-9675.",
+   "_written": {
+    "status": "DONE 2026-11-02 — NW6-01 (a trade with no price), 02 (no months without cash), 03 (one loan name), 04 and PF6-2 (row shapes), 05 (the bar legend reads the one writer), 06 (the round-5 report’s +56.75% corrected: the build prints +34.36% beside +22.40%, right by hand); PF6-1 +37.37%",
+    "comments": "Decisions DEC-9678, DEC-9676, DEC-9677, DEC-9679, DEC-9675."
+   }
+  },
+  {
+   "task": "The round-7 drawing-match audit runs after the TestFlight build (his order of 2026-11-02)",
+   "todo": "Present the pre-build checklist saying the audit runs after the build; run MM7-NW, MM7-PF and MM7-CF after the TestFlight build.",
+   "status": "TO DO — after the build (the lead)",
+   "ref": "the pre-build checklist · the release gate",
+   "date": "2026-11-02",
+   "comments": "His words, 2026-11-02, on DEC-9682 word for word.",
+   "_written": {
+    "status": "TO DO — after the build (the lead)",
+    "comments": "His words, 2026-11-02, on DEC-9682 word for word."
+   }
+  },
+  {
+   "task": "No more than three agents run at the same time (his order of 2026-11-02)",
+   "todo": "Count the running agents before starting one; wait at three.",
+   "status": "DONE 2026-11-02 — in force from today: FX-NW stopped and resumed; the closing round ran no more than three",
+   "ref": "the lead’s agent runs",
+   "date": "2026-11-02",
+   "comments": "His words, 2026-11-02, on DEC-9683 word for word.",
+   "_written": {
+    "status": "DONE 2026-11-02 — in force from today: FX-NW stopped and resumed; the closing round ran no more than three",
+    "comments": "His words, 2026-11-02, on DEC-9683 word for word."
+   }
   }
  ]
 }
