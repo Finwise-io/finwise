@@ -43,7 +43,7 @@ Each case: the figure and the tenet, what the first reviewer said it lacked, the
     "Federal income tax when it is calculated, plus the state rate when one was entered (the Tax organizer’s \"State income tax %\", applied to taxable income) — no Social Security or Medicare, and no state tax when none was entered (MK-CF-D-001, DEC-0384)."
    ],
    "refusal": "Shows $0 until a wage is entered.",
-   "note": "ONE figure over two sets: one earner, and the household — so a total and its parts cannot disagree (rule 2). It wears ≈ whenever the app worked it with the calculated rate; one entered, or worked from the person’s own typed rate, wears none.",
+   "note": "ONE figure over two sets: one earner, and the household — so a total and its parts cannot disagree (rule 2). It wears ~ whenever the app worked it with the calculated rate; one entered, or worked from the person’s own typed rate, wears none.",
    "ruled": "2026-09-14",
    "worked": {
     "given": "Two earners filing jointly: $4,200 every two weeks ($109,200/year) and $5,000/month ($60,000), paying $1,200 and $400/month into their 401(k)s — $14,100/month of wages in all. They have typed their tax rate: 22%.",
@@ -143,7 +143,7 @@ Each case: the figure and the tenet, what the first reviewer said it lacked, the
       2
      ],
      "result": "passed",
-     "lines": "96–112",
+     "lines": "97–113",
      "holds_the_phone_with_the_line": true
     },
     {
@@ -154,7 +154,7 @@ Each case: the figure and the tenet, what the first reviewer said it lacked, the
       3
      ],
      "result": "passed",
-     "lines": "116–128",
+     "lines": "117–129",
      "holds_the_phone_with_the_line": true
     },
     {
@@ -165,7 +165,7 @@ Each case: the figure and the tenet, what the first reviewer said it lacked, the
       3
      ],
      "result": "passed",
-     "lines": "130–139",
+     "lines": "131–140",
      "holds_the_phone_with_the_line": true
     },
     {
@@ -176,7 +176,7 @@ Each case: the figure and the tenet, what the first reviewer said it lacked, the
       4
      ],
      "result": "passed",
-     "lines": "153–166",
+     "lines": "154–167",
      "holds_the_phone_with_the_line": true
     },
     {
@@ -187,7 +187,7 @@ Each case: the figure and the tenet, what the first reviewer said it lacked, the
       5
      ],
      "result": "passed",
-     "lines": "168–181",
+     "lines": "169–182",
      "holds_the_phone_with_the_line": false
     },
     {
@@ -198,7 +198,7 @@ Each case: the figure and the tenet, what the first reviewer said it lacked, the
       6
      ],
      "result": "passed",
-     "lines": "183–196",
+     "lines": "184–197",
      "holds_the_phone_with_the_line": false
     },
     {
@@ -209,7 +209,7 @@ Each case: the figure and the tenet, what the first reviewer said it lacked, the
       7
      ],
      "result": "passed",
-     "lines": "198–205",
+     "lines": "199–206",
      "holds_the_phone_with_the_line": false
     },
     {
@@ -220,7 +220,7 @@ Each case: the figure and the tenet, what the first reviewer said it lacked, the
       8
      ],
      "result": "passed",
-     "lines": "209–223",
+     "lines": "210–224",
      "holds_the_phone_with_the_line": false
     }
    ]
@@ -368,7 +368,7 @@ Each case: the figure and the tenet, what the first reviewer said it lacked, the
       2
      ],
      "result": "passed",
-     "lines": "96–112",
+     "lines": "97–113",
      "holds_the_phone_with_the_line": true
     },
     {
@@ -379,7 +379,7 @@ Each case: the figure and the tenet, what the first reviewer said it lacked, the
       3
      ],
      "result": "passed",
-     "lines": "116–128",
+     "lines": "117–129",
      "holds_the_phone_with_the_line": true
     },
     {
@@ -390,7 +390,7 @@ Each case: the figure and the tenet, what the first reviewer said it lacked, the
       3
      ],
      "result": "passed",
-     "lines": "130–139",
+     "lines": "131–140",
      "holds_the_phone_with_the_line": true
     },
     {
@@ -401,7 +401,7 @@ Each case: the figure and the tenet, what the first reviewer said it lacked, the
       4
      ],
      "result": "passed",
-     "lines": "153–166",
+     "lines": "154–167",
      "holds_the_phone_with_the_line": true
     },
     {
@@ -412,7 +412,7 @@ Each case: the figure and the tenet, what the first reviewer said it lacked, the
       5
      ],
      "result": "passed",
-     "lines": "168–181",
+     "lines": "169–182",
      "holds_the_phone_with_the_line": false
     },
     {
@@ -423,7 +423,7 @@ Each case: the figure and the tenet, what the first reviewer said it lacked, the
       6
      ],
      "result": "passed",
-     "lines": "183–196",
+     "lines": "184–197",
      "holds_the_phone_with_the_line": false
     },
     {
@@ -434,7 +434,7 @@ Each case: the figure and the tenet, what the first reviewer said it lacked, the
       7
      ],
      "result": "passed",
-     "lines": "198–205",
+     "lines": "199–206",
      "holds_the_phone_with_the_line": false
     },
     {
@@ -445,7 +445,7 @@ Each case: the figure and the tenet, what the first reviewer said it lacked, the
       8
      ],
      "result": "passed",
-     "lines": "209–223",
+     "lines": "210–224",
      "holds_the_phone_with_the_line": false
     }
    ]
@@ -686,7 +686,7 @@ Each case: the figure and the tenet, what the first reviewer said it lacked, the
       2
      ],
      "result": "passed",
-     "lines": "96–112",
+     "lines": "97–113",
      "holds_the_phone_with_the_line": true
     },
     {
@@ -697,7 +697,7 @@ Each case: the figure and the tenet, what the first reviewer said it lacked, the
       3
      ],
      "result": "passed",
-     "lines": "116–128",
+     "lines": "117–129",
      "holds_the_phone_with_the_line": true
     },
     {
@@ -708,7 +708,7 @@ Each case: the figure and the tenet, what the first reviewer said it lacked, the
       3
      ],
      "result": "passed",
-     "lines": "130–139",
+     "lines": "131–140",
      "holds_the_phone_with_the_line": true
     },
     {
@@ -719,7 +719,7 @@ Each case: the figure and the tenet, what the first reviewer said it lacked, the
       4
      ],
      "result": "passed",
-     "lines": "153–166",
+     "lines": "154–167",
      "holds_the_phone_with_the_line": true
     },
     {
@@ -730,7 +730,7 @@ Each case: the figure and the tenet, what the first reviewer said it lacked, the
       5
      ],
      "result": "passed",
-     "lines": "168–181",
+     "lines": "169–182",
      "holds_the_phone_with_the_line": false
     },
     {
@@ -741,7 +741,7 @@ Each case: the figure and the tenet, what the first reviewer said it lacked, the
       6
      ],
      "result": "passed",
-     "lines": "183–196",
+     "lines": "184–197",
      "holds_the_phone_with_the_line": false
     },
     {
@@ -752,7 +752,7 @@ Each case: the figure and the tenet, what the first reviewer said it lacked, the
       7
      ],
      "result": "passed",
-     "lines": "198–205",
+     "lines": "199–206",
      "holds_the_phone_with_the_line": false
     },
     {
@@ -763,7 +763,7 @@ Each case: the figure and the tenet, what the first reviewer said it lacked, the
       8
      ],
      "result": "passed",
-     "lines": "209–223",
+     "lines": "210–224",
      "holds_the_phone_with_the_line": false
     }
    ]
@@ -985,7 +985,7 @@ Each case: the figure and the tenet, what the first reviewer said it lacked, the
       2
      ],
      "result": "passed",
-     "lines": "96–112",
+     "lines": "97–113",
      "holds_the_phone_with_the_line": false
     },
     {
@@ -996,7 +996,7 @@ Each case: the figure and the tenet, what the first reviewer said it lacked, the
       3
      ],
      "result": "passed",
-     "lines": "116–128",
+     "lines": "117–129",
      "holds_the_phone_with_the_line": true
     },
     {
@@ -1007,7 +1007,7 @@ Each case: the figure and the tenet, what the first reviewer said it lacked, the
       3
      ],
      "result": "passed",
-     "lines": "130–139",
+     "lines": "131–140",
      "holds_the_phone_with_the_line": true
     },
     {
@@ -1018,7 +1018,7 @@ Each case: the figure and the tenet, what the first reviewer said it lacked, the
       4
      ],
      "result": "passed",
-     "lines": "153–166",
+     "lines": "154–167",
      "holds_the_phone_with_the_line": false
     },
     {
@@ -1029,7 +1029,7 @@ Each case: the figure and the tenet, what the first reviewer said it lacked, the
       5
      ],
      "result": "passed",
-     "lines": "168–181",
+     "lines": "169–182",
      "holds_the_phone_with_the_line": false
     },
     {
@@ -1040,7 +1040,7 @@ Each case: the figure and the tenet, what the first reviewer said it lacked, the
       6
      ],
      "result": "passed",
-     "lines": "183–196",
+     "lines": "184–197",
      "holds_the_phone_with_the_line": false
     },
     {
@@ -1051,7 +1051,7 @@ Each case: the figure and the tenet, what the first reviewer said it lacked, the
       7
      ],
      "result": "passed",
-     "lines": "198–205",
+     "lines": "199–206",
      "holds_the_phone_with_the_line": false
     },
     {
@@ -1062,7 +1062,7 @@ Each case: the figure and the tenet, what the first reviewer said it lacked, the
       8
      ],
      "result": "passed",
-     "lines": "209–223",
+     "lines": "210–224",
      "holds_the_phone_with_the_line": false
     }
    ]
@@ -1191,7 +1191,7 @@ Each case: the figure and the tenet, what the first reviewer said it lacked, the
       2
      ],
      "result": "passed",
-     "lines": "96–112",
+     "lines": "97–113",
      "holds_the_phone_with_the_line": false
     },
     {
@@ -1202,7 +1202,7 @@ Each case: the figure and the tenet, what the first reviewer said it lacked, the
       3
      ],
      "result": "passed",
-     "lines": "116–128",
+     "lines": "117–129",
      "holds_the_phone_with_the_line": true
     },
     {
@@ -1213,7 +1213,7 @@ Each case: the figure and the tenet, what the first reviewer said it lacked, the
       3
      ],
      "result": "passed",
-     "lines": "130–139",
+     "lines": "131–140",
      "holds_the_phone_with_the_line": true
     },
     {
@@ -1224,7 +1224,7 @@ Each case: the figure and the tenet, what the first reviewer said it lacked, the
       4
      ],
      "result": "passed",
-     "lines": "153–166",
+     "lines": "154–167",
      "holds_the_phone_with_the_line": false
     },
     {
@@ -1235,7 +1235,7 @@ Each case: the figure and the tenet, what the first reviewer said it lacked, the
       5
      ],
      "result": "passed",
-     "lines": "168–181",
+     "lines": "169–182",
      "holds_the_phone_with_the_line": false
     },
     {
@@ -1246,7 +1246,7 @@ Each case: the figure and the tenet, what the first reviewer said it lacked, the
       6
      ],
      "result": "passed",
-     "lines": "183–196",
+     "lines": "184–197",
      "holds_the_phone_with_the_line": false
     },
     {
@@ -1257,7 +1257,7 @@ Each case: the figure and the tenet, what the first reviewer said it lacked, the
       7
      ],
      "result": "passed",
-     "lines": "198–205",
+     "lines": "199–206",
      "holds_the_phone_with_the_line": false
     },
     {
@@ -1268,7 +1268,7 @@ Each case: the figure and the tenet, what the first reviewer said it lacked, the
       8
      ],
      "result": "passed",
-     "lines": "209–223",
+     "lines": "210–224",
      "holds_the_phone_with_the_line": false
     }
    ]
@@ -1580,7 +1580,7 @@ Each case: the figure and the tenet, what the first reviewer said it lacked, the
       2
      ],
      "result": "passed",
-     "lines": "96–112",
+     "lines": "97–113",
      "holds_the_phone_with_the_line": false
     },
     {
@@ -1591,7 +1591,7 @@ Each case: the figure and the tenet, what the first reviewer said it lacked, the
       3
      ],
      "result": "passed",
-     "lines": "116–128",
+     "lines": "117–129",
      "holds_the_phone_with_the_line": true
     },
     {
@@ -1602,7 +1602,7 @@ Each case: the figure and the tenet, what the first reviewer said it lacked, the
       3
      ],
      "result": "passed",
-     "lines": "130–139",
+     "lines": "131–140",
      "holds_the_phone_with_the_line": true
     },
     {
@@ -1613,7 +1613,7 @@ Each case: the figure and the tenet, what the first reviewer said it lacked, the
       4
      ],
      "result": "passed",
-     "lines": "153–166",
+     "lines": "154–167",
      "holds_the_phone_with_the_line": false
     },
     {
@@ -1624,7 +1624,7 @@ Each case: the figure and the tenet, what the first reviewer said it lacked, the
       5
      ],
      "result": "passed",
-     "lines": "168–181",
+     "lines": "169–182",
      "holds_the_phone_with_the_line": false
     },
     {
@@ -1635,7 +1635,7 @@ Each case: the figure and the tenet, what the first reviewer said it lacked, the
       6
      ],
      "result": "passed",
-     "lines": "183–196",
+     "lines": "184–197",
      "holds_the_phone_with_the_line": false
     },
     {
@@ -1646,7 +1646,7 @@ Each case: the figure and the tenet, what the first reviewer said it lacked, the
       7
      ],
      "result": "passed",
-     "lines": "198–205",
+     "lines": "199–206",
      "holds_the_phone_with_the_line": false
     },
     {
@@ -1657,7 +1657,7 @@ Each case: the figure and the tenet, what the first reviewer said it lacked, the
       8
      ],
      "result": "passed",
-     "lines": "209–223",
+     "lines": "210–224",
      "holds_the_phone_with_the_line": false
     }
    ]
@@ -1871,7 +1871,7 @@ Each case: the figure and the tenet, what the first reviewer said it lacked, the
       2
      ],
      "result": "passed",
-     "lines": "96–112",
+     "lines": "97–113",
      "holds_the_phone_with_the_line": false
     },
     {
@@ -1882,7 +1882,7 @@ Each case: the figure and the tenet, what the first reviewer said it lacked, the
       3
      ],
      "result": "passed",
-     "lines": "116–128",
+     "lines": "117–129",
      "holds_the_phone_with_the_line": true
     },
     {
@@ -1893,7 +1893,7 @@ Each case: the figure and the tenet, what the first reviewer said it lacked, the
       3
      ],
      "result": "passed",
-     "lines": "130–139",
+     "lines": "131–140",
      "holds_the_phone_with_the_line": true
     },
     {
@@ -1904,7 +1904,7 @@ Each case: the figure and the tenet, what the first reviewer said it lacked, the
       4
      ],
      "result": "passed",
-     "lines": "153–166",
+     "lines": "154–167",
      "holds_the_phone_with_the_line": false
     },
     {
@@ -1915,7 +1915,7 @@ Each case: the figure and the tenet, what the first reviewer said it lacked, the
       5
      ],
      "result": "passed",
-     "lines": "168–181",
+     "lines": "169–182",
      "holds_the_phone_with_the_line": false
     },
     {
@@ -1926,7 +1926,7 @@ Each case: the figure and the tenet, what the first reviewer said it lacked, the
       6
      ],
      "result": "passed",
-     "lines": "183–196",
+     "lines": "184–197",
      "holds_the_phone_with_the_line": false
     },
     {
@@ -1937,7 +1937,7 @@ Each case: the figure and the tenet, what the first reviewer said it lacked, the
       7
      ],
      "result": "passed",
-     "lines": "198–205",
+     "lines": "199–206",
      "holds_the_phone_with_the_line": false
     },
     {
@@ -1948,7 +1948,7 @@ Each case: the figure and the tenet, what the first reviewer said it lacked, the
       8
      ],
      "result": "passed",
-     "lines": "209–223",
+     "lines": "210–224",
      "holds_the_phone_with_the_line": false
     }
    ]
@@ -2240,13 +2240,13 @@ Every line in order (`[icon]` is an icon); every figure printed under its identi
    "031  %",
    "032  Your take-home each month",
    "033  After tax and everything else taken out of your pay.",
-   "034  We’ll calculate ≈$7,075/month, using your tax band read on the $169,200 you have entered so far — add rent or a bonus later and the band is calculated again, so this figure moves. It knows nothing about your state or your insurance, so the ≈$7,075 is higher than it will really be.",
+   "034  We’ll calculate ~$7,075/month, using your tax band read on the $169,200 you have entered so far — add rent or a bonus later and the band is calculated again, so this figure moves. It knows nothing about your state or your insurance, so the ~$7,075 is higher than it will really be.",
    "035  Sam",
    "036  ✓",
-   "037  Monthly · the same each month · take-home ≈$4,147 (calculated)",
+   "037  Monthly · the same each month · take-home ~$4,147 (calculated)",
    "038  Edit ⌄",
    "039  YOUR HOUSEHOLD",
-   "040  ≈$11,222/month",
+   "040  ~$11,222/month",
    "041  Gross /year",
    "042  both wages",
    "043  $169,200",
@@ -2255,11 +2255,11 @@ Every line in order (`[icon]` is an icon); every figure printed under its identi
    "046  22%",
    "047  Calculated federal tax",
    "048  assumes you take the standard deduction",
-   "049  ≈$1,278/month",
+   "049  ~$1,278/month",
    "050  Your 401(k)s",
    "051  $1,600/month",
    "052  = Take-home",
-   "053  ≈$11,222/month",
+   "053  ~$11,222/month",
    "054  $14,100 gross − $1,278 tax − $1,600 of 401(k)s = $11,222.",
    "055  The take-home above is higher than it will really be, by roughly $1,079/month. Only federal income tax is taken out here. Social Security takes 6.2% of a wage up to $184,500/year and Medicare 1.45% of all of it (0.9% more above $200,000), and your state may take more. If you itemise rather than take the standard deduction, your bill is different again.",
    "056  The tax rate you want us to use",
@@ -2486,7 +2486,7 @@ Rows of `MoneyKeel/documents/standards/moneykeel_pres_spec_design-each-screen-wa
 
 **READ THIS FIRST — ADDED AFTER THIS MOCKUP · BUILD 54. Each row says whose decision it is: his, in his own words with the day he gave them, or the lead’s, made without asking him under his order of 2026-09-30. (Corrected 2026-10-31: this line said every row was his ruling and approved, which was untrue of the lead’s rows.)** These were ruled after this drawing was approved, during work on Build 54 (the build on TestFlight). They are in the app’s code unless a line says ‘Not built yet’, and reach a phone with the next build cut. The phones below are not redrawn: where a line here and a phone disagree, this line is the design.
 
-Its dated rows, every one, as written on the drawing (68):
+Its dated rows, every one, as written on the drawing (73):
 
 ```json
 [
@@ -2965,6 +2965,41 @@ Its dated rows, every one, as written on the drawing (68):
   "His words, or where it came from": "Not a decision of his: the lead’s ruling R23 of 2026-11-01 (one pay-frequency table; never a guess), made without asking him, under his DEC-0296 and tenets 2 and 3 (DEC-3523). One word from him reverses it. To reverse: read an unknown frequency as a month again.",
   "Record": "DEC-0296 · DEC-3523 (tenets 2, 3) · R23 · src/domain/income/pay-frequency.ts · MK-CF-O-001 basePay",
   "State": "In the code"
+ },
+ {
+  "Ruled": "2026-11-01",
+  "What changed, against the phones below": "Approved before: Your base pay (phones 2 to 8), Your income (phone 12) and the Income summary (phones 16, 17), v02 approved 2026-08-27 (‘yes’, DEC-0177), v07 approved 2026-09-02; the row of 2026-11-01 above (a pay frequency not recognised). His words: none on this state; his DEC-0296 is the rule. New: nothing downstream of that wage prints a figure. — A pay frequency not recognised, everywhere the wage reaches (the row above said it on Your base pay; the screens below it still worked figures on a $0 wage). Your base pay: the gross box is labelled ‘Gross pay’ (it read ‘Gross undefined’), and the closed line carries no ✓ beside ‘Pay frequency not recognised’; with two earners the band carries no total. Your income: the job’s line reads ‘You · pay frequency not recognised’ (it read ‘You · take-home ≈$0/month · pay frequency not recognised’). The Income summary never says ‘Nothing entered yet’ for a wage that was entered: TAKE-HOME EACH MONTH and WHAT IT IS TAXED ON carry no total, the reason is printed under each, and no bracket and no tax is worked — they read 10% and ≈$0/year on a $100,000 wage. A source that does not rest on the wage still prints: $14,400 of rent kept is a row of what it is taxed on, its gross ‘= Gross /year, not counting your wage’; a figure worked with the calculated rate (the rent after its calculated tax) is left out, since the rate rests on the wage. An hourly wage with no hours a week entered (the row of 2026-10-26) is the same state, said in its own words: ‘You · hours a week not entered’, with no ‘≈$0’. Choosing a frequency, or typing the hours, brings every figure back. Line added 2026-11-01, before the code.",
+  "His words, or where it came from": "Not a decision of his: the lead’s ruling R23a of 2026-11-01, made without asking him, under his DEC-0296 and tenet 3 (DEC-3523: unknown is not zero). One word from him reverses it. To reverse: work the screens on a $0 wage again.",
+  "Record": "DEC-0296 · DEC-3523 (tenet 3) · R23 · R23a · MK-CF-O-001 basePay · MK-CF-O-004 incomeSummary · MK-CF-O-019 theIncomeManager",
+  "State": "In the code"
+ },
+ {
+  "Ruled": "2026-11-01",
+  "What changed, against the phones below": "Approved before: this drawing, approved 2026-09-02. Its phones draw a calculated take-home with ‘≈’ (‘Take-home ≈$9,242/month’, ‘≈$3,686 (calculated)’), and its rule 9 reads ‘Every estimate is prefixed ≈’. His feedback: None on the mark itself. His words, 2026-09-02: “Always use same words to describe same thing in the app. There is no score for creative writing use different terms to describe same thing.” New: the app writes ‘about’ with one mark, ‘~’, against its figure, as Net worth always has: ‘Take-home ~$9,242/month’, ‘~$3,686 (calculated)’; rule 9 now reads: every estimate is prefixed ~. Only the mark changes; every figure and every word stays. The phones are not redrawn. Line added 2026-11-01.",
+  "His words, or where it came from": "One mark for one concept (his one-term rule of 2026-09-02; tenet 4, DEC-3523). The approved drawings draw ‘~’ 15 times on three drawings (Net worth v08, DEC-0644; Alternatives and Bonds v02, DEC-0650, all approved 2026-10-01) and ‘≈’ 9 times on one (the income drawing v07, approved 2026-09-02); the newer approvals draw ‘~’; the app printed ‘~’ 55 times and ‘≈’ 40; his recorded wording for MK-NW-M-015 is ‘~$X’. The lead’s ruling R25 of 2026-11-01, made without asking him, as his order of 2026-09-30 says; held by src/__tests__/approx_mark_one_form.test.ts (no ‘≈’ in any printed text, and no space between ‘~’ and its figure). To reverse: the 40 Cash flow marks back to ‘≈’, and this line removed.",
+  "Record": "R25 · DEC-3523 · DEC-0644 · DEC-0650 · MK-NW-M-015 · CF4-02",
+  "State": "In the code since 2026-11-01 — row written after the code"
+ },
+ {
+  "Ruled": "2026-11-01",
+  "What changed, against the phones below": "Approved before: no drawing of this step (the design record: no drawing traced for sign-up’s steps). His words: none on this line. New: two lines under Student loans say only what was entered. — Sign-up, Student loans, once an amount is entered. The step asks the amount, the months it arrives, the rate and the years to pay it off — never when repayment starts. Its card said ‘It lands as cash now in your bill calendar; repayment starts after you graduate.’ and ‘$20,000 borrowed · ~$212/month after graduation’, a fact about the person’s own loan that nothing entered supports. It now reads ‘It lands as cash now in your bill calendar. When repayment starts is not entered.’ — the words Debts uses for the same loan — and ‘$20,000 borrowed · ~$212/month once repayment starts’ ($20,000 at 5% over 10 years: $212.13/month). Line added 2026-11-01, before the code.",
+  "His words, or where it came from": "Not a decision of his: the lead’s, on 2026-11-01, made without asking him, under tenet 1 (DEC-3523: an untrue sentence beside a figure) and his DEC-0296. One word from him reverses it. To reverse: print the earlier two lines.",
+  "Record": "DEC-3523 (tenet 1) · DEC-0296 · R22 · src/onboarding/modules.tsx (income_loans)",
+  "State": "In the code"
+ },
+ {
+  "Ruled": "2026-11-02",
+  "What changed, against the phones below": "Approved before: Your base pay (phones 2 to 8), Your income (phone 12), Rent (phone 10), the Income summary (phone 16), v02 approved 2026-08-27 (‘yes’, DEC-0177), v07 approved 2026-09-02; the rows of 2026-11-01 above. His words: none on these states; his DEC-0296 and DEC-4059d are the rules. New: four states say what they rest on. — (1) A couple where one wage cannot be read. The shared tax rate rests on the wage that is missing, so the other earner’s calculated take-home is not worked: Sam’s closed line reads ‘Monthly · the same each month · take-home not calculated — the other pay cannot be read yet’ (it read ‘take-home ~$4,318 (calculated)’, worked as if the $100,000 were $0; counted, it would be about $4,026). A take-home Sam typed still prints. The Income summary keeps Sam’s ‘Sam’s gross $54,000’ row, so its rows add to the total: $54,000 + $14,400 rent = ‘= Gross /year, not counting your wage $68,400’ (it printed $68,400 under the rent row alone). (2) Hourly with no hours a week says so in its own words everywhere — ‘hours a week not entered’, never ‘pay frequency not recognised’ — and its figure is ‘$25/hour’ (it read ‘$25 ›’). (3) Rent with no property named (DEC-4059d): the rent is still not counted, and now every screen that lists income says why — ‘Your rent of $1,200/month is not counted until you pick its property.’ — where they said ‘Nothing entered yet’. (4) Sign-up, Student loans: the heading over the rate and the years reads ‘Rate and years to pay it off (optional)’ — what it asks (it read ‘Repayment, once you graduate (optional)’). Line added 2026-11-02, before the code.",
+  "His words, or where it came from": "Not a decision of his: the lead’s rulings R23a and R27 of 2026-11-01/02, made without asking him, under his DEC-0296, DEC-4059d and tenets 1 to 3 (DEC-3523). One word from him reverses each. To reverse: work the figures on a $0 wage, print the old words.",
+  "Record": "DEC-0296 · DEC-4059d · DEC-3523 · R23a · R27 · MK-CF-O-001 basePay · MK-CF-O-004 incomeSummary · MK-CF-O-016 incomeSources",
+  "State": "In the code"
+ },
+ {
+  "Ruled": "2026-11-02",
+  "What changed, against the phones below": "Approved before: the Income summary (phone 16) and Your income (phone 12), v07 approved 2026-09-02. His words: DEC-2748c, ‘a year’s interest from a bond or CD has one rule everywhere: face × rate…’ (the rule as the lead wrote it; his word on it was “perfect.”). New: Not a drawn state. A bond held inside a brokerage pays interest too. A $10,000-face Treasury at 4.00% counted $400 a year as its own account, and nothing — said nowhere — when held as a holding inside a brokerage. Every bond or CD holding inside any account now counts face × rate: ‘US Treasury 2030 (in Fidelity Brokerage): 4.00% coupon on $10,000 face’ — $400 a year (10,000 × 0.04), the same as held on its own, on the Income summary, Your income, the Tax organizer and its file. A held bond with no rate or no face is named and not counted: ‘US Treasury 2030 (in Fidelity Brokerage): no coupon rate entered — not counted until one is’. Where the brokerage’s interest was paid and recorded in the last twelve months, the record is the figure and nothing is added on top. The phones are not redrawn. Line added 2026-11-02.",
+  "His words, or where it came from": "His ruling DEC-2748c: one rule everywhere, face × rate. One reader for a bond held inside an account (heldBondInterest, src/domain/bonds), read by interestIncomeAnnual and incomeFromAccounts. Found by FX-CF-C (round 6). To reverse: count held bonds as nothing again.",
+  "Record": "DEC-2748c · DEC-2748b · MK-CF-F-184 · MK-NW-F-063",
+  "State": "Drawn 2026-11-02, before the code"
  }
 ]
 ```
@@ -3319,7 +3354,7 @@ Its phones that hold the screens in this part (2, 3, 4, 5, 6, 7, 8, 16), every l
 
 ## The match tests — each test that holds one of these screens to a drawing phone, its code and its result at this build
 
-**phone 2 · both sections closed, both take-homes entered — the whole screen, every figure as printed** — `src/screens/__tests__/basepay_matches_v07.test.tsx`, lines 96–112, phones 2: **passed**
+**phone 2 · both sections closed, both take-homes entered — the whole screen, every figure as printed** — `src/screens/__tests__/basepay_matches_v07.test.tsx`, lines 97–113, phones 2: **passed**
 
 ```ts
 test('phone 2 · both sections closed, both take-homes entered — the whole screen, every figure as printed', () => {
@@ -3341,15 +3376,15 @@ test('phone 2 · both sections closed, both take-homes entered — the whole scr
 })
 ```
 
-**phone 3 · nobody entered a take-home — the household card, before a rate is typed** — `src/screens/__tests__/basepay_matches_v07.test.tsx`, lines 116–128, phones 3: **passed**
+**phone 3 · nobody entered a take-home — the household card, before a rate is typed** — `src/screens/__tests__/basepay_matches_v07.test.tsx`, lines 117–129, phones 3: **passed**
 
 ```ts
 test('phone 3 · nobody entered a take-home — the household card, before a rate is typed', () => {
   show(PHONE_3);
   const want = applyNamed(normPrinted(phone(3, /^Your household$/, /^Everything that comes out, as a share of your gross/)), [
-    ['≈$9,242/month', '≈$9,427/month', 'difference 11 (DEC-0283): $11,500 − $873 − $1,200 = $9,427', 2],
+    ['~$9,242/month', '~$9,427/month', 'difference 11 (DEC-0283): $11,500 − $873 − $1,200 = $9,427', 2],
     ['both of you earn 22%', 'both of you earn 12%', 'difference 10: $138,000 − $14,400 − $32,200 = $91,400'],
-    ['≈$1,058/month', '≈$873/month', 'difference 11: the year’s tax on $91,400, $10,472, ÷ 12 = $873'],
+    ['~$1,058/month', '~$873/month', 'difference 11: the year’s tax on $91,400, $10,472, ÷ 12 = $873'],
     ['$11,500 gross − $1,058 tax − $1,200 of 401(k)s = $9,242. The rows on this card always add up — a card whose own rows disagree is a wrong number wearing a layout.',
      '$11,500 gross − $873 tax − $1,200 of 401(k)s = $9,427.', 'differences 6 (DEC-1625) and 11'],
   ]) + ' calculated, 7.59% Save';   // $10,472 ÷ $138,000 = 7.588% — two decimals (difference 12, 2026-10-26)                                                                                       // 5
@@ -3359,7 +3394,7 @@ test('phone 3 · nobody entered a take-home — the household card, before a rat
 })
 ```
 
-**phone 3 · once a rate is typed — where it is used, and the take-home under it** — `src/screens/__tests__/basepay_matches_v07.test.tsx`, lines 130–139, phones 3: **passed**
+**phone 3 · once a rate is typed — where it is used, and the take-home under it** — `src/screens/__tests__/basepay_matches_v07.test.tsx`, lines 131–140, phones 3: **passed**
 
 ```ts
 test('phone 3 · once a rate is typed — where it is used, and the take-home under it', () => {
@@ -3374,7 +3409,7 @@ test('phone 3 · once a rate is typed — where it is used, and the take-home un
 })
 ```
 
-**phone 4 · one entered, one calculated — a labelled fact per person and no tax row** — `src/screens/__tests__/basepay_matches_v07.test.tsx`, lines 153–166, phones 4: **passed**
+**phone 4 · one entered, one calculated — a labelled fact per person and no tax row** — `src/screens/__tests__/basepay_matches_v07.test.tsx`, lines 154–167, phones 4: **passed**
 
 ```ts
 test('phone 4 · one entered, one calculated — a labelled fact per person and no tax row', () => {
@@ -3382,10 +3417,10 @@ test('phone 4 · one entered, one calculated — a labelled fact per person and 
   closeYours();
   const want = applyNamed(normPrinted(phone(4, /^Each person’s pay$/, /^Save$/)), [
     ...AS_PHONE_2,
-    ['Monthly · the same · take-home ≈$3,686 (calculated)', 'Monthly · the same each month · take-home ≈$3,759 (calculated)', 'differences 3 and 11: $4,500 less 7.59% tax less $400'],
-    ['≈$8,686/month', '≈$8,759/month', 'difference 11: $5,000 + $3,759', 2],
+    ['Monthly · the same · take-home ~$3,686 (calculated)', 'Monthly · the same each month · take-home ~$3,759 (calculated)', 'differences 3 and 11: $4,500 less 7.59% tax less $400'],
+    ['~$8,686/month', '~$8,759/month', 'difference 11: $5,000 + $3,759', 2],
     ['both of you earn 22%', 'both of you earn 12%', 'difference 10'],
-    ['≈$3,686', '≈$3,759', 'difference 11'],
+    ['~$3,686', '~$3,759', 'difference 11'],
   ]);
   const got = normPrinted(builtRun(/^Each person’s pay$/)).replace(/ ✓/g, '');                                       // 4
   expect(want.split(' ').length).toBeGreaterThan(55);
@@ -3393,7 +3428,7 @@ test('phone 4 · one entered, one calculated — a labelled fact per person and 
 })
 ```
 
-**phone 5 · your section open — every question, every box as drawn, then everything else taken out** — `src/screens/__tests__/basepay_matches_v07.test.tsx`, lines 168–181, phones 5: **passed**
+**phone 5 · your section open — every question, every box as drawn, then everything else taken out** — `src/screens/__tests__/basepay_matches_v07.test.tsx`, lines 169–182, phones 5: **passed**
 
 ```ts
 test('phone 5 · your section open — every question, every box as drawn, then everything else taken out', () => {
@@ -3412,7 +3447,7 @@ test('phone 5 · your section open — every question, every box as drawn, then 
 })
 ```
 
-**phone 6 · Sam’s section, paid fortnightly, pay varies — fourteen months, each one a month** — `src/screens/__tests__/basepay_matches_v07.test.tsx`, lines 183–196, phones 6: **passed**
+**phone 6 · Sam’s section, paid fortnightly, pay varies — fourteen months, each one a month** — `src/screens/__tests__/basepay_matches_v07.test.tsx`, lines 184–197, phones 6: **passed**
 
 ```ts
 test('phone 6 · Sam’s section, paid fortnightly, pay varies — fourteen months, each one a month', () => {
@@ -3431,7 +3466,7 @@ test('phone 6 · Sam’s section, paid fortnightly, pay varies — fourteen mont
 })
 ```
 
-**phone 7 · the three do not agree — the boxes marked, the sentence that says by how much, and Save waits** — `src/screens/__tests__/basepay_matches_v07.test.tsx`, lines 198–205, phones 7: **passed**
+**phone 7 · the three do not agree — the boxes marked, the sentence that says by how much, and Save waits** — `src/screens/__tests__/basepay_matches_v07.test.tsx`, lines 199–206, phones 7: **passed**
 
 ```ts
 test('phone 7 · the three do not agree — the boxes marked, the sentence that says by how much, and Save waits', () => {
@@ -3444,14 +3479,14 @@ test('phone 7 · the three do not agree — the boxes marked, the sentence that 
 })
 ```
 
-**phone 8 · the same screen inside sign-up — the title, its own hints, the boxes, and what we will calculate** — `src/screens/__tests__/basepay_matches_v07.test.tsx`, lines 209–223, phones 8: **passed**
+**phone 8 · the same screen inside sign-up — the title, its own hints, the boxes, and what we will calculate** — `src/screens/__tests__/basepay_matches_v07.test.tsx`, lines 210–224, phones 8: **passed**
 
 ```ts
 test('phone 8 · the same screen inside sign-up — the title, its own hints, the boxes, and what we will calculate', () => {
   show({ baseSalary: '7000', salaryFreq: 'monthly', hasPartner: 'yes', partnerName: 'Sam', whoEarns: 'you' }, 'onboarding');
   const want = applyNamed(normPrinted(phone(8, /^Your base pay$/, /higher than it will really be\.$/)), [
     ['401(k) , because', '401(k), because', 'the space a bold tag leaves before a comma in the drawing’s markup'],
-    ['≈$6,196', '≈$6,523', 'difference 11: a spouse entered, taxed jointly until asked — $7,000 − $477 = $6,523', 2],
+    ['~$6,196', '~$6,523', 'difference 11: a spouse entered, taxed jointly until asked — $7,000 − $477 = $6,523', 2],
     // THE ROW OF 2026-11-01 ON v07 (R16, FX-PF): the 401(k) box nobody filled is empty — read only where the drawing carries that row
     ...(R16_SIGNUP.test(V07_HTML) ? [['Leave blank if you don’t contribute. $0 Your take-home', 'Leave blank if you don’t contribute. Your take-home', 'v07 row of 2026-11-01 (R16)']] as [string, string, string][] : []),
   ]);

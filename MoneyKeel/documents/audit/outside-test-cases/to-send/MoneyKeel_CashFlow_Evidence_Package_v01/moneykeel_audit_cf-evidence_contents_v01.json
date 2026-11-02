@@ -1,11 +1,11 @@
 {
  "package": "MoneyKeel_CashFlow_Evidence_Package_v01",
- "built_on": "2026-11-01",
- "commit": "77d36913",
+ "built_on": "2026-11-02",
+ "commit": "41175b97",
  "uncommitted_files_at_build": [],
  "built_by": "Calculation Module code/scripts/build-cf-evidence-package.py",
  "generator": "Calculation Module code/scripts/cf-evidence/cf-evidence-94.gen.tsx",
- "built_from_tree": "a clean worktree of 77d36913 (--at)",
+ "built_from_tree": "a clean worktree of 41175b97 (--at)",
  "cases_from": "MoneyKeel/documents/audit/outside-test-cases/returned/results/cashflow_openai_screens_results.json",
  "measurer": "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx",
  "measurer_regions_cut": {
@@ -73,25 +73,25 @@
    "tests": 9,
    "passed": 9
   },
-  "src/screens/__tests__/basepay_matches_v07.test.tsx": {
-   "suite": "passed",
-   "tests": 10,
-   "passed": 10
-  },
   "src/screens/__tests__/cashflow_drawing_fixes_2026_10_25.test.tsx": {
    "suite": "passed",
    "tests": 35,
    "passed": 35
   },
+  "src/screens/__tests__/basepay_matches_v07.test.tsx": {
+   "suite": "passed",
+   "tests": 10,
+   "passed": 10
+  },
+  "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx": {
+   "suite": "passed",
+   "tests": 40,
+   "passed": 40
+  },
   "src/screens/__tests__/income_manager_matches_v07.test.tsx": {
    "suite": "passed",
    "tests": 8,
    "passed": 8
-  },
-  "src/screens/__tests__/pay_frequency_one_table_2026_11_01.test.tsx": {
-   "suite": "passed",
-   "tests": 17,
-   "passed": 17
   },
   "src/screens/__tests__/income_matches_v07.test.tsx": {
    "suite": "passed",
@@ -120,8 +120,8 @@
   },
   "src/screens/__tests__/cashflow_journeys_viewing_2026_10_24.test.tsx": {
    "suite": "passed",
-   "tests": 15,
-   "passed": 15
+   "tests": 16,
+   "passed": 16
   },
   "src/screens/__tests__/cashflow_fcc.test.tsx": {
    "suite": "passed",
@@ -130,18 +130,18 @@
   },
   "src/screens/__tests__/cashflow_fix_wave_2026_10_27.test.tsx": {
    "suite": "passed",
-   "tests": 57,
-   "passed": 57
+   "tests": 90,
+   "passed": 90
   },
   "src/screens/__tests__/cashflow_home_agreement_2026_10_23.test.tsx": {
    "suite": "passed",
-   "tests": 30,
-   "passed": 30
+   "tests": 31,
+   "passed": 31
   },
   "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx": {
    "suite": "passed",
-   "tests": 491,
-   "passed": 491
+   "tests": 492,
+   "passed": 492
   }
  },
  "parts": [
@@ -211,7 +211,7 @@
     "DEC-8459",
     "DEC-8771"
    ],
-   "bytes": 284904
+   "bytes": 308084
   },
   {
    "file": "moneykeel_audit_cf-evidence_part-02-of-08.md",
@@ -254,7 +254,7 @@
     "DEC-8375",
     "DEC-8387"
    ],
-   "bytes": 213665
+   "bytes": 236845
   },
   {
    "file": "moneykeel_audit_cf-evidence_part-03-of-08.md",
@@ -285,7 +285,7 @@
     "DEC-8375",
     "DEC-8387"
    ],
-   "bytes": 169292
+   "bytes": 192472
   },
   {
    "file": "moneykeel_audit_cf-evidence_part-04-of-08.md",
@@ -320,9 +320,11 @@
     "DEC-8387",
     "DEC-8419",
     "DEC-8461",
-    "DEC-8672"
+    "DEC-8672",
+    "DEC-9593",
+    "DEC-9669"
    ],
-   "bytes": 187004
+   "bytes": 211891
   },
   {
    "file": "moneykeel_audit_cf-evidence_part-05-of-08.md",
@@ -413,7 +415,7 @@
     "DEC-8432",
     "DEC-8434"
    ],
-   "bytes": 219758
+   "bytes": 228975
   },
   {
    "file": "moneykeel_audit_cf-evidence_part-07-of-08.md",
@@ -492,7 +494,7 @@
     "DEC-8676",
     "DEC-8770"
    ],
-   "bytes": 244347
+   "bytes": 253592
   },
   {
    "file": "moneykeel_audit_cf-evidence_part-08-of-08.md",
@@ -2096,15 +2098,15 @@
  ],
  "files": {
   "moneykeel_audit_cf-evidence_answer-template_v01.jsonl": "8c14bd8f04758106",
-  "moneykeel_audit_cf-evidence_brief_v01.md": "8aadf2372cc2110d",
-  "moneykeel_audit_cf-evidence_index_v01.md": "6183dc42b07a0488",
-  "moneykeel_audit_cf-evidence_part-01-of-08.md": "674835fab0c90ee3",
-  "moneykeel_audit_cf-evidence_part-02-of-08.md": "7b1f1a91b32f4244",
-  "moneykeel_audit_cf-evidence_part-03-of-08.md": "9b685d3b52997fd9",
-  "moneykeel_audit_cf-evidence_part-04-of-08.md": "bcb17f7daa693cc0",
+  "moneykeel_audit_cf-evidence_brief_v01.md": "1095ca10a1cf8bee",
+  "moneykeel_audit_cf-evidence_index_v01.md": "c987babee4befc18",
+  "moneykeel_audit_cf-evidence_part-01-of-08.md": "1afa12c0b446ceb1",
+  "moneykeel_audit_cf-evidence_part-02-of-08.md": "d2c854277c70513d",
+  "moneykeel_audit_cf-evidence_part-03-of-08.md": "7a1b7f5df2ffe747",
+  "moneykeel_audit_cf-evidence_part-04-of-08.md": "8be96416ef4208ed",
   "moneykeel_audit_cf-evidence_part-05-of-08.md": "7281a22e8ea0ac42",
-  "moneykeel_audit_cf-evidence_part-06-of-08.md": "4d9dda18314b28d8",
-  "moneykeel_audit_cf-evidence_part-07-of-08.md": "99f5b2030e56a2ca",
+  "moneykeel_audit_cf-evidence_part-06-of-08.md": "5cd8fbf0da231084",
+  "moneykeel_audit_cf-evidence_part-07-of-08.md": "2c9f21f8b3032776",
   "moneykeel_audit_cf-evidence_part-08-of-08.md": "03b4bb899b3282c9"
  }
 }
