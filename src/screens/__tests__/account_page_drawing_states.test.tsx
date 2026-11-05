@@ -204,6 +204,9 @@ const ROW_WORDS: Record<string, Record<string, string>> = {
  *  '+11.79%/year' where '+11.79%' is drawn. Each state's 2Y figure is the only line of its state with those words (held below). */
 const ROW_93: Record<string, Record<string, string>> = { A: { '+10.87%': '+10.87%/year' }, D: { '+11.79%': '+11.79%/year' } };
 for (const [k, m] of Object.entries(ROW_93)) ROW_WORDS[k] = { ...ROW_WORDS[k], ...m };
+/** THE DRAWING'S ROW 98 OF 2026-11-04 (his Build 55 words): a BOND FACTS fact that reads not entered carries a › after its words, on a
+ *  line of its own beside them, and opens the bond's editor. Each line named here is followed by '›' in the same box. */
+const ROW_98_CHEVRON_AFTER: Record<string, string[]> = { B: ['coupon rate not entered'] };
 function drawnStates(): { key: string; label: string; lines: Line[] }[] {
   const phone = HTML.slice(HTML.indexOf('<div class="phone">'), HTML.indexOf('<div class="side">'))
     .replace(/<span class="pn">[^<]*<\/span>/g, '')            // the orange change marks: the drawing's, not the app's
@@ -237,6 +240,10 @@ function drawnStates(): { key: string; label: string; lines: Line[] }[] {
     stack.push({ cls: cls.join(' '), g });
   }
   for (const st of out) for (const l of st.lines) { const w = ROW_WORDS[st.key]?.[l.t]; if (w) l.t = w; }
+  for (const st of out) for (const w of ROW_98_CHEVRON_AFTER[st.key] ?? []) {
+    const at = st.lines.findIndex((l) => l.t === w);
+    if (at >= 0) st.lines.splice(at + 1, 0, { t: '›', g: st.lines[at].g });
+  }
   return out;
 }
 
@@ -338,6 +345,11 @@ describe('the rows of 2026-10-27 (84, 85) are on the drawing, and each line they
     const text = HTML.replace(/<[^>]+>/g, '').replace(/&amp;/g, '&');
     expect(text).toMatch(/84 ?2026-10-27 · DRAWING ERROR, state A — ‘See all activity \(older than Apr 2, 2026\) ›’ and ‘7 more records below this date’ should read ‘See all activity \(Apr 2, 2026 and older\) ›’ and ‘7 more records below’/);
     expect(text).toMatch(/85 ?2026-10-27 · State B, BOND FACTS — ‘Interest payments: not entered · \$0\/year — coupon rate not entered’ should read ‘Interest payments: coupon rate not entered’/);
+  });
+  test('row 98 of 2026-11-04 (a fact not entered opens the editor, with its ›) is on the drawing, and its line was read', () => {
+    const text = HTML.replace(/<[^>]+>/g, '').replace(/&amp;/g, '&');
+    expect(text).toMatch(/98 ?2026-11-04 ·[\s\S]{0,600}a tap opens this bond’s own editor on this page/);
+    expect(DRAWN.find((d) => d.key === 'B')!.lines.filter((l) => l.t === 'coupon rate not entered').length).toBe(1);
   });
   test('row 93 of 2026-11-01 (R20, the 2Y chip says /year) is on the drawing, with its words', () => {
     const text = HTML.replace(/<[^>]+>/g, '').replace(/&amp;/g, '&');
@@ -613,8 +625,11 @@ describe('THE ONE RIGHT EDGE: every figure in a bar, the walk, the table and the
     expect(edged + columns).toBeGreaterThanOrEqual(floor[k]);
     // "›" only in the column, and only on a holding that opens its own page; "✎" only on a record you entered (none drawn)
     const arrows = all.filter((nd) => nd.n.type === 'Text' && textOf(nd.n) === '›');
-    for (const nd of arrows) expect(isGutter(nd.parent)).toBe(true);
-    expect(arrows.length).toBe({ A: 3, B: 0, C: 2, D: 2, E: 0, F: 0 }[k]);
+    // row 98 (2026-11-04): and beside a BOND FACTS fact not entered, which opens the bond's editor (state B's coupon rate)
+    const inFacts = (nd: Node) => nd.anc.some((x) => x.props?.testID === 'card-bond-facts');
+    for (const nd of arrows) if (!inFacts(nd)) expect(isGutter(nd.parent)).toBe(true);
+    expect(arrows.filter((nd) => !inFacts(nd)).length).toBe({ A: 3, B: 0, C: 2, D: 2, E: 0, F: 0 }[k]);
+    expect(arrows.filter(inFacts).length).toBe({ A: 0, B: 1, C: 0, D: 0, E: 0, F: 0 }[k]);
     expect(all.filter((nd) => nd.n.type === 'Text' && textOf(nd.n) === '✎').length).toBe(0);
   });
 });
@@ -1006,6 +1021,10 @@ describe('APPEARANCE · every line of every state, F included: size, weight and 
       stack.push({ tag, cls });
     }
     for (const l of out) { const w = ROW_WORDS[key]?.[l.t]; if (w) l.t = w; }   // the rows of 2026-10-27 (84, 85), as drawnStates reads them
+    for (const w of ROW_98_CHEVRON_AFTER[key] ?? []) {   // row 98 (2026-11-04): the › after a fact not entered, as drawnStates reads it
+      const at = out.findIndex((l) => l.t === w);
+      if (at >= 0) out.splice(at + 1, 0, { t: '›', chain: [...out[at].chain], row98: true } as any);
+    }
     return out;
   };
   const drawnF = drawnStyled('F');
@@ -1044,6 +1063,8 @@ describe('APPEARANCE · every line of every state, F included: size, weight and 
     || (d.t === 'ⓘ' && prev === 'IF INTEREST RATES MOVE' && g === `11 · ${KNOWN.infoDotWeight.app} · ${Colors.white.toUpperCase()}`);
   const known = (k: string, d: { t: string; chain: El[] }, w: string, g: string, prev?: string) =>
     row87(d, w, g, prev)
+    // row 98 (2026-11-04): the › beside a fact not entered, in the grey and size of every row's ›
+    || ((d as any).row98 === true && g === `15 · 400 · ${Colors.textTertiary.toUpperCase()}`)
     || (d.t === 'ⓘ' && w.replace(` · ${KNOWN.infoDotWeight.drawing} · `, ` · ${KNOWN.infoDotWeight.app} · `) === g)
     || (k === 'D' && d.chain[d.chain.length - 1].cls.includes('sm') && w.replace(/^12 /, `${KNOWN.smallDoorText.app} `) === g);
   test.each(['A', 'B', 'C', 'D', 'E', 'F'])('state %s · every line: the size, weight and colour the drawing\'s CSS gives it are the ones the screen renders', (k) => {
@@ -1062,7 +1083,7 @@ describe('APPEARANCE · every line of every state, F included: size, weight and 
     // the guard looked: every line compared, and the known ones are the ones it expects to meet
     expect(drawn.length).toBeGreaterThanOrEqual({ A: 120, B: 60, C: 75, D: 80, E: 60, F: 55 }[k]!);
     // the dots, state D's two small doors, and the card titles row 87 puts on the bar
-    expect(knownSeen).toBe(drawn.filter((d) => d.t === 'ⓘ').length + (k === 'D' ? 2 : 0) + drawn.filter((d) => ON_BAR.has(d.t)).length);
+    expect(knownSeen).toBe(drawn.filter((d) => d.t === 'ⓘ').length + (k === 'D' ? 2 : 0) + drawn.filter((d) => ON_BAR.has(d.t)).length + drawn.filter((d: any) => d.row98 === true).length);   // + row 98's ›
   });
 
   test('state F\'s cards are the page\'s cards, and its three dark-green bars run edge to edge with square corners', () => {

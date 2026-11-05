@@ -1,5 +1,6 @@
 // Bonds — individual bond management (Phase B). Bonds are AssetAccounts with bond fields, so they
 // already flow into Net worth + the nest egg; here we add/edit them and show bond-specific metrics.
+import { SheetClose } from '../components/SheetClose';
 import { SHEET_FRAME, SHEET_HANDLE } from '../components/sheetFrame';   // one sheet frame (NW3-18, 2026-10-31)
 import { MoneyBox } from '../components/MoneyBox';   // every money box, one component (DEC-8385)
 import { plural } from '../domain/_shared/plural';   // the one list of words and plurals (DEC-4082, 2026-10-10)
@@ -123,7 +124,9 @@ export default function BondsScreen() {
                 {/* THE BOND'S OWN NAME HEADS ITS CARD, as the approved drawing draws it (Bonds v02 phone 1; DEC-0281: the issuer is one of
                     the nine facts, and the name is where the person writes it — the editor asks Name / issuer). It showed the institution
                     in its place when one was typed (2026-10-20). */}
-                <View style={styles.bondHead}><Text style={styles.bondName} numberOfLines={1}>{r.label}</Text><Text style={styles.bondVal}>{fig('MK-NW-M-054', r.value)}</Text></View>
+                {/* THE CARD SAYS IT OPENS (his Build 55 feedback, 2026-11-04: the only thing that looked tappable was Add a bond): the ›
+                    every row that opens something carries, beside the value */}
+                <View style={styles.bondHead}><Text style={styles.bondName} numberOfLines={1}>{r.label}</Text><Text style={styles.bondVal}>{fig('MK-NW-M-054', r.value)}</Text><Text style={styles.chev}>›</Text></View>
                 {/* A VALUE THAT IS NOT A MARKET VALUE SAYS SO (DEC-0281, 2026-10-20): what was paid, or the face value — one sentence,
                     from the one value rule, the same the account page prints */}
                 {!!r.valueNote && <Text style={styles.bondSub}>{r.valueNote}</Text>}
@@ -256,8 +259,8 @@ export function BondEditor({ bond, open, onClose, onSave, onDelete }: {
           if (bond) recordTransaction?.({ type: 'SELL', account_id: bond.asset_id, amount: sold, date: isoLocalDate(new Date()), note: 'Bond sale' });
           onSave({ label: label.trim(), tax_bucket: bucket as TaxBucket, institution: institution.trim() || undefined,
             coupon_rate: coupon.trim() === '' ? undefined : num(coupon) / 100,   // DEC-2748b: an empty box is unknown, not 0%
-            maturity_date: maturity.trim(), accrued_interest: accrued.trim() === '' ? undefined : num(accrued),
-            face_value: num(face) * (newVal / cur),
+            maturity_date: maturity.trim() || undefined, accrued_interest: accrued.trim() === '' ? undefined : num(accrued),
+            face_value: face.trim() === '' ? undefined : num(face) * (newVal / cur),   // a face not entered stays not entered
             // what was paid for the part still held, in the same proportion as the face (DEC-0281)
             ...(typedPaid != null ? { amount_paid: typedPaid * (newVal / cur) } : {}),
             ...cdField, ...heldField, ...couponsField, ...(bond ? {} : { balance: newVal }) });
@@ -265,7 +268,14 @@ export function BondEditor({ bond, open, onClose, onSave, onDelete }: {
       ],
     );
   };
-  const valid = label.trim() && num(face) > 0 && num(coupon) >= 0 && /^\d{4}-\d{2}-\d{2}$/.test(maturity.trim());
+  // A BOND SAVES WITH WHAT IS KNOWN (his Build 55 feedback, 2026-11-04: facts "not entered" with no way to enter them). Save asked for
+  // the face, the rate AND the maturity before it would save anything, so a CD with only its face known could not be saved — while
+  // the bond facts already read a missing one as "not entered" (DEC-2748b, DEC-4036b). A name is needed; each fact, when typed, must
+  // be a real figure. To reverse: require num(face) > 0 and the date again.
+  const valid = !!label.trim()
+    && (face.trim() === '' || (Number.isFinite(num(face)) && num(face) > 0))
+    && (coupon.trim() === '' || (Number.isFinite(num(coupon)) && num(coupon) >= 0))
+    && (maturity.trim() === '' || /^\d{4}-\d{2}-\d{2}$/.test(maturity.trim()));
   // #11: the spinner only fires onChange when you SPIN it, so tapping "Done" on the default date saved
   // nothing. Commit the default the instant the picker opens, so the shown date is the chosen date.
   const defaultMaturityISO = fmtISO(new Date(new Date().getFullYear() + 10, 0, 1));
@@ -275,7 +285,7 @@ export function BondEditor({ bond, open, onClose, onSave, onDelete }: {
   };
   const save = () => onSave({
     label: label.trim(), tax_bucket: bucket as TaxBucket, institution: institution.trim() || undefined,
-    face_value: num(face), coupon_rate: coupon.trim() === '' ? undefined : num(coupon) / 100, /* DEC-2748b */ maturity_date: maturity.trim(), accrued_interest: accrued.trim() === '' ? undefined : num(accrued),
+    face_value: face.trim() === '' ? undefined : num(face), coupon_rate: coupon.trim() === '' ? undefined : num(coupon) / 100, /* DEC-2748b */ maturity_date: maturity.trim() || undefined, accrued_interest: accrued.trim() === '' ? undefined : num(accrued),
     // A BLANK MARKET VALUE STAYS BLANK (DEC-0281, 2026-10-20): it was saved as the face value, as if the market said so. The
     // store's one value rule (settleBondValue) now gives the bond what was paid, else its face, marked as that; a typed 0 is $0
     balance: value.trim() === '' ? undefined : num(value),
@@ -290,7 +300,8 @@ export function BondEditor({ bond, open, onClose, onSave, onDelete }: {
       <TouchableOpacity style={styles.scrim} activeOpacity={1} onPress={onClose} />
       <View style={styles.sheet}>
         <View style={styles.grab} />
-        <ScrollView automaticallyAdjustKeyboardInsets keyboardShouldPersistTaps="handled" style={{ maxHeight: '90%' }}>
+        <SheetClose onPress={onClose} />
+        <ScrollView automaticallyAdjustKeyboardInsets keyboardShouldPersistTaps="handled" style={{ flexShrink: 1 }}>
           <Text style={styles.sheetT}>{bond ? 'Edit bond' : 'Add a bond'}</Text>
           <Text style={styles.fieldL}>Name / issuer</Text>
           <TextInput style={styles.input} value={label} onChangeText={setLabel} placeholder="e.g. US Treasury 2030, Apple Corp 4.5%" placeholderTextColor={Colors.textTertiary} />
@@ -408,9 +419,10 @@ const styles = StyleSheet.create({
   bondMetrics: { flexDirection: 'row', flexWrap: 'wrap', gap: 12, marginTop: 8 },
   metric: { fontSize: 13, fontWeight: '700', color: Colors.primary },
   scrim: { position: 'absolute', inset: 0, backgroundColor: 'rgba(0,0,0,0.3)' } as any,
-  sheet: { ...SHEET_FRAME, position: 'absolute', left: 0, right: 0, bottom: 0, padding: 18, paddingBottom: 28 },
+  sheet: { ...SHEET_FRAME, position: 'absolute', left: 0, right: 0, bottom: 0, maxHeight: '90%' /* the sheet's own limit, a share of the screen (2026-11-04): a percentage on the ScrollView inside had no height to be a share of, so a long form ran up under the clock */, padding: 18, paddingBottom: 28 },
   grab: { ...SHEET_HANDLE },
   // the add or edit sheet's title, 20 / 800, as every other (DEC-8931; NW4-06, 2026-11-01, the v02 row of that date; it was 17)
+  chev: { fontSize: 20, color: Colors.textTertiary, marginLeft: 8 },
   sheetT: { fontSize: 20, fontWeight: '800', color: Colors.textPrimary, marginBottom: 4 },
   fieldL: { fontSize: 13, fontWeight: '700', color: Colors.textSecondary, marginTop: 14, marginBottom: 5 },
   fieldHint: { fontSize: 11, color: Colors.textTertiary, lineHeight: 15, marginTop: 4 },

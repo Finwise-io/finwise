@@ -130,7 +130,9 @@ test('E2E-42 importing a crypto row files it under Alternatives (visible + corre
   fireEvent.press(screen.getByLabelText(/Import \d+ holdings?/));
   await waitFor(() => expect((useStore.getState() as any).assetAccounts.length).toBeGreaterThan(0));
   const accts = (useStore.getState() as any).assetAccounts;
-  expect(accts.some((a: any) => a.asset_class === 'alternatives' || ['crypto', 'commodities'].includes(a.kind))).toBe(true);
+  // one file, one account since 2026-11-04 (his Build 55 feedback): BTC is a holding of it, under Alternatives
+  const { holdingClassOf } = require('../domain/assets');
+  expect(holdingClassOf(accts[0].positions.find((p: any) => p.ticker === 'BTC'))).toBe('alternatives');
 });
 
 // ── E2E-43 · a cash account's full ledger day: deposit, withdraw, history in order ──

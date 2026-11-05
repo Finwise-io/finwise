@@ -167,7 +167,7 @@ const ARITH_BASELINE: Record<string, number> = {
   'src/screens/ExpenseScreen.tsx': 1,
   'src/screens/GoalsScreen.tsx': 3,
   'src/screens/HomeScreen.tsx': 1,       // 4 until 2026-10-23: the month's income, debt paid and last month's surplus are theMonth's and pastMonthFlow's now (CF-FIX)
-  'src/screens/ImportHoldingsScreen.tsx': 2,
+  'src/screens/ImportHoldingsScreen.tsx': 1,   // 2 → 1 on 2026-11-04: the import's account is built in the domain (importedAccountOf)
   'src/screens/IncomeDetailScreen.tsx': 1,
   'src/screens/IncomeManagerScreen.tsx': 1,
   'src/screens/InsightsScreen.tsx': 3,

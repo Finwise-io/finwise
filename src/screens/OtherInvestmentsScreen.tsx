@@ -172,7 +172,7 @@ export function AltEditor({ item, open, onClose, onSave, onDelete, presetKind }:
       <TouchableOpacity style={styles.scrim} activeOpacity={1} onPress={onClose} />
       <View style={styles.sheet}>
         <View style={styles.grab} />
-        <ScrollView automaticallyAdjustKeyboardInsets keyboardShouldPersistTaps="handled" style={{ maxHeight: '90%' }}>
+        <ScrollView automaticallyAdjustKeyboardInsets keyboardShouldPersistTaps="handled" style={{ flexShrink: 1 }}>
           <Text style={styles.sheetT}>{item ? 'Edit investment' : 'Add an investment'}</Text>
           <Text style={styles.fieldL}>Type</Text>
           <View style={styles.chips}>{ALT_KINDS_CAPTURE.map((k) => (
@@ -242,7 +242,7 @@ const styles = StyleSheet.create({
   val: { fontSize: 15, fontWeight: '800', color: Colors.textPrimary },
   sub: { fontSize: 11, color: Colors.textSecondary, marginTop: 3 },
   scrim: { position: 'absolute', inset: 0, backgroundColor: 'rgba(0,0,0,0.3)' } as any,
-  sheet: { ...SHEET_FRAME, position: 'absolute', left: 0, right: 0, bottom: 0, padding: 18, paddingBottom: 28 },
+  sheet: { ...SHEET_FRAME, position: 'absolute', left: 0, right: 0, bottom: 0, maxHeight: '90%' /* the sheet's own limit, a share of the screen (2026-11-04): a percentage on the ScrollView inside had no height to be a share of, so a long form ran up under the clock */, padding: 18, paddingBottom: 28 },
   grab: { ...SHEET_HANDLE },
   // the add or edit sheet's title, 20 / 800, as every other (DEC-8931; NW4-06, 2026-11-01, the v02 row of that date; it was 17)
   sheetT: { fontSize: 20, fontWeight: '800', color: Colors.textPrimary, marginBottom: 4 },

@@ -11,12 +11,10 @@ import * as DocumentPicker from 'expo-document-picker';
 import { readFileString } from '../services/fileRead';   // T19: supported read path (legacy readAsStringAsync throws at runtime)
 import { useStore } from '../store/useStore';
 import { SectionBand } from '../components/SectionBand';
-import { importHoldings, decodeCsvBase64, matchImportAccount, type ImportResult } from '../domain/import/holdingsImport';
-import { ASSET_CLASS_LABEL, type AssetClass, type TaxBucket } from '../domain/assets';
-import { newEntityId } from '../domain/_shared/ids';
+import { importHoldings, importedAccountOf, valueOnlyAccountsOf, decodeCsvBase64, matchImportAccount, type ImportResult } from '../domain/import/holdingsImport';
+import { ASSET_CLASS_LABEL, type AssetClass } from '../domain/assets';
 import { money2 } from '../domain/_shared/num';
 import { Colors, Spacing, Radii, Typography } from '../utils/theme';
-import { isoLocalDate } from '../domain/_shared/dates';
 
 // Read a picked CSV robustly (#12). UTF-8 is the common case; a UTF-16 / odd-encoding export either
 // throws or comes back NUL-laden when read as UTF-8 — in that case re-read the RAW BYTES (base64 never
@@ -36,7 +34,6 @@ async function readCsvText(uri: string): Promise<string> {
   return text;
 }
 
-const todayIso = () => isoLocalDate(new Date());
 
 export default function ImportHoldingsScreen() {
   const router = useRouter();
@@ -59,7 +56,7 @@ export default function ImportHoldingsScreen() {
     const holdings = result.holdings.map((h, k) => {
       if (k !== i) return h;
       const next = CLASS_CYCLE[(CLASS_CYCLE.indexOf(h.assetClass as AssetClass) + 1) % CLASS_CYCLE.length];
-      return { ...h, assetClass: next };
+      return { ...h, assetClass: next, classSetBy: 'user' as const };   // the person's answer survives every later read (B7)
     });
     setResult({ ...result, holdings });
   };
@@ -80,6 +77,8 @@ export default function ImportHoldingsScreen() {
         setResult(null);
       } else {
         setResult(parsed);
+        // the name the file gives its account ("Individual Brokerage -2203" → Individual Brokerage), shown and editable (2026-11-04)
+        if (parsed.account?.name) setAccountName(parsed.account.name);
         // Default the account name to the security itself when the file is a single equity, so the Net
         // Rule 1 (founder-approved 2026-08-04): NEVER a ticker as an account name — the generic
         // name stays; the institution + type give it its real identity.
@@ -98,71 +97,23 @@ export default function ImportHoldingsScreen() {
     if (!result || result.holdings.length === 0 || !institution.trim()) return;
     setBusy(true);
     try {
-      const acctName = accountName.trim() || 'Imported holdings';
-      const inst = institution.trim();
-      const provenance = { institution: inst, source: 'imported' as const, last_synced: new Date().toISOString() };
-      // Equities (tradeable tickers) → one brokerage account with tracked positions.
-      const equities = result.holdings.filter((h) => h.assetClass === 'stocks_etf' && h.ticker);
-      // Everything else (CD/money-market/cash, bonds, options/alternatives) → manual-balance accounts,
-      // each tagged with its asset_class so the taxonomy classifies it correctly.
-      const others = result.holdings.filter((h) => !(h.assetClass === 'stocks_etf' && h.ticker));
-      let added = 0;
-
-      if (equities.length) {
-        // SAVED EXACTLY AS THE FILE GIVES THEM (DEC-0403, 2026-09-09): the cost per share, the account's value and each
-        // row's value were rounded to cents here until 2026-10-20 — a $1,500 cost over 7 shares was kept as $214.29 a
-        // share, so the stored cost read $1,500.03. Rounding happens once, on screen.
-        const positions = equities.map((h) => ({
-          position_id: newEntityId('pos'), ticker: h.ticker, label: h.label, kind: 'stocks_etf',
-          // the file's own type for the row, kept as written, so the holding stays in the class the file gave it on every
-          // read (his ruling, 2026-10-20: "always the class broker sends"; MK-NW-F-109 holdingClassOf reads it first)
-          ...(h.brokerType ? { broker_type: h.brokerType } : {}),
-          // A FILE WITH NO PURCHASE DATE KEEPS THE DATE AS NOT ON RECORD (2026-10-21; tenet 3, DEC-3523), stored blank as a
-          // linked broker's missing date is. It was given the day of the import, which read as bought that day: short-term
-          // on the Holding page, and its return since purchase measured from the import.
-          lots: [{ lot_id: newEntityId('lot'), shares: h.shares, cost_per_share: h.costPerShare, purchase_date: h.date ?? '' }],
-        }));
-        const mktValue = equities.reduce((t, h) => t + (h.value || h.shares * h.costPerShare), 0);
-        if (matched && mergeChoice === 'update') {
-          // Merge-not-duplicate (Import v2): refresh the existing account — asset_id is preserved,
-          // so its history, retirement earmark and class settings survive. Never a twin.
-          store.updateAsset(matched.asset_id, {
-            positions, balance: mktValue, derive_balance: true, asset_class: 'stocks_etf', ...provenance,
-          });
-        } else {
-          store.addAsset({
-            // an imported file names no tax type, so none is stated — never Taxable for the person (DEC-4036f, 2026-10-10)
-            label: acctName, kind: 'brokerage', tax_bucket: undefined, asset_class: 'stocks_etf',
-            balance: mktValue, target_return: 0.08, positions, derive_balance: true, ...provenance,
-          });
-        }
-        added += equities.length;
+      // ONE FILE, ONE ACCOUNT (his Build 55 feedback, 2026-11-04): its cash and every holding, each under its own class, named,
+      // numbered and dated as the file states them, checked against the file's own total. Built in the domain
+      // (importedAccountOf), never here. It used to be split into one account per class.
+      const acct = importedAccountOf(result, { institution, name: accountName });
+      const holdsSomething = (acct.positions?.length ?? 0) > 0 || (acct.cash_balance ?? 0) !== 0;
+      if (!holdsSomething) {
+        // a file of value-only rows: nothing for the one account to hold, so no empty account is made
+      } else if (matched && mergeChoice === 'update') {
+        // Merge-not-duplicate (Import v2): refresh the existing account. asset_id is preserved,
+        // so its history, retirement earmark and class settings survive. Never a twin.
+        store.updateAsset(matched.asset_id, acct);
+      } else {
+        store.addAsset(acct);
       }
-
-      // an investment row names no tax type, so it is left unstated (DEC-4036f, 2026-10-10); cash and property are what they are
-      const CLASS_DEFAULTS: Record<AssetClass, { kind: string; tax_bucket: TaxBucket | undefined; ret: number }> = {
-        cash: { kind: 'savings', tax_bucket: 'CASH', ret: 0.02 },
-        bonds: { kind: 'fixed_income', tax_bucket: undefined, ret: 0.042 },
-        alternatives: { kind: 'other_asset', tax_bucket: undefined, ret: 0.05 },
-        stocks_etf: { kind: 'stocks_etf', tax_bucket: undefined, ret: 0.08 },
-        real_estate: { kind: 'home', tax_bucket: 'PROPERTY', ret: 0.04 },
-        personal_property: { kind: 'vehicle', tax_bucket: 'PROPERTY', ret: -0.05 },
-        mixed: { kind: 'brokerage', tax_bucket: undefined, ret: 0.06 },   // importer never emits 'mixed' (it classifies), but the map must be total
-      };
-      for (const h of others) {
-        const def = CLASS_DEFAULTS[h.assetClass];
-        // NW-11: keep traded options as 'options' (not the generic 'Other') so they read correctly on Alternatives.
-        const kind = h.assetClass === 'alternatives' && /\b(put|call)s?\b/i.test(`${h.symbol} ${h.label}`) ? 'options' : def.kind;
-        store.addAsset({
-          label: h.label || h.symbol, kind, tax_bucket: def.tax_bucket,
-          asset_class: h.assetClass, balance: h.value || 0, target_return: def.ret,
-          value_as_of: todayIso(), ...provenance,
-        });
-        added += 1;
-      }
-
+      valueOnlyAccountsOf(result, { institution }).forEach((a) => store.addAsset(a));
       store.refreshPrices?.();   // best-effort: pull live prices so equity market values populate
-      Alert.alert('Holdings imported 🎉', `Added ${plural(added, 'holding')} — sorted into cash, investments and more.`, [
+      Alert.alert('Holdings imported 🎉', `Added ${plural(result.holdings.length, 'holding')} to ${acct.label}.`, [
         { text: 'Done', onPress: () => router.back() },
       ]);
     } catch {
@@ -295,7 +246,8 @@ const styles = StyleSheet.create({
   content: { padding: Spacing.lg },
   emoji: { fontSize: 38, textAlign: 'center', marginTop: 8 },
   h1: { fontSize: 20, fontWeight: '800', color: Colors.textPrimary, marginTop: 8, textAlign: 'center' },
-  sub: { fontSize: 15, color: Colors.textSecondary, lineHeight: 20, textAlign: 'center', marginTop: 6, marginBottom: Spacing.lg },
+  // left-aligned: his Build 55 feedback, 2026-11-04, the Upload a CSV text 'should be left justified'
+  sub: { fontSize: 15, color: Colors.textSecondary, lineHeight: 20, textAlign: 'left', marginTop: 6, marginBottom: Spacing.lg },
   bold: { fontWeight: '800', color: Colors.textPrimary },
   card: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.base, marginBottom: Spacing.base },
   cardTitle: { fontSize: 13, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.4, marginBottom: 8 },

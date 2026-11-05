@@ -17,7 +17,7 @@ beforeEach(() => {
   useStore.setState({ assetAccounts: [] } as any);
 });
 
-test('DEC-2159 / his 2026-10-20 words: a bond ETF the file types as an ETF is saved with that type and read as Stocks / Funds; a fund the file types as cash is a Cash account', async () => {
+test('DEC-2159 / his 2026-10-20 words: a bond ETF the file types as an ETF is saved with that type and read as Stocks / Funds; a fund the file types as cash is Cash', async () => {
   (DocumentPicker.getDocumentAsync as jest.Mock).mockResolvedValue({ canceled: false, assets: [{ uri: 'file://schwab.csv' }] });
   (FileSystem.readAsStringAsync as jest.Mock).mockResolvedValue('Symbol,Description,Quantity,Cost Basis,Market Value,Security Type\n'
     + 'VTI,VANGUARD TOTAL STOCK MARKET ETF,10,2000,2500,ETFs & Closed End Funds\n'
@@ -30,13 +30,14 @@ test('DEC-2159 / his 2026-10-20 words: a bond ETF the file types as an ETF is sa
   fireEvent.changeText(getByLabelText('Which institution is this file from'), 'Schwab');
   fireEvent.press(getByLabelText(/Import \d+ holdings?/));
 
-  await waitFor(() => expect(useStore.getState().assetAccounts.length).toBe(2));
-  const accounts: any[] = useStore.getState().assetAccounts as any[];
-  const brokerage = accounts.find((a) => (a.positions ?? []).length);
+  // one file, one account since 2026-11-04 (his Build 55 feedback): the money fund is a holding of the account, in Cash
+  await waitFor(() => expect(useStore.getState().assetAccounts.length).toBe(1));
+  const brokerage: any = useStore.getState().assetAccounts[0];
   const bnd = brokerage.positions.find((p: any) => p.ticker === 'BND');
   expect(bnd.broker_type).toBe('ETFs & Closed End Funds');           // kept exactly as the file wrote it
   expect(holdingClassOf(bnd)).toBe('stocks_etf');                    // was Bonds & CDs by its name
   expect(accountClassBreakdown(brokerage)?.bonds ?? 0).toBe(0);
-  const mmf = accounts.find((a) => a !== brokerage);
-  expect([mmf.label, mmf.asset_class, mmf.balance]).toEqual(['SCHWAB VALUE ADVANTAGE MONEY FUND', 'cash', 5000]);   // was Stocks / Funds by its name
+  const mmf = brokerage.positions.find((p: any) => p.ticker === 'SWVXX');
+  expect([mmf.broker_type, holdingClassOf(mmf)]).toEqual(['Cash and Money Market', 'cash']);   // was Stocks / Funds by its name
+  expect(accountClassBreakdown(brokerage)?.cash).toBe(5000);
 });

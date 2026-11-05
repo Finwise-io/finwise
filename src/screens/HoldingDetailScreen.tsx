@@ -135,7 +135,7 @@ export default function HoldingDetailScreen() {
   // price means what you paid and no gain at all, and a dividend record belongs to this holding only
   // when it names this ticker — live in the door rather than in the screen.
   const answer = theHolding({
-    position, accountId: String(account.asset_id), account, price: row.price ?? null,
+    position, accountId: String(account.asset_id), account, price: row.price ?? null,   // no daily price → the door reads its own price on record (2026-11-04)
     transactions: (store.transactions ?? []) as any[],
   });
   const shares = answer.shares;

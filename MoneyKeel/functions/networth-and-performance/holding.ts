@@ -10,7 +10,7 @@
 //     to no holding, and a row in another account belongs to that account's holding (2026-10-20).
 import { declareFigures, percentDigits } from '../_figure-spec';
 import {
-  totalShares, capGains, marketValue, contractMultiplier, lotCostOnRecord, paidOnRecord, unrealizedGain, totalROI,
+  totalShares, capGains, marketValue, contractMultiplier, lotCostOnRecord, paidOnRecord, priceOnRecord, unrealizedGain, totalROI,
   quantityWithUnit, quantityUnit, buildPerformance, SECTION_1256_LONG_TERM_PERCENT, type Position, type CapGains, type PriceSeries,
   type Period, type PerformanceRow,
 } from '../../../src/domain/performance';
@@ -150,11 +150,15 @@ export function theHolding(input: {
   // price paid: 0.5 coins at $56,000 and 0.25 with none read no figure beside Total paid $28,000; one purchase stored at
   // $0 read $0 beside Total paid saying no price paid was on record.
   const paid = paidOnRecord(p).paid;
-  const priced = input.price != null;
+  // NO DAILY PRICE → THE HOLDING'S OWN PRICE ON RECORD (2026-11-04, MK-PF-F-082 priceOnRecord): a CD or an option read from a file,
+  // or a linked bond, has no daily price but carries its own mark. The Holding page showed what was paid ($110,000 for his CD) while
+  // the account page and Net worth showed $109,992.74 from that mark — two answers for one holding. To reverse: price = input.price.
+  const price = input.price ?? priceOnRecord(p);
+  const priced = price != null;
   const treatment = input.account ? taxTreatmentOf(input.account) : 'not_stated';
   // r30: NO PRICE, NO INVENTED VALUE. The holding shows what was paid, and every figure that needs a
   // price refuses — a holding priced at zero would quietly shrink the whole portfolio.
-  const value = priced ? marketValue(p, input.price as number) : paid;
+  const value = priced ? marketValue(p, price as number) : paid;
 
   // THIS ACCOUNT'S RECORDS ONLY (2026-10-20). A holding is one ticker IN ONE ACCOUNT, and its sales are
   // already counted that way (realizedFromLedger, accountId below). The dividends matched the ticker across
@@ -193,11 +197,11 @@ export function theHolding(input: {
     })(),
     avgLeavesOut: shares == null ? null
       : ((p as any).lots ?? []).filter((l: any) => l.shares > 0 && !lotCostOnRecord(l)).reduce((t: number, l: any) => t + l.shares, 0),
-    price: input.price ?? null,
+    price: price ?? null,
     value,
     priced,
     // the gain and the return on what was paid count the same purchases as Total paid (unrealizedGain, totalROI — one reading)
-    gain: priced ? unrealizedGain(p, input.price as number) : null,
+    gain: priced ? unrealizedGain(p, price as number) : null,
     purchases: ((p as any).lots ?? []).map((l: any) => ({
       lotId: String(l.lot_id ?? ''),
       date: String(l.purchase_date ?? ''),
@@ -224,8 +228,8 @@ export function theHolding(input: {
       // a previous close of zero cannot be divided by, and a share of nothing is not a move
       return prev > 0 ? { amount: last - prev, share: (last - prev) / prev } : null;
     })(),
-    returnOnCost: priced ? totalROI(p, input.price as number) : null,
-    capitalGains: priced ? capGains(p, input.price as number, now) : null,
+    returnOnCost: priced ? totalROI(p, price as number) : null,
+    capitalGains: priced ? capGains(p, price as number, now) : null,
     notCapitalGains: treatment === 'tax_deferred' || treatment === 'tax_free',
     dividends: {
       trailing12: sum(divRows.filter((t) => String(t.date) >= aYearAgo)),

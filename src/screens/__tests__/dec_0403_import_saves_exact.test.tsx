@@ -24,12 +24,11 @@ test('DEC-0403 — an imported cost per share and an imported value are saved ex
   fireEvent.changeText(getByLabelText('Which institution is this file from'), 'Fidelity');
   fireEvent.press(getByLabelText(/Import \d+ holdings?/));
 
-  await waitFor(() => expect(useStore.getState().assetAccounts.length).toBe(2));
-  const accounts: any[] = useStore.getState().assetAccounts;
-  const brokerage = accounts.find((a) => (a.positions ?? []).length > 0);
-  const cash = accounts.find((a) => a.asset_class === 'cash');
+  // one file, one account since 2026-11-04 (his Build 55 feedback): the cash line is the account's own cash
+  await waitFor(() => expect(useStore.getState().assetAccounts.length).toBe(1));
+  const brokerage: any = useStore.getState().assetAccounts[0];
   expect(brokerage.positions[0].lots[0].cost_per_share).toBe(1500 / 7);   // 214.2857142857…, was 214.29
-  expect(cash.balance).toBe(250.125);                                     // was 250.13
+  expect(brokerage.cash_balance).toBe(250.125);                           // was 250.13
 });
 
 // A goal is now held at full precision, so the goal editor must show it to the cent — it printed String(saved), which a

@@ -7,6 +7,9 @@
 
 import { type AssetClass } from '../assets';
 import { purchaseDateOnRecord } from '../performance';
+import { newEntityId } from '../_shared/ids';
+import { isoLocalDate } from '../_shared/dates';   // the person's own day, never the UTC one (it read tomorrow after 4 PM Pacific)
+import { reconcileAccountTotal } from '../../../Calculation Module code/engines/reconcile';
 import { classifyHoldingClass } from '../../../Calculation Module code/engines/holding-class';
 
 export interface ImportedHolding {
@@ -22,6 +25,17 @@ export interface ImportedHolding {
    *  keeps it on the saved holding so every reader asks the same order. Absent = the file names no type. */
   brokerType?: string;
   assetClass: AssetClass;  // the one order: the file's own type first, else the symbol and name (MK-ST-F-011)
+  // WHAT THE FILE SAYS ONE UNIT IS WORTH (2026-11-04, his Build 55 file): the row's value ÷ (quantity × the shares per unit),
+  // so quantity × this mark gives back exactly the value the file states. Absent = the file states no value for the row.
+  lastPrice?: number;
+  // A BOND OR CD'S OWN FACTS, AS ITS LINE STATES THEM (2026-11-04): "KEY BANK CD … 3.85% 08/24/2026" carries its rate and its
+  // maturity in its name; the face is the quantity where the row's own value shows it is priced per $100 of face. Never guessed.
+  faceValue?: number;
+  couponRate?: number;     // 0.0385 = 3.85% a year
+  maturityDate?: string;   // YYYY-MM-DD
+  priceQuote?: 'per_100_of_face' | 'unclear';
+  multiplier?: number;     // an option: 100 shares a contract (his rule Q06, 2026-08-26)
+  classSetBy?: 'user';     // the person changed the class on the review screen: saved as their answer (B7, DEC-2161)
 }
 
 export interface ImportResult {
@@ -29,6 +43,11 @@ export interface ImportResult {
   total: number;           // data rows seen (excludes the header)
   skipped: number;         // rows dropped (summary rows / no value)
   mapped: { ticker?: string; shares?: string; cost?: string; date?: string; name?: string; value?: string };
+  // THE ACCOUNT THE FILE IS ABOUT, when it names one (2026-11-04): E*TRADE's "Account Summary" row gives
+  // "Individual Brokerage -2203" and its Net Account Value. Absent = the file names no account.
+  account?: { name: string; number?: string; statedTotal?: number };
+  // THE DAY THE FILE'S FIGURES ARE FROM, when it states one ("Generated at Jun 21 2026 03:37 PM ET"). Absent = none stated.
+  asOf?: string;
 }
 
 // ── Robust file decoding (#12) ────────────────────────────────────────────────
@@ -387,6 +406,46 @@ export function assetClassForSymbol(symbol: string, name = '', brokerType?: stri
  * Formula also on the master file · functions_from_code · MK-XS-F-129
  * Changed ..... not in git yet (—)
  */
+const MONTHS: Record<string, string> = { jan: '01', feb: '02', mar: '03', apr: '04', may: '05', jun: '06', jul: '07', aug: '08', sep: '09', oct: '10', nov: '11', dec: '12' };
+/** The day a file says its figures are from: a cell that starts "Generated at", "As of" or "Data as of", followed by
+ *  "Jun 21 2026" / "June 21, 2026" or 06/21/2026. Null when no cell says so — never the day of the import. */
+function fileDateOf(rows: string[][]): string | undefined {
+  for (const r of rows) for (const c of r) {
+    const t = (c ?? '').trim();
+    const head = t.match(/^(?:generated(?: at| on)?|(?:data )?as of|downloaded(?: on)?)\s*:?\s*(.+)$/i);
+    if (!head) continue;
+    const m = head[1].match(/^([A-Za-z]{3})[a-z]*\.?\s+(\d{1,2}),?\s+(\d{4})/);
+    if (m && MONTHS[m[1].toLowerCase()]) {
+      const iso = purchaseDateOnRecord(`${m[3]}-${MONTHS[m[1].toLowerCase()]}-${m[2].padStart(2, '0')}`);
+      if (iso) return iso;
+    }
+    const d = toIsoDate((head[1].match(/^(\d{1,2}\/\d{1,2}\/\d{4})/) ?? [])[1] ?? '');
+    if (d) return d;
+  }
+  return undefined;
+}
+
+/** The account a file is about: the row under a header that has an "Account" column beside an account value column
+ *  ("Net Account Value", "Account Value", "Total Value"). "Individual Brokerage -2203" → name and number. */
+function fileAccountOf(rows: string[][], before: number): ImportResult['account'] {
+  for (let i = 0; i < before; i++) {
+    const h = rows[i].map((c) => (c ?? '').trim());
+    const nameAt = h.findIndex((c) => /^account( name)?$/i.test(c));
+    const totalAt = h.findIndex((c) => /^(net account value|account value|total (account )?value)\b/i.test(c));
+    if (nameAt < 0) continue;
+    const row = rows.slice(i + 1, before).find((r) => (r[nameAt] ?? '').trim());
+    if (!row) return undefined;
+    const raw = row[nameAt].trim();
+    const num = raw.match(/^(.*?)\s*[-–#xX*•]+\s*(\d{3,})$/);
+    const total = totalAt >= 0 ? numOrNaN(row[totalAt]) : NaN;
+    return { name: (num ? num[1] : raw).trim(), ...(num ? { number: num[2] } : {}), ...(Number.isFinite(total) ? { statedTotal: total } : {}) };
+  }
+  return undefined;
+}
+
+const OPTION_WORDS = /\b(put|call)s?\b/i;
+const sameCents = (a: number, b: number) => Math.abs(a - b) < 0.005;
+
 function findHeaderRow(rows: string[][]): number {
   for (let i = 0; i < rows.length; i++) {
     const h = rows[i].map((c) => c.trim());
@@ -444,6 +503,7 @@ export function importHoldings(text: string): ImportResult {
   const perShareCol = findCol(headers, [/cost.*(per|\/).*sh|cost\/sh|average cost|avg\.? cost|price paid|purchase price|unit cost/i]);
   const totalCostCol = findCol(headers, [/cost basis|total cost|cost amount|book cost/i]);
   const valueCol = findCol(headers, [/^value\s*\$?$/i, /market value|current value|^value/i]);
+  const lastPriceCol = findCol(headers, [/^last price/i, /last price|current price|^price\s*\$?$/i]);
   const dateCol = findCol(headers, [/purchase date|acquired|acquisition|trade date|date/i]);
   // THE FILE'S OWN TYPE COLUMN, when it has one (Schwab: "Security Type"; others: "Asset Class", "Investment Type") —
   // the broker's class for each row (his ruling, 2026-10-20). A bare "Type" is NOT read: Fidelity's means the account
@@ -473,6 +533,24 @@ export function importHoldings(text: string): ImportResult {
     const brokerType = typeCol >= 0 ? (r[typeCol] ?? '').trim() : '';
     const assetClass: AssetClass = isCashLine ? 'cash' : assetClassForSymbol(symbol, name, brokerType || null);
     const ticker = assetClass === 'stocks_etf' ? cleanTicker(symbol) : null;   // only equities track by ticker
+    // an option is a contract of 100 shares (Q06); a bond or CD whose value is quantity × price ÷ 100 is priced per $100 of
+    // face, so its quantity is its face; one whose value is quantity × price is priced as a share is
+    const qty = shares > 0 ? shares : 0;
+    const multiplier = assetClass === 'alternatives' && OPTION_WORDS.test(`${symbol} ${name}`) ? 100 : undefined;
+    const px = lastPriceCol >= 0 ? numOrNaN(r[lastPriceCol]) : NaN;
+    const bond = assetClass === 'bonds' && !isCashLine;
+    // THE PRICE AS WRITTEN, TO THE CENTS IT SHOWS (2026-11-04, his file re-saved from a spreadsheet: 99.9934 became $99.99): a price
+    // rounded to the cent can be off by half a cent a unit, so quantity × price is compared with the value within quantity × $0.005
+    // (÷ 100 when priced per $100 of face). Whichever reading the value fits is the one; one that fits neither is unclear.
+    const fits = (worth: number, slack: number) => Number.isFinite(px) && Number.isFinite(value) && (sameCents(worth, value) || Math.abs(worth - value) <= slack);
+    const quote: ImportedHolding['priceQuote'] | 'per_unit' | undefined = !bond || !(qty > 0) ? undefined
+      : fits(qty * px / 100, qty * 0.005 / 100) ? 'per_100_of_face'
+      : fits(qty * px, qty * 0.005) ? 'per_unit' : 'unclear';
+    const perUnit = (multiplier ?? 1) * (quote === 'per_100_of_face' ? 1 / 100 : 1);
+    const lastPrice = !isCashLine && qty > 0 && Number.isFinite(value) && value >= 0 ? value / (qty * perUnit)
+      : !isCashLine && Number.isFinite(px) && px >= 0 ? px : undefined;
+    const rate = bond ? `${symbol} ${name}`.match(/(\d{1,2}(?:\.\d{1,4})?)\s*%/) : null;
+    const maturity = bond ? toIsoDate((`${symbol} ${name}`.match(/(\d{1,2}\/\d{1,2}\/\d{4})(?!.*\d{1,2}\/\d{1,2}\/\d{4})/) ?? [])[1] ?? '') : undefined;
     holdings.push({
       symbol,
       ticker: ticker ?? '',
@@ -483,8 +561,15 @@ export function importHoldings(text: string): ImportResult {
       label: name || undefined,
       ...(brokerType ? { brokerType } : {}),
       assetClass,
+      ...(lastPrice != null ? { lastPrice } : {}),
+      ...(quote === 'per_100_of_face' ? { faceValue: qty, priceQuote: quote } : quote === 'unclear' ? { priceQuote: quote } : {}),
+      ...(rate ? { couponRate: Number(rate[1]) / 100 } : {}),
+      ...(maturity ? { maturityDate: maturity } : {}),
+      ...(multiplier ? { multiplier } : {}),
     });
   }
+  const account = fileAccountOf(rows, hIdx);
+  const asOf = fileDateOf(rows);
 
   return {
     holdings,
@@ -498,6 +583,8 @@ export function importHoldings(text: string): ImportResult {
       date: dateCol >= 0 ? headers[dateCol] : undefined,
       name: nameCol >= 0 ? headers[nameCol] : undefined,
     },
+    ...(account ? { account } : {}),
+    ...(asOf ? { asOf } : {}),
   };
 }
 
@@ -561,4 +648,81 @@ export function matchImportAccount(accounts: AssetAccount[], institution: string
   // prefer the position-tracked (previously imported/connected) account, then the largest
   return candidates.sort((a, b) =>
     Number(!!b.positions?.length) - Number(!!a.positions?.length) || (b.balance || 0) - (a.balance || 0))[0];
+}
+
+/** ONE FILE, ONE ACCOUNT (his Build 55 feedback, 2026-11-04: "The file imported is not imported accurately."). An imported
+ *  file is one account: its cash plus its holdings, each holding under its own class — the account page he approved
+ *  (DEC-6457) and DEC-7589. It used to be split into one account per class (a brokerage, a savings account, a bond and an
+ *  option), which dropped the CD's face, rate and maturity and what the put cost. The account takes the file's name and
+ *  number, is valued as of the file's own date, and its cash plus holdings is checked against the file's own total: a
+ *  difference is kept on the account, named, as a linked account's is (E11). A name typed on the review screen wins.
+ *  To reverse: give confirmImport its per-class loop back (git history, 2026-11-04). */
+export function importedAccountOf(
+  r: ImportResult,
+  opts: { institution: string; name: string; nowIso?: string },
+): Omit<AssetAccount, 'asset_id'> {
+  const nowIso = opts.nowIso ?? new Date().toISOString();
+  const cashRows = r.holdings.filter((h) => h.assetClass === 'cash' && !(h.shares > 0));
+  const held = r.holdings.filter((h) => !cashRows.includes(h) && h.shares > 0);
+  // a row with a value and no quantity cannot be a holding; it is saved on its own (valueOnlyAccountsOf) and still counts
+  // toward the file's total below
+  const elsewhere = valueOnlyRows(r).reduce((t, h) => t + (h.value || 0), 0);
+  const cash = cashRows.reduce((t, h) => t + (h.value || 0), 0);
+  const positions = held.map((h) => {
+    const cls = h.assetClass;
+    const isOption = h.multiplier != null;
+    return {
+      position_id: newEntityId('pos'),
+      ticker: h.ticker || h.symbol.trim().toUpperCase(),
+      label: h.label ?? (h.ticker ? undefined : h.symbol),
+      // the kinds a linked account's holdings get (ingestSync), so a file and a link read one way; an option keeps 'options'
+      kind: isOption ? 'options' : cls === 'bonds' ? 'fixed_income' : cls === 'alternatives' ? 'crypto' : cls === 'cash' ? 'money_market' : 'stocks_etf',
+      asset_class: cls === 'bonds' ? 'bond' as const : cls === 'alternatives' ? 'other' as const : cls === 'cash' ? 'cash' as const : 'stock_etf' as const,
+      ...(h.classSetBy === 'user' ? { class_source: 'user' as const } : {}),
+      ...(h.brokerType ? { broker_type: h.brokerType } : {}),
+      ...(isOption ? { multiplier: h.multiplier } : {}),
+      ...(h.lastPrice != null ? { last_price: h.lastPrice } : {}),
+      ...(h.faceValue != null ? { face_value: h.faceValue } : {}),
+      ...(h.couponRate != null ? { coupon_rate: h.couponRate } : {}),
+      ...(h.maturityDate ? { maturity_date: h.maturityDate } : {}),
+      ...(h.priceQuote ? { price_quote: h.priceQuote } : {}),
+      // SAVED EXACTLY AS THE FILE GIVES THEM (DEC-0403); a file with no purchase date keeps it as not on record (DEC-6691)
+      lots: [{ lot_id: newEntityId('lot'), shares: h.shares, cost_per_share: h.costPerShare, purchase_date: h.date ?? '' }],
+    };
+  });
+  const values = held.map((h) => h.value || 0);
+  const stated = r.account?.statedTotal;
+  const check = stated != null && stated > 0 ? reconcileAccountTotal([...values, elsewhere], cash, stated) : null;
+  const typed = opts.name.trim();
+  return {
+    label: typed || r.account?.name || 'Imported holdings',
+    ...(r.account?.number && /^\d{4,}$/.test(r.account.number) ? { mask: `••${r.account.number.slice(-4)}` } : {}),
+    // an imported file names no tax type, so none is stated — never Taxable for the person (DEC-4036f)
+    kind: 'brokerage', tax_bucket: undefined, target_return: 0.08,
+    institution: opts.institution.trim(), source: 'imported', last_synced: nowIso,
+    value_as_of: r.asOf ?? isoLocalDate(new Date(nowIso)),
+    derive_balance: true, cash_balance: cash, positions: positions as any,
+    // held exact (DEC-0403): the cash plus what the file says each holding is worth; prices refresh it later
+    balance: cash + values.reduce((t, v) => t + v, 0),
+    ...(check && !check.ok ? { recon_break: { difference: check.difference.toString(), at: (r.asOf ?? isoLocalDate(new Date(nowIso))) } } : {}),
+  } as unknown as Omit<AssetAccount, 'asset_id'>;   // tax_bucket left unstated on purpose (DEC-4036f)
+}
+
+const valueOnlyRows = (r: ImportResult) => r.holdings.filter((h) => h.assetClass !== 'cash' && !(h.shares > 0) && h.value > 0);
+
+/** A ROW WITH A VALUE AND NO QUANTITY (a bond or other investment a file lists by value only) cannot be a holding — a holding
+ *  is a quantity at a price — so it is saved as its own account under its class, holding that value, as every imported row
+ *  was before 2026-11-04. None in his file. */
+export function valueOnlyAccountsOf(
+  r: ImportResult,
+  opts: { institution: string; nowIso?: string },
+): Omit<AssetAccount, 'asset_id'>[] {
+  const nowIso = opts.nowIso ?? new Date().toISOString();
+  return valueOnlyRows(r).map((h) => ({
+    label: h.label || h.symbol,
+    kind: h.assetClass === 'bonds' ? 'fixed_income' : h.assetClass === 'alternatives' ? 'other_asset' : h.assetClass === 'real_estate' ? 'home' : 'brokerage',
+    tax_bucket: h.assetClass === 'real_estate' || h.assetClass === 'personal_property' ? 'PROPERTY' : undefined,
+    asset_class: h.assetClass, balance: h.value, target_return: h.assetClass === 'bonds' ? 0.042 : 0.05,
+    institution: opts.institution.trim(), source: 'imported', last_synced: nowIso, value_as_of: r.asOf ?? isoLocalDate(new Date(nowIso)),
+  }) as unknown as Omit<AssetAccount, 'asset_id'>);
 }

@@ -367,7 +367,7 @@ function GoalEditor({ goal, open, onClose, onSave, onDelete }: {
       <TouchableOpacity style={styles.scrim} activeOpacity={1} onPress={onClose} />
       <View style={styles.sheet}>
         <View style={styles.grab} />
-        <ScrollView automaticallyAdjustKeyboardInsets keyboardShouldPersistTaps="handled" style={{ maxHeight: '90%' }}>
+        <ScrollView automaticallyAdjustKeyboardInsets keyboardShouldPersistTaps="handled" style={{ flexShrink: 1 }}>
           <Text style={styles.sheetT}>{goal ? 'Edit goal' : 'New goal'}</Text>
           <View style={styles.iconWrap}>{GOAL_ICONS.map((ic) => (
             <TouchableOpacity key={ic} style={[styles.iconChip, icon === ic && styles.iconChipOn]} onPress={() => setIcon(ic)}><Text style={{ fontSize: 20 }}>{ic}</Text></TouchableOpacity>
@@ -457,7 +457,7 @@ const styles = StyleSheet.create({
   orderMo: { fontSize: 11, color: Colors.textTertiary },
 
   scrim: { position: 'absolute', inset: 0, backgroundColor: 'rgba(0,0,0,0.3)' } as any,
-  sheet: { ...SHEET_FRAME, position: 'absolute', left: 0, right: 0, bottom: 0, padding: 18, paddingBottom: 28 },
+  sheet: { ...SHEET_FRAME, position: 'absolute', left: 0, right: 0, bottom: 0, maxHeight: '90%' /* the sheet's own limit, a share of the screen (2026-11-04): a percentage on the ScrollView inside had no height to be a share of, so a long form ran up under the clock */, padding: 18, paddingBottom: 28 },
   grab: { ...SHEET_HANDLE },
   sheetT: { fontSize: 17, fontWeight: '800', color: Colors.textPrimary, marginBottom: 8 },
   iconWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 4 },

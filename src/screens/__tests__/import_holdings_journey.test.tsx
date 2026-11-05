@@ -7,7 +7,7 @@ import { render, fireEvent, waitFor } from '@testing-library/react-native';
 import * as DocumentPicker from 'expo-document-picker';
 import * as FileSystem from 'expo-file-system';
 import { useStore } from '../../store/useStore';
-import { assetClassOf } from '../../domain/assets';
+import { assetClassOf, holdingClassOf, accountClassBreakdown } from '../../domain/assets';
 import ImportHoldingsScreen from '../ImportHoldingsScreen';
 
 beforeEach(() => {
@@ -81,19 +81,17 @@ test('import a REAL E*TRADE export → accounts sorted by asset class through th
   fireEvent.changeText(getByLabelText('Which institution is this file from'), 'Fidelity');
   fireEvent.press(getByLabelText(/Import \d+ holdings?/));
 
-  await waitFor(() => expect(useStore.getState().assetAccounts.length).toBe(4));
-  const accts = useStore.getState().assetAccounts as any[];
-  const cls = (c: string) => accts.filter((a) => assetClassOf(a) === c);
-
-  // FOUNDER RULE 2026-08-04: one equity brokerage (LCTX + the VMFXX money-market fund — measured)
-  // + 1 bonds (the CD) + 1 cash (the CASH line only) + 1 alternatives (the option)
-  expect(cls('stocks_etf').length).toBe(1);
-  expect(cls('stocks_etf')[0].positions.map((p: any) => p.ticker).sort()).toEqual(['LCTX', 'VMFXX']);
-  expect(cls('bonds').length).toBe(1);
-  expect(cls('cash').length).toBe(1);
-  expect(cls('alternatives').length).toBe(1);
-  // the option is NOT a fake stock position
-  expect(cls('alternatives')[0].positions ?? []).toHaveLength(0);
+  // ONE FILE, ONE ACCOUNT (his Build 55 feedback, 2026-11-04 — this file, "not imported accurately"; DEC-6457, DEC-7589):
+  // it was split into four accounts, one per class. Each holding now sits in the one account under its own class.
+  await waitFor(() => expect(useStore.getState().assetAccounts.length).toBe(1));
+  const acct = useStore.getState().assetAccounts[0] as any;
+  expect([acct.label, acct.mask, acct.cash_balance]).toEqual(['Individual Brokerage', '••2203', 7096.82]);
+  const classOf = (re: RegExp) => holdingClassOf(acct.positions.find((p: any) => re.test(p.ticker)));
+  // FOUNDER RULE 2026-08-04 still decides each class: VMFXX Stocks / Funds, the CD Bonds & CDs, the put Alternatives
+  expect([classOf(/^LCTX$/), classOf(/^VMFXX$/), classOf(/^KEY BANK/), classOf(/PUT$/)]).toEqual(['stocks_etf', 'stocks_etf', 'bonds', 'alternatives']);
+  const b = accountClassBreakdown(acct)!;
+  expect([b.cash, b.bonds, b.alternatives]).toEqual([7096.82, 109992.74, 1407.5]);
+  expect(b.stocks_etf).toBeCloseTo(51167.65, 6);
 });
 
 test('Import v2: re-importing the same institution UPDATES the existing account — never a twin', async () => {
@@ -156,5 +154,6 @@ test('Import v2: a misclassified row is correctable before saving (tap cycles th
 
   await waitFor(() => expect(useStore.getState().assetAccounts.length).toBe(1));
   const acct: any = useStore.getState().assetAccounts[0];
-  expect(acct.asset_class).toBe('bonds');   // the user's correction is what gets saved
+  // the user's correction is what gets saved — on the holding, as their own answer (one account per file since 2026-11-04)
+  expect([acct.positions[0].class_source, holdingClassOf(acct.positions[0])]).toEqual(['user', 'bonds']);
 });

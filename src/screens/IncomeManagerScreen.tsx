@@ -615,6 +615,6 @@ const s = StyleSheet.create({
   cta: { backgroundColor: Colors.primary, borderRadius: Radii.md, minHeight: 52, justifyContent: 'center', alignItems: 'center', marginTop: 24 },
   ctaT: { fontSize: 17, fontWeight: '800', color: Colors.white },
   scrim: { position: 'absolute', inset: 0, backgroundColor: 'rgba(0,0,0,0.3)' } as any,
-  sheet: { ...SHEET_FRAME, position: 'absolute', left: 0, right: 0, bottom: 0, padding: 18, paddingBottom: 28 },
+  sheet: { ...SHEET_FRAME, position: 'absolute', left: 0, right: 0, bottom: 0, maxHeight: '90%' /* the sheet's own limit, a share of the screen (2026-11-04): a percentage on the ScrollView inside had no height to be a share of, so a long form ran up under the clock */, padding: 18, paddingBottom: 28 },
   sheetWrap: { flex: 1, backgroundColor: Colors.bgSecondary, paddingTop: 48 },
 });

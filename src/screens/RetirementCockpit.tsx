@@ -1369,7 +1369,7 @@ const styles = StyleSheet.create({
 
 
   scrim: { position: 'absolute', inset: 0, backgroundColor: 'rgba(0,0,0,0.3)' } as any,
-  sheet: { ...SHEET_FRAME, position: 'absolute', left: 0, right: 0, bottom: 0, padding: 18, paddingBottom: 28 },
+  sheet: { ...SHEET_FRAME, position: 'absolute', left: 0, right: 0, bottom: 0, maxHeight: '90%' /* the sheet's own limit, a share of the screen (2026-11-04): a percentage on the ScrollView inside had no height to be a share of, so a long form ran up under the clock */, padding: 18, paddingBottom: 28 },
   kav: { position: 'absolute', left: 0, right: 0, bottom: 0, justifyContent: 'flex-end' } as any,   // #20: keyboard-aware bottom anchor
   grab: { ...SHEET_HANDLE },
   sheetT: { fontSize: 17, fontWeight: '800', color: Colors.textPrimary },

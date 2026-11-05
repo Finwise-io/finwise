@@ -28,6 +28,8 @@ import { DataGapsBanner } from '../components/DataGapsBanner';   // the app's on
 import { SourceChip } from '../components/SourceChip';   // the one source chip: "🔗 Linked", its age only when stale
 import { theBonds, holdingBondFacts, MATURITY_NOT_ENTERED } from '../../MoneyKeel/functions/networth-and-performance/bonds';
 import { theAccount, isWholeAccountPart, incomeSumParts, classValueOf, restOfAccountBeside, listedShares } from '../../MoneyKeel/functions/networth-and-performance/account';   // the page works nothing out (DEC-0346, 2026-10-22)
+import { BondEditor } from './BondsScreen';   // this bond's own editor, opened on this page (his Build 55 feedback, 2026-11-04)
+import { AltEditor } from './OtherInvestmentsScreen';
 import { TransactionSheet } from './PerformanceScreen';   // the ONE trade sheet, the one the Holding page opens (gap 7, 2026-10-21)
 import { accountAllowsTicker } from '../domain/assets';   // DEC-2484g: which accounts can take a recorded buy or sale
 import { theHolding, holdingRowsIn, SHARE_COUNT_NOT_STATED } from '../../MoneyKeel/functions/networth-and-performance/holding';   // each holding's value, by its own door; its window row, the one way
@@ -114,6 +116,9 @@ export default function AccountPortfolioScreen() {
   const arrivedAtActivity = useRef(false);
   const goToActivity = () => { setShowAll(true); if (activityY.current != null) scrollRef.current?.scrollTo({ y: activityY.current, animated: true }); };
   const [valueSheet, setValueSheet] = useState(false);
+  // THIS ACCOUNT'S OWN EDITOR, ON THIS PAGE (his Build 55 feedback, 2026-11-04: "When I clicked edit, there was no way to edit —
+  // only actionable thing was Add a bond"). Edit on a bond or another investment opened the list of all of them; it opens this one.
+  const [ownEditor, setOwnEditor] = useState(false);
   const [tradeOpen, setTradeOpen] = useState(false);   // the trade sheet, opened by "Add a buy or sale ›" (gap 7)
   const [editRow, setEditRow] = useState<Transaction | null>(null);   // a row YOU entered, opened to correct
   // the window a person picks on THIS page; until they pick one, the page opens on the window it was opened with (below)
@@ -1045,7 +1050,7 @@ export default function AccountPortfolioScreen() {
       {source !== 'connected' && (
         <View style={s.btnRow} testID="account-buttons">
           <TouchableOpacity accessibilityRole="button" style={s.secondaryBtn}
-            onPress={() => router.push((cls === 'bonds' ? '/bonds' : cls === 'alternatives' ? '/other-investments' : `/(tabs)/analytics?edit=${account.asset_id}`) as any)}
+            onPress={() => (cls === 'bonds' || cls === 'alternatives' ? setOwnEditor(true) : router.push(`/(tabs)/analytics?edit=${account.asset_id}` as any))}
             accessibilityLabel={`Edit ${pageName}`}>
             <Text style={s.secondaryTxt}>Edit</Text>
           </TouchableOpacity>
@@ -1059,7 +1064,17 @@ export default function AccountPortfolioScreen() {
       )}
 
       {/* bond facts + yields + the if-interest-rates-move ESTIMATE (design v1.1, Invest sheet) */}
-      {cls === 'bonds' && <BondDetail account={account} />}
+      {cls === 'bonds' && <BondDetail account={account} onEnter={source !== 'connected' ? () => setOwnEditor(true) : undefined} />}
+      {cls === 'bonds' && (
+        <BondEditor bond={account} open={ownEditor} onClose={() => setOwnEditor(false)}
+          onSave={(fields) => { store.updateAsset(account.asset_id, fields); setOwnEditor(false); }}
+          onDelete={() => { setOwnEditor(false); store.deleteAsset(account.asset_id); router.back(); }} />
+      )}
+      {cls === 'alternatives' && (
+        <AltEditor item={account} open={ownEditor} onClose={() => setOwnEditor(false)}
+          onSave={(fields) => { store.updateAsset(account.asset_id, fields); setOwnEditor(false); }}
+          onDelete={() => { setOwnEditor(false); store.deleteAsset(account.asset_id); router.back(); }} />
+      )}
 
       {/* alternatives: the type's typical return + the look-back entry */}
       {cls === 'alternatives' && <AltDetail account={account} />}
@@ -1223,7 +1238,7 @@ function yieldToMaturityKnown(account: AssetAccount): boolean {
 }
 
 // ── bond facts, yields, and the rates-move estimate (all from the ONE bonds domain) ──────────
-function BondDetail({ account }: { account: AssetAccount }) {
+function BondDetail({ account, onEnter }: { account: AssetAccount; onEnter?: () => void }) {
   // ONE DOOR (MK-NW-O-001 theBonds, Q-NW-4 ruled 2026-09-27). This screen used to call six bond
   // functions and assemble the answer itself, which is how it and the Bonds screen could disagree.
   // It now asks the question once and reads the figures off the answer.
@@ -1243,7 +1258,9 @@ function BondDetail({ account }: { account: AssetAccount }) {
       <View style={s.card} testID="card-bond-facts">
         {/* THE CARD'S TITLE ON THE DARK-GREEN BAR (2026-10-30; the lead’s ruling R1 of 2026-10-27, his words DEC-8839; account-page v01 row 87) — it was grey capitals */}
         <SectionBand inCard title="BOND FACTS" />
-        <FactRow label="Face value" value={one.face != null ? fig('MK-NW-M-023', one.face) : figWords('MK-NW-M-023', 'not entered')} />
+        {/* A FACT NOT ENTERED IS WHERE YOU ENTER IT (his Build 55 feedback, 2026-11-04: "bond facts section show not entered but no
+            intuitive way to enter those values. User should be able to click on it and enter"): the row opens this bond's editor */}
+        <FactRow label="Face value" value={one.face != null ? fig('MK-NW-M-023', one.face) : figWords('MK-NW-M-023', 'not entered')} onEnter={one.face == null ? onEnter : undefined} />
         {/* DEC-0281 (2026-08-26): the current price and the cost, two of the nine facts a bond shows. The price is quoted
             the way a broker quotes a bond, per $100 of face — market value ÷ face × 100 (Q38 part 3), only with both;
             what you paid only when entered (MK-XS-I-067). */}
@@ -1257,8 +1274,9 @@ function BondDetail({ account }: { account: AssetAccount }) {
             count none for it (DEC-0279). */}
         <FactRow label="Interest payments" value={figWords('MK-NW-M-024', one.couponRate == null
           ? 'coupon rate not entered'
-          : `${percentDigits(one.couponRate)}%/year · ${one.couponPerYear != null ? `${fig('MK-NW-M-056', one.couponPerYear)}/year` : 'face value not entered'}`)} />
-        <FactRow label="Matures" value={figWords('MK-NW-M-025', !one.maturity ? MATURITY_NOT_ENTERED : matured ? `${dateShown(one.maturity)} (matured)` : `${dateShown(one.maturity)} (${plural(Math.round(years), 'year')} away)`)} />
+          : `${percentDigits(one.couponRate)}%/year · ${one.couponPerYear != null ? `${fig('MK-NW-M-056', one.couponPerYear)}/year` : 'face value not entered'}`)}
+          onEnter={one.couponRate == null || one.couponPerYear == null ? onEnter : undefined} />
+        <FactRow label="Matures" value={figWords('MK-NW-M-025', !one.maturity ? MATURITY_NOT_ENTERED : matured ? `${dateShown(one.maturity)} (matured)` : `${dateShown(one.maturity)} (${plural(Math.round(years), 'year')} away)`)} onEnter={!one.maturity ? onEnter : undefined} />
         {!matured && one.yieldToMaturity != null && <FactRow label="Yield if held to maturity" value={`about ${fig('MK-NW-M-026', one.yieldToMaturity)} · estimate`} />}
         {one.currentYield != null && <FactRow label="Yield on today’s value" value={fig('MK-NW-M-027', one.currentYield)} />}
         {!!one.accruedCaveat && <Text style={s.bondNote}>{one.accruedCaveat}{one.accruedAssumed ? `. ${one.accruedAssumed}` : ''}</Text>}
@@ -1368,7 +1386,18 @@ function ReportedReturnCard({ account }: { account: AssetAccount }) {
   );
 }
 
-function FactRow({ label, value }: { label: string; value: string }) {
+function FactRow({ label, value, onEnter }: { label: string; value: string; onEnter?: () => void }) {
+  if (onEnter) {
+    // not entered: the row is the way in — the words stay as drawn, the › beside them as on every row that opens, and a tap opens the editor
+    return (
+      <TouchableOpacity style={s.factRow} accessibilityRole="button" onPress={onEnter} hitSlop={Tap.slop}
+        accessibilityLabel={`${label}: ${saidSentence(value)}. Opens the editor to enter it.`}>
+        <Text style={s.factL}>{label}</Text>
+        <Text style={s.factV}>{value}</Text>
+        <Text style={s.factChev}>›</Text>
+      </TouchableOpacity>
+    );
+  }
   return (
     <View style={s.factRow} accessible accessibilityLabel={`${label}: ${saidSentence(value)}`}>
       <Text style={s.factL}>{label}</Text>
@@ -1657,6 +1686,7 @@ const s = StyleSheet.create({
   factRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 5, gap: 10 },
   factL: { fontSize: 15, color: Colors.textSecondary, flexShrink: 0 },
   factV: { fontSize: 15, fontWeight: '700', color: Colors.textPrimary, flexShrink: 1, textAlign: 'right' },
+  factChev: { fontSize: 15, color: Colors.textTertiary, marginLeft: -4 },   // the › every row that opens something carries (2026-11-04)
   bondLine: { fontSize: 13, color: Colors.textPrimary, lineHeight: 20, marginTop: 4 },
   bondNote: { fontSize: 13, color: Colors.textSecondary, lineHeight: 18, marginTop: 6 },
   linkTxt: { fontSize: 13, fontWeight: '700', color: Colors.primary, marginTop: 8 },

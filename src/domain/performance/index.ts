@@ -2600,7 +2600,7 @@ export function worthWithInterest(r: { marketValue?: number | null; interest?: n
  * Formula also on the master file · functions_from_code · MK-PF-F-082
  * Changed ..... not in git yet (—)
  */
-function priceOnRecord(p: Position): number | null {
+export function priceOnRecord(p: Position): number | null {
   return p.last_price != null && Number.isFinite(p.last_price) && p.last_price >= 0 ? p.last_price : null;
 }
 

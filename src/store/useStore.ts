@@ -6,7 +6,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { secureStorage } from './secureStorage';
 import { assetsFromOnboarding, isRealAsset, holdingClassOf, holdingTagFor, type AssetAccount } from '../domain/assets';
 import { settleBondValue } from '../../MoneyKeel/functions/networth-and-performance/bonds';   // the one value rule, through the bonds door (DEC-0281)
-import { benchmarkTicker, marketValue, latestCloseLookup, closeOnOrBefore, paidOnRecord, type Position, type PriceSeries } from '../domain/performance';
+import { benchmarkTicker, marketValue, latestCloseLookup, closeOnOrBefore, paidOnRecord, priceOnRecord, type Position, type PriceSeries } from '../domain/performance';
 import { applyTransaction, makeTransaction, undoSnapshot, restoreUndo, inverseOf, openingRecordsOf, tradeMultiplierOf, purchaseRecordsFollowEdit, purchaseRecordsAfterHoldingRemoved, purchaseRecordsFollowReimport, optionTradesOnTheWayIn, type Transaction } from '../domain/transactions';
 import { reviewTransactions, type TxnFlag } from '../domain/transactions/flags';
 import { fetchPriceSeries } from '../services/marketData';
@@ -83,7 +83,10 @@ function recomputeBalances(accs: AssetAccount[], cache: Record<string, PriceSeri
     // WHAT WAS PAID IS READ ONE WAY (paidOnRecord, 2026-10-21): with no price a holding counts what was paid for the purchases
     // whose price paid is on record — the Holding page's large figure and its Total paid. costBasis read a stored $0 as a real
     // $0, so a holding whose only purchase was saved at $0 shrank the balance to $0, and one purchase with none kept a stale value
-    const positions = (a.positions ?? []).map((p) => { const px = latestCloseLookup(cache)(p.ticker); return { ...p, value_now: (px == null ? paidOnRecord(p).paid : marketValue(p, px)) ?? p.value_now ?? 0 }; });
+    // NO FEED PRICE → THE HOLDING'S OWN PRICE ON RECORD (his Build 55 file, 2026-11-04; MK-PF-F-082 priceOnRecord): a CD or an option
+    // read from a file has no daily price, and was counted at what was paid. His put read $5,035 (what it cost) for $1,407.50 (what
+    // the file says it is worth), and his CD $110,000 for $109,992.74. To reverse: drop "?? priceOnRecord(p)".
+    const positions = (a.positions ?? []).map((p) => { const px = latestCloseLookup(cache)(p.ticker) ?? priceOnRecord(p); return { ...p, value_now: (px == null ? paidOnRecord(p).paid : marketValue(p, px)) ?? p.value_now ?? 0 }; });
     const mv = positions.reduce((t, p) => t + p.value_now, 0);
     // HELD AT FULL PRECISION (DEC-0403, 2026-09-09): the stored balance is the exact sum; it was rounded to cents here
     // until 2026-10-20, so every later sum started from a rounded figure. Rounding happens once, on screen.

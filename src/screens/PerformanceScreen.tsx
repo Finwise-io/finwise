@@ -780,7 +780,7 @@ export function HoldingEditor({ open, accounts, existing, onClose, onSave, onDel
       <TouchableOpacity style={styles.scrim} activeOpacity={1} accessibilityRole="button" accessibilityLabel="Close" onPress={onClose} />
       <View style={styles.sheet}>
         <View style={styles.grab} />
-        <ScrollView automaticallyAdjustKeyboardInsets keyboardShouldPersistTaps="handled" style={{ maxHeight: '92%' }}>
+        <ScrollView automaticallyAdjustKeyboardInsets keyboardShouldPersistTaps="handled" style={{ flexShrink: 1 }}>
           <Text style={styles.sheetT}>Edit holding</Text>
 
           <Text style={styles.fieldL}>Ticker</Text>
@@ -1055,7 +1055,7 @@ export function TransactionSheet({ open, accounts, onClose, onSave, prefill }: {
       <TouchableOpacity style={styles.scrim} activeOpacity={1} accessibilityRole="button" accessibilityLabel="Close" onPress={onClose} />
       <View style={styles.sheet}>
         <View style={styles.grab} />
-        <ScrollView automaticallyAdjustKeyboardInsets keyboardShouldPersistTaps="handled" style={{ maxHeight: '92%' }}>
+        <ScrollView automaticallyAdjustKeyboardInsets keyboardShouldPersistTaps="handled" style={{ flexShrink: 1 }}>
           {/* the records are activity, one word for them everywhere (canon row 12, 2026-10-22: the title used another word) */}
           <Text style={styles.sheetT}>Record activity</Text>
           <View style={[styles.kindWrap, { marginTop: 8 }]}>
@@ -1431,7 +1431,7 @@ const styles = StyleSheet.create({
   hDel: { fontSize: 15, color: Colors.textTertiary, paddingHorizontal: 4 },
 
   scrim: { position: 'absolute', inset: 0, backgroundColor: 'rgba(0,0,0,0.3)' } as any,
-  sheet: { ...SHEET_FRAME, position: 'absolute', left: 0, right: 0, bottom: 0, padding: 18, paddingBottom: 28 },
+  sheet: { ...SHEET_FRAME, position: 'absolute', left: 0, right: 0, bottom: 0, maxHeight: '90%' /* the sheet's own limit, a share of the screen (2026-11-04): a percentage on the ScrollView inside had no height to be a share of, so a long form ran up under the clock */, padding: 18, paddingBottom: 28 },
   grab: { ...SHEET_HANDLE },
   sheetT: { fontSize: 17, fontWeight: '800', color: Colors.textPrimary, marginBottom: 6 },
   sheetS: { fontSize: 13, color: Colors.textSecondary, marginBottom: 8, lineHeight: 17 },

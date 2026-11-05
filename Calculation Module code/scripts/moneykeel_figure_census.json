@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-02",
+ "generated": "2026-11-05",
  "states": [
   "worker",
   "rich",
@@ -44,7 +44,7 @@
     },
     {
      "k": "t",
-     "s": "afternoon"
+     "s": "evening"
     },
     {
      "k": "t",
@@ -52,7 +52,7 @@
     },
     {
      "k": "a",
-     "s": "Your investments: $165,000. change shows once your holdings have prices. as of Nov 2. See your growth."
+     "s": "Your investments: $165,000. change shows once your holdings have prices. as of Nov 4. See your growth."
     },
     {
      "k": "t",
@@ -80,7 +80,7 @@
     },
     {
      "k": "t",
-     "s": "Nov 2"
+     "s": "Nov 4"
     },
     {
      "k": "t",
@@ -232,7 +232,7 @@
     },
     {
      "k": "t",
-     "s": "2"
+     "s": "4"
     },
     {
      "k": "t",
@@ -278,7 +278,7 @@
     },
     {
      "k": "t",
-     "s": "afternoon"
+     "s": "evening"
     },
     {
      "k": "t",
@@ -298,7 +298,7 @@
     },
     {
      "k": "a",
-     "s": "Your investments: $709,800. change shows once your holdings have prices. prices may be out of date, updated not updated yet. Vanguard part as of Sep 12, 51 days old, pull to refresh. See your growth."
+     "s": "Your investments: $709,800. change shows once your holdings have prices. prices may be out of date, updated not updated yet. Vanguard part as of Sep 12, 53 days old, pull to refresh. See your growth."
     },
     {
      "k": "t",
@@ -334,7 +334,7 @@
     },
     {
      "k": "t",
-     "s": "⏱ Vanguard part as of Sep 12 — 51 days old"
+     "s": "⏱ Vanguard part as of Sep 12 — 53 days old"
     },
     {
      "k": "t",
@@ -494,7 +494,7 @@
     },
     {
      "k": "t",
-     "s": "2"
+     "s": "4"
     },
     {
      "k": "t",
@@ -540,7 +540,7 @@
     },
     {
      "k": "t",
-     "s": "afternoon"
+     "s": "evening"
     },
     {
      "k": "t",
@@ -788,7 +788,7 @@
     },
     {
      "k": "t",
-     "s": "2"
+     "s": "4"
     },
     {
      "k": "t",
@@ -907,7 +907,7 @@
     },
     {
      "k": "t",
-     "s": "YOUR NET WORTH · NOV 2, 2026"
+     "s": "YOUR NET WORTH · NOV 4, 2026"
     },
     {
      "k": "a",
@@ -1177,7 +1177,7 @@
     },
     {
      "k": "t",
-     "s": "YOUR NET WORTH · NOV 2, 2026"
+     "s": "YOUR NET WORTH · NOV 4, 2026"
     },
     {
      "k": "a",
@@ -1431,7 +1431,7 @@
     },
     {
      "k": "t",
-     "s": "YOUR NET WORTH · NOV 2, 2026"
+     "s": "YOUR NET WORTH · NOV 4, 2026"
     },
     {
      "k": "a",
@@ -1901,7 +1901,7 @@
     },
     {
      "k": "t",
-     "s": "YOUR NET WORTH · NOV 2, 2026"
+     "s": "YOUR NET WORTH · NOV 4, 2026"
     },
     {
      "k": "a",
@@ -2141,7 +2141,7 @@
     },
     {
      "k": "t",
-     "s": "Linked · 51 days old"
+     "s": "Linked · 53 days old"
     },
     {
      "k": "t",
@@ -2419,7 +2419,7 @@
     },
     {
      "k": "t",
-     "s": "YOUR NET WORTH · NOV 2, 2026"
+     "s": "YOUR NET WORTH · NOV 4, 2026"
     },
     {
      "k": "a",
@@ -2673,7 +2673,7 @@
     },
     {
      "k": "t",
-     "s": "YOUR NET WORTH · NOV 2, 2026"
+     "s": "YOUR NET WORTH · NOV 4, 2026"
     },
     {
      "k": "a",
@@ -3282,7 +3282,7 @@
     },
     {
      "k": "t",
-     "s": "Nov 2, 2026"
+     "s": "Nov 4, 2026"
     },
     {
      "k": "a",
@@ -3418,11 +3418,11 @@
     },
     {
      "k": "t",
-     "s": "Nov 2"
+     "s": "Nov 4"
     },
     {
      "k": "t",
-     "s": "Nov 2"
+     "s": "Nov 4"
     },
     {
      "k": "a",
@@ -3920,7 +3920,7 @@
     },
     {
      "k": "t",
-     "s": "Nov 2, 2026"
+     "s": "Nov 4, 2026"
     },
     {
      "k": "t",
@@ -4068,11 +4068,11 @@
     },
     {
      "k": "t",
-     "s": "Nov 2"
+     "s": "Nov 4"
     },
     {
      "k": "t",
-     "s": "Nov 2"
+     "s": "Nov 4"
     },
     {
      "k": "a",
@@ -4252,7 +4252,7 @@
     },
     {
      "k": "t",
-     "s": "Linked · 51 days old"
+     "s": "Linked · 53 days old"
     },
     {
      "k": "a",
@@ -4742,7 +4742,7 @@
     },
     {
      "k": "t",
-     "s": "Nov 2, 2026"
+     "s": "Nov 4, 2026"
     },
     {
      "k": "a",
@@ -4878,11 +4878,11 @@
     },
     {
      "k": "t",
-     "s": "Nov 2"
+     "s": "Nov 4"
     },
     {
      "k": "t",
-     "s": "Nov 2"
+     "s": "Nov 4"
     },
     {
      "k": "a",
@@ -5240,7 +5240,7 @@
     },
     {
      "k": "t",
-     "s": "Nov 2, 2026"
+     "s": "Nov 4, 2026"
     },
     {
      "k": "a",
@@ -5376,11 +5376,11 @@
     },
     {
      "k": "t",
-     "s": "Nov 2"
+     "s": "Nov 4"
     },
     {
      "k": "t",
-     "s": "Nov 2"
+     "s": "Nov 4"
     },
     {
      "k": "a",
@@ -11108,7 +11108,7 @@
     },
     {
      "k": "a",
-     "s": "Expense pace: $0 spent of your paycheck, $4,750 a month — 0 percent spent, 7 percent of the month gone."
+     "s": "Expense pace: $0 spent of your paycheck, $4,750 a month — 0 percent spent, 13 percent of the month gone."
     },
     {
      "k": "t",
@@ -11140,7 +11140,7 @@
     },
     {
      "k": "t",
-     "s": "7"
+     "s": "13"
     },
     {
      "k": "t",
@@ -11494,7 +11494,7 @@
     },
     {
      "k": "a",
-     "s": "Expense pace: $0 spent of your paycheck, $4,750 a month — 0 percent spent, 7 percent of the month gone."
+     "s": "Expense pace: $0 spent of your paycheck, $4,750 a month — 0 percent spent, 13 percent of the month gone."
     },
     {
      "k": "t",
@@ -11526,7 +11526,7 @@
     },
     {
      "k": "t",
-     "s": "7"
+     "s": "13"
     },
     {
      "k": "t",
@@ -12278,7 +12278,7 @@
     },
     {
      "k": "a",
-     "s": "Expense pace: $0 spent of your paycheck, $4,750 a month — 0 percent spent, 7 percent of the month gone."
+     "s": "Expense pace: $0 spent of your paycheck, $4,750 a month — 0 percent spent, 13 percent of the month gone."
     },
     {
      "k": "t",
@@ -12310,7 +12310,7 @@
     },
     {
      "k": "t",
-     "s": "7"
+     "s": "13"
     },
     {
      "k": "t",
@@ -19836,7 +19836,7 @@
     },
     {
      "k": "t",
-     "s": "Linked · 51 days old"
+     "s": "Linked · 53 days old"
     },
     {
      "k": "a",
@@ -20306,7 +20306,7 @@
     },
     {
      "k": "t",
-     "s": "Linked · 51 days old"
+     "s": "Linked · 53 days old"
     },
     {
      "k": "a",
@@ -21808,7 +21808,7 @@
     },
     {
      "k": "t",
-     "s": "Added estimated $187 in accrued interest to bond value at 4% coupon for 171 days to calculate YTM. If this is not accurate, enter actual accrued interest"
+     "s": "Added estimated $190 in accrued interest to bond value at 4% coupon for 173 days to calculate YTM. If this is not accurate, enter actual accrued interest"
     },
     {
      "k": "t",
@@ -23879,6 +23879,10 @@
     },
     {
      "k": "t",
+     "s": "›"
+    },
+    {
+     "k": "t",
      "s": "face $10,000 · 4.00% coupon · matures May 15, 2031 · 5y"
     },
     {
@@ -23911,7 +23915,7 @@
     },
     {
      "k": "t",
-     "s": "Added estimated $187 in accrued interest to bond value at 4% coupon for 171 days to calculate YTM. If this is not accurate, enter actual accrued interest"
+     "s": "Added estimated $190 in accrued interest to bond value at 4% coupon for 173 days to calculate YTM. If this is not accurate, enter actual accrued interest"
     },
     {
      "k": "t",
@@ -26978,19 +26982,39 @@
     },
     {
      "k": "a",
-     "s": "No live price — showing what you paid: $270,000. Live pricing arrives with the price provider"
+     "s": "LAST CLOSE: No price — the screen shows what you paid instead, and says so., prices may be out of date (not updated yet)"
     },
     {
      "k": "t",
-     "s": "NO LIVE PRICE — SHOWING WHAT YOU PAID"
+     "s": "LAST CLOSE"
     },
     {
      "k": "t",
-     "s": "$270,000"
+     "s": "No price — the screen shows what you paid instead, and says so."
     },
     {
      "k": "t",
-     "s": "⏱ live pricing arrives with the price provider"
+     "s": "prices may be out of date ("
+    },
+    {
+     "k": "t",
+     "s": "not updated yet"
+    },
+    {
+     "k": "t",
+     "s": ")"
+    },
+    {
+     "k": "a",
+     "s": "VTI, worth $300,000"
+    },
+    {
+     "k": "t",
+     "s": "Current value"
+    },
+    {
+     "k": "t",
+     "s": "$300,000"
     },
     {
      "k": "t",
@@ -27022,7 +27046,11 @@
     },
     {
      "k": "t",
-     "s": "No market compare, dividends or tax estimate without a live price — sections appear when pricing does. Nothing invented."
+     "s": "VS THE STOCK MARKET"
+    },
+    {
+     "k": "t",
+     "s": "Not enough price history for a fair comparison — check back as prices fill in."
     },
     {
      "k": "t",
@@ -27059,6 +27087,30 @@
     {
      "k": "t",
      "s": "These purchases are the cost basis — they explain the average cost above."
+    },
+    {
+     "k": "t",
+     "s": "DIVIDENDS & REALIZED"
+    },
+    {
+     "k": "t",
+     "s": "Realized from sales"
+    },
+    {
+     "k": "t",
+     "s": "$0 — nothing sold"
+    },
+    {
+     "k": "t",
+     "s": "IF YOU SOLD TODAY"
+    },
+    {
+     "k": "t",
+     "s": "Gain — long-term (held over 1 yr)"
+    },
+    {
+     "k": "t",
+     "s": "+$30,000"
     },
     {
      "k": "a",
@@ -40167,10 +40219,13 @@
   },
   "/holding-detail": {
    "rich": [
+    "MK-NW-M-029",
     "MK-NW-M-030",
     "MK-NW-M-031",
     "MK-NW-M-032",
     "MK-NW-M-033",
+    "MK-NW-M-035",
+    "MK-NW-M-036",
     "MK-NW-M-061"
    ]
   },
@@ -40277,7 +40332,7 @@
     "$45,000",
     "$2,180"
    ],
-   "renders": 1620
+   "renders": 1622
   },
   {
    "site": "MoneyKeel/functions/_figure-spec.ts:264",
@@ -40380,7 +40435,7 @@
    "renders": 7
   },
   {
-   "site": "src/components/MoneySheets.tsx:298",
+   "site": "src/components/MoneySheets.tsx:291",
    "routes": [
     "/home"
    ],
@@ -40397,7 +40452,7 @@
    "renders": 14
   },
   {
-   "site": "src/components/MoneySheets.tsx:337",
+   "site": "src/components/MoneySheets.tsx:330",
    "routes": [
     "/home"
    ],

@@ -3,6 +3,7 @@
 // AllocateSavings (month-end surplus prompt), DebtPaySheet, plus the ExpenseFab floating button.
 import { SHEET_FRAME, SHEET_HANDLE } from './sheetFrame';   // one sheet frame (NW3-18, 2026-10-31)
 import { MoneyBox } from './MoneyBox';
+import { SheetClose } from './SheetClose';
 import { SectionBand } from './SectionBand';   // every money box, one component (DEC-8385)
 import React, { useEffect, useState } from 'react';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Modal, Alert, KeyboardAvoidingView, Platform } from 'react-native';
@@ -22,15 +23,7 @@ import { isoLocalDate as iso } from '../domain/_shared/dates';
 const ordinal = (n: number) => { const s = ['th', 'st', 'nd', 'rd'], v = n % 100; return n + (s[(v - 20) % 10] || s[v] || s[0]); };
 
 // ── shared sheet chrome ────────────────────────────────────────────────────────
-// Every sheet gets an explicit ✕ besides the backdrop tap — the visible way out.
-function SheetClose({ onPress }: { onPress: () => void }) {
-  return (
-    <TouchableOpacity accessibilityRole="button" accessibilityLabel="Close" onPress={onPress}
-      style={sh.closeBtn} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
-      <Text style={sh.closeTxt}>✕</Text>
-    </TouchableOpacity>
-  );
-}
+// Every sheet gets an explicit ✕ besides the backdrop tap — the visible way out (SheetClose, one component since 2026-11-04).
 
 // One cell of the even choice grid — icon over a 2-line label, all cells the same width so rows
 // never come out ragged. Selection shows a ✓ mark, never color alone (FCC accessibility rule).
