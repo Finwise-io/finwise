@@ -30,6 +30,12 @@ const fmtISO = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padSt
 const parseISO = (s: string) => { const p = maturityParts(s); return p ? new Date(p[0], p[1] - 1, p[2]) : new Date(); };
 const humanDate = (s: string) => (maturityParts(s) ? parseISO(s).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : s);
 const pct = (v: number | null) => (v == null ? '—' : `${percentDigits(v, 2)}%`);
+// A FIGURE THAT CANNOT BE WORKED OUT SHOWS NO FIGURE IN ITS PLACE (Bonds v02 row of 2026-10-07: "its yield shows no figure"), the way
+// the account page prints one (pctOf). The reason stands on its own line: the row's "coupon rate not entered", "maturity date not
+// entered" or "matured", and the summary's "Average yield leaves out …". fig() with nothing printed the master file's explanation
+// into the box — "A bond with no price today is left out rather than counted at zero." wrapped over six lines in AVG YIELD
+// (his Build 55 screenshot IMG_0896; design review, 2026-11-06).
+// (written out at each place, `v == null ? '—' : fig(id, v)`, so the money-call guards see every fig() call)
 // WHAT A BOND IS WORTH BEFORE IT IS SAVED, by the one value rule the store saves it with (DEC-0281; settleBondValue, asked
 // through the bonds door): the market value typed, else what was paid, else the face value; nothing typed is $0 here.
 const worthOf = (f: { balance?: number; amount_paid?: number; face_value?: number }) =>
@@ -80,8 +86,14 @@ export default function BondsScreen() {
               return <>{n} · {face}</>;
             })()}</Text>
             <View style={styles.sumRow}>
-              <View style={styles.sumCell}><Text style={styles.sumCellL}>COUPON /year</Text><Text style={[styles.sumCellV, { color: Colors.primary }]}>{fig('MK-NW-M-043', summary.couponPerYear)}</Text></View>
-              <View style={styles.sumCell}><Text style={styles.sumCellL}>AVG YIELD</Text><Text style={styles.sumCellV}>{fig('MK-NW-M-044', summary.avgYield)}</Text></View>
+              <View style={styles.sumCell}><Text style={styles.sumCellL}>COUPON /year</Text><Text style={[styles.sumCellV, { color: Colors.primary }]}>{
+                // NO BOND WITH A KNOWN YEAR'S INTEREST: "not entered", never $0 (tenet 3, DEC-3523; MK-NW-M-056 "Neither is shown as $0"),
+                // as the face total reads "face value not entered" when no bond has one (Bonds v02 row of 2026-10-07). A matured bond's
+                // $0 is a known $0 and stays.
+                summary.leftOutNoRate.length + summary.leftOutNoFace.length === summary.count
+                  ? figWords('MK-NW-M-043', 'not entered')
+                  : fig('MK-NW-M-043', summary.couponPerYear)}</Text></View>
+              <View style={styles.sumCell}><Text style={styles.sumCellL}>AVG YIELD</Text><Text style={styles.sumCellV}>{summary.avgYield == null ? '—' : fig('MK-NW-M-044', summary.avgYield)}</Text></View>
               <View style={styles.sumCell}><Text style={styles.sumCellL}>NEXT MATURITY</Text><Text style={styles.sumCellV}>{summary.nextMaturity ? new Date(summary.nextMaturity).getFullYear() : '—'}</Text></View>
             </View>
             {/* a bond the average leaves out is named, with WHY (outside review, 2026-10-04; by the one value rule, DEC-0281,
@@ -103,6 +115,9 @@ export default function BondsScreen() {
             {summary.leftOutNoFace.length > 0 && (
               <Text style={styles.sumLab}>Average yield leaves out {summary.leftOutNoFace.join(', ')} — face value not entered.</Text>
             )}
+            {summary.leftOutMatured.length > 0 && (
+              <Text style={styles.sumLab}>Average yield leaves out {summary.leftOutMatured.join(', ')} — matured.</Text>
+            )}
             {summary.faceNotEntered.length > 0 && summary.faceNotEntered.length < summary.count && (
               <Text style={styles.sumLab}>Face value leaves out {summary.faceNotEntered.join(', ')} — not entered.</Text>
             )}
@@ -119,7 +134,7 @@ export default function BondsScreen() {
             // entered, it carried no identifier; not entered, it borrowed MK-NW-M-055, the bond's face.
             return (
               <TouchableOpacity key={r.accountId} accessibilityRole="button"
-                accessibilityLabel={`${r.label}, ${figSpoken('MK-NW-M-054', r.value)}, ${r.maturity ? `matures ${humanDate(r.maturity)}` : MATURITY_NOT_ENTERED}. Opens the editor.`}
+                accessibilityLabel={`${r.label}, ${figSpoken('MK-NW-M-054', r.value)}, ${r.maturity ? `${r.yearsLeft === 0 ? 'matured' : 'matures'} ${humanDate(r.maturity)}` : MATURITY_NOT_ENTERED}. Opens the editor.`}
                 style={styles.card} onPress={() => acct && setEdit(acct)}>
                 {/* THE BOND'S OWN NAME HEADS ITS CARD, as the approved drawing draws it (Bonds v02 phone 1; DEC-0281: the issuer is one of
                     the nine facts, and the name is where the person writes it — the editor asks Name / issuer). It showed the institution
@@ -133,12 +148,12 @@ export default function BondsScreen() {
                 {/* THE · AS DRAWN (Bonds v02 phone 1, approved 2026-10-01, DEC-0650; its READ THIS FIRST row of 2026-10-25): in the line's own
                     grey at regular weight, as the · before the years already was. It was the darker bold separator of 2026-07-31 (DEC-0016);
                     a drawing he approved after it is the design (DEC-0808). */}
-                <Text style={styles.bondSub} numberOfLines={2}>{[r.face != null ? `face ${fig('MK-NW-M-055', r.face)}` : figWords('MK-NW-M-055', 'face value not entered'), figWords('MK-NW-M-045', r.couponRate != null ? `${percentDigits(r.couponRate, 2)}% coupon` : 'coupon rate not entered'), r.maturity ? `matures ${humanDate(r.maturity)}${yrs > 0 ? ` · ${Math.round(yrs)}y` : ''}` : MATURITY_NOT_ENTERED].join(' · ')}</Text>
+                <Text style={styles.bondSub} numberOfLines={2}>{[r.face != null ? `face ${fig('MK-NW-M-055', r.face)}` : figWords('MK-NW-M-055', 'face value not entered'), figWords('MK-NW-M-045', r.couponRate != null ? `${percentDigits(r.couponRate, 2)}% coupon` : 'coupon rate not entered'), r.maturity ? (r.yearsLeft === 0 ? `matured ${humanDate(r.maturity)}` : `matures ${humanDate(r.maturity)}${yrs > 0 ? ` · ${Math.round(yrs)}y` : ''}`) : MATURITY_NOT_ENTERED].join(' · ')}</Text>
                 <View style={styles.bondMetrics}>
                   {/* no rate: coupon not entered; a rate and no face value on a bond (2026-10-24, tenet 3): the reason, never the rate on the value */}
                   <Text style={styles.metric}>{r.couponPerYear != null ? `${figPer('MK-NW-M-056', r.couponPerYear)} coupon` : figWords('MK-NW-M-056', r.couponRate == null ? 'coupon not entered' : 'coupon — face value not entered')}</Text>
-                  <Text style={styles.metric}>yield {fig('MK-NW-M-057', r.currentYield)}</Text>
-                  <Text style={styles.metric}>Yield to maturity: {fig('MK-NW-M-058', r.yieldToMaturity)}{r.accruedCaveat ? ' *' : ''}</Text>
+                  <Text style={styles.metric}>yield {r.currentYield == null ? '—' : fig('MK-NW-M-057', r.currentYield)}</Text>
+                  <Text style={styles.metric}>Yield to maturity: {r.yearsLeft === 0 || r.yieldToMaturity == null ? '—' : fig('MK-NW-M-058', r.yieldToMaturity)}{r.accruedCaveat ? ' *' : ''}</Text>
                 </View>
                 {/* the once-a-year assumption, said after his sentence where Pays interest was never chosen (2026-10-27, NW2-14; Bonds v02 row of that date) */}
                 {!!r.accruedCaveat && <Text style={styles.bondSub}>* {r.accruedCaveat}{r.accruedAssumed ? `. ${r.accruedAssumed}` : ''}</Text>}

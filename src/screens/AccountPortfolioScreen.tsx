@@ -7,7 +7,8 @@
 // 12-MONTH RETURN; ACTIVITY · <window> with its three doors. Held word for word, state by state, by
 // src/screens/__tests__/account_page_drawing_states.test.tsx. Every figure comes from one door (MK-NW-O-002 theAccount,
 // MK-NW-O-008 thePerformance); the screen calculates nothing.
-import { SHEET_FRAME, SHEET_HANDLE } from '../components/sheetFrame';   // one sheet frame (NW3-18, 2026-10-31)
+import { SHEET_FRAME, SHEET_HANDLE } from '../components/sheetFrame';
+import { SheetClose } from '../components/SheetClose';   // every sheet's ✕ (2026-11-06)   // one sheet frame (NW3-18, 2026-10-31)
 import { MoneyBox, savedAmountForBox } from '../components/MoneyBox';   // every money box, one component (DEC-8385)
 import { plural, withArticle } from '../domain/_shared/plural';   // the one list of words and plurals (DEC-4082, 2026-10-10), and the one article rule
 import React, { useMemo, useRef, useState } from 'react';
@@ -1407,7 +1408,7 @@ function FactRow({ label, value, onEnter }: { label: string; value: string; onEn
 }
 
 // ── the small record sheet: which kind, then date + amount (+ destination for transfers) + effect ──
-// Drawn as built, approval pending: MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_record-activity-sheet_v01.html (held by src/screens/__tests__/sheets_drawn_from_code.test.tsx).
+// Drawn as built, approval pending: MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_record-activity-sheet_v02.html (held by src/screens/__tests__/sheets_drawn_from_code.test.tsx).
 // One door can carry more than one kind of record (money in, money out, a move between accounts), so
 // the sheet names the kinds behind the door it was opened by and records through the ONE recorder.
 function RecordActivitySheet({ account, kinds, onClose }: { account: AssetAccount; kinds: ActionType[] | null; onClose: () => void }) {
@@ -1450,6 +1451,9 @@ function RecordActivitySheet({ account, kinds, onClose }: { account: AssetAccoun
       <TouchableOpacity accessibilityRole="button" accessibilityLabel="Close without saving" style={s.backdrop} activeOpacity={1} onPress={onClose}>
         <View style={s.sheet} onStartShouldSetResponder={() => true}>
           <View style={s.handle} />
+          {/* THE SHEET'S ✕ (design review, 2026-11-06): the visible way out every sheet has had since 2026-11-04 (SheetClose); this one
+              had only the backdrop, so the way out without saving could not be seen */}
+          <SheetClose onPress={onClose} />
           <Text style={s.sheetTitle}>{action ? ACTION_LABEL[action] : ''} — {nameOf(account)}</Text>
           {/* the kinds behind this door. One kind → no chips to choose from; the door already said it. Each is said by the
               record's own name (txnLabel) with the one article rule (withArticle): "Record interest", "Record a withdrawal" —
@@ -1519,7 +1523,7 @@ function RecordActivitySheet({ account, kinds, onClose }: { account: AssetAccoun
 }
 
 // ── update a hand-entered value (re-stamps value_as_of — display honesty, one stored number) ──
-// Drawn, approval pending: MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_update-value-sheet_v02.html (held by src/screens/__tests__/update_value_sheet_drawing.test.tsx).
+// Drawn, approval pending: MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_update-value-sheet_v03.html (held by src/screens/__tests__/update_value_sheet_drawing.test.tsx).
 function UpdateValueSheet({ account, visible, onClose }: { account: AssetAccount; visible: boolean; onClose: () => void }) {
   const store = useStore() as any;
   const [amount, setAmount] = useState('');
@@ -1536,6 +1540,9 @@ function UpdateValueSheet({ account, visible, onClose }: { account: AssetAccount
       <TouchableOpacity accessibilityRole="button" accessibilityLabel="Close without saving" style={s.backdrop} activeOpacity={1} onPress={onClose}>
         <View style={s.sheet} onStartShouldSetResponder={() => true}>
           <View style={s.handle} />
+          {/* THE SHEET'S ✕ (design review, 2026-11-06): the visible way out every sheet has had since 2026-11-04 (SheetClose); this one
+              had only the backdrop, so the way out without saving could not be seen */}
+          <SheetClose onPress={onClose} />
           {/* the account named as the page above names it, one name everywhere (2026-10-22; it wrote the bare label) */}
           <Text style={s.sheetTitle}>Update value — {accountDisplayNames((store.assetAccounts ?? []) as AssetAccount[]).get(account.asset_id) ?? account.label}</Text>
           <View style={s.amtRow}>
@@ -1666,7 +1673,7 @@ const s = StyleSheet.create({
   backdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end' },
   sheet: { ...SHEET_FRAME, padding: Spacing.lg, paddingBottom: 32 },
   handle: { ...SHEET_HANDLE },
-  sheetTitle: { fontSize: 17, fontWeight: '800', color: Colors.textPrimary, textAlign: 'center' },
+  sheetTitle: { fontSize: 17, fontWeight: '800', color: Colors.textPrimary, textAlign: 'center', paddingHorizontal: 36 },   // clear of the ✕ (2026-11-06)
   sheetNote: { fontSize: 13, color: Colors.textSecondary, textAlign: 'center', marginTop: 6, lineHeight: 18 },
   amtRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: Spacing.md },
   amtPrefix: { fontSize: 30, fontWeight: '800', color: Colors.textSecondary },
@@ -1696,7 +1703,7 @@ const s = StyleSheet.create({
 });
 
 // ── EDIT A RECORD YOU ENTERED (handoff 2026-08-11) ─────────────────────────────────────────────
-// Drawn as built, approval pending: MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_edit-record-sheet_v03.html, which superseded v02 on 2026-10-30 (held by src/screens/__tests__/sheets_drawn_from_code.test.tsx).
+// Drawn as built, approval pending: MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_edit-record-sheet_v04.html, which superseded v02 on 2026-10-30 (held by src/screens/__tests__/sheets_drawn_from_code.test.tsx).
 // Only rows the person typed reach this sheet — a broker row is the broker's own fact and the next
 // sync would overwrite any change, so it is never editable. A correction is applied as a REVERSAL
 // plus a fresh record, through the one transactions function, so the account's balance moves by the
@@ -1756,6 +1763,9 @@ function EditRecordSheet({ row, onClose }: { row: Transaction | null; onClose: (
       <TouchableOpacity accessibilityRole="button" accessibilityLabel="Close" style={sh.backdrop} activeOpacity={1} onPress={onClose}>
         <View style={sh.sheet} onStartShouldSetResponder={() => true}>
           <View style={sh.grip} />
+          {/* THE SHEET'S ✕ (design review, 2026-11-06): the visible way out every sheet has had since 2026-11-04 (SheetClose); this one
+              had only the backdrop, so the way out without saving could not be seen */}
+          <SheetClose onPress={onClose} />
           <Text style={sh.title}>{txnLabel(row.type)} — you entered this</Text>
           {/* the record's day through the one date writer, "Sep 2, 2026" — it printed "2026-09-02" (2026-10-22, gap 24) */}
           {trade ? (
@@ -1796,7 +1806,7 @@ const sh = StyleSheet.create({
   backdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end' },
   sheet: { ...SHEET_FRAME, padding: Spacing.lg, paddingBottom: 34 },
   grip: { ...SHEET_HANDLE },
-  title: { fontSize: 17, fontWeight: '800', color: Colors.textPrimary, textAlign: 'center' },
+  title: { fontSize: 17, fontWeight: '800', color: Colors.textPrimary, textAlign: 'center', paddingHorizontal: 36 },   // clear of the ✕ (2026-11-06)
   note: { fontSize: 13, color: Colors.textSecondary, textAlign: 'center', marginTop: 6, lineHeight: 18 },
   amtRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, marginTop: Spacing.md },
   amtPrefix: { fontSize: 24, fontWeight: '800', color: Colors.textSecondary },

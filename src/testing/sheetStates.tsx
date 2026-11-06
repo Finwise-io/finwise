@@ -7,8 +7,8 @@
  *    the trade sheet ("Record activity") .............. moneykeel_pres_mock_trade-sheet_v04.html (v03 2026-10-23: the fee; v04 2026-10-30: states M–O)
  *    the holding editor ("Edit holding") .............. moneykeel_pres_mock_holding-editor_v02.html
  *    the activity sheet ("Activity") .................. moneykeel_pres_mock_activity-sheet_v02.html (v02 2026-10-30: state C)
- *    the account page's recorder (its three doors) .... moneykeel_pres_mock_record-activity-sheet_v01.html
- *    the edit sheet for a record you entered (✎) ...... moneykeel_pres_mock_edit-record-sheet_v03.html (v03 2026-10-30: states D–K)
+ *    the account page's recorder (its three doors) .... moneykeel_pres_mock_record-activity-sheet_v02.html
+ *    the edit sheet for a record you entered (✎) ...... moneykeel_pres_mock_edit-record-sheet_v04.html (v03 2026-10-30: states D–K)
  *  (all in MoneyKeel/documents/networth-and-performance/)
  */
 import { fireEvent, screen } from '@testing-library/react-native';
@@ -170,7 +170,7 @@ export const ACTIVITY_SHEET: Sheet = {
 // ═══ THE ACCOUNT PAGE'S RECORDER (its three doors) ════════════════════════════════════════════════════════════════
 const moneyDoor = (name = 'Vanguard Brokerage') => press(`Add a contribution or withdrawal for ${name}`);
 export const RECORD_ACTIVITY_SHEET: Sheet = {
-  id: 'record-activity', file: 'moneykeel_pres_mock_record-activity-sheet_v01.html', title: 'Deposit — Brokerage',
+  id: 'record-activity', file: 'moneykeel_pres_mock_record-activity-sheet_v02.html', title: 'Deposit — Brokerage',
   states: [
     { key: 'A', label: 'The money door: Deposit first, nothing typed yet', ...account('van', HOUSEHOLD), steps: () => moneyDoor() },
     { key: 'B', label: 'A deposit of $500: the line saying what saving records', ...account('van', HOUSEHOLD),
@@ -198,7 +198,7 @@ const MINE = [
 ];
 const pencil = (nth: number) => fireEvent.press(screen.getAllByText('✎')[nth]);
 export const EDIT_RECORD_SHEET: Sheet = {
-  id: 'edit-record', file: 'moneykeel_pres_mock_edit-record-sheet_v03.html', title: 'Deposit — you entered this',
+  id: 'edit-record', file: 'moneykeel_pres_mock_edit-record-sheet_v04.html', title: 'Deposit — you entered this',
   states: [
     { key: 'A', label: 'The ✎ on a deposit you entered: $500 on Sep 2, 2026', ...account('van', HOUSEHOLD, { transactions: MINE }), steps: () => pencil(1) },
     { key: 'B', label: 'The amount cleared: Save waits', ...account('van', HOUSEHOLD, { transactions: MINE }),

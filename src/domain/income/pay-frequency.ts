@@ -54,7 +54,7 @@ export const PAY_FREQUENCY_NOT_RECOGNISED = 'Pay frequency not recognised — op
  * Called by ... MK-CF-F-307 isPayFrequency · MK-CF-F-308 payPeriodsAYear
  *               MK-CF-F-313 wageRefusalOf · MK-CF-O-016 incomeSources
  *
- * Reaches ..... 484 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 487 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -64,7 +64,7 @@ export const PAY_FREQUENCY_NOT_RECOGNISED = 'Pay frequency not recognised — op
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 466 more — the full list is on functions_from_code
+ *               … and 469 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -85,7 +85,7 @@ export const payFrequencyOf = (freq: unknown): string => (freq == null || String
  * Called by ... MK-CF-F-308 payPeriodsAYear · MK-CF-F-313 wageRefusalOf
  *               MK-CF-O-016 incomeSources
  *
- * Reaches ..... 484 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 487 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -95,7 +95,7 @@ export const payFrequencyOf = (freq: unknown): string => (freq == null || String
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 466 more — the full list is on functions_from_code
+ *               … and 469 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -120,7 +120,7 @@ export const isPayFrequency = (freq: unknown): freq is PayFrequency =>
  * Called by ... MK-CF-F-059 annualizedEnteredSalary · MK-CF-F-130 enteredMonthlyRaw
  *               MK-CF-F-140 periodsAYear · MK-CF-F-309 periodsOf
  *
- * Reaches ..... 484 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 487 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -130,7 +130,7 @@ export const isPayFrequency = (freq: unknown): freq is PayFrequency =>
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 466 more — the full list is on functions_from_code
+ *               … and 469 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -160,7 +160,7 @@ export function payPeriodsAYear(freq: unknown): number | null {
  *
  * Called by ... MK-CF-F-314 setupEntered · MK-PL-F-031 taxOrganizer
  *
- * Reaches ..... 484 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 487 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -170,7 +170,7 @@ export function payPeriodsAYear(freq: unknown): number | null {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 466 more — the full list is on functions_from_code
+ *               … and 469 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-039 how often each income arrives

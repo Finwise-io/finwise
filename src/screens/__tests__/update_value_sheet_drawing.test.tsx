@@ -1,6 +1,6 @@
 /** THE UPDATE VALUE SHEET AGAINST ITS DRAWING, WORD FOR WORD, STATE BY STATE.
  *
- *  The drawing: MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_update-value-sheet_v02.html (v02, 2026-10-22: the
+ *  The drawing: MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_update-value-sheet_v03.html (v02, 2026-10-22: the
  *  sheet's title names the account as the page does — Ally Savings, where v01 drew Savings; v01 is in archive/) — eight
  *  states, A to H, on one phone (DEC-0470: every state of updating a value by hand is drawn). It draws the sheet that
  *  changes the value of an account built by hand (src/screens/AccountPortfolioScreen.tsx, UpdateValueSheet) over the
@@ -105,7 +105,7 @@ afterAll(() => jest.useRealTimers());
 // ════════════════════════════════════════════════════════════════════════════════════════════════════════════════
 // READING THE DRAWING
 // ════════════════════════════════════════════════════════════════════════════════════════════════════════════════
-const DRAWING = path.join(__dirname, '..', '..', '..', 'MoneyKeel', 'documents', 'networth-and-performance', 'moneykeel_pres_mock_update-value-sheet_v02.html');
+const DRAWING = path.join(__dirname, '..', '..', '..', 'MoneyKeel', 'documents', 'networth-and-performance', 'moneykeel_pres_mock_update-value-sheet_v03.html');
 const HTML = fs.readFileSync(DRAWING, 'utf8');
 /** One line a person reads: its words, whether it is on the sheet, and the size, weight and colour it is drawn in. */
 type Line = { t: string; sheet: boolean; size?: number; weight?: string; color?: string; opacity?: number; row?: number };
@@ -289,7 +289,7 @@ describe('the drawing, read (a guard must prove it looked)', () => {
       const sheet = d.lines.filter((l) => l.sheet);
       const page = d.lines.filter((l) => !l.sheet);
       if (STATES[i].sheet) {
-        expect(sheet.length).toBe(5);                      // title, $, the amount, the date line, the save button
+        expect(sheet.length).toBe(6);                      // the ✕ (v03, 2026-11-06), title, $, the amount, the date line, the save button
         expect(page.length).toBeGreaterThanOrEqual(20);    // the top of the page shows above the sheet
       } else {
         expect(sheet.length).toBe(0);
@@ -314,7 +314,7 @@ describe('the drawing, read (a guard must prove it looked)', () => {
   });
 });
 
-const MONEY_ROW = fs.readFileSync(path.join(__dirname, '..', '..', '..', 'MoneyKeel', 'documents', 'networth-and-performance', 'moneykeel_pres_mock_update-value-sheet_v02.html'), 'utf8')
+const MONEY_ROW = fs.readFileSync(path.join(__dirname, '..', '..', '..', 'MoneyKeel', 'documents', 'networth-and-performance', 'moneykeel_pres_mock_update-value-sheet_v03.html'), 'utf8')
   .includes('Every money box on this screen shows its figure the way a figure is printed');
 /** THE ROW OF 2026-10-31 (R16, NW3-07): state C's box, drawn holding a grey '0', is now empty — applied only while the drawing carries the row. */
 const EMPTY_C_ROW = HTML.includes('State C — the amount cleared. The box is drawn holding a grey ‘0’; it is now empty');
@@ -386,13 +386,14 @@ describe('APPEARANCE: every line\'s size, weight and colour as rendered, against
       renderState(st);
       const sheet = builtLines().filter((l) => l.sheet);
       const drawnSheet = DRAWN[i].lines.filter((l) => l.sheet);
-      expect(sheet[0]).toMatchObject({ size: 17, weight: '800', color: hex(Colors.textPrimary) });          // the title
-      expect(sheet[1]).toMatchObject({ t: '$', size: 30, weight: '800', color: hex(Colors.textSecondary) });
-      expect(sheet[2]).toMatchObject({ size: 38, weight: '800' });                                          // the amount
-      expect(sheet[4]).toMatchObject({ t: 'Save value', size: 15, weight: '800', color: hex(Colors.white) });
+      expect(sheet[0]).toMatchObject({ t: '✕', size: 13, weight: '800', color: hex(Colors.textSecondary) });   // the ✕ (v03, 2026-11-06)
+      expect(sheet[1]).toMatchObject({ size: 17, weight: '800', color: hex(Colors.textPrimary) });          // the title
+      expect(sheet[2]).toMatchObject({ t: '$', size: 30, weight: '800', color: hex(Colors.textSecondary) });
+      expect(sheet[3]).toMatchObject({ size: 38, weight: '800' });                                          // the amount
+      expect(sheet[5]).toMatchObject({ t: 'Save value', size: 15, weight: '800', color: hex(Colors.white) });
       const disabled = st.key === 'C';
-      expect(sheet[4].opacity).toBe(disabled ? 0.4 : 1);
-      expect(drawnSheet[4].opacity ?? 1).toBe(disabled ? 0.4 : 1);
+      expect(sheet[5].opacity).toBe(disabled ? 0.4 : 1);
+      expect(drawnSheet[5].opacity ?? 1).toBe(disabled ? 0.4 : 1);
     }
   });
 });

@@ -34,12 +34,13 @@ export interface Reconciliation {
  * Called by ... MK-NW-O-008 thePerformance · MK-ST-F-022 reconcileAccountTotal
  *               MK-ST-F-023 reconcileLedgerIdentity · MK-XS-F-197 chainShown
  *
- * Reaches ..... 10 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 11 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-140 LEFT_OUT
  *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
  *               MK-NW-F-093 QUIET_PERF · MK-XS-F-197 chainShown
- *               MK-XS-F-102 ingestSync · MK-ST-F-022 reconcileAccountTotal
- *               MK-ST-F-023 reconcileLedgerIdentity · MK-NW-O-008 thePerformance
+ *               MK-XS-F-219 importedAccountOf · MK-XS-F-102 ingestSync
+ *               MK-ST-F-022 reconcileAccountTotal · MK-ST-F-023 reconcileLedgerIdentity
+ *               MK-NW-O-008 thePerformance
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-048 the person’s own asset-class answer
@@ -59,7 +60,7 @@ const verdict = (computed: Dec, stated: Dec, what: string): Reconciliation => {
 };
 
 /** ASSERTION 1 — holdings + cash = the broker's stated total. */
-/* ─ MK-ST-F-022 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+/* ─ MK-ST-F-022 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * reconcileAccountTotal
  *
  * Answers ..... ASSERTION 1 — holdings + cash = the broker's stated total.
@@ -68,10 +69,10 @@ const verdict = (computed: Dec, stated: Dec, what: string): Reconciliation => {
  *     stated = dec.parse(stated total) (or dec.ZERO when missing)
  *     the answer = verdict(parts, stated, 'what the account holds and the broker\'s own total')
  *
- * Called by ... MK-XS-F-102 ingestSync
+ * Called by ... MK-XS-F-102 ingestSync · MK-XS-F-219 importedAccountOf
  *
- * Reaches ..... 1 function. Change the arithmetic above and these change with it:
- *               MK-XS-F-102 ingestSync
+ * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-219 importedAccountOf · MK-XS-F-102 ingestSync
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-048 the person’s own asset-class answer

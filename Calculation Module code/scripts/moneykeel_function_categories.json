@@ -1389,6 +1389,16 @@
   "file": "MoneyKeel/functions/figures.ts",
   "category": "2 · DISPLAYED"
  },
+ "fileAccountOf": {
+  "id": "MK-XS-F-217",
+  "file": "src/domain/import/holdingsImport.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "fileDateOf": {
+  "id": "MK-XS-F-216",
+  "file": "src/domain/import/holdingsImport.ts",
+  "category": "3 · DEPENDENT"
+ },
  "filingStatusOf": {
   "id": "MK-CF-F-085",
   "file": "src/domain/income/onboarding.ts",
@@ -1778,6 +1788,11 @@
   "id": "MK-ST-F-014",
   "file": "Calculation Module code/engines/ledger.ts",
   "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "importedAccountOf": {
+  "id": "MK-XS-F-219",
+  "file": "src/domain/import/holdingsImport.ts",
+  "category": "2 · DISPLAYED"
  },
  "inMonth": {
   "id": "MK-CF-F-148",
@@ -2572,7 +2587,7 @@
  "newEntityId": {
   "id": "MK-ST-F-043",
   "file": "src/domain/_shared/ids.ts",
-  "category": "2 · DISPLAYED"
+  "category": "3 · DEPENDENT"
  },
  "nextDecision": {
   "id": "MK-PL-F-027",
@@ -3227,7 +3242,7 @@
  "reconcileAccountTotal": {
   "id": "MK-ST-F-022",
   "file": "Calculation Module code/engines/reconcile.ts",
-  "category": "3 · DEPENDENT (feeds an action only)"
+  "category": "3 · DEPENDENT"
  },
  "reconcileLedgerIdentity": {
   "id": "MK-ST-F-023",
@@ -3583,6 +3598,11 @@
   "id": "MK-PF-F-046",
   "file": "src/domain/performance/realized.ts",
   "category": "2 · DISPLAYED"
+ },
+ "sameCents": {
+  "id": "MK-XS-F-218",
+  "file": "src/domain/import/holdingsImport.ts",
+  "category": "1 · ACTION"
  },
  "sampleAskLine": {
   "id": "MK-PL-F-028",
@@ -4468,6 +4488,16 @@
   "id": "MK-ST-F-031",
   "file": "Calculation Module code/engines/snapshots.ts",
   "category": "2 · DISPLAYED"
+ },
+ "valueOnlyAccountsOf": {
+  "id": "MK-XS-F-221",
+  "file": "src/domain/import/holdingsImport.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "valueOnlyRows": {
+  "id": "MK-XS-F-220",
+  "file": "src/domain/import/holdingsImport.ts",
+  "category": "1 · ACTION"
  },
  "valuedByYouWords": {
   "id": "MK-PF-F-088",

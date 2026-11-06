@@ -68,13 +68,16 @@ export function SectionBand({ title, value, light, inCard, inset = Spacing.md, i
     // the headings that sit outside cards 12pt left of the ones inside them.
     return (
       <View style={[s.quietWrap, { paddingHorizontal: inCard ? inset : inset * 2 }]}>
-        <Text style={s.quietTitle} numberOfLines={1}>{title}</Text>
+        <Text style={s.quietTitle} numberOfLines={2}>{title}</Text>
         {!!infoTerm && <InfoDot line={s.quietTitle} term={infoTerm as any} />}
         <View style={{ flex: 1 }} />
         {value != null && <Text style={s.quietValue} accessibilityLabel={valueLabel}>{value}</Text>}
       </View>
     );
   }
+  // A TITLE IS NEVER CUT OFF (design review, 2026-11-06): his walk title, "HOW $109,993 BECAME $109,993 · THIS ACCOUNT" (DEC-5136,
+  // drawn in full on account-page v01 and Performance v17), read "… · THIS ACCO…" on his phone (Build 55, IMG_0894). A title too
+  // long for one line takes a second; every bar on every screen, the quiet level included.
   return (
     <View style={[s.band, light && s.light, inCard && { marginTop: -inset, marginHorizontal: -inset }, rowEdges && { paddingHorizontal: inset }]}>
       {/* the dot hugs the title text (founder 2026-08-10): plain siblings + a spacer — no nested
@@ -84,10 +87,10 @@ export function SectionBand({ title, value, light, inCard, inset = Spacing.md, i
         // it to 44 would change every band on every screen. The finger target is 44; the bar is not.
         <TouchableOpacity onPress={onTitlePress} hitSlop={Tap.slop}   /* 16 above and below: 13 + 32 = 45 (NW4-04, 2026-11-01; it was 10, about 33) */
           style={{ flex: 0, flexShrink: 1 }} accessibilityRole="button" accessibilityLabel={titleHint ?? title}>
-          <Text style={[s.title, { flex: 0, flexShrink: 1, textDecorationLine: 'underline' }, light && s.textLight]} numberOfLines={1}>{title}</Text>
+          <Text style={[s.title, { flex: 0, flexShrink: 1, textDecorationLine: 'underline' }, light && s.textLight]} numberOfLines={2}>{title}</Text>
         </TouchableOpacity>
       ) : (
-        <Text style={[s.title, { flex: 0, flexShrink: 1 }, light && s.textLight]} numberOfLines={1} accessibilityLabel={titleLabel}>{title}</Text>
+        <Text style={[s.title, { flex: 0, flexShrink: 1 }, light && s.textLight]} numberOfLines={2} accessibilityLabel={titleLabel}>{title}</Text>
       )}
       {/* the band title is 11pt — the dot matches it rather than looming over it */}
       {!!infoTerm && <InfoDot line={[s.title, light && s.textLight]} term={infoTerm as any} />}

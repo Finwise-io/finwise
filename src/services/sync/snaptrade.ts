@@ -114,8 +114,8 @@ export interface WrapperGuess { kind: string; tax_bucket: 'CASH' | 'TAXABLE' | '
  *
  * Called by ... MK-XS-F-102 ingestSync
  *
- * Reaches ..... 1 function. Change the arithmetic above and these change with it:
- *               MK-XS-F-102 ingestSync
+ * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-219 importedAccountOf · MK-XS-F-102 ingestSync
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-002 account type (taxable, pre-tax, Roth)
@@ -162,8 +162,9 @@ export function mapAccountType(rawType: string | null | undefined, category?: st
  *
  * Called by ... MK-XS-F-105 mapPosition
  *
- * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
- *               MK-XS-F-102 ingestSync · MK-XS-F-105 mapPosition
+ * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-219 importedAccountOf · MK-XS-F-102 ingestSync
+ *               MK-XS-F-105 mapPosition
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -208,8 +209,8 @@ export interface MappedPosition {
  *
  * Called by ... MK-XS-F-102 ingestSync
  *
- * Reaches ..... 1 function. Change the arithmetic above and these change with it:
- *               MK-XS-F-102 ingestSync
+ * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-219 importedAccountOf · MK-XS-F-102 ingestSync
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -266,8 +267,9 @@ const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', '
  *
  * Called by ... MK-XS-F-106 mapOptionHolding
  *
- * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
- *               MK-XS-F-102 ingestSync · MK-XS-F-106 mapOptionHolding
+ * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-219 importedAccountOf · MK-XS-F-102 ingestSync
+ *               MK-XS-F-106 mapOptionHolding
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-007 purchase price and date (per lot)
@@ -301,8 +303,8 @@ export interface MappedOption { label: string; contracts: number; value: number;
  *
  * Called by ... MK-XS-F-102 ingestSync
  *
- * Reaches ..... 1 function. Change the arithmetic above and these change with it:
- *               MK-XS-F-102 ingestSync
+ * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-219 importedAccountOf · MK-XS-F-102 ingestSync
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-007 purchase price and date (per lot)
@@ -457,8 +459,9 @@ export function mapActivityType(a: StActivity): MappedActivity {
  *
  * Called by ... MK-XS-F-102 ingestSync · MK-XS-F-109 dedupeActivities
  *
- * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
- *               MK-XS-F-109 dedupeActivities · MK-XS-F-102 ingestSync
+ * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-109 dedupeActivities · MK-XS-F-219 importedAccountOf
+ *               MK-XS-F-102 ingestSync
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-010 transaction words (the institution's own wording)
@@ -522,8 +525,8 @@ export function dedupeActivities(accountId: string, incoming: StActivity[], seen
  *
  * Called by ... MK-XS-F-102 ingestSync
  *
- * Reaches ..... 1 function. Change the arithmetic above and these change with it:
- *               MK-XS-F-102 ingestSync
+ * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-219 importedAccountOf · MK-XS-F-102 ingestSync
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -565,8 +568,8 @@ export function netCashSleeve(balancesCash: number | null | undefined, positions
  *
  * Called by ... MK-XS-F-102 ingestSync
  *
- * Reaches ..... 1 function. Change the arithmetic above and these change with it:
- *               MK-XS-F-102 ingestSync
+ * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-219 importedAccountOf · MK-XS-F-102 ingestSync
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

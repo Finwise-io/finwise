@@ -235,5 +235,6 @@
  "2026-11-01 | Performance · price history for windows · his question, settled by DEC-5291 · DEC-9265": "DEC-9265 — the decision log row this changelog row records",
  "2026-11-01 | Income · the filing-status question · no small print on the four options · DEC-9266": "DEC-9266 — the decision log row this changelog row records",
  "2026-11-02 | Process · The outside audit of round 7 runs after the build, not before it: the pre-build checklist says so · DEC-9682": "DEC-9682 — the decision log row this changelog row records",
- "2026-11-02 | Process · No more than three agents run at the same time · DEC-9683": "DEC-9683 — the decision log row this changelog row records"
+ "2026-11-02 | Process · No more than three agents run at the same time · DEC-9683": "DEC-9683 — the decision log row this changelog row records",
+ "2026-11-04 | Net worth · A bond fact that reads not entered opens that bond’s editor · DEC-9917": "DEC-9917 — the decision log row this changelog row records; held by src/screens/__tests__/build55_bond_edit_2026_11_04.test.tsx"
 }

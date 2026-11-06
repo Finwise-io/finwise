@@ -15,7 +15,7 @@ import type { StAccount, StActivity, StOptionHolding, StPosition } from './snapt
  *
  * Called by ... MK-XS-F-113 snaptradeConfigured · MK-XS-F-147 call
  *
- * Reaches ..... 485 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 488 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -25,7 +25,7 @@ import type { StAccount, StActivity, StOptionHolding, StPosition } from './snapt
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 467 more — the full list is on functions_from_code
+ *               … and 470 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -72,9 +72,9 @@ export const snaptradeConfigured = () => !!relayUrl();
  *
  * Called by ... MK-CF-F-307 isPayFrequency · MK-NW-F-151 linkedSplit
  *               MK-PL-F-043 howTheGapCloses · MK-ST-F-010 nameEvidence
- *               MK-XS-F-014 classifyHolding
+ *               MK-XS-F-014 classifyHolding · MK-XS-F-217 fileAccountOf
  *
- * Reaches ..... 484 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 487 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -84,7 +84,7 @@ export const snaptradeConfigured = () => !!relayUrl();
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 466 more — the full list is on functions_from_code
+ *               … and 469 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

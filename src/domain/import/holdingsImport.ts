@@ -244,10 +244,10 @@ export function parseCsv(text: string): string[][] {
  *     n   if number.is finite(n)
  *     na n   otherwise
  *
- * Called by ... MK-XS-F-015 importHoldings
+ * Called by ... MK-XS-F-015 importHoldings · MK-XS-F-217 fileAccountOf
  *
- * Reaches ..... 1 function. Change the arithmetic above and these change with it:
- *               MK-XS-F-015 importHoldings
+ * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-217 fileAccountOf · MK-XS-F-015 importHoldings
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -301,10 +301,10 @@ function findCol(headers: string[], patterns: RegExp[]): number {
  *     purchase date on record(`${m[3]}-${m[1].pad start(2, '0')}-${m[2].pad start(2, '0')}`) (or undefined when missing)   when m
  *     the answer = undefined
  *
- * Called by ... MK-XS-F-015 importHoldings
+ * Called by ... MK-XS-F-015 importHoldings · MK-XS-F-216 fileDateOf
  *
- * Reaches ..... 1 function. Change the arithmetic above and these change with it:
- *               MK-XS-F-015 importHoldings
+ * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-216 fileDateOf · MK-XS-F-015 importHoldings
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -381,6 +381,121 @@ export function assetClassForSymbol(symbol: string, name = '', brokerType?: stri
   return classifyHoldingClass({ ticker: symbol, name, brokerTag: brokerType ?? null, hasSecurityIdentity: true }).cls;
 }
 
+const MONTHS: Record<string, string> = { jan: '01', feb: '02', mar: '03', apr: '04', may: '05', jun: '06', jul: '07', aug: '08', sep: '09', oct: '10', nov: '11', dec: '12' };
+/** The day a file says its figures are from: a cell that starts "Generated at", "As of" or "Data as of", followed by
+ *  "Jun 21 2026" / "June 21, 2026" or 06/21/2026. Null when no cell says so — never the day of the import. */
+/* ─ MK-XS-F-216 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * fileDateOf
+ *
+ * Answers ..... The day a file says its figures are from: a cell that starts "Generated at", "As of" or "Data as of", followed by "Jun 21 2026" / "June 21, 2026" or 06/21/2026.
+ *
+ * Formula .....
+ *     t = (c ?? '').trim()
+ *     head = match( ÷ ^(?:generated(?: at| on)?|(?:data )?as of|downloaded(?: on)?)\s × :?\s × (.+)$ ÷ i)
+ *     m = head[1].match( ÷ ^([A − za − z]{3})[a − z] × \.?\s+(\d{1,2}),?\s+(\d{4}) ÷ )
+ *     iso = purchase date on record(`${m[3]}-${MONTHS[m[1].to lower case()]}-${m[2].pad start(2, '0')}`)
+ *     iso   when iso
+ *     d = to iso date((head[1].match( ÷ ^(\d{1,2}\ ÷ \d{1,2}\ ÷ \d{4}) ÷ ) ?? [])[1] ?? '')
+ *     d   when d
+ *     the answer = undefined
+ *
+ * Called by ... MK-XS-F-015 importHoldings
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-XS-F-015 importHoldings
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-216
+ * Changed ..... not in git yet (—)
+ */
+function fileDateOf(rows: string[][]): string | undefined {
+  for (const r of rows) for (const c of r) {
+    const t = (c ?? '').trim();
+    const head = t.match(/^(?:generated(?: at| on)?|(?:data )?as of|downloaded(?: on)?)\s*:?\s*(.+)$/i);
+    if (!head) continue;
+    const m = head[1].match(/^([A-Za-z]{3})[a-z]*\.?\s+(\d{1,2}),?\s+(\d{4})/);
+    if (m && MONTHS[m[1].toLowerCase()]) {
+      const iso = purchaseDateOnRecord(`${m[3]}-${MONTHS[m[1].toLowerCase()]}-${m[2].padStart(2, '0')}`);
+      if (iso) return iso;
+    }
+    const d = toIsoDate((head[1].match(/^(\d{1,2}\/\d{1,2}\/\d{4})/) ?? [])[1] ?? '');
+    if (d) return d;
+  }
+  return undefined;
+}
+
+/** The account a file is about: the row under a header that has an "Account" column beside an account value column
+ *  ("Net Account Value", "Account Value", "Total Value"). "Individual Brokerage -2203" → name and number. */
+/* ─ MK-XS-F-217 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * fileAccountOf
+ *
+ * Answers ..... The account a file is about: the row under a header that has an "Account" column beside an account value column ("Net Account Value", "Account Value", "Total Value").
+ *
+ * Formula .....
+ *     h = for each of rows[i]: each (or '').trim( when missing)
+ *     name at = find index((c) => ÷ ^account( name)?$ ÷ test(c))
+ *     total at = find index((c) => ÷ ^(net account value|account value|total (account )?value)\b ÷ test(c))
+ *     row = rows.slice(i + 1, before).find((r) => (r[name at] ?? '').trim())
+ *     undefined   when row is missing
+ *     raw = row[name at].trim()
+ *     num = raw.match( ÷ ^(. × ?)\s × [-–#x x × •]+\s × (\d{3,})$ ÷ )
+ *     total = num or na n(row[total at])   if total at ≥ 0
+ *     na n   otherwise
+ *     the answer:
+ *     name = (num ? num[1] : raw).trim()
+ *     ...(num ? { number: num[2] } : {}) = ...(num ? { number: num[2] } : {})
+ *     ...(number.is finite(total) ? { stated total: total } : {}) = ...(number.is finite(total) ? { stated total: total } : {})
+ *     [LOOP — the answer is found inside a loop the extractor cannot render; the steps above are the ones before it. Read by hand.]
+ *
+ * Called by ... MK-XS-F-015 importHoldings
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-XS-F-015 importHoldings
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-217
+ * Changed ..... not in git yet (—)
+ */
+function fileAccountOf(rows: string[][], before: number): ImportResult['account'] {
+  for (let i = 0; i < before; i++) {
+    const h = rows[i].map((c) => (c ?? '').trim());
+    const nameAt = h.findIndex((c) => /^account( name)?$/i.test(c));
+    const totalAt = h.findIndex((c) => /^(net account value|account value|total (account )?value)\b/i.test(c));
+    if (nameAt < 0) continue;
+    const row = rows.slice(i + 1, before).find((r) => (r[nameAt] ?? '').trim());
+    if (!row) return undefined;
+    const raw = row[nameAt].trim();
+    const num = raw.match(/^(.*?)\s*[-–#xX*•]+\s*(\d{3,})$/);
+    const total = totalAt >= 0 ? numOrNaN(row[totalAt]) : NaN;
+    return { name: (num ? num[1] : raw).trim(), ...(num ? { number: num[2] } : {}), ...(Number.isFinite(total) ? { statedTotal: total } : {}) };
+  }
+  return undefined;
+}
+
+const OPTION_WORDS = /\b(put|call)s?\b/i;
+/** Two amounts that are the same to the cent — under half a cent apart — so a file's total and the total of its rows can be compared without a rounding difference reading as a gap. */
+/* ─ MK-XS-F-218 ──────────────────────────────────────────────────────────────────── 1 · ACTION
+ * sameCents
+ *
+ * Answers ..... Two amounts that are the same to the cent — under half a cent apart — so a file's total and the total of its rows can be compared without a rounding difference reading as a gap.
+ *
+ * Formula .....
+ *     size of(a − b) < 0.005
+ *
+ * Called by ... MK-XS-F-015 importHoldings
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-XS-F-015 importHoldings
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-218
+ * Changed ..... not in git yet (—)
+ */
+const sameCents = (a: number, b: number) => Math.abs(a - b) < 0.005;
+
 /** Find the real positions header — the first row that has BOTH a symbol/ticker AND a quantity/shares
  *  column (skips brokerage preambles like "Account Summary" and filter headers). */
 /* ─ MK-XS-F-129 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
@@ -406,46 +521,6 @@ export function assetClassForSymbol(symbol: string, name = '', brokerType?: stri
  * Formula also on the master file · functions_from_code · MK-XS-F-129
  * Changed ..... not in git yet (—)
  */
-const MONTHS: Record<string, string> = { jan: '01', feb: '02', mar: '03', apr: '04', may: '05', jun: '06', jul: '07', aug: '08', sep: '09', oct: '10', nov: '11', dec: '12' };
-/** The day a file says its figures are from: a cell that starts "Generated at", "As of" or "Data as of", followed by
- *  "Jun 21 2026" / "June 21, 2026" or 06/21/2026. Null when no cell says so — never the day of the import. */
-function fileDateOf(rows: string[][]): string | undefined {
-  for (const r of rows) for (const c of r) {
-    const t = (c ?? '').trim();
-    const head = t.match(/^(?:generated(?: at| on)?|(?:data )?as of|downloaded(?: on)?)\s*:?\s*(.+)$/i);
-    if (!head) continue;
-    const m = head[1].match(/^([A-Za-z]{3})[a-z]*\.?\s+(\d{1,2}),?\s+(\d{4})/);
-    if (m && MONTHS[m[1].toLowerCase()]) {
-      const iso = purchaseDateOnRecord(`${m[3]}-${MONTHS[m[1].toLowerCase()]}-${m[2].padStart(2, '0')}`);
-      if (iso) return iso;
-    }
-    const d = toIsoDate((head[1].match(/^(\d{1,2}\/\d{1,2}\/\d{4})/) ?? [])[1] ?? '');
-    if (d) return d;
-  }
-  return undefined;
-}
-
-/** The account a file is about: the row under a header that has an "Account" column beside an account value column
- *  ("Net Account Value", "Account Value", "Total Value"). "Individual Brokerage -2203" → name and number. */
-function fileAccountOf(rows: string[][], before: number): ImportResult['account'] {
-  for (let i = 0; i < before; i++) {
-    const h = rows[i].map((c) => (c ?? '').trim());
-    const nameAt = h.findIndex((c) => /^account( name)?$/i.test(c));
-    const totalAt = h.findIndex((c) => /^(net account value|account value|total (account )?value)\b/i.test(c));
-    if (nameAt < 0) continue;
-    const row = rows.slice(i + 1, before).find((r) => (r[nameAt] ?? '').trim());
-    if (!row) return undefined;
-    const raw = row[nameAt].trim();
-    const num = raw.match(/^(.*?)\s*[-–#xX*•]+\s*(\d{3,})$/);
-    const total = totalAt >= 0 ? numOrNaN(row[totalAt]) : NaN;
-    return { name: (num ? num[1] : raw).trim(), ...(num ? { number: num[2] } : {}), ...(Number.isFinite(total) ? { statedTotal: total } : {}) };
-  }
-  return undefined;
-}
-
-const OPTION_WORDS = /\b(put|call)s?\b/i;
-const sameCents = (a: number, b: number) => Math.abs(a - b) < 0.005;
-
 function findHeaderRow(rows: string[][]): number {
   for (let i = 0; i < rows.length; i++) {
     const h = rows[i].map((c) => c.trim());
@@ -474,8 +549,8 @@ function findHeaderRow(rows: string[][]): number {
  *     per share col = find col(headers, [ ÷ cost. × (per|\ ÷ ). × sh|cost\ ÷ sh|average cost|avg\.? cost|price paid|purchase price|unit cost ÷ i])
  *     total cost col = find col(headers, [ ÷ cost basis|total cost|cost amount|book cost ÷ i])
  *     value col = find col(headers, [ ÷ ^value\s × \$?$ ÷ i, ÷ market value|current value|^value ÷ i])
+ *     last price col = find col(headers, [ ÷ ^last price ÷ i, ÷ last price|current price|^price\s × \$?$ ÷ i])
  *     date col = find col(headers, [ ÷ purchase date|acquired|acquisition|trade date|date ÷ i])
- *     type col = headers.find index((h) => ÷ ^(security|asset|investment|product|holding)\s × (type|class)$ ÷ test(h))
  *     … the first steps only — the rest of the body needs reading by hand.
  *
  * Called by ... nothing — it is an entry point, or nothing reaches it
@@ -483,11 +558,16 @@ function findHeaderRow(rows: string[][]): number {
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
  *               MK-XS-I-010 transaction words (the institution's own wording)
+ *               MK-XS-I-012 bond coupon rate
+ *               MK-XS-I-013 bond maturity date
+ *               MK-XS-I-063 option contract multiplier — 100 unless the broker or the person states otherwise
  *               MK-XS-I-064 the unit beside a quantity — shares, coins, contracts, ounces or units
  *               MK-XS-I-070 the class a broker sends for a holding — its security type and its cash-equivalent flag
  *
  * Decides .....
+ *     · If multiplier is missing it uses 1.
  *     · Uses a built-in skipped of 0.
+ *     · Applies a built-in rate of 0.5% to qty.
  *
  * Formula also on the master file · functions_from_code · MK-XS-F-015
  * Changed ..... 2026-06-22 (6f13ff0)
@@ -657,6 +737,45 @@ export function matchImportAccount(accounts: AssetAccount[], institution: string
  *  number, is valued as of the file's own date, and its cash plus holdings is checked against the file's own total: a
  *  difference is kept on the account, named, as a linked account's is (E11). A name typed on the review screen wins.
  *  To reverse: give confirmImport its per-class loop back (git history, 2026-11-04). */
+/* ─ MK-XS-F-219 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * importedAccountOf
+ *
+ * Answers ..... ONE FILE, ONE ACCOUNT (his Build 55 feedback, 2026-11-04: "The file imported is not imported accurately.").
+ *
+ * Formula .....
+ *     now iso = opts.now iso (or the date ).to isostring( when missing)
+ *     cash rows = holdings where asset class = 'cash' and !(shares > 0)
+ *     held = holdings where !cash rows.includes(each) and shares > 0
+ *     elsewhere = Σ over value only rows(r) of (value (or 0 when missing or zero))
+ *     cash = Σ over cash rows of (value (or 0 when missing or zero))
+ *     cls = asset class
+ *     is option = multiplier ≠ nothing
+ *     values = for each of held: value (or 0 when missing or zero)
+ *     stated = account.stated total
+ *     check = reconcile account total([...values, elsewhere], cash, stated)   if stated ≠ nothing and stated > 0
+ *     nothing   otherwise
+ *     typed = opts.name.trim()
+ *     … the first steps only — the rest of the body needs reading by hand.
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-001 account balance
+ *               MK-XS-I-002 account type (taxable, pre-tax, Roth)
+ *               MK-XS-I-003 institution name
+ *               MK-XS-I-004 holding quantity (shares)
+ *               MK-XS-I-005 holding price
+ *               MK-XS-I-007 purchase price and date (per lot)
+ *               MK-XS-I-011 bond face value
+ *               MK-XS-I-012 bond coupon rate
+ *
+ * Decides .....
+ *     · If value is missing it counts as zero, so nothing recorded and a real zero look the same.
+ *     · Uses today's date from the device clock, so the answer changes by itself overnight.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-219
+ * Changed ..... 2026-11-05 (922e82bb)
+ */
 export function importedAccountOf(
   r: ImportResult,
   opts: { institution: string; name: string; nowIso?: string },
@@ -708,11 +827,60 @@ export function importedAccountOf(
   } as unknown as Omit<AssetAccount, 'asset_id'>;   // tax_bucket left unstated on purpose (DEC-4036f)
 }
 
+/** The rows of an imported file that have a value and no quantity, cash left out — a bond or other investment the file lists by value only. */
+/* ─ MK-XS-F-220 ──────────────────────────────────────────────────────────────────── 1 · ACTION
+ * valueOnlyRows
+ *
+ * Answers ..... The rows of an imported file that have a value and no quantity, cash left out — a bond or other investment the file lists by value only.
+ *
+ * Formula .....
+ *     holdings where asset class ! = 'cash' and !(shares > 0) and value > 0
+ *
+ * Called by ... MK-XS-F-219 importedAccountOf · MK-XS-F-221 valueOnlyAccountsOf
+ *
+ * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-219 importedAccountOf · MK-XS-F-221 valueOnlyAccountsOf
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-004 holding quantity (shares)
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-220
+ * Changed ..... not in git yet (—)
+ */
 const valueOnlyRows = (r: ImportResult) => r.holdings.filter((h) => h.assetClass !== 'cash' && !(h.shares > 0) && h.value > 0);
 
 /** A ROW WITH A VALUE AND NO QUANTITY (a bond or other investment a file lists by value only) cannot be a holding — a holding
  *  is a quantity at a price — so it is saved as its own account under its class, holding that value, as every imported row
  *  was before 2026-11-04. None in his file. */
+/* ─ MK-XS-F-221 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * valueOnlyAccountsOf
+ *
+ * Answers ..... A ROW WITH A VALUE AND NO QUANTITY (a bond or other investment a file lists by value only) cannot be a holding — a holding is a quantity at a price — so it is saved as its own account under its class, holding that value, as every imported row was before 2026-11-04.
+ *
+ * Formula .....
+ *     now iso = opts.now iso (or the date ).to isostring( when missing)
+ *
+ * Called by ... MK-XS-F-219 importedAccountOf
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-XS-F-219 importedAccountOf
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-001 account balance
+ *               MK-XS-I-002 account type (taxable, pre-tax, Roth)
+ *               MK-XS-I-003 institution name
+ *               MK-XS-I-028 assumed return
+ *               MK-XS-I-033 the date a hand-typed value was set
+ *               MK-XS-I-048 the person’s own asset-class answer
+ *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
+ *               MK-XS-I-066 last successful update of a linked or imported account
+ *
+ * Decides .....
+ *     · Uses today's date from the device clock, so the answer changes by itself overnight.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-221
+ * Changed ..... 2026-11-05 (922e82bb)
+ */
 export function valueOnlyAccountsOf(
   r: ImportResult,
   opts: { institution: string; nowIso?: string },

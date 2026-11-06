@@ -85,9 +85,9 @@ const MONEY_KINDS = new Set(['DEPOSIT', 'WITHDRAWAL', 'TRANSFER', 'DIVIDEND', 'I
  * Called by ... MK-XS-F-102 ingestSync · MK-XS-F-192 typedValueDatedBack
  *               MK-XS-F-199 profileOnTheWayIn
  *
- * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
- *               MK-XS-F-102 ingestSync · MK-XS-F-199 profileOnTheWayIn
- *               MK-XS-F-192 typedValueDatedBack
+ * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-219 importedAccountOf · MK-XS-F-102 ingestSync
+ *               MK-XS-F-199 profileOnTheWayIn · MK-XS-F-192 typedValueDatedBack
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-008 transaction amount
@@ -136,9 +136,9 @@ export function fixStoredMoney<T extends { type?: any; account_id?: any; date?: 
  * Called by ... MK-XS-F-102 ingestSync · MK-XS-F-192 typedValueDatedBack
  *               MK-XS-F-199 profileOnTheWayIn
  *
- * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
- *               MK-XS-F-102 ingestSync · MK-XS-F-199 profileOnTheWayIn
- *               MK-XS-F-192 typedValueDatedBack
+ * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-219 importedAccountOf · MK-XS-F-102 ingestSync
+ *               MK-XS-F-199 profileOnTheWayIn · MK-XS-F-192 typedValueDatedBack
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -195,10 +195,10 @@ export function fixStoredFees<T extends { type?: any; account_id?: any; date?: a
  *
  * Called by ... MK-PF-F-028 realizedFromLedger · MK-XS-F-102 ingestSync
  *
- * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 6 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
- *               MK-XS-F-102 ingestSync · MK-PF-F-028 realizedFromLedger
- *               MK-NW-O-006 theHolding
+ *               MK-XS-F-219 importedAccountOf · MK-XS-F-102 ingestSync
+ *               MK-PF-F-028 realizedFromLedger · MK-NW-O-006 theHolding
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -232,8 +232,9 @@ export function tradeFeeOnRecord(
  *
  * Called by ... MK-XS-F-102 ingestSync · MK-XS-F-116 runSnapTradeSync
  *
- * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
- *               MK-XS-F-102 ingestSync · MK-XS-F-116 runSnapTradeSync
+ * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-219 importedAccountOf · MK-XS-F-102 ingestSync
+ *               MK-XS-F-116 runSnapTradeSync
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -256,8 +257,8 @@ export const stAssetId = (snapTradeAccountId: string) => `st-${snapTradeAccountI
  *
  * Called by ... MK-XS-F-102 ingestSync
  *
- * Reaches ..... 1 function. Change the arithmetic above and these change with it:
- *               MK-XS-F-102 ingestSync
+ * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-219 importedAccountOf · MK-XS-F-102 ingestSync
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -312,8 +313,8 @@ function theirCost(prior: any): number | null {
  *
  * Called by ... MK-XS-F-102 ingestSync
  *
- * Reaches ..... 1 function. Change the arithmetic above and these change with it:
- *               MK-XS-F-102 ingestSync
+ * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-219 importedAccountOf · MK-XS-F-102 ingestSync
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-011 bond face value
@@ -373,7 +374,10 @@ export function bondQuoteBasis(
  *     undefined   otherwise
  *     … the first steps only — the rest of the body needs reading by hand.
  *
- * Called by ... nothing — it is an entry point, or nothing reaches it
+ * Called by ... MK-XS-F-219 importedAccountOf
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-XS-F-219 importedAccountOf
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance

@@ -680,7 +680,8 @@ describe('E2E-61 · Edit a record (its price) from the ✎, then delete a record
     // 2 · its ✎: the trade's own figures, filled; the price put right
     open('account', { id: 'fid', period: '1M' });
     press('Edit or delete your buy of VTI, 10 shares at $100.00');   // the ✎ names its holding and its own figures (2026-10-23)
-    expect(readLines(true)).toEqual(['Buy — you entered this', 'Sep 15, 2026 · correcting it reverses the old record and records the new one, so your balance stays right.',
+    expect(readLines(true)).toEqual(['✕', 'Buy — you entered this',   // the sheet's ✕ (edit-record v04, 2026-11-06)
+       'Sep 15, 2026 · correcting it reverses the old record and records the new one, so your balance stays right.',
       'Shares', '10', 'Price / share', '$100', 'Fee (opt)', '—', 'Save', 'Delete this record']);   // the price as money since 2026-10-27 (DEC-8385)
     type('Price per share', '98');
     press('Save this correction');
@@ -740,7 +741,7 @@ describe('E2E-61 · Edit a record (its price) from the ✎, then delete a record
 // ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
 // E2E-62 · UPDATE THE VALUE OF AN ACCOUNT BUILT BY HAND
 // ═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
-// The Update value drawing's own household (moneykeel_pres_mock_update-value-sheet_v02.html, states D, F and G): Gold coins,
+// The Update value drawing's own household (moneykeel_pres_mock_update-value-sheet_v03.html, states D, F and G): Gold coins,
 // entered Feb 14, 2026 at $8,000 — 7 months old today. The person taps Update value in the age box, types 8400, saves. By hand:
 // Net worth and the Performance tab read $8,400; the account is stamped as valued today, Sep 30, 2026; the age box goes.
 describe('E2E-62 · Update the value of an account built by hand with the Update value sheet: Net worth and the Performance tab agree on the new value, stamped today', () => {
@@ -756,11 +757,11 @@ describe('E2E-62 · Update the value of an account built by hand with the Update
     expect(page0).toContain('Value as of Feb 14, 2026');
     expect(page0).toContain('⏱ This value is 7 months old — still right?');
     press('Update the value');
-    const drawn = drawnSheetLines('moneykeel_pres_mock_update-value-sheet_v02.html', 'F');
+    const drawn = drawnSheetLines('moneykeel_pres_mock_update-value-sheet_v03.html', 'F');
     expect(drawn.length).toBeGreaterThanOrEqual(4);
     const shownF = readLines(true);
     // "Update value — Gold coins", "$", then the box beside that $: drawn 8000, shown 8,000 (the row of 2026-10-27), the stamp line, "Save value"
-    expect(shownF).toEqual(asTheRowSays('moneykeel_pres_mock_update-value-sheet_v02.html', drawn, shownF));
+    expect(shownF).toEqual(asTheRowSays('moneykeel_pres_mock_update-value-sheet_v03.html', drawn, shownF));
     type('Current value', '8400');
     press('Save the updated value');
     const page = readLines();

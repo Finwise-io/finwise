@@ -3,7 +3,7 @@
 export type UserId = string;     // Firebase auth uid
 export type EntityId = string;   // asset_id | debt_id | goal_id | income_source_id …
 
-/* ─ MK-ST-F-043 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+/* ─ MK-ST-F-043 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * newEntityId
  *
  * Answers ..... What do we call this new thing?
@@ -16,18 +16,19 @@ export type EntityId = string;   // asset_id | debt_id | goal_id | income_source
  *               MK-CF-F-138 addLot · MK-CF-F-291 purchaseRecordsFollowReimport
  *               MK-NW-F-040 assetsFromOnboarding · MK-PL-F-013 goalsFromOnboarding
  *               MK-XS-F-102 ingestSync · MK-XS-F-199 profileOnTheWayIn
+ *               MK-XS-F-219 importedAccountOf
  *
- * Reaches ..... 21 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 22 functions. Change the arithmetic above and these change with it:
  *               MK-CF-F-138 addLot · MK-CF-F-111 applyTransaction
  *               MK-NW-F-040 assetsFromOnboarding · MK-XS-F-031 buildSnapshot
  *               MK-CF-F-038 debtsFromOnboarding · MK-PL-F-023 goalStatus
- *               MK-PL-F-013 goalsFromOnboarding · MK-CF-F-079 incomeFromOnboarding
- *               MK-XS-F-102 ingestSync · MK-CF-F-116 inverseOf
- *               MK-CF-F-112 makeTransaction · MK-CF-F-288 openingRecordsHeld
- *               MK-CF-F-224 openingRecordsOf · MK-XS-F-199 profileOnTheWayIn
- *               MK-CF-F-290 purchaseRecordsAfterHoldingRemoved · MK-CF-F-289 purchaseRecordsFollowEdit
- *               MK-CF-F-291 purchaseRecordsFollowReimport · MK-XS-F-033 resolveNetWorthRows
- *               … and 3 more — the full list is on functions_from_code
+ *               MK-PL-F-013 goalsFromOnboarding · MK-XS-F-219 importedAccountOf
+ *               MK-CF-F-079 incomeFromOnboarding · MK-XS-F-102 ingestSync
+ *               MK-CF-F-116 inverseOf · MK-CF-F-112 makeTransaction
+ *               MK-CF-F-288 openingRecordsHeld · MK-CF-F-224 openingRecordsOf
+ *               MK-XS-F-199 profileOnTheWayIn · MK-CF-F-290 purchaseRecordsAfterHoldingRemoved
+ *               MK-CF-F-289 purchaseRecordsFollowEdit · MK-CF-F-291 purchaseRecordsFollowReimport
+ *               … and 4 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

@@ -1,5 +1,5 @@
 import { Tabs } from 'expo-router';
-import { View, Platform } from 'react-native';
+import { View, Platform, Text } from 'react-native';
 import { useWindowDimensions } from 'react-native';
 import { DesktopSidebar } from '../../desktop/platform/DesktopSidebar';   // approved desktop shell (web only)
 import { Ionicons } from '@expo/vector-icons';
@@ -81,6 +81,13 @@ export default function TabLayout() {
           title: TAB_META[name].title,
           tabBarAccessibilityLabel: `${TAB_META[name].title} tab`,
           tabBarIcon: ({ focused }) => <TabIcon name={TAB_META[name].icon} focused={focused} />,
+          // A TAB'S NAME IS NEVER CUT OFF (design review, 2026-11-06): "Performance" read "Performa…" on his phone (Build 55,
+          // IMG_0891, IMG_0893); Net worth v08 and Performance v17 draw it in full. One line, at 11, shrinking only as far as it
+          // must to fit the tab's width.
+          tabBarLabel: ({ color }) => (
+            <Text testID={`tab-label-${name}`} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}
+              style={{ fontSize: Typography.sizes.xs, fontWeight: '700', color, paddingHorizontal: 2 }}>{TAB_META[name].title}</Text>
+          ),
         }} />
       ))}
       {/* legacy destinations — routable (Menu / deep links), hidden from the bar */}

@@ -30,8 +30,9 @@ const handlers: Record<string, Set<Handler>> = {};
  *               MK-PL-F-083 inflationRateInForce · MK-ST-F-049 formatMoney
  *               MK-ST-F-073 rebuildDays · MK-ST-F-081 timeWeightedReturn
  *               MK-XS-F-192 typedValueDatedBack · MK-XS-F-197 chainShown
+ *               MK-XS-F-216 fileDateOf
  *
- * Reaches ..... 503 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 506 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -41,7 +42,7 @@ const handlers: Record<string, Set<Handler>> = {};
  *               MK-CF-F-237 LATER · MK-NW-F-081 LB
  *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
  *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
- *               … and 485 more — the full list is on functions_from_code
+ *               … and 488 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

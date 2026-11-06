@@ -196,10 +196,11 @@ export interface Classified {
  *
  * Called by ... MK-ST-F-012 toLedgerRow · MK-XS-F-106 mapOptionHolding
  *
- * Reaches ..... 6 functions. Change the arithmetic above and these change with it:
- *               MK-XS-F-188 fixStoredFees · MK-XS-F-102 ingestSync
- *               MK-XS-F-106 mapOptionHolding · MK-XS-F-199 profileOnTheWayIn
- *               MK-ST-F-012 toLedgerRow · MK-XS-F-192 typedValueDatedBack
+ * Reaches ..... 7 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-188 fixStoredFees · MK-XS-F-219 importedAccountOf
+ *               MK-XS-F-102 ingestSync · MK-XS-F-106 mapOptionHolding
+ *               MK-XS-F-199 profileOnTheWayIn · MK-ST-F-012 toLedgerRow
+ *               MK-XS-F-192 typedValueDatedBack
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -249,8 +250,8 @@ export function touches(e: CanonicalEvent, total: 'contributions' | 'withdrawals
  *
  * Called by ... MK-XS-F-102 ingestSync
  *
- * Reaches ..... 1 function. Change the arithmetic above and these change with it:
- *               MK-XS-F-102 ingestSync
+ * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-219 importedAccountOf · MK-XS-F-102 ingestSync
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

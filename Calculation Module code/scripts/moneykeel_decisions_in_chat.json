@@ -11434,6 +11434,24 @@
    "apply_steps": "1. Count the running agents before starting one. 2. At three, wait for one to finish. 3. Each closing round names its order with no more than three running.",
    "not_a_repeat_of": "",
    "proof": "MoneyKeel/documents/other/moneykeel_calc_plan_workplan_v01.xlsx — the workplan row for the three-agent limit"
+  },
+  {
+   "decided": "2026-11-04",
+   "answers": [],
+   "tab": "networth",
+   "status": "RULED — applied from 2026-11-05 (Build 56)",
+   "standard_carrier": "",
+   "type": "RULE",
+   "screens": "moneykeel_pres_mock_account-page_v01.html · the account page's BOND FACTS card · the Bonds list",
+   "his_words": "bond facts section show not entered but no intuitive way to enter those value. User should be able to click on it and enter. When I clicked edit, there was no way to edit.",
+   "subject": "A bond fact that reads not entered opens that bond's editor (his Build 55 feedback, 2026-11-04)",
+   "plain": "On a bond's own page, a bond fact that reads 'not entered' — face value, rate, maturity date — opens that bond's editor when tapped, so the fact can be typed there; Edit on the page opens the same editor, not the list of bonds.",
+   "means": "Before: the BOND FACTS rows read 'not entered' with no way in, and Edit opened the list of bonds. Now: each such row carries a › and opens this bond's editor, and Edit opens it too.",
+   "governs": "src/screens/AccountPortfolioScreen.tsx (BOND FACTS card, Edit) · src/screens/BondsScreen.tsx (BondEditor) · MK-NW-M-023 · MK-NW-M-024 · MK-NW-M-025",
+   "changed": "2026-11-05, commit 922e82bb (Build 56): the not-entered facts carry a › and open the editor; Edit opens this bond's editor; the editor saves with what is known.",
+   "apply_steps": "1. Each BOND FACTS row that reads not entered carries a › and opens this bond's editor. 2. Edit on the bond's page opens the same editor. 3. The editor saves with only the facts typed. 4. Held by src/screens/__tests__/build55_bond_edit_2026_11_04.test.tsx.",
+   "not_a_repeat_of": "DEC-6212 — that decision is the return in the time bar and what a return includes; this one is how a bond fact that was never entered gets entered. They share the account page and its bond rows, not a subject.",
+   "proof": "src/screens/__tests__/build55_bond_edit_2026_11_04.test.tsx"
   }
  ]
 }

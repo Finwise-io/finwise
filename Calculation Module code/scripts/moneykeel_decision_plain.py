@@ -35,6 +35,9 @@ import re
 # Keyed by a distinctive phrase from the source row. The value is what the decision IS, in words he
 # would use, numbered when the row holds more than one. These always win over the raw text.
 HAND_WRITTEN = {
+ # 2026-11-06: his Build 55 feedback of 2026-11-04, read from the account-page drawing row the Build 56 fix added (the records pass owed)
+ "bond facts section show not entered but no intuitive way to enter those value":
+  "On a bond's own page, a bond fact that reads 'not entered' — face value, rate, maturity date — opens that bond's editor when tapped, so the fact can be typed there; Edit on the page opens the same editor, not the list of bonds. Built in Build 56.",
  # 2026-11-01, PF-RECORDS: five rulings of his found in drawings and missing from the log (DRAW-HYGIENE, round 3)
  "work on fixing all 5+4 findings":
   "Fix all nine findings of the outside review of Net worth file 1: its five smaller points and the four found while fixing them. All nine were fixed on 2026-10-04.",

@@ -8,7 +8,7 @@
   "PF": 90,
   "PL": 103,
   "ST": 100,
-  "XS": 215
+  "XS": 221
  },
  "issued": {
   "ACC": "MK-NW-F-075",
@@ -309,6 +309,8 @@
   "figAsTyped": "MK-XS-F-212",
   "figPerAsTyped": "MK-XS-F-209",
   "figureSpec": "MK-XS-F-182",
+  "fileAccountOf": "MK-XS-F-217",
+  "fileDateOf": "MK-XS-F-216",
   "filingStatusOf": "MK-CF-F-085",
   "fillBetweenObservations": "MK-ST-F-084",
   "findCol": "MK-XS-F-126",
@@ -388,6 +390,7 @@
   "howTheGapCloses": "MK-PL-F-043",
   "importHoldings": "MK-XS-F-015",
   "importKey": "MK-ST-F-014",
+  "importedAccountOf": "MK-XS-F-219",
   "inMonth": "MK-CF-F-148",
   "incomeBearingClassOf": "MK-NW-F-008",
   "incomeFromAccounts": "MK-CF-F-184",
@@ -756,6 +759,7 @@
   "salaryWindow": "MK-CF-F-168",
   "salaryYearFromCells": "MK-CF-F-170",
   "saleShortOfPurchasesSentence": "MK-PF-F-046",
+  "sameCents": "MK-XS-F-218",
   "sampleAskLine": "MK-PL-F-028",
   "sampleOddsLine": "MK-PL-F-025",
   "saveBudget": "MK-CF-F-016",
@@ -939,6 +943,8 @@
   "valueEntered": "MK-NW-F-133",
   "valueFreshness": "MK-NW-F-003",
   "valueOn": "MK-ST-F-031",
+  "valueOnlyAccountsOf": "MK-XS-F-221",
+  "valueOnlyRows": "MK-XS-F-220",
   "valuedByYouWords": "MK-PF-F-088",
   "verdict": "MK-ST-F-060",
   "vestsAreCash": "MK-CF-F-266",

@@ -5,8 +5,8 @@
  *    moneykeel_pres_mock_trade-sheet_v04.html ............ the trade sheet, 15 states (Record activity; v03 2026-10-23, its fee; v04 2026-10-30, M–O)
  *    moneykeel_pres_mock_holding-editor_v02.html ......... the holding editor, 9 states (Edit holding)
  *    moneykeel_pres_mock_activity-sheet_v02.html ......... the activity sheet, 3 states (v02 2026-10-30, C)
- *    moneykeel_pres_mock_record-activity-sheet_v01.html .. the account page's recorder, 9 states
- *    moneykeel_pres_mock_edit-record-sheet_v03.html ...... the edit sheet for a record you entered, 10 states (v03 2026-10-30, D–J)
+ *    moneykeel_pres_mock_record-activity-sheet_v02.html .. the account page's recorder, 9 states
+ *    moneykeel_pres_mock_edit-record-sheet_v04.html ...... the edit sheet for a record you entered, 10 states (v03 2026-10-30, D–J)
  *  Each state — its accounts, records, prices, page and taps — is src/testing/sheetStates.tsx, the one list the drawing
  *  was drawn from, so the drawing and this test cannot be of two different states.
  *
@@ -272,8 +272,8 @@ const emptyRow = (html: string, dSheet: Line[]): Line[] => (R16_ROW.test(html) ?
 /** a guard must prove it looked: the grey figures each drawing draws in a box, counted by hand on 2026-11-01 — record activity A, E, F, H
  *  and I (the amount, 5); the trade sheet A, J, K, L, M and O (Shares and Price / share, 12); the holding editor H (Shares, 1); the ✎ sheet
  *  none (every box opens filled from the record). The activity sheet has no box and no row. */
-const R16_GREY: Record<string, number> = { 'moneykeel_pres_mock_record-activity-sheet_v01.html': 5, 'moneykeel_pres_mock_trade-sheet_v04.html': 12,
-  'moneykeel_pres_mock_holding-editor_v02.html': 1, 'moneykeel_pres_mock_edit-record-sheet_v03.html': 0 };
+const R16_GREY: Record<string, number> = { 'moneykeel_pres_mock_record-activity-sheet_v02.html': 5, 'moneykeel_pres_mock_trade-sheet_v04.html': 12,
+  'moneykeel_pres_mock_holding-editor_v02.html': 1, 'moneykeel_pres_mock_edit-record-sheet_v04.html': 0 };
 /** every box on the sheet as built: what it holds and the grey words it shows when empty */
 const sheetBoxes = () => screen.UNSAFE_root.findAll((n: any) => n.type === 'Modal').flatMap((m: any) => m.findAll((n: any) => n.type === 'TextInput'))
   .map((n: any) => ({ value: String(n.props.value ?? ''), placeholder: String(n.props.placeholder ?? '') }));
@@ -394,7 +394,7 @@ describe.each(SHEETS.map((s) => [s.file, s] as [string, Sheet]))('%s', (_file, s
 // ════════════════════════════════════════════════════════════════════════════════════════════════════════════════
 describe('the dark-green bar and the button that waits', () => {
   test('the INTO bar on the recorder runs edge to edge across the sheet with square corners — drawn (states D and E) and built', () => {
-    const { html } = readDrawing('moneykeel_pres_mock_record-activity-sheet_v01.html');
+    const { html } = readDrawing('moneykeel_pres_mock_record-activity-sheet_v02.html');
     const bars = [...html.matchAll(/<div class="v" style="([^"]*)"><div class="v" style="([^"]*background-color:var\(--primaryDeep\)[^"]*)">/g)];
     expect(bars).toHaveLength(2);
     for (const [, wrap, bar] of bars) {
@@ -460,7 +460,7 @@ test('every choice on the five sheets: how many are under 44 points tall (a ratc
 
 test('a sheet drawing that draws an account by its institution alone says so in its row of 2026-10-27 — and only those do (PF-8)', () => {
   const files = ['moneykeel_pres_mock_trade-sheet_v04.html', 'moneykeel_pres_mock_holding-editor_v02.html', 'moneykeel_pres_mock_activity-sheet_v02.html',
-    'moneykeel_pres_mock_record-activity-sheet_v01.html', 'moneykeel_pres_mock_edit-record-sheet_v03.html'];
+    'moneykeel_pres_mock_record-activity-sheet_v02.html', 'moneykeel_pres_mock_edit-record-sheet_v04.html'];
   const alone = files.filter((f) => {
     const html = fs.readFileSync(path.join(DIR, f), 'utf8');
     return /in Fidelity<|>Fidelity<|· Fidelity<|change Fidelity(’|&#39;|')s/.test(html.slice(html.indexOf('<div class="phone">'), html.indexOf('<div class="side">')));
@@ -471,11 +471,11 @@ test('a sheet drawing that draws an account by its institution alone says so in 
 
 test('a sheet drawing that draws a straight apostrophe inside a word says so in its row of 2026-10-25 — and only those do', () => {
   const files = ['moneykeel_pres_mock_trade-sheet_v04.html', 'moneykeel_pres_mock_holding-editor_v02.html', 'moneykeel_pres_mock_activity-sheet_v02.html',
-    'moneykeel_pres_mock_record-activity-sheet_v01.html', 'moneykeel_pres_mock_edit-record-sheet_v03.html'];
+    'moneykeel_pres_mock_record-activity-sheet_v02.html', 'moneykeel_pres_mock_edit-record-sheet_v04.html'];
   const straight = files.filter((f) => {
     const html = fs.readFileSync(path.join(DIR, f), 'utf8');
     return /[A-Za-z](?:'|&#39;)[A-Za-z]/.test(html.slice(html.indexOf('<div class="phone">'), html.indexOf('<div class="side">')).replace(/<[^>]+>/g, ' '));
   });
-  expect(straight).toEqual(['moneykeel_pres_mock_trade-sheet_v04.html', 'moneykeel_pres_mock_holding-editor_v02.html', 'moneykeel_pres_mock_record-activity-sheet_v01.html']);
+  expect(straight).toEqual(['moneykeel_pres_mock_trade-sheet_v04.html', 'moneykeel_pres_mock_holding-editor_v02.html', 'moneykeel_pres_mock_record-activity-sheet_v02.html']);
   for (const f of files) expect(APOSTROPHE_ROW.test(fs.readFileSync(path.join(DIR, f), 'utf8'))).toBe(straight.includes(f));
 });

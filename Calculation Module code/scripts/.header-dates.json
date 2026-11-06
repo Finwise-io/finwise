@@ -1014,5 +1014,11 @@
 "src/domain/income/from-accounts.ts::bondWhy": "not in git yet|\u2014",
 "MoneyKeel/functions/_figure-spec.ts::percentValue": "not in git yet|\u2014",
 "MoneyKeel/functions/_figure-spec.ts::pointsValue": "not in git yet|\u2014",
-"MoneyKeel/functions/_figure-spec.ts::isWholeToTheCent": "not in git yet|\u2014"
+"MoneyKeel/functions/_figure-spec.ts::isWholeToTheCent": "not in git yet|\u2014",
+"src/domain/import/holdingsImport.ts::valueOnlyAccountsOf": "2026-11-05|922e82bb",
+"src/domain/import/holdingsImport.ts::valueOnlyRows": "not in git yet|\u2014",
+"src/domain/import/holdingsImport.ts::importedAccountOf": "2026-11-05|922e82bb",
+"src/domain/import/holdingsImport.ts::sameCents": "not in git yet|\u2014",
+"src/domain/import/holdingsImport.ts::fileAccountOf": "not in git yet|\u2014",
+"src/domain/import/holdingsImport.ts::fileDateOf": "not in git yet|\u2014"
 }
