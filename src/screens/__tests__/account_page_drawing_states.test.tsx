@@ -33,7 +33,7 @@ import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react-native';
 import { StyleSheet } from 'react-native';
 import * as fs from 'fs';
-import { ruledHtml } from '../../testing/ruledSince';
+import { ruledHtml, addedSinceDrawn } from '../../testing/ruledSince';
 import * as path from 'path';
 import AccountPortfolioScreen from '../AccountPortfolioScreen';
 import { useStore } from '../../store/useStore';
@@ -282,7 +282,7 @@ function builtLines(): Line[] {
     if (kind) { counters[kind] = (counters[kind] ?? 0) + 1; gg = `${kind}#${counters[kind]}`; }
     if (n.type === 'Text') {
       const t = clean(textOf(n));
-      if (t && !/^[-]+$/.test(t)) out.push({ t, g: gg });   // an icon-font glyph is not a word
+      if (t && !/^[-]+$/.test(t) && !addedSinceDrawn(t)) out.push({ t, g: gg });   // an icon-font glyph is not a word; nor a line no drawing draws (ruledSince)
       return;
     }
     if (n.type === 'Image' && n.props?.accessibilityLabel === 'MoneyKeel') { out.push({ t: '[wordmark MoneyKeel]', g: gg }); return; }
@@ -474,11 +474,11 @@ describe('APPEARANCE: colours, sizes and weights as rendered, against the drawin
     expect(parentStyleOf('THIS ACCOUNT · SINCE OCT 1, 2025')).toMatchObject({ backgroundColor: Colors.primaryDeep, paddingVertical: 8, paddingHorizontal: 12, borderTopLeftRadius: 0, borderTopRightRadius: 0 });
     expect(styleOf('$101,000', 0)).toMatchObject({ fontSize: 15, fontWeight: '800', color: Colors.white });
     // .trio: labels 11/800 tertiary; figures 20/800 — Market value deep green, a measured gain green
-    expect(styleOf('Market value')).toMatchObject({ fontSize: 11, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.3 });
+    expect(styleOf('Ending market value')).toMatchObject({ fontSize: 11, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.3 });
     expect(styleOf('$101,000', 1)).toMatchObject({ fontSize: 20, fontWeight: '800', color: Colors.primaryDark });
     expect(styleOf('$6,000', 0)).toMatchObject({ fontSize: 20, fontWeight: '800', color: Colors.gainText });
     expect(styleOf('+8.26%', 2)).toMatchObject({ fontSize: 20, fontWeight: '800', color: Colors.gainText });   // (the bar's Since and 1Y read it first)
-    expect(styleOf(/^Return is for the window you picked/)).toMatchObject({ fontSize: 11, color: Colors.textTertiary, lineHeight: 16, marginTop: 6 });   // .note
+    expect(styleOf(/^Return is for these dates/)).toMatchObject({ fontSize: 11, color: Colors.textTertiary, lineHeight: 16, marginTop: 6 });   // .note
     // .wr: 15 secondary labels, 15/700 figures; Wealth generated 800; its parts indented 20; the ending deep green 800
     expect(styleOf('Contributions')).toMatchObject({ fontSize: 15, color: Colors.textSecondary });
     expect(styleOf('$15,000')).toMatchObject({ fontSize: 15, fontWeight: '700', color: Colors.textPrimary });
@@ -680,7 +680,7 @@ describe('DATA REALITY', () => {
   test('a balance never entered: Market value reads "Value not entered", Wealth generated and Return a dash (row 16, DEC-3657)', () => {
     renderState({ ...STATES[1], account: { ...MUNI, balance: undefined } });
     const ls = linesOf();
-    expect(ls[ls.indexOf('Market value') + 1]).toBe('Value not entered');
+    expect(ls[ls.indexOf('Ending market value') + 1]).toBe('Value not entered');   // the trio's name since DEC-10152 (2026-11-07)
     expect(ls[ls.indexOf('Wealth generated') + 1]).toBe('—');
     expect(ls[ls.indexOf('Return') + 1]).toBe('—');
     expect(ls.some((l) => /^\$0$/.test(l))).toBe(false);
@@ -1037,7 +1037,7 @@ describe('APPEARANCE · every line of every state, F included: size, weight and 
       if (Array.isArray(n)) { n.forEach(walk); return; }
       if (n.type === 'Text') {
         const t = clean(textOf(n)); const st = flat(n.props.style);
-        if (t && !/^[-]+$/.test(t)) out.push({ t, size: st.fontSize ?? 14, weight: String(st.fontWeight ?? '400'), color: st.color == null ? undefined : String(st.color).toUpperCase() });
+        if (t && !/^[-]+$/.test(t) && !addedSinceDrawn(t)) out.push({ t, size: st.fontSize ?? 14, weight: String(st.fontWeight ?? '400'), color: st.color == null ? undefined : String(st.color).toUpperCase() });
         return;
       }
       if (n.type === 'Image' && n.props?.accessibilityLabel === 'MoneyKeel') return;

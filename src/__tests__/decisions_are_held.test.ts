@@ -1647,11 +1647,11 @@ describe('the decisions in the log are held by something that executes', () => {
   });
 
   // ── DEC-0357 ───────────────────────────────────────────────────────────────────────────────
-  test('DEC-0357 — "why income when % is calculated using wealth generated?": the trio is Ending value · Wealth generated · Return, never Income', () => {
+  test('DEC-0357 — "why income when % is calculated using wealth generated?": the trio is Ending market value · Wealth generated · Return, never Income (the name since DEC-10152, 2026-11-07)', () => {
     const src = noComments(screenSrc('PerformanceScreen'));
     const labels = [...src.matchAll(/<Text style=\{styles\.sumLbl\}>([^<]+)<\/Text>/g)].map((m) => m[1]);
     expect(labels.length).toBeGreaterThanOrEqual(3);
-    expect(new Set(labels)).toEqual(new Set(['Ending value', 'Wealth generated', 'Return']));
+    expect(new Set(labels)).toEqual(new Set(['Ending market value', 'Wealth generated', 'Return']));
   });
 
   // ── DEC-0421 ───────────────────────────────────────────────────────────────────────────────
@@ -1672,7 +1672,7 @@ describe('the decisions in the log are held by something that executes', () => {
   test('DEC-0465 — "This does not have refresh date and time": a linked figure says when it was last true', () => {
     // his later ruling narrows WHEN it is said — brief R7, 2026-08-20: "source always, date only when
     // stale" — so the date rides the warning that prices are old, and fresh prices say nothing
-    expect(noComments(screenSrc('PerformanceScreen'))).toMatch(/\{!!stale\?\.stale && \(\s*<Text[^>]*>⚠ Prices may be out of date · \{store\.pricesFetchedAt \? `updated \$\{stale\.label\}` : stale\.label\}/);
+    expect(noComments(screenSrc('PerformanceScreen'))).toMatch(/\{!!stale\?\.stale && \(\s*(?:<View[^>]*>\s*)?<Text[^>]*>⚠ Prices may be out of date · \{store\.pricesFetchedAt \? `updated \$\{stale\.label\}` : stale\.label\}/);
     const stale = { asset_id: 'l', label: 'Fidelity', tax_bucket: 'TAXABLE', balance: 1, target_return: 0, source: 'connected', last_synced: new Date(Date.now() - 9 * 86_400_000).toISOString() } as any;
     expect(sourceWording(stale)).toMatch(/^Linked · /);
   });

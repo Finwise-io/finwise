@@ -84,12 +84,12 @@ beforeEach(() => seed());
 // ── 1 · THE HEADER TRIO ─────────────────────────────────────────────────────────────────────────
 // the account-page drawing v01 (approved 2026-10-19) draws the trio as v17 frame 2 did: Market value · Wealth generated ·
 // Return. The build had printed the Performance tab's "Ending value" (phone 1's word) here.
-test('the trio reads Market value · Wealth generated · Return, in that order (the account-page drawing v01), and Income is not one of them', () => {
+test('the trio reads Ending market value · Wealth generated · Return, in that order (the account-page drawing v01), and Income is not one of them', () => {
   render(<AccountPortfolioScreen />);
   // the first three are the trio; "Wealth generated" appears again further down, as a walk line
-  const labels = screen.getAllByText(/^(Market value|Ending value|Wealth generated|Return)$/).map((n: any) => String(n.props.children));
-  expect(labels.slice(0, 3)).toEqual(['Market value', 'Wealth generated', 'Return']);
-  expect(screen.queryByText('Ending value')).toBeNull();
+  const labels = screen.getAllByText(/^(Ending market value|Market value|Ending value|Wealth generated|Return)$/).map((n: any) => String(n.props.children));
+  expect(labels.slice(0, 3)).toEqual(['Ending market value', 'Wealth generated', 'Return']);
+  expect(screen.queryByText('Market value')).toBeNull();   // one name since DEC-10152 (2026-11-07)
   expect(screen.queryByText('Income')).toBeNull();          // it sits with the holding that earned it
   expect(screen.getAllByText('$52,704').length).toBeGreaterThan(0);
   expect(screen.getAllByText('$300').length).toBeGreaterThan(0);

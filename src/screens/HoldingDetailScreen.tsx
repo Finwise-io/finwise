@@ -354,7 +354,7 @@ export default function HoldingDetailScreen() {
               precision order): the Performance tab's sentence, for each of the two returns (2026-10-21, gap 34), from the one writer
               the Performance tab and the account page ask (overTheYearsSentence, 2026-10-22) — the market's line lost its "same". */}
           {yearly && row.periodTotal != null && (
-            <Text style={s.noteLine}>{`Your return: ${overTheYearsSentence({ cumulative: row.periodTotal, perYear: row.periodReturn, years: row.years as number }, (v, per) => (per ? `${fig('MK-PF-M-023', v)}/year` : fig('MK-PF-M-023', v)))} — a yearly rate, so it sits fairly beside a one-year window.`}</Text>
+            <Text style={s.noteLine}>{`Your return: ${overTheYearsSentence({ cumulative: row.periodTotal, perYear: row.periodReturn, years: row.years as number }, (v, per) => (per ? `${fig('MK-PF-M-023', v)}/year` : fig('MK-PF-M-023', v)))} — a rate per year, so you can compare it with one year.`}</Text>
           )}
           {yearly && row.benchTotal != null && (
             <Text style={s.noteLine}>{`The market: ${overTheYearsSentence({ cumulative: row.benchTotal ?? null, perYear: row.benchReturn, years: row.years as number }, (v, per) => (per ? `${fig('MK-NW-M-070', v)}/year` : fig('MK-NW-M-070', v)))}.`}</Text>

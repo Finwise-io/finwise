@@ -179,7 +179,7 @@ describe('J1 · MK-CF-F-223 · the first buy of an option the account does not h
     const INV = look('invest', {}, pick('1 month'));
     expect(walk1M(ACC0)).toEqual(['$4,600', '$50', '$4,650']);
     for (const sh of [ACC, INV0, INV]) expect(walk1M(sh)).toEqual(walk1M(ACC0));
-    expect(after(INV, 'Ending value')).toBe('$4,650');
+    expect(after(INV, 'Ending market value')).toBe('$4,650');
     expect(INV.lines.slice(INV.lines.indexOf('WHAT EACH CATEGORY EARNED'))).toContain('Alternatives');   // the option's category, on the tab
     // THE HOLDING PAGE: 1 contract, worth 1 × 100 × $2.50 = $250, paid $250
     const HOLD = look('holding', { account: 'fid', position: opened.position_id, period: '1M' });
@@ -317,7 +317,7 @@ describe('J3 · MK-CF-F-139 · a sale against a purchase whose share count is no
     // the one total, on the account page and the Performance tab
     const ACC = look('account', { id: 'fid', period: '1M' });
     const INV = look('invest', {}, pick('1 month'));
-    expect(after(INV, 'Ending value')).toBe(after(ACC, 'Ending market value (Sep 30, 2026)'));
+    expect(after(INV, 'Ending market value')).toBe(after(ACC, 'Ending market value (Sep 30, 2026)'));
   });
 });
 
@@ -349,8 +349,8 @@ describe('J4 · an account built from imported holdings, cash never entered: Ava
     const ACC = look('account', { id: 'imp', period: '1M' });
     const INV = look('invest', {}, pick('1 month'));
     const NW = look('networth');
-    expect(after(ACC, 'Market value', -1)).toBe('$10,000');
-    expect(after(INV, 'Ending value')).toBe('$10,000');
+    expect(after(ACC, 'Ending market value', -1)).toBe('$10,000');
+    expect(after(INV, 'Ending market value')).toBe('$10,000');
     expect(after(NW, 'Own $10,000 − Owe $0')).toBe('$10,000');
     // the account page lists the stored running figure as the cash row, so its rows add up to the total: 120 × $100 − $2,000
     const cash = ACC.lines.indexOf('▾ CASH');

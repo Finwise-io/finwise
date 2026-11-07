@@ -122,6 +122,10 @@ export interface TimeWeightedVerdict {
   amount?: number | null;
   /** INCOME_HAS_NO_AMOUNT only: which kind of record it is — INTEREST, DIVIDEND or COUPON — so the sentence names it. */
   kind?: IncomeWithoutAmount['kind'];
+  /** THE PIECES THE RETURN IS MADE OF (design review, 2026-11-07): the window split at each day money went in or out, each
+   *  piece's own growth as a share (0.041 = +4.10%), in order. Multiplied — (1 + each) together, less 1 — they are `rate`.
+   *  Absent when refused. So the screen can show how its Return was worked out, with the window's own figures. */
+  pieces?: { from: string; to: string; growth: number }[];
 }
 
 /** A record on a measured account the app could not name: where it is, the institution's word, and its amount. */
@@ -140,7 +144,7 @@ export interface IncomeWithoutAmount { date: string; accountId: string; kind: 'I
  *
  * Called by ... MK-ST-F-081 timeWeightedReturn
  *
- * Reaches ..... 487 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 488 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -150,7 +154,7 @@ export interface IncomeWithoutAmount { date: string; accountId: string; kind: 'I
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 469 more — the full list is on functions_from_code
+ *               … and 470 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -190,7 +194,7 @@ const SAME = 0.005;
  *
  * Called by ... MK-NW-O-003 theNetWorth · MK-NW-O-008 thePerformance
  *
- * Reaches ..... 487 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 488 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -200,7 +204,7 @@ const SAME = 0.005;
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 469 more — the full list is on functions_from_code
+ *               … and 470 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
@@ -287,6 +291,9 @@ export function timeWeightedReturn(a: TimeWeightedInput): TimeWeightedVerdict {
   let prev = begin;
   let growth = 1;
   let measuredFrom: string | null = null;
+  // the pieces: a new one starts on each day money went in or out (the day's own link belongs to the new piece)
+  const pieces: { from: string; to: string; growth: number }[] = [];
+  let pieceFrom = begin.date, pieceGrowth = 1, pieceLinks = 0;
   for (const d of days) {
     if (d.date <= begin.date) continue;
     const now = poolOn(d.date);
@@ -317,7 +324,12 @@ export function timeWeightedReturn(a: TimeWeightedInput): TimeWeightedVerdict {
     }
     // DEC-4439, the day's link: evening value ÷ (previous evening + money added − money taken out that day) − 1
     const base = prev.total + moneyIn;                 // what the day started with, its money already in
+    if (Math.abs(moneyIn) > SAME) {                    // money moved today: the piece before it ends last evening
+      if (pieceLinks > 0) pieces.push({ from: pieceFrom, to: prev.date, growth: pieceGrowth - 1 });
+      pieceFrom = prev.date; pieceGrowth = 1; pieceLinks = 0;
+    }
     if (base > SAME) {
+      pieceGrowth *= Math.max(0, now.total) / base; pieceLinks++;
       growth *= Math.max(0, now.total) / base;   // a total under half a cent below $0 is $0 (a day below zero refused above)
       measuredFrom = measuredFrom ?? (prev.total > SAME ? prev.date : now.date);   // started with nothing: the first money's day
     } else if (base < -SAME || Math.abs(now.total) > SAME) {
@@ -329,7 +341,8 @@ export function timeWeightedReturn(a: TimeWeightedInput): TimeWeightedVerdict {
     prev = now;
   }
   if (measuredFrom == null) return refuse('NOTHING_INVESTED');
-  return { rate: growth - 1, measuredFrom };
+  if (pieceLinks > 0) pieces.push({ from: pieceFrom, to: prev.date, growth: pieceGrowth - 1 });
+  return { rate: growth - 1, measuredFrom, pieces };
 }
 
 /** Which of a household's records are money moving in or out of the measured accounts, which are interest, and on which days shares were moved. */
@@ -354,7 +367,7 @@ export function timeWeightedReturn(a: TimeWeightedInput): TimeWeightedVerdict {
  * Called by ... MK-NW-O-003 theNetWorth · MK-NW-O-008 thePerformance
  *               MK-ST-F-012 toLedgerRow
  *
- * Reaches ..... 487 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 488 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -364,7 +377,7 @@ export function timeWeightedReturn(a: TimeWeightedInput): TimeWeightedVerdict {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 469 more — the full list is on functions_from_code
+ *               … and 470 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)

@@ -489,7 +489,7 @@ const ACC = () => theAccount({ account: EXAMPLE_ACCOUNT, transactions: EXAMPLE_L
 /** THE FIGURES THIS DOOR HANDS OUT (rule 11). The master file's rows are printed from here. */
 export const ACCOUNT_FIGURES = declareFigures({
   'MK-NW-M-018': {
-    label: 'Market value', unit: 'money', screens: ['/account-detail', '/invest'], grain: 'one account',
+    label: 'Ending market value', unit: 'money', screens: ['/account-detail', '/invest'], grain: 'one account',
     answers: 'What this account is worth today.',
     formula: 'the account’s balance — for a linked account the broker’s own figure, for one entered by hand the value entered',
     inputs: ['MK-NW-I-001 your accounts'],

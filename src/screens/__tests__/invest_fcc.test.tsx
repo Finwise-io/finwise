@@ -149,11 +149,11 @@ describe('the summary and the value walk', () => {
   test('the trio is Ending value · Wealth generated · Return, and states the window rule in words', () => {
     withRecord(30);
     render(<PerformanceScreen />);
-    expect(screen.getByText('Ending value')).toBeOnTheScreen();
+    expect(screen.getByText('Ending market value')).toBeOnTheScreen();
     expect(screen.getAllByText('Wealth generated').length).toBeGreaterThan(0);
     expect(screen.getAllByText('Return').length).toBeGreaterThan(0);          // the trio, and each open account's own
-    expect(screen.getByText(/not a yearly rate/)).toBeOnTheScreen();
-    expect(screen.getByText('time-weighted, so money you added never counts as return')).toBeOnTheScreen();
+    expect(screen.getByText(/not a rate per year/)).toBeOnTheScreen();
+    expect(screen.getByText('Money you added or took out is not counted as gain')).toBeOnTheScreen();
   });
 
   test('every percentage on the screen carries two decimals (Q49)', () => {
@@ -187,7 +187,7 @@ test('per-account walks: named by account, the first one open, the rest one tap 
   expect(screen.getAllByText(/^Beginning market value/).length).toBe(2);    // every account together + the open one
   fireEvent.press(screen.getByLabelText(/E\*TRADE Brokerage, .*Expands its walk/));
   expect(screen.getAllByText(/^Beginning market value/).length).toBe(3);
-  expect(screen.getAllByText(/^Ending market value/).length).toBe(3);
+  expect(screen.getAllByText(/^Ending market value/).length).toBe(4);   // the summary trio and the three walks: one name since DEC-10152 (2026-11-07)
   expect(screen.getAllByText(/Tap ▾ to collapse/).length).toBe(2);
   // AN ACCOUNT IS WORTH ITS BALANCE, cash included — so the accounts sum to the total above them. This
   // list used to add up holdings only, and an account holding cash read short of its own page.
@@ -226,7 +226,7 @@ describe('what each category earned', () => {
     expect(screen.getAllByText('RETURN').length).toBeGreaterThan(0);
     expect(screen.getByText('All categories')).toBeOnTheScreen();
     expect(screen.getByText('$420')).toBeOnTheScreen();                     // 300 + 120, the ledger's own rows
-    expect(screen.getByText('Earned = dividends + interest received in this window')).toBeOnTheScreen();
+    expect(screen.getByText('Earned = dividends and interest paid to you between these dates')).toBeOnTheScreen();
     // interest that names no holding is what the uninvested balance earned (v17, phones 1 to 3)
     expect(screen.getByText('Cash in this account')).toBeOnTheScreen();
   });

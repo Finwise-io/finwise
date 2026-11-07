@@ -39,7 +39,7 @@ test('tapping "Since <date>" shows that window instead of crashing, measured fro
   const label = new Date(`${START}T12:00:00`).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   const today = new Date(`${TODAY}T12:00:00`).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   expect(screen.getByText(`SUMMARY · SINCE ${label.toUpperCase()}`)).toBeOnTheScreen();
-  expect(screen.getByText(`Return is for the window you picked (${label} → ${today}) — not a yearly rate`)).toBeOnTheScreen();
+  expect(screen.getByText(`Return is for these dates (${label} → ${today}) — not a rate per year`)).toBeOnTheScreen();
   expect(screen.getByText(`Beginning market value (${label})`)).toBeOnTheScreen();
   expect(screen.getByText(`Ending market value (${today})`)).toBeOnTheScreen();
 });

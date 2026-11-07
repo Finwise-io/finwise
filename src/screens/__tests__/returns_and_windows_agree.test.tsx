@@ -136,7 +136,7 @@ const TWO = {
 const YEARLY = Math.pow(1.21, 365 / 731) - 1;   // +9.99% a year: 12 Oct 2024 → 13 Oct 2026 is 731 days
 
 describe('2 · one yearly rate on every screen — 21% over 731 days is +9.99% a year (MK-PF-M-016)', () => {
-  const SENTENCE = `+21.00% over the two years, which is ${pct2(YEARLY)}/year — a yearly rate, so it sits fairly beside a one-year window`;
+  const SENTENCE = `+21.00% over the two years, which is ${pct2(YEARLY)}/year — a rate per year, so you can compare it with one year`;
   test('the Performance tab and the account page say the same sentence; the account page no longer says "not a yearly rate"', () => {
     const inv = shoot('invest', TWO, '2026-10-13T12:00:00');
     // the tab opens on Since; 2Y is picked from its control
@@ -278,6 +278,6 @@ describe('7 · 2Y joined at the record\'s first day: the yearly rate and the two
   test('the account page prints the record\'s sentence, then the one sentence: +21.00% over the two years, which is +9.99%/year', () => {
     const acct = shoot('account', JOINED, '2026-10-13T12:00:00', { id: 'a1', period: '2Y' });
     expect(acct.lines.some((l) => l.startsWith('The app has tracked this account since'))).toBe(true);
-    expect(acct.lines).toContain(`+21.00% over the two years, which is ${pct2(YEARLY)}/year — a yearly rate, so it sits fairly beside a one-year window.`);
+    expect(acct.lines).toContain(`+21.00% over the two years, which is ${pct2(YEARLY)}/year — a rate per year, so you can compare it with one year.`);
   });
 });

@@ -17,7 +17,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import PerformanceScreen from '../PerformanceScreen';
 import { useStore } from '../../store/useStore';
-import { ruledHtml } from '../../testing/ruledSince';
+import { ruledHtml, addedSinceDrawn } from '../../testing/ruledSince';
 import { isoLocalDate } from '../../domain/_shared/dates';
 import { buildDayFromAccounts } from '../../../Calculation Module code/engines/snapshots';
 
@@ -198,8 +198,8 @@ const MARK_16 = 'money moved in and out in amounts where when it moved would dec
 const KNOWN = (s: string) => s
   .replace(/(bonds & cds|cash in this account) \$# (#%\/year|—)/g, '$1 $# <rate or dash>')
   .replace(/linked wealth generated \$# since <date>/g, 'linked wealth generated $# return #%')
-  .replace(/money-weighted, so money you added/g, 'time-weighted, so money you added')                                                        // 4
-  .replace(MARK_16, 'return is for the window you picked (<date> → <date>) — not a yearly rate time-weighted, so money you added never counts as return')   // 5 — the first, in the summary
+  // 4 — the drawn "money-weighted, so …" is read in his plain words of 2026-11-07 by ruledSince (DEC-10152)
+  .replace(MARK_16, 'return is for these dates (<date> → <date>) — not a rate per year money you added or took out is not counted as gain')   // 5 — the first, in the summary
   .replace(new RegExp(` ${MARK_16.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`), '')                                                          // 6 — the second, in the account's walk
   .replace(/since <date> #%\/year/g, 'since <date> #%').replace(/\breturn #%\/year/g, 'return #%')                                         // 7
   .replace(/how today's value stands all accounts \$#/g, 'how $# became $# all accounts')                                               // 8
@@ -232,7 +232,7 @@ function built(): string[] {
   const walk = (n: any) => {
     if (n == null || typeof n === 'string') return;
     if (Array.isArray(n)) { n.forEach(walk); return; }
-    if (n.type === 'Text') { const t = text(n).replace(/\s+/g, ' ').trim(); if (t) out.push(t); return; }
+    if (n.type === 'Text') { const t = text(n).replace(/\s+/g, ' ').trim(); if (t && !addedSinceDrawn(t)) out.push(t); return; }
     (n.children ?? []).forEach(walk);
   };
   walk(screen.toJSON());

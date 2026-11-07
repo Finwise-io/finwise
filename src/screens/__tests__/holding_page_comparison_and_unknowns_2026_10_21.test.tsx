@@ -216,7 +216,7 @@ describe('34 · over 2Y the returns are yearly rates with /year, and each window
     fireEvent.press(screen.getByLabelText('Show 2 years'));
     expect(card()).toEqual(['VS THE STOCK MARKET · SAME DATES',
       'Your return, past 2 years', '+9.91%/year', 'The market, same dates', '+10.98%/year', 'You are', 'behind by 1.07 points/year',
-      'Your return: +20.83% over the two years, which is +9.91%/year — a yearly rate, so it sits fairly beside a one-year window.',
+      'Your return: +20.83% over the two years, which is +9.91%/year — a rate per year, so you can compare it with one year.',
       'The market: +23.20% over the two years, which is +10.98%/year.',   // the one writer's words (2026-10-22): "the same" went
       'both include dividends and interest', 'ⓘ']);
     expect((Math.pow(290 / 240, 365 / 731) - 1) * 100).toBeCloseTo(9.91, 2);
@@ -226,7 +226,7 @@ describe('34 · over 2Y the returns are yearly rates with /year, and each window
   test('the sentence is the Performance tab\'s, word for word after its subject (read from both screens on the disk)', () => {
     const perf = fs.readFileSync('src/screens/PerformanceScreen.tsx', 'utf8');
     const mine = fs.readFileSync('src/screens/HoldingDetailScreen.tsx', 'utf8');
-    const TAIL = '} — a yearly rate, so it sits fairly beside a one-year window.';   // after the one writer's sentence
+    const TAIL = '} — a rate per year, so you can compare it with one year.';   // after the one writer's sentence
     expect(mine).toContain(TAIL);
     // (2026-10-22, PF-A, DEC-0237 · DEC-0404) the Performance tab says the sentence through the one writer it now shares with the
     // account page and every account row (overTheYearsSentence, performance.ts): its total, "over the" years, "which is" the
@@ -234,7 +234,7 @@ describe('34 · over 2Y the returns are yearly rates with /year, and each window
     const door = fs.readFileSync('MoneyKeel/functions/networth-and-performance/performance.ts', 'utf8');
     expect(door).toContain("return `${write(f.cumulative)} over the ${yearsWords(f.years)}, which is ${write(f.perYear, 'year')}`;");
     expect(perf).toContain("overTheYearsSentence(f, (v, per) => (per ? `${fig(id, v)}/year` : fig(id, v)))");
-    expect(perf).toContain("${yearsShown('MK-PF-M-017', now)} — a yearly rate, so it sits fairly beside a one-year window.");
+    expect(perf).toContain("${yearsShown('MK-PF-M-017', now)} — a rate per year, so you can compare it with one year.");
     // one writer for the sentence on all three screens (overTheYearsSentence, 2026-10-22)
     for (const src of [perf, mine, fs.readFileSync('src/screens/AccountPortfolioScreen.tsx', 'utf8')]) expect(src).toMatch(/overTheYearsSentence\(/);
   });

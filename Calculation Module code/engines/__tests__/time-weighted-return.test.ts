@@ -258,3 +258,25 @@ describe('shares moved in or out are money in or out at what they were worth —
     expect(v.rate).toBeCloseTo(162_750 / 150_000 - 1, 12);
   });
 });
+
+describe('THE PIECES THE RETURN IS MADE OF (design review, 2026-11-07): split at each day money moved, multiplied they are the rate', () => {
+  test('his case: two pieces, +6.20% then +4.49%, and their product is his 10.97%', () => {
+    const d = [day('2025-10-04', [['a', 200_000]]), day('2026-04-14', [['a', 212_400]]), day('2026-04-15', [['a', 272_400]]), day('2026-10-04', [['a', 284_630]])];
+    const v = ask(d, [dep('2026-04-15', 'a', 60_000)], '2025-10-04', '2026-10-04');
+    expect(v.pieces).toHaveLength(2);
+    expect(v.pieces![0]).toEqual({ from: '2025-10-04', to: '2026-04-14', growth: expect.any(Number) });
+    expect(v.pieces![0].growth).toBeCloseTo(212_400 / 200_000 - 1, 12);              // +6.20%
+    expect(v.pieces![1].from).toBe('2026-04-14');
+    expect(v.pieces![1].growth).toBeCloseTo(284_630 / 272_400 - 1, 12);              // +4.49%
+    expect(v.pieces!.reduce((g, p) => g * (1 + p.growth), 1) - 1).toBeCloseTo(v.rate!, 12);
+  });
+  test('nothing moved: one piece, the plain growth', () => {
+    const d = [day('2025-10-04', [['a', 200_000]]), day('2026-10-04', [['a', 284_630]])];
+    const v = ask(d, [], '2025-10-04', '2026-10-04');
+    expect(v.pieces).toEqual([{ from: '2025-10-04', to: '2026-10-04', growth: expect.any(Number) }]);
+    expect(v.pieces![0].growth).toBeCloseTo(v.rate!, 12);
+  });
+  test('a refusal has no pieces', () => {
+    expect(ask([day('2026-10-04', [['a', 1]])], [], '2025-10-04', '2026-10-04').pieces).toBeUndefined();
+  });
+});

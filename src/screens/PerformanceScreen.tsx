@@ -13,7 +13,7 @@ import { SectionBand } from '../components/SectionBand';
 import { SourceChip, sourceWords } from '../components/SourceChip';
 import { DataGapsBanner } from '../components/DataGapsBanner';
 import { dataGaps } from '../domain/gaps';
-import { thePerformance, categoryEarnings, categoriesEarnedTotal, walkDirectionWords, windowStartKey, investmentAccountIdsOf, investmentRecordDates, overTheYearsSentence } from '../../MoneyKeel/functions/networth-and-performance/performance';
+import { thePerformance, categoryEarnings, categoriesEarnedTotal, walkDirectionWords, windowStartKey, investmentAccountIdsOf, investmentRecordDates, overTheYearsSentence, howReturnCalculated } from '../../MoneyKeel/functions/networth-and-performance/performance';
 import { personalFlowTotals } from '../../Calculation Module code/engines/ledger';
 import { windowBounds } from '../../Calculation Module code/engines/window-return';
 import { Dec } from '../../Calculation Module code/engines/decimal';
@@ -266,8 +266,8 @@ export default function PerformanceScreen() {
   /** the summary's yearly-rate line (v17 phone 3), drawn wherever the window has a yearly rate — read from the record, worked
    *  back, or joined at the record's first day alike */
   const yearlyLine = () => (yearsShown('MK-PF-M-017', now) == null ? null : (
-    <Text style={styles.sumNote} accessibilityLabel={`${yearsSaid('MK-PF-M-017', now)} — a yearly rate, so it sits fairly beside a one-year window.`}>
-      {`${yearsShown('MK-PF-M-017', now)} — a yearly rate, so it sits fairly beside a one-year window.`}
+    <Text style={styles.sumNote} accessibilityLabel={`${yearsSaid('MK-PF-M-017', now)} — a rate per year, so you can compare it with one year.`}>
+      {`${yearsShown('MK-PF-M-017', now)} — a rate per year, so you can compare it with one year.`}
     </Text>
   ));
   const stale = positions.length > 0 ? priceFreshness(store.pricesFetchedAt, Date.now()) : null;
@@ -326,8 +326,16 @@ export default function PerformanceScreen() {
         <Text style={styles.headDate}>{dateShown(todayKey)}</Text>
       </View>
       {/* SOURCE ALWAYS, DATE ONLY WHEN STALE (his brief R7). Fresh prices say nothing; old ones say so. */}
+      {/* A BUTTON BESIDE THE GESTURE (design review, 2026-11-07, his "change words to recommended"): pulling down was the only way
+          to ask for prices again, and nothing on screen showed it. The words stay; the button does what pulling down does. */}
       {!!stale?.stale && (
-        <Text style={[styles.freshness, { color: Colors.amber }]}>⚠ Prices may be out of date · {store.pricesFetchedAt ? `updated ${stale.label}` : stale.label} — pull down to refresh</Text>
+        <View style={styles.staleRow}>
+          <Text style={[styles.freshness, { color: Colors.amber, flex: 1 }]}>⚠ Prices may be out of date · {store.pricesFetchedAt ? `updated ${stale.label}` : stale.label} — pull down to refresh</Text>
+          <TouchableOpacity testID="refresh-prices" onPress={refresh} disabled={loading} accessibilityRole="button" accessibilityLabel="Refresh prices"
+            accessibilityState={{ disabled: loading, busy: loading }} hitSlop={{ top: 10, bottom: 10, left: 8, right: 8 }} style={styles.refreshBtn}>
+            {loading ? <ActivityIndicator size="small" color={Colors.primaryDark} /> : <Text style={styles.refreshBtnT}>Refresh prices</Text>}
+          </TouchableOpacity>
+        </View>
       )}
 
       <WindowSelector windows={WINDOWS} chosen={period as string} figures={windowFigures} onPick={(k) => setPeriod(k as Period)} />
@@ -344,7 +352,7 @@ export default function PerformanceScreen() {
         <SectionBand inCard gutter={GUTTER} title={`SUMMARY · ${phraseFor(period).toUpperCase()}`} infoTerm="performanceSummary" />
         <View style={styles.trioRow}>
           {/* each cell is said as one thing, its figure through the one spoken writer (audit row 29, 2026-10-21) */}
-          <View style={styles.trioCell} accessible accessibilityLabel={`Ending value, ${figSaid('MK-PF-M-001', now.ending)}`}><Text style={styles.sumLbl}>Ending value</Text><Text style={styles.sumValBig}>{fig('MK-PF-M-001', now.ending)}</Text></View>
+          <View style={styles.trioCell} accessible accessibilityLabel={`Ending market value, ${figSaid('MK-PF-M-001', now.ending)}`}><Text style={styles.sumLbl}>Ending market value</Text><Text style={styles.sumValBig}>{fig('MK-PF-M-001', now.ending)}</Text></View>
           {/* no beginning the record can read, no wealth generated — a dash, never a figure worked back from today (Performance v17) */}
           <View style={styles.trioCell} accessible accessibilityLabel={`Wealth generated, ${walk == null ? 'no figure for this window' : figSaid('MK-PF-M-002', walkShown(walk).wealthGenerated)}`}><Text style={styles.sumLbl}>Wealth generated</Text>{walk == null
             ? <Text style={[styles.sumValBig, { color: Colors.textTertiary }]}>—</Text>
@@ -396,15 +404,21 @@ export default function PerformanceScreen() {
             {/* a fixed window longer than a year shows the yearly rate, with the window's own total
                 beside it and the words on both (his ruling of 2026-09-25, DEC-0368's wording) */}
             {yearlyLine()}
-            <Note term="moneyAddedIsNotReturn">time-weighted, so money you added never counts as return</Note>
+            <Note term="moneyAddedIsNotReturn">Money you added or took out is not counted as gain</Note>
           </>
         ) : (
           /* ONE LINE, TWO DOTS, A "·" BETWEEN (v17 phone 3 — drawing check 2026-10-12): it was two rows with no "·" */
           <NoteLine parts={[
-            { term: 'windowReturn', text: `Return is for the window you picked (${beginWords} → ${endWords}) — not a yearly rate` },
-            { term: 'moneyAddedIsNotReturn', text: 'time-weighted, so money you added never counts as return' },
+            { term: 'windowReturn', text: `Return is for these dates (${beginWords} → ${endWords}) — not a rate per year` },
+            { term: 'moneyAddedIsNotReturn', text: 'Money you added or took out is not counted as gain' },
           ]} />
         )}
+        {/* HOW THE RETURN WAS CALCULATED, with this window's own pieces (design review, 2026-11-07, his "change words to recommended";
+            DEC-1669's method in words). Only where the Return is measured from the record; a worked-back one says where it came from above. */}
+        {!dayOneView && !nothingEntered && (() => {
+          const how = howReturnCalculated(now.pieces, now.cumulative, (v) => fig('MK-PF-M-017', v));
+          return how ? <SaidText style={styles.sumNote} testID="how-return-worked-out">{how}</SaidText> : null;
+        })()}
         {/* below the summary, the holding left out of Wealth generated and Return (DEC-5068, 2026-10-13) */}
         {!dayOneView && !!now.notIncluded && <Text style={styles.sumNote} accessibilityLabel={spokenDollars(now.notIncluded)}>{maskDollars(now.notIncluded)}</Text>}
         {/* WHERE THE HISTORY CAME FROM (mock v14 mark 13): a rebuilt line names its source and first day */}
@@ -532,15 +546,15 @@ export default function PerformanceScreen() {
                       </View>
                       {/* the Return above is a yearly rate over a window longer than a year: the account's own total beside it (DEC-0237, DEC-0404) */}
                       {one.ret != null && yearsShown('MK-PF-M-016', one) != null && (
-                        <Text style={styles.sumNote} accessibilityLabel={`${yearsSaid('MK-PF-M-016', one)} — a yearly rate, so it sits fairly beside a one-year window.`}>
-                          {`${yearsShown('MK-PF-M-016', one)} — a yearly rate, so it sits fairly beside a one-year window.`}
+                        <Text style={styles.sumNote} accessibilityLabel={`${yearsSaid('MK-PF-M-016', one)} — a rate per year, so you can compare it with one year.`}>
+                          {`${yearsShown('MK-PF-M-016', one)} — a rate per year, so you can compare it with one year.`}
                         </Text>
                       )}
                       {/* below Wealth generated and Return: the holding left out of both (DEC-5068, 2026-10-13) */}
                       {!!one.notIncluded && <Text style={styles.sumNote} accessibilityLabel={spokenDollars(one.notIncluded)}>{maskDollars(one.notIncluded)}</Text>}
                       {/* printed because both taps are real: the arrow collapses, the name opens the account */}
                       {/* said in words, without the ▾ and the › a screen reader spells out (2026-10-23, E2E-68) */}
-                      <Text style={styles.sumNote} accessibilityLabel="Tap the arrow to collapse, tap the name to open this account’s portfolio">Tap ▾ to collapse · tap the name to open this account’s portfolio ›</Text>
+                      <Text style={styles.sumNote} accessibilityLabel="Tap the arrow to collapse, tap the name to open this account’s page">Tap ▾ to collapse · tap the name to open this account’s page ›</Text>
                     </>
                   )}
                 </>
@@ -550,7 +564,7 @@ export default function PerformanceScreen() {
         });
       })()}
 
-      {/* WHAT EACH CATEGORY EARNED: dollars received in this window, then the rate WITH ITS NAME.
+      {/* WHAT EACH CATEGORY EARNED: dollars paid to you between these dates, then the rate WITH ITS NAME.
           The screen computes nothing — it asks MK-NW-O-008's categoryEarnings and prints. THE TABLE IS DRAWN IN EVERY
           WINDOW (Performance v17 draws it on every phone; 2026-10-25, MM-PF D3): every category held is listed, at $0 where
           it received nothing. It vanished on phone 1's 1M and on phones 4 and 5 outside Since. */}
@@ -612,7 +626,7 @@ export default function PerformanceScreen() {
             ) : (
               /* one line with a "·" between, as v17 phones 1 and 3 draw it (drawing check 2026-10-12) */
               <NoteLine parts={[
-                { term: 'earnedInWindow', text: 'Earned = dividends + interest received in this window' },
+                { term: 'earnedInWindow', text: 'Earned = dividends and interest paid to you between these dates' },
                 // "/year" at 700, as v17 phones 1 and 3 draw it ("a <b>/year</b> figure …"; 2026-10-27, FX-PF, PF-2 — it was 400)
                 { term: 'yearlyPace', text: <>a <Text style={styles.noteStrong}>/year</Text> figure is that category’s yearly pace</> },
               ]} />
@@ -1335,6 +1349,9 @@ const styles = StyleSheet.create({
   subtitle: { fontSize: 13, color: Colors.textSecondary, marginTop: 2 },
   refresh: { fontSize: 13, fontWeight: '700', color: Colors.primary },
   freshness: { fontSize: 11, color: Colors.textTertiary, marginTop: 2, marginBottom: 4 },
+  staleRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 2, marginBottom: 4 },
+  refreshBtn: { minHeight: 28, minWidth: 96, paddingHorizontal: 10, borderRadius: 8, borderWidth: 1, borderColor: Colors.primaryDark, alignItems: 'center', justifyContent: 'center' },
+  refreshBtnT: { fontSize: 13, fontWeight: '700', color: Colors.primaryDark },
   tickerWarn: { fontSize: 11, color: Colors.amber, marginTop: 4 },
 
   empty: { alignItems: 'center', paddingVertical: 40 },

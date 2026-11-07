@@ -400,7 +400,7 @@ const FIGS: Record<string, Fig> = {
   'MK-NW-M-013': { main: 'EF_NW', text: '5.2 months', label: 'EMERGENCY FUND', drawing: DRAW.networth, estimate: /an estimate from your own numbers/,
     t2: () => { expect(has('EF_NW', /\$18,000 cash ÷ \$3,470\/month essentials/)).toBe(true); expect(Math.round((18000 / 3470) * 10) / 10).toBe(5.2); },
     t3: () => { expect(R('EF_NOESS').lines.join(' ')).not.toMatch(/Infinity|NaN/); } },
-  'MK-NW-M-018': { main: 'FID_ACC', text: '$46,600', label: 'Market value', drawing: DRAW.account,
+  'MK-NW-M-018': { main: 'FID_ACC', text: '$46,600', label: 'Ending market value', drawing: DRAW.account,
     t3: () => { noFalseZero('ACC_NOBAL', 'MK-NW-M-018'); },
     t4: () => { expect(first('FID_ACC', 'MK-NW-M-018')).toBe(first('FID_ACC', 'MK-PF-M-004')); } },
   'MK-NW-M-019': { main: 'FID_ACC', text: '$825', label: /Income sits with the holding that earned it/, drawing: DRAW.account,
@@ -456,9 +456,9 @@ const FIGS: Record<string, Fig> = {
     t3: () => { expect(R('HOLD_SOLD').lines).not.toContain('WHAT YOU BOUGHT'); } },
   'MK-NW-M-062': { main: 'FID_ACC', text: '$420', label: 'Dividend · VTI', drawing: DRAW.account,
     t3: () => { expect(has('B1', 'Log a deposit or a buy — your history starts here.')).toBe(true); } },
-  'MK-PF-M-001': { main: 'PERF_INV', text: '$46,600', label: 'Ending value', drawing: DRAW.perf,
+  'MK-PF-M-001': { main: 'PERF_INV', text: '$46,600', label: 'Ending market value', drawing: DRAW.perf,
     // no accounts at all: $0 with the sentence and the door — his ruling DEC-0260 and v17 phone 5 ("Nothing entered yet")
-    t3: () => { expect(after('EMPTY_INV', 'Ending value')).toBe('$0'); expect(has('EMPTY_INV', 'Nothing entered yet. Add your accounts ›')).toBe(true); } },
+    t3: () => { expect(after('EMPTY_INV', 'Ending market value')).toBe('$0'); expect(has('EMPTY_INV', 'Nothing entered yet. Add your accounts ›')).toBe(true); } },
   'MK-PF-M-002': { main: 'PERF_INV', text: '$10,600', label: 'Wealth generated', drawing: DRAW.perf,
     t2: () => { expect(46600 - 30000 - 6000).toBe(dollars(first('PERF_INV', 'MK-PF-M-002'))); },
     t3: () => { expect(has('FID_INV', "You added your accounts today. Figures for 1 month, 1 year and longer come from each holding’s past prices.")).toBe(true); } },
@@ -793,8 +793,8 @@ const CLASS: Record<string, Item> = {
   'MK-PF-M-001#4': { cls: 'NEEDS A RULING',
     why: 'Two approved things, two scopes. Home\'s YOUR INVESTMENTS leaves cash out (his DEC-0457): $35,775. Performance\'s Ending value counts the investment accounts whole (v17): $46,600. Under $35,775 Home prints "▲ up $8,200 (21.35%) this month" — measured on the $46,600. Either Home\'s change line names its scope ("your investment accounts, cash included") or it is measured without the cash.',
     // DECIDED 2026-10-21 (PF-B, the lead's decision under tenet 2; DEC-0457 and Q-PF-1 both kept): the change line names its
-    // base beneath it where the two differ — Performance's own Ending value, printed under MK-PF-M-001. To reverse: delete
-    // that line in HomeScreen.tsx. The second check holds the base: it is the Performance tab's Ending value, to the dollar.
+    // base beneath it where the two differ — Performance's own Ending market value, printed under MK-PF-M-001. To reverse: delete
+    // that line in HomeScreen.tsx. The second check holds the base: it is the Performance tab's Ending market value, to the dollar.
     check: () => {
       expect(after('PERF_HOME', 'YOUR INVESTMENTS', 2)).toBe('$35,775'); expect(first('PERF_INV', 'MK-PF-M-001')).toBe('$46,600'); expect(has('PERF_HOME', '▲ up $8,200 (21.35%) this month')).toBe(true);
       expect(has('PERF_HOME', "This month’s change is on $46,600: your investment accounts with the cash in them.")).toBe(true);   // ’ since 2026-10-27
@@ -902,13 +902,13 @@ const CLASS: Record<string, Item> = {
     wrong: () => { expect(walkSum('UNROUND_ACC', 'MK-PF-M-013', 'MK-PF-M-015')).toBe(dollars(first('UNROUND_ACC', 'MK-PF-M-004'))); },
     fixed: '2026-10-21: the account page prints its walk through the same walkShown — $10,001 + $1,000 + $100 + $399 = $11,500 (tenet 2)' },
   'MK-PF-M-016#4': { cls: 'APP WRONG',
-    why: 'One window, two readings. 2Y on $100,000 growing 8% a year: the Performance tab says "+16.69% over the two years, which is +8.00%/year — a yearly rate"; the account page prints the same +8.00% with "Return is for the window you picked… — not a yearly rate". His precision order: over a year, a yearly rate with "a year" on it and the window\'s total beside it. (1Y is never made a yearly rate on either screen — a 367-day 1Y reads its total, +8.05%.)',
+    why: 'One window, two readings. 2Y on $100,000 growing 8% a year: the Performance tab says "+16.69% over the two years, which is +8.00%/year — a yearly rate"; the account page prints the same +8.00% with "Return is for these dates… — not a yearly rate". His precision order: over a year, a yearly rate with "a year" on it and the window\'s total beside it. (1Y is never made a yearly rate on either screen — a 367-day 1Y reads its total, +8.05%.)',
     fix: 'src/screens/AccountPortfolioScreen.tsx summary note: for a window longer than a year, print the Performance tab\'s sentence from the same door. Account page, 2Y only; no figure moves.',
-    check: () => { expect(has('TWO_INV_2Y', '+16.69% over the two years, which is +8.00%/year — a yearly rate, so it sits fairly beside a one-year window.')).toBe(true); expect(first('TWO_INV_1Y', 'MK-PF-M-017')).toBe('+8.05%'); },
+    check: () => { expect(has('TWO_INV_2Y', '+16.69% over the two years, which is +8.00%/year — a rate per year, so you can compare it with one year.')).toBe(true); expect(first('TWO_INV_1Y', 'MK-PF-M-017')).toBe('+8.05%'); },
     wrong: () => {
       expect(R('TWO_ACC_2Y').lines.join(' ')).not.toMatch(/not a yearly rate/);
       // the account page says the Performance tab's own sentence, from the same door (yearsWords: one writer for both)
-      expect(R('TWO_ACC_2Y').lines.join(' ')).toMatch(/\+16\.69% over the two years, which is \+8\.00%\/year — a yearly rate, so it sits fairly beside a one-year window/);
+      expect(R('TWO_ACC_2Y').lines.join(' ')).toMatch(/\+16\.69% over the two years, which is \+8\.00%\/year — a rate per year, so you can compare it with one year/);
     },
     was: () => { expect(R('TWO_ACC_2Y').lines.join(' ')).toMatch(/not a yearly rate/); },
     fixed: '2026-10-21: over a year the account page says the yearly rate and the window\'s own total, in the Performance tab\'s sentence (his precision order, Q49)' },

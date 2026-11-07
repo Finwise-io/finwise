@@ -12,7 +12,7 @@
  *  defect the check found and fixed (FIXED below, numbered as the report's table).
  */
 import React from 'react';
-import { ruledHtml } from '../../testing/ruledSince';
+import { ruledHtml, addedSinceDrawn } from '../../testing/ruledSince';
 import { act, fireEvent, render, screen } from '@testing-library/react-native';
 import { StyleSheet } from 'react-native';
 import * as fs from 'fs';
@@ -188,7 +188,7 @@ function shown(): Shown[] {
     if (n.type === 'Text') {
       const t = text(n).replace(/\s+/g, ' ').trim();
       const st = StyleSheet.flatten(n.props?.style) ?? {};
-      if (t) out.push({ t: st.textTransform === 'uppercase' ? t.toUpperCase() : t, color: st.color, size: st.fontSize, weight: st.fontWeight == null ? undefined : String(st.fontWeight) });
+      if (t && !addedSinceDrawn(t)) out.push({ t: st.textTransform === 'uppercase' ? t.toUpperCase() : t, color: st.color, size: st.fontSize, weight: st.fontWeight == null ? undefined : String(st.fontWeight) });
       return;
     }
     (n.children ?? []).forEach(walk);
@@ -237,12 +237,12 @@ const KNOWN: [number, string, string, string][] = [
   // (b) — a READ THIS FIRST row on the drawing says so
   [1, 'since oct 1 7.46%/year', 'since oct 1, 2025 +7.46%', 'DEC-1669: time-weighted, no rate per year stands in (and the date — see 7)'],
   [1, 'return 7.46% money moved in and out in amounts where when it moved would decide a window return, so this is your rate per year, counting when you added money',
-    'return +7.46% return is for the window you picked (oct 1, 2025 → sep 30, 2026) — not a yearly rate · time-weighted, so money you added never counts as return',
+    'return +7.46% return is for these dates (oct 1, 2025 → sep 30, 2026) — not a rate per year · money you added or took out is not counted as gain',
     'DEC-1669 (2): mark 16 is gone; the ordinary note, joined by "·" as phone 3 draws it'],
   [1, 'linked money moved in and out in amounts where when it moved would decide a window return, so this is your rate per year, counting when you added money beginning',
     'linked beginning', 'DEC-1669 (2): its sentence is not shown'],
   [1, 'return 6.88%/year tap', 'return +6.88% tap', 'DEC-1669 (2): no "/year" on an open account\'s Return'],
-  [3, 'money-weighted, so money you added', 'time-weighted, so money you added', 'DEC-1669 (1)'],
+  // phone 3's drawn "money-weighted, so …" is read in his plain words of 2026-11-07 by ruledSince (DEC-10152)
   // (c) — decided here, written in the report
   [1, '(oct 1)', '(oct 1, 2025)', '7: one date writer — the walk and the bars name the year whenever the date is not this year; phone 1 itself writes "SINCE OCT 1, 2025" on its summary bar'],
   [1, '(sep 30)', '(sep 30, 2026)', '7: the same writer'],
@@ -306,10 +306,10 @@ const idx = (rows: Shown[], t: string, from = 0) => rows.findIndex((r, k) => k >
 describe('FIXED by the drawing check of 2026-10-12 — what a word stream cannot see', () => {
   test('1 · two notes on one line with a "·" between (v17 phones 1 and 3; were two rows with no "·")', () => {
     const r = open(3).map((s) => s.t);
-    const at1 = r.indexOf('Return is for the window you picked (Jun 3, 2024 → Aug 4, 2026) — not a yearly rate');
-    expect(r.slice(at1, at1 + 5)).toEqual(['Return is for the window you picked (Jun 3, 2024 → Aug 4, 2026) — not a yearly rate', 'ⓘ', '·', 'time-weighted, so money you added never counts as return', 'ⓘ']);
-    const at2 = r.indexOf('Earned = dividends + interest received in this window');
-    expect(r.slice(at2, at2 + 5)).toEqual(['Earned = dividends + interest received in this window', 'ⓘ', '·', 'a /year figure is that category’s yearly pace', 'ⓘ']);
+    const at1 = r.indexOf('Return is for these dates (Jun 3, 2024 → Aug 4, 2026) — not a rate per year');
+    expect(r.slice(at1, at1 + 5)).toEqual(['Return is for these dates (Jun 3, 2024 → Aug 4, 2026) — not a rate per year', 'ⓘ', '·', 'Money you added or took out is not counted as gain', 'ⓘ']);
+    const at2 = r.indexOf('Earned = dividends and interest paid to you between these dates');
+    expect(r.slice(at2, at2 + 5)).toEqual(['Earned = dividends and interest paid to you between these dates', 'ⓘ', '·', 'a /year figure is that category’s yearly pace', 'ⓘ']);
     // and they sit in one wrapping row, not a row each. THE ROW IS THE NEAREST VIEW LAID OUT AS A ROW above each note — read by
     // what it is, not by counting parents: a Text that speaks its figures (SaidText, 2026-10-22) is one more component between a
     // note and its row, and a fixed ".parent.parent" then named the wrapper. Compared as a yes/no, so a failure prints one line,
@@ -319,9 +319,9 @@ describe('FIXED by the drawing check of 2026-10-12 — what a word stream cannot
       while (n && !(n.type === 'View' && StyleSheet.flatten(n.props?.style)?.flexDirection === 'row')) n = n.parent;
       return n;
     };
-    const one = rowOf('Return is for the window you picked (Jun 3, 2024 → Aug 4, 2026) — not a yearly rate');
+    const one = rowOf('Return is for these dates (Jun 3, 2024 → Aug 4, 2026) — not a rate per year');
     expect(one != null).toBe(true);
-    expect(rowOf('time-weighted, so money you added never counts as return') === one ? 'one row' : 'two rows').toBe('one row');
+    expect(rowOf('Money you added or took out is not counted as gain') === one ? 'one row' : 'two rows').toBe('one row');
   });
 
   test('2 · the window control\'s colours (v17 .segK, .segNo, .segOn)', () => {
@@ -344,7 +344,7 @@ describe('FIXED by the drawing check of 2026-10-12 — what a word stream cannot
   test('3 · the date and the summary\'s labels at 13 — v17 draws 12, the one scale takes it up (DEC-0059); both were 11', () => {
     const r = open(4);
     expect(find(r, 'Aug 4, 2026')).toMatchObject({ size: 13 });
-    for (const l of ['Ending value', 'Wealth generated', 'Return']) expect(find(r, l)).toMatchObject({ size: 13 });
+    for (const l of ['Ending market value', 'Wealth generated', 'Return']) expect(find(r, l)).toMatchObject({ size: 13 });
   });
 
   test('4 · the walk: the strong labels 700, their figures 900; money taken out is not red (v17 phone 3 "−$1,200")', () => {
@@ -358,7 +358,7 @@ describe('FIXED by the drawing check of 2026-10-12 — what a word stream cannot
 
   test('5 · the notes in the secondary grey; the rebuilt line at 13 (v17 .mut, .emptynote)', () => {
     const r = open(3);
-    expect(find(r, 'Return is for the window you picked (Jun 3, 2024 → Aug 4, 2026) — not a yearly rate')).toMatchObject({ color: Colors.textSecondary });
+    expect(find(r, 'Return is for these dates (Jun 3, 2024 → Aug 4, 2026) — not a rate per year')).toMatchObject({ color: Colors.textSecondary });
     expect(find(r, 'The 2-year return is shown per year, so you can compare it with the 1-year return.')).toMatchObject({ color: Colors.textSecondary });
     expect(find(r, 'Every line here comes from E*TRADE’s own records. A hand-entered account or a cash balance has none, so it starts the day you enter it — and says so.')).toMatchObject({ color: Colors.textSecondary });
     expect(find(r, '↺ Rebuilt from E*TRADE’s own records, back to Jun 3, 2024 — the first day it shares.')).toMatchObject({ size: 13, color: Colors.textSecondary });
@@ -567,7 +567,7 @@ describe('FIXED by the drawing check of 2026-10-24 (MM-PF, fixed 2026-10-25) —
     // each holding bought Sep 1, 2025 at its Oct 1 price: the days before the record add +0.00%; then the record's +7.46%.
     // 1.0000 × 1.0746 = 1.0746 over the 731 days of Sep 30, 2024 → Sep 30, 2026; 1.0746^(365 ÷ 731) − 1 = +3.66% a year
     expect(w[w.indexOf('Return') + 1]).toBe('+3.66%');
-    expect(w).toContain('+7.46% over the two years, which is +3.66%/year — a yearly rate, so it sits fairly beside a one-year window.');
+    expect(w).toContain('+7.46% over the two years, which is +3.66%/year — a rate per year, so you can compare it with one year.');
     // E*TRADE added nothing: 1.10^(365 ÷ 731) − 1 = +4.87% a year (the drawing's line of 2026-10-22 had this one right)
     expect(w).toContain('· wealth generated $2,000 · return +10.00% over the two years, which is +4.87%/year');
   });
@@ -634,8 +634,8 @@ describe('PF-4 · v17 phone 4: the CD bought today counts at its cost, 0% — Re
     open(4); pick('2 years');
     const r = shown().map((x) => x.t);
     // 1.09758 over 2.003 years (Aug 4, 2024 → Aug 4, 2026, both edge days in: 731 days ÷ 365): (1.09758)^(1 ÷ 2.003) − 1 = +4.76%
-    expect(r).toContain('+9.76% over the two years, which is +4.76%/year — a yearly rate, so it sits fairly beside a one-year window.');
-    expect(r).toContain('+9.83% over the two years, which is +4.79%/year — a yearly rate, so it sits fairly beside a one-year window.');
+    expect(r).toContain('+9.76% over the two years, which is +4.76%/year — a rate per year, so you can compare it with one year.');
+    expect(r).toContain('+9.83% over the two years, which is +4.79%/year — a rate per year, so you can compare it with one year.');
   });
   test.failing('the answer until 2026-11-01, kept (no longer the app\'s): 1M read +9.86%, the holdings\' own return beside the walks (R4)', () => {
     open(4); pick('1 month');

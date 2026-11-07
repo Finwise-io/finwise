@@ -184,6 +184,7 @@ const FUNCTIONS: [string, string, string][] = [
   ['MK-NW-F-172', 'MoneyKeel/functions/networth-and-performance/account.ts', 'MoneyKeel/functions/networth-and-performance/account.test.ts'],
   ['MK-NW-F-173', 'MoneyKeel/functions/networth-and-performance/account.ts', 'MoneyKeel/functions/networth-and-performance/account.test.ts'],
   ['MK-NW-F-174', 'MoneyKeel/functions/networth-and-performance/performance.ts', 'Calculation Module code/probes/broken-family.probe.test.ts'],
+  ['MK-NW-F-188', 'MoneyKeel/functions/networth-and-performance/performance.ts', 'src/screens/__tests__/performance_plain_words_2026_11_07.test.tsx'],
   ['MK-NW-F-175', 'MoneyKeel/functions/networth-and-performance/performance.ts', 'Calculation Module code/probes/broken-family.probe.test.ts'],
   ['MK-NW-F-176', 'MoneyKeel/functions/networth-and-performance/performance.ts', 'Calculation Module code/probes/broken-family.probe.test.ts'],
   ['MK-NW-F-177', 'MoneyKeel/functions/networth-and-performance/performance.ts', 'Calculation Module code/probes/broken-family.probe.test.ts'],

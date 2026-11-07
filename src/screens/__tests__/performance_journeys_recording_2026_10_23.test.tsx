@@ -316,7 +316,7 @@ describe('E2E-57 · Record a buy from the account page: tap "Add a buy or sale",
     expect([printed(ACC, 'MK-PF-M-013')[0], printed(ACC, 'MK-PF-M-014')[0], printed(ACC, 'MK-PF-M-016')[0]]).toEqual(['$39,500', '$500', pct(40_000 / 39_500 - 1)]);
     expect(printed(ACC, 'MK-PF-M-004').slice(-1)).toEqual(['$40,000']);
     expect(after(INV, 'Beginning market value (Aug 29, 2026)')).toBe('$39,500');
-    expect([after(INV, 'Ending value'), after(INV, 'Wealth generated'), after(INV, 'Return')]).toEqual(['$40,000', '$500', pct(40_000 / 39_500 - 1)]);
+    expect([after(INV, 'Ending market value'), after(INV, 'Wealth generated'), after(INV, 'Return')]).toEqual(['$40,000', '$500', pct(40_000 / 39_500 - 1)]);
     expect(NW.lines).toContain('$40,000');
     expect(after(NW, 'Vanguard Brokerage', 2)).toBe('$40,000');     // the row: name, source, total
     // the Holding page: 110 shares, and its own return for the month is the one the account's return is made of
@@ -411,7 +411,7 @@ describe('E2E-57 · Record a buy from the account page: tap "Add a buy or sale",
     expect(INV.lines.slice(cat, cat + 3)).toEqual(['Stocks / Funds', '$1,800', '+6.09%']);
     expect(INV.lines.filter((l, i) => l !== INV0.lines[i])).toEqual(['+6.09%']);
     expect(INV.lines.length).toBe(INV0.lines.length);
-    expect([after(INV, 'Ending value'), after(INV, 'Wealth generated'), after(INV, 'Return')]).toEqual(['$123,000', '$8,000', '+7.02%']);
+    expect([after(INV, 'Ending market value'), after(INV, 'Wealth generated'), after(INV, 'Return')]).toEqual(['$123,000', '$8,000', '+7.02%']);
     for (const id of ['MK-PF-M-013', 'MK-PF-M-014', 'MK-PF-M-016', 'MK-PF-M-004']) expect(printed(ACC, id)).toEqual(printed(ACC0, id));
     // the Holding page: 200 + 4 = 204 shares, 204 × $411.50 = $83,946; paid 200 × $390 + 4 × $411.50 = $79,646 → average $390.42
     expect([after(HOLD, 'Quantity'), after(HOLD, 'Current value')]).toEqual(['204 shares', '$83,946']);
@@ -485,7 +485,7 @@ describe('E2E-58 · Record a sale with a $5 fee from the Holding page: the fee c
     const at = ACC.lines.indexOf('Sell · VTI · 10 shares @ $98.00');
     expect(ACC.lines.slice(at, at + 3)).toEqual(['Sell · VTI · 10 shares @ $98.00', 'Sep 15 · you entered this', '$975']);
     // the Performance tab: the same three figures
-    expect([after(INV, 'Beginning market value (Aug 29, 2026)'), after(INV, 'Ending value'), after(INV, 'Wealth generated'), after(INV, 'Return')])
+    expect([after(INV, 'Beginning market value (Aug 29, 2026)'), after(INV, 'Ending market value'), after(INV, 'Wealth generated'), after(INV, 'Return')])
       .toEqual(['$15,100', '$15,625', '$525', pct(SALE_RETURN)]);
     // the Holding page: the holding's own month reads what the sale brought in after its fee (it read +5.26%, the bare price)
     expect(after(HOLD, 'Your return, past month')).toBe(pct(VTI_MONTH));
@@ -544,7 +544,7 @@ describe('E2E-59 · Sell a holding in full inside the window: the page closes, t
     expect([printed(ACC, 'MK-PF-M-013')[0], printed(ACC, 'MK-PF-M-014')[0], printed(ACC, 'MK-PF-M-016')[0]]).toEqual(['$15,100', '$350', pct(GONE_RETURN)]);
     expect(printed(ACC, 'MK-PF-M-004').slice(-1)).toEqual(['$15,450']);
     const INV = look('invest', {}, pick('1 month'));
-    expect([after(INV, 'Beginning market value (Aug 29, 2026)'), after(INV, 'Ending value'), after(INV, 'Wealth generated'), after(INV, 'Return')])
+    expect([after(INV, 'Beginning market value (Aug 29, 2026)'), after(INV, 'Ending market value'), after(INV, 'Wealth generated'), after(INV, 'Return')])
       .toEqual(['$15,100', '$15,450', '$350', pct(GONE_RETURN)]);
     const HOME = look('home');
     expect(homeMonth(HOME)).toBe(`▲ up $350 (${pct(GONE_RETURN).slice(1)}) this month`);
@@ -653,7 +653,7 @@ describe('E2E-61 · Edit a record (its price) from the ✎, then delete a record
   const figures = () => {
     const acc = look('account', { id: 'fid', period: '1M' }), inv = look('invest', {}, pick('1 month')), home = look('home');
     return { acc: [printed(acc, 'MK-PF-M-013')[0], printed(acc, 'MK-PF-M-014')[0], printed(acc, 'MK-PF-M-016')[0], printed(acc, 'MK-PF-M-004').slice(-1)[0]],
-      inv: [after(inv, 'Beginning market value (Aug 29, 2026)'), after(inv, 'Wealth generated'), after(inv, 'Return'), after(inv, 'Ending value')],
+      inv: [after(inv, 'Beginning market value (Aug 29, 2026)'), after(inv, 'Wealth generated'), after(inv, 'Return'), after(inv, 'Ending market value')],
       home: homeMonth(home), lines: acc.lines };
   };
   const buyAt100 = () => {
@@ -775,7 +775,7 @@ describe('E2E-62 · Update the value of an account built by hand with the Update
     const ACC = look('account', { id: 'gold', period: '1M' });
     expect(NW.lines).toContain('$8,400');
     expect(NW.lines).not.toContain('$8,000');
-    expect(after(INV, 'Ending value')).toBe('$8,400');
+    expect(after(INV, 'Ending market value')).toBe('$8,400');
     expect(printed(INV, 'MK-PF-M-005')).toEqual(['$8,400']);          // the account's bar
     expect(printed(ACC, 'MK-PF-M-004').slice(-1)).toEqual(['$8,400']);
     expect(ACC.lines).toContain('Value as of Sep 30, 2026');

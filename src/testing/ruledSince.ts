@@ -47,6 +47,15 @@ export function ruledHtml(file: string, html: string): string {
     s = s.replace(/Wealth generated and Return start once the daily record reaches back far enough to say what this account was worth at the start\. It builds from your first recorded day\./g,
       'Wealth generated and Return start once the app has tracked this account long enough to know what it was worth at the start. They build from the first day it was tracked.');
     s = s.replace(/when the daily record begins:/g, 'when the app started tracking:');
+    // HIS "change words to recommended" (design review, 2026-11-07, DEC-10152): Performance and the account page, in plain words.
+    // One name for the account's value at the end of the window, on the summary, the account page and the walk alike:
+    s = s.replace(/>(\s*)(Ending value|Market value)(\s*)</g, '>$1Ending market value$3<');
+    s = s.replace(/(money|time)-weighted, so money you added never counts as return/g, 'Money you added or took out is not counted as gain');
+    s = s.replace(/ — a yearly rate, so it sits fairly beside a one-year window/g, ' — a rate per year, so you can compare it with one year');
+    s = s.replace(/Return is for the window you picked \(([^)]*)\) — not a yearly rate/g, 'Return is for these dates ($1) — not a rate per year');
+    s = s.replace(/(not a rate per year|compare it with one year) · time-weighted/g, '$1 · Money you added or took out is not counted as gain');
+    s = s.replace(/Earned = dividends \+ interest received in this window/g, 'Earned = dividends and interest paid to you between these dates');
+    s = s.replace(/open this account(&#39;|’|&#8217;|')s portfolio/g, 'open this account$1s page');
   }
   if (NW_DRAWING.test(file)) {
     s = s.replace(/(💵|📈|📜|🪙|🏠|🚗|🧩|🏛️)\s?(?=(?:<[^>]*>)*\s*[−-]?\$)/gu, (_m, e: string) => `${CLASS_OF[e]} `);
@@ -67,3 +76,10 @@ export function ruledLines(file: string, lines: string[]): string[] {
   }
   return out;
 }
+
+/** LINES HIS RULING ADDED THAT NO DRAWING DRAWS (2026-11-07, DEC-10152, "Change words to recommended"): the line saying how the
+ *  Return was calculated, with the window's own pieces, and the Refresh prices button beside the out-of-date prices line. A
+ *  drawing cannot draw a line whose figures are the window's own, so the readers that hold a screen to a drawing leave these out
+ *  of the screen's side; src/screens/__tests__/performance_plain_words_2026_11_07.test.tsx holds what they say, on the screen. */
+export const ADDED_SINCE_DRAWN: RegExp[] = [/^How it is calculated: /, /^Refresh prices$/];
+export const addedSinceDrawn = (line: string): boolean => ADDED_SINCE_DRAWN.some((r) => r.test(line));

@@ -35,7 +35,7 @@ import React from 'react';
 import { render, screen, fireEvent, act } from '@testing-library/react-native';
 import { StyleSheet } from 'react-native';
 import * as fs from 'fs';
-import { ruledHtml } from '../../testing/ruledSince';
+import { ruledHtml, addedSinceDrawn } from '../../testing/ruledSince';
 import * as path from 'path';
 import AccountPortfolioScreen from '../AccountPortfolioScreen';
 import { useStore } from '../../store/useStore';
@@ -217,7 +217,7 @@ function builtLines(): Line[] {
     if (n.type === 'Text') {
       const t = clean(textOf(n));
       const st = flat(p.style);
-      if (t && !PUA.test(t)) out.push({ t, sheet, size: st.fontSize, weight: st.fontWeight, color: hex(st.color), opacity, row });
+      if (t && !PUA.test(t) && !addedSinceDrawn(t)) out.push({ t, sheet, size: st.fontSize, weight: st.fontWeight, color: hex(st.color), opacity, row });
       return;
     }
     if (n.type === 'TextInput') {

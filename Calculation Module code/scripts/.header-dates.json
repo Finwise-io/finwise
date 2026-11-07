@@ -1020,5 +1020,6 @@
 "src/domain/import/holdingsImport.ts::importedAccountOf": "2026-11-05|922e82bb",
 "src/domain/import/holdingsImport.ts::sameCents": "not in git yet|\u2014",
 "src/domain/import/holdingsImport.ts::fileAccountOf": "not in git yet|\u2014",
-"src/domain/import/holdingsImport.ts::fileDateOf": "not in git yet|\u2014"
+"src/domain/import/holdingsImport.ts::fileDateOf": "not in git yet|\u2014",
+"MoneyKeel/functions/networth-and-performance/performance.ts::howReturnCalculated": "not in git yet|\u2014"
 }

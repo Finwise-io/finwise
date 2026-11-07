@@ -1774,6 +1774,11 @@
   "file": "src/domain/income/earners.ts",
   "category": "3 · DEPENDENT"
  },
+ "howReturnCalculated": {
+  "id": "MK-NW-F-188",
+  "file": "MoneyKeel/functions/networth-and-performance/performance.ts",
+  "category": "2 · DISPLAYED"
+ },
  "howTheGapCloses": {
   "id": "MK-PL-F-043",
   "file": "src/domain/planning/target.ts",

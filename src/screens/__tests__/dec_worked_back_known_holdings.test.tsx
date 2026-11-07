@@ -96,7 +96,7 @@ describe('the account page, past year (DEC-5068, 2026-10-13)', () => {
     }
     expect(screen.getAllByText(/^Beginning market value \(/).length).toBe(1);
     expect(screen.getAllByText('$46,364').length).toBeGreaterThan(0);
-    expect(screen.getAllByText(/^Ending market value/).length).toBe(1);
+    expect(screen.getAllByText(/^Ending market value/).length).toBe(2);   // the trio and the walk: one name since DEC-10152 (2026-11-07)
   });
 });
 

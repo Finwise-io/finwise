@@ -35,7 +35,7 @@ import { AltEditor } from './OtherInvestmentsScreen';
 import { TransactionSheet } from './PerformanceScreen';   // the ONE trade sheet, the one the Holding page opens (gap 7, 2026-10-21)
 import { accountAllowsTicker } from '../domain/assets';   // DEC-2484g: which accounts can take a recorded buy or sale
 import { theHolding, holdingRowsIn, SHARE_COUNT_NOT_STATED } from '../../MoneyKeel/functions/networth-and-performance/holding';   // each holding's value, by its own door; its window row, the one way
-import { windowStartKey, thePerformance, classReturnOf, overTheYearsSentence } from '../../MoneyKeel/functions/networth-and-performance/performance';
+import { windowStartKey, thePerformance, classReturnOf, overTheYearsSentence, howReturnCalculated } from '../../MoneyKeel/functions/networth-and-performance/performance';
 import { txnLabel, cashEffect, type Transaction } from '../domain/transactions';
 import { moneyIntoAccount } from '../../Calculation Module code/engines/ledger';
 import { maskedMoney, spokenMoney, typedAmount, maskDollars, coinQuantity } from '../components/useMoney';
@@ -741,7 +741,7 @@ export default function AccountPortfolioScreen() {
         <SectionBand inCard gutter={GUTTER} title={`THIS ACCOUNT · ${windowWords.toUpperCase()}`} value={marketValueText} />
         <View style={p.trio}>
           <View style={p.trioCell}>
-            <Text style={p.trioL}>Market value</Text>
+            <Text style={p.trioL}>Ending market value</Text>
             <SaidText style={[p.trioV, { color: Colors.primaryDark }]}>{marketValueText}</SaidText>
           </View>
           <View style={p.trioCell}>
@@ -787,8 +787,8 @@ export default function AccountPortfolioScreen() {
                    with 'a year' on it, and the window's own total stated beside it"; 2026-10-21, outside re-run OpenAI MK-PF-M-016).
                    2Y printed its yearly rate above "— not a yearly rate"; it now says the Performance tab's own sentence. */
                 : now?.perYear != null && now.cumulative != null
-                ? `${yearlyWords()} — a yearly rate, so it sits fairly beside a one-year window · time-weighted`
-                : `Return is for the window you picked (${sinceWords} → ${dateShown(todayKey)}) — not a yearly rate · time-weighted`)}
+                ? `${yearlyWords()} — a rate per year, so you can compare it with one year · Money you added or took out is not counted as gain`
+                : `Return is for these dates (${sinceWords} → ${dateShown(todayKey)}) — not a rate per year · Money you added or took out is not counted as gain`)}
           </SaidText>
           {/* the day-one line explains no return, so it carries no dot (drawing v01, state C) */}
           {!dayOneView && <InfoDot term="timeWeighted" line={p.note} />}
@@ -797,8 +797,13 @@ export default function AccountPortfolioScreen() {
             figures come from, so the two years' own total and the yearly rate it makes follow it (DEC-0237, DEC-0404, 2026-10-22):
             the yearly rate stood alone there, nothing saying it was yearly */}
         {!dayOneView && walk != null && !now?.sentence && (now?.recordBegins || now?.measured == null) && now?.perYear != null && now.cumulative != null && (
-          <SaidText style={p.note}>{`${yearlyWords()} — a yearly rate, so it sits fairly beside a one-year window.`}</SaidText>
+          <SaidText style={p.note}>{`${yearlyWords()} — a rate per year, so you can compare it with one year.`}</SaidText>
         )}
+        {/* HOW THE RETURN WAS CALCULATED, with this window's own pieces (design review, 2026-11-07; the Performance tab's own line) */}
+        {!dayOneView && walk != null && !now?.sentence && (() => {
+          const how = howReturnCalculated(now?.pieces, now?.cumulative ?? null, (v) => fig('MK-PF-M-016', v));
+          return how ? <SaidText style={p.note} testID="how-return-worked-out">{how}</SaidText> : null;
+        })()}
         {/* A BOND'S OR CD'S VALUE THAT IS NOT A MARKET VALUE SAYS SO (DEC-0281, the one value rule, bondValue): what you
             paid, or the face value, because no market value was entered — so Market value above is not read as one. */}
         {!!bondOne?.valueNote && <SaidText style={p.note}>{figWords('MK-NW-M-018', bondOne.valueNote)}</SaidText>}

@@ -1392,7 +1392,7 @@
    "door": "MK-NW-O-001 theBonds"
   },
   "MK-NW-M-018": {
-   "label": "Market value",
+   "label": "Ending market value",
    "unit": "money",
    "screens": [
     "/account-detail",
@@ -3285,7 +3285,7 @@
    "door": "MK-NW-O-008 thePerformance"
   },
   "MK-PF-M-001": {
-   "label": "Ending value",
+   "label": "Ending market value",
    "unit": "money",
    "screens": [
     "/invest",

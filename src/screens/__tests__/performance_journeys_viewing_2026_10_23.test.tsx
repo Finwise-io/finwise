@@ -196,8 +196,7 @@ const MARK_16 = 'money moved in and out in amounts where when it moved would dec
 const v17known = (s: string) => s
   .replace(/(bonds & cds|cash in this account) \$# (#%\/year|—)/g, '$1 $# <rate or dash>')
   .replace(/linked wealth generated \$# since <date>/g, 'linked wealth generated $# return #%')
-  .replace(/money-weighted, so money you added/g, 'time-weighted, so money you added')
-  .replace(MARK_16, 'return is for the window you picked (<date> → <date>) — not a yearly rate time-weighted, so money you added never counts as return')
+  .replace(MARK_16, 'return is for these dates (<date> → <date>) — not a rate per year money you added or took out is not counted as gain')
   .replace(new RegExp(` ${MARK_16.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`), '')
   .replace(/since <date> #%\/year/g, 'since <date> #%').replace(/\breturn #%\/year/g, 'return #%')
   .replace(/how today's value stands all accounts \$#/g, 'how $# became $# all accounts')
@@ -250,7 +249,7 @@ describe('E2E-63 · the window journey in the founder\'s household (Performance 
     // Wealth generated 125,200 − 100,000 − 15,000 = $10,200 = dividends 1,800 + interest 400 + change 8,000.
     let ls = lines();
     expect(ls).toContain('SUMMARY · SINCE OCT 1, 2025');
-    expect([after('Ending value', 1, ls), after('Wealth generated', 1, ls), after('Return', 1, ls)]).toEqual(['$125,200', '$10,200', '+9.34%']);
+    expect([after('Ending market value', 1, ls), after('Wealth generated', 1, ls), after('Return', 1, ls)]).toEqual(['$125,200', '$10,200', '+9.34%']);
     expect(ls).toContain('HOW $100,000 BECAME $125,200 · ALL ACCOUNTS');
     expect(ls.slice(ls.indexOf('Beginning market value (Oct 1, 2025)'), ls.indexOf('Beginning market value (Oct 1, 2025)') + 16)).toEqual([
       'Beginning market value (Oct 1, 2025)', '$100,000', 'Contributions', '$15,000', 'Withdrawals', '$0', 'Wealth generated', '$10,200',
@@ -265,8 +264,8 @@ describe('E2E-63 · the window journey in the founder\'s household (Performance 
     // 125,200 − 123,300 = $1,900, all change in value; 1,900 ÷ 123,300 = +1.54%. Never a yearly rate.
     tapWindow('1 month'); ls = lines();
     expect(ls).toContain('SUMMARY · PAST MONTH');
-    expect([after('Ending value', 1, ls), after('Wealth generated', 1, ls), after('Return', 1, ls)]).toEqual(['$125,200', '$1,900', '+1.54%']);
-    expect(ls).toContain('Return is for the window you picked (Aug 29, 2026 → Sep 30, 2026) — not a yearly rate');
+    expect([after('Ending market value', 1, ls), after('Wealth generated', 1, ls), after('Return', 1, ls)]).toEqual(['$125,200', '$1,900', '+1.54%']);
+    expect(ls).toContain('Return is for these dates (Aug 29, 2026 → Sep 30, 2026) — not a rate per year');
     expect(ls).toContain('HOW $123,300 BECAME $125,200 · ALL ACCOUNTS');
 
     // THIS YEAR — from Dec 31, 2025's $116,700: $8,500 = dividends 1,800 + interest 400 + change 6,300; 8,500 ÷ 116,700 = +7.28%
@@ -291,16 +290,16 @@ describe('E2E-63 · the window journey in the founder\'s household (Performance 
     expect(1.25 * 1.034 * (125_200 / 118_400) - 1).toBeCloseTo(0.366731, 6);
     expect(Math.pow(1.366731, 365 / 731) - 1).toBeCloseTo(0.168823, 5);
     expect(ls).toContain('SUMMARY · PAST 2 YEARS');
-    expect([after('Ending value', 1, ls), after('Wealth generated', 1, ls), after('Return', 1, ls)]).toEqual(['$125,200', '$29,800', '+16.88%']);
+    expect([after('Ending market value', 1, ls), after('Wealth generated', 1, ls), after('Return', 1, ls)]).toEqual(['$125,200', '$29,800', '+16.88%']);
     expect(ls).toContain('The 2-year return is shown per year, so you can compare it with the 1-year return.');
     const note = ls.indexOf("The app has tracked these accounts since Oct 1, 2025; the days before that come from each holding’s past prices.");
-    expect(ls[note + 1]).toBe('+36.67% over the two years, which is +16.88%/year — a yearly rate, so it sits fairly beside a one-year window.');
+    expect(ls[note + 1]).toBe('+36.67% over the two years, which is +16.88%/year — a rate per year, so you can compare it with one year.');
     expect(ls).toContain('HOW $80,400 BECAME $125,200 · ALL ACCOUNTS');
     expect(after('Change in investment value', 1, ls)).toBe('$27,600');
     // each account in the same words. Vanguard (open): 1.25 × (83,000 ÷ 80,000) × (98,000 ÷ 98,000) × (102,700 ÷ 98,000) =
     // 1.359072 → +35.91%, a year +16.55%. E*TRADE (closed): 1.25 × 22,500 ÷ 20,000 = 1.40625 → +40.63%, a year +18.56%;
     // its wealth generated 22,500 − 16,000 = $6,500.
-    expect(ls).toContain('+35.91% over the two years, which is +16.55%/year — a yearly rate, so it sits fairly beside a one-year window.');
+    expect(ls).toContain('+35.91% over the two years, which is +16.55%/year — a rate per year, so you can compare it with one year.');
     // the source label, then the rest of the closed line beside it (2026-10-25, MM-PF D4)
     expect(ls.join('\n')).toContain('🔗 Linked\n· wealth generated $6,500 · return +40.63% over the two years, which is +18.56%/year');
     // WHAT EACH CATEGORY EARNED, 2Y: Stocks / Funds grew (84,000 + 22,000) ÷ (62,400 + 16,000) − 1 = +35.20% in all, which is
@@ -318,11 +317,11 @@ describe('E2E-63 · the window journey in the founder\'s household (Performance 
     const tab = lines();
     // what the tab printed for Vanguard on 2Y: its walk and its Return row
     const vStart = tab.indexOf('▾ Vanguard Brokerage');
-    const vanguard = tab.slice(vStart, tab.indexOf('Tap ▾ to collapse · tap the name to open this account’s portfolio ›', vStart));
+    const vanguard = tab.slice(vStart, tab.indexOf('Tap ▾ to collapse · tap the name to open this account’s page ›', vStart));
     expect(vanguard).toEqual(['▾ Vanguard Brokerage', '$102,700', '›', '🔗 Linked',
       'Beginning market value (Sep 29, 2024)', '$64,400', 'Contributions', '$15,000', 'Withdrawals', '$0', 'Wealth generated', '$23,300',
       'Dividends', '$1,500', 'Interest', '$200', 'Change in investment value', '$21,600', 'Ending market value (Sep 30, 2026)', '$102,700',
-      'Return', '+16.55%', '+35.91% over the two years, which is +16.55%/year — a yearly rate, so it sits fairly beside a one-year window.']);
+      'Return', '+16.55%', '+35.91% over the two years, which is +16.55%/year — a rate per year, so you can compare it with one year.']);
 
     // the person taps Vanguard's name
     fireEvent.press(screen.getAllByLabelText("Open Vanguard Brokerage — this account’s own page")[0]);
@@ -332,8 +331,8 @@ describe('E2E-63 · the window journey in the founder\'s household (Performance 
     let ls = lines();
     expect(ls).toContain('THIS ACCOUNT · THE PAST 2 YEARS');
     // the same figures: Market value $102,700, Wealth generated 102,700 − 64,400 − 15,000 = $23,300, Return +16.55%
-    expect([after('Market value', 1, ls), after('Wealth generated', 1, ls), after('Return', 1, ls)]).toEqual(['$102,700', '$23,300', '+16.55%']);
-    expect(ls).toContain('+35.91% over the two years, which is +16.55%/year — a yearly rate, so it sits fairly beside a one-year window.');
+    expect([after('Ending market value', 1, ls), after('Wealth generated', 1, ls), after('Return', 1, ls)]).toEqual(['$102,700', '$23,300', '+16.55%']);
+    expect(ls).toContain('+35.91% over the two years, which is +16.55%/year — a rate per year, so you can compare it with one year.');
     expect(ls).toContain('HOW $64,400 BECAME $102,700 · THIS ACCOUNT');
     const walk = ls.slice(ls.indexOf('Beginning market value (Sep 29, 2024)'), ls.indexOf('Beginning market value (Sep 29, 2024)') + 16);
     expect(walk).toEqual(vanguard.slice(4, 20));                         // line for line the walk the tab drew for Vanguard
@@ -360,7 +359,7 @@ describe('E2E-63 · the window journey in the founder\'s household (Performance 
     expect(Math.pow(1.2, 365 / 731) - 1).toBeCloseTo(0.095309, 5);
     expect([after('Your return, past 2 years', 1, ls), after('The market, same dates', 1, ls), after('You are', 1, ls)])
       .toEqual(['+16.00%/year', '+9.53%/year', 'ahead by 6.47 points/year']);
-    expect(ls).toContain('Your return: +34.62% over the two years, which is +16.00%/year — a yearly rate, so it sits fairly beside a one-year window.');
+    expect(ls).toContain('Your return: +34.62% over the two years, which is +16.00%/year — a rate per year, so you can compare it with one year.');
     expect(ls).toContain('The market: +20.00% over the two years, which is +9.53%/year.');
     // and its value is the row's: 300 × $280 = $84,000
     expect(after('Current value', 1, ls)).toBe('$84,000');
@@ -398,13 +397,13 @@ describe('E2E-64 · hide balances, from the eye on the Performance tab', () => {
     expect(screen.getByLabelText('Show balances')).toBeOnTheScreen();          // the eye now offers to show them
     expect(ls).toContain('Balances hidden — tap the eye to show');
     expect(noDollars()).toEqual([]);
-    expect([after('Ending value', 1, ls), after('Wealth generated', 1, ls), after('Return', 1, ls)]).toEqual(['••••', '••••', '+16.88%']);
+    expect([after('Ending market value', 1, ls), after('Wealth generated', 1, ls), after('Return', 1, ls)]).toEqual(['••••', '••••', '+16.88%']);
     expect(ls).toContain('HOW •••• BECAME •••• · ALL ACCOUNTS');
-    expect(ls).toContain('+36.67% over the two years, which is +16.88%/year — a yearly rate, so it sits fairly beside a one-year window.');
+    expect(ls).toContain('+36.67% over the two years, which is +16.88%/year — a rate per year, so you can compare it with one year.');
     expect(ls.join('\n')).toContain('🔗 Linked\n· wealth generated •••• · return +40.63% over the two years, which is +18.56%/year');
     let h = heard();
     expect(dotsHeard()).toEqual([]);
-    for (const said of ['Ending value, hidden', 'Wealth generated, hidden', 'Return, +16.88% a year', 'How hidden became hidden, all accounts',
+    for (const said of ['Ending market value, hidden', 'Wealth generated, hidden', 'Return, +16.88% a year', 'How hidden became hidden, all accounts',
       'Beginning market value (Sep 29, 2024), hidden', 'Contributions, hidden', 'Vanguard Brokerage, hidden. Collapses its walk.',
       'Linked, wealth generated hidden, return +40.63% over the two years, which is +18.56% a year']) expect(h).toContain(said);
 
@@ -413,7 +412,7 @@ describe('E2E-64 · hide balances, from the eye on the Performance tab', () => {
     follow();
     ls = lines();
     expect(noDollars()).toEqual([]);
-    expect([after('Market value', 1, ls), after('Wealth generated', 1, ls), after('Return', 1, ls)]).toEqual(['••••', '••••', '+16.55%']);
+    expect([after('Ending market value', 1, ls), after('Wealth generated', 1, ls), after('Return', 1, ls)]).toEqual(['••••', '••••', '+16.55%']);
     expect(ls).toContain('HOW •••• BECAME •••• · THIS ACCOUNT');
     expect(ls).toContain('300 shares · ••••');
     h = heard();
@@ -487,7 +486,7 @@ describe('E2E-65 · a brand-new person adds an account by hand, then a holding',
     // every window a dash — nothing it holds has a price history
     expect(['Since today', '1 month', 'This year', '1 year', '2 years'].map((w) => after(w, 1, ls))).toEqual(['—', '—', '—', '—', '—']);
     expect(ls.slice(ls.indexOf('SUMMARY · SINCE TODAY'), ls.indexOf('SUMMARY · SINCE TODAY') + 9)).toEqual(['SUMMARY · SINCE TODAY', 'ⓘ',
-      'Ending value', '$28,000', 'Wealth generated', '$0', 'Return', '—',
+      'Ending market value', '$28,000', 'Wealth generated', '$0', 'Return', '—',
       // phone 4's drawn line (FIXED 2026-10-23: it read "You added your accounts today. Figures for 1 month, 1 year and longer come from
       // each holding's past prices." — and no figure came from any price)
       "You added your accounts today. Your return starts measuring from today. We never back-fill a year we didn’t see."]);
@@ -528,7 +527,7 @@ describe('E2E-65 · a brand-new person adds an account by hand, then a holding',
     // (2Y's chip says '/year' since 2026-11-01: v17's row of that day, R20 — (280 ÷ 280)^(365 ÷ 731) − 1 = +0.00% a year)
     expect(['Since today', '1 month', 'This year', '1 year', '2 years'].map((w) => after(w, 1, ls))).toEqual(['—', '+0.00%', '+0.00%', '+0.00%', '+0.00%/year']);
     expect(ls).toContain("You added your accounts today. Figures for 1 month, 1 year and longer come from each holding’s past prices.");
-    expect(after('Ending value', 1, ls)).toBe('$28,000');
+    expect(after('Ending market value', 1, ls)).toBe('$28,000');
     expect(ls.slice(ls.indexOf('Fidelity Brokerage'), ls.indexOf('Fidelity Brokerage') + 2)).toEqual(['Fidelity Brokerage', '$28,000']);
     expect(ls.slice(ls.indexOf('CATEGORY'), ls.indexOf('CATEGORY') + 6)).toEqual(['CATEGORY', 'EARNED', 'RETURN', 'Stocks / Funds', '$0', '—']);
 
@@ -635,7 +634,7 @@ describe('E2E-67 · old prices, a failed refresh, then a pull to refresh that wo
     expect((useStore.getState() as any).priceRefreshFailed).toBe(true);
     // Since Aug 28, 2026: $28,000 (270 × 100 + 1,000) to today's $29,000, nothing moved in or out: +$1,000, 1,000 ÷ 28,000 = +3.57%
     // (FIXED 2026-10-23: today's record wrote VTI at what was paid, 100 × $200 + $1,000 = $21,000, and Return read −25.00%)
-    expect([after('Ending value', 1, ls), after('Wealth generated', 1, ls), after('Return', 1, ls)]).toEqual(['$29,000', '$1,000', '+3.57%']);
+    expect([after('Ending market value', 1, ls), after('Wealth generated', 1, ls), after('Return', 1, ls)]).toEqual(['$29,000', '$1,000', '+3.57%']);
 
     // the Holding page says the prices are old, and the day's move is the last market day's: 280 − 270 = $10.00, 10 ÷ 270 = 3.70%
     screen.unmount();
@@ -673,7 +672,7 @@ describe('E2E-67 · old prices, a failed refresh, then a pull to refresh that wo
     open('/(tabs)/invest');
     ls = tabLines();
     expect(ls.some((l) => l.startsWith('⚠ Prices may be out of date'))).toBe(false);
-    expect([after('Ending value', 1, ls), after('Wealth generated', 1, ls), after('Return', 1, ls)]).toEqual(['$30,000', '$2,000', '+7.14%']);
+    expect([after('Ending market value', 1, ls), after('Wealth generated', 1, ls), after('Return', 1, ls)]).toEqual(['$30,000', '$2,000', '+7.14%']);
     tapWindow('1 month');
     expect([after('Wealth generated'), after('Return')]).toEqual(['$2,000', '+7.14%']);    // Home's month, the same figures
 
@@ -681,7 +680,7 @@ describe('E2E-67 · old prices, a failed refresh, then a pull to refresh that wo
     fireEvent.press(screen.getAllByLabelText("Open Fidelity Brokerage — this account’s own page")[0]);
     follow();
     ls = lines();
-    expect([after('Market value', 1, ls), after('Wealth generated', 1, ls), after('Return', 1, ls)]).toEqual(['$30,000', '$2,000', '+7.14%']);
+    expect([after('Ending market value', 1, ls), after('Wealth generated', 1, ls), after('Return', 1, ls)]).toEqual(['$30,000', '$2,000', '+7.14%']);
     // what it holds, listed at the close its balance was built from (FIXED 2026-10-23: an account built from its holdings listed
     // nothing, so its holding's page could not be reached): 100 × $290 = $29,000, on 1M 290 ÷ 270 − 1 = +7.41% (Aug 28's close
     // the evening before the window); cash $1,000; Total $30,000 at the account's +7.14%

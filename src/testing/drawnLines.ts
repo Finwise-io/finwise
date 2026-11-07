@@ -10,7 +10,7 @@
  */
 import * as fs from 'fs';
 import * as path from 'path';
-import { ruledHtml } from './ruledSince';
+import { ruledHtml, addedSinceDrawn } from './ruledSince';
 
 const ROOT = path.join(__dirname, '..', '..');
 
@@ -60,7 +60,7 @@ export function renderedLines(tree: any): string[] {
     if (n == null || typeof n === 'string') return;
     if (Array.isArray(n)) { n.forEach(walk); return; }
     // an icon-font glyph (the top bar's eye and gear, once the font has loaded) is a private-use character, not a word
-    if (n.type === 'Text') { const t = textOf(n).replace(/[\uE000-\uF8FF]/g, '').replace(/\s+/g, ' ').trim(); if (t) out.push(t); return; }
+    if (n.type === 'Text') { const t = textOf(n).replace(/[\uE000-\uF8FF]/g, '').replace(/\s+/g, ' ').trim(); if (t && !addedSinceDrawn(t)) out.push(t); return; }
     if (n.type === 'TextInput') { const t = String(n.props.value || n.props.placeholder || '').trim(); if (t) out.push(t); return; }
     (n.children ?? []).forEach(walk);
   };

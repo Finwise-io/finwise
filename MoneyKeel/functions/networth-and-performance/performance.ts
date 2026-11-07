@@ -75,6 +75,9 @@ export interface WindowFigures {
   /** A typed-total account's own walk adjustment (R18, 2026-11-01), inside the window, which its beginning
    *  takes off where the holdings' move alone was taken: interest to its cash − fees. 0 for any other reading. Read by the fold. */
   typedAdjust?: number;
+  /** Where the Return is measured from the record (time-weighted, DEC-1669): the pieces it is made of, split at each day
+   *  money went in or out, each one's growth (design review, 2026-11-07). Null where the return is worked back or refused. */
+  pieces?: { from: string; to: string; growth: number }[] | null;
 }
 
 /** THE THREE THINGS A SCREEN NEEDED TO ASK THIS DOOR, and calculated for itself until 2026-09-30.
@@ -859,6 +862,41 @@ export function overTheYearsSentence(f: { cumulative: number | null; perYear: nu
   write: (v: number, per?: 'year') => string): string | null {
   if (f.perYear == null || f.cumulative == null) return null;
   return `${write(f.cumulative)} over the ${yearsWords(f.years)}, which is ${write(f.perYear, 'year')}`;
+}
+
+/** HOW THE RETURN WAS CALCULATED, WITH THIS WINDOW'S OWN FIGURES (design review, 2026-11-07; his "change words to recommended"):
+ *  the time-weighted method (DEC-1669) said in words, with the pieces the Return is made of. No money moved: one piece, the change
+ *  in value. Up to four pieces: each one's growth, then their product. More: how many, then their product. The caller hands in the
+ *  writer for a percent, as overTheYearsSentence does. Null where the Return is not measured from the record (no pieces). */
+/* ─ MK-NW-F-188 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * howReturnCalculated
+ *
+ * Answers ..... HOW THE RETURN WAS CALCULATED, WITH THIS WINDOW'S OWN FIGURES (design review, 2026-11-07; his "change words to recommended"): the time-weighted method (DEC-1669) said in words, with the pieces the Return is made of.
+ *
+ * Formula .....
+ *     nothing   when pieces is missing (or pieces.length = 0 (or total = nothing when missing or zero) when missing or zero)
+ *     `how it is calculated: no money went in or out between these dates, so return is how much the value changed, ${write(total)}.`   when pieces.length = 1
+ *     days = pieces.length − 1
+ *     split = `money went in or out on ${plural(days, 'day')}, so these dates are split there into ${pieces.length} pieces`
+ *     `how it is calculated: ${split}; each piece’s growth is measured, and the ${pieces.length} are multiplied together, before rounding, to make ${write(total)}.`   when pieces.length > 4
+ *     list = for each of pieces: write(growth)
+ *     the answer = `how it is calculated: ${split} — ${list.slice(0, -1).join(', ')} and ${list[list.length − 1]}. multiplied together before rounding, they make ${write(total)}.`
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-188
+ * Changed ..... not in git yet (—)
+ */
+export function howReturnCalculated(pieces: { growth: number }[] | null | undefined, total: number | null, write: (v: number) => string): string | null {
+  if (!pieces || pieces.length === 0 || total == null) return null;
+  if (pieces.length === 1) return `How it is calculated: no money went in or out between these dates, so Return is how much the value changed, ${write(total)}.`;
+  const days = pieces.length - 1;
+  const split = `money went in or out on ${plural(days, 'day')}, so these dates are split there into ${pieces.length} pieces`;
+  if (pieces.length > 4) return `How it is calculated: ${split}; each piece’s growth is measured, and the ${pieces.length} are multiplied together, before rounding, to make ${write(total)}.`;
+  const list = pieces.map((p) => write(p.growth));
+  return `How it is calculated: ${split} — ${list.slice(0, -1).join(', ')} and ${list[list.length - 1]}. Multiplied together before rounding, they make ${write(total)}.`;
 }
 
 /** The daily record with today added to it, worth what the caller says the measured accounts are worth now. */
@@ -1753,6 +1791,7 @@ export function thePerformance(input: {
       ? whyNoReturn({ rate: null, refused: 'MOVEMENT_DAY_NOT_RECORDED', day: flowDay } as any) : typedRefused ? typedRefused.f.sentence : cannotReach,
     notIncluded, workedBack,
     typedAdjust: typedWalk ? cashInterest - feesPaid : 0,
+    pieces: covered && verdict?.rate != null ? verdict.pieces ?? null : null,
   };
 }
 
@@ -2730,7 +2769,7 @@ export const PERFORMANCE_FIGURES = declareFigures({
       + 'for the two screens to disagree about. It is an MK-XS identifier because it is on more than one screen.',
   },
   'MK-PF-M-001': {
-    label: 'Ending value', unit: 'money', screens: ['/invest', '/home'],
+    label: 'Ending market value', unit: 'money', screens: ['/invest', '/home'],
     answers: 'What your investments are worth at the end of the window you picked.',
     formula: 'the sum of every investment account’s value today',
     inputs: ['MK-NW-I-001 your accounts', 'MK-NW-I-005 the price feed'],

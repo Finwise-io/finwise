@@ -180,7 +180,7 @@ const chipPct = (label: string) => (label === '2 years' ? PCT_2Y : PCT);   // th
 // "yes" — dense tables keep their compact approved size; the 17-point minimum is for the big headline money figures.
 test('DEC-0008 — the three headline figures print at 17 points or more; the dense category table keeps its compact size (phone 1, his shape)', () => {
   open(1);
-  const heads = ['Ending value', 'Wealth generated', 'Return'].map((l) => screen.getAllByLabelText(new RegExp(`^${l}, `))[0]);   // the trio comes first
+  const heads = ['Ending market value', 'Wealth generated', 'Return'].map((l) => screen.getAllByLabelText(new RegExp(`^${l}, `))[0]);   // the trio comes first
   expect(heads).toHaveLength(3);
   for (const cell of heads) {
     const texts = cell.findAll((n: any) => n.type === 'Text' && typeof n.props.children !== 'undefined');
@@ -253,14 +253,14 @@ test('DEC-0057 — a broker that shared 3 months: 1Y names the shortfall in one 
 
 // ── DEC-0063 ─────────────────────────────────────────────────────────────────────────────────────────
 // "for the window you picked — not a yearly rate; money you added never counts as return" — three figures lead, then the walk.
-test('DEC-0063 — three figures lead (Ending value, Wealth generated, Return), the sentence says what the Return is, and the walk adds up in the approved order (phone 3)', () => {
+test('DEC-0063 — three figures lead (Ending market value, Wealth generated, Return), the sentence says what the Return is, and the walk adds up in the approved order (phone 3)', () => {
   open(3);
   const all = lines();
-  const e = all.indexOf('Ending value');
+  const e = all.indexOf('Ending market value');
   expect(e).toBeGreaterThan(0);
-  expect([all[e], all[e + 2], all[e + 4]]).toEqual(['Ending value', 'Wealth generated', 'Return']);
-  expect(all[e + 6]).toMatch(/^Return is for the window you picked \([A-Z][a-z]{2} \d{1,2}, \d{4} → [A-Z][a-z]{2} \d{1,2}, \d{4}\) — not a yearly rate$/);
-  expect(all).toContain('time-weighted, so money you added never counts as return');
+  expect([all[e], all[e + 2], all[e + 4]]).toEqual(['Ending market value', 'Wealth generated', 'Return']);
+  expect(all[e + 6]).toMatch(/^Return is for these dates \([A-Z][a-z]{2} \d{1,2}, \d{4} → [A-Z][a-z]{2} \d{1,2}, \d{4}\) — not a rate per year$/);
+  expect(all).toContain('Money you added or took out is not counted as gain');
   // the walk: beginning, money in, money out, wealth generated (dividends, interest, change in value), ending
   const b = all.findIndex((l) => l.startsWith('Beginning market value'));
   const order = ['Contributions', 'Withdrawals', 'Wealth generated', 'Dividends', 'Interest', 'Change in investment value'];
@@ -295,7 +295,7 @@ test('DEC-0064 — a fresh account (phone 5): every window is a dash, never 0.00
 test('DEC-0064 (third part replaced, 2026-10-25) — after day one, a window in which nothing was received still draws the category table, each category held at $0 (phone 1 with no dividend or interest records)', () => {
   open(1, () => useStore.setState({ transactions: (useStore.getState() as any).transactions.filter((t: any) => t.type === 'DEPOSIT') } as any));
   const all = lines();
-  expect(all).toContain('Ending value');                           // the screen rendered
+  expect(all).toContain('Ending market value');                           // the screen rendered
   const at = all.indexOf('WHAT EACH CATEGORY EARNED');
   expect(at).toBeGreaterThan(0);
   // the two categories phone 1's accounts hold — VTI and VOO, and the cash in Vanguard — at $0 received, then the total
@@ -422,14 +422,14 @@ test('DEC-0237 · DEC-0404 — with a record covering two years (phone 3), 2Y pr
   const e = all.indexOf('Return');
   expect(all[e + 1]).toBe(twoY);                                   // the trio's Return is the yearly rate the button shows
   const note = all.find((l) => / over the two years, which is /.test(l));
-  expect(note).toBe(`${note!.match(/^([+−-]\d+\.\d{2}%)/)![1]} over the two years, which is ${twoY}/year — a yearly rate, so it sits fairly beside a one-year window.`);
+  expect(note).toBe(`${note!.match(/^([+−-]\d+\.\d{2}%)/)![1]} over the two years, which is ${twoY}/year — a rate per year, so you can compare it with one year.`);
   const total = Number(note!.match(/^\+(\d+\.\d{2})%/)![1]) / 100, rate = Number(twoY.replace(/[+%]/g, '')) / 100;
   expect(Math.abs((1 + rate) ** 2 - 1 - total)).toBeLessThan(0.002);   // the total and the rate are one figure, two ways
 });
 test('DEC-0237 — a window of a year or less is never annualised: 1Y says "not a yearly rate" (phone 3)', () => {
   open(3);
   pick('1 year');
-  expect(lines().filter((l) => /^Return is for the window you picked \(.+\) — not a yearly rate$/.test(l))).toHaveLength(1);
+  expect(lines().filter((l) => /^Return is for these dates \(.+\) — not a rate per year$/.test(l))).toHaveLength(1);
   expect(lines().filter((l) => /\/year — a yearly rate/.test(l))).toEqual([]);
 });
 // BREACHED, reported to the lead 2026-10-22; FIXED the same day (PF-A, DEC-0237 · DEC-0404): in his own household shape
@@ -445,9 +445,9 @@ test('DEC-0237 · DEC-0404 — 2Y worked back from price history (phone 1): the 
   expect(said).toHaveLength(3);
   // the summary's: its rate is the one the trio's Return prints, and the total and the rate are one figure, two ways
   const all = lines(); const ret = all[all.indexOf('Return') + 1];
-  const summary = said.find((l) => l.includes(`, which is ${ret}/year — a yearly rate`));
+  const summary = said.find((l) => l.includes(`, which is ${ret}/year — a rate per year`));
   expect(summary).toBeDefined();
-  const m = summary!.match(/^\+(\d+\.\d{2})% over the two years, which is ([+−-]\d+\.\d{2}%)\/year — a yearly rate, so it sits fairly beside a one-year window\.$/)!;
+  const m = summary!.match(/^\+(\d+\.\d{2})% over the two years, which is ([+−-]\d+\.\d{2}%)\/year — a rate per year, so you can compare it with one year\.$/)!;
   expect(m).not.toBeNull();
   expect(m[2]).toBe(ret);
   expect(Math.abs((1 + Number(ret.replace(/[+%]/g, '')) / 100) ** (2) - 1 - Number(m[1]) / 100)).toBeLessThan(0.002);
@@ -480,13 +480,13 @@ test('DEC-0323 — no window, in his shape or a fresh account, shows the words "
 });
 
 // ── DEC-0421 ─────────────────────────────────────────────────────────────────────────────────────────
-// "tap the name to open this account's portfolio" — the account's name opens that account's page.
+// "tap the name to open this account's page" — the account's name opens that account's page.
 test('DEC-0421 — tapping an account\'s name on the Performance tab opens that account\'s own page, on the window picked (phone 1)', () => {
   open(1);
   pick('1 year');
   fireEvent.press(screen.getAllByLabelText('Open E*TRADE Brokerage — this account’s own page')[0]);
   expect(mockPush).toHaveBeenCalledWith('/account-detail?id=etr&period=1Y');
-  expect(lines()).toContain('Tap ▾ to collapse · tap the name to open this account’s portfolio ›');
+  expect(lines()).toContain('Tap ▾ to collapse · tap the name to open this account’s page ›');
 });
 
 // ── DEC-0465 ─────────────────────────────────────────────────────────────────────────────────────────

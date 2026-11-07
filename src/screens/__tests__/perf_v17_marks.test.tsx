@@ -71,7 +71,7 @@ test('Performance shows the time-weighted return, +7.49%, and the money added is
   expect(lines[trio + 1]).toBe('+7.49%');                             // not +23.00%, the balance change (MOVED by DEC-4439, see top)
   // MARK 18: the trio prints the PLAIN percent — no "/year" inside that cell
   expect(lines[trio + 1]).not.toMatch(/year/);
-  expect(lines).toContain('time-weighted, so money you added never counts as return');
+  expect(lines).toContain('Money you added or took out is not counted as gain');
   // nothing stands in, and nothing calls it by the old method's name
   expect(lines.some((l) => /rate per year, counting when you added money|money-weighted/.test(l))).toBe(false);
 });
@@ -89,7 +89,7 @@ test('the account page — the same figure, the same words', () => {
   const trio = lines.findIndex((l) => l === 'Return');
   expect(trio).toBeGreaterThan(-1);
   expect(lines[trio + 1]).toBe('+7.49%');                             // MOVED by DEC-4439: +7.50% → +7.49%, see top
-  expect(lines.some((l) => /not a yearly rate · time-weighted/.test(l))).toBe(true);
+  expect(lines.some((l) => /not a rate per year · Money you added or took out is not counted as gain/.test(l))).toBe(true);
 });
 
 test('money moved on a day the record holds no value for: no percent on either screen, and both say why in the same words', () => {

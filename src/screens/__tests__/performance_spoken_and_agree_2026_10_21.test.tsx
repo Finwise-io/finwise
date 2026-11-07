@@ -161,7 +161,7 @@ describe('A · rows 28 and 29 — every figure on the Performance tab has a spok
 
   test('what VoiceOver says for the summary, the walk and the totals — each line with its figure, worked by hand', () => {
     const h = SINCE().heard;
-    expect(h).toContain('Ending value, $46,600');
+    expect(h).toContain('Ending market value, $46,600');
     expect(h).toContain('Wealth generated, $10,600');
     expect(h.find((l) => l.startsWith('Return, '))).toMatch(/^Return, [+−]\d+\.\d\d%$/);
     expect(h).toContain('How $30,000 became $46,600, all accounts');
@@ -188,7 +188,7 @@ describe('A · rows 28 and 29 — every figure on the Performance tab has a spok
     }
     const h = HIDDEN().heard;
     expect(h.filter((l) => l.includes('•'))).toEqual([]);
-    expect(h).toContain('Ending value, hidden');
+    expect(h).toContain('Ending market value, hidden');
     expect(h).toContain('How hidden became hidden, all accounts');
     expect(h).toContain('Contributions, hidden');
     expect(h.find((l) => l.startsWith('Value of your investments'))).toMatch(/: hidden on .+, up to hidden on Sep 28, 2026, a return of [+−]\d+\.\d\d%\.$/);
@@ -199,7 +199,7 @@ describe('A · rows 28 and 29 — every figure on the Performance tab has a spok
   test('a window longer than a year: the trio, the sentence, the window button and the line say "a year" on the yearly rate', () => {
     const h = TWO_Y().heard;
     expect(h).toContain('Return, +9.99% a year');
-    expect(h.find((l) => l.startsWith('+21.00% over the'))).toBe('+21.00% over the two years, which is +9.99% a year — a yearly rate, so it sits fairly beside a one-year window.');
+    expect(h.find((l) => l.startsWith('+21.00% over the'))).toBe('+21.00% over the two years, which is +9.99% a year — a rate per year, so you can compare it with one year.');
     expect(h.find((l) => l.startsWith('Show 2 years'))).toBe('Show 2 years, +9.99% a year');
     expect(h.find((l) => l.startsWith('Value of your investments'))).toMatch(/a return of \+9\.99% a year\.$/);
     // what is printed is unchanged: the window's total and its yearly rate with "/year" (his ruling of 2026-09-25)

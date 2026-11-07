@@ -11,7 +11,7 @@
  */
 import * as fs from 'fs';
 import * as path from 'path';
-import { ruledHtml, ruledLines } from './ruledSince';   // the drawing as ruled since (2026-11-06)
+import { ruledHtml, ruledLines, addedSinceDrawn } from './ruledSince';   // the drawing as ruled since (2026-11-06)
 
 const MON = '(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*';
 
@@ -58,7 +58,7 @@ export function builtLines(tree: any): string[] {
   const walk = (n: any) => {
     if (n == null || typeof n === 'string') return;
     if (Array.isArray(n)) { n.forEach(walk); return; }
-    if (n.type === 'Text') { const t = text(n).replace(/\s+/g, ' ').trim(); if (t) out.push(t); return; }
+    if (n.type === 'Text') { const t = text(n).replace(/\s+/g, ' ').trim(); if (t && !addedSinceDrawn(t)) out.push(t); return; }
     (n.children ?? []).forEach(walk);
   };
   walk(tree);

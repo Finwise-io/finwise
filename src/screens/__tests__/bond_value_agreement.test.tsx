@@ -82,11 +82,11 @@ test('the account page: Market value is the same figure for each bond, with the 
     mockParams = { id: String(a.asset_id) };
     render(<AccountPortfolioScreen />);
     // the trio: Market value, then its figure
-    const label = screen.getByText('Market value');
+    const label = screen.getByText('Ending market value');
     const cell = (label.parent as any)?.parent;
     const texts: string[] = [];
     (function walk(n: any) { if (typeof n === 'string') texts.push(n); else (n?.children ?? []).forEach(walk); })(cell);
-    expect(texts).toEqual(['Market value', EXPECT[a.label]]);
+    expect(texts).toEqual(['Ending market value', EXPECT[a.label]]);
     if (NOTE[a.label]) expect(screen.getByText(NOTE[a.label] as string)).toBeOnTheScreen();
     else expect(screen.queryByText(/^The value shown is /)).toBeNull();
     screen.unmount();

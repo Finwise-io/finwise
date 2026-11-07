@@ -44,7 +44,7 @@
     },
     {
      "k": "t",
-     "s": "morning"
+     "s": "afternoon"
     },
     {
      "k": "t",
@@ -278,7 +278,7 @@
     },
     {
      "k": "t",
-     "s": "morning"
+     "s": "afternoon"
     },
     {
      "k": "t",
@@ -540,7 +540,7 @@
     },
     {
      "k": "t",
-     "s": "morning"
+     "s": "afternoon"
     },
     {
      "k": "t",
@@ -3334,11 +3334,11 @@
     },
     {
      "k": "a",
-     "s": "Ending value, $165,000"
+     "s": "Ending market value, $165,000"
     },
     {
      "k": "t",
-     "s": "Ending value"
+     "s": "Ending market value"
     },
     {
      "k": "t",
@@ -3912,6 +3912,10 @@
     },
     {
      "k": "a",
+     "s": "Refresh prices"
+    },
+    {
+     "k": "a",
      "s": "Show Since today, no data for that window yet"
     },
     {
@@ -3984,11 +3988,11 @@
     },
     {
      "k": "a",
-     "s": "Ending value, $709,800"
+     "s": "Ending market value, $709,800"
     },
     {
      "k": "t",
-     "s": "Ending value"
+     "s": "Ending market value"
     },
     {
      "k": "t",
@@ -4794,11 +4798,11 @@
     },
     {
      "k": "a",
-     "s": "Ending value, $250,000"
+     "s": "Ending market value, $250,000"
     },
     {
      "k": "t",
-     "s": "Ending value"
+     "s": "Ending market value"
     },
     {
      "k": "t",
@@ -5292,11 +5296,11 @@
     },
     {
      "k": "a",
-     "s": "Ending value, $0"
+     "s": "Ending market value, $0"
     },
     {
      "k": "t",
-     "s": "Ending value"
+     "s": "Ending market value"
     },
     {
      "k": "t",
@@ -19554,7 +19558,7 @@
     },
     {
      "k": "t",
-     "s": "Market value"
+     "s": "Ending market value"
     },
     {
      "k": "t",
@@ -19912,7 +19916,7 @@
     },
     {
      "k": "t",
-     "s": "Market value"
+     "s": "Ending market value"
     },
     {
      "k": "t",
@@ -20382,7 +20386,7 @@
     },
     {
      "k": "t",
-     "s": "Market value"
+     "s": "Ending market value"
     },
     {
      "k": "t",
@@ -20852,7 +20856,7 @@
     },
     {
      "k": "t",
-     "s": "Market value"
+     "s": "Ending market value"
     },
     {
      "k": "t",
@@ -21182,7 +21186,7 @@
     },
     {
      "k": "t",
-     "s": "Market value"
+     "s": "Ending market value"
     },
     {
      "k": "t",
@@ -21540,7 +21544,7 @@
     },
     {
      "k": "t",
-     "s": "Market value"
+     "s": "Ending market value"
     },
     {
      "k": "t",
@@ -22050,7 +22054,7 @@
     },
     {
      "k": "t",
-     "s": "Market value"
+     "s": "Ending market value"
     },
     {
      "k": "t",

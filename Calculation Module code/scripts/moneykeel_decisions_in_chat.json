@@ -11470,6 +11470,24 @@
    "apply_steps": "1. Change the eight words in the code, each in its one place. 2. Read every drawing through ruledSince.ts so the screens are held to the drawings as ruled. 3. Write a dated row on each drawing that draws an old word. 4. Hold it with src/screens/__tests__/plain_words_2026_11_06.test.tsx.",
    "not_a_repeat_of": "DEC-0404 — that decision is how a return over more than a year is shown (a yearly rate, with the window's own total beside it); this one renames the window buttons and the line that names them, and leaves that rule as it is.",
    "proof": "src/screens/__tests__/plain_words_2026_11_06.test.tsx"
+  },
+  {
+   "decided": "2026-11-07",
+   "answers": [],
+   "tab": "networth-and-performance",
+   "status": "RULED — applied 2026-11-07",
+   "standard_carrier": "",
+   "type": "RULE",
+   "screens": "Performance (/performance) · the account page (/account-detail)",
+   "his_words": "Change words to recommended.",
+   "subject": "Performance and the account page in plain words, a Refresh prices button, and a line saying how the Return was calculated (his answer to the design review's Performance list, 2026-11-07)",
+   "plain": "“Change words to recommended.” — his answer in chat, 2026-11-07, to the design review's Performance list of eight. 1. One name, “Ending market value”, for what the accounts are worth at the end of the window: the summary read “Ending value” (MK-PF-M-001), the account page “Market value” (MK-NW-M-018), the walk “Ending market value”. 2. “Money you added or took out is not counted as gain”, not “time-weighted, so money you added never counts as return”. 3. “— a rate per year, so you can compare it with one year.”, not “— a yearly rate, so it sits fairly beside a one-year window.” (Performance, the account page and the Holding page) 4. “Return is for these dates (… → …) — not a rate per year”. 5. “Earned = dividends and interest paid to you between these dates”. 6. “tap the name to open this account’s page ›”. 7. A Refresh prices button beside the out-of-date prices line; pulling down still works. 8. Under the Return, a line saying how it was calculated with the window's own pieces: his own case, $200,000 → $212,400, then $60,000 added → $284,630, reads “money went in or out on 1 day, so these dates are split there into 2 pieces — +6.20% and +4.49%. Multiplied together before rounding, they make +10.97%.”",
+   "means": "Before: the approved drawings' words, three names for one figure, a gesture nothing on screen showed, and no way to see how the Return was made. Now: the plain words above, the button, and the line. The Return's method (DEC-1669) and its figures are unchanged.",
+   "governs": "MK-PF-M-001 · MK-NW-M-018 · MK-PF-M-016 · MK-PF-M-017 · MK-ST-F-081 timeWeightedReturn · howReturnCalculated · src/screens/PerformanceScreen.tsx · src/screens/AccountPortfolioScreen.tsx · src/screens/HoldingDetailScreen.tsx · src/domain/glossary.ts · src/testing/ruledSince.ts",
+   "changed": "2026-11-07, the same day: the words in the code; the engine hands back the pieces it multiplies; the drawings read with these rulings by src/testing/ruledSince.ts; a dated READ THIS FIRST row on each drawing that draws the old words.",
+   "apply_steps": "1. Change the six wordings in the code, each in its one place. 2. Add the Refresh prices button beside the out-of-date line. 3. Have the time-weighted engine hand back its pieces, and print howReturnCalculated under the Return on Performance and the account page. 4. Read every drawing through ruledSince.ts. 5. Write a dated row on each drawing that draws an old word. 6. Hold it with src/screens/__tests__/performance_plain_words_2026_11_07.test.tsx.",
+   "not_a_repeat_of": "DEC-10067 — that decision changed eight other words (the window buttons, the Bonds labels, the walk note, the fee box, the door, the emoji, the first-day card); this one changes Performance's own sentences and adds the button and the line. DEC-1669 — that decision is the method; this one only says it in words. DEC-0404 — that decision is how a return over more than a year is shown (a yearly rate with the window's own total beside it); this one only rewords the sentence after it, and the rule stands. DEC-5848 — that decision is what a holding's return counts (its own price move, its dividends included); this one changes no figure, only the account page's words and its trio's name. DEC-8952 — that decision is which windows the Holding page offers; this one only rewords the Holding page's yearly-rate sentence.",
+   "proof": "src/screens/__tests__/performance_plain_words_2026_11_07.test.tsx · Calculation Module code/engines/__tests__/time-weighted-return.test.ts"
   }
  ]
 }

@@ -169,7 +169,7 @@ describe('3 · MK-PF-M-003 / MK-PF-M-015 — the walk\'s lines add up to its end
     expect(printed(INV(), 'MK-PF-M-018')[0]).toBe('$10,001');
     expect(printed(INV(), 'MK-PF-M-019').slice(0, 5)).toEqual(['$1,000', '$0', '$100', '$0', '$399']);
     expect(printed(INV(), 'MK-PF-M-002')).toEqual(['$499', '$499']);
-    expect(after(INV(), 'Ending value')).toBe('$11,500');
+    expect(after(INV(), 'Ending market value')).toBe('$11,500');
   });
   test('account page: the same lines, the same total, the same Wealth generated in its trio and its walk', () => {
     expect(printed(ACC(), 'MK-PF-M-013')[0]).toBe('$10,001');
@@ -210,10 +210,10 @@ describe('4 · MK-XS-M-004 / MK-PF-M-001 — Home\'s month and its base are the 
     expect(printed(INV(), 'MK-PF-M-017')[0]).toBe('+21.35%');
     expect(printed(HOME(), 'MK-XS-M-004')).toEqual(['21.35%']);
   });
-  test('Home names the base of that change — the Performance tab\'s 1M Ending value, $46,600 — under YOUR INVESTMENTS $35,775', () => {
+  test('Home names the base of that change — the Performance tab\'s 1M Ending market value, $46,600 — under YOUR INVESTMENTS $35,775', () => {
     expect(after(HOME(), 'YOUR INVESTMENTS', 2)).toBe('$35,775');
     expect(HOME().lines).toContain("This month’s change is on $46,600: your investment accounts with the cash in them.");
-    expect(printed(HOME(), 'MK-PF-M-001')).toEqual([after(INV(), 'Ending value')]);
+    expect(printed(HOME(), 'MK-PF-M-001')).toEqual([after(INV(), 'Ending market value')]);
   });
 });
 
