@@ -11452,6 +11452,24 @@
    "apply_steps": "1. Each BOND FACTS row that reads not entered carries a › and opens this bond's editor. 2. Edit on the bond's page opens the same editor. 3. The editor saves with only the facts typed. 4. Held by src/screens/__tests__/build55_bond_edit_2026_11_04.test.tsx.",
    "not_a_repeat_of": "DEC-6212 — that decision is the return in the time bar and what a return includes; this one is how a bond fact that was never entered gets entered. They share the account page and its bond rows, not a subject.",
    "proof": "src/screens/__tests__/build55_bond_edit_2026_11_04.test.tsx"
+  },
+  {
+   "decided": "2026-11-06",
+   "answers": [],
+   "tab": "networth-and-performance",
+   "status": "RULED — applied 2026-11-06",
+   "standard_carrier": "",
+   "type": "RULE",
+   "screens": "Net worth (/(tabs)/index net worth tab) · Bonds (/bonds) · Performance (/performance) · the account page (/account-detail) · the trade sheet · the edit-record sheet",
+   "his_words": "all",
+   "subject": "Eight words on Net worth, Bonds, Performance and the account page, in plain words (his answer to the design review's list, 2026-11-06)",
+   "plain": "“all” — his answer in chat, 2026-11-06, to the design review's list of eight. 1. The add-account door reads “Connect your bank”, not “Link it (read-only)”. 2. The Bonds summary reads AVERAGE YIELD, not AVG YIELD (MK-NW-M-044). 3. It reads INTEREST A YEAR, not COUPON /year (MK-NW-M-043). 4. The window buttons read 1 month, 1 year, 2 years, not 1M, 1Y, 2Y, and the line under them reads “The 2-year return is shown per year, so you can compare it with the 1-year return.” 5. The walk's note reads “These lines fill in as days pass.” 6. The fee box reads “Fee (optional)”. 7. Net worth's sections carry no emoji; an institution's mix line names each class. 8. Net worth with no account shows no retirement card; it comes with the first account.",
+   "means": "Before: the approved drawings' words — “Link it (read-only)”, AVG YIELD, COUPON /year, 1M · 1Y · 2Y, “Every line fills in as days pass — the structure never changes.”, “Fee (opt)”, 💵 📈 🏠 beside each section, and a sample 84% odds card on a brand-new Net worth. Now: the plain words above. Home and the Plan tab keep their sample card; the add sheet's door icons stay.",
+   "governs": "src/constants/doors.ts ADD_ACCOUNT_DOORS · src/screens/BondsScreen.tsx · MK-NW-M-043 · MK-NW-M-044 · src/constants/windows.ts · src/screens/PerformanceScreen.tsx · src/screens/AccountPortfolioScreen.tsx · src/screens/NetWorthScreen.tsx · src/testing/ruledSince.ts",
+   "changed": "2026-11-06, the same day: the eight changes in the code; the drawings read with these rulings by src/testing/ruledSince.ts; a dated READ THIS FIRST row on each drawing that draws the old words.",
+   "apply_steps": "1. Change the eight words in the code, each in its one place. 2. Read every drawing through ruledSince.ts so the screens are held to the drawings as ruled. 3. Write a dated row on each drawing that draws an old word. 4. Hold it with src/screens/__tests__/plain_words_2026_11_06.test.tsx.",
+   "not_a_repeat_of": "DEC-0404 — that decision is how a return over more than a year is shown (a yearly rate, with the window's own total beside it); this one renames the window buttons and the line that names them, and leaves that rule as it is.",
+   "proof": "src/screens/__tests__/plain_words_2026_11_06.test.tsx"
   }
  ]
 }

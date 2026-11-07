@@ -2,6 +2,7 @@
 // full story — what you own, what you paid, what it's worth, how it compares, and the tax facts
 // if you sold (clearly an estimate). Every number is the SAME helper the Invest main list uses;
 // nothing is recomputed differently here (r24: same row object, no recomputation).
+import { HOLDING_WINDOW_LABEL } from '../constants/windows';   // window names in words (2026-11-06)
 import { quantityWithUnit, heldQuantity, lotCostOnRecord, purchaseDateOnRecord, SECTION_1256_LONG_TERM_PERCENT, staleWindowStart } from '../domain/performance';
 import { saleShortOfPurchasesSentence, gainOnPartSentence } from '../domain/performance/realized';
 import TopBar from '../components/TopBar';
@@ -283,9 +284,10 @@ export default function HoldingDetailScreen() {
                 <PriceGraph pts={graphPts} up={graphPts[graphPts.length - 1].close >= graphPts[0].close} />
                 <View style={s.chipRow}>
                   {PERIODS.map((pd) => (
-                    <TouchableOpacity key={pd} accessibilityRole="button" accessibilityState={{ selected: period === pd }} accessibilityLabel={`Show ${pd}`}
+                    <TouchableOpacity key={pd} accessibilityRole="button" accessibilityState={{ selected: period === pd }} accessibilityLabel={`Show ${HOLDING_WINDOW_LABEL[pd as keyof typeof HOLDING_WINDOW_LABEL] ?? pd}`}
                       style={[s.chip, period === pd && s.chipOn]} onPress={() => setPeriod(pd)}>
-                      <Text style={[s.chipTxt, period === pd && s.chipTxtOn]}>{pd}</Text>
+                      {/* the window in words (his ruling “all”, 2026-11-06), on two lines when it needs them: six buttons share one row */}
+                      <Text numberOfLines={2} style={[s.chipTxt, { textAlign: 'center' }, period === pd && s.chipTxtOn]}>{HOLDING_WINDOW_LABEL[pd as keyof typeof HOLDING_WINDOW_LABEL] ?? pd}</Text>
                     </TouchableOpacity>
                   ))}
                 </View>

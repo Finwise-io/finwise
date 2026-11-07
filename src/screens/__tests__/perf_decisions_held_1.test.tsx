@@ -173,7 +173,7 @@ const PCT = /^[+−-]\d+\.\d{2}%$/;
 /** the 2Y chip's yearly rate says so since 2026-11-01 (v17's row of that day, 'DRAWING CORRECTION, the 2Y window chip'; the lead's
  *  ruling R20, under DEC-0237 and DEC-0404): '+7.22%/year' on the 2Y chip only; every other window stays bare */
 const PCT_2Y = /^[+−-]\d+\.\d{2}%\/year$/;
-const chipPct = (label: string) => (label === '2Y' ? PCT_2Y : PCT);
+const chipPct = (label: string) => (label === '2 years' ? PCT_2Y : PCT);   // the 2Y button reads '2 years' since 2026-11-06
 
 
 // ── DEC-0008 ─────────────────────────────────────────────────────────────────────────────────────────
@@ -245,9 +245,9 @@ test('DEC-0057 — a broker that shared 3 months: 1Y names the shortfall in one 
   } as any);
   open(5, setUp);
   const SAID = /^E\*TRADE shared 3 months of history \(from [A-Z][a-z]{2} \d{1,2}, \d{4}\) — figures before that aren’t counted\.$/;
-  pick('1M');
+  pick('1 month');
   expect(lines().filter((l) => SAID.test(l))).toEqual([]);
-  pick('1Y');
+  pick('1 year');
   expect(lines().filter((l) => SAID.test(l))).toHaveLength(1);
 });
 
@@ -278,7 +278,7 @@ test('DEC-0063 — three figures lead (Ending value, Wealth generated, Return), 
 test('DEC-0064 — with 26 months of record every window prints its own return (phone 3)', () => {
   open(3);
   const b = bar();
-  expect(b.map((x) => x[0])).toEqual([expect.stringMatching(/^Since /), '1M', 'This year', '1Y', '2Y']);
+  expect(b.map((x) => x[0])).toEqual([expect.stringMatching(/^Since /), '1 month', 'This year', '1 year', '2 years']);   // in words since 2026-11-06
   for (const [k, f] of b) expect(f).toMatch(chipPct(k));           // the 2Y chip with '/year' (R20, v17 row of 2026-11-01)
   expect(new Set(b.map((x) => x[1])).size).toBe(5);                // five windows, five figures of their own
 });
@@ -399,7 +399,7 @@ test('DEC-0235 — each window button carries two lines: the window on top, its 
       const [top, under] = texts.map((t: any) => [].concat(t.props.children).join(''));
       expect(label.startsWith(`Show ${top}`)).toBe(true);
       // the 2Y chip's yearly rate carries '/year' (R20, v17 row of 2026-11-01); every other window bare, or a dash
-      expect(under).toMatch(top === '2Y' ? /^([+−-]\d+\.\d{2}%\/year|—)$/ : /^([+−-]\d+\.\d{2}%|—)$/);
+      expect(under).toMatch(top === '2 years' ? /^([+−-]\d+\.\d{2}%\/year|—)$/ : /^([+−-]\d+\.\d{2}%|—)$/);
     }
     expect(seen.size).toBe(5);
     screen.unmount();
@@ -411,13 +411,13 @@ test('DEC-0235 — each window button carries two lines: the window on top, its 
 // yearly rate that says so, with the window's own total beside it; a window of a year or less is never annualised.
 test('DEC-0237 · DEC-0404 — with a record covering two years (phone 3), 2Y prints the yearly rate, says so under the control, and states the window\'s own total beside it', () => {
   open(3);
-  expect(lines()).toContain('2Y is shown per year, so it sits fairly beside 1Y');
+  expect(lines()).toContain('The 2-year return is shown per year, so you can compare it with the 1-year return.');
   // the 2Y chip reads the yearly rate with '/year' since 2026-11-01 (R20, v17 row of that day); the trio's Return prints the same
   // rate bare, and the sentence under it says '/year' — the row: "Nothing else moves"
   const twoYChip = bar()[4][1];
   expect(twoYChip).toMatch(PCT_2Y);
   const twoY = twoYChip.replace(/\/year$/, '');
-  pick('2Y');
+  pick('2 years');
   const all = lines();
   const e = all.indexOf('Return');
   expect(all[e + 1]).toBe(twoY);                                   // the trio's Return is the yearly rate the button shows
@@ -428,7 +428,7 @@ test('DEC-0237 · DEC-0404 — with a record covering two years (phone 3), 2Y pr
 });
 test('DEC-0237 — a window of a year or less is never annualised: 1Y says "not a yearly rate" (phone 3)', () => {
   open(3);
-  pick('1Y');
+  pick('1 year');
   expect(lines().filter((l) => /^Return is for the window you picked \(.+\) — not a yearly rate$/.test(l))).toHaveLength(1);
   expect(lines().filter((l) => /\/year — a yearly rate/.test(l))).toEqual([]);
 });
@@ -439,7 +439,7 @@ test('DEC-0237 — a window of a year or less is never annualised: 1Y says "not 
 // Both now say the one sentence phone 3 draws — the window's own total, "which is" the yearly rate, "/year".
 test('DEC-0237 · DEC-0404 — 2Y worked back from price history (phone 1): the summary states the two years\' own total beside the yearly rate (was BREACHED; fixed 2026-10-22)', () => {
   open(1);
-  pick('2Y');
+  pick('2 years');
   // the sentence is said once for every account together and once for each account (its open walk or its closed row)
   const said = lines().filter((l) => / over the two years, which is /.test(l));
   expect(said).toHaveLength(3);
@@ -454,7 +454,7 @@ test('DEC-0237 · DEC-0404 — 2Y worked back from price history (phone 1): the 
 });
 test('DEC-0237 · DEC-0404 — 2Y on an account row (phone 1): the account\'s yearly rate says so, with its own total (was BREACHED; fixed 2026-10-22)', () => {
   open(1);
-  pick('2Y');
+  pick('2 years');
   // the closed line is the source label, then what the account made and its return (2026-10-25, MM-PF D4: the label as on an open account)
   const all = lines();
   const rows = all.filter((l, i) => l.startsWith('· wealth generated') && all[i - 1] === '🔗 Linked');
@@ -469,7 +469,7 @@ test('DEC-0323 — no window, in his shape or a fresh account, shows the words "
   let looked = 0;
   for (const n of [1, 3, 4, 5]) {
     open(n);
-    for (const w of ['1M', 'This year', '1Y', '2Y']) {
+    for (const w of ['1 month', 'This year', '1 year', '2 years']) {   // the window buttons in words since 2026-11-06
       pick(w);
       const all = lines(); looked += all.length;
       expect(all.filter((l) => /money-weighted/i.test(l))).toEqual([]);
@@ -483,7 +483,7 @@ test('DEC-0323 — no window, in his shape or a fresh account, shows the words "
 // "tap the name to open this account's portfolio" — the account's name opens that account's page.
 test('DEC-0421 — tapping an account\'s name on the Performance tab opens that account\'s own page, on the window picked (phone 1)', () => {
   open(1);
-  pick('1Y');
+  pick('1 year');
   fireEvent.press(screen.getAllByLabelText('Open E*TRADE Brokerage — this account’s own page')[0]);
   expect(mockPush).toHaveBeenCalledWith('/account-detail?id=etr&period=1Y');
   expect(lines()).toContain('Tap ▾ to collapse · tap the name to open this account’s portfolio ›');

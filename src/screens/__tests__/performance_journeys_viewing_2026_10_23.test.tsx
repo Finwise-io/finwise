@@ -26,6 +26,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { useStore } from '../../store/useStore';
 import { setHideBalances } from '../../domain/_shared/money';
+import { ruledHtml } from '../../testing/ruledSince';
 import { builtLines, drawingLines, norm as mmNorm, firstDifference as mmFirstDifference } from '../../testing/mockMatch';
 
 let mockParams: Record<string, string | undefined> = {};
@@ -200,11 +201,13 @@ const v17known = (s: string) => s
   .replace(new RegExp(` ${MARK_16.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`), '')
   .replace(/since <date> #%\/year/g, 'since <date> #%').replace(/\breturn #%\/year/g, 'return #%')
   .replace(/how today's value stands all accounts \$#/g, 'how $# became $# all accounts')
-  .replace(/^(performance <date> since <date> #% #m #% this year #% )#y — #y — summary/, '$1#y #% #y #% #y is shown per year, so it sits fairly beside #y summary');
+  // the window buttons and the 2-year line in his words of 2026-11-06 (the drawing is read ruled, so both sides say them)
+  .replace(/^(performance <date> since <date> #% # month #% this year #% )# year — # years — summary/, '$1# year #% # years #% the #-year return is shown per year, so you can compare it with the #-year return. summary');
 const CHROME = new Set(['9:41', '▦ Menu', 'Money', 'Keel', '◉', '⚙', '🏠', 'Home', '💎', 'Net worth', '📈', '💵', 'Cash flow', '🧭', 'Plan']);
 function v17phone(n: number): string[] {
   const p = path.join(__dirname, '..', '..', '..', 'MoneyKeel', 'documents', 'networth-and-performance', 'moneykeel_pres_mock_performance_v17.html');
-  let body = fs.readFileSync(p, 'utf8').replace(/^[\s\S]*<body/, '<body').replace(/<(script|style)[\s\S]*?<\/\1>/g, '');
+  // read with his rulings made after it was drawn (2026-11-06, ruledSince): the window buttons in words, the 2-year line, …
+  let body = ruledHtml(p, fs.readFileSync(p, 'utf8')).replace(/^[\s\S]*<body/, '<body').replace(/<(script|style)[\s\S]*?<\/\1>/g, '');
   body = body.replace(/<svg[\s\S]*?<\/svg>/g, (svg) => (/your line starts/.test(svg) ? svg : ''));
   const ls = body.replace(/<[^>]+>/g, '\n').replace(/&amp;/g, '&').replace(/&#39;|&rsquo;/g, "'").split('\n').map((l) => l.replace(/\s+/g, ' ').trim()).filter(Boolean);
   const starts = ls.map((l, i) => (l === '9:41' ? i : -1)).filter((i) => i >= 0);
@@ -218,7 +221,7 @@ function v17difference(n: number, built: string[]): string {
   let want = v17known(v17norm(v17phone(n)));
   // v17's row of 2026-11-01 (R20, 'DRAWING CORRECTION, the 2Y window chip'; perf_mock_match_2026_10_12's KNOWN (d)): the 2Y chip's
   // yearly rate says '/year' where the drawing prints it bare — on the drawn figure only, never on a dash
-  want = want.replace(/(#y #%)( #y is shown per year)/g, '$1/year$2');
+  want = want.replace(/(# years #%)( the #-year return is shown per year)/g, '$1/year$2');   // the 2-year button in words since 2026-11-06
   if (n === 1) want = want.replace(/<date> ?<date> (?=how \$# became)/, '');   // the graph's axis dates (SVG, after layout)
   const got = v17known(v17norm(built));
   expect(want.split(' ').length).toBeGreaterThan(60);
@@ -256,11 +259,11 @@ describe('E2E-63 · the window journey in the founder\'s household (Performance 
     // 1Y the same as Since — VTI and VOO closed at $260 and $500 on Sep 29 and Oct 1, 2025, so the days before the record add
     // (1 + 0) — +9.34%; 2Y (1.25 × 1.093385)^(365 ÷ 731) − 1 = +16.88% a year (worked below)
     // (2Y's chip says '/year' since 2026-11-01: v17's row of that day, R20 — the same +16.88% a year)
-    expect(['Since Oct 1, 2025', '1M', 'This year', '1Y', '2Y'].map((w) => after(w, 1, ls))).toEqual(['+9.34%', '+1.54%', '+7.28%', '+9.34%', '+16.88%/year']);
+    expect(['Since Oct 1, 2025', '1 month', 'This year', '1 year', '2 years'].map((w) => after(w, 1, ls))).toEqual(['+9.34%', '+1.54%', '+7.28%', '+9.34%', '+16.88%/year']);
 
     // 1M — Aug 30 to Sep 30; its beginning is the evening before, Aug 29, read from the record's Aug 28: $123,300.
     // 125,200 − 123,300 = $1,900, all change in value; 1,900 ÷ 123,300 = +1.54%. Never a yearly rate.
-    tapWindow('1M'); ls = lines();
+    tapWindow('1 month'); ls = lines();
     expect(ls).toContain('SUMMARY · PAST MONTH');
     expect([after('Ending value', 1, ls), after('Wealth generated', 1, ls), after('Return', 1, ls)]).toEqual(['$125,200', '$1,900', '+1.54%']);
     expect(ls).toContain('Return is for the window you picked (Aug 29, 2026 → Sep 30, 2026) — not a yearly rate');
@@ -274,7 +277,7 @@ describe('E2E-63 · the window journey in the founder\'s household (Performance 
     expect(after('Change in investment value', 1, ls)).toBe('$6,300');
 
     // 1Y — its beginning, Sep 29, 2025, is before the record's first day: joined there (DEC-6412), the same $10,200 and +9.34%
-    tapWindow('1Y'); ls = lines();
+    tapWindow('1 year'); ls = lines();
     expect(ls).toContain('SUMMARY · PAST YEAR');
     expect([after('Wealth generated', 1, ls), after('Return', 1, ls)]).toEqual(['$10,200', '+9.34%']);
     expect(ls).toContain("Your daily record begins Oct 1, 2025, so the days before it are worked back from each holding’s price history.");
@@ -284,12 +287,12 @@ describe('E2E-63 · the window journey in the founder\'s household (Performance 
     // The days before the record, holdings with a history: (78,000 + 20,000) ÷ (62,400 + 16,000) = 1.25 (cash gains $0, not counted).
     // Joined: 1.25 × 1.093385 = 1.366731 → +36.67% over the two years; Sep 29, 2024 → Sep 30, 2026 is 731 days:
     // 1.366731^(365 ÷ 731) − 1 = +16.88% a year. Wealth generated 125,200 − 80,400 − 15,000 = $29,800; change 29,800 − 2,200 = $27,600.
-    tapWindow('2Y'); ls = lines();
+    tapWindow('2 years'); ls = lines();
     expect(1.25 * 1.034 * (125_200 / 118_400) - 1).toBeCloseTo(0.366731, 6);
     expect(Math.pow(1.366731, 365 / 731) - 1).toBeCloseTo(0.168823, 5);
     expect(ls).toContain('SUMMARY · PAST 2 YEARS');
     expect([after('Ending value', 1, ls), after('Wealth generated', 1, ls), after('Return', 1, ls)]).toEqual(['$125,200', '$29,800', '+16.88%']);
-    expect(ls).toContain('2Y is shown per year, so it sits fairly beside 1Y');
+    expect(ls).toContain('The 2-year return is shown per year, so you can compare it with the 1-year return.');
     const note = ls.indexOf("Your daily record begins Oct 1, 2025, so the days before it are worked back from each holding’s price history.");
     expect(ls[note + 1]).toBe('+36.67% over the two years, which is +16.88%/year — a yearly rate, so it sits fairly beside a one-year window.');
     expect(ls).toContain('HOW $80,400 BECAME $125,200 · ALL ACCOUNTS');
@@ -311,7 +314,7 @@ describe('E2E-63 · the window journey in the founder\'s household (Performance 
   test('E2E-63 · on 2Y, tapping Vanguard opens its page on 2Y with the figures the tab printed; tapping VTI opens its page on 2Y, and it agrees', () => {
     start(P1);
     open('/(tabs)/invest');
-    tapWindow('2Y');
+    tapWindow('2 years');
     const tab = lines();
     // what the tab printed for Vanguard on 2Y: its walk and its Return row
     const vStart = tab.indexOf('▾ Vanguard Brokerage');
@@ -325,7 +328,7 @@ describe('E2E-63 · the window journey in the founder\'s household (Performance 
     fireEvent.press(screen.getAllByLabelText("Open Vanguard Brokerage — this account’s own page")[0]);
     expect(follow()).toBe('/account-detail?id=van&period=2Y');
     // the account page opens ON 2Y (the drawing's row 18): the 2Y button is the chosen one
-    expect(windowButton('2Y').props.accessibilityState.selected).toBe(true);
+    expect(windowButton('2 years').props.accessibilityState.selected).toBe(true);
     let ls = lines();
     expect(ls).toContain('THIS ACCOUNT · THE PAST 2 YEARS');
     // the same figures: Market value $102,700, Wealth generated 102,700 − 64,400 − 15,000 = $23,300, Return +16.55%
@@ -337,7 +340,7 @@ describe('E2E-63 · the window journey in the founder\'s household (Performance 
     // the window bar is the account's own: Since 1.0375 × 1.047959 − 1 = +8.73%; 1M 102,700 ÷ 101,200 − 1 = +1.48%;
     // This year 102,700 ÷ 96,500 − 1 = +6.42%; 1Y the same as Since; 2Y +16.55%
     // (2Y's chip says '/year' since 2026-11-01: the account page's row 93, R20 — the same +16.55% a year)
-    expect(['Since Oct 1, 2025', '1M', 'This year', '1Y', '2Y'].map((w) => after(w, 1, ls))).toEqual(['+8.73%', '+1.48%', '+6.42%', '+8.73%', '+16.55%/year']);
+    expect(['Since Oct 1, 2025', '1 month', 'This year', '1 year', '2 years'].map((w) => after(w, 1, ls))).toEqual(['+8.73%', '+1.48%', '+6.42%', '+8.73%', '+16.55%/year']);
     // BY CATEGORY & HOLDING on 2Y: VTI $208 → $280, 280 ÷ 208 − 1 = +34.62% in all, 1.346154^(365 ÷ 731) − 1 = +16.00% a year.
     // VTI is all of Stocks / Funds, so the class bar is the same yearly rate (FIXED 2026-10-23: it read +34.62%), and every
     // return in the column says it is yearly (the lead's ruling the same day: they printed the yearly rate bare)
@@ -350,7 +353,7 @@ describe('E2E-63 · the window journey in the founder\'s household (Performance 
     fireEvent.press(screen.getAllByRole('button').find((b) => /^VTI, /.test(String(b.props.accessibilityLabel)))!);
     // FIXED 2026-10-23: the route carries the window; it opened on 1Y, where "Your return, past year" read +7.69%
     expect(follow()).toBe('/holding-detail?account=van&position=p1&period=2Y');
-    expect(screen.getByLabelText('Show 2Y').props.accessibilityState.selected).toBe(true);
+    expect(screen.getByLabelText('Show 2 years').props.accessibilityState.selected).toBe(true);   // the Holding page keeps its own 1M … 2Y buttons
     ls = lines();
     // the same holding, the same window, the same figure: +16.00%/year; the market SPY $500 → $600, +20.00% in all,
     // 1.2^(365 ÷ 731) − 1 = +9.53% a year; ahead by 16.0003 − 9.5309 = 6.47 points a year
@@ -368,7 +371,7 @@ describe('E2E-63 · the window journey in the founder\'s household (Performance 
     open('/account-detail?id=van&period=SINCE');
     fireEvent.press(screen.getAllByRole('button').find((b) => /^VTI, /.test(String(b.props.accessibilityLabel)))!);
     expect(follow()).toBe('/holding-detail?account=van&position=p1');
-    expect(screen.getByLabelText('Show 1Y').props.accessibilityState.selected).toBe(true);
+    expect(screen.getByLabelText('Show 1 year').props.accessibilityState.selected).toBe(true);   // the Holding page keeps its own 1M … 2Y buttons
     // 1Y: from Sep 29, 2025's $260 to $280: +7.69%; the market SPY $560 → $600: +7.14%
     expect(after('Your return, past year')).toBe('+7.69%');
     expect(after('The market, same dates')).toBe('+7.14%');
@@ -390,7 +393,7 @@ describe('E2E-64 · hide balances, from the eye on the Performance tab', () => {
     expect((useStore.getState() as any).hideBalances).toBe(true);
 
     // THE PERFORMANCE TAB, on 2Y
-    tapWindow('2Y');
+    tapWindow('2 years');
     let ls = lines();
     expect(screen.getByLabelText('Show balances')).toBeOnTheScreen();          // the eye now offers to show them
     expect(ls).toContain('Balances hidden — tap the eye to show');
@@ -460,7 +463,7 @@ describe('E2E-65 · a brand-new person adds an account by hand, then a holding',
     fireEvent.press(screen.getByText('Add your accounts ›'));
     const chooser = lines();
     expect(chooser.slice(chooser.indexOf('How do you want to add an account?'))).toEqual(['How do you want to add an account?',
-      '🔗 Link it (read-only)', 'We can look, never touch your money.', '✍️ Add by hand', 'Your home, savings, or any account with no login.',
+      '🔗 Connect your bank', 'We can look, never touch your money.', '✍️ Add by hand', 'Your home, savings, or any account with no login.',
       '📄 Import from a file', 'The CSV export from your brokerage.']);
     fireEvent.press(screen.getByLabelText('Add by hand. Your home, savings, or any account with no login.'));
     expect(follow()).toBe('/add-account');
@@ -482,17 +485,17 @@ describe('E2E-65 · a brand-new person adds an account by hand, then a holding',
     open('/(tabs)/invest');
     let ls = tabLines();
     // every window a dash — nothing it holds has a price history
-    expect(['Since today', '1M', 'This year', '1Y', '2Y'].map((w) => after(w, 1, ls))).toEqual(['—', '—', '—', '—', '—']);
+    expect(['Since today', '1 month', 'This year', '1 year', '2 years'].map((w) => after(w, 1, ls))).toEqual(['—', '—', '—', '—', '—']);
     expect(ls.slice(ls.indexOf('SUMMARY · SINCE TODAY'), ls.indexOf('SUMMARY · SINCE TODAY') + 9)).toEqual(['SUMMARY · SINCE TODAY', 'ⓘ',
       'Ending value', '$28,000', 'Wealth generated', '$0', 'Return', '—',
-      // phone 4's drawn line (FIXED 2026-10-23: it read "You added your accounts today. Figures for 1M, 1Y and longer come from
+      // phone 4's drawn line (FIXED 2026-10-23: it read "You added your accounts today. Figures for 1 month, 1 year and longer come from
       // each holding's past prices." — and no figure came from any price)
       "Day one: your value is real, your return starts measuring from today. We never back-fill a year we didn’t see."]);
     const card = ls.indexOf('Fidelity Brokerage');
     expect(ls.slice(card, card + 21)).toEqual(['Fidelity Brokerage', '$28,000', '›', '✍️ By hand · you update it',
       'Beginning market value (today)', '$28,000', 'Contributions', '$0', 'Withdrawals', '$0', 'Wealth generated', '$0',
       'Dividends', '$0', 'Interest', '$0', 'Change in investment value', '$0', 'Ending market value (today)', '$28,000',
-      'Every line fills in as days pass — the structure never changes.']);
+      'These lines fill in as days pass.']);
     expect(ls.slice(ls.indexOf('WHAT EACH CATEGORY EARNED'))).toEqual(['WHAT EACH CATEGORY EARNED', 'SINCE TODAY', 'CATEGORY', 'EARNED', 'RETURN',
       'Stocks / Funds', '$0', '—', 'Bonds & CDs', '$0', '—', 'Cash in this account', '$0', '—', 'All categories', '$0',
       'Fills in with your first dividend or interest record. A file import carries no activity — that line will say so rather than show a false $0.', 'ⓘ']);
@@ -523,8 +526,8 @@ describe('E2E-65 · a brand-new person adds an account by hand, then a holding',
     // Bought today at $280.00 and closing at $280.00 today, it has gained nothing in any window: 280 ÷ 280 − 1 = +0.00%,
     // each window's figure worked from VTI's own price history (DEC-5291), so the day-one line says so (DEC-5425, his words).
     // (2Y's chip says '/year' since 2026-11-01: v17's row of that day, R20 — (280 ÷ 280)^(365 ÷ 731) − 1 = +0.00% a year)
-    expect(['Since today', '1M', 'This year', '1Y', '2Y'].map((w) => after(w, 1, ls))).toEqual(['—', '+0.00%', '+0.00%', '+0.00%', '+0.00%/year']);
-    expect(ls).toContain("You added your accounts today. Figures for 1M, 1Y and longer come from each holding’s past prices.");
+    expect(['Since today', '1 month', 'This year', '1 year', '2 years'].map((w) => after(w, 1, ls))).toEqual(['—', '+0.00%', '+0.00%', '+0.00%', '+0.00%/year']);
+    expect(ls).toContain("You added your accounts today. Figures for 1 month, 1 year and longer come from each holding’s past prices.");
     expect(after('Ending value', 1, ls)).toBe('$28,000');
     expect(ls.slice(ls.indexOf('Fidelity Brokerage'), ls.indexOf('Fidelity Brokerage') + 2)).toEqual(['Fidelity Brokerage', '$28,000']);
     expect(ls.slice(ls.indexOf('CATEGORY'), ls.indexOf('CATEGORY') + 6)).toEqual(['CATEGORY', 'EARNED', 'RETURN', 'Stocks / Funds', '$0', '—']);
@@ -671,7 +674,7 @@ describe('E2E-67 · old prices, a failed refresh, then a pull to refresh that wo
     ls = tabLines();
     expect(ls.some((l) => l.startsWith('⚠ Prices may be out of date'))).toBe(false);
     expect([after('Ending value', 1, ls), after('Wealth generated', 1, ls), after('Return', 1, ls)]).toEqual(['$30,000', '$2,000', '+7.14%']);
-    tapWindow('1M');
+    tapWindow('1 month');
     expect([after('Wealth generated'), after('Return')]).toEqual(['$2,000', '+7.14%']);    // Home's month, the same figures
 
     // the account page: the same three figures
@@ -769,13 +772,13 @@ describe('E2E-68 · a screen-reader user', () => {
     // the Holding page, heard in its parts: the price — with no day's move, its last two closes (Aug 28, Sep 30) a month apart (NW3-04) — the window
     // chips — each reached (FIXED 2026-10-23: the card was one element and they could not be) — then the value and the change
     const h = heard();
-    for (const said of ['LAST CLOSE · SEP 30, 2026: $280.00', 'Show 1M', 'Show 3M', 'Show 6M', 'Show YTD', 'Show 1Y', 'Show 2Y',
+    for (const said of ['LAST CLOSE · SEP 30, 2026: $280.00', 'Show 1 month', 'Show 3 months', 'Show 6 months', 'Show This year', 'Show 1 year', 'Show 2 years',
       'VTI, worth $84,000, up $30,000, 55.56 percent since purchase', 'Price paid (average)', '$180.00']) expect(h).toContain(said);
-    expect(h.indexOf('LAST CLOSE · SEP 30, 2026: $280.00')).toBeLessThan(h.indexOf('Show 1M'));
-    expect(h.indexOf('Show 2Y')).toBeLessThan(h.indexOf('VTI, worth $84,000, up $30,000, 55.56 percent since purchase'));
+    expect(h.indexOf('LAST CLOSE · SEP 30, 2026: $280.00')).toBeLessThan(h.indexOf('Show 1 month'));
+    expect(h.indexOf('Show 2 years')).toBeLessThan(h.indexOf('VTI, worth $84,000, up $30,000, 55.56 percent since purchase'));
     expect(markHeard()).toEqual([]);
     // a chip reached is a chip that works: 2Y, said with "a year"
-    fireEvent.press(screen.getByLabelText('Show 2Y'));
+    fireEvent.press(screen.getByLabelText('Show 2 years'));
     expect(heard()).toContain('Versus the stock market, same dates: your return up 16.00 percent a year, the market up 9.53 percent a year, you are ahead by 6.47 points a year');
   });
 

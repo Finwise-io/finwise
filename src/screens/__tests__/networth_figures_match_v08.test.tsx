@@ -199,7 +199,7 @@ beforeEach(() => {
 afterEach(() => { jest.useRealTimers(); });
 const setup = (over: any = {}) => { useStore.getState().resetAll(); useStore.setState(DATA(over) as any); render(<NetWorth />); };
 const shownNow = () => builtLines(screen.toJSON());
-const collapseAll = () => { for (const g of [/^▾ 💵 Cash/, /^▾ 📈 Investments/, /^▾ 🏠 Personal property/]) fireEvent.press(screen.getByText(g)); };
+const collapseAll = () => { for (const g of [/^▾ Cash/, /^▾ Investments/, /^▾ Personal property/]) fireEvent.press(screen.getByText(g)); };
 
 // ── what the READ THIS FIRST table changed, row by row ─────────────────────────────────────────────────────────────
 const R0928 = 'READ THIS FIRST 2026-09-28 (MK-NW-M-046 · MK-NW-M-047): two lines under the emergency fund — the months at the planned level of expenses, and "Both include $X/month of debt payments you cannot stop."';
@@ -246,7 +246,9 @@ describe('Net worth v08 — every figure and date, in each data state', () => {
   test('C — first day', () => {
     useStore.getState().resetAll();
     useStore.getState().setOnboardingProfile({ ...employedPartner, birthYear: undefined, birthMonth: undefined } as any);
-    render(<NetWorth />); compare('C', phone(4), shownNow(), 11, KNOWN);
+    // floor 11 → 8: his ruling 'all', 2026-11-06 took the first-day retirement card off Net worth, and with it its three
+    // figures (84%, age 90, 3 answers) — the ruled drawing and the screen each carry the 8 that remain
+    render(<NetWorth />); compare('C', phone(4), shownNow(), 8, KNOWN);
   });
   test('D — the missing-data banner (the frame stops below the debts)', () => {
     setup(GAPS()); collapseAll(); compare('D', phone(5), upTo(shownNow(), /^EMERGENCY FUND/), 31, KNOWN);

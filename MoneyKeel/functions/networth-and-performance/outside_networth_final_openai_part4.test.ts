@@ -269,7 +269,7 @@ describe('MK-NW-F-112 yearlyInterest — five cases', () => {
     expect({ annual_interest: page.couponPerYear, income_figure: interestIncomeAnnual([b], ON('2026-10-09')), disclosure: page.leftOutNoRate, row: page.rows[0].couponPerYear })
       .toEqual({ annual_interest: 0, income_figure: 0, disclosure: ['Bond A'], row: null });
   });
-  // FINDING: the Bonds screen's COUPON /year (theBonds → bondSummary, bonds/index.ts:522) gives 50 for a bond that matured
+  // FINDING: the Bonds screen's INTEREST A YEAR (theBonds → bondSummary, bonds/index.ts:522) gives 50 for a bond that matured
   // yesterday, expected 0 — interestIncomeAnnual (index.ts:602) leaves it out, so the two "one rule" figures disagree (DEC-2748c)
   // FIXED 2026-10-09 after OpenAI's final audit (was test.failing)
   test('edge · Expired bond handled by caller', () => {

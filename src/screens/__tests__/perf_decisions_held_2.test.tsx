@@ -238,7 +238,7 @@ test.each(['A', 'B', 'C', 'E'])('DEC-0216 — the account page title prints at 2
 });
 
 // ── DEC-0224 ─────────────────────────────────────────────────────────────────────────────────────────
-// "Link it (read-only)" is the door, so an account that went through it is "Linked" and the repair is "Link again".
+// "Connect your bank" is the door, so an account that went through it is "Linked" and the repair is "Link again".
 test('DEC-0224 — a linked account says "Linked"; when the last sync could not reach it, the page offers "Link again"', () => {
   renderState(state('A'));
   expect(lines()).toContain('🔗 Linked');

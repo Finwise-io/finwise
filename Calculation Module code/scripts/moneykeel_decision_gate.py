@@ -81,7 +81,8 @@ def is_new(row):
     """A decision recorded after the controls came in. Either its id is above the baseline or it was
     recorded on or after the day they started."""
     rid = str(row.get('id') or '')
-    if re.fullmatch(r'DEC-\d{4}', rid) and rid > BASELINE_ID:
+    # by number, not as text (2026-11-06): the log passed DEC-9999, and 'DEC-10067' < 'DEC-0643' read as text
+    if re.fullmatch(r'DEC-\d{4,}', rid) and int(rid[4:]) > int(BASELINE_ID[4:]):
         return True
     return str(row.get('recorded') or '') > BASELINE_DATE
 

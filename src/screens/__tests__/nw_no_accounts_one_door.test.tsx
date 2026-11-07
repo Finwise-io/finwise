@@ -9,6 +9,7 @@ import { render, screen, fireEvent } from '@testing-library/react-native';
 import { useStore } from '../../store/useStore';
 import fs from 'fs';
 import path from 'path';
+import { ruledHtml, ruledLines } from '../../testing/ruledSince';
 
 jest.mock('../../services/sync/snaptradeSync', () => ({ runSnapTradeSync: jest.fn() }));
 jest.mock('expo-router', () => ({
@@ -38,7 +39,7 @@ test.each([['By category'], ['By institution']])('nothing entered, past the firs
   expect(v.length).toBeGreaterThanOrEqual(20);                               // the guard saw the whole screen
   expect(count(v, 'Add your accounts ›')).toBe(1);                            // the hero's, and nowhere else
   expect(count(v, 'How do you want to add an account?')).toBe(1);
-  for (const d of ['Link it (read-only)', 'Add by hand', 'Import from a file', 'or walk through it step by step']) expect(count(v, d)).toBe(1);
+  for (const d of ['Connect your bank', 'Add by hand', 'Import from a file', 'or walk through it step by step']) expect(count(v, d)).toBe(1);
   expect(count(v, 'Add your debts')).toBe(1);                                 // DEC-4528, on Debts — its › sits in the arrow column, as state C draws it
   expect(v[v.indexOf('Add your debts') + 1]).toBe('›');
   expect(count(v, 'Nothing entered yet.')).toBe(3);                           // hero · the ways-to-add line · Debts
@@ -74,11 +75,12 @@ test('one empty group beside an entered one keeps its own line and door (Q48 fra
 // The spec is read from the approved drawing itself, not typed here: every visible string of the state C
 // phone, minus what the screen does not draw (status bar and app header above it, tab bar below it) and the
 // drawing's numbered change marks. Two later rulings are applied on top, as the drawing's READ THIS FIRST
-// rows say: DEC-4528 (the debts door reads "Add your debts"). Band titles are drawn upper-case by the
+// rows say: DEC-4528 (the debts door reads "Add your debts"); and his ruling 'all', 2026-11-06 (ruledSince: the
+// connect door's words, the section emoji gone, no first-day retirement card on Net worth). Band titles are drawn upper-case by the
 // drawing's own style (text-transform), and its info dot "i" is the app's "ⓘ".
 const MOCK = path.join(__dirname, '../../../MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_net-worth-quiet-instrument_v08.html');
 const stateC = (): string[] => {
-  const html = fs.readFileSync(MOCK, 'utf8');
+  const html = ruledHtml(MOCK, fs.readFileSync(MOCK, 'utf8'));
   const start = html.indexOf('<!-- ══════════ STATE C — first day ══════════ -->');
   const end = html.indexOf('<p class="cap"><b>STATE C — first day.</b>');
   expect(start).toBeGreaterThan(-1); expect(end).toBeGreaterThan(start);
@@ -87,7 +89,7 @@ const stateC = (): string[] => {
   let lines = txt.split('\n').map((l) => l.trim()).filter(Boolean);
   lines = lines.slice(lines.indexOf('⚙') + 1);                                   // status bar + app header
   lines = lines.slice(0, lines.lastIndexOf('Home'));                              // tab bar
-  return lines.filter((l) => !/^\d+$/.test(l))                                    // the drawing's change marks
+  return ruledLines(MOCK, lines).filter((l) => !/^\d+$/.test(l))                                    // the drawing's change marks
     .map((l) => (l === 'Add a mortgage, card, or loan' ? 'Add your debts' : l));  // DEC-4528
 };
 const norm = (v: string[]) => v.map((l) => (l === 'i' ? 'ⓘ' : l)).join(' ').replace(/\s+/g, ' ').toUpperCase();
@@ -106,29 +108,28 @@ test('past the first day, By institution: the same state C, with the institution
   fireEvent.press(screen.getByLabelText(/^Group what you own by institution/));
   const v = visible();
   expect(v).toContain('Your banks and brokerages will be listed here, each with what it holds.');
-  expect(v).not.toContain('💵 CASH');
+  expect(v).not.toContain('CASH');
   expect(v).not.toContain('＋ Add an account');
 });
 
 // ── THE RETIREMENT ASK SAYS WHAT IS STILL MISSING (DEC-0086) ─────────────────────────────────────────
-// Nothing entered means "what you have" is always missing. All three missing is state C's own words;
-// one or two missing names them, so someone who gave their age is never told three answers are missing.
+// Nothing entered means "what you have" is always missing. Before 2026-11-06 Net worth carried the sample
+// card here with the missing answers named; his ruling 'all', 2026-11-06, took that card off Net worth with
+// no accounts (Home and Plan keep their sample). So on Net worth, whatever answers are given, no card and no line.
 test.each([
-  ['3 missing', {}, 'a sample, not your number — 3 answers make it yours'],
-  ['2 missing (age given)', { birthYear: 1975 }, 'a sample, not your number — 2 answers make it yours: what you spend and what you have ›'],
-  ['1 missing (age and spending given)', { birthYear: 1975, monthlySpending: '4500' }, 'a sample, not your number — add what you have and it becomes yours ›'],
-])('nothing entered, %s: the retirement line under the sample', (_l, answers, line) => {
+  ['3 missing', {}],
+  ['2 missing (age given)', { birthYear: 1975 }],
+  ['1 missing (age and spending given)', { birthYear: 1975, monthlySpending: '4500' }],
+])('nothing entered, %s: no retirement sample card on Net worth', (_l, answers) => {
   for (const choice of [null, 'self']) {
     useStore.setState({ nwSeeded: choice != null, nwSetupChoice: choice, onboardingProfile: { status: 'employed', ...answers } } as any);
     render(<NetWorth />);
     const v = visible();
-    const sample = v.findIndex((s) => s.startsWith('Sample:'));
-    expect(sample).toBeGreaterThan(-1);
-    // the › is its own text node, as on the screen with data
-    const opens = line.endsWith(' ›');
-    expect(v[sample + 1]).toBe(opens ? line.slice(0, -2) : line);
-    if (opens) expect(v[sample + 2]).toBe('›'); else expect(v[sample + 2]).not.toBe('›');
-    expect(v.filter((s) => /answers? make it yours|it becomes yours/.test(s))).toHaveLength(1);
+    expect(v.length).toBeGreaterThanOrEqual(20);                                  // the guard saw the whole screen
+    // his ruling 'all', 2026-11-06: no first-day sample card on Net worth
+    expect(screen.queryByText(/^YOUR RETIREMENT PLAN$/i)).toBeNull();
+    expect(v.findIndex((s) => s.startsWith('Sample:'))).toBe(-1);
+    expect(v.filter((s) => /answers? make it yours|it becomes yours/.test(s))).toHaveLength(0);
     screen.unmount();
   }
 });

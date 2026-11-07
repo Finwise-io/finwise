@@ -1,7 +1,7 @@
 /** ONE SPACE AFTER AN ICON (PF3-4, FX-SHARED 2026-10-31; tenet 4, DEC-3523; the class of PF-9).
  *
- *  The add sheet's choices printed "🔗  Link it (read-only)" with two spaces after the icon, where v08 frame G — a page that, like
- *  every drawing, shows a run of spaces as one — reads "🔗 Link it (read-only)". The same two spaces sat after the icons of Net
+ *  The add sheet's choices printed "🔗  Connect your bank" with two spaces after the icon, where v08 frame G — a page that, like
+ *  every drawing, shows a run of spaces as one — reads "🔗 Connect your bank". The same two spaces sat after the icons of Net
  *  worth's step pickers, Itemize, PlanInputs, Insights, the radio marks ◉ ○, the bullets · •, and the signs ＋ − = ≈ before a word.
  *
  *  WHAT IT READS — the disk: every string, template and JSX text in src and app (tests excluded), and every icon expression in JSX

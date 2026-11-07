@@ -170,8 +170,8 @@ describe('1 · the broker says more than it lists: the difference is cash (DEC-0
     const acct = shoot('account', H_GAP, { id: 'g' });
     const nw = shoot('networth', H_GAP);
     expect(nwOf(H_GAP).cash).toBe(10_000);
-    expect(after(nw.lines, '▾ 💵 CASH')).toBe('$10,000');
-    expect(after(acct.lines, '▾ CASH')).toBe(after(nw.lines, '▾ 💵 CASH'));
+    expect(after(nw.lines, '▾ CASH')).toBe('$10,000');
+    expect(after(acct.lines, '▾ CASH')).toBe(after(nw.lines, '▾ CASH'));
   });
   test('unchanged: an account that lists no holdings keeps a difference under its own class (a CD ladder sending only its total)', () => {
     const ladder = { asset_id: 'l', label: 'CD ladder', kind: 'cd', asset_class: 'bonds', tax_bucket: 'TAXABLE', balance: 30_000, cash_balance: 1_000, source: 'connected', positions: [] };
@@ -296,7 +296,7 @@ describe('6 · one date for one window on the account page', () => {
   });
   test('agreement: with no daily record, a 1M walk begins on the day the Performance tab\'s 1M begins — never on the first money movement', () => {
     const acct = shoot('account', H_FID, { id: 'a2', period: '1M' });
-    const pick1M = () => { const b = screen.getAllByRole('button').find((x) => String(x.props.accessibilityLabel ?? '').startsWith('Show 1M')); if (!b) throw new Error('no 1M'); fireEvent.press(b); };
+    const pick1M = () => { const b = screen.getAllByRole('button').find((x) => String(x.props.accessibilityLabel ?? '').startsWith('Show 1 month')); if (!b) throw new Error('no 1M'); fireEvent.press(b); };
     const inv = shoot('invest', H_FID, {}, pick1M);
     const begin = (L: string[]) => L.filter((l) => /^Beginning market value \(/.test(l));
     expect(begin(acct.lines)).toHaveLength(1);

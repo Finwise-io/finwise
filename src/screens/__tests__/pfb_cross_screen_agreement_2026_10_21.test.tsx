@@ -118,8 +118,8 @@ const H_MARKET = {
 
 describe('1 · MK-PF-M-008 — Home\'s market is the blend of the holding pages\' own market figures, weighed by the start held', () => {
   const HOME = once(() => shoot('home', H_MARKET, '2026-09-28'));
-  const VTI = once(() => shoot('holding', H_MARKET, '2026-09-28', { account: 'z', position: 's1' }, pick('1M')));
-  const BND = once(() => shoot('holding', H_MARKET, '2026-09-28', { account: 'z', position: 's2' }, pick('1M')));
+  const VTI = once(() => shoot('holding', H_MARKET, '2026-09-28', { account: 'z', position: 's1' }, pick('1 month')));
+  const BND = once(() => shoot('holding', H_MARKET, '2026-09-28', { account: 'z', position: 's2' }, pick('1 month')));
   test('each holding page: The market, same dates — VTI +10.00% (SPY), BND +4.00% (AGG)', () => {
     expect(after(VTI(), 'The market, same dates')).toBe('+10.00%');
     expect(after(BND(), 'The market, same dates')).toBe('+4.00%');
@@ -202,7 +202,7 @@ const H_PERF = {
 
 describe('4 · MK-XS-M-004 / MK-PF-M-001 — Home\'s month and its base are the Performance tab\'s 1M figures', () => {
   const HOME = once(() => shoot('home', H_PERF, '2026-09-28'));
-  const INV = once(() => shoot('invest', H_PERF, '2026-09-28', {}, pick('1M')));
+  const INV = once(() => shoot('invest', H_PERF, '2026-09-28', {}, pick('1 month')));
   test('the dollars and the percent on Home are the 1M Wealth generated and Return on the Performance tab', () => {
     const line = HOME().lines.find((l) => /this month$/.test(l) && /^▲ up|^▼ down/.test(l))!;
     expect(line).toBe('▲ up $8,200 (21.35%) this month');

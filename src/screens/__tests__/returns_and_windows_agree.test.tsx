@@ -148,7 +148,7 @@ describe('2 · one yearly rate on every screen — 21% over 731 days is +9.99% a
       mockParams = {};
       const C = SCREENS.invest();
       render(<C />);
-      const btn = screen.getAllByRole('button').find((b) => String(b.props.accessibilityLabel ?? '').startsWith('Show 2Y'));
+      const btn = screen.getAllByRole('button').find((b) => String(b.props.accessibilityLabel ?? '').startsWith('Show 2 years'));
       expect(btn).toBeTruthy();
       fireEvent.press(btn!);
       invLines = readLines();

@@ -51,7 +51,7 @@ describe('R18 · a typed-total account\'s Return is its walk\'s own — one func
   test('the account page, 1M: walk $48,965 → $50,000, wealth generated $1,035, interest $35, change in investment value $1,000, Return +2.11%', () => {
     const st = state('F'); mockParams = st.params;
     render(React.createElement(require('../AccountPortfolioScreen').default));
-    pick('1M');
+    pick('1 month');
     const l = builtLines(screen.toJSON());
     expect(l).toContain('HOW $48,965 BECAME $50,000 · THIS ACCOUNT');
     expect([after(l, 'Interest'), after(l, 'Change in investment value')]).toEqual(['$35', '$1,000']);
@@ -61,7 +61,7 @@ describe('R18 · a typed-total account\'s Return is its walk\'s own — one func
   test('the Performance tab, 1M: Vanguard\'s card and the summary read the same +2.11% (PF4-3: the summary read VTI\'s own)', () => {
     state('F'); mockParams = {};
     render(React.createElement(require('../PerformanceScreen').default));
-    pick('1M');
+    pick('1 month');
     const l = builtLines(screen.toJSON());
     const sum = l.findIndex((x) => x.startsWith('SUMMARY ·'));
     expect(after(l, 'Return', sum)).toBe(pct(F));                                      // the Treasury, no price history, left out
@@ -79,7 +79,7 @@ describe('R18 · a typed-total account\'s Return is its walk\'s own — one func
   test('money moved inside the window is split at its day: D, $200 taken out Sep 3 — 49,200 ÷ 49,200 × 50,000 ÷ 49,000 − 1 = +2.04%', () => {
     const st = state('D'); mockParams = st.params;
     render(React.createElement(require('../AccountPortfolioScreen').default));
-    pick('1M');
+    pick('1 month');
     const l = builtLines(screen.toJSON());
     expect(after(l, 'Return', l.findIndex((x) => x.startsWith('THIS ACCOUNT ·')))).toBe(pct(49_200 / 49_200 * (50_000 / 49_000) - 1));
   });
@@ -92,7 +92,7 @@ describe('R18 · a typed-total account\'s Return is its walk\'s own — one func
     useStore.setState({ priceCache: { ...s.priceCache, VTI: { ...s.priceCache.VTI, points: s.priceCache.VTI.points.filter((p: any) => p.date !== '2026-09-04') } },
       transactions: [{ id: 'd1', account_id: 'van', source: 'manual', created_at: '', type: 'DEPOSIT', amount: 500, date: '2026-09-15' }] } as any);
     render(React.createElement(require('../AccountPortfolioScreen').default));
-    pick('1M');
+    pick('1 month');
     const l = builtLines(screen.toJSON());
     expect(after(l, 'Return', l.findIndex((x) => x.startsWith('THIS ACCOUNT ·')))).toBe(pct(48_500 / 48_500 * (50_000 / 49_000) - 1));
   });
@@ -102,7 +102,7 @@ describe('R18 · a typed-total account\'s Return is its walk\'s own — one func
     useStore.setState({ priceCache: { ...s.priceCache, VTI: { ...s.priceCache.VTI, points: s.priceCache.VTI.points.filter((p: any) => p.date !== '2026-09-04') } },
       transactions: [{ id: 'd1', account_id: 'van', source: 'manual', created_at: '', type: 'DEPOSIT', amount: 500, date: '2026-09-15' }] } as any);
     render(React.createElement(require('../AccountPortfolioScreen').default));
-    pick('1M');
+    pick('1 month');
     const l = builtLines(screen.toJSON());
     expect(after(l, 'Return', l.findIndex((x) => x.startsWith('THIS ACCOUNT ·')))).toBe('—');
     expect(l).toContain('Money moved in or out on Sep 15, 2026 and no value was recorded that day, so a return cannot be measured across it. The dollar figures here are still right.');
@@ -142,10 +142,10 @@ describe('R20 · the 2Y chip is a yearly rate and says so', () => {
   test('edit-record H\'s account page: 2Y reads "+2.06%/year" — (50,000 ÷ 48,000)^(365 ÷ 731) − 1 — and is said "a year"', () => {
     const st = state('H'); mockParams = st.params;
     render(React.createElement(require('../AccountPortfolioScreen').default));
-    const chip = screen.getAllByRole('button').find((x: any) => String(x.props.accessibilityLabel ?? '').startsWith('Show 2Y'))!;
+    const chip = screen.getAllByRole('button').find((x: any) => String(x.props.accessibilityLabel ?? '').startsWith('Show 2 years'))!;
     expect(String(chip.props.accessibilityLabel)).toMatch(/a year/);
     const l = builtLines(screen.toJSON());
-    expect(after(l, '2Y')).toBe(`${pct((50_000 / 48_000) ** (365 / 731) - 1)}/year`);
+    expect(after(l, '2 years')).toBe(`${pct((50_000 / 48_000) ** (365 / 731) - 1)}/year`);
   });
 });
 
@@ -181,7 +181,7 @@ describe('PF4-1 · PF4-2', () => {
 // history): the same +2.25%. The account page, the tab's card and the tab's summary print it alike.
 describe('state I · 1M and 1Y agree on the account page, the tab\'s card and the tab\'s summary (R18, R19)', () => {
   const I = 50_000 / 48_900 - 1;
-  test.each([['1M'], ['1Y']])('%s: +2.25% on all three', (w) => {
+  test.each([['1 month'], ['1 year']])('%s: +2.25% on all three', (w) => {
     let st = state('I'); mockParams = st.params;
     render(React.createElement(require('../AccountPortfolioScreen').default));
     pick(w);
@@ -224,7 +224,7 @@ describe('a money day after which shares traded: worked back by undoing each tra
       { id: 'd1', account_id: 'van', source: 'manual', created_at: '', type: 'DEPOSIT', amount: 500, date: '2026-09-15' },
       { id: 's1', account_id: 'van', source: 'manual', created_at: '', type: 'SELL', ticker: 'VTI', shares: 10, date: '2026-09-20' }] } as any);
     render(React.createElement(require('../AccountPortfolioScreen').default));
-    pick('1M');
+    pick('1 month');
     const l = builtLines(screen.toJSON());
     expect(l.some((x) => /a sale with no amount in your records/.test(x))).toBe(true);
   });
@@ -273,7 +273,7 @@ describe('NW6-01 · a buy saved without its price: Return "—", the purchase na
       lots: [...p.lots, { lot_id: 'np', shares: 10, purchase_date: '2026-09-20' }] })) });
     useStore.setState({ assetAccounts: accts, transactions: [{ id: 'b1', account_id: 'van', source: 'manual', created_at: '', type: 'BUY', ticker: 'VTI', shares: 10, date: '2026-09-20' }] } as any);
     render(React.createElement(require('../AccountPortfolioScreen').default));
-    pick('1M');
+    pick('1 month');
     const l = builtLines(screen.toJSON());
     expect(after(l, 'Return', l.findIndex((x) => x.startsWith('THIS ACCOUNT ·')))).toBe('—');
     expect(l.some((x) => /has a purchase with no price paid on record, so its gains are not included\./.test(x))).toBe(true);

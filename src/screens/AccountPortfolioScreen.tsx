@@ -7,6 +7,7 @@
 // 12-MONTH RETURN; ACTIVITY · <window> with its three doors. Held word for word, state by state, by
 // src/screens/__tests__/account_page_drawing_states.test.tsx. Every figure comes from one door (MK-NW-O-002 theAccount,
 // MK-NW-O-008 thePerformance); the screen calculates nothing.
+import { WINDOW_LABEL, TWO_YEARS_PER_YEAR_LINE } from '../constants/windows';   // window names in words (2026-11-06)
 import { SHEET_FRAME, SHEET_HANDLE } from '../components/sheetFrame';
 import { SheetClose } from '../components/SheetClose';   // every sheet's ✕ (2026-11-06)   // one sheet frame (NW3-18, 2026-10-31)
 import { MoneyBox, savedAmountForBox } from '../components/MoneyBox';   // every money box, one component (DEC-8385)
@@ -75,7 +76,7 @@ const WINDOW_KEYS = ['SINCE', '1M', 'YTD', '1Y', '2Y'] as const;
  *  row that opens a page, "✎" on a record you entered, empty elsewhere — so every figure ends on one line. */
 const GUTTER = 16;
 const WINDOW_WORDS: Record<string, string> = {
-  '1M': '1M', YTD: 'This year', '1Y': '1Y', '2Y': '2Y',
+  ...WINDOW_LABEL,
 };
 /** How the window reads inside a sentence — "since Jun 3, 2024", "this year". */
 const PHRASE: Record<string, string> = {
@@ -732,7 +733,7 @@ export default function AccountPortfolioScreen() {
         chosen={period} figures={(hasValue ? byWindow : Object.fromEntries(WINDOW_KEYS.map((k) => [k, { ...byWindow[k], ret: null, perYear: null }]))) as any}
         onPick={(k) => setPicked(k)} />
       {period === '2Y' && (
-        <Text style={p.note}>2Y is shown per year, so it sits fairly beside 1Y</Text>
+        <Text style={p.note}>{TWO_YEARS_PER_YEAR_LINE}</Text>
       )}
 
       {/* ── THIS ACCOUNT · <THE WINDOW> · the trio ON ONE ROW (drawing v01; v17 frame 2's band) ─────────────────────── */}
@@ -855,7 +856,7 @@ export default function AccountPortfolioScreen() {
               second sentence only; a worked-back window has none — its figures come from price history, as the
               summary already says. */}
           {dayOneView ? (
-            <Text style={[p.note, p.notePad]}>Every line fills in as days pass — the structure never changes.</Text>
+            <Text style={[p.note, p.notePad]}>These lines fill in as days pass.</Text>
           ) : now?.workedBack ? null : source === 'connected' ? (
             <Text style={[p.note, p.notePad]}>Every line here comes from {who}’s own records. A hand-entered account has no records to rebuild from, so its walk starts the day you entered it.</Text>
           ) : (
@@ -1776,7 +1777,7 @@ function EditRecordSheet({ row, onClose }: { row: Transaction | null; onClose: (
               <View style={sh.tradeRow}>
                 <View style={sh.tradeCell}><Text style={sh.tradeL}>{inContracts ? 'Contracts' : 'Shares'}</Text><TextInput style={sh.tradeIn} keyboardType="decimal-pad" value={shares} onChangeText={setShares} accessibilityLabel={inContracts ? 'Contracts' : 'Shares'} /></View>
                 <View style={sh.tradeCell}><Text style={sh.tradeL}>Price / share</Text><MoneyBox bare style={sh.tradeIn} value={price} onChangeText={setPrice} a11y="Price per share" /></View>
-                <View style={sh.tradeCell}><Text style={sh.tradeL}>Fee (opt)</Text><MoneyBox bare style={sh.tradeIn} value={fee} onChangeText={setFee} a11y="Fee" placeholder="—" /></View>
+                <View style={sh.tradeCell}><Text style={sh.tradeL}>Fee (optional)</Text><MoneyBox bare style={sh.tradeIn} value={fee} onChangeText={setFee} a11y="Fee" placeholder="—" /></View>
               </View>
             </>
           ) : (

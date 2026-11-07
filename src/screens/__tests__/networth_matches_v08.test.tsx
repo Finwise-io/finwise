@@ -106,7 +106,7 @@ const compare = (_name: string, drawn: string[], built: string[], minWords = 35)
 };
 test('the drawing still has its six phones — the guard proves it looked', () => { expect(STARTS).toHaveLength(6); });
 
-const collapseAll = () => { for (const g of [/^▾ 💵 Cash/, /^▾ 📈 Investments/, /^▾ 🏠 Personal property/]) fireEvent.press(screen.getByText(g)); };
+const collapseAll = () => { for (const g of [/^▾ Cash/, /^▾ Investments/, /^▾ Personal property/]) fireEvent.press(screen.getByText(g)); };
 const GAPS = {
   assetAccounts: DATA().assetAccounts.map((a: any) => a.asset_id === 'etr' ? { ...a, last_synced: `${daysAgo(8)}T09:00:00Z` }
     : a.asset_id === 'van' ? { ...a, positions: [...a.positions, { position_id: 'p2', ticker: 'LCTX', asset_class: 'stock_etf', shares: 965, price: null, lots: [{ lot_id: 'l2', shares: 965, cost_per_share: 1, purchase_date: '2024-01-02' }] }] } : a),
@@ -276,13 +276,13 @@ describe('v08 · the rows of 2026-10-25, on the drawing and on the screen', () =
   test('(9) the step-by-step add: each step’s bar runs edge to edge, square, with “+ Add” under it — not beside it', () => {
     setup({ nwSetupChoice: 'guided', assetAccounts: [], liabilities: [] }); render(<NetWorth />);
     expect(screen.getByText('Step 1 of 5')).toBeOnTheScreen();
-    let band: any = screen.getByText(/^💵 CASH$/);
+    let band: any = screen.getByText(/^CASH$/);
     while (band && st(band).backgroundColor !== Colors.bandLight) band = band.parent;
     expect(st(band)).toMatchObject({ borderTopLeftRadius: 0, borderTopRightRadius: 0, paddingHorizontal: 12 });
     let wrap: any = band.parent; while (wrap && st(wrap).marginHorizontal == null) wrap = wrap.parent;
     expect(st(wrap).marginHorizontal).toBe(-20);   // out through the step's 20 of padding: edge to edge
     const lines = builtLines(screen.toJSON());
-    expect(lines.indexOf('+ Add')).toBeGreaterThan(lines.indexOf('💵 CASH'));
+    expect(lines.indexOf('+ Add')).toBeGreaterThan(lines.indexOf('CASH'));
     for (let a: any = wrap.parent, k = 0; a && k < 2; a = a.parent, k += 1) expect(st(a).flexDirection).not.toBe('row');
   });
 });

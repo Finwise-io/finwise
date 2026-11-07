@@ -14,7 +14,7 @@
  *     account into $10,000 on every screen: the buy opened a cash figure of −$1,000, and an account with a cash figure was
  *     rebuilt from cash and holdings. A trade now moves money inside the account (tradeCash), and only an account built from
  *     its holdings is rebuilt (recomputeBalances).
- *   · E2E-58 — the trade sheet had no way to record a sale's fee. "Fee (opt)" now sits under Shares, Price / share and Date
+ *   · E2E-58 — the trade sheet had no way to record a sale's fee. "Fee (optional)" now sits under Shares, Price / share and Date
  *     (trade-sheet drawing v03); the fee comes off once, in the cash, the activity list, wealth generated and the realized gain.
  *   · E2E-59 — recording a sale of every share from the Holding page stopped the page ("Rendered fewer hooks than expected"),
  *     as Delete holding did. The page now closes back to where the person came from.
@@ -40,6 +40,7 @@ import { useStore } from '../../store/useStore';
 import { Colors } from '../../utils/theme';
 import { figuresPrinted, resetFiguresPrinted } from '../../components/figure';
 import { TRADE_SHEET } from '../../testing/sheetStates';
+import { ruledHtml } from '../../testing/ruledSince';
 import { amountInBox } from '../../components/MoneyBox';
 import { buildDayFromAccounts } from '../../../Calculation Module code/engines/snapshots';
 
@@ -133,12 +134,12 @@ const decode = (s: string) => s.replace(/&lt;/g, '<').replace(/&gt;/g, '>').repl
  *  form on the screen ('$100', or '1,000' beside a $ the screen prints). Applied only where the drawing carries the row, and only to a
  *  drawn plain figure whose shown line is that same figure in money form — any other difference is still a difference. */
 function asTheRowSays(file: string, drawn: string[], shown: string[]): string[] {
-  const html = fs.readFileSync(path.join(DRAWINGS, file), 'utf8');
+  const html = ruledHtml(path.join(DRAWINGS, file), fs.readFileSync(path.join(DRAWINGS, file), 'utf8'));   // his rulings of 2026-11-06 applied
   if (!html.includes('Every money box on this screen shows its figure the way a figure is printed')) return drawn;
   return drawn.map((d, j) => (/^\d+(\.\d+)?$/.test(d) && (shown[j] === amountInBox(d) || shown[j] === amountInBox(d, false)) ? shown[j] : d));
 }
 function drawnSheetLines(file: string, key: string): string[] {
-  const html = fs.readFileSync(path.join(DRAWINGS, file), 'utf8');
+  const html = ruledHtml(path.join(DRAWINGS, file), fs.readFileSync(path.join(DRAWINGS, file), 'utf8'));   // his rulings of 2026-11-06 applied
   const seg = html.split(/<div class="state"[^>]*>/).find((s) => s.startsWith(`STATE ${key} ·`));
   if (!seg) throw new Error(`no state ${key} in ${file}`);
   const sheet = seg.slice(seg.indexOf('<div class="modal">'));
@@ -210,7 +211,7 @@ describe('E2E-57 · Record a buy from the account page: tap "Add a buy or sale",
     household({ ...B.store, pricesFetchedAt: new Date().toISOString() });
     // what the account showed before: its walk and its line on the Performance tab, 1M
     const accBefore = look('account', { id: 'van', period: '1M' });
-    const invBefore = look('invest', {}, pick('1M'));
+    const invBefore = look('invest', {}, pick('1 month'));
     // the person: the account page → "Add a buy or sale ›" → VTI, 10, $100.00
     open('account', { id: 'van', period: '1M' });
     expect(screen.queryByText('Record activity')).toBeNull();
@@ -224,7 +225,7 @@ describe('E2E-57 · Record a buy from the account page: tap "Add a buy or sale",
     const shownB = readLines(true);
     expect(shownB).toEqual(asTheRowSays(TRADE_SHEET.file, drawn, shownB));   // the price box: drawn 100, shown $100 (the row of 2026-10-27)
     expect(drawn).toContain('Available cash: $5,000');           // $1,000 of the $5,000 cash
-    expect(drawn).toContain('Fee (opt)');
+    expect(drawn).toContain('Fee (optional)');
     press('Record buy');
     expect(screen.queryByText('Record activity')).toBeNull();      // the sheet closes on save
     // the account page lists it, under ACTIVITY, as a record the person entered: −$1,000 = 10 × $100.00
@@ -242,7 +243,7 @@ describe('E2E-57 · Record a buy from the account page: tap "Add a buy or sale",
     // of its day at what was paid (DEC-7451): before, 100 ÷ 90 − 1 = +11.11%; after, the $1,000 counts in this morning, when the
     // 100 held stood at $99: 9,900 ÷ 9,000 × 11,000 ÷ (9,900 + 1,000) − 1 = +11.01%.
     const accAfter = look('account', { id: 'van', period: '1M' });
-    const invAfter = look('invest', {}, pick('1M'));
+    const invAfter = look('invest', {}, pick('1 month'));
     for (const id of ['MK-PF-M-013', 'MK-PF-M-014', 'MK-PF-M-004']) expect(printed(accAfter, id)).toEqual(printed(accBefore, id));
     for (const id of ['MK-PF-M-018', 'MK-PF-M-002', 'MK-PF-M-001', 'MK-PF-M-005']) expect(printed(invAfter, id)).toEqual(printed(invBefore, id));
     // RETURN (R18, 2026-11-01): the account's total was typed, so its Return is its own walk's — $49,000 → $50,000 before the buy and
@@ -262,7 +263,7 @@ describe('E2E-57 · Record a buy from the account page: tap "Add a buy or sale",
     // THE 2Y CHIP BY THE SAME RULE (DEC-7451: a purchase counts from the start of its day at what was paid). 2Y is measured from the
     // $80 purchase over 731 days: 1.25^(365/731) − 1 = +11.79% a year; the 10 bought today count from this morning, when VTI
     // stood at $99, so today's part falls from 100 ÷ 99 to 11,000 ÷ 10,900 — (1.25 × 11,000 ÷ 10,900 × 99 ÷ 100)^(365/731) − 1 = +11.74%.
-    const twoYear = (sh: Shot) => sh.lines[sh.lines.indexOf('2Y') + 1];
+    const twoYear = (sh: Shot) => sh.lines[sh.lines.indexOf('2 years') + 1];
     // 2Y (R18, R20, 2026-11-01): the walk's own — VTI up $2,000 since its Mar 3, 2025 purchase, so $48,000 → $50,000 before and after
     // the buy: (50,000 ÷ 48,000)^(365 ÷ 731) − 1 = +2.06% a year, the chip reading "/year" (it read VTI's +11.79% and +11.74%)
     expect([twoYear(invBefore), twoYear(invAfter)]).toEqual([`${pct((50_000 / 48_000) ** (365 / 731) - 1)}/year`, `${pct((50_000 / 48_000) ** (365 / 731) - 1)}/year`]);
@@ -306,7 +307,7 @@ describe('E2E-57 · Record a buy from the account page: tap "Add a buy or sale",
     expect(acct('van').balance).toBe(40_000);                       // it read $10,000
     expect(acct('van').cash_balance).toBeUndefined();               // cash still not entered — not −$1,000
     const ACC = look('account', { id: 'van', period: '1M' });
-    const INV = look('invest', {}, pick('1M'));
+    const INV = look('invest', {}, pick('1 month'));
     const NW = look('networth');
     const HOLD = look('holding', { account: 'van', position: 'vti', period: '1M' });
     const HOME = look('home');
@@ -376,7 +377,7 @@ describe('E2E-57 · Record a buy from the account page: tap "Add a buy or sale",
   }
   test('C · v17 phone 1 (linked, a daily record): a buy of 4 VTI at $411.50 changes no window figure on the Performance tab, the account page or Home; the Holding page holds 204 shares worth $83,946; the tab reads every line it read before', () => {
     household(phone1());
-    const INV0 = look('invest', {}, pick('1Y'));
+    const INV0 = look('invest', {}, pick('1 year'));
     const ACC0 = look('account', { id: 'van', period: '1Y' });
     const HOLD0 = look('holding', { account: 'van', position: 'p1', period: '1Y' });
     open('account', { id: 'van', period: '1Y' });
@@ -392,7 +393,7 @@ describe('E2E-57 · Record a buy from the account page: tap "Add a buy or sale",
     screen.unmount();
     // the broker's total stands; the cash the buy spent left the cash: $18,700 − 4 × $411.50 = $18,700 − $1,646 = $17,054
     expect([acct('van').balance, acct('van').cash_balance]).toEqual([101_000, 17_054]);
-    const INV = look('invest', {}, pick('1Y'));
+    const INV = look('invest', {}, pick('1 year'));
     const ACC = look('account', { id: 'van', period: '1Y' });
     const HOLD = look('holding', { account: 'van', position: 'p1', period: '1Y' });
     const HOME = look('home');
@@ -459,7 +460,7 @@ describe('E2E-58 · Record a sale with a $5 fee from the Holding page: the fee c
     pickDay(2026, 9, 15);
     // the sheet as the person sees it before saving: the fee under Shares, Price / share and Date
     const sheet = readLines(true);
-    expect(sheet.slice(sheet.indexOf('Shares'), sheet.indexOf('Shares') + 9)).toEqual(['Shares', '10', 'Price / share', '$98', 'Date', 'Sep 15, 2026', 'Fee (opt)', '$5', 'Record sell']);   // the price and the fee as money since 2026-10-27 (DEC-8385); shares stay plain
+    expect(sheet.slice(sheet.indexOf('Shares'), sheet.indexOf('Shares') + 9)).toEqual(['Shares', '10', 'Price / share', '$98', 'Date', 'Sep 15, 2026', 'Fee (optional)', '$5', 'Record sell']);   // the price and the fee as money since 2026-10-27 (DEC-8385); shares stay plain
     press('Record sell');
     expect(screen.queryByText('Record activity')).toBeNull();
     // the Holding page itself: 90 shares, and its realized line counts the fee once: +$175 all time
@@ -475,7 +476,7 @@ describe('E2E-58 · Record a sale with a $5 fee from the Holding page: the fee c
     expect(sale).toMatchObject({ type: 'SELL', account_id: 'fid', ticker: 'VTI', shares: 10, price: 98, fee: 5, fee_in_price: false, date: '2026-09-15' });
     expect([acct('fid').cash_balance, acct('fid').balance]).toEqual([2_975, 15_625]);
     const ACC = look('account', { id: 'fid', period: '1M' });
-    const INV = look('invest', {}, pick('1M'));
+    const INV = look('invest', {}, pick('1 month'));
     const HOLD = look('holding', { account: 'fid', position: 'vti', period: '1M' });
     const HOME = look('home');
     // the account page: its trio, its walk, and the sale under ACTIVITY at $975
@@ -542,7 +543,7 @@ describe('E2E-59 · Sell a holding in full inside the window: the page closes, t
     expect(ACC.lines.slice(at, at + 3)).toEqual(['Sell · VTI · 100 shares @ $98.00', 'Sep 15 · you entered this', '$9,800']);
     expect([printed(ACC, 'MK-PF-M-013')[0], printed(ACC, 'MK-PF-M-014')[0], printed(ACC, 'MK-PF-M-016')[0]]).toEqual(['$15,100', '$350', pct(GONE_RETURN)]);
     expect(printed(ACC, 'MK-PF-M-004').slice(-1)).toEqual(['$15,450']);
-    const INV = look('invest', {}, pick('1M'));
+    const INV = look('invest', {}, pick('1 month'));
     expect([after(INV, 'Beginning market value (Aug 29, 2026)'), after(INV, 'Ending value'), after(INV, 'Wealth generated'), after(INV, 'Return')])
       .toEqual(['$15,100', '$15,450', '$350', pct(GONE_RETURN)]);
     const HOME = look('home');
@@ -585,7 +586,7 @@ describe('E2E-60 · A purchase with no share count and one with no price paid: b
     expect(HOLD.lines).toContain('10 sh @ no price paid on record');
     expect(HOLD.lines).toContain('The average above and the total paid leave out 10 shares with no price paid on record.');
     const LEFT = 'Return is on the $11,000 with a price history. VTI ($11,000) has a purchase with no price paid on record, so its gains are not included.';
-    const INV = look('invest', {}, pick('1M'));
+    const INV = look('invest', {}, pick('1 month'));
     const ACC = look('account', { id: 'van', period: '1M' });
     expect(INV.lines).toContain(LEFT);
     expect(ACC.lines).toContain(LEFT);
@@ -650,7 +651,7 @@ const R98 = (9_800 + 3_600) / 13_100 * (11_000 + 3_650) / (10_780 + 3_600) - 1;
 const R0 = 13_650 / 13_100 - 1;
 describe('E2E-61 · Edit a record (its price) from the ✎, then delete a record: every screen moves to the new numbers; a delete the app refuses says so', () => {
   const figures = () => {
-    const acc = look('account', { id: 'fid', period: '1M' }), inv = look('invest', {}, pick('1M')), home = look('home');
+    const acc = look('account', { id: 'fid', period: '1M' }), inv = look('invest', {}, pick('1 month')), home = look('home');
     return { acc: [printed(acc, 'MK-PF-M-013')[0], printed(acc, 'MK-PF-M-014')[0], printed(acc, 'MK-PF-M-016')[0], printed(acc, 'MK-PF-M-004').slice(-1)[0]],
       inv: [after(inv, 'Beginning market value (Aug 29, 2026)'), after(inv, 'Wealth generated'), after(inv, 'Return'), after(inv, 'Ending value')],
       home: homeMonth(home), lines: acc.lines };
@@ -682,7 +683,7 @@ describe('E2E-61 · Edit a record (its price) from the ✎, then delete a record
     press('Edit or delete your buy of VTI, 10 shares at $100.00');   // the ✎ names its holding and its own figures (2026-10-23)
     expect(readLines(true)).toEqual(['✕', 'Buy — you entered this',   // the sheet's ✕ (edit-record v04, 2026-11-06)
        'Sep 15, 2026 · correcting it reverses the old record and records the new one, so your balance stays right.',
-      'Shares', '10', 'Price / share', '$100', 'Fee (opt)', '—', 'Save', 'Delete this record']);   // the price as money since 2026-10-27 (DEC-8385)
+      'Shares', '10', 'Price / share', '$100', 'Fee (optional)', '—', 'Save', 'Delete this record']);   // the price as money since 2026-10-27 (DEC-8385)
     type('Price per share', '98');
     press('Save this correction');
     const page = readLines();
@@ -770,7 +771,7 @@ describe('E2E-62 · Update the value of an account built by hand with the Update
     expect(page).not.toContain('⏱ This value is 7 months old — still right?');
     expect([acct('gold').balance, acct('gold').value_as_of]).toEqual([8_400, TODAY]);
     const NW = look('networth');
-    const INV = look('invest', {}, pick('1M'));
+    const INV = look('invest', {}, pick('1 month'));
     const ACC = look('account', { id: 'gold', period: '1M' });
     expect(NW.lines).toContain('$8,400');
     expect(NW.lines).not.toContain('$8,000');
@@ -980,7 +981,7 @@ describe('E2E-57 E · a VTI bought on the trade sheet lists under Stocks / Funds
     expect(page.slice(band, band + 8)).toContain('VTI');
     expect(page.some((l) => /UNCLASSIFIED/.test(l))).toBe(false);
     // the Performance tab's category table: the $5 VTI paid sits with Stocks / Funds
-    const INV = look('invest', {}, pick('1M'));
+    const INV = look('invest', {}, pick('1 month'));
     const cat = INV.lines.indexOf('Stocks / Funds', INV.lines.indexOf('RETURN'));
     expect(cat).toBeGreaterThan(-1);
     expect(INV.lines[cat + 1]).toBe('$5');

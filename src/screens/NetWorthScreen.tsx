@@ -422,7 +422,7 @@ export default function NetWorthScreen() {
       // THE BAR RUNS EDGE TO EDGE, "+ Add" UNDER IT (v08's READ THIS FIRST row of 2026-10-25, DEC-0067): it sat beside "+ Add" in one row,
       // only as wide as its words and 20 in from each edge
       <View style={styles.secHead}>
-        <View style={styles.bleed}><SectionBand light title={`${SECTION_ICON[sec]} ${secLabel(sec).toUpperCase()}`} value={total > 0 ? fig('MK-NW-M-006', total) : undefined} /></View>
+        <View style={styles.bleed}><SectionBand light title={secLabel(sec).toUpperCase()} value={total > 0 ? fig('MK-NW-M-006', total) : undefined} /></View>
         <TouchableOpacity style={styles.secAdd} accessibilityRole="button" accessibilityLabel={`Add to ${secLabel(sec)}`} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }} onPress={() => setAssetSheet({ open: true, section: sec })}><Text style={styles.add}>+ Add</Text></TouchableOpacity>
       </View>
     );
@@ -480,7 +480,7 @@ export default function NetWorthScreen() {
                   reads as a roll-up, not just a flat list). */}
               {invGroup === 'account' && (() => {
                 const mix = mixOf[g] ?? [];      // the door's own mix, so the line and the band agree
-                return mix.length > 1 ? <Text style={styles.classMix}>{mix.map((x) => `${CLASS_ICON[x.key as AssetClass]} ${fig('MK-NW-M-063', x.total)}`).join('   ·   ')}</Text> : null;
+                return mix.length > 1 ? <Text style={styles.classMix}>{mix.map((x) => `${ASSET_CLASS_LABEL[x.key as AssetClass] ?? x.key} ${fig('MK-NW-M-063', x.total)}`).join('   ·   ')}</Text> : null;
               })()}
               <View style={styles.card}>
                 {items.map((a, i) => {
@@ -648,25 +648,9 @@ export default function NetWorthScreen() {
           </View>
         </View>
 
-        <View style={styles.heroBlock}>
-          <SectionBand title="YOUR RETIREMENT PLAN" />
-          <View style={styles.blockBody}>
-            <Text style={styles.sampleLine}><Text style={styles.sampleNum}>{sampleOddsLine()}</Text></Text>
-            {/* THE ASK NAMES WHAT IS STILL MISSING (DEC-0086). All three missing is v08 state C, drawn
-                with these exact words and no list. One or two missing: the count and the names, so a
-                person who gave their age is never told three answers are missing — and the line opens
-                that question (one) or the questions (two), as the screen with data does. */}
-            {nwDoor.count >= 3
-              ? <Text style={styles.rowSub}>a sample, not your number — 3 answers make it yours</Text>
-              : nwDoor.count > 0 && (
-                <TouchableOpacity hitSlop={Tap.slop} accessibilityRole="button"
-                  onPress={() => router.push(`/(tabs)/plan${nwDoor.count === 1 ? `?focus=${encodeURIComponent(nwDoor.missing[0])}` : ''}` as any)}
-                  accessibilityLabel={`${sampleAskLine(nwDoor.missing)}. Opens ${nwDoor.count === 1 ? 'that question' : 'the questions'}.`}>
-                  <Text style={styles.rowSub}>{sampleAskLine(nwDoor.missing)} ›</Text>
-                </TouchableOpacity>
-              )}
-          </View>
-        </View>
+        {/* NO RETIREMENT CARD UNTIL AN ACCOUNT IS ADDED (his ruling “all”, 2026-11-06, on the design review's list): the first-day
+            screen opened with a sample “84% odds” card above the ways to add an account. The card comes back with the first
+            account, as the with-data screen draws it. */}
 
         {/* the same flat ledger the with-data screen uses, at honest zeros — so a new person sees
             exactly what this screen becomes. No bar and no percentages: nothing is invented. */}
@@ -679,9 +663,9 @@ export default function NetWorthScreen() {
               gap. SectionBand leaves 4 points under every bar; on this screen it is taken back, so a row's line meets the bar above it. */}
           <View style={styles.flushBand}><SectionBand title="WHAT YOU OWN" value={fig('MK-NW-M-004', 0)} trailing={RIGHT_SLOT} /></View>
           {nwGrouping === 'class' ? (<>
-            <View style={styles.flushBand}><SectionBand light title="💵 CASH" value={fig('MK-NW-M-005', 0)} trailing={RIGHT_SLOT} /></View>
-            <View style={styles.flushBand}><SectionBand light title="📈 INVESTMENTS" value={fig('MK-XS-M-003', 0)} trailing={RIGHT_SLOT} /></View>
-            <View style={styles.flushBand}><SectionBand light title="🏠 PERSONAL PROPERTY" value={fig('MK-NW-M-006', 0)} trailing={RIGHT_SLOT} /></View>
+            <View style={styles.flushBand}><SectionBand light title="CASH" value={fig('MK-NW-M-005', 0)} trailing={RIGHT_SLOT} /></View>
+            <View style={styles.flushBand}><SectionBand light title="INVESTMENTS" value={fig('MK-XS-M-003', 0)} trailing={RIGHT_SLOT} /></View>
+            <View style={styles.flushBand}><SectionBand light title="PERSONAL PROPERTY" value={fig('MK-NW-M-006', 0)} trailing={RIGHT_SLOT} /></View>
           </>) : (
             <Text style={[styles.empty, styles.ledgerPad]}>Your banks and brokerages will be listed here, each with what it holds.</Text>
           )}
@@ -1006,7 +990,7 @@ export default function NetWorthScreen() {
                 <TouchableOpacity accessibilityRole="button" activeOpacity={0.8} style={styles.flushBand} hitSlop={BAND_SLOP}
                   onPress={() => setOpenUber((m) => ({ ...m, [g.group]: !gOpen }))}
                   accessibilityLabel={`${g.label}, ${gUnvalued ? 'value not entered' : figSaid('MK-NW-M-007', Math.round(g.total))}, ${count}. ${gOpen ? 'Collapses' : 'Expands'} them.`}>
-                  <SectionBand light trailing={RIGHT_SLOT} title={`${gOpen ? '▾' : '▸'} ${g.icon} ${g.label}${gOpen ? '' : ` · ${count}`}`}
+                  <SectionBand light trailing={RIGHT_SLOT} title={`${gOpen ? '▾' : '▸'} ${g.label}${gOpen ? '' : ` · ${count}`}`}
                     value={gUnvalued ? figWords('MK-NW-M-007', 'Value not entered') : fig('MK-NW-M-007', Math.round(g.total))} />
                 </TouchableOpacity>
                 {gOpen && g.classes.map((r, i) => renderClassRow(
@@ -1023,7 +1007,7 @@ export default function NetWorthScreen() {
               const entered = assets.some((a) => uberGroupOf(assetClassOf(a)) === e.group);
               return (
                 <View key={`empty-${e.group}`}>
-                  <View style={styles.flushBand}><SectionBand light trailing={RIGHT_SLOT} title={`${e.icon} ${e.label}`} value={fig('MK-NW-M-006', 0)} /></View>
+                  <View style={styles.flushBand}><SectionBand light trailing={RIGHT_SLOT} title={e.label} value={fig('MK-NW-M-006', 0)} /></View>
                   {/* the line and door under ONE empty group (Q48 frame 2) — never under each group when
                       nothing at all is entered: that is the ways-to-add block below, once (DEC-0227) */}
                   {!entered && assets.length > 0 && <View style={styles.ledgerPad}><EmptyNote door="accounts" onPress={() => setAddChooser(true)} /></View>}

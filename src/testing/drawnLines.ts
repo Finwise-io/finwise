@@ -10,12 +10,13 @@
  */
 import * as fs from 'fs';
 import * as path from 'path';
+import { ruledHtml } from './ruledSince';
 
 const ROOT = path.join(__dirname, '..', '..');
 
 /** each `<div class="phone">` block of the drawing, nested divs included */
 export function phoneBlocks(file: string): string[] {
-  const html = fs.readFileSync(path.join(ROOT, file), 'utf8');
+  const html = ruledHtml(file, fs.readFileSync(path.join(ROOT, file), 'utf8'));   // the drawing as ruled since (ruledSince.ts, 2026-11-06)
   const out: string[] = [];
   const open = /<div class="phone">/g;
   for (let m = open.exec(html); m; m = open.exec(html)) {

@@ -1,4 +1,5 @@
 // Portfolio Performance — per-holding actual return vs its SAME-period benchmark (ticker-based, lots).
+import { WINDOW_LABEL, TWO_YEARS_PER_YEAR_LINE } from '../constants/windows';   // window names in words (2026-11-06)
 import { SHEET_FRAME, SHEET_HANDLE } from '../components/sheetFrame';   // one sheet frame (NW3-18, 2026-10-31)
 import { MoneyBox, savedAmountForBox } from '../components/MoneyBox';   // every money box, one component (DEC-8385)
 import React, { useEffect, useMemo, useState } from 'react';
@@ -144,7 +145,7 @@ export default function PerformanceScreen() {
   // Build 53 offered six windows and called YTD "YTD".
   const WINDOWS: { key: string; label: string }[] = [
     { key: 'SINCE', label: `Since ${sinceWords}` },
-    { key: '1M', label: '1M' }, { key: 'YTD', label: 'This year' }, { key: '1Y', label: '1Y' }, { key: '2Y', label: '2Y' },
+    { key: '1M', label: WINDOW_LABEL['1M'] }, { key: 'YTD', label: WINDOW_LABEL.YTD }, { key: '1Y', label: WINDOW_LABEL['1Y'] }, { key: '2Y', label: WINDOW_LABEL['2Y'] },
   ];
   // ONE MEANING OF RETURN on this screen (founder, 2026-09-25 — he caught the same disagreement on
   // the account page), and since 2026-10-04 it is TIME-WEIGHTED (owner decision, DEC-1669): the window
@@ -337,7 +338,7 @@ export default function PerformanceScreen() {
       {/* only where 2Y has a figure: read from the record, or worked back from price history (DEC-5068, DEC-5291); a
           window the record cannot reach with no holding history is greyed, its figure unprinted (DEC-3035i) */}
       {windowFigures['2Y']?.perYear != null && (windowFigures['2Y']?.covered || windowFigures['2Y']?.workedBack) && (
-        <Text style={styles.coverageLine}>2Y is shown per year, so it sits fairly beside 1Y</Text>
+        <Text style={styles.coverageLine}>{TWO_YEARS_PER_YEAR_LINE}</Text>
       )}
 
       {/* SUMMARY — the trio on one row, what the Return is in words, where the history came from, the line */}
@@ -372,7 +373,7 @@ export default function PerformanceScreen() {
           /* only where a longer window HAS a figure from price history (2026-10-23, E2E-65): an account typed as one total holds
              nothing with a history, every window reads "—", and the line said its figures came from each holding's past prices */
           <Note term="dayOne">{WINDOWS.some((w) => windowFigures[w.key]?.workedBack && windowFigures[w.key]?.ret != null)
-            ? "You added your accounts today. Figures for 1M, 1Y and longer come from each holding’s past prices."
+            ? "You added your accounts today. Figures for 1 month, 1 year and longer come from each holding’s past prices."
             : "Day one: your value is real, your return starts measuring from today. We never back-fill a year we didn’t see."}</Note>
         ) : now.recordBegins ? (
           /* a window joined at the record's first day: only the days before it are worked back (DEC-6412, 2026-10-19) */
@@ -436,7 +437,7 @@ export default function PerformanceScreen() {
           : walkRows(walk, { begin: 'MK-PF-M-018', line: 'MK-PF-M-019', wealth: 'MK-PF-M-002', end: 'MK-PF-M-001' })}
         {/* nothing entered says it in every window, as phone 5 draws it (2026-10-25, MM-PF D3): it went with any window but Since */}
         {dayOneView || nothingEntered
-          ? <Text style={styles.sumNote}>Every line fills in as days pass — the structure never changes.</Text>
+          ? <Text style={styles.sumNote}>These lines fill in as days pass.</Text>
           : !!rebuilt?.who && (
             <Text style={styles.sumNote}>Every line here comes from {rebuilt.who}’s own records. A hand-entered account or a cash balance has none, so it starts the day you enter it — and says so.</Text>
           )}
@@ -521,7 +522,7 @@ export default function PerformanceScreen() {
                   {!dayOneView && !!one.sentence && <Text style={styles.sumNote} accessibilityLabel={spokenDollars(one.sentence)}>{maskDollars(one.sentence)}</Text>}
                   {w && walkRows(w, { begin: 'MK-PF-M-013', line: 'MK-PF-M-015', wealth: 'MK-PF-M-014', end: 'MK-PF-M-004' })}
                   {dayOneView ? (
-                    <Text style={styles.sumNote}>Every line fills in as days pass — the structure never changes.</Text>
+                    <Text style={styles.sumNote}>These lines fill in as days pass.</Text>
                   ) : (
                     <>
                       <View style={[styles.walkRow, styles.walkTotal]} accessible
@@ -1178,7 +1179,7 @@ export function TransactionSheet({ open, accounts, onClose, onSave, prefill }: {
           {/* the trade's own fee, optional, in the words and the dash the holding editor gives an optional figure (2026-10-23, E2E-58) */}
           {isTrade && (
             <View style={styles.lotRow}>
-              <View style={styles.lotCell}><Text style={styles.lotL}>Fee (opt)</Text><MoneyBox bare style={styles.lotIn} value={fee} onChangeText={setFee} a11y="Fee" placeholder="—" /></View>
+              <View style={styles.lotCell}><Text style={styles.lotL}>Fee (optional)</Text><MoneyBox bare style={styles.lotIn} value={fee} onChangeText={setFee} a11y="Fee" placeholder="—" /></View>
             </View>
           )}
           {(isCash || isTransfer || (isDiv && !reinvest)) && (

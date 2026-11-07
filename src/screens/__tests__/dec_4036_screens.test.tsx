@@ -42,7 +42,7 @@ test('DEC-4036b · the Bonds row of a bond with no date reads "maturity date not
   render(<BondsScreen />);
   expect(screen.getAllByText(/maturity date not entered/).length).toBeGreaterThan(0);
   expect(screen.queryByText(/matures\s*$/)).toBeNull();
-  expect(screen.getAllByText(/\$400/).length).toBeGreaterThan(0);   // COUPON /year
+  expect(screen.getAllByText(/\$400/).length).toBeGreaterThan(0);   // INTEREST A YEAR
 });
 
 test('DEC-4036b · the account page keeps its BOND FACTS and says "maturity date not entered" where the date stands', () => {

@@ -1,7 +1,7 @@
 /**
  * A FIGURE THAT CANNOT BE WORKED OUT SHOWS NO FIGURE — NEVER THE MASTER FILE'S EXPLANATION IN ITS PLACE (design review, 2026-11-06).
  *
- * His Build 55 screenshot IMG_0896: the Bonds summary's AVG YIELD box read "A bond with no price today is left out rather than
+ * His Build 55 screenshot IMG_0896: the Bonds summary's AVERAGE YIELD box read "A bond with no price today is left out rather than
  * counted at zero." over six lines, and the row read "yield — when there is no coupon rate, no face value on a bond, or no value to
  * divide by." Each figure's refusal is the sentence the master file prints on its row, written for a reader of the file; printed
  * with nothing, fig() handed that sentence to the screen. The Bonds v02 row of 2026-10-07 draws it: "its yield shows no figure",
@@ -82,7 +82,7 @@ describe('the Bonds screen as drawn (Bonds v02, rows of 2026-10-07 and 2026-10-0
   const B = () => { const S = require('../BondsScreen').default; return <S />; };
   const set = (a: any) => { useStore.getState().resetAll(); useStore.setState({ hideBalances: false, assetAccounts: [a], transactions: [], priceCache: {} } as any); };
 
-  test('no rate on any bond: COUPON /year reads not entered, never $0; AVG YIELD shows no figure; the line under it says why', () => {
+  test('no rate on any bond: INTEREST A YEAR reads not entered, never $0; AVERAGE YIELD shows no figure; the line under it says why', () => {
     set({ ...CD });
     render(<B />);
     expect(screen.queryByText('A bond with no price today is left out rather than counted at zero.')).toBeNull();

@@ -8,7 +8,7 @@
  *    Home, the month:   VTI 40,000 × (1 − 245 ÷ 250) = $800, +2.04%; the Treasury named below
  *    Performance, 1Y:   button +10.00% (not greyed); Wealth generated $3,636; Return +10.00%;
  *                       "Wealth generated and Return do not include Treasury 2031's gains, as it has no price history."
- *    Performance, day one (Since today): "You added your accounts today. Figures for 1M, 1Y and longer come from each
+ *    Performance, day one (Since today): "You added your accounts today. Figures for 1 month, 1 year and longer come from each
  *                       holding's past prices." (his words, DEC-5425, 2026-10-14: "approved.")
  *    Vanguard's page, 1Y: 1Y +10.00%, Wealth generated $3,636, Return +10.00%, nothing named
  *  Before: every window but Since greyed "—" and "The record begins Oct 13, 2026, so it cannot say what these accounts
@@ -73,15 +73,15 @@ describe('the approved example: Vanguard linked today + Treasury 2031 by hand, t
     render(<PerformanceScreen />);
     // the window picked first is "Since today" — day one — and its line now says where the other windows come from
     // DEC-5425 (2026-10-14, "approved."): his words; the proposed "Day one: your value is real and your daily record …" is gone
-    expect(screen.getByText("You added your accounts today. Figures for 1M, 1Y and longer come from each holding’s past prices.")).toBeOnTheScreen();
+    expect(screen.getByText("You added your accounts today. Figures for 1 month, 1 year and longer come from each holding’s past prices.")).toBeOnTheScreen();
     expect(screen.queryByText(/your value is real and your daily record/)).toBeNull();
     expect(screen.queryByText(/We never back-fill a year we didn’t see/)).toBeNull();
-    for (const [k, v] of [['1M', '+2.04%'], ['1Y', '+10.00%']]) {
+    for (const [k, v] of [['1 month', '+2.04%'], ['1 year', '+10.00%']]) {
       const b = screen.getAllByRole('button').find((x) => new RegExp(`^Show ${k}, `).test(x.props.accessibilityLabel ?? ''));
       expect(b!.props.accessibilityLabel).toBe(`Show ${k}, ${v}`);
       expect(b!.props.accessibilityState?.disabled).toBe(false);
     }
-    fireEvent.press(screen.getAllByRole('button').find((x) => /^Show 1Y, /.test(x.props.accessibilityLabel ?? ''))!);
+    fireEvent.press(screen.getAllByRole('button').find((x) => /^Show 1 year, /.test(x.props.accessibilityLabel ?? ''))!);
     expect(screen.getByText('SUMMARY · PAST YEAR')).toBeOnTheScreen();
     expect(screen.getAllByText('$3,636').length).toBeGreaterThanOrEqual(2);   // the summary's Wealth generated and the walk's
     expect(screen.getAllByText('+10.00%').length).toBeGreaterThanOrEqual(2);  // the summary's Return and the window's button
@@ -102,8 +102,8 @@ describe('the approved example: Vanguard linked today + Treasury 2031 by hand, t
     mockParams = { id: 'van' };
     render(<AccountPortfolioScreen />);
     // the Performance tab's own control since DEC-6079 (2026-10-19)
-    const oneYear = screen.getAllByRole('button').find((b) => /^Show 1Y, /.test(b.props.accessibilityLabel ?? ''));
-    expect(oneYear!.props.accessibilityLabel).toBe('Show 1Y, +10.00%');
+    const oneYear = screen.getAllByRole('button').find((b) => /^Show 1 year, /.test(b.props.accessibilityLabel ?? ''));
+    expect(oneYear!.props.accessibilityLabel).toBe('Show 1 year, +10.00%');
     fireEvent.press(oneYear!);
     expect(screen.getAllByText('$3,636').length).toBeGreaterThan(0);
     expect(screen.getAllByText('+10.00%').length).toBeGreaterThan(0);
@@ -122,8 +122,8 @@ describe('the approved example: Vanguard linked today + Treasury 2031 by hand, t
     render(<AccountPortfolioScreen />);
     // the Performance tab's own control since DEC-6079 (2026-10-19): a window nobody recorded and no price history
     // reaches is greyed and cannot be picked, exactly as on the Performance tab (v17)
-    const oneYear = screen.getAllByRole('button').find((b) => /^Show 1Y, /.test(b.props.accessibilityLabel ?? ''));
-    expect(oneYear!.props.accessibilityLabel).toBe('Show 1Y, no data for that window yet');
+    const oneYear = screen.getAllByRole('button').find((b) => /^Show 1 year, /.test(b.props.accessibilityLabel ?? ''));
+    expect(oneYear!.props.accessibilityLabel).toBe('Show 1 year, no data for that window yet');
     expect(oneYear!.props.accessibilityState?.disabled).toBe(true);
   });
 });

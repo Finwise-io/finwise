@@ -225,7 +225,7 @@ def check(PKG, run_jest=True, gen=None):
     ruled_on_cards = set()
     for h in headers:
         if h['family'] == 'CF':
-            ruled_on_cards |= set(re.findall(r'DEC-\d{4}[a-z]?', gen.field(h['header'], 'Ruled by')))
+            ruled_on_cards |= set(re.findall(r'DEC-\d{4,}[a-z]?', gen.field(h['header'], 'Ruled by')))
     want = set()
     for r in rows:
         if 'OLD' in str(r.get('in_use', '')):
@@ -347,7 +347,7 @@ def check(PKG, run_jest=True, gen=None):
     print('D · every number traced')
     traced = collections.Counter()
     NUM = re.compile(r'(?<![\w.\-])[−-]?\$?\d[\d,]*(?:\.\d+)?%?')
-    IDS = re.compile(r'MK-[A-Z]{2}-[A-Z]-\d{3}|DEC-\d{4}[a-z]?|\b\d{4}-\d{2}-\d{2}\b|\bv\d\d\b|part-\d\d-of-\d\d|\b[0-9a-f]{7,10}\b|\b401\(k\)|\b529\b|cf module — part \d+|[A-Z]\d{1,2}\b')
+    IDS = re.compile(r'MK-[A-Z]{2}-[A-Z]-\d{3}|DEC-\d{4,}[a-z]?|\b\d{4}-\d{2}-\d{2}\b|\bv\d\d\b|part-\d\d-of-\d\d|\b[0-9a-f]{7,10}\b|\b401\(k\)|\b529\b|cf module — part \d+|[A-Z]\d{1,2}\b')
     # 1. the formulas: traced to the code again here (the card builder's own test, re-run)
     untraced = []
     for cid, c in cards.items():

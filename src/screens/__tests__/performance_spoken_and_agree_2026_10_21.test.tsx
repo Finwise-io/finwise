@@ -144,7 +144,7 @@ const H_TWO = {
 describe('A · rows 28 and 29 — every figure on the Performance tab has a spoken form, and the line is described', () => {
   const SINCE = once(() => shoot('invest', H_PERF, '2026-09-28'));
   const HIDDEN = once(() => shoot('invest', { ...H_PERF, hideBalances: true }, '2026-09-28'));
-  const TWO_Y = once(() => shoot('invest', H_TWO, '2026-10-13', {}, pick('2Y')));
+  const TWO_Y = once(() => shoot('invest', H_TWO, '2026-10-13', {}, pick('2 years')));
 
   test('every figure printed on the tab is also said, under the same identifier, through the one spoken writer', () => {
     for (const sh of [SINCE(), TWO_Y()]) {
@@ -200,7 +200,7 @@ describe('A · rows 28 and 29 — every figure on the Performance tab has a spok
     const h = TWO_Y().heard;
     expect(h).toContain('Return, +9.99% a year');
     expect(h.find((l) => l.startsWith('+21.00% over the'))).toBe('+21.00% over the two years, which is +9.99% a year — a yearly rate, so it sits fairly beside a one-year window.');
-    expect(h.find((l) => l.startsWith('Show 2Y'))).toBe('Show 2Y, +9.99% a year');
+    expect(h.find((l) => l.startsWith('Show 2 years'))).toBe('Show 2 years, +9.99% a year');
     expect(h.find((l) => l.startsWith('Value of your investments'))).toMatch(/a return of \+9\.99% a year\.$/);
     // what is printed is unchanged: the window's total and its yearly rate with "/year" (his ruling of 2026-09-25)
     expect(TWO_Y().lines.some((l) => l.startsWith('+21.00% over the two years, which is +9.99%/year'))).toBe(true);
@@ -258,7 +258,7 @@ const H_LEFT = {
   pricesFetchedAt: `${TODAY_C}T11:00:00Z`,
 };
 const openCard = (s: typeof screen) => {
-  pick('1M')(s);
+  pick('1 month')(s);
   // a lone account's card opens with a tap on its bar, so its walk prints (v17 phone 3)
   const bar = s.getAllByRole('button').find((b) => /^Fidelity Brokerage, .*Expands its walk\.$/.test(String(b.props.accessibilityLabel ?? '')));
   if (bar) fireEvent.press(bar);
@@ -308,7 +308,7 @@ describe('C · row 32 — every Performance figure printed on two or more screen
 
   test('MK-PF-M-002 — Home\'s month dollars are the Performance tab\'s 1M Wealth generated: $46,600 − $38,400 = $8,200 (H_PERF)', () => {
     const home = shoot('home', H_PERF, '2026-09-28');
-    const inv = shoot('invest', H_PERF, '2026-09-28', {}, pick('1M'));
+    const inv = shoot('invest', H_PERF, '2026-09-28', {}, pick('1 month'));
     expect(shown(home, 'MK-PF-M-002')).toEqual(['$8,200']);
     expect(shown(inv, 'MK-PF-M-002')[0]).toBe('$8,200');
   });
@@ -329,11 +329,11 @@ describe('C · row 32 — every Performance figure printed on two or more screen
 // line (DEC-0457) and Performance counts the account whole (Q-PF-1, DEC-7222), so Investments + that cash = Ending value.
 // ════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
 const investmentsLine = (sh: Shot) => {
-  const i = sh.lines.findIndex((l) => /^▾ 📈 Investments$/i.test(l));
+  const i = sh.lines.findIndex((l) => /^▾ Investments$/i.test(l));
   return i >= 0 ? sh.lines[i + 1] : undefined;
 };
 const cashLine = (sh: Shot) => {
-  const i = sh.lines.findIndex((l) => /^▾ 💵 Cash$/i.test(l));
+  const i = sh.lines.findIndex((l) => /^▾ Cash$/i.test(l));
   return i >= 0 ? sh.lines[i + 1] : undefined;
 };
 const dollars = (s: string | undefined) => (s == null ? NaN : Number(s.replace('−', '-').replace(/[^0-9.\-]/g, '')));
@@ -451,7 +451,7 @@ describe('E · the account page and the Holding page say their figures in words,
 // ════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
 describe('F · the left-out sentence under hide-balances — dots on screen, "hidden" spoken, on all three screens', () => {
   test.each([['home', {}], ['invest', {}], ['account', { id: 'fid', period: '1M' }]] as [string, Record<string, string>][])('%s', (name, params) => {
-    const sh = shoot(name, { ...H_LEFT, hideBalances: true }, TODAY_C, params, name === 'invest' ? pick('1M') : undefined);
+    const sh = shoot(name, { ...H_LEFT, hideBalances: true }, TODAY_C, params, name === 'invest' ? pick('1 month') : undefined);
     const shownLine = sh.lines.find((l) => /^Return is on the /.test(l));
     expect(shownLine).toMatch(/^Return is on the •••• with a price history\. Treasury 2031 \(••••\) has no price history/);
     expect(sh.lines.filter((l) => /\$\d/.test(l) && /price history/.test(l))).toEqual([]);

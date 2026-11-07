@@ -162,7 +162,7 @@ describe('H1 · item 1 · a buy in an account built from imported holdings keeps
     screen.unmount();
     const ACC = look('account', { id: 'imp', period: '1M' });
     const HOLD = look('holding', { account: 'imp', position: 'vti', period: '1M' });
-    const INV = look('invest', {}, pick('1M'));
+    const INV = look('invest', {}, pick('1 month'));
     const NW = look('networth');
     expect([...walk1M(ACC), after(ACC, 'Return')]).toEqual(['$9,500', '$500', '$10,000', pct(R1)]);
     expect([after(ACC, 'Contributions'), after(ACC, 'Withdrawals')]).toEqual(['$0', '$0']);      // a buy is not money put in
@@ -181,7 +181,7 @@ describe('H1 · item 1 · a buy in an account built from imported holdings keeps
     expect(acct('imp').cash_balance).toBe(3_000);
     const ACC = look('account', { id: 'imp', period: '1M' });
     expect([...walk1M(ACC), after(ACC, 'Return')]).toEqual(['$14,500', '$500', '$15,000', pct(R1)]);
-    expect(after(look('invest', {}, pick('1M')), 'Return')).toBe(pct(R1));
+    expect(after(look('invest', {}, pick('1 month')), 'Return')).toBe(pct(R1));
   });
   test('a purchase with no date beside a purchase only typed on the holding, with no buy recorded for it, keeps DEC-7216: no return since purchase', () => {
     // the same 100 imported, and 20 typed on the holding as bought today — no buy record says when they came, so their order is not known
@@ -224,7 +224,7 @@ describe('H2 / H6 · items 2 and 6 · an option: "Contracts" on the trade sheet 
     expect([after(HOLD, 'Quantity'), after(HOLD, 'Current value')]).toEqual(['2 contracts', page[sub + 1]]);
     // NET WORTH counts the option at the same $500 under Alternatives, and the Performance tab ends at $500 + $3,650 + $500 = $4,650
     expect(after(look('networth'), 'Alternatives')).toBe('$500');
-    expect(after(look('invest', {}, pick('1M')), 'Ending value')).toBe(money0(500 + 3_650 + 500));
+    expect(after(look('invest', {}, pick('1 month')), 'Ending value')).toBe(money0(500 + 3_650 + 500));
     // ONE MORE FROM ITS PAGE: held now, so not asked; still Contracts, the line at 1 × 100 × $2.50 = $250
     open('holding', { account: 'fid', position: pos.position_id, period: '1M' });
     press(`Record a buy or sell for ${CALL}`);
@@ -281,7 +281,7 @@ describe('H3 · item 3 · the Cash row of an account whose cash was never entere
     expect(sf).toEqual(['▾ STOCKS / FUNDS', '$11,000']);
     // the rows add up to the total as printed: $11,000 − $1,000 = $10,000, on every screen
     expect(after(ACC, 'Total')).toBe('$10,000');
-    expect(after(look('invest', {}, pick('1M')), 'Ending value')).toBe('$10,000');
+    expect(after(look('invest', {}, pick('1 month')), 'Ending value')).toBe('$10,000');
     expect(after(look('networth'), 'Own $10,000 − Owe $0')).toBe('$10,000');
   });
   test('an account added by hand with its holdings and no cash: "not entered · activity since it was added"; one with cash entered keeps "uninvested balance"', () => {
@@ -324,7 +324,7 @@ describe('H4 · item 4 · Edit holding answers a holding the app cannot class: n
     const ACC = look('account', { id: 'fid', period: '1M' });
     expect(band(ACC, 'ALTERNATIVES', 4)).toContain('UNKNOWN123');
     expect(ACC.lines).not.toContain('▾ UNCLASSIFIED');
-    const INV = look('invest', {}, pick('1M'));
+    const INV = look('invest', {}, pick('1 month'));
     const cats = INV.lines.slice(INV.lines.indexOf('WHAT EACH CATEGORY EARNED'), INV.lines.indexOf('All categories'));
     expect(cats).toContain('Alternatives');
     expect(cats).not.toContain('Unclassified');
@@ -408,7 +408,7 @@ describe('H5 · item 5 · a holding with no price in an account built by hand co
     expect(after(NW, 'Alternatives')).toBe(alt[5]);
     expect(after(NW, 'Bonds & CDs')).toBe(parts[1]);
     expect(after(NW, 'Own $5,650 − Owe $0')).toBe(after(ACC, 'Total'));
-    expect(after(look('invest', {}, pick('1M')), 'Ending value')).toBe(after(ACC, 'Total'));   // the Performance tab, the same $5,650
+    expect(after(look('invest', {}, pick('1 month')), 'Ending value')).toBe(after(ACC, 'Total'));   // the Performance tab, the same $5,650
   });
   test.failing('the answer until 2026-10-27, kept (no longer the app\'s): the bar read "—" for UNKNOWN123 bought today (PF-4, R4)', () => {
     household({ assetAccounts: [FIDELITY(2_000)], transactions: [BND_OPENING] });

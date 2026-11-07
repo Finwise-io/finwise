@@ -213,7 +213,7 @@ describe('34 · over 2Y the returns are yearly rates with /year, and each window
   test('VTI $240 → $290 over the 731 days from 27 Sep 2024: +20.83% in all, +9.91%/year; SPY $500 → $616: +23.20%, +10.98%/year', () => {
     at(NOON_SEP28);
     open(holding({ asset_class: 'stock_etf' }), PRICES('VTI', 'SPY'));
-    fireEvent.press(screen.getByLabelText('Show 2Y'));
+    fireEvent.press(screen.getByLabelText('Show 2 years'));
     expect(card()).toEqual(['VS THE STOCK MARKET · SAME DATES',
       'Your return, past 2 years', '+9.91%/year', 'The market, same dates', '+10.98%/year', 'You are', 'behind by 1.07 points/year',
       'Your return: +20.83% over the two years, which is +9.91%/year — a yearly rate, so it sits fairly beside a one-year window.',

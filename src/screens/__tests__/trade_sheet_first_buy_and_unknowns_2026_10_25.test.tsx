@@ -138,7 +138,7 @@ describe('J1 · MK-CF-F-223 · the first buy of an option the account does not h
   test('asked in the holding editor’s words → Options → 5 contracts refused against $1,000 → 1 contract recorded: cash $750 on the account page, the window unchanged on the Performance tab, 1 contract worth $250 on its page', () => {
     household({ assetAccounts: [FIDELITY(1_000)], transactions: [BND_OPENING] });
     const ACC0 = look('account', { id: 'fid', period: '1M' });
-    const INV0 = look('invest', {}, pick('1M'));
+    const INV0 = look('invest', {}, pick('1 month'));
     open('account', { id: 'fid', period: '1M' });
     press(/^Add a buy or sale for /);
     typeTicker(CALL);
@@ -176,7 +176,7 @@ describe('J1 · MK-CF-F-223 · the first buy of an option the account does not h
     // THE WINDOW, 1M, on the account page and the Performance tab: a buy is neither money in nor money earned — Beginning
     // 1,000 + 50 × $72 = $4,600, Wealth generated 50 × ($73 − $72) = $50, Ending $4,650, before the buy and after it, on both
     const ACC = look('account', { id: 'fid', period: '1M' });
-    const INV = look('invest', {}, pick('1M'));
+    const INV = look('invest', {}, pick('1 month'));
     expect(walk1M(ACC0)).toEqual(['$4,600', '$50', '$4,650']);
     for (const sh of [ACC, INV0, INV]) expect(walk1M(sh)).toEqual(walk1M(ACC0));
     expect(after(INV, 'Ending value')).toBe('$4,650');
@@ -264,7 +264,7 @@ describe('J2 · MK-CF-F-138 · a ticker nothing identifies: the sheet asks and w
     expect(NW.lines).toContain('The app cannot tell what UNKNOWN123 in Brokerage is, so it is in no class yet. Open it and say what it is.');
     expect(NW.lines).toContain('Unclassified');
     // THE PERFORMANCE TAB'S CATEGORY TABLE: an Unclassified row, no Stocks / Funds row
-    const INV = look('invest', {}, pick('1M'));
+    const INV = look('invest', {}, pick('1 month'));
     const cats = INV.lines.slice(INV.lines.indexOf('WHAT EACH CATEGORY EARNED'), INV.lines.indexOf('All categories'));
     expect(cats).toContain('Unclassified');
     expect(cats).not.toContain('Stocks / Funds');
@@ -316,7 +316,7 @@ describe('J3 · MK-CF-F-139 · a sale against a purchase whose share count is no
     expect(after(HOLD, 'Quantity')).toBe('Not stated — a purchase has no share count on record.');
     // the one total, on the account page and the Performance tab
     const ACC = look('account', { id: 'fid', period: '1M' });
-    const INV = look('invest', {}, pick('1M'));
+    const INV = look('invest', {}, pick('1 month'));
     expect(after(INV, 'Ending value')).toBe(after(ACC, 'Ending market value (Sep 30, 2026)'));
   });
 });
@@ -347,7 +347,7 @@ describe('J4 · an account built from imported holdings, cash never entered: Ava
     // the stored figure is kept (the total stays right), marked as never entered
     expect([acct('imp').cash_balance, acct('imp').cash_not_entered, acct('imp').balance]).toEqual([-2_000, true, 10_000]);
     const ACC = look('account', { id: 'imp', period: '1M' });
-    const INV = look('invest', {}, pick('1M'));
+    const INV = look('invest', {}, pick('1 month'));
     const NW = look('networth');
     expect(after(ACC, 'Market value', -1)).toBe('$10,000');
     expect(after(INV, 'Ending value')).toBe('$10,000');

@@ -284,7 +284,7 @@ test('every line and every link that acts has a 44-point tap area — and the gu
   // counted 2026-11-01 from the disk: 148 files, 488 lines and links; 131 short. 31 were in the Net worth module and the shared parts it
   // draws, each given Tap.slop (or made a touchable that takes it); 99 are left in other agents' files, and the info dot is named above.
   expect(files).toBeGreaterThanOrEqual(148);
-  expect(all.length).toBeGreaterThanOrEqual(489);   // 489 lines and links on 2026-11-02 (PF-TOOLS, round 6)
+  expect(all.length).toBeGreaterThanOrEqual(488);   // 488 on 2026-11-06: Net worth's first-day retirement card, and its one link, went (his ruling "all"); 489 on 2026-11-02 (PF-TOOLS, round 6)
   const over = Object.entries(byFile).filter(([f, n]) => n > (LINES_SHORT_ON_2026_11_01[f] ?? 0))
     .map(([f, n]) => `${f}: ${n} short (may be ${LINES_SHORT_ON_2026_11_01[f] ?? 0}) — ${short.filter((c) => c.at.startsWith(f + ':')).map((c) => `${c.at.split(':')[1]} ${c.name} ${c.tall == null ? 'unreadable' : Math.round(c.tall)}`).join('; ')}`);
   expect(over).toEqual([]);

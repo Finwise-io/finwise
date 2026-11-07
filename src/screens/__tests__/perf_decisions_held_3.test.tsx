@@ -74,7 +74,7 @@ test('DEC-0022 — a priced holding: the latest close leads, the period buttons 
   expect(head).toBeGreaterThan(0);
   expect(all[head + 1]).toBe('$240.00');
   const periods = all.slice(head + 3, head + 9);
-  expect(periods).toEqual(['1M', '3M', '6M', 'YTD', '1Y', '2Y']);
+  expect(periods).toEqual(['1 month', '3 months', '6 months', 'This year', '1 year', '2 years']);   // in words since 2026-11-06 (his ruling "all")
   expect(all[head + 9]).toBe('Current value');                       // the table follows the buttons
 });
 test('DEC-0022 — a holding with no price: the headline says it shows what was paid, and the figure is the Total paid, never a made-up value', () => {

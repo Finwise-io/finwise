@@ -42,7 +42,7 @@ def norm(t):
 # so the link is read from the suite and never maintained by hand. It cannot be a coincidence and it
 # cannot go stale: rename the test and the link moves with it; delete the test and the decision goes
 # back to having nothing that re-runs it, loudly, on the next build.
-DEC_IN_TEST = re.compile(r"\b(DEC-\d{4})\b")
+DEC_IN_TEST = re.compile(r"\b(DEC-\d{4,})\b")
 NAMED = {}
 for _p, _src in []:
     pass

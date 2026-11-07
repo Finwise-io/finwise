@@ -41,9 +41,9 @@ describe('first day (state C)', () => {
     expect(v.filter((s) => s === ADD_ACCOUNT_QUESTION)).toHaveLength(1);
     expect(v.filter((s) => s === 'Nothing entered yet.')).toHaveLength(3);           // hero · what you own · debts
     const at = (s: string) => v.indexOf(s);
-    expect(at('💵 CASH')).toBeLessThan(at(ADD_ACCOUNT_QUESTION));
-    expect(at(ADD_ACCOUNT_QUESTION)).toBeLessThan(at('Link it (read-only)'));
-    expect(at('Link it (read-only)')).toBeLessThan(at('Add by hand'));
+    expect(at('CASH')).toBeLessThan(at(ADD_ACCOUNT_QUESTION));
+    expect(at(ADD_ACCOUNT_QUESTION)).toBeLessThan(at('Connect your bank'));
+    expect(at('Connect your bank')).toBeLessThan(at('Add by hand'));
     expect(at('Add by hand')).toBeLessThan(at('Import from a file'));
     expect(at('Import from a file')).toBeLessThan(at('or walk through it step by step'));
     for (const old of ['Connect a brokerage', 'Add a file from your bank', 'Type it yourself', 'Add a mortgage, card, or loan']) expect(v).not.toContain(old);
@@ -90,14 +90,14 @@ describe('with accounts', () => {
     fireEvent.press(screen.getByLabelText('Add an account'));
     expect(screen.getByText(ADD_ACCOUNT_QUESTION)).toBeOnTheScreen();
     // one space after the icon, as frame G draws it (PF3-4, 2026-10-31) — read raw: the default reading collapses spaces and could not see two
-    expect(screen.getByText('🔗 Link it (read-only)', { normalizer: (s: string) => s })).toBeOnTheScreen();
+    expect(screen.getByText('🔗 Connect your bank', { normalizer: (s: string) => s })).toBeOnTheScreen();
   });
 
   // the old answer, kept (the fix wave's rule): two spaces after the icon, until 2026-10-31
-  test.failing('before 2026-10-31, kept · the door read "🔗  Link it (read-only)" with two spaces', () => {
+  test.failing('before 2026-10-31, kept · the door read "🔗  Connect your bank" with two spaces', () => {
     render(<NetWorth />);
     fireEvent.press(screen.getByLabelText('Add an account'));
-    expect(screen.getByText('🔗  Link it (read-only)', { normalizer: (s: string) => s })).toBeOnTheScreen();
+    expect(screen.getByText('🔗  Connect your bank', { normalizer: (s: string) => s })).toBeOnTheScreen();
   });
 
   test('the return on cash + investments shows two decimals', () => {

@@ -186,7 +186,7 @@ describe('NW2-05 · one continuous ledger: every bar sits flush on what follows 
     expect(ledger).toBeDefined();                              // one white ledger holds all three sections
     expect(bandsOf(nodes(ledger)).length).toBeGreaterThanOrEqual(6);   // WHAT YOU OWN, Cash, Investments, Personal property, DEBTS, EMERGENCY FUND
     const bands = screen.UNSAFE_root.findAll((n: any) => n.type === 'View' && [Colors.primaryDeep, Colors.bandLight].includes(flat(n.props?.style).backgroundColor)
-      && flat(n.props?.style).alignSelf === 'stretch' && /^(WHAT YOU OWN|DEBTS|EMERGENCY FUND|▾|▸|💵|📈|🏠)/.test(textOf(n)));   // the ledger's bars, not the hero's or the plan card's
+      && flat(n.props?.style).alignSelf === 'stretch' && /^(WHAT YOU OWN|DEBTS|EMERGENCY FUND|▾|▸|Cash|Investments|Personal property)/.test(textOf(n)));   // section names, no emoji since his ruling 'all', 2026-11-06 (was 💵|📈|🏠); the ledger's bars, not the hero's or the plan card's
     expect(bands.length).toBeGreaterThanOrEqual(6);            // the guard proves it looked: every bar of the ledger
     for (const b of bands) {
       expect(flat(b.props.style).marginBottom).toBe(Spacing.xs);   // SectionBand's own 4 …
@@ -200,7 +200,7 @@ describe('NW2-05 · one continuous ledger: every bar sits flush on what follows 
 });
 
 describe('NW2-06 · the debt rows’ icons at the row’s own 15 points, beside the name', () => {
-  test('🏠 and 💳 are 15, in the name group with the name (v08 .debt .n)', () => {
+  test('and 💳 are 15, in the name group with the name (v08 .debt .n)', () => {
     set(V08); render(<NetWorth />);
     for (const [icon, name] of [['🏠', 'Home mortgage'], ['💳', 'Chase Visa']]) {
       const row = screen.getByLabelText(new RegExp(`^${name}, you owe`));

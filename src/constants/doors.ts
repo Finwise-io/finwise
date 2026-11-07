@@ -32,7 +32,7 @@ export const DOORS: { icon: string; title: string; sub: string; route: string }[
  *  the Plan tab still read DOORS above until their own mocks are approved; then DOORS folds into this. */
 export const ADD_ACCOUNT_QUESTION = 'How do you want to add an account?';
 export const ADD_ACCOUNT_DOORS: { icon: string; title: string; sub: string; route: string }[] = [
-  { icon: '🔗', title: 'Link it (read-only)', sub: 'We can look, never touch your money.', route: '/connect' },
+  { icon: '🔗', title: 'Connect your bank', sub: 'We can look, never touch your money.', route: '/connect' },
   { icon: '✍️', title: 'Add by hand', sub: 'Your home, savings, or any account with no login.', route: '/add-account' },
   { icon: '📄', title: 'Import from a file', sub: 'The CSV export from your brokerage.', route: '/import-holdings' },
 ];

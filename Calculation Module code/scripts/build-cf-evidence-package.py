@@ -93,7 +93,7 @@ SIM_RULINGS = ['DEC-0247', 'DEC-2164', 'DEC-0244', 'DEC-0088']
 SYNC_FIELDS = {'salaryMode', 'landsTypical', 'grossWorkedBack'}
 SYNC_RULINGS = ['DEC-0200', 'DEC-8387']
 
-DEC_RE = re.compile(r'DEC-\d{4}')
+DEC_RE = re.compile(r'DEC-\d{4,}')
 PUA = re.compile(r'[-]')
 
 
@@ -694,7 +694,7 @@ def number_check(text, tr):
         t = t.replace(q, ' ')
     t = re.sub(r'```json[\s\S]*?```', ' ', t)                         # the decision log's rows, printed as data from the log
     t = re.sub(r'`[^`]*`', ' ', t)                                     # file names, the commit
-    t = re.sub(r'\b(?:DEC-\d{4}|MK-[A-Z]{2}-[A-Z]-\d{3})\b', ' ', t)
+    t = re.sub(r'\b(?:DEC-\d{4,}|MK-[A-Z]{2}-[A-Z]-\d{3})\b', ' ', t)
     t = re.sub(r'\b\d{4}-\d{2}-\d{2}\b', ' ', t)
     t = re.sub(r'\bv\d\d\b', ' ', t)
     t = re.sub(r'\*\*\d\. ', ' ', t)                                    # the tenets' own numbering, quoted

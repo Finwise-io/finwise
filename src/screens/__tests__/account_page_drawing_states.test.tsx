@@ -33,6 +33,7 @@ import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react-native';
 import { StyleSheet } from 'react-native';
 import * as fs from 'fs';
+import { ruledHtml } from '../../testing/ruledSince';
 import * as path from 'path';
 import AccountPortfolioScreen from '../AccountPortfolioScreen';
 import { useStore } from '../../store/useStore';
@@ -183,7 +184,7 @@ afterAll(() => jest.useRealTimers());
 // READING THE DRAWING
 // ════════════════════════════════════════════════════════════════════════════════════════════════════════════════
 const DRAWING = path.join(__dirname, '..', '..', '..', 'MoneyKeel', 'documents', 'networth-and-performance', 'moneykeel_pres_mock_account-page_v01.html');
-const HTML = fs.readFileSync(DRAWING, 'utf8');
+const HTML = ruledHtml(DRAWING, fs.readFileSync(DRAWING, 'utf8'));   // his rulings of 2026-11-06 applied (src/testing/ruledSince.ts)
 /** One line a person reads, and the card (or box, or bar) it sits in: '' = on the page itself. */
 type Line = { t: string; g: string };
 const decode = (s: string) => s.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&#39;/g, "'").replace(/&quot;/g, '"');
@@ -466,7 +467,7 @@ describe('APPEARANCE: colours, sizes and weights as rendered, against the drawin
     expect(styleOf('Mixed holdings · taxable')).toMatchObject({ fontSize: 13, color: Colors.textSecondary, marginTop: 4, marginBottom: 8 });   // .classline
     // .segbar / .sg: the picked window white with green words; a window at rest names itself in the tertiary grey
     expect(styleOf('Since Oct 1, 2025')).toMatchObject({ fontSize: 11, fontWeight: '700', color: Colors.primaryDark });
-    expect(styleOf('1M')).toMatchObject({ fontSize: 11, fontWeight: '700', color: Colors.textTertiary });
+    expect(styleOf('1 month')).toMatchObject({ fontSize: 11, fontWeight: '700', color: Colors.textTertiary });
     expect(styleOf('+1.00%')).toMatchObject({ fontSize: 13, fontWeight: '800', color: Colors.textPrimary });
     // .band / .bt / .bv: the dark-green bar, white 11/800 capitals, the figure 15/800
     expect(styleOf('THIS ACCOUNT · SINCE OCT 1, 2025')).toMatchObject({ fontSize: 11, fontWeight: '800', color: Colors.white, textTransform: 'uppercase', letterSpacing: 0.5 });
@@ -567,7 +568,7 @@ describe('APPEARANCE: colours, sizes and weights as rendered, against the drawin
     expect(parentStyleOf('Enter dividends yourself ›')).toMatchObject({ backgroundColor: Colors.primaryDeep, minHeight: 36, borderRadius: 12 });
     expect(styleOf('Sync now ›')).toMatchObject({ fontSize: KNOWN.smallDoorText.app, fontWeight: '800', color: Colors.primaryDeep });   // .door.sm
     expect(parentStyleOf('Sync now ›')).toMatchObject({ borderWidth: 1.5, borderColor: Colors.primaryDeep, minHeight: 36 });
-    expect(styleOf('1Y')).toMatchObject({ color: Colors.primaryDark });
+    expect(styleOf('1 year')).toMatchObject({ color: Colors.primaryDark });
   });
 
   test('state E — IF INTEREST RATES MOVE: the title and its dot, the estimate tag, the two lines and the note', () => {
@@ -713,7 +714,7 @@ describe('DATA REALITY', () => {
   });
   test('row 18 · opened from Performance with 1Y picked it opens on 1Y — state D, word for word', () => {
     renderState(STATES[3]);
-    expect(builtBar().find((b) => b.on)!.k).toBe('1Y');
+    expect(builtBar().find((b) => b.on)!.k).toBe('1 year');
     expect(builtLines().map((l) => norm(l.t))).toEqual(DRAWN[3].lines.map((l) => norm(l.t)));
   });
   test('row 18 · a window this account cannot show opens on Since (state B handed 1Y; row 19), and so does a name the app does not have', () => {
@@ -724,7 +725,7 @@ describe('DATA REALITY', () => {
     expect(builtBar().find((b) => b.on)!.k).toBe('Since Oct 1, 2025');
     screen.unmount();
     renderState({ ...STATES[0], opened: '1M' });   // and a window it can show is the one it opens on
-    expect(builtBar().find((b) => b.on)!.k).toBe('1M');
+    expect(builtBar().find((b) => b.on)!.k).toBe('1 month');
     expect(screen.getByText('THIS ACCOUNT · THE PAST MONTH')).toBeOnTheScreen();
   });
   test('row 18 · the Performance tab hands over its picked window when it opens an account\'s page', () => {
@@ -734,14 +735,14 @@ describe('DATA REALITY', () => {
     useStore.setState({ hideBalances: false, assetAccounts: [VAN], transactions: VAN_LEDGER, snapshotDays: VAN_DAYS,
       priceCache: { VOO, '49306SAB2': flat100, '91282CGM7': flat100 } } as any);
     render(<PerformanceScreen />);
-    pick('1Y');
+    pick('1 year');
     mockPushes.length = 0;
     fireEvent.press(screen.getAllByLabelText(/this account’s own page|this account's own page/)[0]);
     expect(mockPushes).toEqual(['/account-detail?id=van&period=1Y']);
   });
   test('ACTIVITY names the picked window and lists its records; "See all activity" names where the list stops', () => {
     renderState(STATES[0]);
-    pick('1M');
+    pick('1 month');
     expect(screen.getByText('ACTIVITY · THE PAST MONTH')).toBeOnTheScreen();
     expect(screen.getByText('3 records')).toBeOnTheScreen();
     expect(screen.getByText('12 more records below this date')).toBeOnTheScreen();
@@ -835,7 +836,7 @@ function builtBar(): Seg[] {
 function drawnBars(): Seg[][] {
   return [...HTML.matchAll(/<div class="segbar">([\s\S]*?)<\/div>/g)].map((m) =>
     [...m[1].matchAll(/<span class="(sg[^"]*)"><span class="k">([^<]*)<\/span><span class="v">([^<]*)<\/span><\/span>/g)]
-      .map((x) => ({ k: x[2], v: x[2] === '2Y' && /%$/.test(x[3]) ? `${x[3]}/year` : x[3], on: /\bon\b/.test(x[1]), no: /\bno\b/.test(x[1]) })));   // row 93 (2026-11-01, R20): the 2Y chip's yearly rate says /year
+      .map((x) => ({ k: x[2], v: x[2] === '2 years' && /%$/.test(x[3]) ? `${x[3]}/year` : x[3], on: /\bon\b/.test(x[1]), no: /\bno\b/.test(x[1]) })));   // row 93 (2026-11-01, R20): the 2Y chip's yearly rate says /year
 }
 /** The trio's Return, as printed. */
 const trioReturn = (lines: string[]) => lines[lines.indexOf('Return') + 1];
@@ -845,13 +846,13 @@ const BARS: Record<string, [string, string, 'on' | 'no' | ''][]> = {
   // 1Y and 2Y open before the record's first day (Oct 1, 2025), so they are JOINED there (DEC-6412, 2026-10-19): the days
   // before it worked back from VOO's prices, then the record's own +8.26%. Before (DEC-5291, worked back whole): +7.12%, +9.57%
   // the 2Y chip says /year since 2026-11-01 (row 93, R20): the same +10.87% yearly rate, now labelled as one
-  A: [['Since Oct 1, 2025', '+8.26%', 'on'], ['1M', '+1.00%', ''], ['This year', '+1.89%', ''], ['1Y', '+8.26%', ''], ['2Y', '+10.87%/year', '']],
-  B: [['Since Jun 2, 2026', '+1.50%', 'on'], ['1M', '+1.50%', ''], ['This year', '—', 'no'], ['1Y', '—', 'no'], ['2Y', '—', 'no']],
-  C: [['Since today', '—', 'on'], ['1M', '—', 'no'], ['This year', '—', 'no'], ['1Y', '—', 'no'], ['2Y', '—', 'no']],
+  A: [['Since Oct 1, 2025', '+8.26%', 'on'], ['1 month', '+1.00%', ''], ['This year', '+1.89%', ''], ['1 year', '+8.26%', ''], ['2 years', '+10.87%/year', '']],
+  B: [['Since Jun 2, 2026', '+1.50%', 'on'], ['1 month', '+1.50%', ''], ['This year', '—', 'no'], ['1 year', '—', 'no'], ['2 years', '—', 'no']],
+  C: [['Since today', '—', 'on'], ['1 month', '—', 'no'], ['This year', '—', 'no'], ['1 year', '—', 'no'], ['2 years', '—', 'no']],
   // Since today is never greyed (2026-10-19): state C draws it picked with a dash, state D at rest with a dash, and it can be picked
-  D: [['Since today', '—', ''], ['1M', '+2.46%', ''], ['This year', '+5.93%', ''], ['1Y', '+10.00%', 'on'], ['2Y', '+11.79%/year', '']],   // row 93: /year, the same +11.79% a year
-  E: [['Since Jun 2, 2026', '+0.00%', 'on'], ['1M', '+0.00%', ''], ['This year', '—', 'no'], ['1Y', '—', 'no'], ['2Y', '—', 'no']],
-  F: [['Since Jun 2, 2026', '+0.00%', 'on'], ['1M', '+0.00%', ''], ['This year', '—', 'no'], ['1Y', '—', 'no'], ['2Y', '—', 'no']],
+  D: [['Since today', '—', ''], ['1 month', '+2.46%', ''], ['This year', '+5.93%', ''], ['1 year', '+10.00%', 'on'], ['2 years', '+11.79%/year', '']],   // row 93: /year, the same +11.79% a year
+  E: [['Since Jun 2, 2026', '+0.00%', 'on'], ['1 month', '+0.00%', ''], ['This year', '—', 'no'], ['1 year', '—', 'no'], ['2 years', '—', 'no']],
+  F: [['Since Jun 2, 2026', '+0.00%', 'on'], ['1 month', '+0.00%', ''], ['This year', '—', 'no'], ['1 year', '—', 'no'], ['2 years', '—', 'no']],
 };
 const asSegs = (k: string): Seg[] => BARS[k].map(([kk, v, st]) => ({ k: kk, v, on: st === 'on', no: st === 'no' }));
 
@@ -934,14 +935,14 @@ describe('a record that begins today: the Since window reads one way whichever w
     const [name, dash] = (btn.children as any[]).flatMap(function f(c: any): any[] { return c?.type === 'Text' ? [c] : (c?.children ?? []).flatMap(f); });
     expect(flat(name.props.style).color).toBe(Colors.textTertiary);
     expect(flat(dash.props.style).color).toBe(Colors.textPrimary);
-    const y1 = screen.getAllByRole('button').find((b) => String(b.props.accessibilityLabel ?? '').startsWith('Show 1Y'))!;
+    const y1 = screen.getAllByRole('button').find((b) => String(b.props.accessibilityLabel ?? '').startsWith('Show 1 year'))!;
     expect(y1.props.accessibilityState).toMatchObject({ selected: true });
   });
 });
 
 describe('DEC-6412 · a window that opens before the record begins is joined at its first day (2026-10-19)', () => {
   test('state A, 1Y picked: Return +8.26%, the Since walk, and the line saying only the days before Oct 1, 2025 are worked back', () => {
-    renderState({ ...STATES[0], pick: '1Y' });
+    renderState({ ...STATES[0], pick: '1 year' });
     const lines = strings();
     expect(trioReturn(lines)).toBe('+8.26%');
     expect(lines).toContain('Your daily record begins Oct 1, 2025, so the days before it are worked back from each holding’s price history.');

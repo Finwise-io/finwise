@@ -261,7 +261,7 @@ describe('MK-NW-F-062 couponIncomeAnnual — five cases', () => {
       bondAcct({ id: 'c', face: 5000, value: 4900, rate: 0.04 })])).toBeCloseTo(770, 12);
   });
   // FINDING: app gives 580, expected 80 — couponIncomeAnnual takes no date and never drops a matured bond (bonds/index.ts:557),
-  // nor does the Bonds screen's COUPON /year, bondSummary (:522); interestIncomeAnnual does (:602, DEC-2748d). Two figures
+  // nor does the Bonds screen's INTEREST A YEAR, bondSummary (:522); interestIncomeAnnual does (:602, DEC-2748d). Two figures
   // for one year's interest disagree by $500 — DEC-2748c says one rule everywhere.
   // FIXED 2026-10-09 after OpenAI's final audit (was test.failing)
   test('complex · Expired bond omitted', () => {

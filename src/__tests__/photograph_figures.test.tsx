@@ -42,6 +42,10 @@
  *    20,000) on the hero. FX-NW's NW5-09 change (2026-11-01) dropped the hero's second text piece ('  (negative)'), so its text is one
  *    string and HeroAmount speaks it by its own default (walk row 21) — "hidden" under hide-balances. Right: the figure printed is the
  *    figure said. No printed figure moved.
+ *  UPDATED 2026-11-06 (his ruling 'all' — the window buttons spelled out; checked by hand before re-recording): Performance's window
+ *    buttons read "1 month", "1 year", "2 years" where they read "1M", "1Y", "2Y". The new words name a number of months or years, so
+ *    this reader now records them: three new lines at the top of PerformanceScreen, for both people. They are labels, not figures —
+ *    no figure moved, none was removed.
  */
 import React from 'react';
 import { render, screen } from '@testing-library/react-native';

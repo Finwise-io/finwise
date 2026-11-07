@@ -1,7 +1,7 @@
 /** A BOND'S YEAR OF INTEREST IS ONE NUMBER ON EVERY SCREEN THAT PRINTS IT (2026-10-24, NW-BONDS).
  *
  *  Three screens print what a bond or CD pays in a year: the account page (BOND FACTS · Interest payments, MK-NW-M-024 and
- *  MK-NW-M-056), the Bonds screen (each bond's coupon, MK-NW-M-056, and COUPON /year, MK-NW-M-043) and the income sheet
+ *  MK-NW-M-056), the Bonds screen (each bond's coupon, MK-NW-M-056, and INTEREST A YEAR, MK-NW-M-043) and the income sheet
  *  (Income · Interest & dividends · From your accounts, MK-CF-M-066 — incomeFromAccounts). The first two read the bonds door;
  *  the income sheet worked the figure out with its own arithmetic until today: face × rate, else rate × balance. So a bond
  *  whose face was left blank read 4.5% of its market value there, and a matured bond kept paying. It now reads the same one
@@ -17,7 +17,7 @@
  *    US Treasury 2031   no face entered, 4.5%, matures May 15, 2031, worth $24,200 → none (it read 24,200 × 4.5% = $1,089)
  *    Ally 12-month CD   bought from the bank, no face, 5.05%, worth $10,000        → 10,000 × 5.05% = $505/year
  *    Corp 2026          $10,000 face, 4%, matured Jun 30, 2026, worth $10,000       → $0 (it pays no more; the income sheet read $400)
- *  COUPON /year on the Bonds screen = $1,125 + $505 + $0 = $1,630; the income sheet's bond lines add to the same $1,630.
+ *  INTEREST A YEAR on the Bonds screen = $1,125 + $505 + $0 = $1,630; the income sheet's bond lines add to the same $1,630.
  */
 import React from 'react';
 import { render, screen } from '@testing-library/react-native';
@@ -66,7 +66,7 @@ afterEach(() => { jest.useRealTimers(); mockParams = {}; });
 const lines = () => builtLines(screen.toJSON());
 const afterLabel = (L: string[], label: string, n = 1, from = 0) => { const i = L.indexOf(label, from); return i >= 0 ? L[i + n] : undefined; };
 
-test('the door: one answer for each bond, the rows add up to COUPON /year, and the faceless Treasury is named, not counted', () => {
+test('the door: one answer for each bond, the rows add up to INTEREST A YEAR, and the faceless Treasury is named, not counted', () => {
   seed();
   const door = theBonds({ accounts: ACCOUNTS as any, today: new Date(`${TODAY}T12:00:00`) });
   const by = Object.fromEntries(door.rows.map((r) => [r.label, r.couponPerYear]));
@@ -96,7 +96,7 @@ test('the account page: Interest payments reads each bond\'s one figure (four pa
   expect(opened).toBe(4);
 });
 
-test('the Bonds screen: each card\'s coupon is the same figure, COUPON /year is $1,630, and the faceless Treasury is named under AVG YIELD', () => {
+test('the Bonds screen: each card\'s coupon is the same figure, INTEREST A YEAR is $1,630, and the faceless Treasury is named under AVERAGE YIELD', () => {
   seed();
   render(<BondsScreen />);
   const L = lines();
@@ -106,7 +106,7 @@ test('the Bonds screen: each card\'s coupon is the same figure, COUPON /year is 
     // the card's lines after its name: value, sub-line(s), then the coupon metric
     expect(L.slice(at, at + 6)).toContain(w.bonds);
   }
-  expect(afterLabel(L, 'COUPON /year')).toBe('$1,630');
+  expect(afterLabel(L, 'INTEREST A YEAR')).toBe('$1,630');
   expect(L).toContain('Average yield leaves out US Treasury 2031 — face value not entered.');
   expect(L.join(' ')).not.toMatch(/\$1,089/);
 });

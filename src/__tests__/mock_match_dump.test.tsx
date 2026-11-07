@@ -131,7 +131,7 @@ describe('appearance audit — rendered styles, not stylesheet definitions', () 
     const own = screen.getByText('WHAT YOU OWN');
     expect(flat(own).color).toBe('#FFFFFF');
     expect(flat(own).textTransform).toBe('uppercase');
-    const cash = screen.getAllByText(/💵/)[0];
+    const cash = screen.getAllByText(/^[▾▸] Cash$/)[0];   // the Cash sub-band, named without its 💵 since his ruling 'all', 2026-11-06
     expect(flat(cash).color).toBe('#085041');            // sub-band text is deep green, never white
   });
 
@@ -284,7 +284,7 @@ describe('appearance audit — rendered styles, not stylesheet definitions', () 
     const NW = require('../screens/NetWorthScreen').default;
     render(<NW />);
     const s = dumpStrings();
-    const inv = s.indexOf('▾ 📈 Investments');
+    const inv = s.indexOf('▾ Investments');
     const rest = s.slice(inv);
     expect(rest.indexOf('Stocks / Funds')).toBeLessThan(rest.indexOf('Bonds & CDs'));   // 348,495 before 5,819
   });
@@ -324,7 +324,7 @@ describe('appearance audit — rendered styles, not stylesheet definitions', () 
     expect(screen.getByText('By category')).toBeOnTheScreen();
     fireEvent.press(screen.getByLabelText(/Group what you own by institution/));
     expect(screen.getByText(/Your banks and brokerages will be listed here/)).toBeOnTheScreen();
-    expect(screen.queryByText('💵 CASH')).toBeNull();               // no invented $0 banks either
+    expect(screen.queryByText('CASH')).toBeNull();               // no invented $0 banks either
   });
 
   test('data reality: a connected CD/Treasuries account reads as Bonds & CDs, never Unclassified', () => {

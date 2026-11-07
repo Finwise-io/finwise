@@ -144,7 +144,7 @@ test("MK-XS-M-004 — the month's return reads the same on Home and on Performan
   screen.unmount();
 
   renderScreen('PerformanceScreen');
-  const perf = firstMatch(/^Show 1M, ([+-]\d+\.\d{2}%)$/);
+  const perf = firstMatch(/^Show 1 month, ([+-]\d+\.\d{2}%)$/);
 
   expect(home).not.toBeNull();     // a pin that reads nothing proves nothing
   expect(perf).not.toBeNull();

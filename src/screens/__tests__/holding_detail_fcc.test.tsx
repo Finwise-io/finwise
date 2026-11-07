@@ -82,7 +82,7 @@ test('hero: current price on top, then the position table — the SAME numbers a
   expect(screen.getByText('360 shares')).toBeOnTheScreen();
   expect(screen.getByText('Price paid (average)')).toBeOnTheScreen();
   // the period chips moved onto this page (they drive the graph + compare window)
-  for (const pd of ['1M', '3M', '6M', 'YTD', '1Y', '2Y']) expect(screen.getByText(pd)).toBeOnTheScreen();
+  for (const pd of ['1 month', '3 months', '6 months', 'This year', '1 year', '2 years']) expect(screen.getByText(pd)).toBeOnTheScreen();
 });
 
 test("vs-the-market card: table rows, same-dates window words, ahead/behind in WORDS", () => {

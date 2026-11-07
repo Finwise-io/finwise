@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-06",
+ "generated": "2026-11-07",
  "states": [
   "worker",
   "rich",
@@ -44,7 +44,7 @@
     },
     {
      "k": "t",
-     "s": "afternoon"
+     "s": "evening"
     },
     {
      "k": "t",
@@ -278,7 +278,7 @@
     },
     {
      "k": "t",
-     "s": "afternoon"
+     "s": "evening"
     },
     {
      "k": "t",
@@ -540,7 +540,7 @@
     },
     {
      "k": "t",
-     "s": "afternoon"
+     "s": "evening"
     },
     {
      "k": "t",
@@ -1035,7 +1035,7 @@
     },
     {
      "k": "t",
-     "s": "▾ 📈 Investments"
+     "s": "▾ Investments"
     },
     {
      "k": "t",
@@ -1075,7 +1075,7 @@
     },
     {
      "k": "t",
-     "s": "💵 Cash"
+     "s": "Cash"
     },
     {
      "k": "t",
@@ -1615,7 +1615,7 @@
     },
     {
      "k": "t",
-     "s": "▾ 💵 Cash"
+     "s": "▾ Cash"
     },
     {
      "k": "t",
@@ -1651,7 +1651,7 @@
     },
     {
      "k": "t",
-     "s": "▾ 📈 Investments"
+     "s": "▾ Investments"
     },
     {
      "k": "t",
@@ -2535,7 +2535,7 @@
     },
     {
      "k": "t",
-     "s": "▾ 📈 Investments"
+     "s": "▾ Investments"
     },
     {
      "k": "t",
@@ -2595,7 +2595,7 @@
     },
     {
      "k": "t",
-     "s": "💵 Cash"
+     "s": "Cash"
     },
     {
      "k": "t",
@@ -2922,18 +2922,6 @@
      "s": "Add your accounts ›"
     },
     {
-     "k": "t",
-     "s": "YOUR RETIREMENT PLAN"
-    },
-    {
-     "k": "t",
-     "s": "Sample: 84% odds of lasting to age 90"
-    },
-    {
-     "k": "t",
-     "s": "a sample, not your number — 3 answers make it yours"
-    },
-    {
      "k": "a",
      "s": "Group what you own by category, selected"
     },
@@ -2959,7 +2947,7 @@
     },
     {
      "k": "t",
-     "s": "💵 CASH"
+     "s": "CASH"
     },
     {
      "k": "t",
@@ -2967,7 +2955,7 @@
     },
     {
      "k": "t",
-     "s": "📈 INVESTMENTS"
+     "s": "INVESTMENTS"
     },
     {
      "k": "t",
@@ -2975,7 +2963,7 @@
     },
     {
      "k": "t",
-     "s": "🏠 PERSONAL PROPERTY"
+     "s": "PERSONAL PROPERTY"
     },
     {
      "k": "t",
@@ -2991,11 +2979,11 @@
     },
     {
      "k": "a",
-     "s": "Link it (read-only)"
+     "s": "Connect your bank"
     },
     {
      "k": "t",
-     "s": "Link it (read-only)"
+     "s": "Connect your bank"
     },
     {
      "k": "t",
@@ -3132,18 +3120,6 @@
      "s": "Add your accounts ›"
     },
     {
-     "k": "t",
-     "s": "YOUR RETIREMENT PLAN"
-    },
-    {
-     "k": "t",
-     "s": "Sample: 84% odds of lasting to age 90"
-    },
-    {
-     "k": "t",
-     "s": "a sample, not your number — 3 answers make it yours"
-    },
-    {
      "k": "a",
      "s": "Group what you own by category"
     },
@@ -3181,11 +3157,11 @@
     },
     {
      "k": "a",
-     "s": "Link it (read-only)"
+     "s": "Connect your bank"
     },
     {
      "k": "t",
-     "s": "Link it (read-only)"
+     "s": "Connect your bank"
     },
     {
      "k": "t",
@@ -3298,11 +3274,11 @@
     },
     {
      "k": "a",
-     "s": "Show 1M, no data for that window yet"
+     "s": "Show 1 month, no data for that window yet"
     },
     {
      "k": "t",
-     "s": "1M"
+     "s": "1 month"
     },
     {
      "k": "t",
@@ -3322,11 +3298,11 @@
     },
     {
      "k": "a",
-     "s": "Show 1Y, no data for that window yet"
+     "s": "Show 1 year, no data for that window yet"
     },
     {
      "k": "t",
-     "s": "1Y"
+     "s": "1 year"
     },
     {
      "k": "t",
@@ -3334,11 +3310,11 @@
     },
     {
      "k": "a",
-     "s": "Show 2Y, no data for that window yet"
+     "s": "Show 2 years, no data for that window yet"
     },
     {
      "k": "t",
-     "s": "2Y"
+     "s": "2 years"
     },
     {
      "k": "t",
@@ -3538,7 +3514,7 @@
     },
     {
      "k": "t",
-     "s": "Every line fills in as days pass — the structure never changes."
+     "s": "These lines fill in as days pass."
     },
     {
      "k": "a",
@@ -3678,7 +3654,7 @@
     },
     {
      "k": "t",
-     "s": "Every line fills in as days pass — the structure never changes."
+     "s": "These lines fill in as days pass."
     },
     {
      "k": "a",
@@ -3818,7 +3794,7 @@
     },
     {
      "k": "t",
-     "s": "Every line fills in as days pass — the structure never changes."
+     "s": "These lines fill in as days pass."
     },
     {
      "k": "t",
@@ -3948,11 +3924,11 @@
     },
     {
      "k": "a",
-     "s": "Show 1M, no data for that window yet"
+     "s": "Show 1 month, no data for that window yet"
     },
     {
      "k": "t",
-     "s": "1M"
+     "s": "1 month"
     },
     {
      "k": "t",
@@ -3972,11 +3948,11 @@
     },
     {
      "k": "a",
-     "s": "Show 1Y, no data for that window yet"
+     "s": "Show 1 year, no data for that window yet"
     },
     {
      "k": "t",
-     "s": "1Y"
+     "s": "1 year"
     },
     {
      "k": "t",
@@ -3984,11 +3960,11 @@
     },
     {
      "k": "a",
-     "s": "Show 2Y, no data for that window yet"
+     "s": "Show 2 years, no data for that window yet"
     },
     {
      "k": "t",
-     "s": "2Y"
+     "s": "2 years"
     },
     {
      "k": "t",
@@ -4220,7 +4196,7 @@
     },
     {
      "k": "t",
-     "s": "Every line fills in as days pass — the structure never changes."
+     "s": "These lines fill in as days pass."
     },
     {
      "k": "a",
@@ -4360,7 +4336,7 @@
     },
     {
      "k": "t",
-     "s": "Every line fills in as days pass — the structure never changes."
+     "s": "These lines fill in as days pass."
     },
     {
      "k": "a",
@@ -4500,7 +4476,7 @@
     },
     {
      "k": "t",
-     "s": "Every line fills in as days pass — the structure never changes."
+     "s": "These lines fill in as days pass."
     },
     {
      "k": "a",
@@ -4640,7 +4616,7 @@
     },
     {
      "k": "t",
-     "s": "Every line fills in as days pass — the structure never changes."
+     "s": "These lines fill in as days pass."
     },
     {
      "k": "t",
@@ -4758,11 +4734,11 @@
     },
     {
      "k": "a",
-     "s": "Show 1M, no data for that window yet"
+     "s": "Show 1 month, no data for that window yet"
     },
     {
      "k": "t",
-     "s": "1M"
+     "s": "1 month"
     },
     {
      "k": "t",
@@ -4782,11 +4758,11 @@
     },
     {
      "k": "a",
-     "s": "Show 1Y, no data for that window yet"
+     "s": "Show 1 year, no data for that window yet"
     },
     {
      "k": "t",
-     "s": "1Y"
+     "s": "1 year"
     },
     {
      "k": "t",
@@ -4794,11 +4770,11 @@
     },
     {
      "k": "a",
-     "s": "Show 2Y, no data for that window yet"
+     "s": "Show 2 years, no data for that window yet"
     },
     {
      "k": "t",
-     "s": "2Y"
+     "s": "2 years"
     },
     {
      "k": "t",
@@ -4998,7 +4974,7 @@
     },
     {
      "k": "t",
-     "s": "Every line fills in as days pass — the structure never changes."
+     "s": "These lines fill in as days pass."
     },
     {
      "k": "a",
@@ -5138,7 +5114,7 @@
     },
     {
      "k": "t",
-     "s": "Every line fills in as days pass — the structure never changes."
+     "s": "These lines fill in as days pass."
     },
     {
      "k": "t",
@@ -5256,11 +5232,11 @@
     },
     {
      "k": "a",
-     "s": "Show 1M, no data for that window yet"
+     "s": "Show 1 month, no data for that window yet"
     },
     {
      "k": "t",
-     "s": "1M"
+     "s": "1 month"
     },
     {
      "k": "t",
@@ -5280,11 +5256,11 @@
     },
     {
      "k": "a",
-     "s": "Show 1Y, no data for that window yet"
+     "s": "Show 1 year, no data for that window yet"
     },
     {
      "k": "t",
-     "s": "1Y"
+     "s": "1 year"
     },
     {
      "k": "t",
@@ -5292,11 +5268,11 @@
     },
     {
      "k": "a",
-     "s": "Show 2Y, no data for that window yet"
+     "s": "Show 2 years, no data for that window yet"
     },
     {
      "k": "t",
-     "s": "2Y"
+     "s": "2 years"
     },
     {
      "k": "t",
@@ -5496,7 +5472,7 @@
     },
     {
      "k": "t",
-     "s": "Every line fills in as days pass — the structure never changes."
+     "s": "These lines fill in as days pass."
     },
     {
      "k": "t",
@@ -19522,11 +19498,11 @@
     },
     {
      "k": "a",
-     "s": "Show 1M, no data for that window yet"
+     "s": "Show 1 month, no data for that window yet"
     },
     {
      "k": "t",
-     "s": "1M"
+     "s": "1 month"
     },
     {
      "k": "t",
@@ -19546,11 +19522,11 @@
     },
     {
      "k": "a",
-     "s": "Show 1Y, no data for that window yet"
+     "s": "Show 1 year, no data for that window yet"
     },
     {
      "k": "t",
-     "s": "1Y"
+     "s": "1 year"
     },
     {
      "k": "t",
@@ -19558,11 +19534,11 @@
     },
     {
      "k": "a",
-     "s": "Show 2Y, no data for that window yet"
+     "s": "Show 2 years, no data for that window yet"
     },
     {
      "k": "t",
-     "s": "2Y"
+     "s": "2 years"
     },
     {
      "k": "t",
@@ -19714,7 +19690,7 @@
     },
     {
      "k": "t",
-     "s": "Every line fills in as days pass — the structure never changes."
+     "s": "These lines fill in as days pass."
     },
     {
      "k": "a",
@@ -19880,11 +19856,11 @@
     },
     {
      "k": "a",
-     "s": "Show 1M, no data for that window yet"
+     "s": "Show 1 month, no data for that window yet"
     },
     {
      "k": "t",
-     "s": "1M"
+     "s": "1 month"
     },
     {
      "k": "t",
@@ -19904,11 +19880,11 @@
     },
     {
      "k": "a",
-     "s": "Show 1Y, no data for that window yet"
+     "s": "Show 1 year, no data for that window yet"
     },
     {
      "k": "t",
-     "s": "1Y"
+     "s": "1 year"
     },
     {
      "k": "t",
@@ -19916,11 +19892,11 @@
     },
     {
      "k": "a",
-     "s": "Show 2Y, no data for that window yet"
+     "s": "Show 2 years, no data for that window yet"
     },
     {
      "k": "t",
-     "s": "2Y"
+     "s": "2 years"
     },
     {
      "k": "t",
@@ -20072,7 +20048,7 @@
     },
     {
      "k": "t",
-     "s": "Every line fills in as days pass — the structure never changes."
+     "s": "These lines fill in as days pass."
     },
     {
      "k": "t",
@@ -20350,11 +20326,11 @@
     },
     {
      "k": "a",
-     "s": "Show 1M, no data for that window yet"
+     "s": "Show 1 month, no data for that window yet"
     },
     {
      "k": "t",
-     "s": "1M"
+     "s": "1 month"
     },
     {
      "k": "t",
@@ -20374,11 +20350,11 @@
     },
     {
      "k": "a",
-     "s": "Show 1Y, no data for that window yet"
+     "s": "Show 1 year, no data for that window yet"
     },
     {
      "k": "t",
-     "s": "1Y"
+     "s": "1 year"
     },
     {
      "k": "t",
@@ -20386,11 +20362,11 @@
     },
     {
      "k": "a",
-     "s": "Show 2Y, no data for that window yet"
+     "s": "Show 2 years, no data for that window yet"
     },
     {
      "k": "t",
-     "s": "2Y"
+     "s": "2 years"
     },
     {
      "k": "t",
@@ -20542,7 +20518,7 @@
     },
     {
      "k": "t",
-     "s": "Every line fills in as days pass — the structure never changes."
+     "s": "These lines fill in as days pass."
     },
     {
      "k": "t",
@@ -20820,11 +20796,11 @@
     },
     {
      "k": "a",
-     "s": "Show 1M, no data for that window yet"
+     "s": "Show 1 month, no data for that window yet"
     },
     {
      "k": "t",
-     "s": "1M"
+     "s": "1 month"
     },
     {
      "k": "t",
@@ -20844,11 +20820,11 @@
     },
     {
      "k": "a",
-     "s": "Show 1Y, no data for that window yet"
+     "s": "Show 1 year, no data for that window yet"
     },
     {
      "k": "t",
-     "s": "1Y"
+     "s": "1 year"
     },
     {
      "k": "t",
@@ -20856,11 +20832,11 @@
     },
     {
      "k": "a",
-     "s": "Show 2Y, no data for that window yet"
+     "s": "Show 2 years, no data for that window yet"
     },
     {
      "k": "t",
-     "s": "2Y"
+     "s": "2 years"
     },
     {
      "k": "t",
@@ -21012,7 +20988,7 @@
     },
     {
      "k": "t",
-     "s": "Every line fills in as days pass — the structure never changes."
+     "s": "These lines fill in as days pass."
     },
     {
      "k": "t",
@@ -21150,11 +21126,11 @@
     },
     {
      "k": "a",
-     "s": "Show 1M, no data for that window yet"
+     "s": "Show 1 month, no data for that window yet"
     },
     {
      "k": "t",
-     "s": "1M"
+     "s": "1 month"
     },
     {
      "k": "t",
@@ -21174,11 +21150,11 @@
     },
     {
      "k": "a",
-     "s": "Show 1Y, no data for that window yet"
+     "s": "Show 1 year, no data for that window yet"
     },
     {
      "k": "t",
-     "s": "1Y"
+     "s": "1 year"
     },
     {
      "k": "t",
@@ -21186,11 +21162,11 @@
     },
     {
      "k": "a",
-     "s": "Show 2Y, no data for that window yet"
+     "s": "Show 2 years, no data for that window yet"
     },
     {
      "k": "t",
-     "s": "2Y"
+     "s": "2 years"
     },
     {
      "k": "t",
@@ -21342,7 +21318,7 @@
     },
     {
      "k": "t",
-     "s": "Every line fills in as days pass — the structure never changes."
+     "s": "These lines fill in as days pass."
     },
     {
      "k": "a",
@@ -21508,11 +21484,11 @@
     },
     {
      "k": "a",
-     "s": "Show 1M, no data for that window yet"
+     "s": "Show 1 month, no data for that window yet"
     },
     {
      "k": "t",
-     "s": "1M"
+     "s": "1 month"
     },
     {
      "k": "t",
@@ -21532,11 +21508,11 @@
     },
     {
      "k": "a",
-     "s": "Show 1Y, no data for that window yet"
+     "s": "Show 1 year, no data for that window yet"
     },
     {
      "k": "t",
-     "s": "1Y"
+     "s": "1 year"
     },
     {
      "k": "t",
@@ -21544,11 +21520,11 @@
     },
     {
      "k": "a",
-     "s": "Show 2Y, no data for that window yet"
+     "s": "Show 2 years, no data for that window yet"
     },
     {
      "k": "t",
-     "s": "2Y"
+     "s": "2 years"
     },
     {
      "k": "t",
@@ -21700,7 +21676,7 @@
     },
     {
      "k": "t",
-     "s": "Every line fills in as days pass — the structure never changes."
+     "s": "These lines fill in as days pass."
     },
     {
      "k": "t",
@@ -22018,11 +21994,11 @@
     },
     {
      "k": "a",
-     "s": "Show 1M, no data for that window yet"
+     "s": "Show 1 month, no data for that window yet"
     },
     {
      "k": "t",
-     "s": "1M"
+     "s": "1 month"
     },
     {
      "k": "t",
@@ -22042,11 +22018,11 @@
     },
     {
      "k": "a",
-     "s": "Show 1Y, no data for that window yet"
+     "s": "Show 1 year, no data for that window yet"
     },
     {
      "k": "t",
-     "s": "1Y"
+     "s": "1 year"
     },
     {
      "k": "t",
@@ -22054,11 +22030,11 @@
     },
     {
      "k": "a",
-     "s": "Show 2Y, no data for that window yet"
+     "s": "Show 2 years, no data for that window yet"
     },
     {
      "k": "t",
-     "s": "2Y"
+     "s": "2 years"
     },
     {
      "k": "t",
@@ -22210,7 +22186,7 @@
     },
     {
      "k": "t",
-     "s": "Every line fills in as days pass — the structure never changes."
+     "s": "These lines fill in as days pass."
     },
     {
      "k": "a",
@@ -23851,7 +23827,7 @@
     },
     {
      "k": "t",
-     "s": "COUPON /year"
+     "s": "INTEREST A YEAR"
     },
     {
      "k": "t",
@@ -23859,7 +23835,7 @@
     },
     {
      "k": "t",
-     "s": "AVG YIELD"
+     "s": "AVERAGE YIELD"
     },
     {
      "k": "t",

@@ -213,7 +213,7 @@ and each worked-back holding with a history. Example: Fidelity recorded at $100,
 today (+12.00%), and Vanguard linked today, VTI $40,000 at +10% → summary $136,364 became $152,000, Wealth
 generated $15,636, Return 152,000 ÷ 136,363.64 − 1 = +11.47%. On the Performance tab's day one, where a
 longer window is worked back, the line reads, in his words (DEC-5425, 2026-10-14, "approved."): "You added
-your accounts today. Figures for 1M, 1Y and longer come from each holding's past prices."; with no holding
+your accounts today. Figures for 1 month, 1 year and longer come from each holding's past prices."; with no holding
 history it keeps v17's words.
 
 A record that begins INSIDE the window — joined at its first day (his approval DEC-6412, 2026-10-19, his word

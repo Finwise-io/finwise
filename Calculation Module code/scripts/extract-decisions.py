@@ -162,7 +162,7 @@ def sweep_changelog():
             # rows were backfilled from the log, each saying "recorded in the decision log as DEC-nnnn".
             # Minting those again would have doubled 52 decisions. The row's file is added to that
             # decision's sources instead — the evidence of reaching a second file the confidence plan asks for.
-            named = re.search(r'recorded in the decision log as (DEC-\d{4}[a-z]?)', who)
+            named = re.search(r'recorded in the decision log as (DEC-\d{4,}[a-z]?)', who)
             if named:
                 target = next((x for x in doc['rows'] if x.get('id') == named.group(1)), None)
                 if target is None:
@@ -379,7 +379,7 @@ MARKS_A_DECISION = re.compile(r'founder|he ruled|his ruling|standing order|appro
 # match, so its CLOSING mark was read as the next quote's OPENING mark and the sweep recorded the prose
 # between two quotes as his words (DEC-0784, DEC-0785 — both deleted). Short quotes are dropped below.
 QUOTE_IN_PROSE = re.compile('[\u201c"]([^\u201d"]{0,400})[\u201d"]')
-CITES_A_DECISION = re.compile(r'DEC-\d{4}')
+CITES_A_DECISION = re.compile(r'DEC-\d{4,}')
 
 def _strip_tags(t):
     t = re.sub(r'<script.*?</script>|<style.*?</style>', ' ', t, flags=re.S | re.I)

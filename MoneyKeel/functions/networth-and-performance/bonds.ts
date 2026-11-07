@@ -658,7 +658,7 @@ export const BOND_FIGURES = declareFigures({
     },
   },
   'MK-NW-M-043': {
-    label: 'COUPON', unit: 'money', per: 'year', screens: ['/bonds'],
+    label: 'Interest a year', unit: 'money', per: 'year', screens: ['/bonds'],
     answers: 'The interest all your bonds pay in a year, in money.',
     // a bond past its maturity date pays no more interest (outside review OpenAI final, 2026-10-09, DEC-2748d)
     formula: 'for each bond: face value × coupon rate (a CD bought from the bank or a bond fund with no face value: its value × coupon rate; a bond with a maturity date and no face value: nothing, and the average yield names it), and $0 once past its maturity date; then added up',
@@ -672,7 +672,7 @@ export const BOND_FIGURES = declareFigures({
     },
   },
   'MK-NW-M-044': {
-    label: 'AVG YIELD', unit: 'percent-2dp', screens: ['/bonds'],
+    label: 'Average yield', unit: 'percent-2dp', screens: ['/bonds'],
     answers: 'What your bonds yield on what they are worth today, weighted by value.',
     formula: 'the coupon each pays ÷ what each is worth today, weighted by value',
     inputs: ['MK-NW-I-001 your accounts'],

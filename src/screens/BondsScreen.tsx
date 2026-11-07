@@ -86,14 +86,14 @@ export default function BondsScreen() {
               return <>{n} · {face}</>;
             })()}</Text>
             <View style={styles.sumRow}>
-              <View style={styles.sumCell}><Text style={styles.sumCellL}>COUPON /year</Text><Text style={[styles.sumCellV, { color: Colors.primary }]}>{
+              <View style={styles.sumCell}><Text style={styles.sumCellL}>INTEREST A YEAR</Text><Text style={[styles.sumCellV, { color: Colors.primary }]}>{
                 // NO BOND WITH A KNOWN YEAR'S INTEREST: "not entered", never $0 (tenet 3, DEC-3523; MK-NW-M-056 "Neither is shown as $0"),
                 // as the face total reads "face value not entered" when no bond has one (Bonds v02 row of 2026-10-07). A matured bond's
                 // $0 is a known $0 and stays.
                 summary.leftOutNoRate.length + summary.leftOutNoFace.length === summary.count
                   ? figWords('MK-NW-M-043', 'not entered')
                   : fig('MK-NW-M-043', summary.couponPerYear)}</Text></View>
-              <View style={styles.sumCell}><Text style={styles.sumCellL}>AVG YIELD</Text><Text style={styles.sumCellV}>{summary.avgYield == null ? '—' : fig('MK-NW-M-044', summary.avgYield)}</Text></View>
+              <View style={styles.sumCell}><Text style={styles.sumCellL}>AVERAGE YIELD</Text><Text style={styles.sumCellV}>{summary.avgYield == null ? '—' : fig('MK-NW-M-044', summary.avgYield)}</Text></View>
               <View style={styles.sumCell}><Text style={styles.sumCellL}>NEXT MATURITY</Text><Text style={styles.sumCellV}>{summary.nextMaturity ? new Date(summary.nextMaturity).getFullYear() : '—'}</Text></View>
             </View>
             {/* a bond the average leaves out is named, with WHY (outside review, 2026-10-04; by the one value rule, DEC-0281,

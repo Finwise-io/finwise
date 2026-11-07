@@ -25,17 +25,18 @@ describe('NetWorthScreen first-run intro', () => {
     expect(screen.getByText(/Own .* − Owe /)).toBeOnTheScreen();
     expect(screen.getByText('WHAT YOU OWN')).toBeOnTheScreen();
     expect(screen.getByText('DEBTS')).toBeOnTheScreen();
-    expect(screen.getByText('💵 CASH')).toBeOnTheScreen();
-    expect(screen.getByText('📈 INVESTMENTS')).toBeOnTheScreen();
-    expect(screen.getByText('🏠 PERSONAL PROPERTY')).toBeOnTheScreen();
+    expect(screen.getByText('CASH')).toBeOnTheScreen();
+    expect(screen.getByText('INVESTMENTS')).toBeOnTheScreen();
+    expect(screen.getByText('PERSONAL PROPERTY')).toBeOnTheScreen();
     // FOUNDER RULE 2026-08-11: ONE wording everywhere — Home, Net worth and Plan all say it this way
-    expect(screen.getByText('Sample: 84% odds of lasting to age 90')).toBeOnTheScreen();
-    expect(screen.getByText(/a sample, not your number/)).toBeOnTheScreen();
+    // his ruling 'all', 2026-11-06: Net worth with no accounts no longer shows the sample card (Home and Plan keep it)
+    expect(screen.queryByText('Sample: 84% odds of lasting to age 90')).toBeNull();
+    expect(screen.queryByText(/a sample, not your number/)).toBeNull();
     expect(screen.getByText('EMERGENCY FUND')).toBeOnTheScreen();
     expect(screen.getByText('— months')).toBeOnTheScreen();
     // the three ways in are ledger rows now — the label and its arrow are separate cells, so the
     // arrow can sit in the SAME trailing column every other row uses
-    expect(screen.getByText('Link it (read-only)')).toBeOnTheScreen();   // Net worth v08 (2026-09-14)
+    expect(screen.getByText('Connect your bank')).toBeOnTheScreen();   // Net worth v08 (2026-09-14)
     expect(screen.getByText('Import from a file')).toBeOnTheScreen();
 
     fireEvent.press(screen.getByText('Add by hand'));
@@ -189,7 +190,7 @@ test('#13: import is reachable from Net Worth via the add-or-connect chooser', (
   ], liabilities: [] } as any);
   render(<NetWorthScreen />);
   fireEvent.press(screen.getByLabelText('Add an account'));
-  expect(screen.getByLabelText(/^Link it \(read-only\)\./)).toBeOnTheScreen();   // a real door into the link flow
+  expect(screen.getByLabelText(/^Connect your bank\./)).toBeOnTheScreen();   // a real door into the link flow (his ruling 'all', 2026-11-06)
   fireEvent.press(screen.getByLabelText(/^Import from a file\./));
   expect(router.push).toHaveBeenCalledWith('/import-holdings');
 });
@@ -264,8 +265,8 @@ describe('walk row 8: the grouping pills (v7 FINAL)', () => {
     render(<NetWorthScreen />);
     fireEvent.press(screen.getByText('By institution'));
     fireEvent.press(screen.getByText('By category'));
-    expect(screen.getByText(/▾ 💵 Cash/)).toBeOnTheScreen();          // uber-group bars are back
-    expect(screen.getByText(/▾ 📈 Investments/)).toBeOnTheScreen();
+    expect(screen.getByText(/▾ Cash/)).toBeOnTheScreen();          // uber-group bars are back
+    expect(screen.getByText(/▾ Investments/)).toBeOnTheScreen();
   });
 });
 
@@ -321,9 +322,9 @@ test('WHAT YOU OWN shows the three uber-groups with their totals, classes inside
     liabilities: [],
   } as any);
   render(<NetWorthScreen />);
-  expect(screen.getByText(/▾ 💵 Cash/)).toBeOnTheScreen();
-  expect(screen.getByText(/▾ 📈 Investments/)).toBeOnTheScreen();
-  expect(screen.getByText(/▾ 🏠 Personal property/)).toBeOnTheScreen();
+  expect(screen.getByText(/▾ Cash/)).toBeOnTheScreen();
+  expect(screen.getByText(/▾ Investments/)).toBeOnTheScreen();
+  expect(screen.getByText(/▾ Personal property/)).toBeOnTheScreen();
   // group totals ride their bars — Investments equals the invested total by definition
   expect(screen.getAllByText('$348,495').length).toBeGreaterThan(0);
   expect(screen.getByText(/WHAT YOU OWN/)).toBeOnTheScreen();

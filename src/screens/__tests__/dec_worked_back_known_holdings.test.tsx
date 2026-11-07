@@ -71,10 +71,10 @@ describe('the account page, past year (DEC-5068, 2026-10-13)', () => {
     seed([SCHWAB], { transactions: [{ id: 'b1', account_id: 'sch', type: 'BUY', ticker: 'VTI', shares: 160, price: 200, amount: 32000, date: daysAgo(700) }] });
     render(<AccountPortfolioScreen />);
     // the account page prints the Performance tab's own control since DEC-6079 (2026-10-19): its labels say Show …
-    const oneYear = screen.getAllByRole('button').find((b) => /^Show 1Y, /.test(b.props.accessibilityLabel ?? ''));
+    const oneYear = screen.getAllByRole('button').find((b) => /^Show 1 year, /.test(b.props.accessibilityLabel ?? ''));
     expect(oneYear).toBeTruthy();
     // the chip itself carries the return: +10.00% (it read "no figure" before DEC-5068)
-    expect(oneYear!.props.accessibilityLabel).toBe('Show 1Y, +10.00%');
+    expect(oneYear!.props.accessibilityLabel).toBe('Show 1 year, +10.00%');
     fireEvent.press(oneYear!);
 
     // THE SUMMARY TRIO
@@ -147,9 +147,9 @@ describe('the Performance tab, all accounts together, worked back (DEC-5068 — 
     seed([SCHWAB]);
     render(<PerformanceScreen />);
     // the past-year window is worked back, so it is not greyed: it carries the return and can be picked
-    const oneYear = screen.getAllByRole('button').find((b) => /^Show 1Y, /.test(b.props.accessibilityLabel ?? ''));
+    const oneYear = screen.getAllByRole('button').find((b) => /^Show 1 year, /.test(b.props.accessibilityLabel ?? ''));
     expect(oneYear).toBeTruthy();
-    expect(oneYear!.props.accessibilityLabel).toBe('Show 1Y, +10.00%');
+    expect(oneYear!.props.accessibilityLabel).toBe('Show 1 year, +10.00%');
     expect(oneYear!.props.accessibilityState?.disabled).toBe(false);
     fireEvent.press(oneYear!);
 
@@ -188,8 +188,8 @@ describe('the Performance tab, all accounts together, worked back (DEC-5068 — 
     screen.unmount();
     // the same store on Performance: the month window carries the same +10.00%, and can be picked
     render(<PerformanceScreen />);
-    const oneMonth = screen.getAllByRole('button').find((b) => /^Show 1M, /.test(b.props.accessibilityLabel ?? ''));
-    expect(oneMonth!.props.accessibilityLabel).toBe('Show 1M, +10.00%');
+    const oneMonth = screen.getAllByRole('button').find((b) => /^Show 1 month, /.test(b.props.accessibilityLabel ?? ''));
+    expect(oneMonth!.props.accessibilityLabel).toBe('Show 1 month, +10.00%');
     expect(oneMonth!.props.accessibilityState?.disabled).toBe(false);
   });
 });

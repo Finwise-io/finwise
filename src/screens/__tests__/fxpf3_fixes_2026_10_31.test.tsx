@@ -49,7 +49,7 @@ const sold = () => {
   useStore.getState().recordTransaction({ date: '2026-09-30', type: 'SELL', account_id: 'van', ticker: 'VTI', shares: 10, price: 120, fee: 5, fee_in_price: false } as any);
 };
 describe('NW3-02 · R11: a typed total that sold inside the window — its Return is its walk\'s own change', () => {
-  test.each([['1M', '$48,800', '$1,195', '+2.45%', 49_995 / 48_800 - 1]] as [string, string, string, string, number][])(
+  test.each([['1 month', '$48,800', '$1,195', '+2.45%', 49_995 / 48_800 - 1]] as [string, string, string, string, number][])(
     'the account page on %s: walk %s → $49,995, wealth generated %s, Return %s, and the Total row the same', (w, begin, gained, ret, exact) => {
       sold();
       expect(Math.abs(exact * 100 - parseFloat(ret)) < 0.005).toBe(true);           // the printed figure is the hand-worked one
@@ -69,7 +69,7 @@ describe('NW3-02 · R11: a typed total that sold inside the window — its Retur
     sold();
     mockParams = { id: 'van' };
     render(<>{React.createElement(require('../AccountPortfolioScreen').default)}</>);
-    pick('1Y');
+    pick('1 year');
     const l = builtLines(screen.toJSON());
     expect(after(l, 'Return', l.findIndex((x) => x.startsWith('THIS ACCOUNT ·')))).toBe('—');
     expect(l.some((x) => /^VTI \(\$9,000\) has no price near the window’s start: its last close before it is Aug 1, 2024, so its gains are not included\.$/.test(x))).toBe(true);
@@ -78,14 +78,14 @@ describe('NW3-02 · R11: a typed total that sold inside the window — its Retur
     sold();
     mockParams = { id: 'van' };
     render(<>{React.createElement(require('../AccountPortfolioScreen').default)}</>);
-    pick('1Y');
+    pick('1 year');
     const l = builtLines(screen.toJSON());
     expect(after(l, 'Return', l.findIndex((x) => x.startsWith('THIS ACCOUNT ·')))).toBe('+6.83%');
   });
   test('the Performance tab, this one account, agrees on 1M: +2.45% on the summary and on its card', () => {
     sold();
     render(React.createElement(require('../PerformanceScreen').default));
-    pick('1M');
+    pick('1 month');
     const l = builtLines(screen.toJSON());
     const sum = l.findIndex((x) => x.startsWith('SUMMARY ·'));
     expect(after(l, 'Return', sum)).toBe('+2.45%');
@@ -95,7 +95,7 @@ describe('NW3-02 · R11: a typed total that sold inside the window — its Retur
     sold();
     mockParams = { id: 'van' };
     render(React.createElement(require('../AccountPortfolioScreen').default));
-    pick('1M');
+    pick('1 month');
     const l = builtLines(screen.toJSON());
     expect(after(l, 'Return', l.findIndex((x) => x.startsWith('THIS ACCOUNT ·')))).toBe('+13.28%');
   });
@@ -109,7 +109,7 @@ describe('NW3-02 · R11: a typed total that sold inside the window — its Retur
     useStore.getState().recordTransaction({ date: '2026-09-30', type: 'SELL', account_id: 'van', ticker: 'VTI', shares: 10, price: 120, fee: 5, fee_in_price: false } as any);
     mockParams = { id: 'van' };
     render(React.createElement(require('../AccountPortfolioScreen').default));
-    pick('1M');
+    pick('1 month');
     const l = builtLines(screen.toJSON());
     expect(l).toContain('HOW $48,800 BECAME $50,995 · THIS ACCOUNT');
     expect(after(l, 'Return', l.findIndex((x) => x.startsWith('THIS ACCOUNT ·')))).toBe(`+${((50_995 / 49_800 - 1) * 100).toFixed(2)}%`);
@@ -119,7 +119,7 @@ describe('NW3-02 · R11: a typed total that sold inside the window — its Retur
     useStore.getState().recordTransaction({ date: '2026-09-30', type: 'SELL', account_id: 'van', ticker: 'VTI', shares: 10, price: 120, fee: 5, fee_in_price: false } as any);
     mockParams = { id: 'van' };
     render(React.createElement(require('../AccountPortfolioScreen').default));
-    pick('1M');
+    pick('1 month');
     const l = builtLines(screen.toJSON());
     expect(after(l, 'Return', l.findIndex((x) => x.startsWith('THIS ACCOUNT ·')))).toBe('—');
     expect(l).toContain('Money moved in or out on Sep 15, 2026 and no value was recorded that day, so a return cannot be measured across it. The dollar figures here are still right.');
@@ -184,7 +184,7 @@ describe('PF3-2 · PF3-3 · the account bar\'s arrow, and All categories flush (
   test('one typed account on 1M: its bar\'s "›" at 13 and 800; "All categories" with no indent', () => {
     sold();
     render(React.createElement(require('../PerformanceScreen').default));
-    pick('1M');
+    pick('1 month');
     // the arrow itself (its 'Open …' name moved to the touchable around it with NW4-04's Tap.slop, 2026-11-01)
     const arrows = screen.UNSAFE_root.findAll((n: any) => n.type === 'Text' && n.props?.children === '›');
     expect(arrows.length).toBeGreaterThanOrEqual(1);                                       // the guard looked: the account bar's arrow

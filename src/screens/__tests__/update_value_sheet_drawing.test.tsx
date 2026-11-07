@@ -35,6 +35,7 @@ import React from 'react';
 import { render, screen, fireEvent, act } from '@testing-library/react-native';
 import { StyleSheet } from 'react-native';
 import * as fs from 'fs';
+import { ruledHtml } from '../../testing/ruledSince';
 import * as path from 'path';
 import AccountPortfolioScreen from '../AccountPortfolioScreen';
 import { useStore } from '../../store/useStore';
@@ -106,7 +107,7 @@ afterAll(() => jest.useRealTimers());
 // READING THE DRAWING
 // ════════════════════════════════════════════════════════════════════════════════════════════════════════════════
 const DRAWING = path.join(__dirname, '..', '..', '..', 'MoneyKeel', 'documents', 'networth-and-performance', 'moneykeel_pres_mock_update-value-sheet_v03.html');
-const HTML = fs.readFileSync(DRAWING, 'utf8');
+const HTML = ruledHtml(DRAWING, fs.readFileSync(DRAWING, 'utf8'));   // his rulings of 2026-11-06 applied (src/testing/ruledSince.ts)
 /** One line a person reads: its words, whether it is on the sheet, and the size, weight and colour it is drawn in. */
 type Line = { t: string; sheet: boolean; size?: number; weight?: string; color?: string; opacity?: number; row?: number };
 const decode = (s: string) => s.replace(/&nbsp;/g, ' ').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&amp;/g, '&');

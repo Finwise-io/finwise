@@ -2,7 +2,7 @@
 //   MK-NW-M-024: an account's BOND FACTS vanished whole when no coupon rate was entered, taking face value
 //   and maturity with it. DEC-2748b + DEC-2748c: the card stands; the rate reads "not entered"; a year's
 //   interest reads $0 in the Bonds screen's words, "coupon rate not entered".
-//   DEC-2748d: a bond past its maturity date pays no more interest — the Bonds screen's COUPON /year leaves it out.
+//   DEC-2748d: a bond past its maturity date pays no more interest — the Bonds screen's INTEREST A YEAR leaves it out.
 import React from 'react';
 import { render, screen } from '@testing-library/react-native';
 import BondsScreen from '../BondsScreen';
@@ -53,13 +53,13 @@ test('M-024 · with a rate, the Interest payments line is unchanged', () => {
   expect(screen.getByText('5.00%/year · $500/year')).toBeOnTheScreen();
 });
 
-test('DEC-2748d · the Bonds screen COUPON /year leaves out a bond that matured yesterday: $580 → $80', () => {
+test('DEC-2748d · the Bonds screen INTEREST A YEAR leaves out a bond that matured yesterday: $580 → $80', () => {
   seed([{ asset_id: 'x', label: 'Matured note', kind: 'fixed_income', asset_class: 'bonds', tax_bucket: 'TAXABLE',
     balance: 10000, face_value: 10000, coupon_rate: 0.05, maturity_date: dayFromToday(-1) },
   { asset_id: 'y', label: 'Live note', kind: 'fixed_income', asset_class: 'bonds', tax_bucket: 'TAXABLE',
     balance: 2000, face_value: 2000, coupon_rate: 0.04, maturity_date: dayFromToday(800) }]);
   render(<BondsScreen />);
-  expect(screen.getByText('COUPON /year')).toBeOnTheScreen();
+  expect(screen.getByText('INTEREST A YEAR')).toBeOnTheScreen();
   expect(screen.getByText('$80')).toBeOnTheScreen();
   expect(screen.queryByText('$580')).toBeNull();
 });

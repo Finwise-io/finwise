@@ -24,7 +24,9 @@ test('no screen types an add-account door or its question — every one comes fr
   const offences: string[] = [];
   for (const root of ROOTS) for (const f of walk(root)) {
     if (OWED[f]) continue;
-    const src = fs.readFileSync(f, 'utf8');
+    // Whole-line comments are not screen text: HomeScreen's note quoting the 2026-09-14 ruling ("Connect your
+    // bank") named the door after his ruling 'all' (2026-11-06) made those its words — it types nothing on screen.
+    const src = fs.readFileSync(f, 'utf8').split('\n').filter((l) => !/^\s*(\/\/|\/?\*)/.test(l)).join('\n');
     for (const w of words) {
       const esc = w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
       if (new RegExp(`['"\`>]\\s*(?:[^'"\`<]{0,4})${esc}`).test(src)) offences.push(`${f} types "${w}"`);

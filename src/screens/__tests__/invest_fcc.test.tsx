@@ -76,7 +76,7 @@ const withRecord = (back: number) => {
 describe('the window selector', () => {
   test('five windows, each carrying its own return — and no 3M, 6M or "YTD"', () => {
     render(<PerformanceScreen />);
-    for (const w of ['1M', 'This year', '1Y', '2Y']) expect(screen.getAllByText(w).length).toBeGreaterThan(0);
+    for (const w of ['1 month', 'This year', '1 year', '2 years']) expect(screen.getAllByText(w).length).toBeGreaterThan(0);   // in words since 2026-11-06
     expect(screen.getAllByText(/^Since/).length).toBeGreaterThan(0);
     expect(screen.queryByText('3M')).toBeNull();
     expect(screen.queryByText('6M')).toBeNull();
@@ -85,8 +85,8 @@ describe('the window selector', () => {
 
   test('a window with nothing behind it says so aloud, and shows an em-dash rather than +0.00%', () => {
     render(<PerformanceScreen />);
-    expect(screen.getByLabelText(/Show 1Y, (no data for that window yet|[−+]?\d)/)).toBeOnTheScreen();
-    expect(screen.getByLabelText(/Show 2Y/)).toBeOnTheScreen();
+    expect(screen.getByLabelText(/Show 1 year, (no data for that window yet|[−+]?\d)/)).toBeOnTheScreen();
+    expect(screen.getByLabelText(/Show 2 years/)).toBeOnTheScreen();
   });
 
   test('picking a window moves the whole screen to it', () => {
@@ -111,16 +111,16 @@ describe('the window selector', () => {
     } as any);
     (useStore.getState() as any).rebuildLinkedHistory();
     render(<PerformanceScreen />);
-    fireEvent.press(screen.getAllByText('2Y')[0]);
+    fireEvent.press(screen.getAllByText('2 years')[0]);
     // the segment says which kind of figure it is, and the summary states both
-    expect(screen.getByText('2Y is shown per year, so it sits fairly beside 1Y')).toBeOnTheScreen();   // v14 mark 15, under the control
+    expect(screen.getByText('The 2-year return is shown per year, so you can compare it with the 1-year return.')).toBeOnTheScreen();   // v14 mark 15, under the control
     // said for every account together and, since 2026-10-22 (DEC-0237 · DEC-0404), for each account too — so at least once
     expect(screen.getAllByText(/% over the two years, which is .*%\/year/).length).toBeGreaterThanOrEqual(1);
   });
 
   test('a window of a year or less is the window itself, with no yearly wording', () => {
     render(<PerformanceScreen />);
-    fireEvent.press(screen.getAllByText('1M')[0]);
+    fireEvent.press(screen.getAllByText('1 month')[0]);
     expect(screen.queryByText(/which is .*%\/year/)).toBeNull();
   });
 });

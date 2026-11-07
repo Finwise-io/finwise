@@ -730,7 +730,7 @@ def main():
             sys.exit(f"STOPPED: {h['id']} {h['name']} has no written description — an outside model cannot test it")
         sig = signature(h['lines'], h['decl_at'])
         serves = sorted(set(re.findall(r'MK-[A-Z]{2}-M-\d{3}', field(h['header'], 'Serves'))) | set(by_door.get(h['id'], [])))
-        ruled = sorted(set(re.findall(r'DEC-\d{4}', field(h['header'], 'Ruled by'))))
+        ruled = sorted(set(re.findall(r'DEC-\d{4,}', field(h['header'], 'Ruled by'))))
         reads = re.findall(r'(MK-[A-Z]{2}-I-\d{3}) ([^M]+?)(?= MK-[A-Z]{2}-I-|$)', field(h['header'], 'Reads'))
 
         rules = []

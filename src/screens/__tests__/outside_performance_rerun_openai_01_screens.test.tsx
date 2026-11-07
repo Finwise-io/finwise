@@ -114,6 +114,7 @@ function shoot(name: string, state: any, today: string, params: Record<string, s
     return shot;
   } finally { jest.useRealTimers(); }
 }
+// the Performance tab's window buttons read in words since 2026-11-06 ('1 month', 'This year', '1 year', '2 years')
 const pickWindow = (label: string) => (s: typeof screen) => {
   const btn = s.getAllByRole('button').find((b) => String(b.props.accessibilityLabel ?? '').startsWith(`Show ${label}`));
   if (!btn) throw new Error(`no window ${label}`);
@@ -250,7 +251,7 @@ const RENDERS: Record<string, () => Shot> = {
   PERF_INV: () => shoot('invest', H_PERF, '2026-09-28', {}, pickWindow('This year')),
   PERF_ACC: () => shoot('account', H_PERF, '2026-09-28', { id: 'a2', period: 'YTD' }),
   PERF_HOME: () => shoot('home', H_PERF, '2026-09-28'),
-  PERF_INV_1M: () => shoot('invest', H_PERF, '2026-09-28', {}, pickWindow('1M')),
+  PERF_INV_1M: () => shoot('invest', H_PERF, '2026-09-28', {}, pickWindow('1 month')),
   QUIET_INV: () => shoot('invest', H_QUIET, '2026-09-28', {}, pickWindow('This year')),
   QUIET_ACC: () => shoot('account', H_QUIET, '2026-09-28', { id: 'a2', period: 'YTD' }),
   FID_ACC: () => shoot('account', H_FID, '2026-09-28', { id: 'a2' }),
@@ -318,14 +319,14 @@ const RENDERS: Record<string, () => Shot> = {
   NEW_ACC: () => shoot('account', NEW_ACCOUNT(10_050), '2026-09-28', { id: 'n1' }),
   UNROUND_INV: () => shoot('invest', UNROUND, '2026-09-28', {}, pickWindow('This year')),
   UNROUND_ACC: () => shoot('account', UNROUND, '2026-09-28', { id: 'r1', period: 'YTD' }),
-  TWO_INV_1Y: () => shoot('invest', H_TWOYEARS, '2028-09-28', {}, pickWindow('1Y')),
-  TWO_INV_2Y: () => shoot('invest', H_TWOYEARS, '2028-09-28', {}, pickWindow('2Y')),
+  TWO_INV_1Y: () => shoot('invest', H_TWOYEARS, '2028-09-28', {}, pickWindow('1 year')),
+  TWO_INV_2Y: () => shoot('invest', H_TWOYEARS, '2028-09-28', {}, pickWindow('2 years')),
   TWO_ACC_2Y: () => shoot('account', H_TWOYEARS, '2028-09-28', { id: 'g1', period: '2Y' }),
   NEG_INV: () => shoot('invest', { assetAccounts: [linked('l1', -500)], transactions: [], snapshotDays: cashDays('l1', [['2025-12-31', 1_000], ['2026-09-28', -500]]), priceCache: {} }, '2026-09-28', {}, pickWindow('This year')),
   GAP_ACC: () => shoot('account', { assetAccounts: [linked('g', 50_000, { cash_balance: 5_000, positions: [{ position_id: 'p', ticker: 'VTI', asset_class: 'stock_etf', last_price: 400,
     lots: [{ lot_id: 'x', shares: 100, cost_per_share: 300, purchase_date: '2024-01-01' }] }] })], transactions: [], snapshotDays: [],
     priceCache: { VTI: closes([['2026-09-25', 400], ['2026-09-28', 400]]) }, pricesFetchedAt: '2026-09-28T11:00:00Z' }, '2026-09-28', { id: 'g' }),
-  BENCH_INV_1M: () => shoot('invest', H_BENCH, '2026-09-28', {}, pickWindow('1M')),
+  BENCH_INV_1M: () => shoot('invest', H_BENCH, '2026-09-28', {}, pickWindow('1 month')),
   HOLD_NOSHARES: () => shoot('holding', holdState([{ position_id: 'p', ticker: 'VTI', asset_class: 'stock_etf', lots: [{ lot_id: 'x', cost_per_share: 210, purchase_date: '2023-03-15' }] }]), '2026-09-28', { account: 'h', position: 'p' }),
   HOLD_NOCOST: () => shoot('holding', holdState([{ position_id: 'p', ticker: 'VTI', asset_class: 'stock_etf', lots: [{ lot_id: 'x', shares: 10, purchase_date: '2023-03-15' }] }]), '2026-09-28', { account: 'h', position: 'p' }),
   HOLD_MINI: () => shoot('holding', holdState([{ position_id: 'p', ticker: 'AAPL261218C250', kind: 'options', multiplier: 10, lots: [{ lot_id: 'x', shares: 2, cost_per_share: 5, purchase_date: '2026-05-01' }] }],
@@ -460,9 +461,9 @@ const FIGS: Record<string, Fig> = {
     t3: () => { expect(after('EMPTY_INV', 'Ending value')).toBe('$0'); expect(has('EMPTY_INV', 'Nothing entered yet. Add your accounts ›')).toBe(true); } },
   'MK-PF-M-002': { main: 'PERF_INV', text: '$10,600', label: 'Wealth generated', drawing: DRAW.perf,
     t2: () => { expect(46600 - 30000 - 6000).toBe(dollars(first('PERF_INV', 'MK-PF-M-002'))); },
-    t3: () => { expect(has('FID_INV', "You added your accounts today. Figures for 1M, 1Y and longer come from each holding’s past prices.")).toBe(true); } },
+    t3: () => { expect(has('FID_INV', "You added your accounts today. Figures for 1 month, 1 year and longer come from each holding’s past prices.")).toBe(true); } },
   'MK-PF-M-003': { main: 'PERF_INV', text: 'HOW $30,000 BECAME $46,600 · ALL ACCOUNTS', label: 'HOW $30,000 BECAME $46,600 · ALL ACCOUNTS', drawing: DRAW.perf,
-    t3: () => { expect(has('FID_INV', 'Every line fills in as days pass — the structure never changes.')).toBe(true); } },
+    t3: () => { expect(has('FID_INV', 'These lines fill in as days pass.')).toBe(true); } },
   'MK-PF-M-004': { main: 'PERF_ACC', text: '$46,600', label: 'Ending market value (Sep 28, 2026)', drawing: DRAW.account,
     t4: () => { expect(first('PERF_ACC', 'MK-PF-M-004')).toBe(first('PERF_INV', 'MK-PF-M-005')); } },
   'MK-PF-M-005': { main: 'PERF_INV', text: '$46,600', label: '▸ FIDELITY BROKERAGE', drawing: DRAW.perf,
@@ -707,7 +708,7 @@ const CLASS: Record<string, Item> = {
   // SETTLED 2026-10-24 (NW-BONDS, re-run after the bond value rule and the payment-frequency work landed). Was IN-FLIGHT.
   'MK-NW-M-024#3': { cls: 'APP WRONG',
     why: 'Coupon missing: the screen does what his A46 says — "not entered · $0/year — coupon rate not entered", no yields (the reviewer is wrong there). Face missing: "4.50%/year · $1,089/year" — the rate on the market value, a guess (the reviewer is right there: a bond pays its coupon on its face — 25,000 × 4.5% = $1,125, not 24,200 × 4.5% = $1,089 — as the coupon\'s own row says, "IT IS PAID ON FACE, NOT ON VALUE"). Re-run 2026-10-24 after the bond value rule landed: it still read $1,089, and "Yield on today\'s value 4.50%" — the rate read back as a yield.',
-    fix: 'src/domain/bonds/index.ts yearlyInterest, the rule yearlyInterestNow returns: a bond (or a broker CD) with a maturity date and no face value has no year\'s interest. Account page BOND FACTS: "4.50%/year · $1,089/year" → "4.50%/year · face value not entered", and no "Yield on today\'s value". The same figure on the Bonds screen ("coupon — face value not entered", named under AVG YIELD) and the income sheet ($0, said so): src/screens/__tests__/bond_interest_one_number_2026_10_24.test.tsx.',
+    fix: 'src/domain/bonds/index.ts yearlyInterest, the rule yearlyInterestNow returns: a bond (or a broker CD) with a maturity date and no face value has no year\'s interest. Account page BOND FACTS: "4.50%/year · $1,089/year" → "4.50%/year · face value not entered", and no "Yield on today\'s value". The same figure on the Bonds screen ("coupon — face value not entered", named under AVERAGE YIELD) and the income sheet ($0, said so): src/screens/__tests__/bond_interest_one_number_2026_10_24.test.tsx.',
     // no $0 made from an unknown since 2026-10-27 (tenet 3; account-page v01 row 85; NW2-20): it read "not entered · $0/year — coupon rate not entered"
     check: () => { expect(after('B1_NOCOUPON', 'Interest payments')).toBe('coupon rate not entered'); expect(printed('B1_NOCOUPON', 'MK-NW-M-026')).toEqual([]);
       // the case his ruling DEC-2748c was made for keeps its answer: a CD bought from the bank, no face, $10,000 × 5.05% = $505

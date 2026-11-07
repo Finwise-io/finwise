@@ -158,7 +158,7 @@ describe('the account page carries the Performance tab’s own window control (D
     render(<AccountPortfolioScreen />);
     const labels = screen.getAllByRole('button').map((b) => String(b.props.accessibilityLabel ?? '')).filter((l) => /^Show /.test(l))
       .map((l) => l.replace(/^Show /, '').split(',')[0]);
-    expect(labels.slice(0, 5)).toEqual([labels[0], '1M', 'This year', '1Y', '2Y']);
+    expect(labels.slice(0, 5)).toEqual([labels[0], '1 month', 'This year', '1 year', '2 years']);
     expect(labels[0]).toMatch(/^Since /);
     const src = require('fs').readFileSync(require('path').join(__dirname, '..', 'AccountPortfolioScreen.tsx'), 'utf8');
     expect(src).toMatch(/<WindowSelector/);

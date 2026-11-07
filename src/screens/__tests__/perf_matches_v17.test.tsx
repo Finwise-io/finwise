@@ -17,6 +17,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import PerformanceScreen from '../PerformanceScreen';
 import { useStore } from '../../store/useStore';
+import { ruledHtml } from '../../testing/ruledSince';
 import { isoLocalDate } from '../../domain/_shared/dates';
 import { buildDayFromAccounts } from '../../../Calculation Module code/engines/snapshots';
 
@@ -185,10 +186,10 @@ const norm = (lines: string[]) => lines.join(' ').toLowerCase()
  *  period starts before the daily record, work it back from each holding's price history and name what's left out,
  *  rather than greying it."
  *  9. Phone 1's 1Y and 2Y, drawn greyed "—", carry figures worked back from VTI's and VOO's price history, and 2Y's
- *     line "2Y is shown per year, so it sits fairly beside 1Y" follows them (phone 1's record begins Oct 1, 2025).
+ *     line "The 2-year return is shown per year, so you can compare it with the 1-year return." follows them (phone 1's record begins Oct 1, 2025).
  *  10. Phone 4's 1M, This year, 1Y and 2Y, drawn greyed "—", carry figures (each holding was bought inside the window,
  *     so its gain is its value less its cost), with the 2Y line; and its day-one line reads, in his words of 2026-10-14
- *     (DEC-5425, "approved."): "You added your accounts today. Figures for 1M, 1Y and longer come from each holding's
+ *     (DEC-5425, "approved."): "You added your accounts today. Figures for 1 month, 1 year and longer come from each holding's
  *     past prices."
  *     Phone 5 (nothing entered) is unchanged: there is no holding with a history, so its windows stay "—".
  *  AND v17's ROW OF 2026-11-01 (the lead's ruling R20, NW4-03, under DEC-0237 and DEC-0404: "DRAWING CORRECTION, the 2Y window chip"):
@@ -202,16 +203,19 @@ const KNOWN = (s: string) => s
   .replace(new RegExp(` ${MARK_16.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`), '')                                                          // 6 — the second, in the account's walk
   .replace(/since <date> #%\/year/g, 'since <date> #%').replace(/\breturn #%\/year/g, 'return #%')                                         // 7
   .replace(/how today's value stands all accounts \$#/g, 'how $# became $# all accounts')                                               // 8
-  .replace(/^(performance <date> since <date> #% #m #% this year #% )#y — #y — summary/, '$1#y #% #y #% #y is shown per year, so it sits fairly beside #y summary')   // 9 (phone 1)
-  .replace(/^(performance <date> since today — )#m — this year — #y — #y — summary/, '$1#m #% this year #% #y #% #y #% #y is shown per year, so it sits fairly beside #y summary')   // 10 (phone 4)
+  // 9, 10 and 11 in the window buttons' words of 2026-11-06 (his ruling "all"): the drawing is read ruled, so both sides say
+  // "1 month", "1 year", "2 years" and the new 2-year line
+  .replace(/^(performance <date> since <date> #% # month #% this year #% )# year — # years — summary/, '$1# year #% # years #% the #-year return is shown per year, so you can compare it with the #-year return. summary')   // 9 (phone 1)
+  .replace(/^(performance <date> since today — )# month — this year — # year — # years — summary/, '$1# month #% this year #% # year #% # years #% the #-year return is shown per year, so you can compare it with the #-year return. summary')   // 10 (phone 4)
   .replace("day one: your value is real, your return starts measuring from today. we never back-fill a year we didn't see. $# your line",
-    "you added your accounts today. figures for #m, #y and longer come from each holding's past prices. $# your line")   // 10 (words: DEC-5425)
-  .replace(/(#y #%)( #y is shown per year)/g, '$1/year$2');   // 11 (R20, v17 row of 2026-11-01): the drawn 2Y chip reads '/year'; the built one already does
+    "you added your accounts today. figures for # month, # year and longer come from each holding's past prices. $# your line")   // 10 (words: DEC-5425)
+  .replace(/(# years #%)( the #-year return is shown per year)/g, '$1/year$2');   // 11 (R20, v17 row of 2026-11-01): the drawn 2Y chip reads '/year'; the built one already does
 
 const CHROME = new Set(['9:41', '▦ Menu', 'Money', 'Keel', '◉', '⚙', '🏠', 'Home', '💎', 'Net worth', '📈', '💵', 'Cash flow', '🧭', 'Plan']);
 function drawn(n: number): string[] {
   const p = path.join(__dirname, '..', '..', '..', 'MoneyKeel', 'documents', 'networth-and-performance', 'moneykeel_pres_mock_performance_v17.html');
-  let body = fs.readFileSync(p, 'utf8').replace(/^[\s\S]*<body/, '<body').replace(/<(script|style)[\s\S]*?<\/\1>/g, '');
+  // read with his rulings made after it was drawn (2026-11-06, ruledSince)
+  let body = ruledHtml(p, fs.readFileSync(p, 'utf8')).replace(/^[\s\S]*<body/, '<body').replace(/<(script|style)[\s\S]*?<\/\1>/g, '');
   // the graph: its SVG gridline labels go; the day-one frame's own words ("your line starts today") stay
   body = body.replace(/<svg[\s\S]*?<\/svg>/g, (svg) => (/your line starts/.test(svg) ? svg : ''));
   const lines = body.replace(/<[^>]+>/g, '\n').replace(/&amp;/g, '&').replace(/&#39;|&rsquo;/g, "'").split('\n').map((l) => l.replace(/\s+/g, ' ').trim()).filter(Boolean);

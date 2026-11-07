@@ -338,7 +338,7 @@ for r in use_rows:
         r['Problem'] = (r['Problem'] + ' ' if r['Problem'] else '') + 'Header names no figure it serves.'
 
 # ── PART A — inputs ────────────────────────────────────────────────────────────────────────────
-CITE_DEC = re.compile(r'DEC-\d{4}|\bG\d{1,2}\b|\bQ-?\d{1,3}\b|\bA\d{2}\b|\bB\d{1,2}\b|(?i:founder|ruling|ruled|his words|approved|owner decision|decision)')
+CITE_DEC = re.compile(r'DEC-\d{4,}|\bG\d{1,2}\b|\bQ-?\d{1,3}\b|\bA\d{2}\b|\bB\d{1,2}\b|(?i:founder|ruling|ruled|his words|approved|owner decision|decision)')
 CITE_PUB = re.compile(r'CFPB|FICO|S&P 500|Treasury|IRS|SSA|Social Security Act|Rev\. ?Proc|IRC|§|Treas|Publication \d|Notice 20|SECURE|BLS|Bureau of Labor|CPI|statut|Pub\. ?\d|Medicare|FINRA|SEC rule|Fed(eral Reserve)?')
 def decs_naming(term, file=None):
     out = []
@@ -522,7 +522,7 @@ for fid in sorted(REGU):
             add(f'constant {cname} = {c["value"][:60]}', 'PUBLISHED', f'{c["file"]}:{c["line"]} — the comment cites a published source: "{re.search(CITE_PUB, ctx).group(0)}"',
                 'Not in the published-sources register (moneykeel_published_sources.json), so no expiry check covers it.')
         elif re.search(CITE_DEC, ctx):
-            ds = re.findall(r'DEC-\d{4}', ctx)
+            ds = re.findall(r'DEC-\d{4,}', ctx)
             add(f'constant {cname} = {c["value"][:60]}', 'DECIDED', f'{c["file"]}:{c["line"]} — the comment cites: ' + (', '.join(ds) if ds else re.search(CITE_DEC, ctx).group(0)))
         else:
             ds = decs_naming(cname)
@@ -565,7 +565,7 @@ for fid in sorted(REGU):
         if re.search(CITE_PUB, ctx):
             add(label, 'PUBLISHED', f'{u["file"]}:{n["line"]} — the comment beside it cites "{re.search(CITE_PUB, ctx).group(0)}"')
         elif re.search(CITE_DEC, ctx):
-            ds = re.findall(r'DEC-\d{4}', ctx)
+            ds = re.findall(r'DEC-\d{4,}', ctx)
             add(label, 'DECIDED', f'{u["file"]}:{n["line"]} — the comment beside it cites ' + (', '.join(ds) if ds else f'"{re.search(CITE_DEC, ctx).group(0)}"'))
         elif dec_hit:
             add(label, 'DECIDED', f'{u["file"]}:{n["line"]} — the decision log names this function with this number: {", ".join(dec_hit[:3])}')

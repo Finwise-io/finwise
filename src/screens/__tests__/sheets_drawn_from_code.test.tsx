@@ -26,6 +26,7 @@ import React from 'react';
 import { render, screen } from '@testing-library/react-native';
 import { StyleSheet } from 'react-native';
 import * as fs from 'fs';
+import { ruledHtml } from '../../testing/ruledSince';
 import * as path from 'path';
 import { useStore } from '../../store/useStore';
 import { Colors } from '../../utils/theme';
@@ -75,7 +76,7 @@ const SKIP = new Set(['sbar', 'state', 'peek']);   // the phone's own parts, not
 // READING A DRAWING
 // ════════════════════════════════════════════════════════════════════════════════════════════════════════════════
 function readDrawing(file: string) {
-  const html = fs.readFileSync(path.join(DIR, file), 'utf8');
+  const html = ruledHtml(path.join(DIR, file), fs.readFileSync(path.join(DIR, file), 'utf8'));   // his rulings of 2026-11-06 applied
   const root: Record<string, string> = Object.fromEntries([...(/:root\{([^}]*)\}/.exec(html)?.[1] ?? '').matchAll(/--([A-Za-z0-9_]+):([^;]+)/g)].map((m) => [m[1], m[2].trim()]));
   const colour = (v?: string) => { if (!v) return undefined; const m = /^var\(--([A-Za-z0-9_]+)\)$/.exec(v.trim()); return norm(m ? root[m[1]] : v); };
   const cssOf = (attrs: string): Record<string, string> => {

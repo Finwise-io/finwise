@@ -109,10 +109,12 @@ test('C1 first day — Home and Net worth both open, invite the first answer, an
 
   render(React.createElement(screens.NW()));
   noNonsense();
-  expect(screen.getByText(/Sample: 84%/)).toBeOnTheScreen();
+  // his ruling 'all', 2026-11-06: Net worth with no accounts shows no sample card (Home and Plan keep theirs)
+  expect(screen.queryByText(/Sample: 84%/)).toBeNull();
+  expect(screen.queryByText(/3 answers make it yours/)).toBeNull();
+  expect(visible().some((t) => /\d+% odds/.test(t))).toBe(false);   // and it invents no odds in its place
   // and the way in is offered, not hidden behind a menu
-  expect(screen.getByText(/3 answers make it yours/)).toBeOnTheScreen();
-  expect(screen.getByText('Link it (read-only)')).toBeOnTheScreen();   // Net worth v08 (2026-09-14)
+  expect(screen.getByText('Connect your bank')).toBeOnTheScreen();   // Net worth v08 (2026-09-14)
   expect(screen.getByText('Add by hand')).toBeOnTheScreen();
 });
 

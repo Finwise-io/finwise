@@ -11,6 +11,7 @@
  */
 import * as fs from 'fs';
 import * as path from 'path';
+import { ruledHtml, ruledLines } from './ruledSince';   // the drawing as ruled since (2026-11-06)
 
 const MON = '(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*';
 
@@ -41,13 +42,13 @@ export function normExact(lines: string[]): string {
 /** Every text line of the drawing, tags gone. `strip` removes markup that is not part of the screen
  *  (change-mark badges, the drawing's own "i" for an info dot). */
 export function drawingLines(file: string, strip: RegExp[] = []): string[] {
-  let body = fs.readFileSync(path.join(__dirname, '..', '..', file), 'utf8')
+  let body = ruledHtml(file, fs.readFileSync(path.join(__dirname, '..', '..', file), 'utf8'))
     .replace(/^[\s\S]*<body/, '<body').replace(/<(script|style)[\s\S]*?<\/\1>/g, '').replace(/<!--[\s\S]*?-->/g, '');
   for (const r of strip) body = body.replace(r, '');
-  return body.replace(/<[^>]+>/g, '\n')
+  return ruledLines(file, body.replace(/<[^>]+>/g, '\n')
     .replace(/&amp;/g, '&').replace(/&#39;|&#x27;|&rsquo;/g, "'").replace(/&nbsp;/g, ' ').replace(/&minus;/g, '−').replace(/&rarr;/g, '→')
     .replace(/&ldquo;|&rdquo;|&quot;/g, '"').replace(/&mdash;/g, '—').replace(/&middot;/g, '·').replace(/&lt;/g, '<').replace(/&gt;/g, '>')
-    .split('\n').map((l) => l.replace(/\s+/g, ' ').trim()).filter(Boolean);
+    .split('\n').map((l) => l.replace(/\s+/g, ' ').trim()).filter(Boolean));   // and his rulings made after the drawing (ruledSince.ts, 2026-11-06)
 }
 
 /** Every visible Text of a rendered tree, in order (pass `screen.toJSON()`). */

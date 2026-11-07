@@ -12,6 +12,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { useStore } from '../../store/useStore';
 import { toHtml, drawnLines, drawnItems, builtItems } from '../../testing/drawFromBuild';
+import { ruledHtml } from '../../testing/ruledSince';
 
 jest.mock('../../services/sync/snaptradeSync', () => ({ runSnapTradeSync: jest.fn(async () => 0) }));
 let mockParams: any = {};
@@ -30,7 +31,14 @@ const DRAWING: Record<string, string> = {
   debt: 'moneykeel_pres_mock_debt-editor_v03.html', step: 'moneykeel_pres_mock_step-by-step-add_v02.html', edit: 'moneykeel_pres_mock_add-account-edit-mode_v02.html',
 };
 const HTML: Record<string, string> = {};
-const htmlOf = (fam: string) => (HTML[fam] ??= fs.readFileSync(path.join(DOCS, DRAWING[fam]), 'utf8'));
+// read with his rulings made after the drawing (ruledSince.ts; his ruling 'all', 2026-11-06). ruledSince drops the section emoji
+// only on the Net worth drawing (v08); these three drawings draw the same section bars — Net worth behind a sheet ("▾ 💵 Cash",
+// "📈 Investments", "▾ 🏠 Personal property") and the step-by-step's own bars ("💵 CASH", "📈 TAXABLE ACCOUNTS", "🏛️ RETIREMENT
+// ACCOUNTS") — so the same ruling is applied here to exactly those bar texts. A kind's picker icon ("🚗 Personal property",
+// "🏠 Mortgage", "💵 Cash & equivalents") is not a section bar and stays as drawn.
+const SECTION_BAR = />(\s*(?:[▾▸] )?)(?:💵 (Cash|CASH)|📈 (Investments|TAXABLE ACCOUNTS)|🏠 (Personal property)|🏛️ (RETIREMENT ACCOUNTS))(\s*)</gu;
+const sectionsRuled = (html: string) => html.replace(SECTION_BAR, (_m, pre, a, b, c, d, post) => `>${pre}${a ?? b ?? c ?? d}${post}<`);
+const htmlOf = (fam: string) => (HTML[fam] ??= sectionsRuled(ruledHtml(path.join(DOCS, DRAWING[fam]), fs.readFileSync(path.join(DOCS, DRAWING[fam]), 'utf8'))));
 const textOf = (n: any): string => (typeof n === 'string' ? n : Array.isArray(n) ? n.map(textOf).join('') : (n?.children ?? []).map(textOf).join(''));
 const lines = (): string[] => {
   const out: string[] = [];

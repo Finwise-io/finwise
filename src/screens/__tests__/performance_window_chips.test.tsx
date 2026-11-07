@@ -51,7 +51,8 @@ test('a window the record cannot cover is greyed and cannot be picked; one it co
   // "YTD" are gone, and "This year" says it in words. Mock v17 (approved 2026-10-01): on a record
   // sixteen days long none of the four fixed windows is covered, so each shows an em-dash, says so
   // aloud, and a tap on it leaves the screen where it was.
-  for (const w of ['1M', 'This year', '1Y', '2Y']) {
+  // the window buttons read in words since 2026-11-06 (his ruling "all": 1M → 1 month, 1Y → 1 year, 2Y → 2 years)
+  for (const w of ['1 month', 'This year', '1 year', '2 years']) {
     expect(screen.getByLabelText(`Show ${w}, no data for that window yet`).props.accessibilityState.disabled).toBe(true);
     fireEvent.press(screen.getAllByText(w)[0]);
     expect(screen.getByText(/^SUMMARY · SINCE /)).toBeOnTheScreen();
@@ -62,7 +63,7 @@ test('a window the record cannot cover is greyed and cannot be picked; one it co
   useStore.setState({ snapshotDays: [[back, 290000], [START, 300000], [TODAY, 301610]].map(([date, v]) => ({ date, origin: 'observed', writtenAt: `${date}T00:00:00Z`, holdings: [],
     accounts: [{ date, accountId: 'van', cash: 0, statedTotal: v, typedValue: v, currency: 'USD' }] })) } as any);
   render(<P />);
-  fireEvent.press(screen.getAllByText('1M')[0]);
+  fireEvent.press(screen.getAllByText('1 month')[0]);
   expect(screen.getByText('SUMMARY · PAST MONTH')).toBeOnTheScreen();
   expect(screen.queryByText('3M')).toBeNull();
   expect(screen.queryByText('6M')).toBeNull();
@@ -73,7 +74,7 @@ test('the window selector carries each window and its own return, on two lines',
   const P = require('../PerformanceScreen').default;
   render(<P />);
   // the window, and beneath it either its return to two decimals or an em-dash where we have none
-  for (const w of ['1M', 'This year', '1Y', '2Y']) expect(screen.getAllByText(w).length).toBeGreaterThan(0);
+  for (const w of ['1 month', 'This year', '1 year', '2 years']) expect(screen.getAllByText(w).length).toBeGreaterThan(0);
   const figures = screen.queryAllByText(/^[+−-]?\d+\.\d\d%$/);
   const dashes = screen.queryAllByText('—');
   expect(figures.length + dashes.length).toBeGreaterThanOrEqual(5);

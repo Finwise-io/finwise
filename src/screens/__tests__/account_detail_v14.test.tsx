@@ -164,7 +164,7 @@ test('day one — no record and nothing moved → Since today, every line a real
   expect(screen.queryByText(/VALUE STANDS/)).toBeNull();
   expect(screen.getByText('Beginning market value (today)')).toBeOnTheScreen();
   expect(screen.getByText('Ending market value (today)')).toBeOnTheScreen();
-  expect(screen.getByText('Every line fills in as days pass — the structure never changes.')).toBeOnTheScreen();
+  expect(screen.getByText('These lines fill in as days pass.')).toBeOnTheScreen();
   expect(screen.getAllByText('—').length).toBeGreaterThanOrEqual(5);   // five windows and the trio's Return
 });
 

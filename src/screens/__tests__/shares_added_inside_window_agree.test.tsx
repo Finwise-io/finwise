@@ -136,7 +136,7 @@ describe('the hand-worked figures themselves', () => {
 });
 
 describe('1 · DEC-3656 — the beginning and what the holdings gained: one figure on the Performance tab, the account page and Home', () => {
-  const INV = once(() => shoot('invest', H, TODAY, {}, pick('1M')));
+  const INV = once(() => shoot('invest', H, TODAY, {}, pick('1 month')));
   const ACC = once(() => shoot('account', H, TODAY, { id: 'z', period: '1M' }));
   const HOME = once(() => shoot('home', H, TODAY));
   test('Performance tab, 1M: Beginning $21,000 (it read $20,550), Wealth generated −$4,450 (it read −$4,000), Return −14.55% (it read −13.33%)', () => {
@@ -161,7 +161,7 @@ describe('1 · DEC-3656 — the beginning and what the holdings gained: one figu
 });
 
 describe('2 · DEC-1669 — a category is split at every day money went into it: the Performance tab and the account page agree', () => {
-  const INV = once(() => shoot('invest', H_DIV, TODAY, {}, pick('1M')));
+  const INV = once(() => shoot('invest', H_DIV, TODAY, {}, pick('1 month')));
   const ACC = once(() => shoot('account', H_DIV, TODAY, { id: 'z', period: '1M' }));
   test('Performance tab, WHAT EACH CATEGORY EARNED: Stocks / Funds −21.60% (it read −20.00%)', () => {
     expect(printed(INV(), 'MK-PF-M-006')).toContain(pct(STOCKS));
@@ -174,7 +174,7 @@ describe('2 · DEC-1669 — a category is split at every day money went into it:
 
 describe('3 · MK-PF-M-008 — Home\'s market is split on the same day as your return, with the same weights (decided 2026-10-22)', () => {
   const HOME = once(() => shoot('home', H, TODAY));
-  const AAA = once(() => shoot('holding', H, TODAY, { account: 'z', position: 'pa' }, pick('1M')));
+  const AAA = once(() => shoot('holding', H, TODAY, { account: 'z', position: 'pa' }, pick('1 month')));
   test('Home: you −14.55% · market +7.71% · behind by 22.26% — the gap from the two unrounded figures (the market weighed by the starts alone read +7.14%; from today\'s shares +8.00%)', () => {
     const line = HOME().lines.find((l) => l.includes(`· market ${pct(MARKET)} ·`));
     expect(line).toBeDefined();
@@ -212,10 +212,10 @@ const H_SOLD = {
 };
 
 describe('4 · DEC-3656 — a holding that sold shares inside the window: one start, one gain, one return on every screen', () => {
-  const INV = once(() => shoot('invest', H_SOLD, TODAY, {}, pick('1M')));
+  const INV = once(() => shoot('invest', H_SOLD, TODAY, {}, pick('1 month')));
   const ACC = once(() => shoot('account', H_SOLD, TODAY, { id: 's', period: '1M' }));
   const HOME = once(() => shoot('home', H_SOLD, TODAY));
-  const AAA = once(() => shoot('holding', H_SOLD, TODAY, { account: 's', position: 'pa' }, pick('1M')));
+  const AAA = once(() => shoot('holding', H_SOLD, TODAY, { account: 's', position: 'pa' }, pick('1 month')));
   test('the hand-worked figures: +1.29% (before +0.91%), the market +4.71%', () => {
     expect([pct(SOLD_RETURN), pct(11100 / 11000 - 1), pct(SOLD_MARKET)]).toEqual(['+1.29%', '+0.91%', '+4.71%']);
   });
@@ -260,7 +260,7 @@ const H_NOPAID = {
 const NOPAID = 'Return is on the $2,200 with a price history. VTI ($2,200) has a purchase with no price paid on record, so its gains are not included.';
 
 describe('5 · the left-out line gives the true reason, on the Performance tab and the account page', () => {
-  const INV = once(() => shoot('invest', H_NOPAID, TODAY, {}, pick('1M')));
+  const INV = once(() => shoot('invest', H_NOPAID, TODAY, {}, pick('1 month')));
   const ACC = once(() => shoot('account', H_NOPAID, TODAY, { id: 'n', period: '1M' }));
   test('Performance tab: the purchase with no price paid on record is the reason given — never "no price history"', () => {
     expect(INV().lines).toContain(NOPAID);
@@ -294,7 +294,7 @@ const H_GONE = {
 };
 
 describe('6 · DEC-3656 — a holding sold in full inside the window: the same beginning, gain and return on the Performance tab, the account page and Home', () => {
-  const INV = once(() => shoot('invest', H_GONE, TODAY, {}, pick('1M')));
+  const INV = once(() => shoot('invest', H_GONE, TODAY, {}, pick('1 month')));
   const ACC = once(() => shoot('account', H_GONE, TODAY, { id: 'g', period: '1M' }));
   const HOME = once(() => shoot('home', H_GONE, TODAY));
   test('the hand-worked figures: +0.83%, the market +4.34%', () => {
@@ -383,10 +383,10 @@ const H_DAY = (bought: boolean) => ({
 });
 const DAY_PIECE = 11_000 / 10_900;
 const WINDOWS = [
-  { chip: '1M', period: '1M', before: 100 / 95 - 1, after: 9_900 / 9_500 * DAY_PIECE - 1, market: 600 / 580 - 1, said: ['+5.26%', '+5.17%'] },
+  { chip: '1 month', period: '1M', before: 100 / 95 - 1, after: 9_900 / 9_500 * DAY_PIECE - 1, market: 600 / 580 - 1, said: ['+5.26%', '+5.17%'] },
   { chip: 'This year', period: 'YTD', before: 100 / 90 - 1, after: 9_900 / 9_000 * DAY_PIECE - 1, market: 600 / 540 - 1, said: ['+11.11%', '+11.01%'] },
-  { chip: '1Y', period: '1Y', before: 100 / 84 - 1, after: 9_900 / 8_400 * DAY_PIECE - 1, market: 600 / 520 - 1, said: ['+19.05%', '+18.94%'] },
-  { chip: '2Y', period: '2Y', before: 1.25 ** (365 / 731) - 1, after: (9_900 / 8_000 * DAY_PIECE) ** (365 / 731) - 1, market: 600 / 500 - 1, said: ['+11.79%', '+11.74%'] },
+  { chip: '1 year', period: '1Y', before: 100 / 84 - 1, after: 9_900 / 8_400 * DAY_PIECE - 1, market: 600 / 520 - 1, said: ['+19.05%', '+18.94%'] },
+  { chip: '2 years', period: '2Y', before: 1.25 ** (365 / 731) - 1, after: (9_900 / 8_000 * DAY_PIECE) ** (365 / 731) - 1, market: 600 / 500 - 1, said: ['+11.79%', '+11.74%'] },
 ] as const;
 /** what a window reads on each screen: the Performance tab's chip, its Return and its category row; the account page's trio and
  *  its Stocks / Funds bar; the Holding page's own return */
@@ -420,7 +420,7 @@ describe('8 · one rule in every window: a buy at today\'s close moves 1M, This 
     });
   }
   test('it looked: four windows, each read before and after on three screens', () => {
-    expect(seen).toEqual(['1M', 'This year', '1Y', '2Y']);
+    expect(seen).toEqual(['1 month', 'This year', '1 year', '2 years']);   // the window buttons in words since 2026-11-06
   });
   test.failing('the app before 2026-10-23, pinned: after the buy 1M still read its price move, +5.26%, while 2Y moved to +11.74% a year', () => {
     expect(readWindow(true, WINDOWS[0]).chip).toBe('+5.26%');

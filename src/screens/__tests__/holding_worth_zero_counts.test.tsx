@@ -79,10 +79,10 @@ function seed() {
 }
 const minus = (s: string) => new RegExp(`^[−-]${s.replace(/[$.()]/g, (c) => `\\${c}`)}$`);
 const pickMonth = () => {
-  const oneMonth = screen.getAllByRole('button').find((b) => /^Show 1M, /.test(b.props.accessibilityLabel ?? ''));
+  const oneMonth = screen.getAllByRole('button').find((b) => /^Show 1 month, /.test(b.props.accessibilityLabel ?? ''));
   expect(oneMonth).toBeTruthy();
   // the chip carries the window's return: −40.00% (it read +20.00%)
-  expect(oneMonth!.props.accessibilityLabel).toMatch(/^Show 1M, [−-]40\.00%$/);
+  expect(oneMonth!.props.accessibilityLabel).toMatch(/^Show 1 month, [−-]40\.00%$/);
   fireEvent.press(oneMonth!);
 };
 /** The day the walk's beginning is read for, as the screen prints it beside "Beginning market value". */
