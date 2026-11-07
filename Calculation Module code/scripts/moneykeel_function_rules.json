@@ -2613,7 +2613,7 @@
   },
   "MK-NW-F-144": {
    "name": "beforeTheRecordSentence",
-   "rule": "The left-out sentence where a window is joined at the record's first day (owner decision DEC-6412, 2026-10-19): \"Before <the record's first day, written the app's one way>, when the daily record begins: \" followed by the left-out sentence (MK-NW-F-130 notIncludedSentence) for the holdings handed in and the value counted. Example: \"Before Oct 1, 2025, when the daily record begins: Return is on the $40,000 with a price history. Treasury 2031 ($10,000) has no price history, so its gains are not included.\"",
+   "rule": "The left-out sentence where a window is joined at the record's first day (owner decision DEC-6412, 2026-10-19): \"Before <the record's first day, written the app's one way>, when the app started tracking: \" followed by the left-out sentence (MK-NW-F-130 notIncludedSentence) for the holdings handed in and the value counted. Example: \"Before Oct 1, 2025, when the app started tracking: Return is on the $40,000 with a price history. Treasury 2031 ($10,000) has no price history, so its gains are not included.\"",
    "figures_checked_by_hand": {
     "6412": "not a figure: the number of the owner decision DEC-6412 (2026-10-19) that this rule follows",
     "130": "not a figure: the identifier MK-NW-F-130 of notIncludedSentence, which this function asks",
@@ -2622,7 +2622,7 @@
     "2031": "not a figure: part of the example holding's name, Treasury 2031",
     "2025": "not a figure: part of the example date, Oct 1, 2025"
    },
-   "read_from": "a02ea93a6e"
+   "read_from": "10e93c1326"
   },
   "MK-NW-F-145": {
    "name": "netWorthInputs",

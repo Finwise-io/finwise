@@ -195,7 +195,7 @@ describe('DEC-6412 · case (4): mixed — a holding with no price history, money
     expect(f.recordBegins).toBe('2026-06-30');
     expect(f.cumulative!).toBeCloseTo((1 + rGap) * (1 + since.cumulative!) - 1, 12);
     // today's values: VTI 100 × $210 + VOO 20 × $400 are counted; the Muni's 100 × $100 is left out
-    expect(f.notIncluded).toBe('Before Jun 30, 2026, when the daily record begins: Return is on the $29,000 with a price history. MUNI29 ($10,000) has no price history, so its gains are not included.');
+    expect(f.notIncluded).toBe('Before Jun 30, 2026, when the app started tracking: Return is on the $29,000 with a price history. MUNI29 ($10,000) has no price history, so its gains are not included.');
     // the walk: the record's part's beginning less the $4,000 VTI gained before Jun 30, less the $5,000 put in before it
     expect(f.walk!.beginning).toBeCloseTo(since.walk!.beginning - 4_000 - 5_000, 6);
     expect(f.walk!.contributions).toBeCloseTo(5_000 + since.walk!.contributions, 6);

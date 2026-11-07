@@ -268,7 +268,7 @@ const KNOWN: [number, string, string, string][] = [
     'DEC-6412: the record begins Oct 1, 2025. 1Y: VTI and VOO did not move from Sep 29 to Oct 1, 2025 (their first closes are Sep 30), so 1Y = the record\'s own +7.46%, as Since. 2Y: each holding from its Sep 1, 2025 purchase to Oct 1, 2025 — bought at its Oct 1 price, so +0.00% — chained to +7.46%: 1.0000 × 1.0746 = 1.0746 over the 731 days of Sep 30, 2024 → Sep 30, 2026, (1.0746)^(365 ÷ 731) − 1 = +3.66% a year. It read +11.81% a year while the household\'s prices put VTI at $313.48 on Oct 1 against $260 in its own record (2026-10-25, MM-PF D17; the drawing\'s line of that day gives both). Before DEC-6412 (worked back whole): 1Y +6.10%, 2Y +11.10%'],
   [4, 'since today — 1 month — this year — 1 year — 2 years — summary', 'since today — 1 month +9.86% this year +9.86% 1 year +9.86% 2 years +4.81% the 2-year return is shown per year, so you can compare it with the 1-year return. summary',
     'DEC-5291: each holding was bought inside the window, so its gain is value less cost (VTI 330 ÷ 300, VOO 550 ÷ 500, KEYBANK CD $4,610 ÷ $4,610 bought today at its cost, 0% — R4, 2026-10-27, PF-4: it was left out with no sentence, +10.00%): (297,000 + 4,610 + 49,500) ÷ (270,000 + 4,610 + 45,000) − 1 = 351,110 ÷ 319,610 − 1 = +9.86%; 2Y is (351,110 ÷ 319,610)^(365 ÷ 731) − 1 = +4.81%'],
-  [4, "day one: your value is real, your return starts measuring from today. we never back-fill a year we didn't see.",
+  [4, "you added your accounts today. your return starts measuring from today. we never back-fill a year we didn't see.",
     "you added your accounts today. figures for 1 month, 1 year and longer come from each holding's past prices.",
     'DEC-5291: the day-one line says the longer windows come from price history; DEC-5425 (2026-10-14, "approved."): in his words'],
   // (d) — the rows of 2026-11-01 on v17 (read by the test below, which proves each row is there)
@@ -484,7 +484,7 @@ describe('DEC-6412 · the Performance tab joins a window that opens before the r
     fireEvent.press(btn);
     const words = shown().map((x) => x.t);
     expect(words[words.indexOf('Return') + 1]).toBe('+7.46%');
-    expect(words).toContain('Your daily record begins Oct 1, 2025, so the days before it are worked back from each holding’s price history.');
+    expect(words).toContain('The app has tracked these accounts since Oct 1, 2025; the days before that come from each holding’s past prices.');
   });
 });
 

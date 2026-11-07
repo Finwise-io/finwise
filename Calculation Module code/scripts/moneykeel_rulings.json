@@ -2288,7 +2288,7 @@
   "date": "2026-09-27",
   "source": "orchestrator map, Map tab, Q-NW-4, column YOUR ANSWER",
   "ruling": "Yes - for bonds question only. Is there a similar question for CDs as CD rates don't move and one can do nothing if CD rates move.",
-  "rows": "MK-NW-M-023 Face value · MK-NW-M-024 Interest payments · MK-NW-M-025 Matures · MK-NW-M-026 Yield if held to maturity · MK-NW-M-027 Yield on today's value · MK-NW-M-028 Rates rise 1% → value roughly $X–$Y · MK-NW-M-041 total value of your bonds · MK-NW-M-042 n bonds · face $X · MK-NW-M-043 COUPON · MK-NW-M-044 AVG YIELD · MK-NW-M-045 each bond — face, coupon, yield",
+  "rows": "MK-NW-M-023 Face value · MK-NW-M-024 Interest payments · MK-NW-M-025 Matures · MK-NW-M-026 Yield if held to maturity · MK-NW-M-027 Yield on today's value · MK-NW-M-028 Rates rise 1% → value roughly $X–$Y · MK-NW-M-041 total value of your bonds · MK-NW-M-042 n bonds · face $X · MK-NW-M-043 Interest a year · MK-NW-M-044 Average yield · MK-NW-M-045 each bond — face, coupon, yield",
   "status": "RULED",
   "code": "",
   "proof": "",

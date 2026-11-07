@@ -773,16 +773,16 @@ export default function AccountPortfolioScreen() {
                 : 'You added this account today, so its figures start today.')
               : walk == null
               /* a refusal is an answer (D4): no daily record reaching back, so no beginning — say so */
-              ? 'Wealth generated and Return start once the daily record reaches back far enough to say what this account was worth at the start. It builds from your first recorded day.'
+              ? 'Wealth generated and Return start once the app has tracked this account long enough to know what it was worth at the start. They build from the first day it was tracked.'   // (his words of 2026-10-14, DEC-5425: “your value is real” and “daily record” meant nothing to him; design review, 2026-11-07)
               : now?.sentence
               /* a window joined at the record's first day: only the days before it are worked back (DEC-6412, 2026-10-19) */
               || (now?.recordBegins
-                ? `Your daily record begins ${dateShown(now.recordBegins)}, so the days before it are worked back from each holding’s price history.`
+                ? `The app has tracked this account since ${dateShown(now.recordBegins)}; the days before that come from each holding’s past prices.`
                 : null)
               || (now?.measured == null
                 /* no recorded value on the first day: the beginning is worked back from today's values and each
                    holding's price history, and a return IS shown — of the holdings with a history (DEC-5068, 2026-10-13) */
-                ? `Your daily record does not reach back to ${sinceWords} yet, so the beginning is worked back from today’s values and each holding’s price history.`
+                ? `The app started tracking this account after ${sinceWords}, so the starting value comes from today’s values and each holding’s past prices.`
                 /* A WINDOW LONGER THAN A YEAR IS A YEARLY RATE, AND SAYS SO (his precision order, Q49 and 2026-09-25: "a yearly rate
                    with 'a year' on it, and the window's own total stated beside it"; 2026-10-21, outside re-run OpenAI MK-PF-M-016).
                    2Y printed its yearly rate above "— not a yearly rate"; it now says the Performance tab's own sentence. */

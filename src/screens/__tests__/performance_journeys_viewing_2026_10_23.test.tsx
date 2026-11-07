@@ -280,7 +280,7 @@ describe('E2E-63 · the window journey in the founder\'s household (Performance 
     tapWindow('1 year'); ls = lines();
     expect(ls).toContain('SUMMARY · PAST YEAR');
     expect([after('Wealth generated', 1, ls), after('Return', 1, ls)]).toEqual(['$10,200', '+9.34%']);
-    expect(ls).toContain("Your daily record begins Oct 1, 2025, so the days before it are worked back from each holding’s price history.");
+    expect(ls).toContain("The app has tracked these accounts since Oct 1, 2025; the days before that come from each holding’s past prices.");
     expect(ls).toContain('Beginning market value (Sep 29, 2025)');
 
     // 2Y — beginning Sep 29, 2024 (closes of Sep 27): 300 × $208 + 40 × $400 + $2,000 cash = 62,400 + 16,000 + 2,000 = $80,400.
@@ -293,7 +293,7 @@ describe('E2E-63 · the window journey in the founder\'s household (Performance 
     expect(ls).toContain('SUMMARY · PAST 2 YEARS');
     expect([after('Ending value', 1, ls), after('Wealth generated', 1, ls), after('Return', 1, ls)]).toEqual(['$125,200', '$29,800', '+16.88%']);
     expect(ls).toContain('The 2-year return is shown per year, so you can compare it with the 1-year return.');
-    const note = ls.indexOf("Your daily record begins Oct 1, 2025, so the days before it are worked back from each holding’s price history.");
+    const note = ls.indexOf("The app has tracked these accounts since Oct 1, 2025; the days before that come from each holding’s past prices.");
     expect(ls[note + 1]).toBe('+36.67% over the two years, which is +16.88%/year — a yearly rate, so it sits fairly beside a one-year window.');
     expect(ls).toContain('HOW $80,400 BECAME $125,200 · ALL ACCOUNTS');
     expect(after('Change in investment value', 1, ls)).toBe('$27,600');
@@ -490,7 +490,7 @@ describe('E2E-65 · a brand-new person adds an account by hand, then a holding',
       'Ending value', '$28,000', 'Wealth generated', '$0', 'Return', '—',
       // phone 4's drawn line (FIXED 2026-10-23: it read "You added your accounts today. Figures for 1 month, 1 year and longer come from
       // each holding's past prices." — and no figure came from any price)
-      "Day one: your value is real, your return starts measuring from today. We never back-fill a year we didn’t see."]);
+      "You added your accounts today. Your return starts measuring from today. We never back-fill a year we didn’t see."]);
     const card = ls.indexOf('Fidelity Brokerage');
     expect(ls.slice(card, card + 21)).toEqual(['Fidelity Brokerage', '$28,000', '›', '✍️ By hand · you update it',
       'Beginning market value (today)', '$28,000', 'Contributions', '$0', 'Withdrawals', '$0', 'Wealth generated', '$0',

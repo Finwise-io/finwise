@@ -85,7 +85,7 @@ describe('the account page, past year (DEC-5068, 2026-10-13)', () => {
     // the sentence below it, in his words with the holding's name
     expect(screen.getByText(SENTENCE)).toBeOnTheScreen();
     // the worked-back note says how the beginning was found, and no longer that "no return is measured"
-    expect(screen.getByText(/so the beginning is worked back from today’s values and each holding’s price history\.$/)).toBeOnTheScreen();
+    expect(screen.getByText(/so the starting value comes from today’s values and each holding’s past prices\.$/)).toBeOnTheScreen();
     expect(screen.queryByText(/no return is measured/)).toBeNull();
     expect(screen.queryByText(/can't be worked back/)).toBeNull();
 
@@ -157,7 +157,7 @@ describe('the Performance tab, all accounts together, worked back (DEC-5068 — 
     expect(screen.getByText('SUMMARY · PAST YEAR')).toBeOnTheScreen();
     expect(screen.getAllByText('$3,636').length).toBeGreaterThanOrEqual(3);   // summary, the walk's Wealth generated and its change in value
     expect(screen.getAllByText('+10.00%').length).toBeGreaterThanOrEqual(2);  // the summary's Return and the window's chip
-    expect(screen.getByText(/so the beginning is worked back from today’s values and each holding’s price history\.$/)).toBeOnTheScreen();
+    expect(screen.getByText(/so the starting value comes from today’s values and each holding’s past prices\.$/)).toBeOnTheScreen();
     expect(screen.queryByText(/^Day one:/)).toBeNull();                       // a worked-back window is not day one
     // the sentence: once under the summary, once under the account's card
     expect(screen.getAllByText(SENTENCE).length).toBe(2);

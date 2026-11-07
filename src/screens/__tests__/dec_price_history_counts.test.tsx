@@ -108,7 +108,7 @@ describe('the approved example: Vanguard linked today + Treasury 2031 by hand, t
     expect(screen.getAllByText('$3,636').length).toBeGreaterThan(0);
     expect(screen.getAllByText('+10.00%').length).toBeGreaterThan(0);
     expect(screen.getByText('HOW $36,364 BECAME $40,000 · THIS ACCOUNT')).toBeOnTheScreen();
-    expect(screen.getByText(/so the beginning is worked back from today’s values and each holding’s price history\.$/)).toBeOnTheScreen();
+    expect(screen.getByText(/so the starting value comes from today’s values and each holding’s past prices\.$/)).toBeOnTheScreen();
     expect(screen.queryByText(/Wealth generated and Return start once the daily record reaches back/)).toBeNull();
     expect(screen.queryByText(SENTENCE)).toBeNull();
     // the broker's records do not reach a worked-back window's beginning, so no "Rebuilt … back to" line claims they do

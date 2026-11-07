@@ -34,6 +34,20 @@ const NW_DRAWING = /moneykeel_pres_mock_net-worth-quiet-instrument_v\d+\.html$/;
 export function ruledHtml(file: string, html: string): string {
   let s = html;
   for (const [drawn, ruled, where] of WORDS) if (where.test(file)) s = s.replace(drawn, ruled);
+  // THE WORDS HE REJECTED, OUT OF THE SENTENCES THAT STILL USED THEM (design review, 2026-11-07, under DEC-5425 of 2026-10-14:
+  // “your value is real” and “daily record” meant nothing to him). Performance names “these accounts”, an account's page “this account”.
+  if (NW.test(file)) {
+    const whose = /performance_v\d+\.html$/.test(file) ? 'these accounts' : 'this account';
+    s = s.replace(/Day one: your value is real, your return starts measuring from today\. We never back-fill/g,
+      'You added your accounts today. Your return starts measuring from today. We never back-fill');
+    s = s.replace(/Your daily record does not reach back to ([^<]*?) yet, so the beginning is worked back from today(’|&#8217;|')s values and each holding(’|&#8217;|')s price history\./g,
+      (_m, d, q1, q2) => `The app started tracking ${whose} after ${d}, so the starting value comes from today${q1}s values and each holding${q2}s past prices.`);
+    s = s.replace(/Your daily record begins ([^<]*?), so the days before it are worked back from each holding(’|&#8217;|')s price history\./g,
+      (_m, d, q) => `The app has tracked ${whose} since ${d}; the days before that come from each holding${q}s past prices.`);
+    s = s.replace(/Wealth generated and Return start once the daily record reaches back far enough to say what this account was worth at the start\. It builds from your first recorded day\./g,
+      'Wealth generated and Return start once the app has tracked this account long enough to know what it was worth at the start. They build from the first day it was tracked.');
+    s = s.replace(/when the daily record begins:/g, 'when the app started tracking:');
+  }
   if (NW_DRAWING.test(file)) {
     s = s.replace(/(💵|📈|📜|🪙|🏠|🚗|🧩|🏛️)\s?(?=(?:<[^>]*>)*\s*[−-]?\$)/gu, (_m, e: string) => `${CLASS_OF[e]} `);
     s = s.replace(/(💵|📈|📜|🪙|🏠|🚗|🧩|🏛️)\s?/gu, '');

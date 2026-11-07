@@ -207,7 +207,7 @@ const KNOWN = (s: string) => s
   // "1 month", "1 year", "2 years" and the new 2-year line
   .replace(/^(performance <date> since <date> #% # month #% this year #% )# year — # years — summary/, '$1# year #% # years #% the #-year return is shown per year, so you can compare it with the #-year return. summary')   // 9 (phone 1)
   .replace(/^(performance <date> since today — )# month — this year — # year — # years — summary/, '$1# month #% this year #% # year #% # years #% the #-year return is shown per year, so you can compare it with the #-year return. summary')   // 10 (phone 4)
-  .replace("day one: your value is real, your return starts measuring from today. we never back-fill a year we didn't see. $# your line",
+  .replace("you added your accounts today. your return starts measuring from today. we never back-fill a year we didn't see. $# your line",
     "you added your accounts today. figures for # month, # year and longer come from each holding's past prices. $# your line")   // 10 (words: DEC-5425)
   .replace(/(# years #%)( the #-year return is shown per year)/g, '$1/year$2');   // 11 (R20, v17 row of 2026-11-01): the drawn 2Y chip reads '/year'; the built one already does
 

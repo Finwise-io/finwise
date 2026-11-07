@@ -945,7 +945,7 @@ describe('DEC-6412 · a window that opens before the record begins is joined at 
     renderState({ ...STATES[0], pick: '1 year' });
     const lines = strings();
     expect(trioReturn(lines)).toBe('+8.26%');
-    expect(lines).toContain('Your daily record begins Oct 1, 2025, so the days before it are worked back from each holding’s price history.');
+    expect(lines).toContain('The app has tracked this account since Oct 1, 2025; the days before that come from each holding’s past prices.');
     expect(lines.some((l) => /Rebuilt from/.test(l))).toBe(false);   // the record does not reach the window's beginning
     expect(lines.some((l) => /has no price history/.test(l))).toBe(false);   // the bonds had no part in those days
   });

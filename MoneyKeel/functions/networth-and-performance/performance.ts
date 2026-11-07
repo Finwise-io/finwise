@@ -1007,7 +1007,7 @@ function gainRowBetween(r: GainRow, from: string, to: string, priceOf: (ticker: 
  * Answers ..... THE LEFT-OUT SENTENCE WHERE A WINDOW IS JOINED AT THE RECORD'S FIRST DAY (DEC-6412, 2026-10-19): DEC-6076's sentence, word for word, said of the days before the record begins — only those days are worked back from price history.
  *
  * Formula .....
- *     `before ${date shown(record begins)}, when the daily record begins: ${not included sentence(left, counted value)}`
+ *     `before ${date shown(record begins)}, when the app started tracking: ${not included sentence(left, counted value)}`
  *
  * Called by ... MK-NW-O-008 thePerformance
  *
@@ -1022,7 +1022,8 @@ function gainRowBetween(r: GainRow, from: string, to: string, priceOf: (ticker: 
  * Changed ..... not in git yet (—)
  */
 function beforeTheRecordSentence(left: { name: string; value: number | null }[], countedValue: number, recordBegins: string): string {
-  return `Before ${dateShown(recordBegins)}, when the daily record begins: ${notIncludedSentence(left, countedValue)}`;
+  // “daily record” meant nothing to him (DEC-5425, 2026-10-14; design review, 2026-11-07)
+  return `Before ${dateShown(recordBegins)}, when the app started tracking: ${notIncludedSentence(left, countedValue)}`;
 }
 
 // WHAT A LEFT-OUT HOLDING IS WORTH TODAY, for the brackets of the left-out sentence (DEC-6076, 2026-10-19): its broker

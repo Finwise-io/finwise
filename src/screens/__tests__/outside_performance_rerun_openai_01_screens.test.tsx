@@ -888,7 +888,7 @@ const CLASS: Record<string, Item> = {
   'MK-PF-M-013#2': { cls: 'APP WRONG', rowWordsOnly: true,
     why: 'The screen labels a worked-back beginning (DEC-3656, DEC-5291): "Your daily record does not reach back to Feb 1, 2024 yet, so the beginning is worked back from today\'s values and each holding\'s price history." The row still says "READ… never back-solved" and "the walk is not drawn at all rather than started from a guess".',
     fix: 'MoneyKeel/functions/networth-and-performance/performance.ts MK-PF-M-013 row: "read from the record; where the record does not reach, worked back from each holding\'s price history and said so (DEC-3656, DEC-5291)". No figure moves.',
-    check: () => { expect(has('FID_ACC', /so the beginning is worked back from today’s values and each holding’s price history\.$/)).toBe(true); },
+    check: () => { expect(has('FID_ACC', /so the starting value comes from today’s values and each holding’s past prices\.$/)).toBe(true); },
     wrong: () => { expect(figureSpec('MK-PF-M-013').answers).not.toMatch(/never back-solved/i); expect((figureSpec('MK-PF-M-013').decisions ?? []).join(' ')).not.toMatch(/IT IS READ, NOT BACK-SOLVED/); },
     fixed: '2026-10-21: the row says the beginning is read from the record, or worked back from price history and said so (DEC-3656, DEC-5291; no figure moves)' },
   'MK-PF-M-014#1': { cls: 'APP WRONG',
@@ -925,7 +925,7 @@ const CLASS: Record<string, Item> = {
   'MK-PF-M-018#2': { cls: 'APP WRONG', rowWordsOnly: true,
     why: 'The screen labels the worked-back beginning: "Your daily record does not reach back to Aug 27, 2026 yet, so the beginning is worked back from today\'s values and each holding\'s price history." The row says "READ, NEVER BACK-SOLVED" and "the walk starts the day the record does".',
     fix: 'MK-PF-M-018 row decisions and refusal in DEC-5291\'s words. No figure moves.',
-    check: () => { expect(has('BENCH_INV_1M', /^Your daily record does not reach back to Aug 27, 2026 yet, so the beginning is worked back/)).toBe(true); },
+    check: () => { expect(has('BENCH_INV_1M', /^The app started tracking (these accounts|this account) after Aug 27, 2026, so the starting value comes from/)).toBe(true); },
     wrong: () => { expect((figureSpec('MK-PF-M-018').decisions ?? []).join(' ')).not.toMatch(/NEVER BACK-SOLVED/); },
     fixed: '2026-10-21: the row says the beginning is read from the daily record, or worked back from price history and said so (DEC-3656, DEC-5291; no figure moves)' },
   // SETTLED 2026-10-24 (re-run after the Net worth work landed: INCOME_HAS_NO_AMOUNT and ACTIVITY_NOT_KNOWN, 2026-10-20/21). Was IN-FLIGHT.

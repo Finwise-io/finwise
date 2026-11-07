@@ -277,7 +277,7 @@ const JOINED = { ...TWO, snapshotDays: [day('2025-12-01', 'a1', [['VTI', 1000, 1
 describe('7 · 2Y joined at the record\'s first day: the yearly rate and the two years\' own total, on the account page', () => {
   test('the account page prints the record\'s sentence, then the one sentence: +21.00% over the two years, which is +9.99%/year', () => {
     const acct = shoot('account', JOINED, '2026-10-13T12:00:00', { id: 'a1', period: '2Y' });
-    expect(acct.lines.some((l) => l.startsWith('Your daily record begins'))).toBe(true);
+    expect(acct.lines.some((l) => l.startsWith('The app has tracked this account since'))).toBe(true);
     expect(acct.lines).toContain(`+21.00% over the two years, which is ${pct2(YEARLY)}/year — a yearly rate, so it sits fairly beside a one-year window.`);
   });
 });

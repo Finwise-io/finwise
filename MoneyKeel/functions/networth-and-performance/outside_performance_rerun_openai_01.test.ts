@@ -975,7 +975,7 @@ describe('still open — the reviewer\'s 52 open points', () => {
     const r = thePerformance({ windowStart: '2025-10-13', windowLabel: 'w', today: '2026-10-13', transactions: [], snapshotDays: [],
       investmentAccountIds: new Set(['A']), accounts: [linked('A', 11000)], holdings: [{ position: { ticker: 'VTI' }, marketValue: 11000, periodReturn: 0.1, periodTotal: 0.1 }] });
     expect(r.workedBack).toBe(true);
-    expect(fs.readFileSync(path.join(__dirname, '../../../src/screens/PerformanceScreen.tsx'), 'utf8')).toContain('so the beginning is worked back from today');
+    expect(fs.readFileSync(path.join(__dirname, '../../../src/screens/PerformanceScreen.tsx'), 'utf8')).toContain('so the starting value comes from today');   // the words of 2026-11-07 (DEC-5425: “daily record” meant nothing to him)
   });
   // APP WRONG (DEC-4439) — the account page asks the same door as #30; the same item as the screen check MK-PF-M-014 T1
   open(40, 'AGREES', 'MK-PF-M-014 · the first deposit is money in, the $50 is earned (DEC-4439) — fixed 2026-10-21', () => {

@@ -99,7 +99,6 @@ export default function PerformanceScreen() {
     }
     return m;
   }, [store.transactions]);
-  const sinceWord = (iso: string) => `since you bought · ${new Date(`${iso}T12:00:00`).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
   // FINAL mock: every chip shows ITS OWN return — a window with no data shows an em-dash, never a
   // guess. Same rows and function as the headline, just run per period, so chips can't disagree with it.
   // FCC glance pin: the SAME resolved rows + helper Home's hero uses — the two can never disagree
@@ -136,7 +135,6 @@ export default function PerformanceScreen() {
     // the records and the accounts, so a bond's or a CD's interest is part of its return (DEC-6212, 2026-10-19)
     { transactions: (store.transactions ?? []) as any[], accounts: (store.assetAccounts ?? []) as any[] });
   const rows = useMemo(() => holdingRowsFor(period), [owned, priceCache, period, earliestBuyByTicker, recordDates, todayKey, store.transactions, store.assetAccounts]);
-  const anyCapped = rows.some((r) => r.cappedSince != null);
   const PERIOD_PHRASE: Record<string, string> = { '1M': 'past month', '3M': 'past 3 months', '6M': 'past 6 months', 'YTD': 'this year', '1Y': 'past year', '2Y': 'past 2 years' };
   // FOUND 2026-09-14: tapping "Since <date>" crashed the screen — the phrase table had no entry for it,
   // so the summary title read undefined.toUpperCase(). Every window now has words, the Since one included.
@@ -374,18 +372,19 @@ export default function PerformanceScreen() {
              nothing with a history, every window reads "—", and the line said its figures came from each holding's past prices */
           <Note term="dayOne">{WINDOWS.some((w) => windowFigures[w.key]?.workedBack && windowFigures[w.key]?.ret != null)
             ? "You added your accounts today. Figures for 1 month, 1 year and longer come from each holding’s past prices."
-            : "Day one: your value is real, your return starts measuring from today. We never back-fill a year we didn’t see."}</Note>
+            : "You added your accounts today. Your return starts measuring from today. We never back-fill a year we didn’t see."}</Note>
         ) : now.recordBegins ? (
           /* a window joined at the record's first day: only the days before it are worked back (DEC-6412, 2026-10-19) */
           <>
-            <Text style={styles.sumNote}>Your daily record begins {dateShown(now.recordBegins)}, so the days before it are worked back from each holding’s price history.</Text>
+            {/* (his words of 2026-10-14, DEC-5425: “your value is real” and “daily record” meant nothing to him; design review, 2026-11-07) */}
+            <Text style={styles.sumNote}>The app has tracked these accounts since {dateShown(now.recordBegins)}; the days before that come from each holding’s past prices.</Text>
             {/* over 2Y, the two years' own total beside the yearly rate (DEC-0237, DEC-0404; 2026-10-22) */}
             {yearlyLine()}
           </>
         ) : now.workedBack ? (
           /* the beginning was worked back, not read: say so, as the account page does (DEC-5068) */
           <>
-            <Text style={styles.sumNote}>Your daily record does not reach back to {dateShown(now.beginningAsOf)} yet, so the beginning is worked back from today’s values and each holding’s price history.</Text>
+            <Text style={styles.sumNote}>The app started tracking these accounts after {dateShown(now.beginningAsOf)}, so the starting value comes from today’s values and each holding’s past prices.</Text>
             {yearlyLine()}
           </>
         ) : now.sentence ? (
