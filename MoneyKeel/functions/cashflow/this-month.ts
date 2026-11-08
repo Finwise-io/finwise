@@ -219,6 +219,37 @@ export interface MonthBlock { lines: Line[]; surplus: number;
    *  surplus is then not a number, so nothing can print a figure built on a missing payment. Null when it is given. */
   refusal: string | null; }
 
+/** THE BIGGEST AMOUNT GOING OUT OF A MONTH, AS ITS ROW PRINTS IT (design review, 2026-11-08): a month below $0 names it, so the
+ *  person sees where to start. Only rows going out with an amount count — not the money coming in, not a row not set, not a payment
+ *  not entered. The amount is the row's own printed one (monthShown), so the sentence and the row agree. Null when no row goes out. */
+/* ─ MK-CF-F-318 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * biggestOutLine
+ *
+ * Answers ..... THE BIGGEST AMOUNT GOING OUT OF A MONTH, AS ITS ROW PRINTS IT (design review, 2026-11-08): a month below $0 names it, so the person sees where to start.
+ *
+ * Formula .....
+ *     best = nothing
+ *     amt = shown[i]
+ *     the answer = best
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-F-318
+ * Changed ..... not in git yet (—)
+ */
+export function biggestOutLine(lines: Line[], shown: number[]): { label: string; amount: number } | null {
+  let best: { label: string; amount: number } | null = null;
+  lines.forEach((l, i) => {
+    const amt = shown[i];
+    if (l.kind === 'in' || l.notSet || l.notEntered || !(amt < 0)) return;
+    if (best == null || amt < best.amount) best = { label: l.label, amount: amt };
+  });
+  return best;
+}
+
 /** The inflow line names what is inside it — founder's cluster #5 ruling (2026-09-10): the words in
  *  the brackets are the sources, "Inflow (income (take-home) + rent)". No sources named → the
  *  take-home alone. */

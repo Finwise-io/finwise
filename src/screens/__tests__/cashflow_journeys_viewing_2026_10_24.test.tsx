@@ -995,11 +995,11 @@ describe('E2E-80 · the bill calendar: one bill changed, its month moves and no 
     expect(before[1].ex).toEqual(['PLANNED EXPENSES', '$900', 'Groceries', '$800', 'Other', '$100', '= Total', '$900']);
     expect(before[2].ex).toEqual(['PLANNED EXPENSES', '$2,100', 'Groceries', '$800', 'Car insurance', '$1,200', 'Other', '$100', '= Total', '$2,100']);
     // December's This month is its plan: in 6,000, out 2,100, surplus 6,000 − 2,100 = $3,900
-    expect(block(before[2].tm, 'DECEMBER 2026 — THE PLAN (AN ESTIMATE)', 'Every figure is planned — an estimate, never dressed as fact.')).toEqual([
+    expect(block(before[2].tm, 'DECEMBER 2026 — THE PLAN (AN ESTIMATE)', 'Every figure for this month is a plan, not what happened.')).toEqual([
       'DECEMBER 2026 — THE PLAN (AN ESTIMATE)', 'Planned inflow', '$6,000', 'Planned outflow (expenses + debt) · incl. Car insurance', '$2,100', '= Planned surplus', '+$3,900']);   // CF2-07
     // November plans its $900: 6,000 − 900 = $5,100. FIXED 2026-10-24: it read "· incl. Everyday expenses" — the budget left
     // over named as if it were a dated bill — and "Nothing entered yet. Add your bills ›" with a budget and a bill entered
-    expect(block(before[1].tm, 'NOVEMBER 2026 — THE PLAN (AN ESTIMATE)', 'Every figure is planned — an estimate, never dressed as fact.')).toEqual([
+    expect(block(before[1].tm, 'NOVEMBER 2026 — THE PLAN (AN ESTIMATE)', 'Every figure for this month is a plan, not what happened.')).toEqual([
       'NOVEMBER 2026 — THE PLAN (AN ESTIMATE)', 'Planned inflow', '$6,000', 'Planned outflow (expenses + debt)', '$900', '= Planned surplus', '+$5,100']);   // its sign (CF2-07)
 
     // THE DOOR, from the Expenses tab: ＋ Expense → "Add something else" → "A dated bill"
@@ -1042,8 +1042,8 @@ describe('E2E-80 · the bill calendar: one bill changed, its month moves and no 
     expect(after_[0].ex).toEqual(before[0].ex);
     expect(after_[1].ex).toEqual(before[1].ex);
     expect(after('Expenses', 2, after_[0].tm, after_[0].tm.indexOf('PLANNED · OCTOBER'))).toBe('−$900');
-    expect(block(after_[1].tm, 'NOVEMBER 2026 — THE PLAN (AN ESTIMATE)', 'Every figure is planned — an estimate, never dressed as fact.')).toEqual(
-      block(before[1].tm, 'NOVEMBER 2026 — THE PLAN (AN ESTIMATE)', 'Every figure is planned — an estimate, never dressed as fact.'));
+    expect(block(after_[1].tm, 'NOVEMBER 2026 — THE PLAN (AN ESTIMATE)', 'Every figure for this month is a plan, not what happened.')).toEqual(
+      block(before[1].tm, 'NOVEMBER 2026 — THE PLAN (AN ESTIMATE)', 'Every figure for this month is a plan, not what happened.'));
     expect(after_[2].ex).toEqual(['PLANNED EXPENSES', '$2,400', 'Groceries', '$800', 'Car insurance', '$1,500', 'Other', '$100', '= Total', '$2,400']);
     expect([after('Planned outflow (expenses + debt) · incl. Car insurance', 1, after_[2].tm), after('= Planned surplus', 1, after_[2].tm)]).toEqual(['$2,400', '+$3,600']);   // its sign, CF2-07 (2026-10-27)
     expect(dollars(after_[2].ex[1]) - dollars(before[2].ex[1])).toBe(300);

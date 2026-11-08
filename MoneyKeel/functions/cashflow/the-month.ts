@@ -173,12 +173,13 @@ const GIVEN =
  *               MK-CF-F-088 taxableByCalendarMonth · MK-CF-F-146 payFiguresAgree
  *               MK-CF-F-153 radar · MK-CF-F-157 debtPaymentsByDebt
  *               MK-CF-F-186 convertTakeHomeMode · MK-CF-F-204 line
- *               MK-CF-F-205 COMING · MK-CF-F-246 expensesAsCounted
- *               MK-CF-F-255 spendByMonthByCategory · MK-CF-F-259 rateNotEntered
- *               MK-CF-O-004 incomeSummary · MK-CF-O-010 theMonth
- *               MK-CF-O-020 theBudgetCounted · MK-NW-F-046 historyCoverage
- *               MK-NW-O-004 theEmergencyFund · MK-PF-F-045 priceHistoryShortSentence
- *               MK-PL-F-036 weighGoals · MK-XS-F-004 buildDatedGrid
+ *               MK-CF-F-205 COMING · MK-CF-F-231 addedAfterRecord
+ *               MK-CF-F-246 expensesAsCounted · MK-CF-F-255 spendByMonthByCategory
+ *               MK-CF-F-259 rateNotEntered · MK-CF-O-004 incomeSummary
+ *               MK-CF-O-010 theMonth · MK-CF-O-020 theBudgetCounted
+ *               MK-NW-F-046 historyCoverage · MK-NW-O-004 theEmergencyFund
+ *               MK-PF-F-045 priceHistoryShortSentence · MK-PL-F-036 weighGoals
+ *               MK-XS-F-004 buildDatedGrid
  *
  * Reaches ..... 488 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL

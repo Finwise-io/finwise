@@ -534,6 +534,11 @@
   "file": "src/domain/income/onboarding.ts",
   "category": "2 · DISPLAYED"
  },
+ "biggestOutLine": {
+  "id": "MK-CF-F-318",
+  "file": "MoneyKeel/functions/cashflow/this-month.ts",
+  "category": "2 · DISPLAYED"
+ },
  "blendedReturn": {
   "id": "MK-NW-F-037",
   "file": "src/domain/assets/index.ts",

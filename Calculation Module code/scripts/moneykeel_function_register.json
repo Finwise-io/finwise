@@ -1,6 +1,6 @@
 {
  "highest": {
-  "CF": 317,
+  "CF": 318,
   "CF-O": 21,
   "HM": 7,
   "NW": 188,
@@ -134,6 +134,7 @@
   "benchmarkTicker": "MK-PF-F-013",
   "benefitActiveMonths": "MK-CF-F-069",
   "benefitAnnual": "MK-CF-F-070",
+  "biggestOutLine": "MK-CF-F-318",
   "blendedReturn": "MK-NW-F-037",
   "blendedVolatility": "MK-NW-F-035",
   "bondInfo": "MK-NW-F-056",

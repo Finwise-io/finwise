@@ -1021,5 +1021,6 @@
 "src/domain/import/holdingsImport.ts::sameCents": "not in git yet|\u2014",
 "src/domain/import/holdingsImport.ts::fileAccountOf": "not in git yet|\u2014",
 "src/domain/import/holdingsImport.ts::fileDateOf": "not in git yet|\u2014",
-"MoneyKeel/functions/networth-and-performance/performance.ts::howReturnCalculated": "not in git yet|\u2014"
+"MoneyKeel/functions/networth-and-performance/performance.ts::howReturnCalculated": "not in git yet|\u2014",
+"MoneyKeel/functions/cashflow/this-month.ts::biggestOutLine": "not in git yet|\u2014"
 }

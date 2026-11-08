@@ -100,7 +100,7 @@ describe('the screen journey', () => {
     // Cash flow (working lens) now names the commitment and relabels the surplus
     render(<CashFlowScreen />);
     expect(screen.getByText(/Help parents · from your Plan/)).toBeOnTheScreen();
-    expect(screen.getAllByText('Surplus after your budget').length).toBeGreaterThan(0);   // hero + row
+    expect(screen.getAllByText('Surplus after your Plan').length).toBeGreaterThan(0);   // hero + row
   });
 
   test('PIN: the capacity figure equals the canonical after-debt surplus to the dollar', () => {

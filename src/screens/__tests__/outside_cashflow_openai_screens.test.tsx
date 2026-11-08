@@ -403,7 +403,7 @@ const FIGS: Record<string, Fig> = {
   'MK-CF-M-014': F('CF_EXP', '12 Sep · Diner', MOCK.cf, MATCH.cf),
   'MK-CF-M-015': F('CF_EXP', 'PLANNED EXPENSES', MOCK.cf, MATCH.cf),
   'MK-CF-M-016': F('DRAW_A_EXP', 'BIG-TICKET RADAR', MOCK.cf, MATCH.cf, { nowAs: { id: 'MK-CF-M-014', seen: `FX-CF-A, 2026-10-27 (R5): a payment logged prints on the radar to the cent, as its row above does, under MK-CF-M-014; a bill or a sum due still prints under MK-CF-M-016` } }),
-  'MK-CF-M-020': F('CF', 'Surplus after your budget', MOCK.cf, MATCH.cf),
+  'MK-CF-M-020': F('CF', 'Surplus after your Plan', MOCK.cf, MATCH.cf),
   'MK-CF-M-021': F('CF', 'Emergency fund · from your Plan', MOCK.cf, MATCH.cf),
   'MK-CF-M-022': F('SAVER', 'YOUR FUTURE PAYCHECK', null, MATCH.card, { drawingNote: PAYCARD }),
   'MK-CF-M-023': F('SAVER', 'Social Security · pension', null, MATCH.card, { drawingNote: PAYCARD }),
@@ -582,9 +582,9 @@ const CLASS: Record<string, Item> = {
     check: () => { expect(has('UNDATED_BILLS', 'Insurance · $1,200 due Jan 1, 2027')).toBe(true); expect(after('UNDATED_BILLS', 'Jan ’27', 2)).toBe('−$2,100'); },
     wrong: () => { expect(text('UNDATED_BILLS')).not.toMatch(/Insurance · \$1,200 due Jan 1, 2027/); } },
   'MK-CF-M-020#1': { cls: 'REVIEWER WRONG',
-    why: 'Rendered: with no budget there is no "Surplus after your budget" line (the no-budget sentence stands in); with the car loan\'s payment not entered there is none either; with no income the month is not drawn (its two set-up steps). The line appears only on a complete plan, as its row says (DEC-7682, DEC-7939).',
-    check: () => { expect(has('NOBUDGET_CF', 'Surplus after your budget')).toBe(false); expect(has('CF_NOPAY', 'Surplus after your budget')).toBe(false);
-      expect(has('CF_NOINCOME', 'Surplus after your budget')).toBe(false); expect(after('CF', 'Surplus after your budget')).toBe('+$3,150'); /* +$850 until FIX-MONTH, 2026-10-25: 3,450 − 300 */ } },
+    why: 'Rendered: with no budget there is no "Surplus after your Plan" line (the no-budget sentence stands in); with the car loan\'s payment not entered there is none either; with no income the month is not drawn (its two set-up steps). The line appears only on a complete plan, as its row says (DEC-7682, DEC-7939).',
+    check: () => { expect(has('NOBUDGET_CF', 'Surplus after your Plan')).toBe(false); expect(has('CF_NOPAY', 'Surplus after your Plan')).toBe(false);
+      expect(has('CF_NOINCOME', 'Surplus after your Plan')).toBe(false); expect(after('CF', 'Surplus after your Plan')).toBe('+$3,150'); /* +$850 until FIX-MONTH, 2026-10-25: 3,450 − 300 */ } },
   'MK-CF-M-022#1': { cls: 'EVIDENCE GAP',
     why: 'The reviewer could not compute a simulated paycheck from words. The app\'s is deterministic: 1,000 seeded paths (DEC-0247), the plan\'s return and inflation, in today\'s dollars (DEC-2164) — the register\'s household gives the same figure every run. Package fix: send the simulation contract (paths, seed, return, volatility, horizon, the draw search) with the card.',
     check: () => { const op = { ...H_SAVER.onboardingProfile, incomeSources: ['retirement_income'], baseSalary: undefined };
@@ -1356,7 +1356,7 @@ afterAll(() => {
 // FIX-MONTH, 2026-10-25 — THE FIGURES THE LEAD'S RULING MOVED ON THE REGISTER'S SEPTEMBER HOUSEHOLD, the answers before kept beside
 // the new ones above (the mortgage counted once: see FIXMONTH). Each fails now, as it should.
 describe('FIX-MONTH 2026-10-25 — the answers before the mortgage was counted once, kept', () => {
-  test.failing('MK-CF-M-020: "Surplus after your budget" +$850', () => { expect(after('CF', 'Surplus after your budget')).toBe('+$850'); });
+  test.failing('MK-CF-M-020: "Surplus after your Plan" +$850', () => { expect(after('CF', 'Surplus after your Plan')).toBe('+$850'); });
   test.failing('MK-CF-M-048: October planned outflow $6,050', () => { expect(first('CF_OCT', 'MK-CF-M-048')).toBe('$6,050'); });
   test.failing('MK-CF-M-056: the budget editor’s plan $3,400', () => { expect(has('CF_BUDGET', /left · of \$3,400 plan$/)).toBe(true); });
   test.failing('X4: ACTUAL EXPENSES $2,998', () => { expect(first('CF_EXP', 'MK-CF-M-013')).toBe('$2,998'); });

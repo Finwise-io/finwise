@@ -3817,6 +3817,11 @@
    "name": "howReturnCalculated",
    "rule": "How the Return was calculated, in words, from the pieces the time-weighted return is made of: nothing when there are no pieces or no Return. One piece: no money went in or out, so Return is how much the value changed, then the Return. Two to four pieces: money went in or out on (pieces − 1) days, the count and its word written by plural, so the dates are split there into that many pieces, then each piece's growth in order, then the words multiplied together before rounding and the Return. Five or more: the same opening, then each piece's growth is measured and the pieces are multiplied together, before rounding, to make the Return. Every percent is written by the caller's writer.",
    "read_from": "4a405490c2"
+  },
+  "MK-CF-F-318": {
+   "name": "biggestOutLine",
+   "rule": "The biggest amount going out of a month, as its row prints it: of the month's rows, only those going out are read — not the money coming in, not a row not set, not a payment not entered, and only where the printed amount is below zero; the one with the most negative printed amount wins, the first of equal ones kept. It gives that row's name and its printed amount; nothing when no row goes out.",
+   "read_from": "f9e22aeed0"
   }
  },
  "pack_sent": {

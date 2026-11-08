@@ -1,7 +1,6 @@
-# #15: the Cash Flow detail screen — reached from the Home cash-flow box via "Cash-flow detail →" —
-# shows the typical-month breakdown, the month-by-month surplus projection, take-home vs spending,
-# and this month's planned-vs-actual. This flow also verifies the Home entry point (#15) actually
-# navigates there (a tap-driven check, since the link is a standalone touchable).
+# THE CASH FLOW TAB, AS IT IS BUILT TODAY (rewritten 2026-11-08, design review): the old flow asserted "Cash-flow detail",
+# "A TYPICAL MONTH" and "TAKE-HOME vs SPENDING", which no longer exist, so it could never pass. The tab is reached from the
+# tab bar; This month shows PLANNED and ACTUAL · SO FAR, and the four tabs open.
 #
 # Run: maestro test .maestro/cashflow.yaml   (needs a booted simulator with the app + a seeded profile)
 appId: co.finwise.app
@@ -9,21 +8,18 @@ appId: co.finwise.app
 - launchApp:
     clearState: false
 - openLink: finwise://home
-
-# the Home cash-flow box exposes the detail link (#15 entry point)
+- extendedWaitUntil:
+    visible: "Cash flow"
+    timeout: 45000
+- tapOn: "Cash flow"
 - extendedWaitUntil:
     visible:
-      text: ".*Cash-flow detail.*"
-    timeout: 45000
-- tapOn:
-    text: ".*Cash-flow detail.*"
-
-# the detail screen renders all four sections
-- extendedWaitUntil:
-    visible: "A TYPICAL MONTH"
+      text: "PLANNED · .*"
     timeout: 15000
-- assertVisible: "= Surplus"                       # the breakdown bottom line (Term #10 naming)
-- assertVisible: "SURPLUS, MONTH BY MONTH"          # the month-by-month projection chart
-- assertVisible: "TAKE-HOME vs SPENDING"            # estimates by month
+- assertVisible: "ACTUAL · SO FAR"
+- tapOn: "Income"
+- tapOn: "Expenses"
+- tapOn: "Debts"
+- tapOn: "This month"
 - assertVisible:
-    text: ".*PLANNED vs ACTUAL.*"                   # this month's planned-vs-actual
+    text: "PLANNED · .*"

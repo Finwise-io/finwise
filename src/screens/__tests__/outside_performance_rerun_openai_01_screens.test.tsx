@@ -603,9 +603,9 @@ type Item = { cls: Cls; why: string; rowWordsOnly?: boolean; inFlight?: boolean;
 const CLASS: Record<string, Item> = {
   // ── Cash flow figures (on Cash flow, and by the register on Home) ────────────────────────────────────────────────
   'MK-CF-M-002#2': { cls: 'REVIEWER WRONG',
-    why: 'Settled on screen: the Plan\'s $300 promise is its own row under the planned surplus — "= Planned surplus +$1,150 · Emergency fund · from your Plan −$300 · Surplus after your budget +$850". Every row shown is deducted.',
+    why: 'Settled on screen: the Plan\'s $300 promise is its own row under the planned surplus — "= Planned surplus +$1,150 · Emergency fund · from your Plan −$300 · Surplus after your Plan +$850". Every row shown is deducted.',
     // +$1,150 / +$850 until FIX-MONTH, 2026-10-25 (the Rent / Mortgage line is the unplaced mortgage's, counted once): 3,450 − 300 = 3,150
-    check: () => { expect(after('CF_PROMISE', '= Planned surplus')).toBe('+$3,450'); expect(after('CF_PROMISE', 'Emergency fund · from your Plan')).toBe('−$300'); expect(after('CF_PROMISE', 'Surplus after your budget')).toBe('+$3,150'); } },
+    check: () => { expect(after('CF_PROMISE', '= Planned surplus')).toBe('+$3,450'); expect(after('CF_PROMISE', 'Emergency fund · from your Plan')).toBe('−$300'); expect(after('CF_PROMISE', 'Surplus after your Plan')).toBe('+$3,150'); } },
   'MK-CF-M-002#3': { cls: 'APP WRONG',
     why: 'Missing income: no surplus at all, only the two set-up steps (held). Missing debt payment: the surplus refuses, but reads "+No budget set — there is no planned surplus…" while a $3,400 budget IS set, and the car loan\'s row prints "A section with nothing in it keeps its heading and says so." — the wrong reason, in a sentence written for the master file.',
     fix: 'MoneyKeel/functions/cashflow/this-month.ts plannedMonthFlow + src/screens/CashFlowScreen.tsx: a debt with no payment entered reads "Car loan — payment not entered", and the planned surplus "Not worked out — Car loan\'s payment is not entered", with no "+". Cash flow This month, words only.',
@@ -1105,7 +1105,7 @@ test('LB_NOPRICE, settled: the waiting line, then the failure line naming BND an
 describe('FIX-MONTH 2026-10-25 — H_CF before the Rent / Mortgage line was the mortgage\'s', () => {
   test.failing('MK-CF-M-002: = Planned surplus $1,150', () => { expect(first('CF_CF', 'MK-CF-M-002')).toBe('$1,150'); });
   test.failing('MK-CF-M-052: Expenses entered by hand −$2,998 and the mortgage NOT PAID YET', () => { expect(after('CF_CF', 'Expenses entered by hand')).toBe('−$2,998'); });
-  test.failing('MK-CF-M-002#2: + Surplus after your budget +$850', () => { expect(after('CF_PROMISE', 'Surplus after your budget')).toBe('+$850'); });
+  test.failing('MK-CF-M-002#2: + Surplus after your Plan +$850', () => { expect(after('CF_PROMISE', 'Surplus after your Plan')).toBe('+$850'); });
 });
 
 // THE OLD ANSWERS, KEPT (2026-10-27, FX-NW): replaced by the lead's rulings R2 (no expenses typed, no months) and R7 ("calculated"), and by

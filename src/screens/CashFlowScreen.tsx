@@ -7,13 +7,14 @@
 import { rentWaitingSentence } from './IncomeSummaryScreen';   // the one sentence for rent waiting for its property (R27, 2026-11-02)
 import { MoneyBox } from '../components/MoneyBox';   // every money box, one component (DEC-8385)
 import { plural, withArticle } from '../domain/_shared/plural';   // the one list of words and plurals (DEC-4082, 2026-10-10)
-import { pastMonthFlow, addedAfterRecord, monthBeforeAnyRecord, type Line as MonthLine } from '../../MoneyKeel/functions/cashflow/this-month';
+import { pastMonthFlow, addedAfterRecord, monthBeforeAnyRecord, biggestOutLine, type Line as MonthLine } from '../../MoneyKeel/functions/cashflow/this-month';
 import { fig, figPer, figSaid, figWords, saidSentence, monthShown, flowShown, partsShown } from '../components/figure';   // rule 11: a figure prints with its identifier
 import { centsShown, percentDigits, percentValue } from '../../MoneyKeel/functions/_figure-spec';   // rows to the cent that add up to their printed total (R5, 2026-10-27)
 import { theBudgetCounted, expensesAsCounted } from '../../MoneyKeel/functions/cashflow/budget-counted';
 import { theMonth } from '../../MoneyKeel/functions/cashflow/the-month';
 import { futurePaycheck } from '../../MoneyKeel/functions/cashflow/future-paycheck';
 import { receivedInMonth } from '../../MoneyKeel/functions/cashflow/whats-coming';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import React, { useEffect, useMemo, useState } from 'react';
 import { ScrollView, View, Text, StyleSheet, TouchableOpacity, Modal, TextInput, KeyboardAvoidingView, Platform, Alert } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
@@ -137,7 +138,7 @@ export default function CashFlowScreen() {
       <View style={styles.subTabs}>
         {(['This month', 'Income', 'Expenses', 'Debts'] as const).map((t) => (
           <TouchableOpacity key={t} accessibilityRole="button" style={[styles.subTab, surfTab === t && styles.subTabOn]}
-            onPress={() => setSurfTab(t)} accessibilityLabel={`${t} tab${surfTab === t ? ', selected' : ''}`}>
+            onPress={() => setSurfTab(t)} accessibilityLabel={`${t} tab${surfTab === t ? ', selected' : ''}`} accessibilityState={{ selected: surfTab === t }}>
             <Text style={[styles.subTabT, surfTab === t && styles.subTabTOn]}>{t}</Text>
           </TouchableOpacity>
         ))}
@@ -228,9 +229,18 @@ export default function CashFlowScreen() {
 // ── v1.3 surface pieces (FINAL mock, approved 2026-07-19) ───────────────────────
 
 /** First-open step 2: the expenses question, answered in place → canonical monthlySpending. */
+/** A FULL-SCREEN LIST STARTS BELOW THE PHONE'S OWN TOP EDGE (design review, 2026-11-08): it was a fixed 54 points, which sits
+ *  under the clock on a phone with a taller top and leaves a gap on one without. */
+function useTopEdge(): number { return Math.max(useSafeAreaInsets().top, 20) + 8; }
+
 function SpendingQuestion({ op, store }: { op: any; store: any }) {
   const [v, setV] = useState('');
-  const save = () => { if (parseFloat(v) > 0) store.setOnboardingProfile?.({ ...(op ?? {}), monthlySpending: v }); };
+  const [why, setWhy] = useState('');
+  // A FIGURE NOT KEPT SAYS SO (design review, 2026-11-08): '0' or words were dropped in silence when the box was left
+  const save = () => {
+    if (parseFloat(v) > 0) { setWhy(''); store.setOnboardingProfile?.({ ...(op ?? {}), monthlySpending: v }); }
+    else if (v.trim()) setWhy('Enter an amount above $0 — rent, food and bills for a month, roughly.');
+  };
   return (
     <View style={styles.door}>
       <View style={{ flex: 1 }}>
@@ -242,6 +252,7 @@ function SpendingQuestion({ op, store }: { op: any; store: any }) {
         <MoneyBox bare dollarBeside style={styles.doorInput} value={v} onChangeText={setV} onEndEditing={save}
           placeholder="—" a11y="Typical monthly expenses" />
       </View>
+      {!!why && <Text style={[styles.note, { color: Colors.red, width: '100%' }]} accessibilityLiveRegion="polite">{why}</Text>}
     </View>
   );
 }
@@ -287,8 +298,9 @@ function OtherMonthCard({ offset, ym, label, grid, store, onSpending, budgetSet 
           </TouchableOpacity>
           <BudgetEditor open={budgetOpen} onClose={() => setBudgetOpen(false)} />
         </>)}
-        {budgetSet && cell.net < 0 && <Text style={styles.note}>A tight month you can see coming — the bill calendar feeds this.</Text>}
-        <Text style={styles.note}>Every figure is planned — an estimate, never dressed as fact.</Text>
+        {/* plain words, and the month's one word, short month, as its bar says it (design review, 2026-11-08) */}
+        {budgetSet && cell.net < 0 && <Text style={styles.note}>A short month: more is planned to go out than to come in.</Text>}
+        <Text style={styles.note}>Every figure for this month is a plan, not what happened.</Text>
       </View>
     );
   }
@@ -368,7 +380,7 @@ function IncomeTab({ op, store, ym, expected, current, monthLabel, onSetup, onSu
           : sum.wageRefusal && approx ? [x.note, x.every ?? 'monthly', 'take-home not calculated — the other pay cannot be read yet'].filter(Boolean) as string[]
           : x.note === 'by-month table' ? x.note
           : x.note === 'take-home' && x.every === 'monthly' ? 'take-home · monthly'
-          : [x.note, x.every ?? 'monthly', `${approx ? '~' : ''}${fig('MK-CF-M-031', monthlyNet)}/month take-home`],   // "≈$6,976", the one form (CF-24)
+          : [x.note, x.every ?? 'monthly', `${approx ? '~' : ''}${fig('MK-CF-M-031', monthlyNet)}/month take-home`],   // "~$6,976", the one form (CF-24; the mark is ~ since R25, 2026-11-01)
         amount: x.hourly ? `${fig('MK-CF-M-006', x.amount)}/hour` : fig('MK-CF-M-006', Math.round(x.amount)), open: onSetup });   // '$25/hour' (CF6-12)
       continue;
     }
@@ -378,12 +390,12 @@ function IncomeTab({ op, store, ym, expected, current, monthLabel, onSetup, onSu
   }
   const dayWords = (iso: string) => { const [, m, d] = localDay(iso).split('-').map(Number); return `${MON3[(m || 1) - 1]} ${d}`; };   // its day where the person is (CF-21)
   // A CALCULATED TAKE-HOME WEARS ≈, A TYPED ONE NEVER (2026-10-25, CF-24; income v07 rule 9, "Every estimate is prefixed ≈"): the
-  // source line and Your base pay print ≈$6,976 for the figure this card printed as $6,976
+  // source line and Your base pay print ~$6,976 for the figure this card printed as $6,976 (the mark is ~ since R25, 2026-11-01)
   const calculated = payRows.some((l) => l.estimated === true);
   // the one chooser, opened from wherever the door is printed — under the sources, or as the line that says nothing is entered
   const chooseIncome = () => {
     Alert.alert('Add your income', undefined, [
-      { text: 'Salary / take-home', onPress: onSetup },
+      { text: 'Your base pay', onPress: onSetup },   // the door's one name (design review, 2026-11-08): it read Salary / take-home
       { text: 'Stock vesting (equity)', onPress: manage('equity') },
       { text: 'Rental property', onPress: manage('rental') },
       { text: 'Self-employment', onPress: manage('self') },
@@ -457,6 +469,7 @@ function IncomeTab({ op, store, ym, expected, current, monthLabel, onSetup, onSu
  *  of the screen never changes — only what is in it". */
 const MON3 = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 function ExpensesTab({ ym, grid, budgetProfile, liabilities, bva, expenses, onLog, onDebts, budgetSentence, record }: { ym: string; grid: any; budgetProfile: any; liabilities: any[]; bva: any; expenses: any[]; onLog: () => void; onDebts: () => void; budgetSentence?: string; record?: any }) {
+  const topEdge = useTopEdge();
   const [allTxns, setAllTxns] = useState(false);
   const [importing, setImporting] = useState(false);
   const [budgetOpen, setBudgetOpen] = useState(false);
@@ -663,9 +676,9 @@ function ExpensesTab({ ym, grid, budgetProfile, liabilities, bva, expenses, onLo
 
       <BudgetEditor open={budgetOpen} onClose={() => setBudgetOpen(false)} />
       <Modal visible={allTxns} animationType={modalAnimation()} onRequestClose={() => setAllTxns(false)}>
-        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1, backgroundColor: Colors.bgSecondary, paddingTop: 54 }}>
+        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1, backgroundColor: Colors.bgSecondary, paddingTop: topEdge }}>
           <View style={[styles.headRow, { paddingHorizontal: Spacing.base }]}>
-            <Text style={styles.h1}>All transactions</Text>
+            <Text style={styles.h1}>Every expense</Text>
             <TouchableOpacity hitSlop={Tap.slop} accessibilityRole="button" accessibilityLabel="Done with transactions" onPress={() => setAllTxns(false)}>
               <Text style={styles.link}>Done</Text>
             </TouchableOpacity>
@@ -674,7 +687,7 @@ function ExpensesTab({ ym, grid, budgetProfile, liabilities, bva, expenses, onLo
         </KeyboardAvoidingView>
       </Modal>
       <Modal visible={importing} animationType={modalAnimation()} onRequestClose={() => setImporting(false)}>
-        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1, backgroundColor: Colors.bgSecondary, paddingTop: 54 }}>
+        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1, backgroundColor: Colors.bgSecondary, paddingTop: topEdge }}>
           <View style={[styles.headRow, { paddingHorizontal: Spacing.base }]}>
             <Text style={styles.h1}>Import a statement</Text>
             <TouchableOpacity hitSlop={Tap.slop} accessibilityRole="button" accessibilityLabel="Done importing" onPress={() => setImporting(false)}>
@@ -754,9 +767,10 @@ function RetiredMain({ year, accounts, bva, onWhyOrder }: { year: any; accounts:
 /** The budget editor: every category, with the live surplus math. One sheet, opened by "Set your
  *  budget" when there is none and by the budget row once there is. */
 function BudgetEditor({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const topEdge = useTopEdge();
   return (
     <Modal visible={open} animationType={modalAnimation()} onRequestClose={onClose}>
-      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1, backgroundColor: Colors.bgSecondary, paddingTop: 54 }}>
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1, backgroundColor: Colors.bgSecondary, paddingTop: topEdge }}>
         <View style={[styles.headRow, { paddingHorizontal: Spacing.base }]}>
           <Text style={styles.h1}>Your budget</Text>
           <TouchableOpacity hitSlop={Tap.slop} accessibilityRole="button" accessibilityLabel="Done editing your budget" onPress={onClose}>
@@ -824,6 +838,10 @@ function WorkingMain({ grid, bva, op, budgetProfile, liabilities, store, budgetS
   const aShown = monthShown(actualExact.lines);
   const planned = { ...plannedExact, surplus: pShown.surplus };
   const actual = { ...actualExact, surplus: aShown.surplus };
+  /** A MONTH THAT GOES BELOW $0 SAYS WHY, AND WHERE TO START (design review, 2026-11-08): it printed a red figure and stopped. The
+   *  biggest amount going out is named, with the amount its own row prints (biggestOutLine). */
+  const belowZero = (said: string, b: { label: string; amount: number } | null) => (b == null ? null
+    : <Text style={[styles.note, { paddingHorizontal: 16 }]}>{`${said} The biggest is ${b.label}, ${fig('MK-CF-M-004', Math.abs(b.amount))}.`}</Text>);
   const hasDebts = planned.lines.some((l) => l.kind === 'debt');
   // the take-home is the app's calculation when any earner's is (Your base pay's own flag) — then it wears ≈ (CF-24)
   const calculated = useMemo(() => incomeSummary(op, { accounts: store.assetAccounts, transactions: store.transactions }).lands.lines.some((l: any) => l.estimated === true),
@@ -900,13 +918,19 @@ function WorkingMain({ grid, bva, op, budgetProfile, liabilities, store, budgetS
               <Text style={[styles.rowL, { fontWeight: '800' }]}>= Planned surplus</Text>
               <Text style={[styles.rowV, { fontWeight: '800', color: planned.surplus >= 0 ? Colors.gainText : Colors.red }]}>{signed('MK-CF-M-002', planned.surplus)}</Text>
             </View>
+            {planned.surplus < 0 && !refused && (<>
+              {belowZero('More is planned to go out this month than to come in.', biggestOutLine(planned.lines, pShown.amounts))}
+              <TouchableOpacity accessibilityRole="button" hitSlop={Tap.slop} style={{ paddingHorizontal: 16 }} onPress={() => setBudgetOpen(true)} accessibilityLabel="Change your budget">
+                <Text style={styles.link}>Change your budget ›</Text>
+              </TouchableOpacity>
+            </>)}
             {/* promised to a goal in the Plan (F11): it comes off what is free, and says where it came from */}
             {month.committed > 0 && (
               <>
                 {commitments.map((c, i) => (
                   <Row key={i} label={`${c.label} · from your Plan`} value={`−${fig('MK-CF-M-021', c.monthlyAmount)}`} dim />
                 ))}
-                <Row label="Surplus after your budget" value={signed('MK-CF-M-020', month.free)} strong color={month.free >= 0 ? Colors.gainText : Colors.red} />
+                <Row label="Surplus after your Plan" value={signed('MK-CF-M-020', month.free)} strong color={month.free >= 0 ? Colors.gainText : Colors.red} />
               </>
             )}
           </>
@@ -936,6 +960,7 @@ function WorkingMain({ grid, bva, op, budgetProfile, liabilities, store, budgetS
             ? <Text style={[styles.rowV, { fontWeight: '800' }]}>—</Text>
             : <Text style={[styles.rowV, { fontWeight: '800', color: actual.surplus >= 0 ? Colors.gainText : Colors.red }]}>{signed('MK-CF-M-003', actual.surplus)}</Text>}
         </View>
+        {!refused && actual.surplus < 0 && belowZero('More has gone out this month than come in so far.', biggestOutLine(actual.lines, aShown.amounts))}
         {nothingLogged && (
           <Text style={styles.emptyP}>Nothing logged yet, and no card connected. Connect a card and your purchases arrive here on their own.</Text>
         )}
@@ -1076,7 +1101,8 @@ const styles = StyleSheet.create({
   // EDGE TO EDGE, SQUARE (cash-flow_v01: .card margin 0 −13px, no corner — CF-15, 2026-10-25): each card runs the screen's width
   // and its bands with it; the rows keep the 16-point inset, so every figure lands on one right edge
   card: { backgroundColor: Colors.white, padding: Spacing.base, marginHorizontal: -Spacing.base, marginBottom: Spacing.md },
-  projCard: { backgroundColor: Colors.white, borderRadius: Radii.lg, padding: Spacing.base, marginBottom: Spacing.base, borderWidth: 1.5, borderColor: Colors.border, borderStyle: 'dashed' },
+  // a card like every other on the tab, so its dark-green bar runs edge to edge (his standard; design review, 2026-11-08): it was a rounded, dashed, inset card
+  projCard: { backgroundColor: Colors.white, padding: Spacing.base, marginHorizontal: -Spacing.base, marginBottom: Spacing.md },
   row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 5 },
   rowL: { fontSize: Typography.sizes.base, color: Colors.textPrimary },
   rowV: { fontSize: Typography.sizes.base, color: Colors.textPrimary, fontVariant: ['tabular-nums'] },

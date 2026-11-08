@@ -68,7 +68,7 @@ test('Expenses tab: a logged expense lands under "Entered by hand", and the budg
   expect(screen.getByText('= Actual expenses, all sources')).toBeOnTheScreen();
   // five, then the rest on a tap — and the rest opens the PROVEN browse / search / edit body
   fireEvent.press(screen.getByLabelText(/^Show all 6 — /));
-  expect(screen.getByText('All transactions')).toBeOnTheScreen();
+  expect(screen.getByText('Every expense')).toBeOnTheScreen();
   // the planned rows are the door to the budget; the statement import keeps its one link
   // the door says its rows (2026-10-24, E2E-78): it said only "by category", so no planned amount was ever heard
   expect(screen.getByLabelText(/^Planned expenses: .*; total, \$[\d,]+\. Opens your budget\.$/)).toBeOnTheScreen();
@@ -95,5 +95,5 @@ test('month switcher: back = frozen actuals; forward = "planned — an estimate"
   fireEvent.press(screen.getByLabelText('Back to the current month'));
   fireEvent.press(screen.getByLabelText('Next month'));
   expect(screen.getByText(/THE PLAN \(AN ESTIMATE\)/)).toBeOnTheScreen();
-  expect(screen.getByText(/planned — an estimate|Every figure is planned/)).toBeOnTheScreen();
+  expect(screen.getByText(/planned — an estimate|Every figure for this month is a plan/)).toBeOnTheScreen();
 });

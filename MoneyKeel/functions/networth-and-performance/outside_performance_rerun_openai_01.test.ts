@@ -749,13 +749,13 @@ describe('still open — the reviewer\'s 52 open points', () => {
   open(9, 'AGREES', 'MK-NW-O-008 · bound dates: a deposit dated after today — fixed 2026-10-21, read on today (tenets 1 and 4)', () => { const r = futureDeposit(); expect(r.ret!).toBeCloseTo(r.walk!.wealthGenerated / 2000, 12); });
   // REVIEWER WRONG (settled on screen — the same item as the screen check MK-CF-M-002 T2): the Plan's $300 is not inside
   // the planned surplus; it is its own row beneath it — "Planned surplus +$1,150 · Emergency fund · from your Plan −$300 ·
-  // Surplus after your budget +$850" (CashFlowScreen). Both figures are shown and each says what it holds.
+  // Surplus after your Plan +$850" (CashFlowScreen). Both figures are shown and each says what it holds.
   open(10, 'REVIEWER WRONG', 'MK-CF-M-002 · the Plan\'s $300 a month to the emergency fund', () => { expect(thisMonth(EX).planned.surplus).toBe(850); });
   test('#10 · the app\'s answer, pinned: planned surplus $1,150; the $300 is its own row under it', () => {
     const m = thisMonth(EX);
     expect(m.planned.surplus).toBe(1150);   // 7,200 − 2,400 − 250 − 3,400
     expect(m.planned.lines.map((l: any) => l.label)).toEqual(['Inflow (income (take-home))', 'Mortgage', 'Car loan', 'Expenses']);
-    expect(fs.readFileSync(path.join(__dirname, '../../../src/screens/CashFlowScreen.tsx'), 'utf8')).toContain('label="Surplus after your budget"');
+    expect(fs.readFileSync(path.join(__dirname, '../../../src/screens/CashFlowScreen.tsx'), 'utf8')).toContain('label="Surplus after your Plan"');
   });
   open(11, 'NEEDS A RULING', 'MK-CF-M-051 · the actual inflow is the planned take-home, with nothing recorded as received', () => {
     expect(thisMonth(EX).actual.lines[0]).toMatchObject({ label: 'Actual inflow (income (take-home))', amount: 7200 });

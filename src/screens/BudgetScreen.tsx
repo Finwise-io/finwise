@@ -158,13 +158,6 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
   const setupLoans = setupStudentLoans(op, liabilities ?? []);   // only the setup loans no debt entered is (FX-NW, R22: counted once)
   const totalDebt = debtsView.reduce((s: number, d: DebtEntry) => s + d.balance, 0) + setupLoans.owed;
 
-  function handleDeleteDebt(id: string) {
-    Alert.alert('Delete debt', 'Remove this debt entry?', [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'Delete', style: 'destructive', onPress: () => deleteLiability(id) },
-    ]);
-  }
-
   // forgiving delete (§2.5): remove immediately, surface an Undo banner that re-adds it
   function deleteEntry(kind: 'income' | 'expense', entry: any) {
     setDeleted({ kind, entry });
@@ -905,7 +898,9 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
                   </View>
                 );
                 return (
-                  <TouchableOpacity key={d.debt_id} style={[styles.debtRow, idx > 0 && styles.debtRowRule]} onPress={() => setDebtSheet({ open: true, edit: d })} onLongPress={() => handleDeleteDebt(d.debt_id)} activeOpacity={0.8}
+                  <TouchableOpacity key={d.debt_id} style={[styles.debtRow, idx > 0 && styles.debtRowRule]} onPress={() => setDebtSheet({ open: true, edit: d })} activeOpacity={0.8}
+                    // ONE WAY TO REMOVE A DEBT, AND IT CAN BE SEEN (design review, 2026-11-08): a long press deleted it, which nothing on screen
+                    // said; Remove in the debt's own editor, behind its confirm, is the way
                     // ONE ELEMENT THAT SAYS ITS ROW IN WORDS (2026-10-24, Cash flow journey E2E-78): it was heard as its printed run —
                     // the icon, "/month", "~", "›" and, under hide-balances, the dots
                     accessibilityRole="button"

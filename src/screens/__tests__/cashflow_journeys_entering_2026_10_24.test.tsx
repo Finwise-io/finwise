@@ -262,7 +262,7 @@ describe('E2E-70 · a one-time $2,000 bonus lands in its own month, taxed at the
     expect(after(readLines(), 'THIS MONTH')).toBe('~$5,416');   // the app's calculation wears ≈ (2026-10-25, CF-24)
     const chooser = chooseInAlert('One-time income');
     press('Add your income');
-    expect(chooser[0]).toEqual({ title: 'Add your income', buttons: ['Salary / take-home', 'Stock vesting (equity)', 'Rental property', 'Self-employment', 'Bonus', 'One-time income', 'Cancel'] });
+    expect(chooser[0]).toEqual({ title: 'Add your income', buttons: ['Your base pay', 'Stock vesting (equity)', 'Rental property', 'Self-employment', 'Bonus', 'One-time income', 'Cancel'] });
     expect(mockNav.pushes).toEqual(['/income-manager?open=onetime']);
     screen.unmount();
 

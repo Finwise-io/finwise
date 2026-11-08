@@ -474,7 +474,10 @@ export function centsShown(parts: number[]): { cents: number[]; totalCents: numb
  *     ins.total − outs.total   otherwise
  *     by kind = by kind
  *
- * Called by ... nothing — it is an entry point, or nothing reaches it
+ * Called by ... MK-CF-F-231 addedAfterRecord
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-CF-F-231 addedAfterRecord
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
