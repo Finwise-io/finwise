@@ -5214,6 +5214,18 @@
     "status": "DONE 2026-11-02 — in force from today: FX-NW stopped and resumed; the closing round ran no more than three",
     "comments": "His words, 2026-11-02, on DEC-9683 word for word."
    }
+  },
+  {
+   "task": "One master record for everything a person owns: one row per event, nothing overwritten, nothing averaged (his approval of 2026-11-10, DEC-10342)",
+   "todo": "1. Write the master record’s functions and their tests from his MSFT case and his file. 2. Every write — a sync, a file import, an account or holding added or changed by hand, a recorded activity, the daily value — adds rows to the master record, each with its own date and source. 3. Move what a phone already holds into the master record once, on the way in. 4. The account as the screens read it, the activity list and the daily values are read from the master record. 5. Remove the three separate stored copies. 6. Update the calculation master, the code headers and the tests in the same change.",
+   "status": "TO DO — ruled 2026-11-10, not coded yet; step 1 is being written",
+   "ref": "DEC-10342 · MoneyKeel/functions/networth-and-performance/asset-record.ts · asset-record.test.ts · src/store/useStore.ts · MK-XS-F-102 ingestSync · MK-XS-F-219 importedAccountOf · MK-XS-F-221 valueOnlyAccountsOf · MK-ST-F-028 buildDayFromAccounts · MK-ST-F-030 record",
+   "date": "2026-11-10",
+   "comments": "His words, 2026-11-10, on DEC-10342 word for word.",
+   "_written": {
+    "status": "TO DO — ruled 2026-11-10, not coded yet; step 1 is being written",
+    "comments": "His words, 2026-11-10, on DEC-10342 word for word."
+   }
   }
  ]
 }
