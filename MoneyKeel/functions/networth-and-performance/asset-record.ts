@@ -76,6 +76,9 @@ export interface AssetRow {
   shares?: number | null;
   /** Per share, on that date. */
   price?: number | null;
+  /** On a VALUE row from the price feed: the day its price is from, where that is more than seven days before the row's
+   *  date (his ruling, 2026-11-11: a stale price is still shown and used, and the screen says it is old). */
+  priceDate?: string | null;
   /** The dollars moved, or the value held. On an account's own VALUE row: its uninvested cash. */
   amount?: number | null;
   fee?: number | null;
@@ -365,7 +368,7 @@ export interface ValueBatch {
   cash: number | null;
   statedTotal: number | null;
   typedValue: number | null;
-  holdings: { holding: string; shares: number | null; price: number | null; value: number | null }[];
+  holdings: { holding: string; shares: number | null; price: number | null; value: number | null; priceDate?: string }[];
   /** Cash, the typed value and every holding added up. Null where a holding's value is not known, or where
    *  neither cash nor a typed value was given. */
   total: number | null;
@@ -377,13 +380,13 @@ export interface ValueBatch {
  *  typed value) and one for each holding, to be saved together. */
 export function valueRows(v: {
   accountId: string; date: string | null; source: RowSource; cash?: number | null; statedTotal?: number | null;
-  typedValue?: number | null; holdings?: { holding: string; shares: number | null; price: number | null; value: number | null }[];
+  typedValue?: number | null; holdings?: { holding: string; shares: number | null; price: number | null; value: number | null; priceDate?: string }[];
 }): NewRow[] {
   return [
     { accountId: v.accountId, holding: null, kind: 'VALUE', date: v.date, source: v.source, amount: v.cash ?? null,
       statedTotal: v.statedTotal ?? null, typedValue: v.typedValue ?? null },
     ...(v.holdings ?? []).map((h) => ({ accountId: v.accountId, holding: h.holding, kind: 'VALUE' as const, date: v.date,
-      source: v.source, shares: h.shares, price: h.price, amount: h.value ?? null })),
+      source: v.source, shares: h.shares, price: h.price, amount: h.value ?? null, ...(h.priceDate ? { priceDate: h.priceDate } : {}) })),
   ];
 }
 
@@ -393,7 +396,7 @@ export function valueBatchesOf(record: readonly AssetRow[], accountId: string): 
   const rows = rowsInForce(record).filter((r) => r.accountId === accountId && r.kind === 'VALUE');
   return rows.filter((r) => r.holding == null).map((own) => {
     const holdings = rows.filter((r) => r.holding != null && r.batch === own.batch)
-      .map((r) => ({ holding: r.holding as string, shares: r.shares ?? null, price: r.price ?? null, value: r.amount ?? null }));
+      .map((r) => ({ holding: r.holding as string, shares: r.shares ?? null, price: r.price ?? null, value: r.amount ?? null, ...(r.priceDate ? { priceDate: r.priceDate } : {}) }));
     const cash = own.amount ?? null, typedValue = own.typedValue ?? null;
     const unknown = holdings.some((h) => h.value == null) || (cash == null && typedValue == null);
     return { accountId, batch: own.batch ?? own.rowId, date: own.date, source: own.source, writtenAt: first(own.rowId)?.writtenAt ?? own.writtenAt, cash,

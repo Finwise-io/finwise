@@ -62,10 +62,13 @@ test('an account with nothing held gets no values; a holding the feed has never 
   expect(valueBatchesOf(rec, 'van')).toEqual([]);
 });
 
-test('a fund whose last close is 10 days before the day is not valued at that old close: it keeps the value last given', () => {
+test('a fund whose last close is 10 days before the day is still valued at that close, and the row says the price is from Oct 27 (his ruling, 2026-11-11)', () => {
   let rec = addRows([], [buy(100, 80, '2025-03-03'), buy(10, 50, '2025-04-01', 'OLDFUND')], AT);
   rec = addRows(rec, valueRows({ accountId: 'van', date: '2026-10-20', source: 'typed', cash: 0, holdings: [{ holding: 'OLDFUND', shares: 10, price: 51, value: 510 }] }), AT);
   const prices = { ...PRICES, OLDFUND: series('OLDFUND', [['2026-10-27', 60]]) };
   const saved = addRows(rec, priceFeedValues(rec, accts, prices), AT2);
-  expect(valuesNow(saved, 'van')?.holdings).toEqual(expect.arrayContaining([{ holding: 'OLDFUND', shares: 10, price: 51, value: 510 }]));
+  // 10 × $60 = $600, priced on Oct 27, though the day of the values is Nov 6
+  expect(valuesNow(saved, 'van')?.holdings).toEqual(expect.arrayContaining([{ holding: 'OLDFUND', shares: 10, price: 60, value: 600, priceDate: '2026-10-27' }]));
+  // VTI's close is Nov 6's own, so it carries no old-price day
+  expect(valuesNow(saved, 'van')?.holdings.find((x) => x.holding === 'VTI')).not.toHaveProperty('priceDate');
 });

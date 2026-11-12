@@ -7,8 +7,11 @@
 //     Sunday writes Friday's close under Friday.
 //   · each holding: the shares on record on that day × that day's close (an option's shares already count every share
 //     in its contracts; a bond quoted per $100 of face counts a hundredth of quantity × price, as the sync reads it);
-//   · a holding with no close in the feed, or only one more than seven days before that day (R19), keeps the figures last given for it by a broker, a file or the account holder,
-//     else stays blank — never $0;
+//   · a holding whose last close is more than seven days before that day is STILL valued at that close, and the row keeps
+//     the close's own day (priceDate) so the screen can say the price is old (his ruling, 2026-11-11: "if price is stale,
+//     app just state so, but still display it and use it");
+//   · a holding with no close in the feed at all keeps the figures last given for it by a broker, a file or the account
+//     holder, else stays blank — never $0;
 //   · the account's cash and any typed value are those last given on or before that day: the price feed knows no cash.
 //
 // WHAT IT NEVER DOES.
@@ -57,11 +60,12 @@ export function priceFeedValues(
     const positions = accounts.find((a) => String(a.asset_id) === id)?.positions ?? [];
     const holdings = held.map((h) => {
       const shares = sharesOnRecord(record, id, h, day);
-      // a close more than START_CLOSE_DAYS before the day is too old to value the holding on it (R19): it counts as no close
-      const close = staleStartClose(prices[h], day) ? null : closeOnOrBefore(prices[h], day);
+      // a close more than START_CLOSE_DAYS before the day is still used, and its own day is kept beside it (his ruling, 2026-11-11)
+      const close = closeOnOrBefore(prices[h], day);
+      const old = staleStartClose(prices[h], day);
       const pos = positions.find((p) => oneHoldingSpelling(p.ticker) === h);
       const per = pos && pos.kind !== 'options' ? contractMultiplier(pos as any) : 1;
-      if (close != null) return { holding: h, shares, price: close, value: shares * close * per };
+      if (close != null) return { holding: h, shares, price: close, value: shares * close * per, ...(old ? { priceDate: old.day } : {}) };
       const was = given?.holdings.find((x) => x.holding === h);
       return { holding: h, shares, price: was?.price ?? null, value: was && equalOrBothBlank(was.shares, shares) ? was.value : null };
     }).filter((x) => x.shares > EPS);
