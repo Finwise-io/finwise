@@ -77,11 +77,16 @@ test('removeConnectionAccounts: a linked account unlinked and kept → a fact sa
   expect(rows().filter((r) => r.kind === 'VALUE')).toHaveLength(0);
 });
 
-test('refreshPrices: 100 VTI, closes to Fri Nov 6 at $300 → a price-feed value of $30,000 dated Nov 6; a second refresh adds nothing', async () => {
-  st().addAsset({ label: 'Brokerage', institution: 'Vanguard', kind: 'brokerage', tax_bucket: 'TAXABLE', balance: 0, source: 'manual' });
-  const id = String(st().assetAccounts[0].asset_id);
+test('refreshPrices: 100 VTI in an account built from its holdings, closes to Fri Nov 6 at $300 → a price-feed value of $30,000 dated Nov 6; a second refresh adds nothing; a typed $40,000 total gets none', async () => {
+  st().addAsset({ label: 'Typed total', institution: 'Fidelity', kind: 'brokerage', tax_bucket: 'TAXABLE', balance: 40_000, source: 'manual' });
+  const typedId = String(st().assetAccounts[0].asset_id);
+  st().addPosition(typedId, { ticker: 'VTI', kind: 'stocks_etf', lots: [{ lot_id: 't1', shares: 10, cost_per_share: 80, purchase_date: '2025-03-03' }] });
+  st().addAsset({ label: 'Brokerage', institution: 'Vanguard', kind: 'brokerage', tax_bucket: 'TAXABLE', balance: 0, source: 'manual', derive_balance: true });
+  const id = String(st().assetAccounts.find((a: any) => a.label === 'Brokerage').asset_id);
   st().addPosition(id, { ticker: 'VTI', kind: 'stocks_etf', lots: [{ lot_id: 'l1', shares: 100, cost_per_share: 80, purchase_date: '2025-03-03' }] });
   await st().refreshPrices();
+  // the typed $40,000 is the account's value: the 10 VTI tracked in it are a part of it, so the feed writes nothing for it
+  expect(rows().filter((r) => r.source === 'price-feed' && r.accountId === typedId)).toEqual([]);
   const feed = rows().filter((r) => r.kind === 'VALUE' && r.source === 'price-feed');
   expect(feed.find((r) => r.holding === 'VTI')).toMatchObject({ date: '2026-11-06', shares: 100, price: 300, amount: 30_000 });
   await st().refreshPrices();

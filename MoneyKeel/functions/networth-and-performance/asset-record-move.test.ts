@@ -38,7 +38,7 @@ test('lots entered before opening records were kept: 100 VTI at $80 with no open
     lots: [{ lot_id: 'l1', shares: 100, cost_per_share: 80, purchase_date: '2025-03-03' }, { lot_id: 'l2', shares: 20, cost_per_share: 100, purchase_date: '2026-10-01' }] }] } as any;
   const out = moveOldCopies([], [acct], [txn({ id: 'b1', type: 'BUY', account_id: 'van', ticker: 'VTI', shares: 20, price: 100, date: '2026-10-01' })], AT);
   expect(sharesOnRecord(out.record, 'van', 'VTI')).toBe(120);
-  expect(out.problems).toEqual(['The activity of VTI did not add up to its 120 shares, so its tax lots as they stand were moved and its 1 recorded purchases and sales were not.']);
+  expect(out.problems).toEqual(['The activity of VTI did not leave the tax lots it shows (120 shares), so its tax lots as they stand were moved and its 1 recorded purchases and sales were not.']);
 });
 
 test('a dividend of $12.50 on Oct 2 is moved on its own date', () => {

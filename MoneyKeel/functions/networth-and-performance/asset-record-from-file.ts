@@ -16,8 +16,10 @@
 //      counts it.
 //   3. A PURCHASE KEEPS THE FILE'S OWN DATE AND COST. A date the file does not give is blank; a cost it does not give is
 //      blank, never $0. A line is marked as the broker's average only where the file's cost column says "average".
-//   4. A PURCHASE'S PRICE IS PER UNIT AS THE RECORD COUNTS UNITS, so shares × price is the dollars paid: an option's
-//      cost per share × its 100 shares a contract; a bond's cost per $100 of face ÷ 100 (its units are dollars of face).
+//   4. A PURCHASE'S PRICE IS PER UNIT AS THE RECORD COUNTS UNITS, so shares × price is the dollars paid: an option is
+//      counted in shares (its contracts × 100 shares a contract) at its cost per share, as a broker's option and a typed
+//      one are (comparison check, 2026-11-11: the file alone counted 1 contract at $5,035 where every other way counts
+//      100 shares at $50.35); a bond's cost per $100 of face ÷ 100 (its units are dollars of face).
 //   5. AN UNKNOWN IS NOT $0: a file with no cash line gives no cash; a file with no value column gives no values.
 //   6. THE SAME FILE IMPORTED TWICE ADDS NOTHING (fileRowsToSave).
 
@@ -66,10 +68,12 @@ function readImport(result: ImportResult) {
 
 const fileHoldingName = (h: ImportedHolding): string => oneHoldingSpelling(h.ticker || h.symbol) as string;
 
+/** Shares as the record counts them (rule 4): an option's contracts × its shares a contract; anything else as given. */
+const unitsOf = (h: ImportedHolding): number => (h.multiplier != null ? h.shares * h.multiplier : h.shares);
+
 /** A purchase's price per unit as the record counts units (rule 4). Null where the file gives no cost. */
 function costPerUnit(h: ImportedHolding): number | null {
   if (!(h.costPerShare > 0)) return null;           // the import writes 0 where the file gives no cost
-  if (h.multiplier != null) return h.costPerShare * h.multiplier;
   if (h.priceQuote === 'per_100_of_face') return h.costPerShare / 100;
   return h.costPerShare;
 }
@@ -83,7 +87,7 @@ export function fileToRecord(result: ImportResult, accountId: string): FileRows 
 
   const byHolding = new Map<string, ListedPurchase[]>();
   for (const h of held) {
-    const line: ListedPurchase = { date: dayOrNull(h.date), shares: h.shares, price: costPerUnit(h), ...(average ? { average: true } : {}) };
+    const line: ListedPurchase = { date: dayOrNull(h.date), shares: unitsOf(h), price: costPerUnit(h), ...(average ? { average: true } : {}) };
     byHolding.set(fileHoldingName(h), [...(byHolding.get(fileHoldingName(h)) ?? []), line]);
   }
   const lists = [...byHolding].map(([holding, listed]) => ({ holding, listed }));
@@ -91,7 +95,7 @@ export function fileToRecord(result: ImportResult, accountId: string): FileRows 
   const values = valueRows({
     accountId, date: listDay, source: 'file', cash, statedTotal: result.account?.statedTotal ?? null,
     holdings: [
-      ...held.map((h) => ({ holding: fileHoldingName(h), shares: h.shares, price: h.lastPrice ?? null, value: hasValues ? h.value : null })),
+      ...held.map((h) => ({ holding: fileHoldingName(h), shares: unitsOf(h), price: h.lastPrice ?? null, value: hasValues ? h.value : null })),
       ...valueOnlyRows.map((h) => ({ holding: fileHoldingName(h), shares: null, price: null, value: h.value })),
     ],
   });

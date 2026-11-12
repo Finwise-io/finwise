@@ -37,8 +37,9 @@ describe('an account added by hand', () => {
     const open = openPurchases(out.record, 'van', 'VTI');
     expect(open).toHaveLength(1);
     expect(open[0]).toMatchObject({ date: '2025-03-03', shares: 100, price: 80, ownEntry: true });
-    // an account that holds stocks is valued from their prices: no typed value of $8,000 is written
-    expect(rowsInForce(out.record).filter((r) => r.kind === 'VALUE')).toHaveLength(0);
+    // the $8,000 is the total the account holder typed (the account is not built from its holdings): it is written, with no
+    // date because none was given (comparison check, 2026-11-11 — before, it was dropped)
+    expect(rowsInForce(out.record).filter((r) => r.kind === 'VALUE').map((r) => [r.typedValue, r.date, r.amount])).toEqual([[8_000, null, null]]);
   });
 
   test('a CD valued at its face value (no market value given) writes its facts and no value', () => {

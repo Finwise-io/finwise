@@ -21,8 +21,8 @@
 //   · It never moves the old daily values. Their dates were the phone's (the fault his rulings of 2026-11-10 fix).
 //   · It never moves an account twice: one the record already holds rows for is left alone, so a phone opened again,
 //     or a second phone after the cloud has the record, adds nothing.
-import { addRows, purchasesFromList, rowsInForce, sharesOnRecord, sortArriving, valueRows, dayOrNull, oneHoldingSpelling, type AssetRow, type NewRow, type ListQuestion, type EventQuestion } from './asset-record';
-import { typedChangeToRecord, typedAccountRows, openingRow, givenNumber } from './asset-record-from-typed';
+import { addRows, openPurchases, purchasesFromList, rowsInForce, sharesOnRecord, sortArriving, valueRows, dayOrNull, oneHoldingSpelling, type AssetRow, type NewRow, type ListQuestion, type EventQuestion } from './asset-record';
+import { typedChangeToRecord, typedAccountRows, openingRow, givenNumber, unitPriceFactor } from './asset-record-from-typed';
 import { contractMultiplier, type Position } from '../../../src/domain/performance';
 import type { Transaction } from '../../../src/domain/transactions';
 import type { AssetAccount } from '../../../src/domain/assets';
@@ -60,6 +60,25 @@ function fileValues(a: AssetAccount): NewRow[] {
   return valueRows({ accountId: String(a.asset_id), date: dayOrNull((a as any).value_as_of), source: 'file', cash: givenNumber((a as any).cash_balance), holdings });
 }
 
+/** An imported account's facts, as the file's import saves them (asset-record-from-file.ts): a bond's or CD's face value,
+ *  rate, maturity and quote, and an option's shares a contract (comparison check, 2026-11-11: the move saved none). */
+function fileFacts(a: AssetAccount): NewRow[] {
+  const out: NewRow[] = [];
+  for (const p of (a.positions ?? []) as any[]) {
+    const holding = oneHoldingSpelling(p.ticker);
+    if (holding == null) continue;
+    const facts: Record<string, unknown> = {
+      ...(p.face_value != null ? { face_value: p.face_value } : {}),
+      ...(p.coupon_rate != null ? { coupon_rate: p.coupon_rate } : {}),
+      ...(p.maturity_date ? { maturity_date: p.maturity_date } : {}),
+      ...(p.price_quote ? { price_quote: p.price_quote } : {}),
+      ...(p.kind === 'options' && p.multiplier != null ? { multiplier: p.multiplier } : {}),
+    };
+    if (Object.keys(facts).length) out.push({ accountId: String(a.asset_id), holding, kind: 'FACT', date: null, source: 'file', facts });
+  }
+  return out;
+}
+
 /** WHAT A PHONE HOLDS, moved onto the record for every account the record holds nothing for. */
 export function moveOldCopies(record: readonly AssetRow[], accounts: readonly AssetAccount[], transactions: readonly Transaction[], writtenAt: string): MoveResult {
   const out: MoveResult = { record: [...record], moved: [], ask: [], problems: [] };
@@ -81,7 +100,7 @@ export function moveOldCopies(record: readonly AssetRow[], accounts: readonly As
       const got = typedChangeToRecord(out.record, { kind: 'transaction-recorded', transaction: t }, writtenAt);
       out.record = got.record; events.push(...got.ask); out.problems.push(...got.problems);
     };
-    out.record = addRows(out.record, imported ? fileValues(a) : typedAccountRows(a), writtenAt);
+    out.record = addRows(out.record, imported ? [...fileValues(a), ...fileFacts(a)] : typedAccountRows(a), writtenAt);
     const fromLots = new Set<string>(), fromOpenings = new Set<string>();
     for (const p of (a.positions ?? []) as Position[]) {
       const h = oneHoldingSpelling(p.ticker);
@@ -94,7 +113,15 @@ export function moveOldCopies(record: readonly AssetRow[], accounts: readonly As
         const o = openingRow(t);
         alone = o ? addRows(alone, [o], writtenAt) : typedChangeToRecord(alone, { kind: 'transaction-recorded', transaction: t }, writtenAt).record;
       }
-      if (Math.abs(sharesOnRecord(alone, id, h) - shown) <= 1e-9 && alone.length) {
+      // the activity explains the lots only where it leaves the same purchases the lots show — shares, price and date —
+      // so a lot edited after its purchase was recorded keeps the edit (comparison check, 2026-11-11: a buy at $100 edited
+      // to $95 was saved at $100)
+      const asLots = (p.lots ?? []).filter((l) => (givenNumber(l.shares) ?? 0) > 0).map((l) => {
+        const c = givenNumber(l.cost_per_share);
+        return `${Number(l.shares) * per}|${c == null ? '-' : c * unitPriceFactor(p)}|${dayOrNull(l.purchase_date) ?? '-'}`;
+      }).sort();
+      const leftByActivity = openPurchases(alone, id, h).map((o) => `${o.shares}|${o.price ?? '-'}|${o.date ?? '-'}`).sort();
+      if (Math.abs(sharesOnRecord(alone, id, h) - shown) <= 1e-9 && alone.length && asLots.join() === leftByActivity.join()) {
         // the activity explains the lots: an imported account's first entries are the file's list, a typed one's are typed
         if (imported) {
           fromOpenings.add(h);
@@ -106,13 +133,13 @@ export function moveOldCopies(record: readonly AssetRow[], accounts: readonly As
       fromLots.add(h);
       if (imported) {
         lists.push(...asFileList(out, id, h, (p.lots ?? []).filter((l) => (givenNumber(l.shares) ?? 0) > 0)
-          .map((l) => ({ date: dayOrNull(l.purchase_date), shares: Number(l.shares) * per, price: givenNumber(l.cost_per_share) })), listDay, writtenAt));
+          .map((l) => { const c = givenNumber(l.cost_per_share); return { date: dayOrNull(l.purchase_date), shares: Number(l.shares) * per, price: c == null ? null : c * unitPriceFactor(p) }; }), listDay, writtenAt));
       } else {
         const got = typedChangeToRecord(out.record, { kind: 'holding-added', accountId: id, position: p }, writtenAt);
         out.record = got.record; events.push(...got.ask); out.problems.push(...got.problems);
       }
       const left = own.filter((x) => holdingOf(x) === h && x.type !== 'OPENING_POSITION').length;
-      if (left) out.problems.push(`The activity of ${h} did not add up to its ${shown} shares, so its tax lots as they stand were moved and its ${left} recorded purchases and sales were not.`);
+      if (left) out.problems.push(`The activity of ${h} did not leave the tax lots it shows (${shown} shares), so its tax lots as they stand were moved and its ${left} recorded purchases and sales were not.`);
     }
     for (const t of own) {
       const h = holdingOf(t);

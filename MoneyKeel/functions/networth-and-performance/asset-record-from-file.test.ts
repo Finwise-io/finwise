@@ -57,7 +57,7 @@ describe('his file', () => {
     expect(Object.fromEntries(f.lists.map((l) => [l.holding, l.listed]))).toEqual({
       [CD]: [{ date: null, shares: 110000, price: 1 }],               // $100 per $100 of face → $110,000 paid
       LCTX: [{ date: null, shares: 965, price: 1.74 }],
-      [PUT]: [{ date: null, shares: 1, price: 5035 }],                 // $50.35 a share × 100 shares a contract
+      [PUT]: [{ date: null, shares: 100, price: 50.35 }],              // 1 contract = 100 shares, at $50.35 a share (comparison check, 2026-11-11: counted in shares as every other way counts an option)
       VMFXX: [{ date: null, shares: 50000, price: 1 }],
     });
   });

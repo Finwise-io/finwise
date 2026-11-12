@@ -20,6 +20,9 @@
 //   · It writes nothing when the values for that day are the same as the price feed's last ones (a refresh every ten
 //     minutes over a weekend adds one set, not hundreds).
 //   · It never changes the count of shares: values are what shares were worth, never a transaction.
+//   · It writes nothing for an account typed by hand whose total the account holder typed (not built from its holdings,
+//     derive_balance): its holdings are a part of that total tracked for performance, so their prices are not its value
+//     (comparison check, 2026-11-11).
 import {
   rowsInForce, sharesOnRecord, valueBatchesOf, valueRows, oneHoldingSpelling,
   type AssetRow, type NewRow, type ValueBatch,
@@ -41,13 +44,15 @@ function lastGivenBy(batches: ValueBatch[], day: string): ValueBatch | null {
  *  quote (an option, a bond quoted per $100); `prices` is the price cache, keyed by ticker in capitals. */
 export function priceFeedValues(
   record: readonly AssetRow[],
-  accounts: readonly { asset_id: string | number; positions?: Position[] }[],
+  accounts: readonly { asset_id: string | number; positions?: Position[]; source?: string; derive_balance?: boolean }[],
   prices: Readonly<Record<string, PriceSeries | undefined>>,
 ): NewRow[] {
   const out: NewRow[] = [];
   const live = rowsInForce(record);
   const ids = [...new Set(live.filter((r) => r.holding != null && (r.kind === 'PURCHASE' || r.kind === 'TRANSFER')).map((r) => r.accountId))];
   for (const id of ids) {
+    const acct = accounts.find((a) => String(a.asset_id) === id);
+    if (acct && acct.source === 'manual' && acct.derive_balance !== true) continue;
     const held = [...new Set(live.filter((r) => r.holding != null && (r.accountId === id || r.toAccountId === id)).map((r) => r.holding as string))]
       .filter((h) => sharesOnRecord(record, id, h) > EPS);
     if (!held.length) continue;

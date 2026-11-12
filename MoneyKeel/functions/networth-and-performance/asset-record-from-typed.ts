@@ -61,24 +61,33 @@ export const lotRef = (accountId: string, lot: Pick<Lot, 'lot_id'>): string => `
 /** The key a transaction the account holder recorded carries, so deleting it finds its row. */
 export const txnRef = (t: Pick<Transaction, 'id'>): string => `typed-txn:${t.id}`;
 
+/** What one unit's quoted price is worth per unit the record counts: a bond quoted per $100 of face, a hundredth; an
+ *  option (counted in shares, quoted per share) and anything else, 1. */
+export const unitPriceFactor = (p: Position): number => (p.kind === 'options' ? 1 : contractMultiplier(p as any));
+
 /** One tax lot as a purchase. An option's contracts are saved as shares (contracts × shares per contract) at its price
- *  per share, as the record holds a broker's option; every other holding is saved as entered. */
+ *  per share, as the record holds a broker's option; a bond quoted per $100 of face is saved as dollars of face at its
+ *  cost per $100 ÷ 100, as a file's is (comparison check, 2026-11-11: $110,000 face at 100 read $11,000,000 paid); every
+ *  other holding is saved as entered. */
 function lotRow(accountId: string, p: Position, lot: Lot): NewRow | null {
   const holding = oneHoldingSpelling(p.ticker);
   const per = p.kind === 'options' ? contractMultiplier(p as any) : 1;
   const shares = givenNumber(lot.shares), cost = givenNumber(lot.cost_per_share);
   if (holding == null || shares == null || shares <= 0) return null;
-  const price = cost;
+  const price = cost == null ? null : cost * unitPriceFactor(p);
   return { accountId, holding, kind: 'PURCHASE', date: dateAsGiven(lot.purchase_date), shares: shares * per, price,
     amount: price == null ? null : shares * per * price, source: SOURCE, ref: lotRef(accountId, lot) };
 }
 
-/** The value rows of an account the account holder values by hand: one value, on the date given. An account that holds
- *  stocks or funds is valued from their prices, so only its cash is written, where the account holder gave it. */
+/** The value rows of an account the account holder values by hand: one value, on the date given. An account BUILT from
+ *  its holdings (derive_balance) is valued from their prices, so only its cash is written, where the account holder gave
+ *  it — never a cash figure the app opened itself (cash_not_entered). Any other account's balance is the total the
+ *  account holder typed, and its holdings are a part of it tracked for performance, so the total is written (comparison
+ *  check, 2026-11-11: a typed $175,000 with MSFT listed in it was dropped, and $12 the app had summed was saved as cash). */
 function accountValueRows(a: AssetAccount): NewRow[] {
   const date = dateAsGiven((a as any).value_as_of);
-  if ((a.positions ?? []).length) {
-    const cash = givenNumber((a as any).cash_balance);
+  if ((a.positions ?? []).length && (a as any).derive_balance === true) {
+    const cash = (a as any).cash_not_entered === true ? null : givenNumber((a as any).cash_balance);
     return cash == null ? [] : valueRows({ accountId: String(a.asset_id), date, source: SOURCE, cash });
   }
   // a bond's or CD's balance set from what was paid or its face value is not a value the account holder gave (DEC-0281):
