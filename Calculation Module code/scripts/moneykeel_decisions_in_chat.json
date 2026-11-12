@@ -11596,6 +11596,24 @@
    "apply_steps": "1. In MoneyKeel/functions/networth-and-performance/asset-record.ts, activityOf shows one tax lot and one history purchase of the same date as one purchase. 2. purchasesFromList holds two tax lots the broker lists as two purchases and never merges them. 3. Tests in MoneyKeel/functions/networth-and-performance/asset-record.test.ts hold both examples. 4. He checks it on TestFlight once the screens read the record.",
    "not_a_repeat_of": "DEC-10342 — that decision is the one master record: every purchase is its own row. This decision refines it and does not replace it: it says when a tax lot and a history purchase are the same purchase, and that two listed tax lots stay two. Every part of DEC-10342 stands. DEC-10471 — that decision is that a history purchase dated on or before the day of the broker’s list adds no shares. This decision refines it and does not replace it: it adds that such a purchase is shown once, not twice, and that two listed tax lots are never merged. Every part of DEC-10471 stands.",
    "proof": "MoneyKeel/functions/networth-and-performance/asset-record.test.ts — “one purchase is one line; two lots the broker lists are two” (4 tests, passed 2026-11-11); not verified by him"
+  },
+  {
+   "decided": "2026-11-11",
+   "answers": [],
+   "tab": "multiple_screens",
+   "status": "TESTED, NOT VERIFIED",
+   "standard_carrier": "",
+   "type": "RULE",
+   "screens": "Net worth · the account page (/account-detail) · the Holding page · Performance (/performance) — every screen that shows a holding's value from the one master record of what an account holder owns",
+   "his_words": "2: The rule is if price is stale, app just state so. but still display it and use it.",
+   "subject": "A stale price is still shown and used in the one master record, and the screen says it is old (his words in chat, 2026-11-11, answering Claude’s rule that a price more than 7 days older than the value’s date is not used)",
+   "plain": "His words in chat, 2026-11-11. When the price feed’s last price for a holding is more than 7 days older than the day of the values, the app still values the holding at that price and still shows it. The value keeps the price’s own date beside it, so the screen can say the price is old. Claude’s earlier rule, that such a price is not used and the last given value carries forward instead, is replaced.",
+   "means": "Example: 10 shares of a fund, last given as worth $510 on Oct 20. The fund’s last price is $60 on Oct 27, and the day of the values is Nov 6. Before: the $60 was not used and $510 carried forward. Now: 10 × $60 = $600, with the price dated Oct 27.",
+   "governs": "MoneyKeel/functions/networth-and-performance/asset-record-from-prices.ts — priceFeedValues · MoneyKeel/functions/networth-and-performance/asset-record.ts — valueRows, valueBatchesOf (priceDate)",
+   "changed": "MoneyKeel/functions/networth-and-performance/asset-record-from-prices.ts — priceFeedValues uses a close more than 7 days before the day and saves its own day as priceDate; asset-record.ts — a VALUE row carries priceDate and valueBatchesOf returns it",
+   "apply_steps": "1. priceFeedValues in MoneyKeel/functions/networth-and-performance/asset-record-from-prices.ts uses the last close on or before the day, however old. 2. Where that close is more than 7 days before the day, the row saves the close’s own day as priceDate (asset-record.ts, valueRows and valueBatchesOf). 3. A test in asset-record-from-prices.test.ts holds the example. 4. Phase 3: the screens reading the record show “price from <date>” beside an old price. 5. Phase 4: the Performance tab’s refusal of a window’s start price more than 7 days old (DEC-9486) is brought to this rule.",
+   "not_a_repeat_of": "DEC-0301 — that decision is “source always, date only when stale”. This decision refines it and does not replace it: it applies it to the master record’s values — an old price is used, and its date is the one shown. Every part of DEC-0301 stands. DEC-9486 — that decision, the lead’s and not his, refuses a window’s start price more than 7 days old on the Performance tab. This decision governs the master record’s daily values; the Performance tab is brought to it in phase 4 of the approved plan.",
+   "proof": "MoneyKeel/functions/networth-and-performance/asset-record-from-prices.test.ts — “a fund whose last close is 10 days before the day is still valued at that close, and the row says the price is from Oct 27” (passed 2026-11-11); not verified by him"
   }
  ]
 }
