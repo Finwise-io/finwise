@@ -39,11 +39,12 @@
  *               MK-NW-F-009 maturityClass · MK-NW-F-071 isCertificateOfDeposit
  *               MK-NW-F-079 EF · MK-NW-F-108 taxWordsOf
  *               MK-NW-F-124 maturityParts · MK-NW-F-206 same
- *               MK-NW-F-213 lotRow · MK-NW-F-243 theLater
- *               MK-NW-F-247 valuesThatDiffer · MK-NW-F-277 purchasesFromList
- *               MK-NW-O-008 thePerformance · MK-PF-F-028 realizedFromLedger
- *               MK-PL-F-044 planTarget · MK-PL-F-102 planRetireAgeOf
- *               MK-XS-F-187 fixStoredMoney · MK-XS-F-192 typedValueDatedBack
+ *               MK-NW-F-213 lotRow · MK-NW-F-228 moveOldCopies
+ *               MK-NW-F-243 theLater · MK-NW-F-247 valuesThatDiffer
+ *               MK-NW-F-277 purchasesFromList · MK-NW-O-008 thePerformance
+ *               MK-PF-F-028 realizedFromLedger · MK-PL-F-044 planTarget
+ *               MK-PL-F-102 planRetireAgeOf · MK-XS-F-187 fixStoredMoney
+ *               MK-XS-F-192 typedValueDatedBack
  *
  * Reaches ..... 574 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL

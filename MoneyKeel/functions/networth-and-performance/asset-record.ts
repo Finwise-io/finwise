@@ -1447,20 +1447,20 @@ export function openPurchases(record: readonly AssetRow[], accountId: string, ho
  * Formula .....
  *     walk holding(record, holding).taken where account id = account id
  *
- * Called by ... MK-NW-F-255 soldBeyondRecord · MK-NW-F-256 salesNeedingAnAnswer
- *               MK-NW-F-257 typedSalesTheListContradicts · MK-NW-F-260 soldFrom
- *               MK-NW-F-261 saleGain · MK-NW-F-277 purchasesFromList
- *               MK-NW-F-278 answerListQuestion
+ * Called by ... MK-NW-F-228 moveOldCopies · MK-NW-F-255 soldBeyondRecord
+ *               MK-NW-F-256 salesNeedingAnAnswer · MK-NW-F-257 typedSalesTheListContradicts
+ *               MK-NW-F-260 soldFrom · MK-NW-F-261 saleGain
+ *               MK-NW-F-277 purchasesFromList · MK-NW-F-278 answerListQuestion
  *
- * Reaches ..... 15 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 16 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-289 activityRefs · MK-NW-F-278 answerListQuestion
  *               MK-NW-F-194 brokerUpdateToRecord · MK-NW-F-279 differsFromGiven
- *               MK-NW-F-201 fileRowsToSave · MK-XS-F-199 profileOnTheWayIn
- *               MK-NW-F-277 purchasesFromList · MK-NW-F-261 saleGain
- *               MK-NW-F-272 salesMovedBy · MK-NW-F-256 salesNeedingAnAnswer
- *               MK-NW-F-255 soldBeyondRecord · MK-NW-F-260 soldFrom
- *               MK-XS-F-229 typedIntoRecord · MK-NW-F-257 typedSalesTheListContradicts
- *               MK-XS-F-192 typedValueDatedBack
+ *               MK-NW-F-201 fileRowsToSave · MK-NW-F-228 moveOldCopies
+ *               MK-XS-F-199 profileOnTheWayIn · MK-NW-F-277 purchasesFromList
+ *               MK-NW-F-261 saleGain · MK-NW-F-272 salesMovedBy
+ *               MK-NW-F-256 salesNeedingAnAnswer · MK-NW-F-255 soldBeyondRecord
+ *               MK-NW-F-260 soldFrom · MK-XS-F-229 typedIntoRecord
+ *               MK-NW-F-257 typedSalesTheListContradicts · MK-XS-F-192 typedValueDatedBack
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -1696,10 +1696,12 @@ export function soldFrom(record: readonly AssetRow[], saleRowId: string): { rowI
  *     nothing   when price = nothing
  *     [LOOP — the answer is found inside a loop the extractor cannot render; the steps above are the ones before it. Read by hand.]
  *
- * Called by ... MK-NW-F-272 salesMovedBy · MK-NW-F-279 differsFromGiven
+ * Called by ... MK-NW-F-228 moveOldCopies · MK-NW-F-272 salesMovedBy
+ *               MK-NW-F-279 differsFromGiven
  *
- * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-279 differsFromGiven · MK-NW-F-272 salesMovedBy
+ * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-279 differsFromGiven · MK-NW-F-228 moveOldCopies
+ *               MK-XS-F-199 profileOnTheWayIn · MK-NW-F-272 salesMovedBy
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -1735,10 +1737,9 @@ export function saleGain(record: readonly AssetRow[], saleRowId: string): number
  *     w = walk holding(record, holding, up to)
  *
  * Called by ... MK-NW-F-194 brokerUpdateToRecord · MK-NW-F-205 priceFeedValues
- *               MK-NW-F-224 typedChangeToRecord · MK-NW-F-228 moveOldCopies
- *               MK-NW-F-263 sharesThatDisagree · MK-NW-F-277 purchasesFromList
- *               MK-NW-F-279 differsFromGiven · MK-NW-F-284 activityOf
- *               MK-NW-F-287 splitOf
+ *               MK-NW-F-224 typedChangeToRecord · MK-NW-F-263 sharesThatDisagree
+ *               MK-NW-F-277 purchasesFromList · MK-NW-F-279 differsFromGiven
+ *               MK-NW-F-284 activityOf · MK-NW-F-287 splitOf
  *
  * Reaches ..... 16 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-284 activityOf · MK-NW-F-289 activityRefs

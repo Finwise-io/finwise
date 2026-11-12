@@ -1267,7 +1267,7 @@ export const wrapperWord = (kind?: string, a?: { wrapper_confirmed?: boolean }):
  *
  * Called by ... MK-NW-F-025 accountDisplayName
  *
- * Reaches ..... 25 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 26 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-140 LEFT_OUT
  *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
  *               MK-NW-F-093 QUIET_PERF · MK-NW-F-025 accountDisplayName
@@ -1275,9 +1275,9 @@ export const wrapperWord = (kind?: string, a?: { wrapper_confirmed?: boolean }):
  *               MK-XS-F-031 buildSnapshot · MK-XS-F-002 dataGaps
  *               MK-NW-F-201 fileRowsToSave · MK-NW-F-199 fileToRecord
  *               MK-CF-O-017 futurePaycheck · MK-XS-F-219 importedAccountOf
- *               MK-XS-F-102 ingestSync · MK-XS-F-119 namesFor
- *               MK-XS-F-199 profileOnTheWayIn · MK-NW-F-195 readImport
- *               … and 7 more — the full list is on functions_from_code
+ *               MK-XS-F-102 ingestSync · MK-NW-F-228 moveOldCopies
+ *               MK-XS-F-119 namesFor · MK-XS-F-199 profileOnTheWayIn
+ *               … and 8 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -1321,7 +1321,7 @@ export function accountLastFour(a: { mask?: string; account_number?: string }): 
  *
  * Called by ... MK-NW-F-010 wrapperAccount · MK-NW-F-026 accountDisplayNames
  *
- * Reaches ..... 25 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 26 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-140 LEFT_OUT
  *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
  *               MK-NW-F-093 QUIET_PERF · MK-NW-F-025 accountDisplayName
@@ -1329,9 +1329,9 @@ export function accountLastFour(a: { mask?: string; account_number?: string }): 
  *               MK-XS-F-031 buildSnapshot · MK-XS-F-002 dataGaps
  *               MK-NW-F-201 fileRowsToSave · MK-NW-F-199 fileToRecord
  *               MK-CF-O-017 futurePaycheck · MK-XS-F-219 importedAccountOf
- *               MK-XS-F-102 ingestSync · MK-XS-F-119 namesFor
- *               MK-XS-F-199 profileOnTheWayIn · MK-NW-F-195 readImport
- *               … and 7 more — the full list is on functions_from_code
+ *               MK-XS-F-102 ingestSync · MK-NW-F-228 moveOldCopies
+ *               MK-XS-F-119 namesFor · MK-XS-F-199 profileOnTheWayIn
+ *               … and 8 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-002 account type (taxable, pre-tax, Roth)
@@ -1425,7 +1425,7 @@ export function accountDisplayName(a: Pick<AssetAccount, 'label' | 'institution'
  *               MK-PL-F-001 taxBucketSplit · MK-XS-F-102 ingestSync
  *               MK-XS-F-119 namesFor
  *
- * Reaches ..... 25 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 26 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-140 LEFT_OUT
  *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
  *               MK-NW-F-093 QUIET_PERF · MK-NW-F-025 accountDisplayName
@@ -1433,9 +1433,9 @@ export function accountDisplayName(a: Pick<AssetAccount, 'label' | 'institution'
  *               MK-XS-F-031 buildSnapshot · MK-XS-F-002 dataGaps
  *               MK-NW-F-201 fileRowsToSave · MK-NW-F-199 fileToRecord
  *               MK-CF-O-017 futurePaycheck · MK-XS-F-219 importedAccountOf
- *               MK-XS-F-102 ingestSync · MK-XS-F-119 namesFor
- *               MK-XS-F-199 profileOnTheWayIn · MK-NW-F-195 readImport
- *               … and 7 more — the full list is on functions_from_code
+ *               MK-XS-F-102 ingestSync · MK-NW-F-228 moveOldCopies
+ *               MK-XS-F-119 namesFor · MK-XS-F-199 profileOnTheWayIn
+ *               … and 8 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-003 institution name
@@ -1916,7 +1916,7 @@ function linkedSplit(a: AssetAccount): { out: Record<AssetClass, number>; uninve
  *
  * Called by ... MK-NW-O-002 theAccount · MK-XS-F-002 dataGaps
  *
- * Reaches ..... 50 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 51 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
  *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
@@ -1926,7 +1926,7 @@ function linkedSplit(a: AssetAccount): { out: Record<AssetClass, number>; uninve
  *               MK-PF-F-014 buildPerformance · MK-CF-F-118 cashEffect
  *               MK-NW-F-084 categoryEarnings · MK-NW-F-142 classReturnOf
  *               MK-XS-F-002 dataGaps · MK-PF-F-068 dayAfterDay
- *               … and 32 more — the full list is on functions_from_code
+ *               … and 33 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -1951,7 +1951,7 @@ export function unpricedValueOf(a: AssetAccount): { value: number; cls: AssetCla
  *
  * Called by ... MK-NW-O-002 theAccount
  *
- * Reaches ..... 49 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 50 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
  *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
@@ -1961,7 +1961,7 @@ export function unpricedValueOf(a: AssetAccount): { value: number; cls: AssetCla
  *               MK-PF-F-014 buildPerformance · MK-CF-F-118 cashEffect
  *               MK-NW-F-084 categoryEarnings · MK-NW-F-142 classReturnOf
  *               MK-PF-F-068 dayAfterDay · MK-PF-F-012 earliestPurchaseDate
- *               … and 31 more — the full list is on functions_from_code
+ *               … and 32 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

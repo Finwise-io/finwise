@@ -1298,7 +1298,7 @@ export function txnLabel(t: TxnType): string { return TYPE_LABEL[t] ?? t; }
  * Called by ... MK-NW-O-002 theAccount · MK-PF-F-072 tradesAfter
  *               MK-ST-F-012 toLedgerRow
  *
- * Reaches ..... 49 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 50 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
  *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
@@ -1308,7 +1308,7 @@ export function txnLabel(t: TxnType): string { return TYPE_LABEL[t] ?? t; }
  *               MK-PF-F-014 buildPerformance · MK-CF-F-118 cashEffect
  *               MK-NW-F-084 categoryEarnings · MK-NW-F-142 classReturnOf
  *               MK-PF-F-068 dayAfterDay · MK-PF-F-012 earliestPurchaseDate
- *               … and 31 more — the full list is on functions_from_code
+ *               … and 32 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)

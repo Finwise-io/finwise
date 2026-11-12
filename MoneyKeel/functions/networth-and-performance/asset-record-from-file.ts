@@ -136,11 +136,11 @@ const fileHoldingName = (h: ImportedHolding): string => oneHoldingSpelling(h.tic
  *     shares × multiplier   if multiplier ≠ nothing
  *     shares   otherwise
  *
- * Called by ... MK-NW-F-199 fileToRecord
+ * Called by ... MK-NW-F-199 fileToRecord · MK-NW-F-228 moveOldCopies
  *
- * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-201 fileRowsToSave · MK-NW-F-199 fileToRecord
- *               MK-XS-F-199 profileOnTheWayIn
+ *               MK-NW-F-228 moveOldCopies · MK-XS-F-199 profileOnTheWayIn
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)

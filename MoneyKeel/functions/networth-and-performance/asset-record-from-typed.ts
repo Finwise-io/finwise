@@ -230,7 +230,8 @@ export const txnRef = (t: Pick<Transaction, 'id'>): string => `typed-txn:${t.id}
  *     1   if kind = 'options'
  *     contract multiplier(p as any)   otherwise
  *
- * Called by ... MK-NW-F-213 lotRow · MK-NW-F-291 lotsOf
+ * Called by ... MK-NW-F-213 lotRow · MK-NW-F-228 moveOldCopies
+ *               MK-NW-F-291 lotsOf
  *
  * Reaches ..... 9 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-213 lotRow · MK-NW-F-221 lotsFollow

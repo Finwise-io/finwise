@@ -215,7 +215,10 @@ describe('outside check 2, 2026-11-12', () => {
     expect(again.record).toEqual(out.record);
   });
 
-  test('an account moved before the move wrote its own mark (its 100 VTI and its value already on record): it is not moved again', () => {
+  // outside check 4, 2026-11-12: only the move's own mark says an account was moved — the move never shipped, so no phone
+  // moved one before the mark. An account whose rows are on record without the mark is moved, and nothing already on
+  // record is saved twice: the move adds its mark and nothing else
+  test('an account whose 100 VTI and value are on record without the move\'s mark: moved, and only the mark is added', () => {
     const acct = { asset_id: 'A', label: 'A', kind: 'brokerage', balance: 10_000, source: 'manual', value_as_of: '2026-09-01',
       positions: [{ position_id: 'p', ticker: 'VTI', kind: 'stocks_etf', lots: [{ lot_id: 'l1', shares: 100, cost_per_share: 80, purchase_date: '2025-03-03' }] }] } as any;
     const opening = txn({ id: 'o1', type: 'OPENING_POSITION', account_id: 'A', ticker: 'VTI', shares: 100, price: 80, date: '2025-03-03', lot_id: 'l1' });
@@ -223,8 +226,11 @@ describe('outside check 2, 2026-11-12', () => {
     const unmarked = moved.filter((r) => !(r.kind === 'FACT' && r.ref === 'moved-from-phone:A'));
     expect(unmarked.length).toBeLessThan(moved.length);
     const again = moveOldCopies(unmarked, [acct], [opening], AT2);
-    expect(again.moved).toEqual([]);
-    expect(again.record).toEqual(unmarked);
+    expect(again.moved).toEqual(['A']);
+    expect(again.record.slice(0, unmarked.length)).toEqual(unmarked);
+    expect(again.record.slice(unmarked.length).map((r) => [r.kind, r.ref])).toEqual([['FACT', 'moved-from-phone:A']]);
+    expect(sharesOnRecord(again.record, 'A', 'VTI')).toBe(100);
+    expect(moveOldCopies(again.record, [acct], [opening], '2026-11-12T12:00:00.000Z').moved).toEqual([]);
   });
 });
 
@@ -279,7 +285,10 @@ describe('the rule of DEC-10749, 2026-11-12: the lots as the phone shows them, a
     st().moveOldCopiesToRecordOnce();
     expect(lotsShown(I, 'VTI')).toBe(125);
     expect(sharesOnRecord(st().assetRecord, I, 'VTI')).toBe(125);
-    expect(openPurchases(st().assetRecord, I, 'VTI').map((x) => [x.date, x.shares, x.price, x.source])).toEqual([['2025-03-03', 95, 80, 'file'], ['2026-07-01', 20, 100, 'typed'], ['2026-10-01', 10, 110, 'typed']]);
+    expect(openPurchases(st().assetRecord, I, 'VTI').map((x) => [x.date, x.shares, x.price, x.source])).toEqual([['2025-03-03', 95, 80, 'typed'], ['2026-07-01', 20, 100, 'typed'], ['2026-10-01', 10, 110, 'typed']]);
+    // the 95 left of the file's 100 is saved as typed (outside check 4, 2026-11-12): the account was changed on the phone
+    // after the file, and the holding editor rewrites a lot and its first entry together, so the phone cannot tell the
+    // file's lot from an edit of it — the $140 an editor typed over a file's $150 was saved as the file's
     expect(realizedFromLedger(st().transactions, { ticker: 'VTI', accountId: I }).realizedAllTime).toBe(200);
     expect(sales(I)).toEqual([['2026-08-15', 5, 200]]);
     expect(valuesOn(st().assetRecord, I, '2026-06-21')).toBeNull();

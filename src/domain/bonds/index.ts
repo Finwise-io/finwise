@@ -132,16 +132,16 @@ const knownAmount = (v: unknown): v is number => typeof v === 'number' && Number
  * Called by ... MK-NW-F-071 isCertificateOfDeposit · MK-NW-F-159 settleBondValue
  *               MK-NW-F-179 balanceWithBondTakenOut
  *
- * Reaches ..... 17 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 18 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-140 LEFT_OUT
  *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
  *               MK-NW-F-093 QUIET_PERF · MK-NW-F-179 balanceWithBondTakenOut
  *               MK-NW-F-156 bondValue · MK-NW-F-194 brokerUpdateToRecord
  *               MK-NW-F-201 fileRowsToSave · MK-NW-F-199 fileToRecord
  *               MK-XS-F-219 importedAccountOf · MK-XS-F-102 ingestSync
- *               MK-NW-F-071 isCertificateOfDeposit · MK-XS-F-199 profileOnTheWayIn
- *               MK-NW-F-195 readImport · MK-NW-F-159 settleBondValue
- *               MK-NW-O-008 thePerformance
+ *               MK-NW-F-071 isCertificateOfDeposit · MK-NW-F-228 moveOldCopies
+ *               MK-XS-F-199 profileOnTheWayIn · MK-NW-F-195 readImport
+ *               MK-NW-F-159 settleBondValue · MK-NW-O-008 thePerformance
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-011 bond face value
@@ -265,16 +265,16 @@ export function bondValueNote(basis: BondValueBasis): string | null {
  * Called by ... MK-NW-F-156 bondValue · MK-XS-F-102 ingestSync
  *               MK-XS-F-199 profileOnTheWayIn
  *
- * Reaches ..... 17 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 18 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-140 LEFT_OUT
  *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
  *               MK-NW-F-093 QUIET_PERF · MK-NW-F-179 balanceWithBondTakenOut
  *               MK-NW-F-156 bondValue · MK-NW-F-194 brokerUpdateToRecord
  *               MK-NW-F-201 fileRowsToSave · MK-NW-F-199 fileToRecord
  *               MK-XS-F-219 importedAccountOf · MK-XS-F-102 ingestSync
- *               MK-NW-F-071 isCertificateOfDeposit · MK-XS-F-199 profileOnTheWayIn
- *               MK-NW-F-195 readImport · MK-NW-F-159 settleBondValue
- *               MK-NW-O-008 thePerformance
+ *               MK-NW-F-071 isCertificateOfDeposit · MK-NW-F-228 moveOldCopies
+ *               MK-XS-F-199 profileOnTheWayIn · MK-NW-F-195 readImport
+ *               MK-NW-F-159 settleBondValue · MK-NW-O-008 thePerformance
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance

@@ -757,11 +757,12 @@ export function matchImportAccount(accounts: AssetAccount[], institution: string
  *     typed = opts.name.trim()
  *     … the first steps only — the rest of the body needs reading by hand.
  *
- * Called by ... MK-NW-F-195 readImport
+ * Called by ... MK-NW-F-195 readImport · MK-NW-F-228 moveOldCopies
  *
- * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-201 fileRowsToSave · MK-NW-F-199 fileToRecord
- *               MK-XS-F-199 profileOnTheWayIn · MK-NW-F-195 readImport
+ *               MK-NW-F-228 moveOldCopies · MK-XS-F-199 profileOnTheWayIn
+ *               MK-NW-F-195 readImport
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
@@ -846,10 +847,11 @@ export function importedAccountOf(
  * Called by ... MK-NW-F-195 readImport · MK-NW-F-199 fileToRecord
  *               MK-XS-F-219 importedAccountOf · MK-XS-F-221 valueOnlyAccountsOf
  *
- * Reaches ..... 6 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 7 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-201 fileRowsToSave · MK-NW-F-199 fileToRecord
- *               MK-XS-F-219 importedAccountOf · MK-XS-F-199 profileOnTheWayIn
- *               MK-NW-F-195 readImport · MK-XS-F-221 valueOnlyAccountsOf
+ *               MK-XS-F-219 importedAccountOf · MK-NW-F-228 moveOldCopies
+ *               MK-XS-F-199 profileOnTheWayIn · MK-NW-F-195 readImport
+ *               MK-XS-F-221 valueOnlyAccountsOf
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -873,10 +875,10 @@ const valueOnlyRows = (r: ImportResult) => r.holdings.filter((h) => h.assetClass
  * Called by ... MK-NW-F-195 readImport · MK-NW-F-199 fileToRecord
  *               MK-XS-F-219 importedAccountOf
  *
- * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 6 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-201 fileRowsToSave · MK-NW-F-199 fileToRecord
- *               MK-XS-F-219 importedAccountOf · MK-XS-F-199 profileOnTheWayIn
- *               MK-NW-F-195 readImport
+ *               MK-XS-F-219 importedAccountOf · MK-NW-F-228 moveOldCopies
+ *               MK-XS-F-199 profileOnTheWayIn · MK-NW-F-195 readImport
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance

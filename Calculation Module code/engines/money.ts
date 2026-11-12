@@ -53,13 +53,14 @@ export type SignConvention =
  *
  * Called by ... MK-ST-F-012 toLedgerRow
  *
- * Reaches ..... 12 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 13 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-194 brokerUpdateToRecord · MK-NW-F-193 eventRow
  *               MK-NW-F-201 fileRowsToSave · MK-NW-F-199 fileToRecord
  *               MK-XS-F-188 fixStoredFees · MK-XS-F-219 importedAccountOf
- *               MK-XS-F-102 ingestSync · MK-NW-F-192 optionName
- *               MK-XS-F-199 profileOnTheWayIn · MK-NW-F-195 readImport
- *               MK-ST-F-012 toLedgerRow · MK-XS-F-192 typedValueDatedBack
+ *               MK-XS-F-102 ingestSync · MK-NW-F-228 moveOldCopies
+ *               MK-NW-F-192 optionName · MK-XS-F-199 profileOnTheWayIn
+ *               MK-NW-F-195 readImport · MK-ST-F-012 toLedgerRow
+ *               MK-XS-F-192 typedValueDatedBack
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-048 the person’s own asset-class answer
