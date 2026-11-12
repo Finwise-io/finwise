@@ -109,24 +109,24 @@ const CUSIP = /^[0-9A-Z]{9}$/;
  *               MK-NW-F-263 sharesThatDisagree · MK-NW-F-270 sameEventElsewhere
  *               MK-NW-F-277 purchasesFromList · MK-NW-F-284 activityOf
  *               MK-NW-F-285 factsOf · MK-NW-F-288 importedListDay
- *               MK-NW-F-289 activityRefs · MK-NW-F-292 pairUp
- *               MK-NW-O-003 theNetWorth · MK-NW-O-004 theEmergencyFund
- *               MK-NW-O-008 thePerformance · MK-PF-F-015 topHoldingConcentration
- *               MK-PF-F-029 closeAsOf · MK-PF-F-047 isIndividualBondOrCD
- *               MK-PF-F-052 purchaseDateOnRecord · MK-PF-F-053 isBroadIndexOption
- *               MK-PF-F-075 soldOutPositions · MK-PL-F-009 rmdTakenThisYear
- *               MK-PL-F-031 taxOrganizer · MK-ST-F-010 nameEvidence
- *               MK-ST-F-024 rmdStartAge · MK-ST-F-031 valueOn
- *               MK-ST-F-061 isMonthEnd · MK-ST-F-073 rebuildDays
- *               MK-ST-F-081 timeWeightedReturn · MK-ST-F-082 movementsOf
- *               MK-ST-F-083 accountValuesOn · MK-ST-F-089 amountNotOnRecord
- *               MK-XS-F-004 buildDatedGrid · MK-XS-F-006 pruneDaily
- *               MK-XS-F-014 classifyHolding · MK-XS-F-102 ingestSync
- *               MK-XS-F-104 mapAccountType · MK-XS-F-109 dedupeActivities
- *               MK-XS-F-187 fixStoredMoney · MK-XS-F-188 fixStoredFees
- *               MK-XS-F-199 profileOnTheWayIn · MK-XS-F-230 recordOnSignIn
+ *               MK-NW-F-289 activityRefs · MK-NW-O-003 theNetWorth
+ *               MK-NW-O-004 theEmergencyFund · MK-NW-O-008 thePerformance
+ *               MK-PF-F-015 topHoldingConcentration · MK-PF-F-029 closeAsOf
+ *               MK-PF-F-047 isIndividualBondOrCD · MK-PF-F-052 purchaseDateOnRecord
+ *               MK-PF-F-053 isBroadIndexOption · MK-PF-F-075 soldOutPositions
+ *               MK-PL-F-009 rmdTakenThisYear · MK-PL-F-031 taxOrganizer
+ *               MK-ST-F-010 nameEvidence · MK-ST-F-024 rmdStartAge
+ *               MK-ST-F-031 valueOn · MK-ST-F-061 isMonthEnd
+ *               MK-ST-F-073 rebuildDays · MK-ST-F-081 timeWeightedReturn
+ *               MK-ST-F-082 movementsOf · MK-ST-F-083 accountValuesOn
+ *               MK-ST-F-089 amountNotOnRecord · MK-XS-F-004 buildDatedGrid
+ *               MK-XS-F-006 pruneDaily · MK-XS-F-014 classifyHolding
+ *               MK-XS-F-102 ingestSync · MK-XS-F-104 mapAccountType
+ *               MK-XS-F-109 dedupeActivities · MK-XS-F-187 fixStoredMoney
+ *               MK-XS-F-188 fixStoredFees · MK-XS-F-199 profileOnTheWayIn
+ *               MK-XS-F-230 recordOnSignIn
  *
- * Reaches ..... 595 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 594 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -136,7 +136,7 @@ const CUSIP = /^[0-9A-Z]{9}$/;
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 577 more — the full list is on functions_from_code
+ *               … and 576 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

@@ -1,7 +1,11 @@
-/* WHAT A PHONE ALREADY HOLDS, MOVED ONTO THE MASTER RECORD ONCE (phase 2, step 6, 2026-11-11). Each case states the old
- * copies — the account, its tax lots and its activity — so every share count and gain can be worked by hand. */
+/* WHAT A PHONE ALREADY HOLDS, MOVED ONTO THE MASTER RECORD ONCE (phase 2, step 6, 2026-11-11; the rule of DEC-10749,
+ * 2026-11-12: what is held now is the tax lots as the phone shows them, and each past sale is saved on its own date with
+ * the gain the app shows, selling a purchase saved behind it). Each case states the old copies — the account, its tax
+ * lots and its activity — so every share count and gain can be worked by hand. */
+jest.mock('../../../src/services/marketData', () => ({ ...jest.requireActual('../../../src/services/marketData'), fetchPriceSeries: jest.fn(async () => ({})) }));
 import { moveOldCopies } from './asset-record-move';
-import { openPurchases, rowsInForce, saleGain, sharesOnRecord, valuesNow, type AssetRow } from './asset-record';
+import { factsOf, openPurchases, rowsInForce, saleGain, sharesOnRecord, valueBatchesOf, valuesNow, valuesOn, type AssetRow } from './asset-record';
+import { realizedFromLedger } from '../../../src/domain/performance/realized';
 
 const AT = '2026-11-11T10:00:00.000Z', AT2 = '2026-11-11T11:00:00.000Z';
 const txn = (o: Record<string, unknown>) => ({ created_at: '2026-11-01T00:00:00.000Z', source: 'manual', ...o }) as any;
@@ -16,7 +20,7 @@ test('Savings typed at $12,400 as of Sep 1: moved as one value on Sep 1; opening
   expect(twice.record).toEqual(once.record);
 });
 
-test('100 VTI first entered at $80, then bought 20 at $100, sold 5 at $120 — the phone shows 95 + 20 = 115: the activity is moved, not the lots', () => {
+test('100 VTI first entered at $80, then bought 20 at $100, sold 5 at $120 — the phone shows 95 + 20 = 115: the lots are moved as they stand, and the sale sells 5 bought behind it, keeping its $200', () => {
   const acct = { asset_id: 'van', label: 'Brokerage', kind: 'brokerage', balance: 0, source: 'manual', positions: [{ position_id: 'p', ticker: 'VTI', kind: 'stocks_etf',
     lots: [{ lot_id: 'l1', shares: 95, cost_per_share: 80, purchase_date: '2025-03-03' }, { lot_id: 'l2', shares: 20, cost_per_share: 100, purchase_date: '2026-10-01' }] }] } as any;
   const ledger = [
@@ -27,18 +31,21 @@ test('100 VTI first entered at $80, then bought 20 at $100, sold 5 at $120 — t
   const out = moveOldCopies([], [acct], ledger, AT);
   expect(out.problems).toEqual([]);
   expect(sharesOnRecord(out.record, 'van', 'VTI')).toBe(115);
-  expect(rowsInForce(out.record).filter((r) => r.kind === 'PURCHASE').map((r) => [r.date, r.shares, r.price])).toEqual([['2025-03-03', 100, 80], ['2026-10-01', 20, 100]]);
-  // the sale keeps what it made: 5 × ($120 − $80) = $200, sold from the oldest purchase
+  expect(rowsInForce(out.record).filter((r) => r.kind === 'PURCHASE').map((r) => [r.date, r.shares, r.price, r.facts?.behindSaleBeforeRecord ?? false]))
+    .toEqual([['2025-03-03', 95, 80, false], ['2026-10-01', 20, 100, false], [null, 5, 80, true]]);
+  // the sale keeps what the app shows it made: 5 × ($120 − $80) = $200, on its own date
   const sale = rowsInForce(out.record).find((r) => r.kind === 'SALE')!;
-  expect(saleGain(out.record, sale.rowId)).toBe(200);
+  expect([sale.date, sale.shares, saleGain(out.record, sale.rowId)]).toEqual(['2026-10-15', 5, 200]);
+  expect(realizedFromLedger(ledger, { ticker: 'VTI', accountId: 'van' }).realizedAllTime).toBe(200);
 });
 
-test('lots entered before opening records were kept: 100 VTI at $80 with no opening record, and a buy of 20 — the phone shows 120: the lots are moved, the buy is not, and a sentence says so', () => {
+test('lots entered before opening records were kept: 100 VTI at $80 with no opening record, and a buy of 20 — the phone shows 120: the two lots are moved, once each', () => {
   const acct = { asset_id: 'van', label: 'Brokerage', kind: 'brokerage', balance: 0, source: 'manual', positions: [{ position_id: 'p', ticker: 'VTI', kind: 'stocks_etf',
     lots: [{ lot_id: 'l1', shares: 100, cost_per_share: 80, purchase_date: '2025-03-03' }, { lot_id: 'l2', shares: 20, cost_per_share: 100, purchase_date: '2026-10-01' }] }] } as any;
   const out = moveOldCopies([], [acct], [txn({ id: 'b1', type: 'BUY', account_id: 'van', ticker: 'VTI', shares: 20, price: 100, date: '2026-10-01' })], AT);
   expect(sharesOnRecord(out.record, 'van', 'VTI')).toBe(120);
-  expect(out.problems).toEqual(['The activity of VTI did not leave the tax lots it shows (120 shares), so its tax lots as they stand were moved and its 1 recorded purchases and sales were not.']);
+  expect(rowsInForce(out.record).filter((r) => r.kind === 'PURCHASE').map((r) => [r.date, r.shares, r.price])).toEqual([['2025-03-03', 100, 80], ['2026-10-01', 20, 100]]);
+  expect(out.problems).toEqual([]);
 });
 
 test('a dividend of $12.50 on Oct 2 is moved on its own date', () => {
@@ -82,7 +89,7 @@ describe('outside check, 2026-11-12', () => {
     expect(moveOldCopies(out.record, accs, [o, t], AT2).record).toEqual(out.record);
   });
 
-  test('20 QQQ bought Jan 10 at $100, the lot edited to $95, 5 sold Mar 10 at $120: the purchase of 20 is kept and corrected to $95, and the sale made 5 × ($120 − $95) = $125', () => {
+  test('20 QQQ bought Jan 10 at $100, the lot edited to $95, 5 sold Mar 10 at $120: the 15 held are moved at $95, and the sale keeps the $100 the app shows (its purchase record still says $100)', () => {
     let accs: any[] = [typed('E')];
     const b = txn({ id: 'b1', type: 'BUY', account_id: 'E', ticker: 'QQQ', shares: 20, price: 100, date: '2026-01-10' });
     accs = applyTransaction(accs, b);
@@ -92,9 +99,10 @@ describe('outside check, 2026-11-12', () => {
     const out = moveOldCopies([], accs, [b, s], AT);
     expect(out.problems).toEqual([]);
     expect(sharesOnRecord(out.record, 'E', 'QQQ')).toBe(15);
-    expect(rowsInForce(out.record).filter((r) => r.kind === 'PURCHASE').map((r) => [r.date, r.shares, r.price, r.replacesRowId != null])).toEqual([['2026-01-10', 20, 95, true]]);
+    expect(openPurchases(out.record, 'E', 'QQQ').map((p) => [p.date, p.shares, p.price])).toEqual([['2026-01-10', 15, 95]]);
     const sale = rowsInForce(out.record).find((r) => r.kind === 'SALE')!;
-    expect(saleGain(out.record, sale.rowId)).toBe(125);
+    expect(realizedFromLedger([b, s], { ticker: 'QQQ', accountId: 'E' }).realizedAllTime).toBe(100);
+    expect(saleGain(out.record, sale.rowId)).toBe(100);
   });
 
   test('an old option buy of 2 contracts at $5 with no shares-per-contract figure, 1 sold at $8: counted as 200 shares bought and 100 sold, the sale made $300', () => {
@@ -105,7 +113,8 @@ describe('outside check, 2026-11-12', () => {
     const out = moveOldCopies([], accs, [b, s], AT);
     expect(out.problems).toEqual([]);
     expect(sharesOnRecord(out.record, 'O', 'SPY 261218C600')).toBe(100);
-    expect(rowsInForce(out.record).filter((r) => r.kind === 'PURCHASE').map((r) => [r.shares, r.price])).toEqual([[200, 5]]);
+    // the contract held (100 shares at $5) and the contract sold, bought behind the sale at $5
+    expect(rowsInForce(out.record).filter((r) => r.kind === 'PURCHASE').map((r) => [r.shares, r.price, r.facts?.behindSaleBeforeRecord ?? false])).toEqual([[100, 5, false], [100, 5, true]]);
     expect(saleGain(out.record, rowsInForce(out.record).find((r) => r.kind === 'SALE')!.rowId)).toBe(300);
   });
 
@@ -167,28 +176,26 @@ describe('outside check 2, 2026-11-12', () => {
     const acct = (lots: any[]) => [{ asset_id: 'M', label: 'M', kind: 'brokerage', balance: 0, source: 'manual', positions: [{ position_id: 'p', ticker: 'MSFT', kind: 'stocks_etf', lots }] }] as any;
     const gains = (rec: AssetRow[]) => rowsInForce(rec).filter((r) => r.kind === 'SALE').map((s) => [s.date, s.shares, saleGain(rec, s.rowId)]);
 
-    test('the phone\'s first lot dated Jan 3: the purchases and the sale are moved, the sale keeps its $400, and the first purchase is corrected to Jan 3', () => {
+    test('the phone\'s first lot dated Jan 3: the lots are moved as the phone shows them, and the sale keeps its $400', () => {
       const out = moveOldCopies([], acct([{ lot_id: 'l1', shares: 6, cost_per_share: 200, purchase_date: '2025-01-03' }, { lot_id: 'l2', shares: 5, cost_per_share: 250, purchase_date: '2025-06-01' }]), ledger, AT);
       expect(out.problems).toEqual([]);
       expect(sharesOnRecord(out.record, 'M', 'MSFT')).toBe(11);
       expect(gains(out.record)).toEqual([['2025-09-01', 4, 400]]);
-      expect(rowsInForce(out.record).filter((r) => r.kind === 'PURCHASE').map((r) => [r.date, r.shares, r.price, r.replacesRowId != null]).sort((x, y) => String(x[0]).localeCompare(String(y[0])))).toEqual([['2025-01-03', 10, 200, true], ['2025-06-01', 5, 250, false]]);
+      expect(openPurchases(out.record, 'M', 'MSFT').map((p) => [p.date, p.shares, p.price])).toEqual([['2025-01-03', 6, 200], ['2025-06-01', 5, 250]]);
     });
 
-    test('the phone\'s first lot with no date: the purchases and the sale are moved, the sale keeps its $400, and the Jan 2 date stands', () => {
+    test('the phone\'s first lot with no date: the lot is moved with no date, never one the phone did not show, and the sale keeps its $400', () => {
       const out = moveOldCopies([], acct([{ lot_id: 'l1', shares: 6, cost_per_share: 200, purchase_date: '' }, { lot_id: 'l2', shares: 5, cost_per_share: 250, purchase_date: '2025-06-01' }]), ledger, AT);
       expect(out.problems).toEqual([]);
       expect(gains(out.record)).toEqual([['2025-09-01', 4, 400]]);
-      expect(openPurchases(out.record, 'M', 'MSFT').map((p) => [p.date, p.shares, p.price])).toEqual([['2025-01-02', 6, 200], ['2025-06-01', 5, 250]]);
+      expect(openPurchases(out.record, 'M', 'MSFT').map((p) => [p.date, p.shares, p.price])).toEqual([[null, 6, 200], ['2025-06-01', 5, 250]]);
     });
 
-    test('a 2-for-1 split typed as lot edits (12 at $100, 10 at $125): the purchases and the sale are moved, the sale keeps its $400, and the difference of 11 shares is asked', () => {
+    test('a 2-for-1 split typed as lot edits (12 at $100, 10 at $125): the 22 shares the phone shows are moved, and the sale keeps its $400', () => {
       const out = moveOldCopies([], acct([{ lot_id: 'l1', shares: 12, cost_per_share: 100, purchase_date: '2025-01-02' }, { lot_id: 'l2', shares: 10, cost_per_share: 125, purchase_date: '2025-06-01' }]), ledger, AT);
       expect(gains(out.record)).toEqual([['2025-09-01', 4, 400]]);
-      expect(sharesOnRecord(out.record, 'M', 'MSFT')).toBe(11);
-      const lists = out.ask.flatMap((a) => a.lists);
-      expect(lists.length).toBeGreaterThan(0);
-      expect(lists.reduce((t, q) => t + q.sharesListed - q.sharesOnRecord, 0)).toBe(11);
+      expect(sharesOnRecord(out.record, 'M', 'MSFT')).toBe(22);
+      expect(out.ask.flatMap((a) => a.lists)).toEqual([]);
       expect(out.problems).toEqual([]);
     });
   });
@@ -218,5 +225,108 @@ describe('outside check 2, 2026-11-12', () => {
     const again = moveOldCopies(unmarked, [acct], [opening], AT2);
     expect(again.moved).toEqual([]);
     expect(again.record).toEqual(unmarked);
+  });
+});
+
+describe('the rule of DEC-10749, 2026-11-12: the lots as the phone shows them, and each sale with the gain the app shows', () => {
+  const { useStore } = require('../../../src/store/useStore');
+  const { importHoldings, importedAccountOf } = require('../../../src/domain/import/holdingsImport');
+  const st = () => useStore.getState() as any;
+  beforeEach(() => useStore.setState({ assetAccounts: [], transactions: [], liabilities: [], priceCache: {}, txnFlags: [], allocatedByMonth: {},
+    snaptradeConnections: [], wrapperConfirmQueue: [], assetRecord: [], assetRecordQuestions: {}, assetRecordFaults: [] } as any));
+  // a phone from before the record: everything typed, then the record emptied, as an old copy arrives
+  const oldPhone = () => useStore.setState({ assetRecord: [], assetRecordQuestions: {}, assetRecordFaults: [] } as any);
+  const typed = (label: string) => { st().addAsset({ label, kind: 'brokerage', balance: 0, cash_balance: 0, source: 'manual', positions: [], derive_balance: true }); return String(st().assetAccounts.find((a: any) => a.label === label).asset_id); };
+  const lotsShown = (id: string, h: string) => (st().assetAccounts.find((a: any) => String(a.asset_id) === id)?.positions ?? []).filter((p: any) => p.ticker === h)
+    .flatMap((p: any) => p.lots).reduce((t: number, l: any) => t + l.shares, 0);
+  const sales = (id: string) => rowsInForce(st().assetRecord).filter((r) => r.kind === 'SALE' && r.accountId === id).map((r) => [r.date, r.shares, saleGain(st().assetRecord, r.rowId)]);
+  const F4800 = ['Symbol,Quantity,Price Paid $,Last Price $,Value $,Acquired', 'AAPL,10,150,180,1800,01/02/2025', 'MSFT,5,300,400,2000,03/01/2025', 'CASH,,,,1000,', 'Generated at Jun 21 2026 03:37 PM ET'].join('\n');
+
+  test('(a) VTI typed as 10 at $100 (2024-01-10), 10 at $110 (2024-06-10), 10 at $120 (2025-01-10); 15 sold at $150; the holding editor saved unchanged; 5 bought at $130; 3 sold at $140: the 17 shares the phone shows, and two sales with the gains the app shows', () => {
+    const T = typed('T');
+    st().addPosition(T, { ticker: 'VTI', kind: 'stocks_etf', lots: [{ lot_id: 'a', shares: 10, cost_per_share: 100, purchase_date: '2024-01-10' },
+      { lot_id: 'b', shares: 10, cost_per_share: 110, purchase_date: '2024-06-10' }, { lot_id: 'c', shares: 10, cost_per_share: 120, purchase_date: '2025-01-10' }] });
+    st().recordTransaction({ type: 'SELL', account_id: T, ticker: 'VTI', shares: 15, price: 150, date: '2025-06-01' });
+    const p = st().assetAccounts[0].positions[0];
+    st().updatePosition(T, p.position_id, { lots: p.lots });
+    st().recordTransaction({ type: 'BUY', account_id: T, ticker: 'VTI', shares: 5, price: 130, date: '2025-08-01' });
+    st().recordTransaction({ type: 'SELL', account_id: T, ticker: 'VTI', shares: 3, price: 140, date: '2025-09-01' });
+    oldPhone();
+    st().moveOldCopiesToRecordOnce();
+    expect(lotsShown(T, 'VTI')).toBe(17);
+    expect(sharesOnRecord(st().assetRecord, T, 'VTI')).toBe(17);
+    expect(openPurchases(st().assetRecord, T, 'VTI').map((x) => [x.date, x.shares, x.price])).toEqual([['2024-06-10', 2, 110], ['2025-01-10', 10, 120], ['2025-08-01', 5, 130]]);
+    // the app's reading (the editor's save rewrote the opening records, so its second sale reads $60, not $90): $700 and $60
+    expect(realizedFromLedger(st().transactions, { ticker: 'VTI', accountId: T }).realizedAllTime).toBeCloseTo(760, 9);
+    const got = sales(T);
+    expect(got.map(([d, n]) => [d, n])).toEqual([['2025-06-01', 15], ['2025-09-01', 3]]);
+    expect(got[0][2]).toBeCloseTo(700, 9);
+    expect(got[1][2]).toBeCloseTo(60, 9);
+    expect(st().assetRecordFaults).toEqual([]);
+    const n = st().assetRecord.length;
+    st().moveOldCopiesToRecordOnce();
+    expect(st().assetRecord).toHaveLength(n);
+  });
+
+  test('(b) a file dated Jun 21 listing 100 VTI bought 2025-03-03 at $80, then 20 bought and 5 sold at $120, and 10 bought after the update but before the move: 125 shares, the sale\'s $200 as the app shows it, and no file value on Jun 21', () => {
+    const F = ['Symbol,Quantity,Price Paid $,Last Price $,Value $,Acquired', 'VTI,100,80,100,10000,03/03/2025', 'CASH,,,,500,', 'Generated at Jun 21 2026 03:37 PM ET'].join('\n');
+    st().addAsset(importedAccountOf(importHoldings(F), { institution: 'Fido', name: 'Imp' }));
+    const I = String(st().assetAccounts[0].asset_id);
+    st().recordTransaction({ type: 'BUY', account_id: I, ticker: 'VTI', shares: 20, price: 100, date: '2026-07-01' });
+    st().recordTransaction({ type: 'SELL', account_id: I, ticker: 'VTI', shares: 5, price: 120, date: '2026-08-15' });
+    oldPhone();
+    st().recordTransaction({ type: 'BUY', account_id: I, ticker: 'VTI', shares: 10, price: 110, date: '2026-10-01' });
+    st().moveOldCopiesToRecordOnce();
+    expect(lotsShown(I, 'VTI')).toBe(125);
+    expect(sharesOnRecord(st().assetRecord, I, 'VTI')).toBe(125);
+    expect(openPurchases(st().assetRecord, I, 'VTI').map((x) => [x.date, x.shares, x.price, x.source])).toEqual([['2025-03-03', 95, 80, 'file'], ['2026-07-01', 20, 100, 'typed'], ['2026-10-01', 10, 110, 'typed']]);
+    expect(realizedFromLedger(st().transactions, { ticker: 'VTI', accountId: I }).realizedAllTime).toBe(200);
+    expect(sales(I)).toEqual([['2026-08-15', 5, 200]]);
+    expect(valuesOn(st().assetRecord, I, '2026-06-21')).toBeNull();
+    expect(st().assetRecordFaults).toEqual([]);
+  });
+
+  test('(c) the $4,800 file of Jun 21, traded after its date (4 AAPL sold at $200): no $4,980 — no value at all — on Jun 21, and a fact says why', () => {
+    st().addAsset(importedAccountOf(importHoldings(F4800), { institution: 'Fido', name: 'Imp' }));
+    const I = String(st().assetAccounts[0].asset_id);
+    st().recordTransaction({ type: 'SELL', account_id: I, ticker: 'AAPL', shares: 4, price: 200, date: '2026-07-10' });
+    oldPhone();
+    st().moveOldCopiesToRecordOnce();
+    expect(valueBatchesOf(st().assetRecord, I)).toEqual([]);
+    expect(String(factsOf(st().assetRecord, I, null).fileValuesNotMoved)).toContain('2026-06-21');
+    expect(sharesOnRecord(st().assetRecord, I, 'AAPL')).toBe(6);
+    expect(sales(I)).toEqual([['2026-07-10', 4, 200]]);
+  });
+
+  test('(c, untouched) the same $4,800 file, not traded since: $4,800 on Jun 21', () => {
+    st().addAsset(importedAccountOf(importHoldings(F4800), { institution: 'Fido', name: 'Imp' }));
+    const I = String(st().assetAccounts[0].asset_id);
+    oldPhone();
+    st().moveOldCopiesToRecordOnce();
+    expect(valuesNow(st().assetRecord, I)).toMatchObject({ date: '2026-06-21', source: 'file', total: 4800 });
+  });
+
+  test('(d) an account deleted before the move — 10 QQQ at $400, 2 sold at $450, a $9 dividend: its rows are moved with the accountRemoved fact, and the sale keeps its $100', () => {
+    const D = typed('D');
+    st().addPosition(D, { ticker: 'QQQ', kind: 'stocks_etf', lots: [{ lot_id: 'q1', shares: 10, cost_per_share: 400, purchase_date: '2025-02-03' }] });
+    st().recordTransaction({ type: 'SELL', account_id: D, ticker: 'QQQ', shares: 2, price: 450, date: '2025-05-01' });
+    st().recordTransaction({ type: 'DIVIDEND', account_id: D, ticker: 'QQQ', amount: 9, date: '2025-08-01' });
+    st().deleteAsset(D);
+    oldPhone();
+    st().moveOldCopiesToRecordOnce();
+    expect(factsOf(st().assetRecord, D, null).accountRemoved).toBe(true);
+    expect(rowsInForce(st().assetRecord).filter((r) => r.accountId === D && r.kind === 'DIVIDEND').map((r) => [r.date, r.amount])).toEqual([['2025-08-01', 9]]);
+    expect(sales(D)).toEqual([['2025-05-01', 2, 100]]);
+    expect(sharesOnRecord(st().assetRecord, D, 'QQQ')).toBe(0);
+  });
+
+  test('a sale the app shows no gain for (5 VTI sold, nothing bought on record): marked on the holding and asked once, never rebuilt — the shares still match the phone', () => {
+    const acct = { asset_id: 'U', label: 'U', kind: 'brokerage', balance: 0, source: 'manual', positions: [{ position_id: 'p', ticker: 'VTI', kind: 'stocks_etf',
+      lots: [{ lot_id: 'l1', shares: 10, cost_per_share: 80, purchase_date: '2025-03-03' }] }] } as any;
+    const out = moveOldCopies([], [acct], [txn({ id: 's1', type: 'SELL', account_id: 'U', ticker: 'VTI', shares: 5, price: 120, date: '2026-10-15' })], AT);
+    expect(sharesOnRecord(out.record, 'U', 'VTI')).toBe(10);
+    expect(saleGain(out.record, rowsInForce(out.record).find((r) => r.kind === 'SALE')!.rowId)).toBeNull();
+    expect(factsOf(out.record, 'U', 'VTI').notExplainedBeforeRecord).toHaveLength(1);
+    expect(out.ask).toEqual([expect.objectContaining({ accountId: 'U', unexplained: [expect.stringContaining('The sale of 5 VTI on 2026-10-15')] })]);
   });
 });

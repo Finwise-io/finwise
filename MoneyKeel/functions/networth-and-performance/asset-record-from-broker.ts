@@ -62,26 +62,25 @@ const SOURCE = 'linked' as const;
  *               MK-NW-F-273 answerEventQuestion · MK-NW-F-274 sameShares
  *               MK-NW-F-277 purchasesFromList · MK-NW-F-279 differsFromGiven
  *               MK-NW-F-284 activityOf · MK-NW-F-287 splitOf
- *               MK-NW-F-289 activityRefs · MK-NW-F-292 pairUp
- *               MK-NW-O-002 theAccount · MK-NW-O-005 theAlternativesOutlook
- *               MK-NW-O-008 thePerformance · MK-PF-F-014 buildPerformance
- *               MK-PF-F-020 portfolioBenchReturn · MK-PF-F-033 quantityWithUnit
- *               MK-PF-F-058 gainOnPartSentence · MK-PF-F-070 holdingPath
- *               MK-PF-F-071 returnSplitAtPurchases · MK-PL-F-010 drawOrderOutcome
- *               MK-ST-F-012 toLedgerRow · MK-ST-F-013 personalFlowTotals
- *               MK-ST-F-018 readMoney · MK-ST-F-021 toNumber
- *               MK-ST-F-049 formatMoney · MK-ST-F-050 formatMoneyCents
- *               MK-ST-F-051 moneyCompact · MK-ST-F-060 verdict
- *               MK-ST-F-081 timeWeightedReturn · MK-ST-F-088 moneyIntoAccount
- *               MK-ST-F-090 unnamedActivityOf · MK-XS-F-015 importHoldings
- *               MK-XS-F-102 ingestSync · MK-XS-F-183 writeFigure
- *               MK-XS-F-187 fixStoredMoney · MK-XS-F-188 fixStoredFees
- *               MK-XS-F-189 tradeFeeOnRecord · MK-XS-F-193 walkShown
- *               MK-XS-F-195 monthShown · MK-XS-F-197 chainShown
- *               MK-XS-F-211 pointsDigits · MK-XS-F-215 isWholeToTheCent
- *               MK-XS-F-218 sameCents
+ *               MK-NW-F-289 activityRefs · MK-NW-O-002 theAccount
+ *               MK-NW-O-005 theAlternativesOutlook · MK-NW-O-008 thePerformance
+ *               MK-PF-F-014 buildPerformance · MK-PF-F-020 portfolioBenchReturn
+ *               MK-PF-F-033 quantityWithUnit · MK-PF-F-058 gainOnPartSentence
+ *               MK-PF-F-070 holdingPath · MK-PF-F-071 returnSplitAtPurchases
+ *               MK-PL-F-010 drawOrderOutcome · MK-ST-F-012 toLedgerRow
+ *               MK-ST-F-013 personalFlowTotals · MK-ST-F-018 readMoney
+ *               MK-ST-F-021 toNumber · MK-ST-F-049 formatMoney
+ *               MK-ST-F-050 formatMoneyCents · MK-ST-F-051 moneyCompact
+ *               MK-ST-F-060 verdict · MK-ST-F-081 timeWeightedReturn
+ *               MK-ST-F-088 moneyIntoAccount · MK-ST-F-090 unnamedActivityOf
+ *               MK-XS-F-015 importHoldings · MK-XS-F-102 ingestSync
+ *               MK-XS-F-183 writeFigure · MK-XS-F-187 fixStoredMoney
+ *               MK-XS-F-188 fixStoredFees · MK-XS-F-189 tradeFeeOnRecord
+ *               MK-XS-F-193 walkShown · MK-XS-F-195 monthShown
+ *               MK-XS-F-197 chainShown · MK-XS-F-211 pointsDigits
+ *               MK-XS-F-215 isWholeToTheCent · MK-XS-F-218 sameCents
  *
- * Reaches ..... 619 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 618 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -91,7 +90,7 @@ const SOURCE = 'linked' as const;
  *               MK-CF-F-237 LATER · MK-NW-F-081 LB
  *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
  *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
- *               … and 601 more — the full list is on functions_from_code
+ *               … and 600 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

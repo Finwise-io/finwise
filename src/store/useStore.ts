@@ -109,6 +109,9 @@ function recomputeBalances(accs: AssetAccount[], cache: Record<string, PriceSeri
  *     questions = { ...(asset record questions ?? {}) }
  *     faults = [...(asset record faults ?? [])]
  *     out = typed change to record(record, c, at)
+ *     touched = new set<string>()
+ *     sales = sales needing an answer(record, id)
+ *     was = questions[id]
  *     the answer:
  *     asset record = record
  *     asset record questions = questions
@@ -148,6 +151,19 @@ function typedIntoRecord(s: any, changes: TypedChange[]): Record<string, unknown
     } catch (e) {
       faults.push({ at, where: `${c.kind} ${id}`, message: String((e as Error)?.message ?? e).slice(0, 300) });
     }
+  }
+  // a sale that may have sold a purchase with no date is asked which (DEC-10749, as a broker sync asks it): kept on the
+  // account's questions beside the sync's, and gone once answered
+  const touched = new Set<string>();
+  for (const c of changes) {
+    const id = 'account' in c ? String(c.account.asset_id) : 'after' in c && 'update' in c ? String(c.after.asset_id)
+      : 'transaction' in c ? String(c.transaction.account_id) : String((c as any).accountId);
+    touched.add(id);
+  }
+  for (const id of touched) {
+    const sales = salesNeedingAnAnswer(record, id);
+    const was = questions[id];
+    if (sales.length || was?.sales?.length) questions[id] = { ...(was ?? { events: [], lists: [] }), sales, at: was?.at ?? at };
   }
   return { assetRecord: record, assetRecordQuestions: questions, assetRecordFaults: faults.slice(-50) };
 }
@@ -218,7 +234,7 @@ import { ingestSync as ingestSyncPure, fixStoredMoney, fixStoredFees, type Accou
 import { buildDayFromAccounts, record as recordSnapshotDay, prune as pruneSnapshots, dailyWindowStart, typedValueOnItsDate, type SnapshotDay } from '../../Calculation Module code/engines/snapshots';
 import { rebuildDays, fillBetweenObservations } from '../../Calculation Module code/engines/rebuild-history';
 import { newEntityId } from '../domain/_shared/ids';
-import { addRows as addRecordRows, sortArriving, purchasesFromList, type AssetRow, type NewRow as NewRecordRow, type EventQuestion, type ListQuestion } from '../../MoneyKeel/functions/networth-and-performance/asset-record';
+import { addRows as addRecordRows, sortArriving, purchasesFromList, salesNeedingAnAnswer, type AssetRow, type NewRow as NewRecordRow, type EventQuestion, type ListQuestion } from '../../MoneyKeel/functions/networth-and-performance/asset-record';
 import { brokerUpdateToRecord } from '../../MoneyKeel/functions/networth-and-performance/asset-record-from-broker';
 import { fileRowsToSave } from '../../MoneyKeel/functions/networth-and-performance/asset-record-from-file';
 import { typedChangeToRecord, type TypedChange } from '../../MoneyKeel/functions/networth-and-performance/asset-record-from-typed';
@@ -468,7 +484,7 @@ type AppState = {
    *  dated row, nothing overwritten. Phase 2: written beside the three old copies; nothing on screen reads it yet. */
   assetRecord: AssetRow[];
   /** The questions the last broker update or file left for the account holder, by account (shown in phase 3). */
-  assetRecordQuestions: Record<string, { events: EventQuestion[]; lists: ListQuestion[]; needsADate?: boolean; at: string }>;
+  assetRecordQuestions: Record<string, { events: EventQuestion[]; lists: ListQuestion[]; needsADate?: boolean; sales?: ReturnType<typeof salesNeedingAnAnswer>; at: string }>;
   /** Where saving to the master record failed, so a fault there never stops the old copies (phase 2). */
   assetRecordFaults: { at: string; where: string; message: string }[];
   snapshotDays: SnapshotDay[];                   // Track 1 step 6: the full daily record (per-account, per-holding, units+price apart) — what "beginning" is READ from instead of back-solved
@@ -705,7 +721,7 @@ const DEFAULT_BADGES: Badge[] = [
  *               MK-XS-F-138 deriveKeyFromSecret · MK-XS-F-139 wrapWithSecret
  *               MK-XS-F-199 profileOnTheWayIn · MK-XS-F-222 saveAssetRecordPart
  *               MK-XS-F-223 loadAssetRecordPart · MK-XS-F-231 loadAssetRecordMarker
- *               MK-XS-F-233 commitAssetRecord
+ *               MK-XS-F-233 commitAssetRecord · MK-XS-F-242 readUserProfile
  *
  * Reaches ..... 567 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
@@ -1020,7 +1036,18 @@ export const useStore = create<AppState>()(
             }
             next = addRecordRows(next, [...fromLists, ...u.values], at);
             record = next;
-            questions[id] = { events: sorted.ask, lists, at };
+            // the questions still unanswered are KEPT and this sync's are added (outside check, 2026-11-12: each sync put its
+            // questions in place of the last ones, so a $101 resent once was lost when the window moved on); one question once.
+            // A kept question is asked again of the record as it stands, as answerEventQuestion and answerListQuestion do:
+            // answered, or settled since, it is dropped.
+            const was = questions[id] ?? { events: [], lists: [] };
+            const events = [...(was.events ?? []).filter((q: EventQuestion) => !sorted.ask.some((n) => n.key === q.key)
+              && sortArriving(next, [q.arriving]).ask.some((x) => x.key === q.key)), ...sorted.ask];
+            const keptLists = (was.lists ?? []).filter((q: ListQuestion) => !lists.some((n) => n.signature === q.signature)
+              && purchasesFromList(next, q.accountId, q.holding, q.listedAll ?? q.listed, q.source ?? 'linked', q.listDay ?? null, events).ask
+                .some((x) => x.signature === q.signature));
+            // each sale that may have sold a purchase with no date: asked which (his ruling, 2026-11-10), until answered
+            questions[id] = { ...was, events, lists: [...keptLists, ...lists], sales: salesNeedingAnAnswer(next, id), at };
           } catch (e) {
             faults.push({ at, where: `broker update ${id}`, message: String((e as Error)?.message ?? e).slice(0, 300) });
           }
@@ -1370,7 +1397,7 @@ export const useStore = create<AppState>()(
           const out = moveOldCopies(s.assetRecord ?? [], s.assetAccounts ?? [], s.transactions ?? [], at);
           if (!out.moved.length) return {};
           const questions = { ...(s.assetRecordQuestions ?? {}) };
-          for (const q of out.ask) questions[`${q.accountId}#moved`] = { events: q.events, lists: q.lists, at };
+          for (const q of out.ask) questions[`${q.accountId}#moved`] = { events: q.events, lists: q.lists, unexplained: q.unexplained, at };
           return { assetRecord: out.record, assetRecordQuestions: questions,
             assetRecordFaults: [...(s.assetRecordFaults ?? []), ...out.problems.map((m) => ({ at, where: 'move of what the phone held', message: m.slice(0, 300) }))].slice(-50) };
         } catch (e) {

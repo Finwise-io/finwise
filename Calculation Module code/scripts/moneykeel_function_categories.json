@@ -464,11 +464,6 @@
   "file": "MoneyKeel/functions/networth-and-performance/asset-record.ts",
   "category": "1 · ACTION"
  },
- "asFileList": {
-  "id": "MK-NW-F-225",
-  "file": "MoneyKeel/functions/networth-and-performance/asset-record-move.ts",
-  "category": "3 · DEPENDENT (feeds an action only)"
- },
  "asPercent": {
   "id": "MK-CF-F-182",
   "file": "src/domain/income/from-accounts.ts",
@@ -1083,6 +1078,11 @@
   "id": "MK-XS-F-002",
   "file": "src/domain/gaps/index.ts",
   "category": "2 · DISPLAYED"
+ },
+ "dataKeyIsReady": {
+  "id": "MK-XS-F-244",
+  "file": "src/services/firebase.ts",
+  "category": "1 · ACTION"
  },
  "dateAsGiven": {
   "id": "MK-NW-F-208",
@@ -2999,6 +2999,11 @@
   "file": "src/domain/planning/hub.ts",
   "category": "2 · DISPLAYED"
  },
+ "onDataKeyReady": {
+  "id": "MK-XS-F-243",
+  "file": "src/services/firebase.ts",
+  "category": "1 · ACTION"
+ },
  "onOrBefore": {
   "id": "MK-ST-F-033",
   "file": "Calculation Module code/engines/snapshots.ts",
@@ -3088,11 +3093,6 @@
   "id": "MK-PF-F-083",
   "file": "src/domain/performance/index.ts",
   "category": "3 · DEPENDENT"
- },
- "pairUp": {
-  "id": "MK-NW-F-292",
-  "file": "MoneyKeel/functions/networth-and-performance/asset-record-move.ts",
-  "category": "3 · DEPENDENT (feeds an action only)"
  },
  "parseCsv": {
   "id": "MK-XS-F-013",
@@ -3558,6 +3558,11 @@
   "id": "MK-ST-F-018",
   "file": "Calculation Module code/engines/money.ts",
   "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "readUserProfile": {
+  "id": "MK-XS-F-242",
+  "file": "src/services/firebase.ts",
+  "category": "4 · BRINGS DATA IN"
  },
  "readingOf": {
   "id": "MK-ST-F-087",

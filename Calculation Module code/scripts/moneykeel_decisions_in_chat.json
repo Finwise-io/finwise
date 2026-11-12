@@ -11632,6 +11632,24 @@
    "apply_steps": "1. Keep a marker in the cloud beside the record’s parts: which phone saved last and how many rows. 2. Before each save, read the marker; save only if this phone saved last and the counts match; otherwise save nothing and record a fault. 3. A part that cannot be read (no key yet) blocks every save until it can be read. 4. The one-time move and any save run only after this person’s accounts have loaded from the cloud. 5. Tests hold the two-phone, password-reset and sign-in cases with the checker’s numbers. 6. Phase 2 follow-up: one written design for the cloud copy (two phones, sign-in, key recovery) and one for questions and answers.",
    "not_a_repeat_of": "DEC-10514 — that decision is that the master record is saved to the cloud account as well as the phone. This decision refines it and does not replace it: it says when a save may happen, so two phones and two people never mix. Every part of DEC-10514 stands.",
    "proof": ""
+  },
+  {
+   "decided": "2026-11-12",
+   "answers": [],
+   "tab": "multiple_screens",
+   "status": "RULED, NOT CODED",
+   "standard_carrier": "",
+   "type": "RULE",
+   "screens": "Net worth · Performance · the account page · the Holding page — through the one master record (no screen changes in phase 2); sign-in after a password reset",
+   "his_words": "go",
+   "subject": "After the third outside check: the password-reset wipe fixed now, the one-time move made simple (what is held = the lots as the phone shows them; each past sale keeps the gain the app already shows), and the profile-sync faults folded into the cloud design (his “go”, 2026-11-12)",
+   "plain": "His reply in chat, 2026-11-12, to Claude’s four recommendations: (1) fix now, separately, the password-reset wipe in the shipped app; (2) fix the Robinhood sync throwing away unanswered questions, a sale that may have sold an undated purchase never being asked about, and the record never saving when the app opened offline; (3) simplify the one-time move — what is held now comes from the lots exactly as the phone shows them, each past sale is saved with its own date and the gain the app already recorded, and what the old copies cannot explain is marked and asked, never rebuilt; (4) fold the household, offline-edit and delete-account faults into the cloud design. The wording is Claude’s; his word was “go”.",
+   "means": "Example: 30 VTI typed as three lots, 15 sold at $150 (a $700 gain), the editor saved, 5 bought, 3 sold ($90 gain). Before: the move saved the lots and dropped both sales. Now: the record holds the 17 shares the phone shows, and both sales with their $700 and $90 gains.",
+   "governs": "MoneyKeel/functions/networth-and-performance/asset-record-move.ts — moveOldCopies · app/_layout.tsx — sign-in profile load · src/services/firebase.ts — loadUserRoot · src/store/useStore.ts — the broker sync's questions",
+   "changed": "",
+   "apply_steps": "1. Sign-in: a profile the phone cannot read yet is never taken as a new account; the phone keeps its data, nothing is saved, and the profile loads again once the recovery code is entered. 2. Sync: questions still open are kept, added to, never replaced; a sale that may have sold an undated purchase is asked. 3. The record saves once the profile loads after an offline start. 4. The move: each holding's lots as the phone shows them are what is held; each past sale is saved on its date with the gain the app shows today; what cannot be explained is marked and asked. 5. A test for each with the checker’s numbers. 6. Workplan: the household, offline-edit and delete-account faults go into the cloud design.",
+   "not_a_repeat_of": "DEC-10685 — that decision is when the cloud copy may be saved. This decision is about the sign-in profile, the sync’s questions and the one-time move. Every part of DEC-10685 stands. DEC-10342 — that decision is the one master record. This decision says how the phone’s old copies are moved onto it. Every part of DEC-10342 stands.",
+   "proof": ""
   }
  ]
 }

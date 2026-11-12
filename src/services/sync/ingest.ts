@@ -199,13 +199,13 @@ export function fixStoredFees<T extends { type?: any; account_id?: any; date?: a
  *
  * Called by ... MK-PF-F-028 realizedFromLedger · MK-XS-F-102 ingestSync
  *
- * Reaches ..... 11 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 12 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
  *               MK-NW-F-194 brokerUpdateToRecord · MK-NW-F-201 fileRowsToSave
  *               MK-NW-F-199 fileToRecord · MK-XS-F-219 importedAccountOf
- *               MK-XS-F-102 ingestSync · MK-XS-F-199 profileOnTheWayIn
- *               MK-NW-F-195 readImport · MK-PF-F-028 realizedFromLedger
- *               MK-NW-O-006 theHolding
+ *               MK-XS-F-102 ingestSync · MK-NW-F-228 moveOldCopies
+ *               MK-XS-F-199 profileOnTheWayIn · MK-NW-F-195 readImport
+ *               MK-PF-F-028 realizedFromLedger · MK-NW-O-006 theHolding
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

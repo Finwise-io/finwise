@@ -262,7 +262,7 @@ export async function loginUser(email: string, password: string, onCodeReady?: (
 
   if (env) {
     const dek = unwrapWithPassword(env, uid, password);
-    if (dek) { await cacheDataKey(dek); return { user: cred.user, needsRecovery: false }; }
+    if (dek) { await cacheDataKey(dek); await dataKeyIsReady(); return { user: cred.user, needsRecovery: false }; }
     // Password is valid for Firebase but can't open the data → it was reset. Need the recovery code.
     return { user: cred.user, needsRecovery: true };
   }
@@ -312,6 +312,7 @@ export async function restoreWithRecoveryCode(recoveryCode: string, newPassword:
   if (!dek) throw new Error('That recovery code is incorrect.');
   await setDoc(doc(db, 'users', u.uid), { keyEnvelope: rewrapPassword(env, dek, u.uid, newPassword) }, { merge: true });
   await cacheDataKey(dek);
+  await dataKeyIsReady();   // the profile this phone could not read loads now, as a normal sign-in would (DEC-10749)
 }
 
 // Issue a NEW recovery code for the signed-in user (the old one stops working). Requires the data to
@@ -890,13 +891,15 @@ export async function joinHouseholdMembership(uid: string, householdId: string, 
  * Formula .....
  *     snap = await get doc(doc(db, 'users', uid))
  *     household id = nothing
- *     app state = nothing   when !snap.exists()
+ *     app state = nothing
+ *     app state unreadable = false   when !snap.exists()
  *     d = snap.data() as any
  *     app state = await decrypt from sync(app state enc)   if app state enc ≠ nothing
  *     app state (or nothing when missing)   otherwise
  *     the answer:
  *     household id = household id (or nothing when missing)
  *     app state = app state
+ *     app state unreadable = app state enc ≠ nothing and app state = nothing
  *
  * Called by ... MK-XS-F-072 deleteAccount
  *
@@ -908,12 +911,89 @@ export async function joinHouseholdMembership(uid: string, householdId: string, 
  * Formula also on the master file · functions_from_code · MK-XS-F-079
  * Changed ..... 2026-06-20 (3ca4a85)
  */
-export async function loadUserRoot(uid: string): Promise<{ householdId: string | null; appState: Record<string, any> | null }> {
+export async function loadUserRoot(uid: string): Promise<{ householdId: string | null; appState: Record<string, any> | null; appStateUnreadable: boolean }> {
   const snap = await getDoc(doc(db, 'users', uid));
-  if (!snap.exists()) return { householdId: null, appState: null };
+  if (!snap.exists()) return { householdId: null, appState: null, appStateUnreadable: false };
   const d = snap.data() as any;
   const appState = d?.appStateEnc != null ? await decryptFromSync(d.appStateEnc) : (d?.appState ?? null);
-  return { householdId: d?.householdId ?? null, appState };
+  // a profile in the cloud this phone has no key for yet is never "no profile" (DEC-10749, 2026-11-12)
+  return { householdId: d?.householdId ?? null, appState, appStateUnreadable: d?.appStateEnc != null && appState == null };
+}
+
+/** A profile document (the household's shared one) read so that "nothing in the cloud" and "there, but this phone has no key
+ *  for it yet" never look the same (DEC-10749, his "go", 2026-11-12: an unreadable profile was taken as a new account). */
+/* ─ MK-XS-F-242 ──────────────────────────────────────────────────────────── 4 · BRINGS DATA IN
+ * readUserProfile
+ *
+ * Answers ..... A profile document (the household's shared one) read so that "nothing in the cloud" and "there, but this phone has no key for it yet" never look the same (DEC-10749, his "go", 2026-11-12: an unreadable profile was taken as a new account).
+ *
+ * Formula .....
+ *     snap = await get doc(doc(db, 'users', uid))
+ *     app state = nothing
+ *     app state unreadable = false   when !snap.exists()
+ *     d = snap.data() as any
+ *     app state = await decrypt from sync(app state enc)   if app state enc ≠ nothing
+ *     app state (or nothing when missing)   otherwise
+ *     the answer:
+ *     app state = app state
+ *     app state unreadable = app state enc ≠ nothing and app state = nothing
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-242
+ * Changed ..... not in git yet (—)
+ */
+export async function readUserProfile(uid: string): Promise<{ appState: Record<string, any> | null; appStateUnreadable: boolean }> {
+  const snap = await getDoc(doc(db, 'users', uid));
+  if (!snap.exists()) return { appState: null, appStateUnreadable: false };
+  const d = snap.data() as any;
+  const appState = d?.appStateEnc != null ? await decryptFromSync(d.appStateEnc) : (d?.appState ?? null);
+  return { appState, appStateUnreadable: d?.appStateEnc != null && appState == null };
+}
+
+/** Told when this phone gets the key to the person's data (a sign-in that unwraps it, or the recovery code): the app's root
+ *  then loads a profile it could not read before. */
+let keyReadyListener: (() => Promise<void> | void) | null = null;
+/** The app root registers here what to do once the key to read the cloud copy reaches the phone: load the profile it could not read. */
+/* ─ MK-XS-F-243 ──────────────────────────────────────────────────────────────────── 1 · ACTION
+ * onDataKeyReady
+ *
+ * Answers ..... The app root registers here what to do once the key to read the cloud copy reaches the phone: load the profile it could not read.
+ *
+ * Formula .....
+ *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-243
+ * Changed ..... not in git yet (—)
+ */
+export function onDataKeyReady(fn: (() => Promise<void> | void) | null) { keyReadyListener = fn; }
+/** Tells the app the key to read the cloud copy is now on the phone (a sign-in unwrapped it, or the recovery code was entered), so a profile it could not read loads now. */
+/* ─ MK-XS-F-244 ──────────────────────────────────────────────────────────────────── 1 · ACTION
+ * dataKeyIsReady
+ *
+ * Answers ..... Tells the app the key to read the cloud copy is now on the phone (a sign-in unwrapped it, or the recovery code was entered), so a profile it could not read loads now.
+ *
+ * Formula .....
+ *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
+ *
+ * Called by ... MK-XS-F-066 loginUser · MK-XS-F-067 restoreWithRecoveryCode
+ *
+ * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-066 loginUser · MK-XS-F-067 restoreWithRecoveryCode
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-244
+ * Changed ..... not in git yet (—)
+ */
+async function dataKeyIsReady() {
+  try { await keyReadyListener?.(); } catch { /* the root retries at the next change */ }
 }
 
 /* ─ MK-XS-F-080 ──────────────────────────────────────────────────────────────────── 1 · ACTION

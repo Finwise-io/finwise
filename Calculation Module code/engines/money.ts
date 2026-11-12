@@ -172,7 +172,7 @@ export function sumSigned(items: Money[]): Dec {
  *               MK-NW-O-008 thePerformance · MK-ST-F-012 toLedgerRow
  *               MK-XS-F-102 ingestSync · MK-XS-F-189 tradeFeeOnRecord
  *
- * Reaches ..... 52 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 53 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
  *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
@@ -182,7 +182,7 @@ export function sumSigned(items: Money[]): Dec {
  *               MK-PF-F-014 buildPerformance · MK-CF-F-118 cashEffect
  *               MK-NW-F-084 categoryEarnings · MK-NW-F-142 classReturnOf
  *               MK-PF-F-068 dayAfterDay · MK-PF-F-012 earliestPurchaseDate
- *               … and 34 more — the full list is on functions_from_code
+ *               … and 35 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

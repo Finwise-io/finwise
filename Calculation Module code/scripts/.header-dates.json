@@ -1148,5 +1148,8 @@
 "src/services/sync/assetRecordCloud.ts::saveRecordGuarded": "not in git yet|\u2014",
 "src/services/sync/assetRecordCloud.ts::loadCloudRecord": "not in git yet|\u2014",
 "src/services/sync/assetRecordCloud.ts::sameMarker": "not in git yet|\u2014",
-"src/services/sync/assetRecordCloud.ts::markerOf": "not in git yet|\u2014"
+"src/services/sync/assetRecordCloud.ts::markerOf": "not in git yet|\u2014",
+"src/services/firebase.ts::dataKeyIsReady": "not in git yet|\u2014",
+"src/services/firebase.ts::onDataKeyReady": "not in git yet|\u2014",
+"src/services/firebase.ts::readUserProfile": "not in git yet|\u2014"
 }

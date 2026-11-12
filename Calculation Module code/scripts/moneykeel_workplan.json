@@ -5253,7 +5253,7 @@
   },
   {
    "task": "One written design for the cloud copy of the master record: two phones, signing in and out, key recovery (second outside check of phase 2, 2026-11-12)",
-   "todo": "1. Write the design: how two phones on one household add rows without losing either's, what a phone does when it cannot read the cloud, what is cleared on sign-out. 2. Outside check of the design. 3. Build and test it. Until then DEC-10685 holds: only the phone that last saved may save.",
+   "todo": "1. Write the design: how two phones on one household add rows without losing either's, what a phone does when it cannot read the cloud, what is cleared on sign-out. 2. Outside check of the design. 3. Build and test it. Until then DEC-10685 holds: only the phone that last saved may save. 4. Fold in the third outside check's profile-sync faults (shipped in Build 57, DEC-10749): in a household each person's phone cannot read the other's saves (each has its own key); accounts typed offline vanish when the app next opens online (the cloud profile replaces the phone's); the first launch after the update while offline saves nothing typed in it; deleting an account leaves its encrypted record parts and marker on the server.",
    "status": "TO DO — after the phase 2 critical and high fixes",
    "ref": "DEC-10514 · DEC-10685 · src/services/sync/assetRecordCloud.ts · app/_layout.tsx",
    "date": "2026-11-12",
@@ -5284,6 +5284,18 @@
    "comments": "",
    "_written": {
     "status": "TO DO — after the critical and high fixes",
+    "comments": ""
+   }
+  },
+  {
+   "task": "Saving the holding editor after a part sale changes a later sale's gain on Performance (found by the phase 2 move, 2026-11-12; shipped in Build 57)",
+   "todo": "1. Example: VTI typed as 10 @ $100 (Jan 10 2024), 10 @ $110 (Jun 10 2024), 10 @ $120 (Jan 10 2025); 15 sold @ $150; the holding editor saved unchanged; 5 bought @ $130; 3 sold @ $140. The app shows the second sale's gain as $60; oldest first it is 3 × ($140 − $110) = $90. 2. Cause: saving the editor rewrites the part-sold lot's opening record (src/domain/transactions/index.ts ~647-650), so realizedFromLedger sells from the $120 lot. 3. Fix in phase 3, when the screens read the master record (the record's gains are then the ones shown); until then the one-time move copies the app's own figure (DEC-10749).",
+   "status": "TO DO — phase 3",
+   "ref": "DEC-10749 · MK-PF-F-028 realizedFromLedger · src/domain/transactions/index.ts",
+   "date": "2026-11-12",
+   "comments": "",
+   "_written": {
+    "status": "TO DO — phase 3",
     "comments": ""
    }
   }

@@ -8,7 +8,7 @@
   "PF": 90,
   "PL": 103,
   "ST": 100,
-  "XS": 241
+  "XS": 244
  },
  "issued": {
   "ACC": "MK-NW-F-075",
@@ -244,6 +244,7 @@
   "currentYield": "MK-NW-F-059",
   "dailyWindowStart": "MK-ST-F-079",
   "dataGaps": "MK-XS-F-002",
+  "dataKeyIsReady": "MK-XS-F-244",
   "dateAsGiven": "MK-NW-F-208",
   "dateAsSent": "MK-NW-F-190",
   "dateShown": "MK-ST-F-078",
@@ -635,6 +636,7 @@
   "on": "MK-ST-F-039",
   "onAuthChange": "MK-XS-F-071",
   "onCourseSentence": "MK-PL-F-030",
+  "onDataKeyReady": "MK-XS-F-243",
   "onOrBefore": "MK-ST-F-033",
   "onSignOutFlush": "MK-XS-F-235",
   "oneHoldingSpelling": "MK-NW-F-232",
@@ -750,6 +752,7 @@
   "readHistory": "MK-XS-F-009",
   "readImport": "MK-NW-F-195",
   "readMoney": "MK-ST-F-018",
+  "readUserProfile": "MK-XS-F-242",
   "readingOf": "MK-ST-F-087",
   "realizedFromLedger": "MK-PF-F-028",
   "rebuildDays": "MK-ST-F-073",

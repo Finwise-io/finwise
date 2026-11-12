@@ -17,6 +17,8 @@ jest.mock('../services/firebase', () => ({
   commitAssetRecord: jest.fn(),
   getPhoneId: jest.fn(() => Promise.resolve('phone-1')),
   onSignOutFlush: jest.fn(),
+  onDataKeyReady: jest.fn((fn: any) => { (global as any).mockKeyReady = fn; }),
+  readUserProfile: jest.fn(() => Promise.resolve({ appState: null, appStateUnreadable: false })),
 }));
 jest.mock('expo-router', () => {
   const Stack: any = () => null;
@@ -134,4 +136,106 @@ test('offline: a save that fails is tried again at the next change, never at onc
   act(() => { useStore.setState({ hideBalances: true } as any); });   // the next change
   await flush();
   expect(tries).toBe(2);
+});
+
+// ── OUTSIDE CHECK 3, 2026-11-12 (DEC-10749, his "go"): a profile the phone cannot read yet is never taken as a new account ──
+const add = (label: string, bal: number) => st().addAsset({ label, institution: 'Ally', kind: 'savings', tax_bucket: 'CASH', balance: bal, source: 'manual', value_as_of: '2026-11-01' });
+const keyReady = () => (global as any).mockKeyReady?.();
+function phoneOfA() {
+  st().addAsset({ label: 'A Savings', institution: 'Ally', kind: 'savings', tax_bucket: 'CASH', balance: 12_400, source: 'manual', value_as_of: '2026-11-01' });
+  st().addAsset({ label: 'A Brokerage', institution: 'Vanguard', kind: 'brokerage', tax_bucket: 'TAXABLE', balance: 30_000, source: 'manual', value_as_of: '2026-11-01' });
+  useStore.setState({ assetRecordOwner: 'uidA', onboardingComplete: true, transactions: [{ id: 't1' }] } as any);
+  return JSON.parse(JSON.stringify(st().assetAccounts));
+}
+
+test('O3-1 password reset, no key on the phone: A\'s 2 accounts ($12,400 and $30,000), onboarding done and 1 activity stay; nothing saves; the recovery code loads the profile', async () => {
+  const cloudAccounts = phoneOfA();
+  mockFb.loadUserRoot.mockResolvedValue({ householdId: null, appState: null, appStateUnreadable: true });
+  mockFb.loadAssetRecordPart.mockImplementation(async (_o: string, p: number) => (p === 0 ? UNREADABLE : null));
+  mockFb.commitAssetRecord.mockImplementation(() => async () => ({ status: 'saved' }));
+  render(<RootLayout />);
+  await act(async () => { await signIn({ uid: 'uidA', email: 'a@a.com', metadata: {} }); });
+  expect(st().assetAccounts.map((a: any) => [a.label, a.balance]).sort()).toEqual([['A Brokerage', 30_000], ['A Savings', 12_400]]);
+  expect(st().onboardingComplete).toBe(true);
+  expect(st().transactions).toHaveLength(1);
+  act(() => { useStore.setState({ hideBalances: true } as any); });   // a change before the recovery code
+  await flush();
+  expect(mockFb.saveUserData).not.toHaveBeenCalled();                  // never the phone's copy over the cloud's unread one
+  expect(mockFb.loadAssetRecordPart).not.toHaveBeenCalled();
+  expect(mockFb.commitAssetRecord).not.toHaveBeenCalled();
+  // the recovery code unwraps the key: the profile loads then, as a normal sign-in would
+  mockFb.loadUserRoot.mockResolvedValue({ householdId: null, appState: { onboardingComplete: true, assetAccounts: cloudAccounts, transactions: [{ id: 't1' }] } });
+  mockFb.loadAssetRecordPart.mockResolvedValue(null);
+  await act(async () => { await keyReady(); });
+  await flush();
+  expect(mockFb.loadUserRoot).toHaveBeenCalledTimes(3);                // sign-in, the change (still unreadable), the key
+  expect(st().assetAccounts).toHaveLength(2);
+  expect(st().onboardingComplete).toBe(true);
+  act(() => { useStore.setState({ hideBalances: false } as any); });
+  await flush();
+  const last = mockFb.saveUserData.mock.calls.at(-1);
+  expect(last[0]).toBe('uidA');
+  expect(last[1].assetAccounts).toHaveLength(2);
+  expect(last[1].onboardingComplete).toBe(true);
+  expect(mockFb.commitAssetRecord).toHaveBeenCalled();                 // the record loads and saves once the profile is in
+});
+
+test('O3-1b after a sign-out the key is not unwrapped yet when the profile loads: the phone is never reset, and the next change loads the profile', async () => {
+  phoneOfA();
+  mockFb.loadUserRoot.mockResolvedValueOnce({ householdId: null, appState: null, appStateUnreadable: true })
+    .mockResolvedValue({ householdId: null, appState: { onboardingComplete: true, assetAccounts: JSON.parse(JSON.stringify(st().assetAccounts)) } });
+  mockFb.loadAssetRecordPart.mockResolvedValue(null);
+  render(<RootLayout />);
+  await act(async () => { await signIn({ uid: 'uidA', email: 'a@a.com', metadata: {} }); });
+  expect(st().assetAccounts).toHaveLength(2);
+  expect(st().transactions).toHaveLength(1);
+  act(() => { useStore.setState({ hideBalances: true } as any); });   // the next change, key now on the phone
+  await flush();
+  expect(mockFb.loadUserRoot).toHaveBeenCalledTimes(2);
+  expect(st().assetAccounts).toHaveLength(2);
+  expect(st().onboardingComplete).toBe(true);
+});
+
+test('O3-2 offline at launch, back online: 3 changes load the profile again at the first change, and the record then loads and saves', async () => {
+  st().addAsset({ label: 'A Savings', institution: 'Ally', kind: 'savings', tax_bucket: 'CASH', balance: 12_400, source: 'manual', value_as_of: '2026-11-01' });
+  useStore.setState({ assetRecord: [], assetRecordOwner: 'uidA', onboardingComplete: true } as any);
+  mockFb.loadUserRoot.mockRejectedValueOnce(new Error('offline'))
+    .mockResolvedValue({ householdId: null, appState: { onboardingComplete: true, assetAccounts: JSON.parse(JSON.stringify(st().assetAccounts)) } });
+  mockFb.loadAssetRecordPart.mockResolvedValue(null);
+  let commits = 0;
+  mockFb.commitAssetRecord.mockImplementation(() => async () => { commits++; return { status: 'saved' }; });
+  render(<RootLayout />);
+  await act(async () => { await signIn({ uid: 'uidA', email: 'a@a.com', metadata: {} }); });
+  for (let i = 0; i < 3; i++) { act(() => { add('New ' + i, 100 + i); }); await flush(); }
+  expect(mockFb.loadUserRoot).toHaveBeenCalledTimes(2);                // 1 failed + 1 retried, never more
+  expect(st().assetAccounts.map((a: any) => a.label).sort()).toEqual(['A Savings', 'New 0', 'New 1', 'New 2']);   // nothing typed is lost
+  expect(commits).toBeGreaterThanOrEqual(1);
+  expect(mockFb.saveUserData.mock.calls.length).toBeGreaterThanOrEqual(3);
+  expect(mockFb.saveUserData.mock.calls.at(-1)[1].assetAccounts).toHaveLength(4);
+});
+
+test('O3-2b still offline: a failed profile load waits for the next change, never a tight loop', async () => {
+  st().addAsset({ label: 'A Savings', institution: 'Ally', kind: 'savings', tax_bucket: 'CASH', balance: 12_400, source: 'manual', value_as_of: '2026-11-01' });
+  useStore.setState({ assetRecordOwner: 'uidA' } as any);
+  mockFb.loadUserRoot.mockRejectedValue(new Error('offline'));
+  render(<RootLayout />);
+  await act(async () => { await signIn({ uid: 'uidA', email: 'a@a.com', metadata: {} }); });
+  act(() => { useStore.setState({ hideBalances: true } as any); });
+  for (let i = 0; i < 5; i++) await flush(5000);
+  expect(mockFb.loadUserRoot).toHaveBeenCalledTimes(2);                // the launch + the one change
+  expect(mockFb.commitAssetRecord).not.toHaveBeenCalled();
+});
+
+test('O3-2c offline at launch, owner never noted, nothing in the cloud: the retry keeps the $5,000 account typed in this session', async () => {
+  useStore.setState({ assetRecordOwner: undefined } as any);
+  mockFb.loadUserRoot.mockRejectedValueOnce(new Error('offline')).mockResolvedValue({ householdId: null, appState: null, appStateUnreadable: false });
+  mockFb.loadAssetRecordPart.mockResolvedValue(null);
+  mockFb.commitAssetRecord.mockImplementation(() => async () => ({ status: 'saved' }));
+  render(<RootLayout />);
+  await act(async () => { await signIn({ uid: 'uidA', email: 'a@a.com', metadata: {} }); });
+  act(() => { add('Typed while offline', 5_000); });
+  await flush();
+  await flush();
+  expect(st().assetAccounts.map((a: any) => [a.label, a.balance])).toEqual([['Typed while offline', 5_000]]);
+  expect(mockFb.saveUserData.mock.calls.at(-1)[1].assetAccounts).toHaveLength(1);
 });

@@ -40,9 +40,10 @@ const EPS = 1e-9;
  *               MK-CF-F-289 purchaseRecordsFollowEdit · MK-NW-F-084 categoryEarnings
  *               MK-NW-F-194 brokerUpdateToRecord · MK-NW-F-199 fileToRecord
  *               MK-NW-F-216 rowOfLot · MK-NW-F-221 lotsFollow
- *               MK-NW-F-238 sortArriving · MK-NW-F-281 correctRow
- *               MK-NW-F-289 activityRefs · MK-PF-F-015 topHoldingConcentration
- *               MK-ST-F-084 fillBetweenObservations · MK-ST-F-093 typedValueOnItsDate
+ *               MK-NW-F-228 moveOldCopies · MK-NW-F-238 sortArriving
+ *               MK-NW-F-281 correctRow · MK-NW-F-289 activityRefs
+ *               MK-PF-F-015 topHoldingConcentration · MK-ST-F-084 fillBetweenObservations
+ *               MK-ST-F-093 typedValueOnItsDate · MK-XS-F-079 loadUserRoot
  *
  * Reaches ..... 567 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
@@ -177,7 +178,7 @@ export const valuesAreTyped = (a: Pick<AssetAccount, 'source'> | null | undefine
  *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
  *
  * Called by ... MK-NW-F-213 lotRow · MK-NW-F-216 rowOfLot
- *               MK-NW-F-223 openingRow
+ *               MK-NW-F-223 openingRow · MK-NW-F-228 moveOldCopies
  *
  * Reaches ..... 9 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-213 lotRow · MK-NW-F-221 lotsFollow
@@ -203,7 +204,7 @@ export const lotRef = (accountId: string, lot: Pick<Lot, 'lot_id'>): string => `
  *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
  *
  * Called by ... MK-NW-F-217 transactionRow · MK-NW-F-223 openingRow
- *               MK-NW-F-224 typedChangeToRecord
+ *               MK-NW-F-224 typedChangeToRecord · MK-NW-F-228 moveOldCopies
  *
  * Reaches ..... 7 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-228 moveOldCopies · MK-NW-F-223 openingRow
@@ -229,8 +230,7 @@ export const txnRef = (t: Pick<Transaction, 'id'>): string => `typed-txn:${t.id}
  *     1   if kind = 'options'
  *     contract multiplier(p as any)   otherwise
  *
- * Called by ... MK-NW-F-213 lotRow · MK-NW-F-228 moveOldCopies
- *               MK-NW-F-291 lotsOf
+ * Called by ... MK-NW-F-213 lotRow · MK-NW-F-291 lotsOf
  *
  * Reaches ..... 9 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-213 lotRow · MK-NW-F-221 lotsFollow
@@ -569,17 +569,17 @@ function arrive(out: TypedResult, rows: NewRow[], writtenAt: string): void {
  *               MK-NW-F-270 sameEventElsewhere · MK-NW-F-278 answerListQuestion
  *               MK-NW-F-294 removalKept · MK-XS-F-002 dataGaps
  *
- * Reaches ..... 27 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 26 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-289 activityRefs · MK-NW-F-273 answerEventQuestion
  *               MK-NW-F-278 answerListQuestion · MK-NW-F-248 answerValuesQuestion
- *               MK-NW-F-218 arrive · MK-NW-F-225 asFileList
- *               MK-NW-F-275 besideTheList · MK-NW-F-194 brokerUpdateToRecord
- *               MK-XS-F-002 dataGaps · MK-NW-F-279 differsFromGiven
- *               MK-NW-F-271 eventsThatDiffer · MK-NW-F-201 fileRowsToSave
- *               MK-NW-F-221 lotsFollow · MK-NW-F-228 moveOldCopies
- *               MK-XS-F-199 profileOnTheWayIn · MK-NW-F-277 purchasesFromList
- *               MK-NW-F-294 removalKept · MK-NW-F-239 rowsNotYetSaved
- *               … and 9 more — the full list is on functions_from_code
+ *               MK-NW-F-218 arrive · MK-NW-F-275 besideTheList
+ *               MK-NW-F-194 brokerUpdateToRecord · MK-XS-F-002 dataGaps
+ *               MK-NW-F-279 differsFromGiven · MK-NW-F-271 eventsThatDiffer
+ *               MK-NW-F-201 fileRowsToSave · MK-NW-F-221 lotsFollow
+ *               MK-NW-F-228 moveOldCopies · MK-XS-F-199 profileOnTheWayIn
+ *               MK-NW-F-277 purchasesFromList · MK-NW-F-294 removalKept
+ *               MK-NW-F-239 rowsNotYetSaved · MK-NW-F-272 salesMovedBy
+ *               … and 8 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -740,10 +740,7 @@ export function typedAccountRows(a: AssetAccount): NewRow[] {
  *     per = multiplier   if multiplier ≠ nothing and multiplier > 0
  *     1, price = given number(price)   otherwise
  *
- * Called by ... MK-NW-F-228 moveOldCopies
- *
- * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-228 moveOldCopies · MK-XS-F-199 profileOnTheWayIn
+ * Called by ... nothing — it is an entry point, or nothing reaches it
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)

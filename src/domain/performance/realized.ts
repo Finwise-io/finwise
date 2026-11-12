@@ -35,10 +35,11 @@ export interface RealizedResult {
  *     a sale with shares still uncovered is counted as a sale without basis — reported, never guessed
  *     the answer = { realized all time, realized this year, sells counted, sells without basis }
  *
- * Called by ... MK-NW-O-006 theHolding
+ * Called by ... MK-NW-F-228 moveOldCopies · MK-NW-O-006 theHolding
  *
- * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
+ *               MK-NW-F-228 moveOldCopies · MK-XS-F-199 profileOnTheWayIn
  *               MK-NW-O-006 theHolding
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
@@ -169,7 +170,7 @@ export function realizedFromLedger(
  * Called by ... MK-CF-F-111 applyTransaction · MK-CF-F-118 cashEffect
  *               MK-PF-F-028 realizedFromLedger · MK-PF-F-072 tradesAfter
  *
- * Reaches ..... 52 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 53 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
  *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
@@ -179,7 +180,7 @@ export function realizedFromLedger(
  *               MK-NW-F-194 brokerUpdateToRecord · MK-PF-F-014 buildPerformance
  *               MK-CF-F-118 cashEffect · MK-NW-F-084 categoryEarnings
  *               MK-NW-F-142 classReturnOf · MK-PF-F-068 dayAfterDay
- *               … and 34 more — the full list is on functions_from_code
+ *               … and 35 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

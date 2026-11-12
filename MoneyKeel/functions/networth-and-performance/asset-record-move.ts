@@ -1,32 +1,34 @@
 // Net worth and Performance · WHAT A PHONE ALREADY HOLDS, MOVED ONTO THE ONE MASTER RECORD ONCE (asset-record.ts).
 //
-// WHAT IT DOES (phase 2 of the approved plan, 2026-11-11, step 6: "What a phone already holds is moved onto the list
-// once, on opening. Dates nobody gave stay blank, never the phone's date"). For each account the record holds nothing for:
-//   · AN ACCOUNT TYPED BY HAND — its value on its "Value as of" date (blank where none), a bond's or CD's facts, and
-//     every transaction the account holder recorded, each on its own date, saved as typed exactly as
-//     asset-record-from-typed.ts saves a new entry. A holding's tax lots on the phone are what its first entry (an
-//     opening record), its purchases and its sales LEFT, so lots and activity are never both saved for one holding:
-//       – where the activity adds up to the shares the holding shows, the activity is saved (each purchase and sale on
-//         its own date, so a sale keeps what it made);
-//       – where it does not (lots entered before opening records were kept, 2026-10-23), the tax lots as they stand are
-//         saved instead, and that holding's purchases and sales are not, with a sentence saying so.
-//   · AN ACCOUNT MADE FROM AN IMPORTED FILE — the file is gone, so the account as it was saved stands for it: its tax
-//     lots as the file's list (purchasesFromList, the day of the list being the account's "Value as of"), and its values
-//     on that day, saved as the file's. Transactions the account holder recorded on it are saved as typed.
-//   · AN ACCOUNT LINKED TO A BROKER — nothing here. Its next update reads the broker's whole history once into the
-//     record (snaptradeSync: an account the record holds nothing for is read from the start), so its purchases, sales
-//     and dates come from the broker itself, not from a copy the old sync rebuilt.
+// THE RULE (DEC-10749, his "go", 2026-11-12). The move no longer rebuilds the past by replaying the phone's activity
+// against its tax lots: the app rewrites those old copies (saving the holding editor after a part sale rewrites a lot's
+// opening record), so a replay cannot always explain the lots. For each account moved — typed by hand or imported:
+//   1. WHAT IS HELD NOW is the holding's tax lots exactly as the phone shows them: one purchase per lot, its shares, its
+//      price paid (an option's shares a contract, a bond's per-$100 quote), its date (blank where none). The shares on
+//      record equal what the phone shows, always.
+//   2. EACH PAST SALE recorded on the phone is saved on its own date with the gain the app shows today — the one reading,
+//      realizedFromLedger, as the Performance tab reads it. The shares a sale sold are not among the lots, so each sale
+//      names a purchase of exactly the shares it sold, saved for it and marked "behind a sale before the record"
+//      (behindSaleBeforeRecord), priced so the record's gain for the sale equals the app's. Its date is blank: the app's
+//      reading gives no purchase date.
+//   3. Dividends, interest, deposits, withdrawals, fees and transfers keep their own rows and dates. Shares moved from one
+//      moved account to another: the lots that arrived are saved as purchases of the account they left, and the transfer
+//      names them, so they reach the second account once.
+//   4. What the old copies cannot explain (a sale the app shows no gain for, a transfer it cannot place) is marked, as a
+//      fact on the holding (notExplainedBeforeRecord), and asked once with the account's questions — never rebuilt.
+//   5. AN IMPORTED ACCOUNT's values are saved on the file's day only while the account still is as the file left it.
+//      Traded or edited since, its lots are today's, not the file's: no file value is saved, and a fact says so
+//      (fileValuesNotMoved). An undated file stays undated (importedListDay).
+//   6. AN ACCOUNT DELETED BEFORE THE MOVE: its rows are saved and carry the accountRemoved fact, as the live record writes it.
+//   · AN ACCOUNT LINKED TO A BROKER is not moved: its next update reads the broker's whole history into the record.
 //
-// WHAT IT NEVER DOES.
-//   · It never moves the old daily values. Their dates were the phone's (the fault his rulings of 2026-11-10 fix).
-//   · It never moves an account twice: a typed account carries the move's own mark, an imported one the file's values,
-//     and one moved before the mark was written already holds the shares (or the value) the phone shows — so a phone
-//     opened again, or a second phone after the cloud has the record, adds nothing. A row saved for an account before
-//     the move ran (a dividend typed offline) no longer stops it being moved, and is not saved twice: rows typed by
-//     hand carry their own key, and a key already on record is not saved again.
-import { addRows, correctRow, openPurchases, purchasesFromList, rowAsItStands, rowsInForce, sharesOnRecord, sortArriving, valueRows, dayOrNull, oneHoldingSpelling, type AssetRow, type NewRow, type ListQuestion, type EventQuestion, type OpenPurchase } from './asset-record';
-import { typedChangeToRecord, typedAccountRows, openingRow, givenNumber, unitPriceFactor } from './asset-record-from-typed';
+// WHAT IT NEVER DOES. It never moves the old daily values (their dates were the phone's). It never moves an account
+// twice: every account it moves carries its mark, and one moved before the mark already holds what the phone shows. A
+// row typed before the move ran (a purchase, a sale, a dividend) is not saved twice.
+import { addRows, correctRow, rowsInForce, sharesOnRecord, saleRow, transferRow, valueRows, dayOrNull, oneHoldingSpelling, type AssetRow, type NewRow, type RowSource, type ListQuestion, type EventQuestion } from './asset-record';
+import { typedChangeToRecord, typedAccountRows, givenNumber, unitPriceFactor, lotRef, txnRef } from './asset-record-from-typed';
 import { contractMultiplier, type Position } from '../../../src/domain/performance';
+import { realizedFromLedger } from '../../../src/domain/performance/realized';
 import type { Transaction } from '../../../src/domain/transactions';
 import type { AssetAccount } from '../../../src/domain/assets';
 import { isoLocalDate } from '../../../src/domain/_shared/dates';
@@ -78,7 +80,8 @@ export interface MoveResult {
   record: AssetRow[];
   /** The accounts moved, by id. */
   moved: string[];
-  ask: { accountId: string; events: EventQuestion[]; lists: ListQuestion[] }[];
+  /** unexplained: what the old copies could not explain, each in a sentence, asked once. */
+  ask: { accountId: string; events: EventQuestion[]; lists: ListQuestion[]; unexplained: string[] }[];
   problems: string[];
 }
 
@@ -105,35 +108,6 @@ const movedMark = (accountId: string): string => `moved-from-phone:${accountId}`
 
 /** The transactions that move shares of a holding. */
 const SHARE_MOVES: ReadonlySet<string> = new Set(['OPENING_POSITION', 'BUY', 'SELL', 'TRANSFER_IN_KIND']);
-
-/** One holding's tax lots as a file's list, on the day of the list (the account's "Value as of"). */
-/* ─ MK-NW-F-225 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
- * asFileList
- *
- * Answers ..... One holding's tax lots as a file's list, on the day of the list (the account's "Value as of").
- *
- * Formula .....
- *     []   when count of listed is missing
- *     got = purchases from list(out.record, id, h, listed, 'file', list day)
- *     the answer = got.ask
- *
- * Called by ... MK-NW-F-228 moveOldCopies
- *
- * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-228 moveOldCopies · MK-XS-F-199 profileOnTheWayIn
- *
- * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- * Reads ....... MK-XS-I-004 holding quantity (shares)
- *
- * Formula also on the master file · functions_from_code · MK-NW-F-225
- * Changed ..... not in git yet (—)
- */
-function asFileList(out: MoveResult, id: string, h: string, listed: { date: string | null; shares: number; price: number | null }[], listDay: string | null, writtenAt: string): ListQuestion[] {
-  if (!listed.length) return [];
-  const got = purchasesFromList(out.record, id, h, listed, 'file', listDay);
-  out.record = addRows(out.record, got.rows, writtenAt);
-  return got.ask;
-}
 
 /** An imported account's values on the day of its list, as the file's. */
 /* ─ MK-NW-F-226 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
@@ -265,56 +239,6 @@ const lotsOf = (p: Position, per: number): ShownLot[] => (p.lots ?? []).filter((
   return { shares: Number(l.shares) * per, date: dayOrNull(l.purchase_date), price: c == null ? null : c * unitPriceFactor(p) };
 });
 
-/** Each tax lot paired with one purchase the activity leaves, one for one, or null where they cannot all be paired. By
- *  shares (the lots ARE the purchases): first the same shares and date, then the same shares and price, then the same
- *  shares, oldest first. By date (the lots are the purchases with other shares): the same date, and a lot with no date
- *  takes a purchase left over. */
-/* ─ MK-NW-F-292 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
- * pairUp
- *
- * Answers ..... Each tax lot paired with one purchase the activity leaves, one for one, or null where they cannot all be paired.
- *
- * Formula .....
- *     nothing   when count of lots.length ! = open
- *     same shares = (l: shown lot, o: open purchase) => size of(shares − shares) ≤ 1e − 9
- *     same price = (l: shown lot, o: open purchase) => price ≠ nothing and price ≠ nothing and size of(price − price) ≤ 1e − 9
- *     by age = (x: string | nothing, y: string | nothing) => string(x ?? '9999').locale compare(string(y ?? '9999'))
- *     ls = [...lots].sort((x, y) => by age(date, date)), os = [...open].sort((x, y) => by age(date, date))
- *     out = [], used = new set<open purchase>(), done = new set<shown lot>()
- *     o = os.find((x) => !used.has(x) and t(l, x))
- *     the answer:
- *     out   if count of out.length = lots
- *     nothing   otherwise
- *
- * Called by ... MK-NW-F-228 moveOldCopies
- *
- * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-228 moveOldCopies · MK-XS-F-199 profileOnTheWayIn
- *
- * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- * Reads ....... MK-XS-I-004 holding quantity (shares)
- *
- * Formula also on the master file · functions_from_code · MK-NW-F-292
- * Changed ..... not in git yet (—)
- */
-const pairUp = (lots: readonly ShownLot[], open: readonly OpenPurchase[], byDate: boolean): { l: ShownLot; o: OpenPurchase }[] | null => {
-  if (lots.length !== open.length) return null;
-  const sameShares = (l: ShownLot, o: OpenPurchase) => Math.abs(l.shares - o.shares) <= 1e-9;
-  const samePrice = (l: ShownLot, o: OpenPurchase) => l.price != null && o.price != null && Math.abs(l.price - o.price) <= 1e-9;
-  const tests: ((l: ShownLot, o: OpenPurchase) => boolean)[] = byDate
-    ? [(l, o) => l.date != null && l.date === o.date, (l) => l.date == null]
-    : [(l, o) => sameShares(l, o) && l.date === o.date, (l, o) => sameShares(l, o) && samePrice(l, o), sameShares];
-  const byAge = (x: string | null, y: string | null) => String(x ?? '9999').localeCompare(String(y ?? '9999'));
-  const ls = [...lots].sort((x, y) => byAge(x.date, y.date)), os = [...open].sort((x, y) => byAge(x.date, y.date));
-  const out: { l: ShownLot; o: OpenPurchase }[] = [], used = new Set<OpenPurchase>(), done = new Set<ShownLot>();
-  for (const t of tests) for (const l of ls) {
-    if (done.has(l)) continue;
-    const o = os.find((x) => !used.has(x) && t(l, x));
-    if (o) { out.push({ l, o }); used.add(o); done.add(l); }
-  }
-  return out.length === lots.length ? out : null;
-};
-
 /** WHAT A PHONE HOLDS, moved onto the record for every account the record holds nothing for. */
 /* ─ MK-NW-F-228 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
  * moveOldCopies
@@ -347,6 +271,8 @@ const pairUp = (lots: readonly ShownLot[], open: readonly OpenPurchase[], byDate
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
  *               MK-XS-I-007 purchase price and date (per lot)
+ *               MK-XS-I-008 transaction amount
+ *               MK-XS-I-009 transaction date
  *               MK-XS-I-024 logged expenses
  *               MK-XS-I-048 the person’s own asset-class answer
  *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
@@ -360,10 +286,10 @@ const pairUp = (lots: readonly ShownLot[], open: readonly OpenPurchase[], byDate
  */
 export function moveOldCopies(record: readonly AssetRow[], accounts: readonly AssetAccount[], transactions: readonly Transaction[], writtenAt: string): MoveResult {
   const out: MoveResult = { record: [...record], moved: [], ask: [], problems: [] };
-  // an account is moved once: where the move wrote its own mark (a FACT keyed MOVED_MARK, with no facts, so no account
-  // detail reads it), or — for an account moved before the
-  // mark was written — where the record already holds what the phone shows for it (outside check 2, 2026-11-12: a dividend
-  // typed before the move ran made the move skip the account for good, so its 100 VTI never reached the record)
+  // an account is moved once: where the move wrote its own mark (a FACT keyed movedMark, with no facts, so no account
+  // detail reads it), or — for an account moved before the mark was written — where the record already holds what the
+  // phone shows for it (outside check 2, 2026-11-12: a dividend typed before the move ran made the move skip the account
+  // for good, so its 100 VTI never reached the record)
   const inForce = rowsInForce(record);
   const marked = new Set(inForce.filter((r) => r.kind === 'FACT' && r.ref === movedMark(r.accountId)).map((r) => r.accountId));
   const movedBefore = (a: AssetAccount): boolean => {
@@ -381,8 +307,17 @@ export function moveOldCopies(record: readonly AssetRow[], accounts: readonly As
     if (shown.length) return shown.every(([h, n]) => Math.abs(sharesOnRecord(record, id, h) - n) <= 1e-6);
     return rows.some((r) => r.kind === 'VALUE');
   };
-  const moving = accounts.filter((a) => a.source !== 'connected' && !marked.has(String(a.asset_id)) && !movedBefore(a));
+  // an account deleted before the move: the phone still holds its transactions, not the account (rule 6). One the live
+  // record already holds rows for was deleted after the record began, and the live record wrote its accountRemoved
+  const known = new Set(accounts.map((a) => String(a.asset_id)));
+  const deletedIds = new Set([...new Set(transactions.filter((t) => t.source !== 'connected' && t.account_id != null && !known.has(String(t.account_id)))
+    .map((t) => String(t.account_id)))].filter((id) => !marked.has(id) && !inForce.some((r) => r.accountId === id)));
+  const moving: AssetAccount[] = [...accounts.filter((a) => a.source !== 'connected' && !marked.has(String(a.asset_id)) && !movedBefore(a)),
+    ...[...deletedIds].map((id) => ({ asset_id: id, label: id, kind: 'brokerage', source: 'manual', positions: [] }) as unknown as AssetAccount)];
   const movingIds = new Set(moving.map((a) => String(a.asset_id)));
+  const accountOf = (id: string) => moving.find((a) => String(a.asset_id) === id);
+  const imported = (id: string) => (accountOf(id)?.source as string) === 'imported';
+  const sourceOf = (id: string): RowSource => (imported(id) ? 'file' : 'typed');
   const holdingOf = (t: Transaction) => (SHARE_MOVES.has(t.type) ? oneHoldingSpelling(t.ticker ?? null) : null);
   const positionOf = (accountId: string, h: string): Position | undefined => ((accounts.find((a) => String(a.asset_id) === accountId)?.positions ?? []) as Position[])
     .find((p) => oneHoldingSpelling(p.ticker) === h);
@@ -395,150 +330,199 @@ export function moveOldCopies(record: readonly AssetRow[], accounts: readonly As
     if (t.kind !== 'options' && p?.kind !== 'options') return t;
     return { ...t, multiplier: contractMultiplier((p?.kind === 'options' ? p : { kind: 'options' }) as any) };
   };
-  // the account holders' own transactions on every account moved, oldest first — read as ONE activity, so shares moved
-  // from one account to another reach the second (outside check, 2026-11-12: 3 MSFT moved from A to B were counted twice)
+  // the account holders' own transactions on every account moved, oldest first
   const all = transactions.filter((t) => movingIds.has(String(t.account_id)) && t.source !== 'connected').map(counted)
     .sort((x, y) => String(x.date).localeCompare(String(y.date)) || String(x.created_at).localeCompare(String(y.created_at)));
-  // the activity alone, on a record of its own, to see whether it adds up to the shares each holding shows
-  let alone: AssetRow[] = [];
-  for (const t of all.filter((x) => holdingOf(x) != null)) {
-    const o = openingRow(t);
-    alone = o ? addRows(alone, [o], writtenAt) : typedChangeToRecord(alone, { kind: 'transaction-recorded', transaction: t }, writtenAt).record;
-  }
+  // a transaction typed after the update but before the move is already on record under its own key: not saved twice
+  const refsBefore = new Set(inForce.map((r) => r.ref).filter((r): r is string => !!r));
+  const savedBefore = (t: Transaction) => refsBefore.has(txnRef(t));
 
-  // DECIDE, per holding of every account moved: its activity, or its tax lots as they stand
-  // one decision per holding, over ALL its tax lots: a file can list one holding on two rows, each its own position
-  // (outside check 2, 2026-11-12: 5 AAPL bought Jan 2 and 5 bought Jun 1 — the second row overwrote the first, and the
-  // Jan lot and its $500 were lost)
-  type Decision = { a: AssetAccount; ps: Position[]; p: Position; h: string; per: number; shown: number; lots: boolean; edits: boolean; ask: boolean };
-  const decided = new Map<string, Decision>();
-  const key = (id: string, h: string) => `${id}|${h}`;
+  const asked = new Map<string, { events: EventQuestion[]; lists: ListQuestion[]; unexplained: string[] }>();
+  const askOf = (id: string) => { if (!asked.has(id)) asked.set(id, { events: [], lists: [], unexplained: [] }); return asked.get(id)!; };
+  const notExplained = new Map<string, { id: string; h: string | null; said: string[] }>();
+  const mark = (id: string, h: string | null, said: string) => {
+    const k = `${id}|${h ?? ''}`;
+    if (!notExplained.has(k)) notExplained.set(k, { id, h, said: [] });
+    notExplained.get(k)!.said.push(said);
+    askOf(id).unexplained.push(said);
+  };
+  const save = (rows: NewRow[]): AssetRow[] => { out.record = addRows(out.record, rows, writtenAt); return out.record.slice(-rows.length); };
+
+  // EVERY HOLDING OF EVERY ACCOUNT MOVED, with its tax lots as the phone shows them. A file can list one holding on two
+  // rows, each its own position (outside check 2, 2026-11-12), so a holding's lots are read over all its positions
+  type Shown = { lot: Position['lots'][number]; p: Position; shares: number; date: string | null; price: number | null };
+  const held = new Map<string, { id: string; h: string; lots: Shown[] }>();
   for (const a of moving) {
     const id = String(a.asset_id);
-    const byHolding = new Map<string, Position[]>();
-    for (const p of (a.positions ?? []) as Position[]) {
-      const h = oneHoldingSpelling(p.ticker);
+    for (const p0 of (a.positions ?? []) as Position[]) {
+      const h = oneHoldingSpelling(p0.ticker);
       if (h == null) continue;
-      byHolding.set(h, [...(byHolding.get(h) ?? []), p]);
-    }
-    for (const [h, ps] of byHolding) {
-      const p: Position = { ...ps[0], lots: ps.flatMap((x) => x.lots ?? []) };
       // shares a contract: the option's own figure; for a holding saved without its kind, the figure its trades state
       // (outside check, 2026-11-12: 2 contracts bought at $5 with 100 shares a contract were moved as 2 shares at $5)
       const stated = Math.max(1, ...all.filter((t) => String(t.account_id) === id && holdingOf(t) === h && t.multiplier != null && t.multiplier > 0).map((t) => Number(t.multiplier)));
-      const per = p.kind === 'options' ? contractMultiplier(p as any) : stated;
-      const shown = (p.lots ?? []).reduce((t, l) => t + (givenNumber(l.shares) ?? 0), 0) * per;
-      // the activity explains the lots where it leaves the same purchases the lots show, one for one, with the same
-      // shares; where a lot's date or price differs, the lot was edited after its purchase was recorded: the activity is
-      // kept, every purchase and sale on its own date, and the edit is saved as a correction of that purchase (outside
-      // checks, 2026-11-12: a buy at $100 edited to $95, and a first lot dated Jan 3 against a purchase of Jan 2 — each
-      // with a later sale whose gain was lost). Where the lots pair with the purchases by date but hold other shares (a
-      // split typed as lot edits), the activity is still kept and the difference is asked, never the sale dropped.
-      const lots = lotsOf(p, per), left = openPurchases(alone, id, h);
-      const hasActivity = alone.some((r) => r.holding === h && (r.accountId === id || r.toAccountId === id));
-      const pairs = pairUp(lots, left, false);
-      const explains = hasActivity && Math.abs(sharesOnRecord(alone, id, h) - shown) <= 1e-9 && pairs != null;
-      const ask = hasActivity && !explains && pairUp(lots, left, true) != null;
-      decided.set(key(id, h), { a, ps, p, h, per, shown, lots: !explains && !ask, ask,
-        edits: explains && (pairs ?? []).some(({ l, o }) => (l.date != null && l.date !== o.date) || (l.price != null && (o.price == null || Math.abs(o.price - l.price) > 1e-9))) });
-    }
-  }
-  // a transfer between two accounts moved: where the holding's lots stand in for the activity at one end, the other end
-  // cannot count the transfer either — so shares are never counted in both, nor in neither
-  const leaves = new Set<Transaction>();
-  for (let changed = true; changed;) {
-    changed = false;
-    for (const t of all) {
-      const h = holdingOf(t);
-      if (t.type !== 'TRANSFER_IN_KIND' || h == null || t.counter_account_id == null || !movingIds.has(String(t.counter_account_id))) continue;
-      const from = decided.get(key(String(t.account_id), h)), to = decided.get(key(String(t.counter_account_id), h));
-      if (from?.lots && to && !to.lots) { to.lots = true; to.edits = false; changed = true; }
-      if (to?.lots && !from?.lots && !leaves.has(t)) leaves.add(t);
+      const p: Position = p0.kind !== 'options' && stated > 1 ? { ...p0, kind: 'options', multiplier: stated } as Position : p0;
+      const per = p.kind === 'options' ? contractMultiplier(p as any) : 1;
+      const k = `${id}|${h}`;
+      if (!held.has(k)) held.set(k, { id, h, lots: [] });
+      const live = (p.lots ?? []).filter((l) => (givenNumber(l.shares) ?? 0) > 0);
+      lotsOf(p, per).forEach((s, i) => held.get(k)!.lots.push({ lot: live[i], p, ...s }));
     }
   }
 
-  // SAVE, account by account: its values and facts, and the tax lots of each holding whose lots stand in for its activity
-  const asked = new Map<string, { events: EventQuestion[]; lists: ListQuestion[] }>();
-  const askOf = (id: string) => { if (!asked.has(id)) asked.set(id, { events: [], lists: [] }); return asked.get(id)!; };
-  const fromOpenings = new Set<string>();
+  // AN IMPORTED ACCOUNT STILL AS THE FILE LEFT IT (rule 5): nothing recorded on it since but the file's own first entries,
+  // nothing moved into it, and each holding still the one tax lot the file gave, as its first entry states it
+  const asFileLeftIt = (a: AssetAccount): boolean => {
+    const id = String(a.asset_id);
+    if (all.some((t) => String(t.account_id) === id && t.type !== 'OPENING_POSITION')) return false;
+    if (transactions.some((t) => t.counter_account_id != null && String(t.counter_account_id) === id)) return false;
+    const lots = ((a.positions ?? []) as Position[]).map((p) => p.lots ?? []);
+    if (lots.some((ls) => ls.length !== 1)) return false;
+    const firsts = all.filter((t) => String(t.account_id) === id && t.type === 'OPENING_POSITION');
+    return !firsts.length || (firsts.length === lots.length && lots.every(([l]) => firsts.some((t) => t.lot_id === l.lot_id
+      && Math.abs(Number(t.shares) - Number(l.shares)) <= 1e-9 && dayOrNull(t.date) === dayOrNull(l.purchase_date))));
+  };
+
+  // VALUES AND FACTS, account by account
+  const listDayOf = new Map<string, string | null>();
   for (const a of moving) {
     const id = String(a.asset_id);
-    const imported = (a.source as string) === 'imported';
-    const listDay = imported ? importedListDay(a) : null;
-    const { events, lists } = askOf(id);
-    out.record = addRows(out.record, imported ? [...fileValues(a, listDay), ...fileFacts(a)] : typedAccountRows(a), writtenAt);
-    for (const d of [...decided.values()].filter((x) => String(x.a.asset_id) === id)) {
-      const { p, h, per, shown } = d;
-      if (!d.lots) {
-        // the activity explains the lots: an imported account's first entries are the file's list, a typed one's are typed
-        if (imported) {
-          fromOpenings.add(key(id, h));
-          lists.push(...asFileList(out, id, h, all.filter((x) => String(x.account_id) === id && x.type === 'OPENING_POSITION' && holdingOf(x) === h)
-            .map((x) => openingRow(x)).filter((r): r is NewRow => r != null).map((r) => ({ date: r.date, shares: r.shares as number, price: r.price ?? null })), listDay, writtenAt));
-        }
-        continue;
-      }
-      if (imported) {
-        lists.push(...asFileList(out, id, h, (p.lots ?? []).filter((l) => (givenNumber(l.shares) ?? 0) > 0)
-          .map((l) => { const c = givenNumber(l.cost_per_share); return { date: dayOrNull(l.purchase_date), shares: Number(l.shares) * per, price: c == null ? null : c * unitPriceFactor(p) }; }), listDay, writtenAt));
-      } else {
-        for (const one of d.ps) {
-          const got = typedChangeToRecord(out.record, { kind: 'holding-added', accountId: id, position: one }, writtenAt);
-          out.record = got.record; events.push(...got.ask); out.problems.push(...got.problems);
-        }
-      }
-      const left = all.filter((x) => String(x.account_id) === id && holdingOf(x) === h && x.type !== 'OPENING_POSITION').length;
-      if (left) out.problems.push(`The activity of ${h} did not leave the tax lots it shows (${shown} shares), so its tax lots as they stand were moved and its ${left} recorded purchases and sales were not.`);
+    if (deletedIds.has(id)) continue;
+    if (!imported(id)) { save(typedAccountRows(a)); continue; }
+    const listDay = importedListDay(a);
+    if (asFileLeftIt(a)) { listDayOf.set(id, listDay); save([...fileValues(a, listDay), ...fileFacts(a)]); continue; }
+    // traded or edited since the file: its lots and values are today's, not the file's — no value is saved under its day
+    // (outside check 3, 2026-11-12: a Jun 21 file total of $4,800 was saved as $4,980)
+    save([...fileFacts(a), { accountId: id, holding: null, kind: 'FACT', date: null, source: 'file',
+      facts: { fileValuesNotMoved: `The account was traded or edited after the file${listDay ? ` of ${listDay}` : ''}, so the file’s values are not known and none were moved.` } }]);
+  }
+
+  // SHARES MOVED BETWEEN TWO ACCOUNTS MOVED (rule 3): the tax lots that arrived are saved as purchases of the account they
+  // left, and the transfer names them, so they reach the second account once and leave the first at nothing
+  const arrived = new Map<Shown, number>();
+  for (const t of all.filter((x) => x.type === 'TRANSFER_IN_KIND')) {
+    const h = holdingOf(t), from = String(t.account_id), to = t.counter_account_id != null ? String(t.counter_account_id) : null;
+    if (h == null || savedBefore(t)) continue;
+    const when = dayOrNull(t.date) ?? 'a day not given';
+    if (t.direction === 'IN' || to == null || !movingIds.has(to)) { mark(from, h, `The shares of ${h} moved on ${when} cannot be placed from what the phone held, so the transfer was not moved.`); continue; }
+    const theirs = held.get(`${to}|${h}`)?.lots ?? [];
+    // the holding moved whole keeps its own number: the lots of that holding, where the account they left states it
+    const fromIt = new Set(all.filter((x) => String(x.account_id) === from && x.position_id != null).map((x) => String(x.position_id)));
+    const named = theirs.filter((s) => fromIt.has(String(s.p.position_id)));
+    const day = dayOrNull(t.date);
+    const pool = (named.length ? named : theirs).filter((s) => day == null || s.date == null || s.date <= day);
+    let want = givenNumber(t.shares) != null ? Math.abs(Number(t.shares)) * (t.multiplier && t.multiplier > 0 ? t.multiplier : 1) : Infinity;
+    const took: { s: Shown; shares: number }[] = [];
+    for (const s of pool) {
+      const free = s.shares - (arrived.get(s) ?? 0);
+      const n = Math.min(free, want);
+      if (n <= 1e-9) continue;
+      took.push({ s, shares: n }); arrived.set(s, (arrived.get(s) ?? 0) + n); want -= n;
+    }
+    if (!took.length) { mark(from, h, `The shares of ${h} moved on ${when} are not among the tax lots the phone shows, so the transfer was not moved.`); continue; }
+    const bought = save(took.map(({ s, shares }) => ({ accountId: from, holding: h, kind: 'PURCHASE' as const, date: s.date, shares, price: s.price,
+      amount: s.price == null ? null : shares * s.price, source: sourceOf(from), ref: `moved-transfer-lot:${to}:${s.lot?.lot_id ?? ''}:${t.id}` })));
+    save([transferRow({ fromAccountId: from, toAccountId: to, holding: h, date: t.date ?? null, shares: took.reduce((n, x) => n + x.shares, 0), source: 'typed',
+      ref: txnRef(t), sells: bought.map((r) => ({ rowId: r.rowId, shares: r.shares ?? 0 })) })]);
+  }
+
+  // WHAT IS HELD NOW (rule 1): each tax lot as one purchase — less the shares that arrived by a transfer, and less a
+  // purchase typed after the update and already on record (the same lot, or the same date, shares and price)
+  for (const { id, h, lots } of held.values()) {
+    const before = inForce.filter((r) => r.kind === 'PURCHASE' && r.accountId === id && r.holding === h);
+    const used = new Set<AssetRow>();
+    const same = (x: number | null | undefined, y: number | null | undefined) => (x == null && y == null) || (x != null && y != null && Math.abs(x - y) <= 1e-9);
+    const left: Shown[] = [];
+    for (const s of lots) {
+      const shares = s.shares - (arrived.get(s) ?? 0);
+      if (shares <= 1e-9) continue;
+      const twin = before.find((r) => !used.has(r) && ((s.lot && r.ref === lotRef(id, s.lot)) || ((r.date ?? null) === s.date && same(r.shares, shares) && same(r.price, s.price))));
+      if (twin) { used.add(twin); continue; }
+      left.push({ ...s, shares });
+    }
+    if (imported(id)) {
+      // the file's own tax lots are the file's; a lot bought on the phone since is the account holder's
+      const listDay = listDayOf.get(id) ?? null, fileDay = importedListDay(accountOf(id)!);
+      const firsts = new Set(all.filter((t) => String(t.account_id) === id && t.type === 'OPENING_POSITION' && t.lot_id != null).map((t) => String(t.lot_id)));
+      const fromFile = (s: Shown) => (firsts.size ? firsts.has(String(s.lot?.lot_id)) : fileDay == null || s.date == null || s.date <= fileDay);
+      save(left.map((s) => ({ accountId: id, holding: h, kind: 'PURCHASE' as const, date: s.date, shares: s.shares, price: s.price,
+        amount: s.price == null ? null : s.shares * s.price, source: fromFile(s) ? 'file' as const : 'typed' as const, stillHeldOn: fromFile(s) ? listDay : null })));
+      continue;
+    }
+    for (const p of [...new Set(left.map((s) => s.p))]) {
+      const per = p.kind === 'options' ? contractMultiplier(p as any) : 1;
+      const position = { ...p, lots: left.filter((s) => s.p === p).map((s) => ({ ...s.lot, shares: s.shares / per })) } as Position;
+      const got = typedChangeToRecord(out.record, { kind: 'holding-added', accountId: id, position }, writtenAt);
+      out.record = got.record; askOf(id).events.push(...got.ask); out.problems.push(...got.problems);
     }
   }
 
-  // THEN THE ACTIVITY of every account moved, oldest first, each on its own date
-  for (const t0 of all) {
-    const id = String(t0.account_id), h = holdingOf(t0);
-    if (h != null && decided.get(key(id, h))?.lots) continue;
-    if (h != null && fromOpenings.has(key(id, h)) && t0.type === 'OPENING_POSITION') continue;
-    // shares moved to an account whose lots stand in for its activity leave the record here: that account's lots hold them
-    const t = leaves.has(t0) ? { ...t0, counter_account_id: undefined } : t0;
-    const { events } = askOf(id);
-    const opening = openingRow(t);
-    if (opening) { const sorted = sortArriving(out.record, [opening]); out.record = addRows(out.record, sorted.save, writtenAt); events.push(...sorted.ask); continue; }
-    if (t.type === 'OPENING_POSITION') continue;
-    const got = typedChangeToRecord(out.record, { kind: 'transaction-recorded', transaction: t }, writtenAt);
-    out.record = got.record; events.push(...got.ask); out.problems.push(...got.problems);
+  // EACH PAST SALE (rule 2), with the gain the app shows for it: realizedFromLedger, read as the Performance tab reads it
+  // (one holding of one account), sale by sale — what the sales up to and including this one made, less what the sales
+  // before it made. A sale the app counts no full gain for is marked and asked (rule 4)
+  const appGains = new Map<string, { gain: number | null; matched: number | null }>();
+  const groups = new Map<string, Transaction[]>();
+  for (const t of all) if (t.type === 'SELL' && holdingOf(t) != null) groups.set(`${t.account_id}|${holdingOf(t)}`, [...(groups.get(`${t.account_id}|${holdingOf(t)}`) ?? []), t]);
+  for (const sales of groups.values()) {
+    const s0 = sales[0], h = holdingOf(s0) as string;
+    const p = positionOf(String(s0.account_id), h);
+    const opts = { ticker: String(s0.ticker), accountId: s0.account_id, holding: (p ?? { kind: s0.kind, multiplier: s0.multiplier }) as any };
+    const priced = (t: Transaction) => t.price != null && Number.isFinite(t.price) && (t.shares ?? 0) > 0;
+    const ids = new Set(sales.map((t) => t.id));
+    // the sales in the order the reading takes them: by date, and on one date in the order the phone holds them
+    const order = transactions.map((t, i) => ({ t, i })).filter(({ t }) => ids.has(t.id) && priced(t))
+      .sort((x, y) => String(x.t.date).localeCompare(String(y.t.date)) || x.i - y.i).map(({ t }) => t);
+    const upTo = new Set<Transaction>();
+    let was = realizedFromLedger(transactions.filter((t) => t.type !== 'SELL') as Transaction[], opts);
+    for (const s of order) {
+      upTo.add(s);
+      const now = realizedFromLedger(transactions.filter((t) => t.type !== 'SELL' || upTo.has(t)) as Transaction[], opts);
+      const short = now.shortOfPurchases.length > was.shortOfPurchases.length ? now.shortOfPurchases[now.shortOfPurchases.length - 1] : null;
+      appGains.set(s.id, short ? { gain: null, matched: short.matched } : { gain: now.realizedAllTime - was.realizedAllTime, matched: null });
+      was = now;
+    }
   }
-
-  // AND EACH LOT EDITED AFTER ITS PURCHASE, as a correction of that purchase: its date and its price, so what was paid
-  // follows it. A lot with no date says nothing about the date: the purchase's own date stands.
-  for (const d of [...decided.values()].filter((x) => x.edits)) {
-    const id = String(d.a.asset_id);
-    for (const { l, o } of pairUp(lotsOf(d.p, d.per), openPurchases(out.record, id, d.h), false) ?? []) {
-      const row = rowAsItStands(out.record, o.rowId);
-      if (!row) continue;
-      const change: Partial<NewRow> = {};
-      if (l.date != null && l.date !== o.date) change.date = l.date;
-      if (l.price != null && (o.price == null || Math.abs(o.price - l.price) > 1e-9)) { change.price = l.price * o.splitBy; change.amount = (row.shares ?? 0) * l.price * o.splitBy; }
-      if (!Object.keys(change).length) continue;
-      const c = correctRow(out.record, o.rowId, change, 'typed', writtenAt);
+  for (const t of all.filter((x) => x.type === 'SELL' && holdingOf(x) != null)) {
+    const id = String(t.account_id), h = holdingOf(t) as string;
+    const per = t.multiplier != null && t.multiplier > 0 ? t.multiplier : 1;
+    const shares = givenNumber(t.shares) == null ? null : Math.abs(Number(t.shares)) * per, price = givenNumber(t.price);
+    if (shares == null || shares <= 0) { if (!savedBefore(t)) { const got = typedChangeToRecord(out.record, { kind: 'transaction-recorded', transaction: t }, writtenAt); out.record = got.record; } continue; }
+    const app = appGains.get(t.id), when = dayOrNull(t.date) ?? 'a day not given';
+    const known = app != null && app.gain != null && price != null;
+    if (!known) mark(id, h, app == null
+      ? `The sale of ${shares} ${h} on ${when} has no price the app can count, so the record shows no gain for it.`
+      : `The sale of ${shares} ${h} on ${when}: what was paid for ${app.matched ? `${shares - app.matched * per} of the shares` : 'them'} is not on record, so the record shows no gain for it.`);
+    // the purchase behind the sale: exactly the shares it sold, priced so the record's gain is the app's
+    const [behind] = save([{ accountId: id, holding: h, kind: 'PURCHASE', date: null, shares, price: known ? price - (app!.gain as number) / shares : null,
+      amount: known ? shares * price - (app!.gain as number) : null, source: 'typed', ref: `moved-behind-sale:${t.id}`, facts: { behindSaleBeforeRecord: true } }]);
+    const sells = [{ rowId: behind.rowId, shares }];
+    const onRecord = savedBefore(t) ? rowsInForce(out.record).find((r) => r.kind === 'SALE' && r.ref === txnRef(t)) : undefined;
+    if (onRecord) {
+      const c = correctRow(out.record, onRecord.rowId, { sells }, 'typed', writtenAt);
       if (c.problem) out.problems.push(c.problem); else out.record = c.record;
+      continue;
     }
+    save([saleRow({ accountId: id, holding: h, date: t.date ?? null, shares, price, amount: givenNumber(t.amount), fee: givenNumber(t.fee) == null ? null : Math.abs(Number(t.fee)),
+      source: 'typed', ref: txnRef(t), sells })]);
   }
 
-  // AND EACH HOLDING WHOSE LOTS ARE ITS PURCHASES WITH OTHER SHARES: the activity stands, and the lots are set beside it
-  // as a list, so the difference is asked once
-  for (const d of [...decided.values()].filter((x) => x.ask)) {
-    const id = String(d.a.asset_id);
-    const got = purchasesFromList(out.record, id, d.h, lotsOf(d.p, d.per), (d.a.source as string) === 'imported' ? 'file' : 'typed', null);
-    if (got.rows.length) out.record = addRows(out.record, got.rows, writtenAt);
-    askOf(id).lists.push(...got.ask);
+  // EVERYTHING ELSE (rule 3) — dividends, interest, deposits, withdrawals, fees, cash moved between accounts — each on its
+  // own date, saved as typed. A purchase is in the tax lots, a sale and a transfer of shares are saved above
+  for (const t of all) {
+    if (holdingOf(t) != null || t.type === 'OPENING_POSITION' || savedBefore(t)) continue;
+    const got = typedChangeToRecord(out.record, { kind: 'transaction-recorded', transaction: t }, writtenAt);
+    out.record = got.record; askOf(String(t.account_id)).events.push(...got.ask); out.problems.push(...got.problems);
   }
 
-  // the move's own mark on every typed account it moved, so it is never moved again whatever is saved for it later. An
-  // imported account needs none: the move saves its values as the file's, and nothing typed before the move is the file's
-  out.record = addRows(out.record, moving.filter((a) => (a.source as string) !== 'imported').map((a) => ({ accountId: String(a.asset_id), holding: null,
-    kind: 'FACT' as const, date: null, source: 'typed' as const, facts: {}, ref: movedMark(String(a.asset_id)) })), writtenAt);
+  // what the old copies could not explain, as a fact on the holding (rule 4); an account deleted before the move (rule 6);
+  // and the move's own mark on every typed account it moved, so it is never moved again whatever is saved for it later
+  save([...[...notExplained.values()].map(({ id, h, said }) => ({ accountId: id, holding: h, kind: 'FACT' as const, date: null, source: 'typed' as const, facts: { notExplainedBeforeRecord: said } })),
+    ...[...deletedIds].map((id) => ({ accountId: id, holding: null, kind: 'FACT' as const, date: null, source: 'typed' as const, facts: { accountRemoved: true } })),
+    // an imported account needs no mark: the move always saves a row of the file's for it (its values, or the fact that
+    // they are not known), and a row of the file's says it was moved
+    ...moving.filter((a) => !imported(String(a.asset_id))).map((a) => ({ accountId: String(a.asset_id), holding: null, kind: 'FACT' as const, date: null, source: 'typed' as const, facts: {}, ref: movedMark(String(a.asset_id)) }))]);
   for (const a of moving) {
     const id = String(a.asset_id), q = askOf(id);
-    if (q.events.length || q.lists.length) out.ask.push({ accountId: id, events: q.events, lists: q.lists });
+    if (q.events.length || q.lists.length || q.unexplained.length) out.ask.push({ accountId: id, ...q });
     out.moved.push(id);
   }
   return out;

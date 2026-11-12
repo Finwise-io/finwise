@@ -7,7 +7,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useStore } from '../src/store/useStore';
 import { setMoneyFormat, setHideBalances } from '../src/domain/_shared/money';
 import { patchTextScaling, setGlobalFontScale } from '../src/utils/fontScale';
-import { onAuthChange, loadUserData, loadUserRoot, saveUserData, loadAssetRecordPart, loadAssetRecordMarker, commitAssetRecord, getPhoneId, onSignOutFlush } from '../src/services/firebase';
+import { onAuthChange, readUserProfile, loadUserRoot, saveUserData, loadAssetRecordPart, loadAssetRecordMarker, commitAssetRecord, getPhoneId, onSignOutFlush, onDataKeyReady } from '../src/services/firebase';
 import { loadCloudRecord, recordOnSignIn, saveRecordGuarded, recordWorkAllowed, RecordCannotBeRead, RecordNotSettled, type CloudSeen } from '../src/services/sync/assetRecordCloud';
 import { Colors } from '../src/utils/theme';
 import { ErrorBoundary } from '../src/components/ErrorBoundary';
@@ -165,6 +165,7 @@ export default function RootLayout() {
    *  data was last loaded for them and nobody signed out since (offline start). Never another person's, never a cleared phone's. */
   function profileIsTheirs(uid: string) {
     const s: any = useStore.getState();
+    if (profileUnreadableFor.current === uid) return false;   // never the phone's copy over a cloud profile not yet read
     return profileLoadedFor.current === uid || (!!s.assetRecordOwner && s.assetRecordOwner === (s.householdId ?? uid));
   }
 
@@ -173,6 +174,60 @@ export default function RootLayout() {
   // resume; re-hydrating then would clobber unsynced local changes (e.g. a fresh "re-run setup"
   // reset, sending the user Home instead of onboarding). Track the uid we've already hydrated.
   const hydratedUid = useRef<string | null>(null);
+  /** Whose cloud profile is there but this phone has no key for yet (a password reset, or a sign-in before the key is
+   *  unwrapped). Never a new account (DEC-10749, his "go", 2026-11-12): the phone keeps its data, nothing is saved, and the
+   *  profile loads once the key comes (the recovery code or the sign-in) or at the next change. */
+  const profileUnreadableFor = useRef<string | null>(null);
+  /** The last profile load failed offline: the next change tries it again (outside check 3, 2026-11-12: it ran once per
+   *  session, so the record never saved until a restart). */
+  const profileOffline = useRef(false);
+  const profileLoading = useRef<string | null>(null);
+
+  /** Load this person's profile from the cloud. On sign-in (`retry` false) the cloud's copy replaces the phone's. On a retry
+   *  after an offline start where the phone's profile was already theirs and saving, the phone's copy stands — it holds what
+   *  they typed since, and it is what the cloud was sent. A profile this phone cannot read is never taken as a new account. */
+  async function loadProfileFor(uid: string, retry: boolean) {
+    if (profileLoading.current === uid || profileLoadedFor.current === uid) return;
+    profileLoading.current = uid;
+    const keepPhone = retry && profileOffline.current && profileIsTheirs(uid);
+    try {
+      const root = await loadUserRoot(uid);
+      if (currentUid.current !== uid) return;   // someone else signed in meanwhile
+      const s0: any = useStore.getState();
+      if ((s0.householdId ?? null) !== (root.householdId ?? null)) s0.setHouseholdId?.(root.householdId);
+      const owner = root.householdId ?? uid;
+      const cloud = root.householdId ? await readUserProfile(root.householdId) : { appState: root.appState, appStateUnreadable: root.appStateUnreadable };
+      if (currentUid.current !== uid) return;
+      profileOffline.current = false;
+      if (cloud.appStateUnreadable) {
+        // there, but not readable yet: the phone keeps everything, and nothing is saved over the cloud's copy
+        profileUnreadableFor.current = uid;
+        return;
+      }
+      profileUnreadableFor.current = null;
+      // the phone's master record, held aside: the profile from the cloud replaces the phone's and drops it
+      const before: any = useStore.getState();
+      const phone = { assetRecord: before.assetRecord ?? [], assetRecordQuestions: before.assetRecordQuestions ?? {}, assetRecordFaults: before.assetRecordFaults ?? [] };
+      const phoneIsTheirs = before.assetRecordOwner === owner;
+      phoneOwnerBeforeSignIn.current = before.assetRecordOwner ?? null;
+      // a retry that finds nothing in the cloud keeps what was typed in this session, unless the phone's data is another person's
+      const phoneIsAnothers = before.assetRecordOwner != null && before.assetRecordOwner !== owner;
+      if (!keepPhone) {
+        if (cloud.appState) loadFromCloud(cloud.appState);
+        else if (!retry || phoneIsAnothers) resetAll();   // brand-new account (nothing in the cloud) → clean slate so a prior account's local data can't leak
+      }
+      profileLoadedFor.current = uid;   // this person's profile is in: the record may now load and move
+      // THE MASTER RECORD comes back from the cloud too (his "yes", 2026-11-11): the phone's record stays only where it
+      // is this same person's — another person's never reaches this cloud (outside check, 2026-11-12)
+      useStore.setState((phoneIsTheirs ? { ...phone, assetRecordOwner: owner } : { assetRecord: [], assetRecordQuestions: {}, assetRecordFaults: [], assetRecordOwner: owner }) as any);
+      await loadRecordFor(owner);
+    } catch (_) {
+      // Offline — local AsyncStorage cache is already loaded by Zustand persist; the next change tries again
+      if (currentUid.current === uid) profileOffline.current = true;
+    } finally {
+      if (profileLoading.current === uid) profileLoading.current = null;
+    }
+  }
 
   // Auth listener + Firestore hydration on login
   useEffect(() => {
@@ -193,26 +248,7 @@ export default function RootLayout() {
         // recorded top-level on their own doc so it survives a fresh install.
         if (hydratedUid.current !== firebaseUser.uid) {
           hydratedUid.current = firebaseUser.uid;
-          try {
-            const root = await loadUserRoot(firebaseUser.uid);
-            useStore.getState().setHouseholdId?.(root.householdId);
-            const owner = root.householdId ?? firebaseUser.uid;
-            // the phone's master record, held aside: the profile from the cloud replaces the phone's and drops it
-            const before: any = useStore.getState();
-            const phone = { assetRecord: before.assetRecord ?? [], assetRecordQuestions: before.assetRecordQuestions ?? {}, assetRecordFaults: before.assetRecordFaults ?? [] };
-            const phoneIsTheirs = before.assetRecordOwner === owner;
-            phoneOwnerBeforeSignIn.current = before.assetRecordOwner ?? null;
-            const cloudData = root.householdId ? await loadUserData(root.householdId) : root.appState;
-            if (cloudData) loadFromCloud(cloudData);
-            else resetAll();   // brand-new account → clean slate so a prior account's local data can't leak
-            profileLoadedFor.current = firebaseUser.uid;   // this person's profile is in: the record may now load and move
-            // THE MASTER RECORD comes back from the cloud too (his "yes", 2026-11-11): the phone's record stays only where it
-            // is this same person's — another person's never reaches this cloud (outside check, 2026-11-12)
-            useStore.setState((phoneIsTheirs ? { ...phone, assetRecordOwner: owner } : { assetRecord: [], assetRecordQuestions: {}, assetRecordFaults: [], assetRecordOwner: owner }) as any);
-            await loadRecordFor(owner);
-          } catch (_) {
-            // Offline — local AsyncStorage cache is already loaded by Zustand persist
-          }
+          await loadProfileFor(firebaseUser.uid, false);
         }
       } else {
         setUser(null);
@@ -220,7 +256,7 @@ export default function RootLayout() {
         // nothing of this person's record is saved after sign-out, and the next person's starts from their own cloud
         // and the phone's data belongs to nobody until the next person's profile has loaded
         recordLoadedFor.current = null; recordMayUpload.current = false; recordSeen.current = { marker: null, rowsInCloud: 0 };
-        profileLoadedFor.current = null;
+        profileLoadedFor.current = null; profileUnreadableFor.current = null; profileOffline.current = false;
         hydratedUid.current = null;   // allow a re-hydrate if a different user signs in next
         setUserScope(null);   // F-6: clear the crash-report user scope on logout
       }
@@ -235,10 +271,14 @@ export default function RootLayout() {
       const uid = currentUid.current;
       if (!uid) return;
       if (syncTimer.current) clearTimeout(syncTimer.current);
-      syncTimer.current = setTimeout(() => {
+      syncTimer.current = setTimeout(async () => {
+        if (currentUid.current !== uid) return;
+        // a profile load that failed (offline) or could not be read yet is tried again here — at a change, never in a loop
+        if (profileLoadedFor.current !== uid) await loadProfileFor(uid, true);
         if (currentUid.current !== uid || !profileIsTheirs(uid)) return;
+        const now = useStore.getState() as any;
         // Household members write to the shared doc so both partners stay in sync.
-        saveUserData((state as any).householdId ?? uid, pickSyncFields(state as Record<string, any>)).catch(() => {
+        saveUserData(now.householdId ?? uid, pickSyncFields(now as Record<string, any>)).catch(() => {
           // Silently ignore offline write failures — next successful sync catches up
         });
         // the master record: only the parts that changed are written (it only ever grows), and only under the rules above
@@ -253,9 +293,16 @@ export default function RootLayout() {
       const s: any = useStore.getState();
       await Promise.all([saveUserData(s.householdId ?? uid, pickSyncFields(s)).catch(() => {}), saveRecordNow(uid)]);
     });
+    // the key to the person's data has come (the recovery code, or a sign-in that unwrapped it): a profile this phone
+    // could not read loads now, as a normal sign-in would
+    onDataKeyReady(async () => {
+      const uid = currentUid.current;
+      if (uid && profileLoadedFor.current !== uid) await loadProfileFor(uid, true);
+    });
     return () => {
       unsub();
       onSignOutFlush(null);
+      onDataKeyReady(null);
       if (syncTimer.current) clearTimeout(syncTimer.current);
     };
   }, []);
