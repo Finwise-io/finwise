@@ -20,6 +20,8 @@ const ONE_WAY = /moneyIntoAccount|cashEffect|personalFlowTotals|amountNotOnRecor
 const NOT_A_STORED_READER: Record<string, string> = {
   'src/services/sync/snaptrade.ts': 'mapActivityType names a BROKER activity\'s kind from its own sign before anything is stored; no production code calls it (ingest uses toLedgerRow)',
   'MoneyKeel/functions/networth-and-performance/performance.ts': 'the sentence for interest or a dividend with no amount (v.amount is the refusal\'s, not a record\'s)',
+  'MoneyKeel/functions/networth-and-performance/asset-record-from-broker.ts': 'turns a broker\'s payload into rows of the master record before anything is stored: the amounts it reads are the broker\'s, as sent, and their direction becomes the row\'s kind (2026-11-11, phase 2)',
+  'MoneyKeel/functions/networth-and-performance/asset-record-from-typed.ts': 'turns what the account holder typed into rows of the master record before anything is stored: change.amount is the dollars the account holder moved, always above zero (2026-11-11, phase 2)',
   'Calculation Module code/engines/time-weighted-return.ts': 'u.amount is unnamedActivityOf\'s unsigned amount for a record the app could not name; interest reads moved (moneyIntoAccount)',
 };
 

@@ -40,6 +40,8 @@ const KNOWN: [string, string, string][] = [
   ['src/store/useStore.ts', 'priceOn: (key: string, day: string) => closeOnOrBefore(', 'the daily record\'s price on a day it records'],
   ['src/store/useStore.ts', 'fillBetweenObservations(days, (key: string, day: string) => closeOnOrBefore(', 'filling the record between two observed days'],
   // the engine's days between two dates: the end, and the start behind staleStartClose on the same line
+  // the master record's price-feed value on the close's own day, behind staleStartClose on the same line (2026-11-11, phase 2)
+  ['MoneyKeel/functions/networth-and-performance/asset-record-from-prices.ts', 'const close = staleStartClose(prices[h], day) ? null : closeOnOrBefore(prices[h], day);', 'a holding\'s value on the record\'s day, refused when its close is too old'],
   ['MoneyKeel/functions/networth-and-performance/performance.ts', 'const closeTo = closeOnOrBefore(series, to);', 'the END of those days (today, or the record\'s first day)'],
   ['MoneyKeel/functions/networth-and-performance/performance.ts', 'const cNow = latestClose(series), cEve = closeOnOrBefore(series, ev);', 'a money-moved day inside the window, its trades undone (R18, R19b): its own day\'s close'],
   ['MoneyKeel/functions/networth-and-performance/performance.ts', 'const closeFrom = !insideDay && staleStartClose(series, from) ? null : closeOnOrBefore(series, from)', 'a START behind staleStartClose; a money-moved day inside the window (insideDay, R19b) takes its own close'],
@@ -59,7 +61,7 @@ const HITS = FILES.flatMap((f) => readsIn(path.relative(ROOT, f).split(path.sep)
 test('it looked: the app\'s code read, and every read of a close on or before a day found — 14 on 2026-11-01', () => {
   expect(FILES.length).toBeGreaterThanOrEqual(239);                                 // 239 on 2026-11-01: src, MoneyKeel/functions, the engines
   expect(FILES.some((f) => f.endsWith(path.join('networth-and-performance', 'performance.ts')))).toBe(true);
-  expect(HITS.length).toBe(KNOWN.length);                                            // 14: a new read must be listed with what it is
+  expect(HITS.length).toBe(KNOWN.length);                                            // 15 since 2026-11-11 (14 on 2026-11-01): a new read must be listed with what it is
 });
 
 test('every read is a known one — a window\'s start only through closeAsOf or behind staleStartClose', () => {

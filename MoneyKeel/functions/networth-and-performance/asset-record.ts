@@ -182,7 +182,7 @@ export function addRows(record: readonly AssetRow[], rows: readonly NewRow[], wr
     if (settlementDate == null && wasGiven(r.settlementDate)) row.settlementDateAsGiven = String(r.settlementDate);
     if (r.kind === 'VALUE' && !r.replacesRowId) {
       if (row.holding == null) batchOf.set(r.accountId, rowId);
-      else if (!batchOf.has(r.accountId)) throw new Error(`A holding's value for account ${r.accountId} was saved without the account's own value row before it.`);
+      else if (!batchOf.has(r.accountId)) throw new Error(`A holding’s value for account ${r.accountId} was saved without the account’s own value row before it.`);
       row.batch = batchOf.get(r.accountId);
     }
     out.push(row);
@@ -1561,7 +1561,7 @@ export function activityOf(record: readonly AssetRow[], accountId: string): Asse
       const byHolder = batch.some((x) => x.source === 'typed' && x.changed?.includes('shares') && !x.byAnswer);
       const on = byHolder ? null : batch.map((x) => x.inListOf ?? x.stillHeldOn ?? null).filter((d): d is string => d != null).sort().pop() ?? null;
       adjustments.push({ rowId: `adjustment-${h}-${i}`, accountId, holding: h, kind: 'ADJUSTMENT', date: on ?? (byHolder ? at.slice(0, 10) : null), shares: delta, source: 'typed', writtenAt: at,
-        word: byHolder ? 'the account holder corrected the count' : 'the account holder accepted the broker\'s list' });
+        word: byHolder ? 'the account holder corrected the count' : 'the account holder accepted the broker’s list' });
       byAnswers += delta;
     });
     const rest = sharesOnRecord(record, accountId, h) - running - byAnswers;

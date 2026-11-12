@@ -108,8 +108,12 @@ export default function ImportHoldingsScreen() {
         // Merge-not-duplicate (Import v2): refresh the existing account. asset_id is preserved,
         // so its history, retirement earmark and class settings survive. Never a twin.
         store.updateAsset(matched.asset_id, acct);
+        store.recordFileImport?.(result, String(matched.asset_id));   // the master record, beside the old copies (phase 2)
       } else {
         store.addAsset(acct);
+        // the account just added is the first on the list (addAsset puts it there)
+        const added = useStore.getState().assetAccounts[0];
+        if (added) store.recordFileImport?.(result, String(added.asset_id));
       }
       valueOnlyAccountsOf(result, { institution }).forEach((a) => store.addAsset(a));
       store.refreshPrices?.();   // best-effort: pull live prices so equity market values populate

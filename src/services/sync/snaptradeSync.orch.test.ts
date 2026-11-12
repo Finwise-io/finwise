@@ -118,3 +118,15 @@ test('a connected account with NO connection at the provider is recorded as unre
   expect(failures.map((f: any) => f.accountId)).toEqual(['v1']);   // only the CONNECTED one
   expect(failures[0].reason).toMatch(/no connection found/);
 });
+
+// THE MASTER RECORD READS THE BROKER'S WHOLE HISTORY ONCE (phase 2, 2026-11-11): the old copies hold the account's history
+// and its cursor, but the master record holds nothing from the broker for it yet — so the next sync reads from the start.
+test('a cursor honored by the old copies is set aside once when the master record holds nothing from the broker for the account', async () => {
+  await runSnapTradeSync({ force: true });
+  useStore.setState({ assetRecord: [], snaptradeActivityCursor: { 'acc-1': '2026-07-10T00:00:00.000Z', [refetchMarkKey('acc-1')]: SIGNS_REFETCH } } as any);
+  jest.clearAllMocks();
+  await runSnapTradeSync({ force: true });
+  const call = api.activities.mock.calls.find((c: any[]) => c[0] === 'acc-1');
+  expect(call?.[1]?.startDate).toBeUndefined();                // the whole history, once
+  expect(((useStore.getState() as any).assetRecord ?? []).some((r: any) => r.source === 'linked')).toBe(true);
+});

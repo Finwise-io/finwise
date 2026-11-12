@@ -141,6 +141,33 @@ function recomputeBalances(accs: AssetAccount[], cache: Record<string, PriceSeri
  * Formula also on the master file · functions_from_code · MK-XS-F-192
  * Changed ..... not in git yet (—)
  */
+/** WHAT THE ACCOUNT HOLDER ENTERED, saved into the master record beside the old copies (phase 2, 2026-11-11). A
+ *  difference from what a broker or a file gave is kept as a question under the account; a change the record refuses,
+ *  or a fault, is kept and never stops the entry. */
+function typedIntoRecord(s: any, changes: TypedChange[]): Record<string, unknown> {
+  if (!changes.length) return {};
+  const at = new Date().toISOString();
+  let record: AssetRow[] = s.assetRecord ?? [];
+  const questions = { ...(s.assetRecordQuestions ?? {}) };
+  const faults = [...(s.assetRecordFaults ?? [])];
+  for (const c of changes) {
+    const id = 'account' in c ? String(c.account.asset_id) : 'after' in c && 'update' in c ? String(c.after.asset_id)
+      : 'transaction' in c ? String(c.transaction.account_id) : String((c as any).accountId);
+    try {
+      const out = typedChangeToRecord(record, c, at);
+      record = out.record;
+      if (out.ask.length) {
+        const key = `${id}#typed`, was = questions[key] ?? { events: [], lists: [] };
+        questions[key] = { ...was, events: [...(was.events ?? []), ...out.ask], at };
+      }
+      for (const p of out.problems) faults.push({ at, where: `refused: ${c.kind} ${id}`, message: p.slice(0, 300) });
+    } catch (e) {
+      faults.push({ at, where: `${c.kind} ${id}`, message: String((e as Error)?.message ?? e).slice(0, 300) });
+    }
+  }
+  return { assetRecord: record, assetRecordQuestions: questions, assetRecordFaults: faults.slice(-50) };
+}
+
 function typedValueDatedBack(s: any, update: Partial<AssetAccount>, account: AssetAccount | undefined): Record<string, unknown> {
   if (!account || !update || !('value_as_of' in update)) return {};
   const before = (s.assetAccounts ?? []).find((x: AssetAccount) => x.asset_id === account.asset_id);
@@ -160,6 +187,13 @@ import { ingestSync as ingestSyncPure, fixStoredMoney, fixStoredFees, type Accou
 import { buildDayFromAccounts, record as recordSnapshotDay, prune as pruneSnapshots, dailyWindowStart, typedValueOnItsDate, type SnapshotDay } from '../../Calculation Module code/engines/snapshots';
 import { rebuildDays, fillBetweenObservations } from '../../Calculation Module code/engines/rebuild-history';
 import { newEntityId } from '../domain/_shared/ids';
+import { addRows as addRecordRows, sortArriving, purchasesFromList, type AssetRow, type NewRow as NewRecordRow, type EventQuestion, type ListQuestion } from '../../MoneyKeel/functions/networth-and-performance/asset-record';
+import { brokerUpdateToRecord } from '../../MoneyKeel/functions/networth-and-performance/asset-record-from-broker';
+import { fileRowsToSave } from '../../MoneyKeel/functions/networth-and-performance/asset-record-from-file';
+import { typedChangeToRecord, type TypedChange } from '../../MoneyKeel/functions/networth-and-performance/asset-record-from-typed';
+import { priceFeedValues } from '../../MoneyKeel/functions/networth-and-performance/asset-record-from-prices';
+import { moveOldCopies } from '../../MoneyKeel/functions/networth-and-performance/asset-record-move';
+import type { ImportResult } from '../domain/import/holdingsImport';
 import { goalsFromOnboarding } from '../domain/goals';
 import { setMoneyFormat, CURRENCIES } from '../domain/_shared/money';
 import { isoLocalDate, localMoment } from '../domain/_shared/dates';
@@ -399,6 +433,13 @@ type AppState = {
   invDaily: Record<string, number>;              // 'YYYY-MM-DD' → cash+investments point — the NW change-% denominator (founder rule 2026-08-04)
   rebuiltFrom: Record<string, string>;           // account id → the first day its history was rebuilt to, from the broker's own records (founder 2026-09-25)
   rebuiltAt: string | null;                      // ISO of the last rebuild pass
+  /** THE ONE MASTER RECORD of what the account holder owns (his rulings of 2026-11-10/11, DEC-10342): every event its own
+   *  dated row, nothing overwritten. Phase 2: written beside the three old copies; nothing on screen reads it yet. */
+  assetRecord: AssetRow[];
+  /** The questions the last broker update or file left for the account holder, by account (shown in phase 3). */
+  assetRecordQuestions: Record<string, { events: EventQuestion[]; lists: ListQuestion[]; needsADate?: boolean; at: string }>;
+  /** Where saving to the master record failed, so a fault there never stops the old copies (phase 2). */
+  assetRecordFaults: { at: string; where: string; message: string }[];
   snapshotDays: SnapshotDay[];                   // Track 1 step 6: the full daily record (per-account, per-holding, units+price apart) — what "beginning" is READ from instead of back-solved
   retirementAssumptions: RetirementAssumptions;   // user overrides for the retirement projection (null fields → derive from data)
   estatePlan: Record<string, boolean>;            // estate checklist: item id → done
@@ -518,6 +559,12 @@ type AppState = {
   skipAllocPrompt: (ym: string) => void;
   captureMonthlySnapshot: (ym: string, data: any) => void;
   captureDailyNw: (dateKey: string, nw: number, investable?: number) => void;
+  /** Save rows to the master record, all stamped with one time (now, unless given). Rows are only ever added. */
+  saveToAssetRecord: (rows: NewRecordRow[], writtenAt?: string) => void;
+  /** A file imported for an account: its purchases, values and facts saved to the master record, dated by the file. */
+  recordFileImport: (result: ImportResult, accountId: string) => void;
+  /** Moves what the phone holds onto the master record, once per account (phase 2, 2026-11-11). */
+  moveOldCopiesToRecordOnce: () => void;
   rebuildLinkedHistory: () => void;              // rebuild each linked account's past from its own records (founder approved 2026-09-25)
   runReclassifyOnce: () => void;
   reclassifyVersion?: string;
@@ -785,6 +832,9 @@ export const useStore = create<AppState>()(
       monthlySnapshots: {},
       nwDaily: {},
       invDaily: {},
+      assetRecord: [],
+      assetRecordQuestions: {},
+      assetRecordFaults: [],
       snapshotDays: [],
       rebuiltFrom: {},
       rebuiltAt: null,
@@ -904,7 +954,8 @@ export const useStore = create<AppState>()(
         // HOLDINGS HANDED IN WITH THE ACCOUNT (Import holdings) ARE PURCHASES YOU ALREADY OWN: each gets its record, as addPosition
         // writes one (2026-10-23, F3) — a linked account's purchases are the broker's, and come with its sync
         const txns = acct.source === 'connected' ? [] : (acct.positions ?? []).flatMap((p) => openingRecordsOf(acct.asset_id, p));
-        return { assetAccounts: [acct, ...s.assetAccounts], ...(txns.length ? { transactions: [...txns, ...s.transactions] } : {}) };
+        return { assetAccounts: [acct, ...s.assetAccounts], ...(txns.length ? { transactions: [...txns, ...s.transactions] } : {}),
+          ...typedIntoRecord(s, [{ kind: 'account-added', account: acct }]) };
       }),
       // SnapTrade sync (design v2): holdings are authoritative; activities append as HISTORY ONLY
       // (never applied to balances — the no-double-count rule pinned in ingest.test.ts).
@@ -914,7 +965,34 @@ export const useStore = create<AppState>()(
       setSyncFailures: (failures) => set({ syncFailures: failures ?? [] }),
       ingestSnapTradeSync: (payloads, connections) => set((s) => {
         const r = ingestSyncPure(s.assetAccounts, s.snaptradeSeenKeys ?? {}, payloads);
+        // THE MASTER RECORD, beside the old copies (phase 2): each account's update in the calling order — its history's
+        // events, then each holding's list, then the day's values. A fault here is kept and never stops the sync.
+        const at = new Date().toISOString();
+        let record: AssetRow[] = (s as any).assetRecord ?? [];
+        const questions = { ...((s as any).assetRecordQuestions ?? {}) };
+        const faults = [...((s as any).assetRecordFaults ?? [])];
+        for (const p of payloads) {
+          const acct = r.accounts.find((a: any) => a.snaptrade_account_id === p.account.id);
+          if (!acct) continue;
+          const id = String(acct.asset_id);
+          try {
+            const u = brokerUpdateToRecord(record, p, id);
+            const sorted = sortArriving(record, u.events);
+            let next = addRecordRows(record, sorted.save, at);
+            const lists: ListQuestion[] = [], fromLists: NewRecordRow[] = [];
+            for (const l of u.lists) {
+              const got = purchasesFromList(next, id, l.holding, l.listed, 'linked', u.listDay, sorted.ask);
+              fromLists.push(...got.rows); lists.push(...got.ask);
+            }
+            next = addRecordRows(next, [...fromLists, ...u.values], at);
+            record = next;
+            questions[id] = { events: sorted.ask, lists, at };
+          } catch (e) {
+            faults.push({ at, where: `broker update ${id}`, message: String((e as Error)?.message ?? e).slice(0, 300) });
+          }
+        }
         return {
+          assetRecord: record, assetRecordQuestions: questions, assetRecordFaults: faults.slice(-50),
           assetAccounts: r.accounts,
           // an older share transfer that carries no direction takes the one the broker reports for it; an older money
           // record takes the broker's direction, and its real $0, the same way (fixStoredMoney, 2026-10-21); an older buy or
@@ -945,6 +1023,7 @@ export const useStore = create<AppState>()(
             : s.assetAccounts.filter((a) => a.connection_id !== connectionId),
           snaptradeConnections: (s.snaptradeConnections ?? []).filter((c) => c.id !== connectionId),
           wrapperConfirmQueue: (s.wrapperConfirmQueue ?? []).filter((id) => !connIds.has(id) || keepAsManual),
+          ...typedIntoRecord(s, [...connIds].map((id) => ({ kind: 'account-unlinked' as const, accountId: String(id), keptAsTyped: keepAsManual }))),
         };
       }),
       // a value typed with an earlier "Value as of" date is written onto the recorded days from that date (2026-10-20)
@@ -959,9 +1038,12 @@ export const useStore = create<AppState>()(
         // price paid is the one a sale reads (it kept the first file's $8,000 where the second said $9,000)
         const after = assetAccounts.find((x) => x.asset_id === id);
         const transactions = u.positions && after && after.source !== 'connected' ? purchaseRecordsFollowReimport(s.transactions, id, u.positions as Position[]) : s.transactions;
-        return { assetAccounts, ...typedValueDatedBack(s, u, after), ...(transactions !== s.transactions ? { transactions } : {}) };
+        const was = s.assetAccounts.find((x) => x.asset_id === id);
+        return { assetAccounts, ...typedValueDatedBack(s, u, after), ...(transactions !== s.transactions ? { transactions } : {}),
+          ...(was && after ? typedIntoRecord(s, [{ kind: 'account-changed', before: was, after, update: u }]) : {}) };
       }),
-      deleteAsset:    (id) => set((s) => ({ assetAccounts: s.assetAccounts.filter((x) => x.asset_id !== id) })),
+      deleteAsset:    (id) => set((s) => ({ assetAccounts: s.assetAccounts.filter((x) => x.asset_id !== id),
+        ...(s.assetAccounts.some((x) => x.asset_id === id) ? typedIntoRecord(s, [{ kind: 'account-removed', accountId: String(id) }]) : {}) })),
       addPosition: (accountId, position) => set((s) => {
         // a holding the person adds to a LINKED account is theirs: a sync that does not list it keeps it
         // (his ruling, 2026-09-30, master Q12: "user entry stays even if it is not in the import file")
@@ -971,7 +1053,8 @@ export const useStore = create<AppState>()(
         // log an OPENING_POSITION transaction per lot (first-time capture of holdings you already own) — the one rule for it
         // (openingRecordsOf, 2026-10-23); a cost not on record gives the row no price
         const txns = openingRecordsOf(accountId, pos as Position);
-        return { assetAccounts: recomputeBalances(accounts, s.priceCache), transactions: [...txns, ...s.transactions] };
+        return { assetAccounts: recomputeBalances(accounts, s.priceCache), transactions: [...txns, ...s.transactions],
+          ...typedIntoRecord(s, [{ kind: 'holding-added', accountId: String(accountId), position: pos as Position }]) };
       }),
       updatePosition: (accountId, positionId, patch) => set((s) => {
         // B7: a class the person sets themselves outranks every automatic rule and survives every
@@ -997,7 +1080,8 @@ export const useStore = create<AppState>()(
         // $95.00 in the editor, reads $95.00 on its record, so a later sale's gain is read from what the holding now says was paid
         const before = (s.assetAccounts.find((a) => a.asset_id === accountId)?.positions ?? []).find((p) => p.position_id === positionId);
         const transactions = before && patch.lots ? purchaseRecordsFollowEdit(s.transactions, accountId, before, { ...before, ...stamped } as Position) : s.transactions;
-        return { assetAccounts: recomputeBalances(accounts, s.priceCache), ...(transactions !== s.transactions ? { transactions } : {}) };
+        return { assetAccounts: recomputeBalances(accounts, s.priceCache), ...(transactions !== s.transactions ? { transactions } : {}),
+          ...(before && patch.lots ? typedIntoRecord(s, [{ kind: 'holding-changed', accountId: String(accountId), before: before as Position, after: { ...before, ...stamped } as Position }]) : {}) };
       }),
       deletePosition: (accountId, positionId) => set((s) => {
         const accounts = s.assetAccounts.map((a) => a.asset_id === accountId
@@ -1006,7 +1090,8 @@ export const useStore = create<AppState>()(
         const was = (s.assetAccounts.find((a) => a.asset_id === accountId)?.positions ?? []).find((p) => p.position_id === positionId);
         const left = (accounts.find((a) => a.asset_id === accountId)?.positions ?? []) as Position[];
         const transactions = was ? purchaseRecordsAfterHoldingRemoved(s.transactions, accountId, was, left) : s.transactions;
-        return { assetAccounts: recomputeBalances(accounts, s.priceCache), ...(transactions.length !== s.transactions.length ? { transactions } : {}) };
+        return { assetAccounts: recomputeBalances(accounts, s.priceCache), ...(transactions.length !== s.transactions.length ? { transactions } : {}),
+          ...(was ? typedIntoRecord(s, [{ kind: 'holding-removed', accountId: String(accountId), position: was as Position }]) : {}) };
       }),
       recordTransaction: (partial) => set((s) => {
         const t = makeTransaction(partial);
@@ -1023,6 +1108,7 @@ export const useStore = create<AppState>()(
           assetAccounts: recomputeBalances(accounts, s.priceCache),
           transactions: [t, ...s.transactions],
           ...(newFlags.length ? { txnFlags: [...newFlags, ...s.txnFlags] } : {}),
+          ...typedIntoRecord(s, [{ kind: 'transaction-recorded', transaction: t }]),
         };
       }),
       // F10 resolution — always an explicit choice (no swipe-dismiss). 'was_me' also remembers the
@@ -1080,6 +1166,7 @@ export const useStore = create<AppState>()(
             // deleting the row drops the open card (Home never questions money that no longer
             // exists). RESOLVED flags stay: they carry their own facts and are the audit trail.
             txnFlags: s.txnFlags.filter((f) => !(f.status === 'open' && f.transaction_ids.includes(String(id)))),
+            ...typedIntoRecord(s, [{ kind: 'transaction-deleted', transaction: target }]),
           };
         });
         return ok;
@@ -1103,6 +1190,17 @@ export const useStore = create<AppState>()(
         }
         const cache = { ...get().priceCache, ...fetched };
         set({ priceRefreshFailed: false, priceCache: cache, pricesFetchedAt: new Date().toISOString(), assetAccounts: recomputeBalances(get().assetAccounts, cache) });
+        // THE MASTER RECORD, beside the old copies (phase 2): the day's values from these prices, dated by the prices' own
+        // day — never the phone's. A fault is kept and never stops the refresh.
+        set((s: any) => {
+          const at = new Date().toISOString();
+          try {
+            const rows = priceFeedValues(s.assetRecord ?? [], s.assetAccounts ?? [], cache);
+            return rows.length ? { assetRecord: addRecordRows(s.assetRecord ?? [], rows, at) } : {};
+          } catch (e) {
+            return { assetRecordFaults: [...(s.assetRecordFaults ?? []), { at, where: 'price refresh', message: String((e as Error)?.message ?? e).slice(0, 300) }].slice(-50) };
+          }
+        });
       },
       maybeRefreshPrices: async (extra) => {
         const s = get();
@@ -1128,7 +1226,10 @@ export const useStore = create<AppState>()(
           && !freshAssets.some((f) => f.label === a.label && f.tax_bucket === a.tax_bucket));
         const keptDebts = s.liabilities.filter((d) => d.origin !== 'onboarding'
           && !freshDebts.some((f) => f.label === d.label));
-        return { assetAccounts: [...freshAssets, ...keptAssets], liabilities: [...freshDebts, ...keptDebts], nwSeeded: true };
+        const dropped = s.assetAccounts.filter((a) => !keptAssets.includes(a));
+        return { assetAccounts: [...freshAssets, ...keptAssets], liabilities: [...freshDebts, ...keptDebts], nwSeeded: true,
+          ...typedIntoRecord(s, [...dropped.map((a) => ({ kind: 'account-removed' as const, accountId: String(a.asset_id) })),
+            ...freshAssets.map((a) => ({ kind: 'account-added' as const, account: a as AssetAccount }))]) };
       }),
       // B-29: bring the goals captured in onboarding into the Plan tab. Seeds once (goalsSeeded
       // guard) so deleting a seeded goal sticks; a fresh onboarding run re-seeds (restartOnboarding
@@ -1156,7 +1257,10 @@ export const useStore = create<AppState>()(
           const prior = a.change_month === cym ? (a.change_amount ?? 0) : 0;
           return { ...a, balance: a.balance + it.amount, change_amount: prior + it.amount, change_month: cym };
         });
-        return { assetAccounts: accounts, allocatedByMonth: { ...s.allocatedByMonth, [ym]: (s.allocatedByMonth[ym] ?? 0) + total } };
+        const today = isoLocalDate(now);   // the day the account holder moved the money: the deposit's own date
+        return { assetAccounts: accounts, allocatedByMonth: { ...s.allocatedByMonth, [ym]: (s.allocatedByMonth[ym] ?? 0) + total },
+          ...typedIntoRecord(s, items.filter((i) => i.amount > 0 && s.assetAccounts.some((a) => a.asset_id === i.assetId))
+            .map((i) => ({ kind: 'savings-moved' as const, accountId: String(i.assetId), amount: i.amount, date: today }))) };
       }),
       // B-71: fund goals FROM this month's surplus — bumps each goal's `saved` (real money tracked, not a
       // self-reported tally) and counts toward allocatedByMonth so the surplus "left to assign" is accurate.
@@ -1204,6 +1308,31 @@ export const useStore = create<AppState>()(
       // and priced at each day's close IS the account's real history — the same one the broker
       // shows. Hand-entered accounts and cash have no ledger: they keep their honest start date.
       // An observed day is never replaced by a reconstruction.
+      saveToAssetRecord: (rows, writtenAt) => set((s: any) => (rows.length
+        ? { assetRecord: addRecordRows(s.assetRecord ?? [], rows, writtenAt ?? new Date().toISOString()) } : {})),
+      recordFileImport: (result, accountId) => set((s: any) => {
+        const at = new Date().toISOString();
+        try {
+          const f = fileRowsToSave(s.assetRecord ?? [], result, accountId);
+          return { assetRecord: addRecordRows(s.assetRecord ?? [], f.rows, at),
+            assetRecordQuestions: { ...(s.assetRecordQuestions ?? {}), [accountId]: { events: f.askEvents, lists: f.askLists, needsADate: f.needsADate, at } } };
+        } catch (e) {
+          return { assetRecordFaults: [...(s.assetRecordFaults ?? []), { at, where: 'file import', message: String((e as Error)?.message ?? e).slice(0, 300) }].slice(-50) };
+        }
+      }),
+      moveOldCopiesToRecordOnce: () => set((s: any) => {
+        const at = new Date().toISOString();
+        try {
+          const out = moveOldCopies(s.assetRecord ?? [], s.assetAccounts ?? [], s.transactions ?? [], at);
+          if (!out.moved.length) return {};
+          const questions = { ...(s.assetRecordQuestions ?? {}) };
+          for (const q of out.ask) questions[`${q.accountId}#moved`] = { events: q.events, lists: q.lists, at };
+          return { assetRecord: out.record, assetRecordQuestions: questions,
+            assetRecordFaults: [...(s.assetRecordFaults ?? []), ...out.problems.map((m) => ({ at, where: 'move of what the phone held', message: m.slice(0, 300) }))].slice(-50) };
+        } catch (e) {
+          return { assetRecordFaults: [...(s.assetRecordFaults ?? []), { at, where: 'move of what the phone held', message: String((e as Error)?.message ?? e).slice(0, 300) }].slice(-50) };
+        }
+      }),
       rebuildLinkedHistory: () => set((s: any) => {
         const linked = ((s.assetAccounts ?? []) as any[]).filter((a) => a.source === 'connected');
         if (!linked.length) return {};
@@ -1442,7 +1571,7 @@ export const useStore = create<AppState>()(
       addBigCost: (c) => set((st: any) => ({ bigCosts: [...(st.bigCosts ?? []), { id: `bc_${(st.bigCosts?.length ?? 0) + 1}_${c.year}`, ...c }] })),
       updateBigCost: (id, patch) => set((st: any) => ({ bigCosts: (st.bigCosts ?? []).map((x: any) => x.id === id ? { ...x, ...patch } : x) })),
       deleteBigCost: (id) => set((st: any) => ({ bigCosts: (st.bigCosts ?? []).filter((x: any) => x.id !== id) })),
-      allocatedByMonth: {}, allocPromptSkipped: {}, billCalendarStart: null, monthlySnapshots: {}, nwDaily: {}, invDaily: {}, snapshotDays: [], rebuiltFrom: {}, rebuiltAt: null,
+      allocatedByMonth: {}, allocPromptSkipped: {}, billCalendarStart: null, monthlySnapshots: {}, nwDaily: {}, invDaily: {}, assetRecord: [], assetRecordQuestions: {}, assetRecordFaults: [], snapshotDays: [], rebuiltFrom: {}, rebuiltAt: null,
         retirementAssumptions: { retireAge: null, horizonAge: null, contribMonthly: null, spendMonthly: null, guaranteedMonthly: null, risk: null, expectedReturn: null, inflation: null, ssEligible: null, ssMonthly: null, ssClaimAge: null, targetNestEgg: null, debtExtraMonthly: null, actualReturn: null, returnBasis: null },
       estatePlan: {},
         retirementScenarios: [], planHistory: [],

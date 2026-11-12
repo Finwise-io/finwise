@@ -980,7 +980,7 @@ describe('the share check and the rest (audit round 3)', () => {
   });
 
   test('#14 a holding\'s value saved without the account\'s own value row stops', () => {
-    expect(() => addRows([], [{ accountId: A, holding: 'MSFT', kind: 'VALUE', date: '2026-11-03', source: 'price-feed', shares: 500, price: 340, amount: 170000 }], '2026-11-03T17:00:00.000Z')).toThrow(/without the account's own value row/);
+    expect(() => addRows([], [{ accountId: A, holding: 'MSFT', kind: 'VALUE', date: '2026-11-03', source: 'price-feed', shares: 500, price: 340, amount: 170000 }], '2026-11-03T17:00:00.000Z')).toThrow(/without the account’s own value row/);
   });
 
   test('#15 on one day, a value the person typed stands in front of a later update that day: typed $341, then an update at $340 — $170,500', () => {

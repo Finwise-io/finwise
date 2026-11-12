@@ -476,6 +476,24 @@ export async function saveUserData(uid: string, data: object) {
   await setDoc(doc(db, 'users', uid), { appStateEnc: enc, appState: deleteField() }, { merge: true });
 }
 
+/** THE MASTER RECORD IN THE CLOUD (his "yes", 2026-11-11): one encrypted document per part, under
+ *  users/{uid}/assetRecord/{part} — readable and writable only by the account holder and a household member (the rules for
+ *  users/{uid} and everything under it). The parts and which to write are decided in services/sync/assetRecordCloud. */
+export async function saveAssetRecordPart(uid: string, part: number, rows: unknown[]) {
+  const enc = await encryptForSync({ rows: JSON.parse(JSON.stringify(rows)) });
+  if (enc == null) return;   // no key yet → skip the cloud write (NEVER store plaintext); the phone's copy is safe
+  await setDoc(doc(db, 'users', uid, 'assetRecord', String(part)), { enc });
+}
+
+/** One part of the master record from the cloud, or null where there is none. */
+export async function loadAssetRecordPart(uid: string, part: number): Promise<unknown[] | null> {
+  const snap = await getDoc(doc(db, 'users', uid, 'assetRecord', String(part)));
+  if (!snap.exists()) return null;
+  const d = snap.data();
+  const plain = d?.enc != null ? await decryptFromSync(d.enc) : null;
+  return Array.isArray((plain as any)?.rows) ? (plain as any).rows : null;
+}
+
 /* ─ MK-XS-F-074 ──────────────────────────────────────────────────────────── 4 · BRINGS DATA IN
  * loadUserData
  *

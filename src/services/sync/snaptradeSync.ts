@@ -216,7 +216,11 @@ export async function runSnapTradeSync(opts: { force?: boolean } = {}): Promise<
       const cursor = hasLedgerRows ? cursors[account.id] : undefined;
       if (!hasLedgerRows) delete cursors[account.id];
       // the one-time full re-fetch for signs (SIGNS_REFETCH): an account not yet re-read since 2026-10-21 reads its whole history
-      const refetchDue = cursors[refetchMarkKey(account.id)] !== SIGNS_REFETCH;
+      const refetchDue = cursors[refetchMarkKey(account.id)] !== SIGNS_REFETCH
+        // THE MASTER RECORD READS THE BROKER'S WHOLE HISTORY ONCE (phase 2, 2026-11-11): an account the record holds nothing
+        // from the broker for is read from the start, so its purchases, sales and dates come from the broker, never from the
+        // old copies. The record keeps each activity once by the broker's own key, so the re-read adds nothing twice.
+        || !(((s as any).assetRecord ?? []) as any[]).some((r) => r.accountId === String(accountRowId) && r.source === 'linked');
       const startDate = cursor && !refetchDue
         ? new Date(Date.parse(cursor) - OVERLAP_DAYS * 86400_000).toISOString().slice(0, 10)
         : undefined;                                   // no cursor (or none believable) → full history

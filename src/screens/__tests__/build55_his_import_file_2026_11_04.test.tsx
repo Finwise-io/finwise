@@ -34,7 +34,7 @@ const lines = () => screen.UNSAFE_getAllByType(require('react-native').Text).map
 
 beforeEach(() => {
   jest.clearAllMocks();
-  useStore.setState({ assetAccounts: [], transactions: [], priceCache: {}, refreshPrices: async () => {} } as any);
+  useStore.setState({ assetAccounts: [], transactions: [], priceCache: {}, refreshPrices: async () => {}, assetRecord: [], assetRecordQuestions: {}, assetRecordFaults: [] } as any);
 });
 
 test('(1) the "Upload a CSV export …" text is left-aligned', () => {
@@ -99,4 +99,26 @@ test('(2c) the same file re-saved from a spreadsheet imports the same account; i
   expect(acct.balance).toBeCloseTo(169664.71, 6);
   expect([cd.face_value, cd.coupon_rate, cd.maturity_date, cd.price_quote]).toEqual([110000, 0.0385, '2026-08-24', 'per_100_of_face']);
   expect(acct.value_as_of).toBe(require('../../domain/_shared/dates').isoLocalDate(new Date()));   // the person's day, not UTC's
+});
+
+// THE MASTER RECORD, written beside the old copies when the screen imports a file (phase 2, 2026-11-11): the file's own
+// values on the file's own day, saved as the file's — and nothing saved as typed, since the account holder typed nothing.
+test('(3) importing his file through the screen saves its values in the master record, dated Jun 21, 2026, total $169,664.71', async () => {
+  const acct = await importHisFile('Robinhood');
+  const { valuesNow, rowsInForce } = require('../../../MoneyKeel/functions/networth-and-performance/asset-record');
+  const s = useStore.getState() as any;
+  const now = valuesNow(s.assetRecord, String(acct.asset_id));
+  expect(now.date).toBe('2026-06-21');
+  expect(now.source).toBe('file');
+  expect(now.total).toBeCloseTo(169664.71, 6);
+  expect(rowsInForce(s.assetRecord).filter((r: any) => r.source === 'typed')).toEqual([]);
+  expect(s.assetRecordFaults).toEqual([]);
+});
+
+test('(3b) the re-saved file states no date: its values are saved undated and the account holder is to be asked the date', async () => {
+  const acct = await importHisFile('Robinhood', RESAVED);
+  const { valuesNow } = require('../../../MoneyKeel/functions/networth-and-performance/asset-record');
+  const s = useStore.getState() as any;
+  expect(valuesNow(s.assetRecord, String(acct.asset_id)).date).toBeNull();
+  expect(s.assetRecordQuestions[String(acct.asset_id)].needsADate).toBe(true);
 });

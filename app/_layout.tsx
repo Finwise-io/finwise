@@ -7,7 +7,8 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useStore } from '../src/store/useStore';
 import { setMoneyFormat, setHideBalances } from '../src/domain/_shared/money';
 import { patchTextScaling, setGlobalFontScale } from '../src/utils/fontScale';
-import { onAuthChange, loadUserData, loadUserRoot, saveUserData } from '../src/services/firebase';
+import { onAuthChange, loadUserData, loadUserRoot, saveUserData, saveAssetRecordPart, loadAssetRecordPart } from '../src/services/firebase';
+import { saveRecordToCloud, loadRecordFromCloud, recordToKeep } from '../src/services/sync/assetRecordCloud';
 import { Colors } from '../src/utils/theme';
 import { ErrorBoundary } from '../src/components/ErrorBoundary';
 import { RecoveryCodeModal } from '../src/components/RecoveryCodeModal';
@@ -70,6 +71,8 @@ export default function RootLayout() {
   const segments  = useSegments();
   const [isReady, setIsReady] = useState(false);
   const syncTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  /** How many rows of the master record the cloud holds, so a save writes only the parts that changed. */
+  const recordRowsInCloud = useRef(0);
   const currentUid = useRef<string | null>(null);
   // Hydrate from the cloud ONCE per signed-in user. onAuthChange also fires on token refresh / app
   // resume; re-hydrating then would clobber unsynced local changes (e.g. a fresh "re-run setup"
@@ -101,6 +104,21 @@ export default function RootLayout() {
             const cloudData = root.householdId ? await loadUserData(root.householdId) : root.appState;
             if (cloudData) loadFromCloud(cloudData);
             else resetAll();   // brand-new account → clean slate so a prior account's local data can't leak
+            // THE MASTER RECORD comes back from the cloud too (his "yes", 2026-11-11): where the phone's record and the
+            // cloud's are one and the same so far, the longer is kept; where they part ways the phone's is kept and the
+            // cloud's stays where it is (never mixed)
+            try {
+              const owner = root.householdId ?? firebaseUser.uid;
+              const cloudRecord = await loadRecordFromCloud((part) => loadAssetRecordPart(owner, part) as any);
+              const kept = recordToKeep((useStore.getState() as any).assetRecord ?? [], cloudRecord as any);
+              useStore.setState({ assetRecord: kept.record } as any);
+              recordRowsInCloud.current = kept.differ ? cloudRecord.length : kept.record.length;
+              // what the phone held before the master record, moved onto it once — only after the cloud's record is in, so an
+              // account another phone already moved is never moved twice
+              (useStore.getState() as any).moveOldCopiesToRecordOnce?.();
+            } catch (_) {
+              // offline: the phone's record stands; the next save writes what the cloud lacks
+            }
           } catch (_) {
             // Offline — local AsyncStorage cache is already loaded by Zustand persist
           }
@@ -127,6 +145,14 @@ export default function RootLayout() {
         saveUserData((state as any).householdId ?? uid, pickSyncFields(state as Record<string, any>)).catch(() => {
           // Silently ignore offline write failures — next successful sync catches up
         });
+        // the master record: only the parts that changed are written (it only ever grows)
+        const owner = (state as any).householdId ?? uid;
+        const record = (state as any).assetRecord ?? [];
+        if (record.length > recordRowsInCloud.current) {
+          saveRecordToCloud(record, recordRowsInCloud.current, (part, rows) => saveAssetRecordPart(owner, part, rows))
+            .then((n) => { recordRowsInCloud.current = n; })
+            .catch(() => { /* offline: the next save writes what the cloud lacks */ });
+        }
       }, 2000);
     });
     return () => {
