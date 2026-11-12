@@ -33,7 +33,7 @@ import { fetchPriceSeries } from '../services/marketData';
  *               MK-ST-F-028 buildDayFromAccounts · MK-XS-F-199 profileOnTheWayIn
  *               MK-XS-F-205 recordsOnTheWayIn
  *
- * Reaches ..... 561 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 567 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -43,7 +43,7 @@ import { fetchPriceSeries } from '../services/marketData';
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 543 more — the full list is on functions_from_code
+ *               … and 549 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
@@ -653,6 +653,8 @@ type AppState = {
 
   // Cloud sync
   loadFromCloud: (data: Partial<AppState>) => void;
+  /** Sign-out: the phone keeps nothing of this person's — what resetAll clears, and the record's owner and the household. */
+  signOutClear: () => void;
 };
 
 const DEFAULT_BADGES: Badge[] = [
@@ -702,9 +704,10 @@ const DEFAULT_BADGES: Badge[] = [
  *               MK-XS-F-078 joinHouseholdMembership · MK-XS-F-079 loadUserRoot
  *               MK-XS-F-138 deriveKeyFromSecret · MK-XS-F-139 wrapWithSecret
  *               MK-XS-F-199 profileOnTheWayIn · MK-XS-F-222 saveAssetRecordPart
- *               MK-XS-F-223 loadAssetRecordPart
+ *               MK-XS-F-223 loadAssetRecordPart · MK-XS-F-231 loadAssetRecordMarker
+ *               MK-XS-F-233 commitAssetRecord
  *
- * Reaches ..... 561 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 567 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -714,7 +717,7 @@ const DEFAULT_BADGES: Badge[] = [
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 543 more — the full list is on functions_from_code
+ *               … and 549 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -1658,6 +1661,15 @@ export const useStore = create<AppState>()(
         assetRecord: [], assetRecordQuestions: {}, assetRecordFaults: [],
         user: s.user,
       })),
+
+      // SIGN-OUT (outside check 2, 2026-11-12): user A signed out and nothing was reset, so when B's profile load failed, A's
+      // accounts (Savings $12,400, Brokerage $30,000 with 100 VTI) were moved into B's record. Everything that is one person's
+      // is cleared — what resetAll clears (the record, its questions and faults among it) — and the phone's data now belongs to
+      // nobody, so nothing moves or is saved until the next person's profile has loaded from the cloud.
+      signOutClear: () => {
+        get().resetAll();
+        set({ user: null, householdId: null, assetRecordOwner: null } as any);
+      },
     }),
     {
       name: 'finwise-storage-v3',

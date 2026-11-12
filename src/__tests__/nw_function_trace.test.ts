@@ -298,6 +298,12 @@ const FUNCTIONS: [string, string, string][] = [
   ['MK-NW-F-286', 'MoneyKeel/functions/networth-and-performance/asset-record-from-broker.ts', 'MoneyKeel/functions/networth-and-performance/asset-record-from-broker.test.ts'],
   ['MK-NW-F-287', 'MoneyKeel/functions/networth-and-performance/asset-record-from-broker.ts', 'MoneyKeel/functions/networth-and-performance/asset-record-from-broker.test.ts'],
   ['MK-NW-F-288', 'MoneyKeel/functions/networth-and-performance/asset-record-move.ts', 'MoneyKeel/functions/networth-and-performance/asset-record-move.test.ts'],
+  ['MK-NW-F-289', 'MoneyKeel/functions/networth-and-performance/asset-record-from-broker.ts', 'MoneyKeel/functions/networth-and-performance/asset-record-from-broker.test.ts'],
+  ['MK-NW-F-290', 'MoneyKeel/functions/networth-and-performance/asset-record-move.ts', 'MoneyKeel/functions/networth-and-performance/asset-record-move.test.ts'],
+  ['MK-NW-F-291', 'MoneyKeel/functions/networth-and-performance/asset-record-move.ts', 'MoneyKeel/functions/networth-and-performance/asset-record-move.test.ts'],
+  ['MK-NW-F-292', 'MoneyKeel/functions/networth-and-performance/asset-record-move.ts', 'MoneyKeel/functions/networth-and-performance/asset-record-move.test.ts'],
+  ['MK-NW-F-293', 'MoneyKeel/functions/networth-and-performance/asset-record.ts', 'MoneyKeel/functions/networth-and-performance/asset-record-from-broker.test.ts'],
+  ['MK-NW-F-294', 'MoneyKeel/functions/networth-and-performance/asset-record.ts', 'MoneyKeel/functions/networth-and-performance/asset-record-from-broker.test.ts'],
 ];
 
 /** Every MK-NW-F record in the code, read from the code: the header rule printed directly above each function (the one the card

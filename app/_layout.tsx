@@ -7,8 +7,8 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useStore } from '../src/store/useStore';
 import { setMoneyFormat, setHideBalances } from '../src/domain/_shared/money';
 import { patchTextScaling, setGlobalFontScale } from '../src/utils/fontScale';
-import { onAuthChange, loadUserData, loadUserRoot, saveUserData, saveAssetRecordPart, loadAssetRecordPart } from '../src/services/firebase';
-import { saveRecordToCloud, loadRecordFromCloud, recordOnSignIn } from '../src/services/sync/assetRecordCloud';
+import { onAuthChange, loadUserData, loadUserRoot, saveUserData, loadAssetRecordPart, loadAssetRecordMarker, commitAssetRecord, getPhoneId, onSignOutFlush } from '../src/services/firebase';
+import { loadCloudRecord, recordOnSignIn, saveRecordGuarded, recordWorkAllowed, RecordCannotBeRead, RecordNotSettled, type CloudSeen } from '../src/services/sync/assetRecordCloud';
 import { Colors } from '../src/utils/theme';
 import { ErrorBoundary } from '../src/components/ErrorBoundary';
 import { RecoveryCodeModal } from '../src/components/RecoveryCodeModal';
@@ -71,17 +71,34 @@ export default function RootLayout() {
   const segments  = useSegments();
   const [isReady, setIsReady] = useState(false);
   const syncTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  /** How many rows of the master record the cloud holds, so a save writes only the parts that changed. */
-  const recordRowsInCloud = useRef(0);
-  /** Whose cloud record has finished loading (the household's id or the person's own): no record save before it has
-   *  (outside check, 2026-11-12: a load over 2 s let the save fire with 0 rows counted and write from part 0). */
+  /** What this phone last read or wrote of the cloud's record: its marker and the rows that marker names. A save goes ahead
+   *  only where the cloud's marker still equals it (his "go", 2026-11-12: two phones at once lost rows 391–400). */
+  const recordSeen = useRef<CloudSeen>({ marker: null, rowsInCloud: 0 });
+  /** Whose cloud record has finished loading AND been read whole (the household's id or the person's own): no record save
+   *  before it (outside check, 2026-11-12: a load over 2 s let the save fire with 0 rows counted and write from part 0). */
   const recordLoadedFor = useRef<string | null>(null);
-  /** False where the phone's record and the cloud's part ways: nothing is uploaded, so the two are never mixed. */
+  /** False where the phone's record and the cloud's part ways, or another phone saved since: nothing is uploaded. */
   const recordMayUpload = useRef(false);
   const recordLoading = useRef<string | null>(null);
+  const recordSaving = useRef(false);
+  /** Whose profile (accounts and the rest) has loaded from the cloud in this session. The record is not loaded, moved onto, or
+   *  saved before it (outside check 2, 2026-11-12: B's profile load failed, and A's accounts went into B's record). */
+  const profileLoadedFor = useRef<string | null>(null);
+  /** Whose the phone's data was before this sign-in (the phone keeps its data on sign-out: activity and daily values live
+   *  only here). Another person's accounts are never moved onto this person's record. */
+  const phoneOwnerBeforeSignIn = useRef<string | null>(null);
+
+  /** A fault on the record, said once (a retried load does not repeat the same words). */
+  function recordFault(message: string) {
+    const s: any = useStore.getState();
+    const faults = s.assetRecordFaults ?? [];
+    if (faults.length && faults[faults.length - 1].message === message) return;
+    useStore.setState({ assetRecordFaults: [...faults, { at: new Date().toISOString(), where: 'cloud copy of the record', message }].slice(-50) } as any);
+  }
 
   /** Bring the cloud's master record in for this owner, keeping the phone's only where it is this owner's own. */
   async function loadRecordFor(owner: string) {
+    if (!recordWorkAllowed(currentUid.current, profileLoadedFor.current)) return;   // this person's profile first
     if (recordLoading.current === owner) return;
     recordLoading.current = owner;
     try {
@@ -90,25 +107,67 @@ export default function RootLayout() {
         // the phone's record is another person's (or its owner was never noted): drop it before anything else is added
         useStore.setState({ assetRecord: [], assetRecordQuestions: {}, assetRecordFaults: [], assetRecordOwner: owner } as any);
       }
-      const cloudRecord = await loadRecordFromCloud((part) => loadAssetRecordPart(owner, part) as any);
+      // the marker, every part, and the marker again: a part this phone cannot read, or a load that caught another phone
+      // mid-save, fails here — and with it every save, until a later load reads the record whole
+      const cloud = await loadCloudRecord(() => loadAssetRecordMarker(owner), (part) => loadAssetRecordPart(owner, part) as any);
       const s: any = useStore.getState();
-      if (s.assetRecordOwner !== owner) return;   // someone else signed in meanwhile
-      const start = recordOnSignIn({ record: s.assetRecord ?? [], owner: s.assetRecordOwner }, cloudRecord as any, owner);
-      useStore.setState({ assetRecord: start.record,
-        ...(start.fault ? { assetRecordFaults: [...(s.assetRecordFaults ?? []), { at: new Date().toISOString(), where: 'cloud copy of the record', message: start.fault }].slice(-50) } : {}),
-      } as any);
-      recordRowsInCloud.current = start.rowsInCloud;
+      if (s.assetRecordOwner !== owner || !recordWorkAllowed(currentUid.current, profileLoadedFor.current)) return;   // someone else signed in meanwhile
+      const start = recordOnSignIn({ record: s.assetRecord ?? [], owner: s.assetRecordOwner }, cloud.record, owner);
+      useStore.setState({ assetRecord: start.record } as any);
+      if (start.fault) recordFault(start.fault);
+      recordSeen.current = { marker: cloud.marker, rowsInCloud: start.rowsInCloud };
       recordMayUpload.current = start.mayUpload;
       recordLoadedFor.current = owner;
-      // what the phone held before the master record, moved onto it once — only after the cloud's record is in, so an
-      // account another phone already moved is never moved twice
-      (useStore.getState() as any).moveOldCopiesToRecordOnce?.();
-    } catch (_) {
-      // offline: the phone's record stands and nothing is saved; the next change tries the load again
+      // what the phone held before the master record, moved onto it once — only after this person's profile and the cloud's
+      // record are both in, so another person's accounts are never moved, and an account another phone moved is never moved twice
+      const phoneWasOwnedBy = phoneOwnerBeforeSignIn.current;
+      if (phoneWasOwnedBy == null || phoneWasOwnedBy === owner) (useStore.getState() as any).moveOldCopiesToRecordOnce?.();
+      else recordFault('This phone held another person\u2019s accounts, so they were not moved onto this person\u2019s record.');
+    } catch (e) {
+      // a part that cannot be read, or a record caught mid-save: said once; the next change tries the load again.
+      // Offline: the phone's record stands and nothing is saved.
+      if (e instanceof RecordCannotBeRead || e instanceof RecordNotSettled) recordFault(e.message);
     } finally {
       if (recordLoading.current === owner) recordLoading.current = null;
     }
   }
+
+  /** Save what the cloud's record lacks — only where the record has loaded whole for this owner, is this owner's, and this phone
+   *  saved or read the cloud's copy last. Another phone's save in between: nothing is written, both copies stay, a fault says so. */
+  async function saveRecordNow(uid: string) {
+    if (recordSaving.current || currentUid.current !== uid || !recordWorkAllowed(uid, profileLoadedFor.current)) return;
+    const now: any = useStore.getState();
+    const owner = now.householdId ?? uid;
+    if (recordLoadedFor.current !== owner) { await loadRecordFor(owner); return; }
+    if (!recordMayUpload.current || now.assetRecordOwner !== owner) return;
+    const record = now.assetRecord ?? [];
+    if (record.length <= recordSeen.current.rowsInCloud) return;
+    recordSaving.current = true;
+    let saved = false;
+    try {
+      const out = await saveRecordGuarded(record, recordSeen.current, await getPhoneId(), commitAssetRecord(owner), new Date().toISOString());
+      if (recordLoadedFor.current !== owner) return;
+      recordSeen.current = out.seen;
+      saved = out.status === 'saved';
+      if (out.status === 'moved-on') { recordMayUpload.current = false; if (out.fault) recordFault(out.fault); }
+    } catch (_) {
+      // offline: the next save writes what the cloud lacks
+    } finally {
+      recordSaving.current = false;
+    }
+    // rows added while a save that WORKED ran go up now; after a failed one (offline, no key yet) the next change tries
+    // again — never at once, which looped without end while the phone was offline (found 2026-11-12)
+    const after: any = useStore.getState();
+    if (saved && recordMayUpload.current && (after.assetRecord ?? []).length > recordSeen.current.rowsInCloud) saveRecordNow(uid);
+  }
+
+  /** The phone's profile goes to the cloud only where it is this person's: their profile loaded in this session, or the phone's
+   *  data was last loaded for them and nobody signed out since (offline start). Never another person's, never a cleared phone's. */
+  function profileIsTheirs(uid: string) {
+    const s: any = useStore.getState();
+    return profileLoadedFor.current === uid || (!!s.assetRecordOwner && s.assetRecordOwner === (s.householdId ?? uid));
+  }
+
   const currentUid = useRef<string | null>(null);
   // Hydrate from the cloud ONCE per signed-in user. onAuthChange also fires on token refresh / app
   // resume; re-hydrating then would clobber unsynced local changes (e.g. a fresh "re-run setup"
@@ -142,9 +201,11 @@ export default function RootLayout() {
             const before: any = useStore.getState();
             const phone = { assetRecord: before.assetRecord ?? [], assetRecordQuestions: before.assetRecordQuestions ?? {}, assetRecordFaults: before.assetRecordFaults ?? [] };
             const phoneIsTheirs = before.assetRecordOwner === owner;
+            phoneOwnerBeforeSignIn.current = before.assetRecordOwner ?? null;
             const cloudData = root.householdId ? await loadUserData(root.householdId) : root.appState;
             if (cloudData) loadFromCloud(cloudData);
             else resetAll();   // brand-new account → clean slate so a prior account's local data can't leak
+            profileLoadedFor.current = firebaseUser.uid;   // this person's profile is in: the record may now load and move
             // THE MASTER RECORD comes back from the cloud too (his "yes", 2026-11-11): the phone's record stays only where it
             // is this same person's — another person's never reaches this cloud (outside check, 2026-11-12)
             useStore.setState((phoneIsTheirs ? { ...phone, assetRecordOwner: owner } : { assetRecord: [], assetRecordQuestions: {}, assetRecordFaults: [], assetRecordOwner: owner }) as any);
@@ -157,7 +218,9 @@ export default function RootLayout() {
         setUser(null);
         currentUid.current = null;
         // nothing of this person's record is saved after sign-out, and the next person's starts from their own cloud
-        recordLoadedFor.current = null; recordMayUpload.current = false; recordRowsInCloud.current = 0;
+        // and the phone's data belongs to nobody until the next person's profile has loaded
+        recordLoadedFor.current = null; recordMayUpload.current = false; recordSeen.current = { marker: null, rowsInCloud: 0 };
+        profileLoadedFor.current = null;
         hydratedUid.current = null;   // allow a re-hydrate if a different user signs in next
         setUserScope(null);   // F-6: clear the crash-report user scope on logout
       }
@@ -173,28 +236,26 @@ export default function RootLayout() {
       if (!uid) return;
       if (syncTimer.current) clearTimeout(syncTimer.current);
       syncTimer.current = setTimeout(() => {
+        if (currentUid.current !== uid || !profileIsTheirs(uid)) return;
         // Household members write to the shared doc so both partners stay in sync.
         saveUserData((state as any).householdId ?? uid, pickSyncFields(state as Record<string, any>)).catch(() => {
           // Silently ignore offline write failures — next successful sync catches up
         });
-        // the master record: only the parts that changed are written (it only ever grows) — and only once the cloud's
-        // record has loaded for this owner, only where the record is this owner's, and never where the phone's and the
-        // cloud's part ways (outside check, 2026-11-12)
-        if (currentUid.current !== uid) return;
-        const now: any = useStore.getState();
-        const owner = now.householdId ?? uid;
-        if (recordLoadedFor.current !== owner) { loadRecordFor(owner); return; }
-        if (!recordMayUpload.current || now.assetRecordOwner !== owner) return;
-        const record = now.assetRecord ?? [];
-        if (record.length > recordRowsInCloud.current) {
-          saveRecordToCloud(record, recordRowsInCloud.current, (part, rows) => saveAssetRecordPart(owner, part, rows))
-            .then((n) => { if (recordLoadedFor.current === owner) recordRowsInCloud.current = n; })
-            .catch(() => { /* offline: the next save writes what the cloud lacks */ });
-        }
+        // the master record: only the parts that changed are written (it only ever grows), and only under the rules above
+        saveRecordNow(uid);
       }, 2000);
+    });
+    // a sign-out first sends what is waiting (the profile and the record), then the phone is cleared (SettingsScreen)
+    onSignOutFlush(async () => {
+      const uid = currentUid.current;
+      if (!uid || !profileIsTheirs(uid)) return;
+      if (syncTimer.current) { clearTimeout(syncTimer.current); syncTimer.current = null; }
+      const s: any = useStore.getState();
+      await Promise.all([saveUserData(s.householdId ?? uid, pickSyncFields(s)).catch(() => {}), saveRecordNow(uid)]);
     });
     return () => {
       unsub();
+      onSignOutFlush(null);
       if (syncTimer.current) clearTimeout(syncTimer.current);
     };
   }, []);

@@ -5,7 +5,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useStore } from '../store/useStore';
 import { Card, TipCard } from '../components/UI';
 import { Colors, Typography, Spacing, Radii, Tap } from '../utils/theme';
-import { logoutUser, submitFeedback, resendVerification, refreshEmailVerified, isEmailVerified, deleteAccount, regenerateRecoveryCode, currentUserEmail } from '../services/firebase';
+import { logoutUser, flushBeforeSignOut, submitFeedback, resendVerification, refreshEmailVerified, isEmailVerified, deleteAccount, regenerateRecoveryCode, currentUserEmail } from '../services/firebase';
 import { isLockAvailable, authenticate } from '../services/appLock';
 import { resolveLens } from '../domain/profile/lens';
 import { RecoveryCodeModal } from '../components/RecoveryCodeModal';
@@ -105,6 +105,10 @@ export default function SettingsScreen() {
           text: 'Sign out',
           style: 'destructive',
           onPress: async () => {
+            // what is waiting goes to the cloud first. The phone keeps its data, as the message says (activity and daily
+            // values live only on the phone): the record is moved or saved for the next person only after THEIR accounts
+            // load from the cloud, and a record owned by someone else is set aside then (app/_layout.tsx, outside check 2)
+            await flushBeforeSignOut?.();
             await logoutUser();
             setUser(null);
             router.replace('/auth');
@@ -163,8 +167,7 @@ export default function SettingsScreen() {
       try { const { snaptradeApi } = await import('../services/sync/snaptradeClient'); await snaptradeApi.deleteUser(); } catch {}
       await deleteAccount(delPassword);
       // Wipe local data so nothing lingers on the device, then return to auth.
-      resetAll();
-      setUser(null);
+      (useStore.getState() as any).signOutClear();   // the record's owner and the household go too, not only the profile
       setDelVisible(false);
       Alert.alert('Account deleted', 'Your account and data have been removed.');
       router.replace('/auth');

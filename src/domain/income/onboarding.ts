@@ -68,7 +68,7 @@ export function annualizedEnteredSalary(op: OnboardingProfile | null): number | 
  *
  * Called by ... MK-CF-F-177 wageGrossByMonth
  *
- * Reaches ..... 561 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 567 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -78,7 +78,7 @@ export function annualizedEnteredSalary(op: OnboardingProfile | null): number | 
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 543 more — the full list is on functions_from_code
+ *               … and 549 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-039 how often each income arrives
@@ -116,7 +116,7 @@ function enteredMonthlyRaw(a: Record<string, any>): number | null {
  *               MK-CF-F-092 incomeMonthlyGrid · MK-CF-O-004 incomeSummary
  *               MK-XS-F-004 buildDatedGrid
  *
- * Reaches ..... 561 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 567 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -126,7 +126,7 @@ function enteredMonthlyRaw(a: Record<string, any>): number | null {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 543 more — the full list is on functions_from_code
+ *               … and 549 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -158,7 +158,7 @@ export function salaryGrossByMonth(op: OnboardingProfile | null): number[] {
  *               MK-CF-F-233 earnerWageShares · MK-CF-F-274 taxedSourcesAnnual
  *               MK-CF-F-277 wagePaidMonths
  *
- * Reaches ..... 561 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 567 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -168,7 +168,7 @@ export function salaryGrossByMonth(op: OnboardingProfile | null): number[] {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 543 more — the full list is on functions_from_code
+ *               … and 549 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -236,7 +236,7 @@ export function grossSalaryMonthly(op: OnboardingProfile | null): number {
  *
  * Called by ... MK-CF-F-258 equityVests
  *
- * Reaches ..... 568 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 574 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -246,7 +246,7 @@ export function grossSalaryMonthly(op: OnboardingProfile | null): number {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 550 more — the full list is on functions_from_code
+ *               … and 556 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -324,7 +324,7 @@ export function equityCashFlow(op: OnboardingProfile | null): { year: number; am
  * Called by ... MK-CF-F-064 equityCashFlow · MK-CF-F-065 equityVestWeights
  *               MK-CF-F-066 rsuAnnual · MK-CF-F-267 vestsNotEntered
  *
- * Reaches ..... 568 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 574 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -334,7 +334,7 @@ export function equityCashFlow(op: OnboardingProfile | null): { year: number; am
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 550 more — the full list is on functions_from_code
+ *               … and 556 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -409,7 +409,7 @@ export function equityVestWeights(op: OnboardingProfile | null, year: number = n
  *               MK-CF-O-004 incomeSummary · MK-CF-O-016 incomeSources
  *               MK-CF-O-019 theIncomeManager · MK-PL-F-031 taxOrganizer
  *
- * Reaches ..... 568 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 574 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -419,7 +419,7 @@ export function equityVestWeights(op: OnboardingProfile | null, year: number = n
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 550 more — the full list is on functions_from_code
+ *               … and 556 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -464,7 +464,7 @@ export function rsuAnnual(op: OnboardingProfile | null, year: number = new Date(
  * Called by ... MK-CF-F-092 incomeMonthlyGrid · MK-CF-O-004 incomeSummary
  *               MK-XS-F-004 buildDatedGrid
  *
- * Reaches ..... 561 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 567 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -474,7 +474,7 @@ export function rsuAnnual(op: OnboardingProfile | null, year: number = new Date(
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 543 more — the full list is on functions_from_code
+ *               … and 549 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-072 whether shares are sold when they vest — yes makes a vest money that lands; otherwise it is shares, taxed in its year
@@ -500,7 +500,7 @@ export function vestsAreCash(op: OnboardingProfile | null): boolean {
  *
  * Called by ... MK-CF-O-004 incomeSummary · MK-CF-O-019 theIncomeManager
  *
- * Reaches ..... 561 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 567 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -510,7 +510,7 @@ export function vestsAreCash(op: OnboardingProfile | null): boolean {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 543 more — the full list is on functions_from_code
+ *               … and 549 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -542,7 +542,7 @@ export function vestsNotEntered(op: OnboardingProfile | null): { dateNotEntered:
  *
  * Called by ... MK-CF-F-067 rentalList
  *
- * Reaches ..... 561 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 567 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -552,7 +552,7 @@ export function vestsNotEntered(op: OnboardingProfile | null): { dateNotEntered:
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 543 more — the full list is on functions_from_code
+ *               … and 549 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-024 logged expenses
@@ -587,7 +587,7 @@ export function rentEntryMonthly(r: { income?: any; expenses?: any } | null | un
  *               MK-CF-F-219 rentEntryMonthly · MK-CF-F-249 rentalsHeld
  *               MK-CF-O-019 theIncomeManager
  *
- * Reaches ..... 561 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 567 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -597,7 +597,7 @@ export function rentEntryMonthly(r: { income?: any; expenses?: any } | null | un
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 543 more — the full list is on functions_from_code
+ *               … and 549 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-024 logged expenses
@@ -640,7 +640,7 @@ export function rentalList(op: OnboardingProfile | null): { type: 'long' | 'shor
  *               MK-CF-O-019 theIncomeManager · MK-PL-F-031 taxOrganizer
  *               MK-XS-F-004 buildDatedGrid
  *
- * Reaches ..... 561 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 567 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -650,7 +650,7 @@ export function rentalList(op: OnboardingProfile | null): { type: 'long' | 'shor
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 543 more — the full list is on functions_from_code
+ *               … and 549 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-024 logged expenses
@@ -684,7 +684,7 @@ export function rentalNetAnnual(op: OnboardingProfile | null): number {
  *               MK-CF-O-016 incomeSources · MK-CF-O-019 theIncomeManager
  *               MK-XS-F-004 buildDatedGrid
  *
- * Reaches ..... 561 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 567 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -694,7 +694,7 @@ export function rentalNetAnnual(op: OnboardingProfile | null): number {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 543 more — the full list is on functions_from_code
+ *               … and 549 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -718,7 +718,7 @@ export function benefitActiveMonths(op: OnboardingProfile | null): number[] {
  * Called by ... MK-CF-F-071 extraIncome · MK-CF-F-079 incomeFromOnboarding
  *               MK-PL-F-031 taxOrganizer
  *
- * Reaches ..... 561 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 567 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -728,7 +728,7 @@ export function benefitActiveMonths(op: OnboardingProfile | null): number[] {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 543 more — the full list is on functions_from_code
+ *               … and 549 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -769,7 +769,7 @@ export function benefitAnnual(op: OnboardingProfile | null): number {
  *               MK-CF-F-274 taxedSourcesAnnual · MK-CF-O-004 incomeSummary
  *               MK-XS-F-004 buildDatedGrid
  *
- * Reaches ..... 561 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 567 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -779,7 +779,7 @@ export function benefitAnnual(op: OnboardingProfile | null): number {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 543 more — the full list is on functions_from_code
+ *               … and 549 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-073 the part of a month's benefits that is unemployment pay, when another kind of benefit is chosen beside it
@@ -829,7 +829,7 @@ export function unemploymentMonthly(op: OnboardingProfile | null): number {
  * Called by ... MK-CF-F-083 totalGrossAnnual · MK-CF-F-088 taxableByCalendarMonth
  *               MK-CF-F-092 incomeMonthlyGrid · MK-CF-O-004 incomeSummary
  *
- * Reaches ..... 561 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 567 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -839,7 +839,7 @@ export function unemploymentMonthly(op: OnboardingProfile | null): number {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 543 more — the full list is on functions_from_code
+ *               … and 549 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-039 how often each income arrives
@@ -955,7 +955,7 @@ export function landsOnceInYear(op: OnboardingProfile | null, kind: 'signing' | 
  *               MK-CF-O-016 incomeSources · MK-CF-O-019 theIncomeManager
  *               MK-XS-F-004 buildDatedGrid
  *
- * Reaches ..... 562 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 568 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -965,7 +965,7 @@ export function landsOnceInYear(op: OnboardingProfile | null, kind: 'signing' | 
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 544 more — the full list is on functions_from_code
+ *               … and 550 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-023 salary and other income
@@ -1021,7 +1021,7 @@ export function landsOnce(op: OnboardingProfile | null): {
  *               MK-CF-F-276 retirementIncomeTaxedMonthly · MK-CF-F-314 setupEntered
  *               MK-PL-F-031 taxOrganizer · MK-XS-F-024 resolveLens
  *
- * Reaches ..... 562 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 568 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -1031,7 +1031,7 @@ export function landsOnce(op: OnboardingProfile | null): {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 544 more — the full list is on functions_from_code
+ *               … and 550 more — the full list is on functions_from_code
  *
  * Serves ...... MK-PL-M-018 · MK-PL-M-032
  * Reads ....... MK-XS-I-020 Social Security monthly amount
@@ -1071,7 +1071,7 @@ export function currentRetirementIncomeMonthly(op: OnboardingProfile | null): nu
  * Called by ... MK-CF-F-072 currentRetirementIncomeMonthly · MK-CF-F-250 guaranteedReceivedNow
  *               MK-CF-F-272 socialSecurityReceivedMonthly · MK-CF-O-019 theIncomeManager
  *
- * Reaches ..... 565 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 571 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -1081,7 +1081,7 @@ export function currentRetirementIncomeMonthly(op: OnboardingProfile | null): nu
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 547 more — the full list is on functions_from_code
+ *               … and 553 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-039 how often each income arrives
@@ -1113,7 +1113,7 @@ export function socialSecurityNotYetMonthly(op: OnboardingProfile | null): numbe
  * Called by ... MK-CF-F-083 totalGrossAnnual · MK-CF-F-274 taxedSourcesAnnual
  *               MK-CF-F-276 retirementIncomeTaxedMonthly
  *
- * Reaches ..... 561 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 567 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -1123,7 +1123,7 @@ export function socialSecurityNotYetMonthly(op: OnboardingProfile | null): numbe
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 543 more — the full list is on functions_from_code
+ *               … and 549 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-039 how often each income arrives
@@ -1171,7 +1171,7 @@ export function socialSecurityReceivedMonthly(op: OnboardingProfile | null): num
  * Called by ... MK-CF-F-084 taxableAnnual · MK-CF-F-088 taxableByCalendarMonth
  *               MK-CF-F-271 socialSecurityNotYetMonthly · MK-CF-F-274 taxedSourcesAnnual
  *
- * Reaches ..... 566 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 572 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -1181,7 +1181,7 @@ export function socialSecurityReceivedMonthly(op: OnboardingProfile | null): num
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 548 more — the full list is on functions_from_code
+ *               … and 554 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-030 tax filing status and age
@@ -1241,7 +1241,7 @@ export function otherIncomeMonth(op: OnboardingProfile | null): number {
  * Called by ... MK-CF-F-079 incomeFromOnboarding · MK-CF-F-274 taxedSourcesAnnual
  *               MK-PL-F-031 taxOrganizer
  *
- * Reaches ..... 561 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 567 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -1251,7 +1251,7 @@ export function otherIncomeMonth(op: OnboardingProfile | null): number {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 543 more — the full list is on functions_from_code
+ *               … and 549 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-023 salary and other income
@@ -1283,7 +1283,7 @@ const RI_CAD_DIV: Record<string, number> = { monthly: 1, quarterly: 3, annual: 1
  * Called by ... MK-CF-F-072 currentRetirementIncomeMonthly · MK-CF-F-207 SOURCE
  *               MK-CF-F-314 setupEntered · MK-CF-O-019 theIncomeManager
  *
- * Reaches ..... 563 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 569 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -1293,7 +1293,7 @@ const RI_CAD_DIV: Record<string, number> = { monthly: 1, quarterly: 3, annual: 1
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 545 more — the full list is on functions_from_code
+ *               … and 551 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-020 Social Security monthly amount
@@ -1339,7 +1339,7 @@ export interface GuaranteedStream { kind: 'ss' | 'pension' | 'annuity' | 'other'
  *               MK-CF-F-250 guaranteedReceivedNow · MK-CF-O-017 futurePaycheck
  *               MK-PL-F-067 willItLastInputs · MK-XS-F-031 buildSnapshot
  *
- * Reaches ..... 562 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 568 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -1349,7 +1349,7 @@ export interface GuaranteedStream { kind: 'ss' | 'pension' | 'annuity' | 'other'
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 544 more — the full list is on functions_from_code
+ *               … and 550 more — the full list is on functions_from_code
  *
  * Serves ...... MK-CF-M-022 · MK-CF-M-023
  * Reads ....... MK-XS-I-020 Social Security monthly amount
@@ -1395,7 +1395,7 @@ export function guaranteedOutsideStreams(op: OnboardingProfile | null): Guarante
  *
  * Called by ... MK-CF-F-092 incomeMonthlyGrid
  *
- * Reaches ..... 561 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 567 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -1405,7 +1405,7 @@ export function guaranteedOutsideStreams(op: OnboardingProfile | null): Guarante
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 543 more — the full list is on functions_from_code
+ *               … and 549 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -1477,7 +1477,7 @@ export function employerMatchMonthly(op: OnboardingProfile | null): number {
  *               MK-CF-F-171 earnerPay · MK-CF-F-188 householdPreTaxContributionsAnnual
  *               MK-CF-F-240 PAY_LANDS_TYPED · MK-CF-F-260 householdEmployerMatchAnnual
  *
- * Reaches ..... 563 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 569 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -1487,7 +1487,7 @@ export function employerMatchMonthly(op: OnboardingProfile | null): number {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 545 more — the full list is on functions_from_code
+ *               … and 551 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-043 their own retirement contribution
@@ -1649,7 +1649,7 @@ export function jobActiveMonth(op: OnboardingProfile | null, i: number, _now: Da
  *
  * Called by ... MK-CF-F-074 tipsAnnual
  *
- * Reaches ..... 561 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 567 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -1659,7 +1659,7 @@ export function jobActiveMonth(op: OnboardingProfile | null, i: number, _now: Da
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 543 more — the full list is on functions_from_code
+ *               … and 549 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -1685,7 +1685,7 @@ export function salaryActiveMonths(op: OnboardingProfile | null, _now: Date = ne
  *               MK-CF-F-314 setupEntered · MK-CF-O-001 basePay
  *               MK-CF-O-004 incomeSummary · MK-PL-F-031 taxOrganizer
  *
- * Reaches ..... 561 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 567 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -1695,7 +1695,7 @@ export function salaryActiveMonths(op: OnboardingProfile | null, _now: Date = ne
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 543 more — the full list is on functions_from_code
+ *               … and 549 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-023 salary and other income
@@ -1766,7 +1766,7 @@ export function totalGrossAnnual(op: OnboardingProfile | null, now: Date = new D
  *               MK-CF-F-230 taxedAfterPreTax · MK-CF-O-001 basePay
  *               MK-CF-O-004 incomeSummary
  *
- * Reaches ..... 561 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 567 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -1776,7 +1776,7 @@ export function totalGrossAnnual(op: OnboardingProfile | null, now: Date = new D
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 543 more — the full list is on functions_from_code
+ *               … and 549 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -1832,7 +1832,7 @@ export interface TaxedSource {
  *               MK-CF-F-088 taxableByCalendarMonth · MK-CF-F-207 SOURCE
  *               MK-CF-F-276 retirementIncomeTaxedMonthly · MK-CF-O-004 incomeSummary
  *
- * Reaches ..... 561 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 567 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -1842,7 +1842,7 @@ export interface TaxedSource {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 543 more — the full list is on functions_from_code
+ *               … and 549 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-020 Social Security monthly amount
@@ -1917,7 +1917,7 @@ export function taxedSourcesAnnual(op: OnboardingProfile | null, now: Date = new
  * Called by ... MK-CF-O-004 incomeSummary · MK-CF-O-007 theTaxOrganizer
  *               MK-PL-F-067 willItLastInputs
  *
- * Reaches ..... 561 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 567 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -1927,7 +1927,7 @@ export function taxedSourcesAnnual(op: OnboardingProfile | null, now: Date = new
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 543 more — the full list is on functions_from_code
+ *               … and 549 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-024 logged expenses
@@ -1968,7 +1968,7 @@ export function profileWithAccountIncome(op: OnboardingProfile | null, accounts:
  *               MK-CF-O-019 theIncomeManager · MK-PL-F-067 willItLastInputs
  *               MK-PL-F-082 taxableIncomeSteps
  *
- * Reaches ..... 562 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 568 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -1978,7 +1978,7 @@ export function profileWithAccountIncome(op: OnboardingProfile | null, accounts:
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 544 more — the full list is on functions_from_code
+ *               … and 550 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-030 tax filing status and age
@@ -2018,7 +2018,7 @@ export function filingStatusOf(op: OnboardingProfile | null): import('./tax').Fi
  *               MK-CF-O-004 incomeSummary · MK-PL-F-067 willItLastInputs
  *               MK-PL-F-090 rateWordsOf
  *
- * Reaches ..... 561 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 567 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -2028,7 +2028,7 @@ export function filingStatusOf(op: OnboardingProfile | null): import('./tax').Fi
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 543 more — the full list is on functions_from_code
+ *               … and 549 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -2061,7 +2061,7 @@ export function stateRateOf(op: OnboardingProfile | null): number {
  * Called by ... MK-CF-F-092 incomeMonthlyGrid · MK-CF-F-097 grossFromNet
  *               MK-CF-F-234 wagesLandingByMonth · MK-XS-F-004 buildDatedGrid
  *
- * Reaches ..... 561 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 567 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -2071,7 +2071,7 @@ export function stateRateOf(op: OnboardingProfile | null): number {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 543 more — the full list is on functions_from_code
+ *               … and 549 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -2134,7 +2134,7 @@ export function monthlyTaxRates(op: OnboardingProfile | null, now: Date = new Da
  *               MK-CF-F-230 taxedAfterPreTax · MK-CF-F-234 wagesLandingByMonth
  *               MK-CF-F-274 taxedSourcesAnnual
  *
- * Reaches ..... 561 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 567 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -2144,7 +2144,7 @@ export function monthlyTaxRates(op: OnboardingProfile | null, now: Date = new Da
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 543 more — the full list is on functions_from_code
+ *               … and 549 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-043 their own retirement contribution
@@ -2184,7 +2184,7 @@ export function householdK401ByMonth(op: OnboardingProfile | null): number[] {
  *
  * Called by ... MK-CF-F-092 incomeMonthlyGrid
  *
- * Reaches ..... 561 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 567 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -2194,7 +2194,7 @@ export function householdK401ByMonth(op: OnboardingProfile | null): number[] {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 543 more — the full list is on functions_from_code
+ *               … and 549 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-023 salary and other income
@@ -2269,7 +2269,7 @@ export function taxableByCalendarMonth(op: OnboardingProfile | null, now: Date =
  * Called by ... MK-CF-F-088 taxableByCalendarMonth · MK-CF-F-092 incomeMonthlyGrid
  *               MK-CF-O-004 incomeSummary · MK-XS-F-004 buildDatedGrid
  *
- * Reaches ..... 561 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 567 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -2279,7 +2279,7 @@ export function taxableByCalendarMonth(op: OnboardingProfile | null, now: Date =
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 543 more — the full list is on functions_from_code
+ *               … and 549 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -2322,7 +2322,7 @@ export function retirementIncomeTaxedMonthly(op: OnboardingProfile | null, now: 
  *               MK-CF-O-019 theIncomeManager · MK-PL-F-067 willItLastInputs
  *               MK-PL-F-082 taxableIncomeSteps
  *
- * Reaches ..... 561 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 567 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -2332,7 +2332,7 @@ export function retirementIncomeTaxedMonthly(op: OnboardingProfile | null, now: 
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 543 more — the full list is on functions_from_code
+ *               … and 549 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-017 birth year
@@ -2372,7 +2372,7 @@ export function over65CountOf(op: OnboardingProfile | null): number {
  *
  * Called by ... MK-CF-F-087 monthlyTaxRates · MK-PL-F-031 taxOrganizer
  *
- * Reaches ..... 561 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 567 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -2382,7 +2382,7 @@ export function over65CountOf(op: OnboardingProfile | null): number {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 543 more — the full list is on functions_from_code
+ *               … and 549 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -2421,7 +2421,7 @@ export function effectiveRate(op: OnboardingProfile | null): number {
  * Called by ... MK-CF-F-092 incomeMonthlyGrid · MK-CF-F-234 wagesLandingByMonth
  *               MK-CF-F-243 grossCalendarYear
  *
- * Reaches ..... 561 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 567 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -2431,7 +2431,7 @@ export function effectiveRate(op: OnboardingProfile | null): number {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 543 more — the full list is on functions_from_code
+ *               … and 549 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-043 their own retirement contribution
@@ -2473,7 +2473,7 @@ export function earnerWageShares(op: OnboardingProfile | null): { gross: number[
  *               MK-CF-F-233 earnerWageShares · MK-CF-F-261 ownK401Annual
  *               MK-CF-F-262 payrollMonths
  *
- * Reaches ..... 561 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 567 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -2483,7 +2483,7 @@ export function earnerWageShares(op: OnboardingProfile | null): { gross: number[
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 543 more — the full list is on functions_from_code
+ *               … and 549 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -2511,7 +2511,7 @@ export function wagePaidMonths(w: Record<string, any> | null): number {
  *
  * Called by ... MK-CF-F-090 effectiveRate · MK-XS-F-004 buildDatedGrid
  *
- * Reaches ..... 561 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 567 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -2521,7 +2521,7 @@ export function wagePaidMonths(w: Record<string, any> | null): number {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 543 more — the full list is on functions_from_code
+ *               … and 549 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -2569,7 +2569,7 @@ export function wagesLandingByMonth(op: OnboardingProfile | null, now: Date = ne
  *               MK-CF-F-120 pctBaseMonthly · MK-CF-O-004 incomeSummary
  *               MK-PL-F-098 goalsCapacity · MK-XS-F-027 takeHomeMonthly
  *
- * Reaches ..... 561 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 567 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -2579,7 +2579,7 @@ export function wagesLandingByMonth(op: OnboardingProfile | null, now: Date = ne
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 543 more — the full list is on functions_from_code
+ *               … and 549 more — the full list is on functions_from_code
  *
  * Serves ...... MK-XS-M-006
  * Reads ....... MK-XS-I-023 salary and other income

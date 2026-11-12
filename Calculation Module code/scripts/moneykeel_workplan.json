@@ -5250,6 +5250,42 @@
     "status": "TO DO — phase 3; mock first",
     "comments": ""
    }
+  },
+  {
+   "task": "One written design for the cloud copy of the master record: two phones, signing in and out, key recovery (second outside check of phase 2, 2026-11-12)",
+   "todo": "1. Write the design: how two phones on one household add rows without losing either's, what a phone does when it cannot read the cloud, what is cleared on sign-out. 2. Outside check of the design. 3. Build and test it. Until then DEC-10685 holds: only the phone that last saved may save.",
+   "status": "TO DO — after the phase 2 critical and high fixes",
+   "ref": "DEC-10514 · DEC-10685 · src/services/sync/assetRecordCloud.ts · app/_layout.tsx",
+   "date": "2026-11-12",
+   "comments": "",
+   "_written": {
+    "status": "TO DO — after the phase 2 critical and high fixes",
+    "comments": ""
+   }
+  },
+  {
+   "task": "One written design for questions and answers on the master record: which answer wins when one is changed, when one question settles another (second outside check, 2026-11-12)",
+   "todo": "1. Write the rules, one example each, from the checker's cases: an answer changed from 'mine' to 'the list is correct'; 'the list is correct' choosing which tax lot a sale came from; 'both' changed to 'mine'; a stale file question a newer file settles. 2. Outside check. 3. Build and test.",
+   "status": "TO DO — before phase 3",
+   "ref": "DEC-10471 · MoneyKeel/functions/networth-and-performance/asset-record.ts · answerListQuestion, answerEventQuestion",
+   "date": "2026-11-12",
+   "comments": "",
+   "_written": {
+    "status": "TO DO — before phase 3",
+    "comments": ""
+   }
+  },
+  {
+   "task": "The 8 lower faults of the second outside check of phase 2 (2026-11-12)",
+   "todo": "1. A file re-saved with its rows in another order adds a second set of values (asset-record-from-file.ts). 2. A file question a newer file settled stays open (useStore.ts). 3. A part transfer of shares (15 of 40) is moved as the whole holding (asset-record-move.ts; the app's transfer carries no share count). 4. A bond row with no quantity, imported twice, makes a second account (ImportHoldingsScreen.tsx). 5. The same bond is named two ways by the import and by the move, and the move drops its rate and maturity. 6. An option that expires worthless is saved only through a question, on the broker's list day, and its loss is not saved as a sale. 7. Answering 'the list is correct' leaves the sale on the oldest tax lot when the list shows another was sold. 8. One removal raises two questions, and changed answers are re-asked or ignored (with the questions-and-answers design).",
+   "status": "TO DO — after the critical and high fixes",
+   "ref": "second outside check repros: scratchpad outside2-file r1, r4, r7, r8, r10; outside2-broker s4, s5e, s6b, s7b",
+   "date": "2026-11-12",
+   "comments": "",
+   "_written": {
+    "status": "TO DO — after the critical and high fixes",
+    "comments": ""
+   }
   }
  ]
 }

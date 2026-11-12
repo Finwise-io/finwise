@@ -2,7 +2,8 @@
 // own calling order: sortArriving → addRows; purchasesFromList → addRows; valueRows → addRows.
 import { brokerUpdateToRecord } from './asset-record-from-broker';
 import {
-  addRows, sortArriving, purchasesFromList, answerListQuestion, sharesOnRecord, valuesNow, rowsInForce, saleGain, type AssetRow, type ListQuestion,
+  addRows, sortArriving, purchasesFromList, answerListQuestion, answerEventQuestion, removeRow, sharesThatDisagree, sharesOnRecord, valuesNow, rowsInForce, saleGain,
+  type AssetRow, type ListQuestion, type EventQuestion,
 } from './asset-record';
 import type { AccountSyncPayload } from '../../../src/services/sync/ingest';
 import type { StAccount } from '../../../src/services/sync/snaptrade';
@@ -42,7 +43,7 @@ describe('one broker update into the one master record', () => {
     expect(u.listDay).toBe('2026-09-15');
     expect(u.events).toHaveLength(1);
     expect(u.events[0]).toMatchObject({ kind: 'PURCHASE', holding: 'MSFT', date: '2026-07-30', settlementDate: '2026-07-31', shares: 500, price: 350,
-      amount: 175000, fee: 0, source: 'linked', ref: 'a-buy-1' });
+      amount: 175000, fee: 0, source: 'linked', ref: 'st-acc-1|2026-07-30|BUY|-175000|500|u-msft||' });   // the activity's content, never the broker's id (it can change)
     expect(u.lists).toEqual([{ holding: 'MSFT', listed: [{ date: '2026-07-30', shares: 500, price: 350 }] }]);
     expect(u.values.map((v) => [v.holding, v.date, v.amount])).toEqual([[null, '2026-09-15', 0], ['MSFT', '2026-09-15', 225000]]);
     expect(u.values[0].statedTotal).toBe(225000);
@@ -86,7 +87,7 @@ describe('one broker update into the one master record', () => {
   test('(e) a dividend keeps both dates and no minus sign', () => {
     const p = payload({ activities: [{ id: 'd1', type: 'DIVIDEND', trade_date: '2026-09-10', settlement_date: '2026-09-11', amount: 415, symbol: msft }] });
     const [e] = brokerUpdateToRecord([], p, ACC).events;
-    expect(e).toMatchObject({ kind: 'DIVIDEND', holding: 'MSFT', date: '2026-09-10', settlementDate: '2026-09-11', amount: 415, ref: 'd1' });
+    expect(e).toMatchObject({ kind: 'DIVIDEND', holding: 'MSFT', date: '2026-09-10', settlementDate: '2026-09-11', amount: 415, ref: 'st-acc-1|2026-09-10|DIVIDEND|415||u-msft||' });
   });
 
   test('(f) a sale sent as a negative quantity is saved without the minus sign', () => {
@@ -226,5 +227,90 @@ describe('the faults the outside checker reproduced (2026-11-12)', () => {
     const localDay = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
     expect([at('2026-09-15T21:00:00-04:00'), at('2026-09-16T01:00:00Z')]).toEqual([localDay, localDay]);
     expect(at('2026-09-15')).toBe('2026-09-15');                 // a plain day stays as given
+  });
+});
+
+describe('the faults the second outside check reproduced (2026-11-12)', () => {
+  const day = (d: string, total = 0) => sync(d, total);
+  const lot = (d: string, q: number, p: number) => ({ original_purchase_date: d, quantity: q, purchased_price: p });
+  const held = (sym: any, price: number, lots: { quantity: number }[]) => [{ symbol: sym, units: lots.reduce((n, l) => n + l.quantity, 0), price, tax_lots: lots as any }];
+
+  test('a sale of 40 of 100 MSFT sent as A1 and sent again as A2 is one sale: 60 held, nothing asked', () => {
+    const sale = (id: string) => ({ id, type: 'SELL', trade_date: '2026-03-10', units: -40, price: 65, amount: 2600, symbol: msft });
+    let r = runAsking([], payload({ account: day('2026-03-01'), positions: held(msft, 70, [lot('2026-01-10', 100, 50)]), activities: [] }), NOW).rec;
+    r = runAsking(r, payload({ account: day('2026-03-09'), positions: held(msft, 70, [lot('2026-01-10', 100, 50)]), activities: [sale('A1')] }), '2026-11-12T10:00:00.000Z').rec;
+    const again = runAsking(r, payload({ account: day('2026-03-09'), positions: held(msft, 70, [lot('2026-01-10', 100, 50)]), activities: [sale('A2')] }), '2026-11-13T10:00:00.000Z');
+    expect([sharesOnRecord(again.rec, ACC, 'MSFT'), rowsInForce(again.rec).filter((x) => x.kind === 'SALE').length, again.asks]).toEqual([60, 1, []]);
+    // two sales alike in one update are two sales: the broker's own list says so — 20 held
+    const two = runAsking(r, payload({ account: day('2026-03-09'), positions: held(msft, 70, [lot('2026-01-10', 100, 50)]), activities: [sale('A2'), sale('B1')] }), '2026-11-13T10:00:00.000Z');
+    expect([sharesOnRecord(two.rec, ACC, 'MSFT'), rowsInForce(two.rec).filter((x) => x.kind === 'SALE').length]).toEqual([20, 2]);
+    // a sale already saved under the broker's id before this change stays one sale when the same id, or a new id, comes again
+    const old = r.map((x) => (x.kind === 'SALE' ? { ...x, ref: 'A1' } : x));
+    for (const id of ['A1', 'A2']) {
+      const out = runAsking(old, payload({ account: day('2026-03-09'), positions: held(msft, 70, [lot('2026-01-10', 100, 50)]), activities: [sale(id)] }), '2026-11-13T10:00:00.000Z');
+      expect([id, sharesOnRecord(out.rec, ACC, 'MSFT'), out.rec.length - old.length - out.rec.filter((x) => x.kind === 'VALUE' && !old.includes(x)).length, out.asks]).toEqual([id, 60, 0, []]);
+    }
+  });
+
+  test('a bond bought 5,000 face at 97 and sold 3,000 at 99 with no dollar amount sent: $4,850, $2,970 and a gain of $30', () => {
+    const bond = { id: 'u-tsy', raw_symbol: '91282CGM7', description: 'US TREASURY NOTE 4.25% 02/15/2027', type: { code: 'bnd' } } as any;
+    const lots2 = [lot('2026-02-01', 10000, 98), lot('2026-04-01', 5000, 97)];
+    let r = runAsking([], payload({ account: day('2026-03-01', 9900), positions: held(bond, 99, [lot('2026-02-01', 10000, 98)]), activities: [] }), NOW).rec;
+    r = runAsking(r, payload({ account: day('2026-04-03', 14850), positions: held(bond, 99, lots2),
+      activities: [{ id: 'b2', type: 'BUY', trade_date: '2026-04-01', units: 5000, price: 97, symbol: bond }] }), '2026-11-12T10:00:00.000Z').rec;
+    const out = runAsking(r, payload({ account: day('2026-04-30', 14850), positions: held(bond, 99, lots2),
+      activities: [{ id: 's2', type: 'SELL', trade_date: '2026-05-01', units: -3000, price: 99, symbol: bond }] }), '2026-11-13T10:00:00.000Z');
+    const buy = rowsInForce(out.rec).find((x) => x.kind === 'PURCHASE' && x.date === '2026-04-01')!;
+    const sale = rowsInForce(out.rec).find((x) => x.kind === 'SALE')!;
+    expect([buy.price, buy.amount, sale.price, sale.amount]).toEqual([0.97, 4850, 0.99, 2970]);
+    expect(saleGain(out.rec, sale.rowId)).toBeCloseTo(30, 6);   // 3,000 × (0.99 − 0.98)
+    expect(out.asks).toEqual([]);
+  });
+
+  test('two lots of 100, a sale of 50, the Feb lot shown sold; "mine" to both, then one changed to "the list is correct": 200 against 150 is asked', () => {
+    const both = [lot('2026-01-10', 100, 50), lot('2026-02-10', 100, 60)], after = [lot('2026-01-10', 100, 50), lot('2026-02-10', 50, 60)];
+    let r = runAsking([], payload({ account: day('2026-03-01'), positions: held(msft, 70, both), activities: [] }), NOW).rec;
+    r = runAsking(r, payload({ account: day('2026-03-09'), positions: held(msft, 70, both),
+      activities: [{ id: 's1', type: 'SELL', trade_date: '2026-03-10', units: -50, price: 65, amount: 3250, symbol: msft }] }), '2026-11-12T10:00:00.000Z').rec;
+    const out = runAsking(r, payload({ account: day('2026-03-12', 10500), positions: held(msft, 70, after), activities: [] }), '2026-11-12T11:00:00.000Z');
+    r = out.rec;
+    const qs = out.asks as ListQuestion[];
+    expect(qs).toHaveLength(2);
+    for (const q of qs) r = addRows(r, answerListQuestion(r, q, false, 'linked', out.listDay), '2026-11-12T12:00:00.000Z');
+    r = addRows(r, answerListQuestion(r, qs[0], true, 'linked', out.listDay), '2026-11-12T13:00:00.000Z');
+    const later = runAsking(r, payload({ account: day('2026-03-15', 10500), positions: held(msft, 70, after), activities: [] }), '2026-11-13T10:00:00.000Z');
+    // the record (200) and the broker (150) disagree by 50 shares that no standing answer covers: asked, never kept in silence
+    expect([sharesOnRecord(later.rec, ACC, 'MSFT'), later.asks.map((q) => (q as ListQuestion).signature), sharesThatDisagree(later.rec, ACC).map((d) => d.gap)])
+      .toEqual([200, ['pair|2|2026-02-10|-50'], [-50]]);
+    // "the list is correct" for the Feb lot: 150, as the broker states, and nothing more is asked
+    const fixed = addRows(later.rec, answerListQuestion(later.rec, later.asks[0] as ListQuestion, true, 'linked', later.listDay), '2026-11-13T11:00:00.000Z');
+    const after2 = runAsking(fixed, payload({ account: day('2026-03-16', 10500), positions: held(msft, 70, after), activities: [] }), '2026-11-14T10:00:00.000Z');
+    expect([sharesOnRecord(after2.rec, ACC, 'MSFT'), after2.asks, sharesThatDisagree(after2.rec, ACC)]).toEqual([150, [], []]);
+  });
+
+  test('lots of 10 and 20; the Jan lot and its purchase taken away; the broker sends it again and "theirs" brings it back: 30, nothing asked', () => {
+    const vti = { id: 'u-vti', raw_symbol: 'VTI', description: 'VTI', type: { code: 'cs' } } as any;
+    const L = [lot('2026-01-10', 10, 200), lot('2026-02-10', 20, 210)];
+    const B1 = { id: 'b1', type: 'BUY', trade_date: '2026-01-10', units: 10, price: 200, amount: -2000, symbol: vti };
+    const B2 = { id: 'b2', type: 'BUY', trade_date: '2026-02-10', units: 20, price: 210, amount: -4200, symbol: vti };
+    const P = (d: string) => payload({ account: day(d), positions: held(vti, 250, L), activities: [B1] });
+    let base = runAsking([], payload({ account: day('2026-03-01'), positions: held(vti, 250, L), activities: [B1, B2] }), NOW).rec;
+    for (const id of rowsInForce(base).filter((x) => x.kind === 'PURCHASE' && x.date === '2026-01-10').map((x) => x.rowId)) base = removeRow(base, id, 'typed', '2026-11-11T10:00:00.000Z').record;
+    expect(sharesOnRecord(base, ACC, 'VTI')).toBe(20);
+    const first = runAsking(base, P('2026-03-05'), '2026-11-12T10:00:00.000Z');
+    const ev = first.asks.find((q): q is EventQuestion => 'why' in q && q.why === 'taken-away')!;
+    const li = first.asks.find((q): q is ListQuestion => 'kind' in q && q.kind === 'removed')!;
+    expect([!!ev, !!li]).toEqual([true, true]);
+    // "theirs" on the event: the purchase is back with its shares, and neither question is asked again
+    let r = addRows(first.rec, answerEventQuestion(ev, 'theirs', first.rec), '2026-11-12T11:00:00.000Z');
+    let next = runAsking(r, P('2026-03-07'), '2026-11-13T10:00:00.000Z');
+    expect([sharesOnRecord(next.rec, ACC, 'VTI'), next.asks.length, sharesThatDisagree(next.rec, ACC)]).toEqual([30, 0, []]);
+    // "mine" on the event settles the list's question too, and the list's "mine" settles the event's
+    r = addRows(first.rec, answerEventQuestion(ev, 'mine', first.rec), '2026-11-12T11:00:00.000Z');
+    next = runAsking(r, P('2026-03-07'), '2026-11-13T10:00:00.000Z');
+    expect([sharesOnRecord(next.rec, ACC, 'VTI'), next.asks.length, sharesThatDisagree(next.rec, ACC)]).toEqual([20, 0, []]);
+    r = addRows(first.rec, answerListQuestion(first.rec, li, false, 'linked', first.listDay), '2026-11-12T11:00:00.000Z');
+    next = runAsking(r, P('2026-03-07'), '2026-11-13T10:00:00.000Z');
+    expect([sharesOnRecord(next.rec, ACC, 'VTI'), next.asks.length, sharesThatDisagree(next.rec, ACC)]).toEqual([20, 0, []]);
   });
 });

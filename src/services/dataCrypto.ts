@@ -33,10 +33,11 @@ let cachedKey: string | null = null;
  *
  * Called by ... MK-XS-F-042 getDataKey · MK-XS-F-173 getOrCreateKey
  *
- * Reaches ..... 12 functions. Change the arithmetic above and these change with it:
- *               MK-XS-F-055 decryptFromSync · MK-XS-F-072 deleteAccount
- *               MK-XS-F-054 encryptForSync · MK-XS-F-042 getDataKey
- *               MK-XS-F-173 getOrCreateKey · MK-XS-F-223 loadAssetRecordPart
+ * Reaches ..... 14 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-233 commitAssetRecord · MK-XS-F-055 decryptFromSync
+ *               MK-XS-F-072 deleteAccount · MK-XS-F-054 encryptForSync
+ *               MK-XS-F-042 getDataKey · MK-XS-F-173 getOrCreateKey
+ *               MK-XS-F-223 loadAssetRecordPart · MK-XS-F-239 loadCloudRecord
  *               MK-XS-F-074 loadUserData · MK-XS-F-079 loadUserRoot
  *               MK-XS-F-068 regenerateRecoveryCode · MK-XS-F-222 saveAssetRecordPart
  *               MK-XS-F-073 saveUserData · MK-XS-F-077 setUserHousehold
@@ -137,9 +138,10 @@ export async function cacheDataKey(dek: string): Promise<void> {
  * Called by ... MK-XS-F-054 encryptForSync · MK-XS-F-055 decryptFromSync
  *               MK-XS-F-068 regenerateRecoveryCode
  *
- * Reaches ..... 10 functions. Change the arithmetic above and these change with it:
- *               MK-XS-F-055 decryptFromSync · MK-XS-F-072 deleteAccount
- *               MK-XS-F-054 encryptForSync · MK-XS-F-223 loadAssetRecordPart
+ * Reaches ..... 12 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-233 commitAssetRecord · MK-XS-F-055 decryptFromSync
+ *               MK-XS-F-072 deleteAccount · MK-XS-F-054 encryptForSync
+ *               MK-XS-F-223 loadAssetRecordPart · MK-XS-F-239 loadCloudRecord
  *               MK-XS-F-074 loadUserData · MK-XS-F-079 loadUserRoot
  *               MK-XS-F-068 regenerateRecoveryCode · MK-XS-F-222 saveAssetRecordPart
  *               MK-XS-F-073 saveUserData · MK-XS-F-077 setUserHousehold
@@ -442,8 +444,9 @@ export function isEncrypted(v: unknown): boolean {
  *
  * Called by ... MK-XS-F-054 encryptForSync · MK-XS-F-139 wrapWithSecret
  *
- * Reaches ..... 11 functions. Change the arithmetic above and these change with it:
- *               MK-XS-F-054 encryptForSync · MK-XS-F-066 loginUser
+ * Reaches ..... 13 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-233 commitAssetRecord · MK-XS-F-054 encryptForSync
+ *               MK-XS-F-239 loadCloudRecord · MK-XS-F-066 loginUser
  *               MK-XS-F-046 makeEnvelope · MK-XS-F-068 regenerateRecoveryCode
  *               MK-XS-F-060 registerUser · MK-XS-F-067 restoreWithRecoveryCode
  *               MK-XS-F-049 rewrapPassword · MK-XS-F-050 rewrapRecovery
@@ -511,8 +514,10 @@ export function decryptWithKey(blob: string, keyHex: string): any | null {
  *     nothing   otherwise
  *
  * Called by ... MK-XS-F-073 saveUserData · MK-XS-F-222 saveAssetRecordPart
+ *               MK-XS-F-233 commitAssetRecord
  *
- * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-233 commitAssetRecord · MK-XS-F-239 loadCloudRecord
  *               MK-XS-F-222 saveAssetRecordPart · MK-XS-F-073 saveUserData
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.

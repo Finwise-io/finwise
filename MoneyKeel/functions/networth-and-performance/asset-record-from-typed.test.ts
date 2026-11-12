@@ -221,3 +221,29 @@ describe('outside check, 2026-11-12', () => {
     expect(openPurchases(out.record, 'van', 'AAPL')).toEqual([expect.objectContaining({ date: '2025-03-03', shares: 10, price: 150 })]);
   });
 });
+
+describe('outside check 2, 2026-11-12: a tax lot edited after part of it was sold', () => {
+  // 100 VTI bought Mar 3, 2025 at $80; 30 sold Oct 15, 2026 at $120; the editor shows the 70 left
+  const bought = { position_id: 'p', ticker: 'VTI', kind: 'stocks_etf', lots: [{ lot_id: 'l1', shares: 100, cost_per_share: 80, purchase_date: '2025-03-03' }] } as any;
+  const left = { ...bought, lots: [{ ...bought.lots[0], shares: 70 }] };
+  const sold = () => {
+    const one = run([], { kind: 'holding-added', accountId: 'van', position: bought }).record;
+    return run(one, { kind: 'transaction-recorded', transaction: { id: 's1', type: 'SELL', account_id: 'van', ticker: 'VTI', shares: 30, price: 120, date: '2026-10-15', created_at: AT } as any }, AT2).record;
+  };
+
+  test('the price paid changed from $80 to $85: the purchase stays 100 shares at $85, 70 held, and the sale made 30 × ($120 − $85) = $1,050', () => {
+    const out = run(sold(), { kind: 'holding-changed', accountId: 'van', before: left, after: { ...left, lots: [{ ...left.lots[0], cost_per_share: 85 }] } }, AT3);
+    expect(out.problems).toEqual([]);
+    expect(sharesOnRecord(out.record, 'van', 'VTI')).toBe(70);
+    expect(rowsInForce(out.record).filter((r) => r.kind === 'PURCHASE').map((r) => [r.date, r.shares, r.price, r.amount])).toEqual([['2025-03-03', 100, 85, 8_500]]);
+    expect(saleGain(out.record, rowsInForce(out.record).find((r) => r.kind === 'SALE')!.rowId)).toBe(1_050);
+  });
+
+  test('the 70 shares left changed to 60: the purchase is corrected to 90, so 60 are held and the sale of 30 stays', () => {
+    const out = run(sold(), { kind: 'holding-changed', accountId: 'van', before: left, after: { ...left, lots: [{ ...left.lots[0], shares: 60 }] } }, AT3);
+    expect(out.problems).toEqual([]);
+    expect(sharesOnRecord(out.record, 'van', 'VTI')).toBe(60);
+    expect(rowsInForce(out.record).filter((r) => r.kind === 'PURCHASE').map((r) => [r.shares, r.price, r.amount])).toEqual([[90, 80, 7_200]]);
+    expect(saleGain(out.record, rowsInForce(out.record).find((r) => r.kind === 'SALE')!.rowId)).toBe(1_200);
+  });
+});

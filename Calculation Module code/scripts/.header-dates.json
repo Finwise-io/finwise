@@ -1131,5 +1131,22 @@
 "MoneyKeel/functions/networth-and-performance/asset-record-from-broker.ts::splitOf": "not in git yet|\u2014",
 "MoneyKeel/functions/networth-and-performance/asset-record-from-broker.ts::dayOfInstant": "not in git yet|\u2014",
 "MoneyKeel/functions/networth-and-performance/asset-record-move.ts::importedListDay": "not in git yet|\u2014",
-"src/services/sync/assetRecordCloud.ts::recordOnSignIn": "not in git yet|\u2014"
+"src/services/sync/assetRecordCloud.ts::recordOnSignIn": "not in git yet|\u2014",
+"MoneyKeel/functions/networth-and-performance/asset-record-from-broker.ts::activityRefs": "not in git yet|\u2014",
+"MoneyKeel/functions/networth-and-performance/asset-record-move.ts::pairUp": "not in git yet|\u2014",
+"MoneyKeel/functions/networth-and-performance/asset-record-move.ts::lotsOf": "not in git yet|\u2014",
+"MoneyKeel/functions/networth-and-performance/asset-record-move.ts::movedMark": "not in git yet|\u2014",
+"MoneyKeel/functions/networth-and-performance/asset-record.ts::removalKept": "not in git yet|\u2014",
+"MoneyKeel/functions/networth-and-performance/asset-record.ts::keptAwayByEvent": "not in git yet|\u2014",
+"src/services/firebase.ts::flushBeforeSignOut": "not in git yet|\u2014",
+"src/services/firebase.ts::onSignOutFlush": "not in git yet|\u2014",
+"src/services/firebase.ts::getPhoneId": "not in git yet|\u2014",
+"src/services/firebase.ts::commitAssetRecord": "not in git yet|\u2014",
+"src/services/firebase.ts::markerFrom": "not in git yet|\u2014",
+"src/services/firebase.ts::loadAssetRecordMarker": "not in git yet|\u2014",
+"src/services/sync/assetRecordCloud.ts::recordWorkAllowed": "not in git yet|\u2014",
+"src/services/sync/assetRecordCloud.ts::saveRecordGuarded": "not in git yet|\u2014",
+"src/services/sync/assetRecordCloud.ts::loadCloudRecord": "not in git yet|\u2014",
+"src/services/sync/assetRecordCloud.ts::sameMarker": "not in git yet|\u2014",
+"src/services/sync/assetRecordCloud.ts::markerOf": "not in git yet|\u2014"
 }

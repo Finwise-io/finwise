@@ -264,10 +264,11 @@ export function mapPosition(p: StPosition): MappedPosition | null {
 
 // ── option holdings → alternatives rows (G2 closure: itemized, never hidden) ──────────────────
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+/** An option's expiry date written as month, day and year, or 'unknown expiry' when the date cannot be read. */
 /* ─ MK-XS-F-146 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
  * prettyExpiry
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... An option's expiry date written as month, day and year, or 'unknown expiry' when the date cannot be read.
  *
  * Formula .....
  *     `${MONTHS[m − 1]} ${d} ${y}`   if y and m and d
@@ -474,15 +475,15 @@ export function mapActivityType(a: StActivity): MappedActivity {
  * Formula .....
  *     the answer = import key(account, trade date or settlement date, type, amount, units, security, reference, description)
  *
- * Called by ... MK-NW-F-193 eventRow · MK-NW-F-287 splitOf
+ * Called by ... MK-NW-F-194 brokerUpdateToRecord · MK-NW-F-289 activityRefs
  *               MK-XS-F-102 ingestSync · MK-XS-F-109 dedupeActivities
  *
- * Reaches ..... 10 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-194 brokerUpdateToRecord · MK-XS-F-109 dedupeActivities
- *               MK-NW-F-193 eventRow · MK-NW-F-201 fileRowsToSave
+ * Reaches ..... 9 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-289 activityRefs · MK-NW-F-194 brokerUpdateToRecord
+ *               MK-XS-F-109 dedupeActivities · MK-NW-F-201 fileRowsToSave
  *               MK-NW-F-199 fileToRecord · MK-XS-F-219 importedAccountOf
  *               MK-XS-F-102 ingestSync · MK-XS-F-199 profileOnTheWayIn
- *               MK-NW-F-195 readImport · MK-NW-F-287 splitOf
+ *               MK-NW-F-195 readImport
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-010 transaction words (the institution's own wording)

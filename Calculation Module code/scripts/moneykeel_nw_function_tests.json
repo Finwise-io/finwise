@@ -15756,5 +15756,82 @@
    "src/__tests__/compare_typed_households_2026_11_11.test.ts",
    "src/screens/__tests__/compare_his_robinhood_file_2026_11_11.test.tsx"
   ]
+ },
+ "MK-NW-F-289": {
+  "source": "MoneyKeel/functions/networth-and-performance/asset-record-from-broker.ts",
+  "declared": true,
+  "tests": [
+   "MoneyKeel/functions/networth-and-performance/asset-record-from-broker.test.ts"
+  ]
+ },
+ "MK-NW-F-290": {
+  "source": "MoneyKeel/functions/networth-and-performance/asset-record-move.ts",
+  "declared": true,
+  "tests": [
+   "MoneyKeel/functions/networth-and-performance/asset-record-move.test.ts",
+   "src/__tests__/compare_record_to_old_copies_2026_11_11.test.ts",
+   "src/__tests__/compare_typed_households_2026_11_11.test.ts",
+   "src/screens/__tests__/compare_his_robinhood_file_2026_11_11.test.tsx"
+  ]
+ },
+ "MK-NW-F-291": {
+  "source": "MoneyKeel/functions/networth-and-performance/asset-record-move.ts",
+  "declared": true,
+  "tests": [
+   "MoneyKeel/functions/networth-and-performance/asset-record-move.test.ts",
+   "src/__tests__/compare_record_to_old_copies_2026_11_11.test.ts",
+   "src/__tests__/compare_typed_households_2026_11_11.test.ts",
+   "src/screens/__tests__/compare_his_robinhood_file_2026_11_11.test.tsx"
+  ]
+ },
+ "MK-NW-F-292": {
+  "source": "MoneyKeel/functions/networth-and-performance/asset-record-move.ts",
+  "declared": true,
+  "tests": [
+   "MoneyKeel/functions/networth-and-performance/asset-record-move.test.ts",
+   "src/__tests__/compare_record_to_old_copies_2026_11_11.test.ts",
+   "src/__tests__/compare_typed_households_2026_11_11.test.ts",
+   "src/screens/__tests__/compare_his_robinhood_file_2026_11_11.test.tsx"
+  ]
+ },
+ "MK-NW-F-293": {
+  "source": "MoneyKeel/functions/networth-and-performance/asset-record.ts",
+  "declared": true,
+  "tests": [
+   "MoneyKeel/functions/networth-and-performance/asset-record-from-broker.test.ts",
+   "MoneyKeel/functions/networth-and-performance/asset-record-from-file.test.ts",
+   "MoneyKeel/functions/networth-and-performance/asset-record-from-prices.test.ts",
+   "MoneyKeel/functions/networth-and-performance/asset-record-from-typed.test.ts",
+   "MoneyKeel/functions/networth-and-performance/asset-record-move.test.ts",
+   "MoneyKeel/functions/networth-and-performance/asset-record.test.ts",
+   "src/__tests__/asset_record_outside_fixes_2026_11_12.test.ts",
+   "src/__tests__/asset_record_typed_store_2026_11_11.test.ts",
+   "src/__tests__/compare_typed_households_2026_11_11.test.ts",
+   "src/__tests__/record_cloud_and_price_feed_outside_2026_11_12.test.ts",
+   "src/screens/__tests__/compare_his_robinhood_file_2026_11_11.test.tsx",
+   "src/screens/__tests__/import_value_only_rows_on_record_2026_11_12.test.tsx",
+   "src/services/sync/assetRecordCloud.test.ts",
+   "src/services/sync/compare_linked_broker_2026_11_11.test.ts"
+  ]
+ },
+ "MK-NW-F-294": {
+  "source": "MoneyKeel/functions/networth-and-performance/asset-record.ts",
+  "declared": true,
+  "tests": [
+   "MoneyKeel/functions/networth-and-performance/asset-record-from-broker.test.ts",
+   "MoneyKeel/functions/networth-and-performance/asset-record-from-file.test.ts",
+   "MoneyKeel/functions/networth-and-performance/asset-record-from-prices.test.ts",
+   "MoneyKeel/functions/networth-and-performance/asset-record-from-typed.test.ts",
+   "MoneyKeel/functions/networth-and-performance/asset-record-move.test.ts",
+   "MoneyKeel/functions/networth-and-performance/asset-record.test.ts",
+   "src/__tests__/asset_record_outside_fixes_2026_11_12.test.ts",
+   "src/__tests__/asset_record_typed_store_2026_11_11.test.ts",
+   "src/__tests__/compare_typed_households_2026_11_11.test.ts",
+   "src/__tests__/record_cloud_and_price_feed_outside_2026_11_12.test.ts",
+   "src/screens/__tests__/compare_his_robinhood_file_2026_11_11.test.tsx",
+   "src/screens/__tests__/import_value_only_rows_on_record_2026_11_12.test.tsx",
+   "src/services/sync/assetRecordCloud.test.ts",
+   "src/services/sync/compare_linked_broker_2026_11_11.test.ts"
+  ]
  }
 }

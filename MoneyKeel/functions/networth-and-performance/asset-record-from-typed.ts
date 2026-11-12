@@ -41,10 +41,10 @@ const EPS = 1e-9;
  *               MK-NW-F-194 brokerUpdateToRecord · MK-NW-F-199 fileToRecord
  *               MK-NW-F-216 rowOfLot · MK-NW-F-221 lotsFollow
  *               MK-NW-F-238 sortArriving · MK-NW-F-281 correctRow
- *               MK-PF-F-015 topHoldingConcentration · MK-ST-F-084 fillBetweenObservations
- *               MK-ST-F-093 typedValueOnItsDate
+ *               MK-NW-F-289 activityRefs · MK-PF-F-015 topHoldingConcentration
+ *               MK-ST-F-084 fillBetweenObservations · MK-ST-F-093 typedValueOnItsDate
  *
- * Reaches ..... 561 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 567 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -54,7 +54,7 @@ const EPS = 1e-9;
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 543 more — the full list is on functions_from_code
+ *               … and 549 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -75,16 +75,16 @@ const same = (x: number | null | undefined, y: number | null | undefined) => (x 
  * Called by ... MK-NW-F-213 lotRow · MK-NW-F-214 accountValueRows
  *               MK-NW-F-217 transactionRow · MK-NW-F-223 openingRow
  *               MK-NW-F-224 typedChangeToRecord · MK-NW-F-226 fileValues
- *               MK-NW-F-228 moveOldCopies
+ *               MK-NW-F-228 moveOldCopies · MK-NW-F-291 lotsOf
  *
- * Reaches ..... 13 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 14 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-214 accountValueRows · MK-NW-F-226 fileValues
  *               MK-NW-F-213 lotRow · MK-NW-F-221 lotsFollow
- *               MK-NW-F-228 moveOldCopies · MK-NW-F-223 openingRow
- *               MK-XS-F-199 profileOnTheWayIn · MK-NW-F-216 rowOfLot
- *               MK-NW-F-217 transactionRow · MK-NW-F-222 typedAccountRows
- *               MK-NW-F-224 typedChangeToRecord · MK-XS-F-229 typedIntoRecord
- *               MK-XS-F-192 typedValueDatedBack
+ *               MK-NW-F-291 lotsOf · MK-NW-F-228 moveOldCopies
+ *               MK-NW-F-223 openingRow · MK-XS-F-199 profileOnTheWayIn
+ *               MK-NW-F-216 rowOfLot · MK-NW-F-217 transactionRow
+ *               MK-NW-F-222 typedAccountRows · MK-NW-F-224 typedChangeToRecord
+ *               MK-XS-F-229 typedIntoRecord · MK-XS-F-192 typedValueDatedBack
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -230,12 +230,14 @@ export const txnRef = (t: Pick<Transaction, 'id'>): string => `typed-txn:${t.id}
  *     contract multiplier(p as any)   otherwise
  *
  * Called by ... MK-NW-F-213 lotRow · MK-NW-F-228 moveOldCopies
+ *               MK-NW-F-291 lotsOf
  *
- * Reaches ..... 8 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 9 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-213 lotRow · MK-NW-F-221 lotsFollow
- *               MK-NW-F-228 moveOldCopies · MK-XS-F-199 profileOnTheWayIn
- *               MK-NW-F-216 rowOfLot · MK-NW-F-224 typedChangeToRecord
- *               MK-XS-F-229 typedIntoRecord · MK-XS-F-192 typedValueDatedBack
+ *               MK-NW-F-291 lotsOf · MK-NW-F-228 moveOldCopies
+ *               MK-XS-F-199 profileOnTheWayIn · MK-NW-F-216 rowOfLot
+ *               MK-NW-F-224 typedChangeToRecord · MK-XS-F-229 typedIntoRecord
+ *               MK-XS-F-192 typedValueDatedBack
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
@@ -564,20 +566,20 @@ function arrive(out: TypedResult, rows: NewRow[], writtenAt: string): void {
  *     c = correct row(out.record, row id, change, SOURCE, written at)
  *
  * Called by ... MK-NW-F-221 lotsFollow · MK-NW-F-246 valuesOn
- *               MK-NW-F-270 sameEventElsewhere · MK-NW-F-274 sameShares
- *               MK-NW-F-278 answerListQuestion · MK-XS-F-002 dataGaps
+ *               MK-NW-F-270 sameEventElsewhere · MK-NW-F-278 answerListQuestion
+ *               MK-NW-F-294 removalKept · MK-XS-F-002 dataGaps
  *
- * Reaches ..... 29 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-273 answerEventQuestion · MK-NW-F-278 answerListQuestion
- *               MK-NW-F-248 answerValuesQuestion · MK-NW-F-218 arrive
- *               MK-NW-F-225 asFileList · MK-NW-F-275 besideTheList
- *               MK-NW-F-194 brokerUpdateToRecord · MK-XS-F-002 dataGaps
- *               MK-NW-F-279 differsFromGiven · MK-NW-F-193 eventRow
+ * Reaches ..... 27 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-289 activityRefs · MK-NW-F-273 answerEventQuestion
+ *               MK-NW-F-278 answerListQuestion · MK-NW-F-248 answerValuesQuestion
+ *               MK-NW-F-218 arrive · MK-NW-F-225 asFileList
+ *               MK-NW-F-275 besideTheList · MK-NW-F-194 brokerUpdateToRecord
+ *               MK-XS-F-002 dataGaps · MK-NW-F-279 differsFromGiven
  *               MK-NW-F-271 eventsThatDiffer · MK-NW-F-201 fileRowsToSave
  *               MK-NW-F-221 lotsFollow · MK-NW-F-228 moveOldCopies
  *               MK-XS-F-199 profileOnTheWayIn · MK-NW-F-277 purchasesFromList
- *               MK-NW-F-239 rowsNotYetSaved · MK-NW-F-272 salesMovedBy
- *               … and 11 more — the full list is on functions_from_code
+ *               MK-NW-F-294 removalKept · MK-NW-F-239 rowsNotYetSaved
+ *               … and 9 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -631,7 +633,10 @@ function remove(out: TypedResult, rowId: string, writtenAt: string): void {
  *     from = lot row(account id, before as position, old), to = lot row(account id, after as position, lot)
  *     at = row of lot(out.record, account id, before as position, old)
  *     change = {}
+ *     prior = from (or at when missing)
+ *     shares = change.shares (or at.shares (or 0 when missing) when missing)
  *     at = row of lot(out.record, account id, before as position, old)
+ *     … the first steps only — the rest of the body needs reading by hand.
  *
  * Called by ... MK-NW-F-224 typedChangeToRecord
  *
@@ -643,6 +648,9 @@ function remove(out: TypedResult, rowId: string, writtenAt: string): void {
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
  *               MK-XS-I-082 the purchase an opening record is of — so editing or removing that purchase changes or removes its record
+ *
+ * Decides .....
+ *     · If shares is missing it uses 0.
  *
  * Formula also on the master file · functions_from_code · MK-NW-F-221
  * Changed ..... not in git yet (—)
@@ -670,10 +678,17 @@ function lotsFollow(out: TypedResult, accountId: string, before: Position | null
     const at = rowOfLot(out.record, accountId, before as Position, old);
     if (at === 'none') { added.push(to); continue; }
     if (at === 'many') { out.problems.push(`More than one purchase of ${to.holding} matches the tax lot that was changed, so none was changed.`); continue; }
+    // what the account holder changed is read from the lot before and after, never from the purchase: a lot shows the
+    // shares LEFT after sales, so the purchase keeps its own shares and takes only the difference (outside check 2,
+    // 2026-11-12: 100 bought, 30 sold, the $80 price of the 70 left edited to $85 — the purchase was cut to 70 and the
+    // sale of 30 counted again, leaving 40)
     const change: Partial<NewRow> = {};
-    if ((at.date ?? null) !== (to.date ?? null)) change.date = to.date;
-    if (!same(at.shares, to.shares)) change.shares = to.shares;
-    if (!same(at.price, to.price)) { change.price = to.price; change.amount = to.amount; }
+    const prior = from ?? at;
+    if ((prior.date ?? null) !== (to.date ?? null) && (at.date ?? null) !== (to.date ?? null)) change.date = to.date;
+    if (!same(prior.shares, to.shares)) change.shares = (at.shares ?? 0) + ((to.shares ?? 0) - (prior.shares ?? 0));
+    const shares = change.shares ?? at.shares ?? 0;
+    if (!same(prior.price, to.price) && !same(at.price, to.price)) { change.price = to.price; change.amount = to.price == null ? null : shares * to.price; }
+    else if (change.shares != null && at.price != null) change.amount = shares * at.price;
     if (Object.keys(change).length) correct(out, at.rowId, change, writtenAt);
   }
   for (const [id, old] of was) {

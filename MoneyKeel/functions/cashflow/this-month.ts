@@ -63,7 +63,7 @@ export interface Line { label: string; amount: number; kind: 'in' | 'debt' | 'sp
  *
  * Called by ... MK-CF-F-005 actualMonthFlow · MK-CF-F-220 pastMonthFlow
  *
- * Reaches ..... 561 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 567 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -73,7 +73,7 @@ export interface Line { label: string; amount: number; kind: 'in' | 'debt' | 'sp
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 543 more — the full list is on functions_from_code
+ *               … and 549 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -266,7 +266,7 @@ export function biggestOutLine(lines: Line[], shown: number[]): { label: string;
  * Called by ... MK-CF-F-005 actualMonthFlow · MK-CF-F-156 plannedMonthFlow
  *               MK-CF-O-004 incomeSummary
  *
- * Reaches ..... 561 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 567 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -276,7 +276,7 @@ export function biggestOutLine(lines: Line[], shown: number[]): { label: string;
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 543 more — the full list is on functions_from_code
+ *               … and 549 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -309,7 +309,7 @@ export function inflowLabel(prefix: 'Inflow' | 'Actual inflow' | 'Planned inflow
  *
  * Called by ... MK-CF-F-192 inflowLabel
  *
- * Reaches ..... 562 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 568 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -319,7 +319,7 @@ export function inflowLabel(prefix: 'Inflow' | 'Actual inflow' | 'Planned inflow
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 544 more — the full list is on functions_from_code
+ *               … and 550 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -378,7 +378,7 @@ export function inflowSourceWord(source: string): string {
  *               MK-XS-F-107 mapActivityType · MK-XS-F-184 theirCost
  *               MK-XS-F-219 importedAccountOf
  *
- * Reaches ..... 573 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 579 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -388,7 +388,7 @@ export function inflowSourceWord(source: string): string {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 555 more — the full list is on functions_from_code
+ *               … and 561 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -419,7 +419,7 @@ export const cash = (n: number): number => (n === 0 ? 0 : (n));
  *
  * Called by ... MK-CF-O-003 thisMonth
  *
- * Reaches ..... 561 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 567 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -429,7 +429,7 @@ export const cash = (n: number): number => (n === 0 ? 0 : (n));
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 543 more — the full list is on functions_from_code
+ *               … and 549 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-042 how a stream is paid — monthly, yearly or one lump
@@ -521,7 +521,7 @@ export function plannedMonthFlow(m: MonthInput): MonthBlock {
  *
  * Called by ... MK-CF-F-157 debtPaymentsByDebt · MK-CF-O-003 thisMonth
  *
- * Reaches ..... 561 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 567 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -531,7 +531,7 @@ export function plannedMonthFlow(m: MonthInput): MonthBlock {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 543 more — the full list is on functions_from_code
+ *               … and 549 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-024 logged expenses
@@ -625,7 +625,7 @@ export function actualMonthFlow(m: MonthInput): MonthBlock {
  *
  * Called by ... MK-CF-F-005 actualMonthFlow
  *
- * Reaches ..... 561 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 567 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -635,7 +635,7 @@ export function actualMonthFlow(m: MonthInput): MonthBlock {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 543 more — the full list is on functions_from_code
+ *               … and 549 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-014 debt balance
@@ -949,7 +949,7 @@ export const FIGURES = declareFigures({
  *
  * Called by ... MK-CF-F-241 M · MK-CF-O-010 theMonth
  *
- * Reaches ..... 561 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 567 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -959,7 +959,7 @@ export const FIGURES = declareFigures({
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 543 more — the full list is on functions_from_code
+ *               … and 549 more — the full list is on functions_from_code
  *
  * Serves ...... MK-CF-M-047 · MK-CF-M-048 · MK-CF-M-049 · MK-CF-M-050
  *               MK-CF-M-051 · MK-CF-M-052 · MK-CF-M-053 · MK-CF-M-054

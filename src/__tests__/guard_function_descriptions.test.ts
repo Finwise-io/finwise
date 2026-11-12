@@ -86,7 +86,7 @@ test('one record a function: no stale copy of a record is left behind in the cod
 
 test('the other modules: the functions still without a description are counted, and the count may only fall', () => {
   const debt = records().filter((r) => !THIS_BUILD.includes(r.family) && missing(r)).length;
-  const OWED = 96;   // the true number on 2026-10-04, after the Modified Dietz function (no description) was removed
+  const OWED = 94;   // the true number on 2026-11-12 (96 on 2026-10-04); two sync helpers gained their notes
   expect(debt).toBeLessThanOrEqual(OWED);
   // lower the number when it falls, so it cannot creep back up
   if (debt < OWED) throw new Error(`the debt is down to ${debt} — lower OWED in this test to hold it there`);

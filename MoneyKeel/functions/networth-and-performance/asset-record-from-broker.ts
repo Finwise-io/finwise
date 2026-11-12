@@ -17,7 +17,7 @@
 //   · It never puts a minus sign on shares or amounts: the kind of the row says which way they went.
 //   · It never calls an unknown $0: cash the broker does not send stays blank.
 import {
-  dayOrNull, historyPurchaseRow, saleRow, valueRows, valueBatchesOf, sharesOnRecord, rowsInForce, oneHoldingSpelling,
+  dayOrNull, historyPurchaseRow, saleRow, valueRows, valueBatchesOf, sharesOnRecord, rowsInForce, oneHoldingSpelling, factsOf,
   type AssetRow, type NewRow, type ListedPurchase, type RowKind,
 } from './asset-record';
 import { toLedgerRow, type LedgerRow } from '../../../Calculation Module code/engines/ledger';
@@ -62,6 +62,7 @@ const SOURCE = 'linked' as const;
  *               MK-NW-F-273 answerEventQuestion · MK-NW-F-274 sameShares
  *               MK-NW-F-277 purchasesFromList · MK-NW-F-279 differsFromGiven
  *               MK-NW-F-284 activityOf · MK-NW-F-287 splitOf
+ *               MK-NW-F-289 activityRefs · MK-NW-F-292 pairUp
  *               MK-NW-O-002 theAccount · MK-NW-O-005 theAlternativesOutlook
  *               MK-NW-O-008 thePerformance · MK-PF-F-014 buildPerformance
  *               MK-PF-F-020 portfolioBenchReturn · MK-PF-F-033 quantityWithUnit
@@ -80,7 +81,7 @@ const SOURCE = 'linked' as const;
  *               MK-XS-F-211 pointsDigits · MK-XS-F-215 isWholeToTheCent
  *               MK-XS-F-218 sameCents
  *
- * Reaches ..... 611 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 619 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -90,7 +91,7 @@ const SOURCE = 'linked' as const;
  *               MK-CF-F-237 LATER · MK-NW-F-081 LB
  *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
  *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
- *               … and 593 more — the full list is on functions_from_code
+ *               … and 601 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -211,8 +212,6 @@ const optionName = (o: StOptionHolding): string | null => {
  *
  * Formula .....
  *     is option = !!act.option symbol (or !!act.option type when missing or zero)
- *     ref = string(act.id)   if act.id
- *     activity key(account id, act)   otherwise
  *     date = act.trade date (or nothing when missing)
  *     settlement date = act.settlement date (or nothing when missing)
  *     option symbol = act.option symbol as { ticker?: string | nothing } | nothing | undefined
@@ -221,8 +220,11 @@ const optionName = (o: StOptionHolding): string | null => {
  *     1   otherwise
  *     shares = row.shares × per contract   if row.shares ≠ nothing
  *     nothing   otherwise
+ *     quoted = 1   if is option
+ *     per unit of(holding)   otherwise
  *     price = nothing   if row.price = nothing
- *     row.price   if act.amount = nothing
+ *     nothing   if quoted = nothing
+ *     row.price × quoted   otherwise   if act.amount = nothing
  *     row.price ÷ per contract   otherwise   otherwise
  *     amount = nothing   if act.amount = nothing
  *     row.amount.to number(2)   otherwise
@@ -242,7 +244,7 @@ const optionName = (o: StOptionHolding): string | null => {
  * Formula also on the master file · functions_from_code · MK-NW-F-193
  * Changed ..... not in git yet (—)
  */
-function eventRow(record: readonly AssetRow[], accountId: string, act: StActivity): NewRow {
+function eventRow(record: readonly AssetRow[], accountId: string, act: StActivity, ref: string, perUnitOf: (holding: string | null) => number | null): NewRow {
   const isOption = !!act.option_symbol || !!act.option_type;
   const row: LedgerRow = toLedgerRow({
     word: act.type, amount: act.amount, units: act.units, price: act.price,
@@ -250,7 +252,6 @@ function eventRow(record: readonly AssetRow[], accountId: string, act: StActivit
     date: act.trade_date ?? null, ticker: act.symbol?.raw_symbol ?? act.symbol?.symbol,
     description: act.description, isOption,
   }, 'NEGATIVE_IS_OUT');
-  const ref = act.id ? String(act.id) : activityKey(accountId, act);
   const date = act.trade_date ?? null;
   const settlementDate = act.settlement_date ?? null;
   const optionSymbol = act.option_symbol as { ticker?: string | null } | null | undefined;
@@ -260,14 +261,17 @@ function eventRow(record: readonly AssetRow[], accountId: string, act: StActivit
   const shares = row.shares != null ? row.shares * perContract : null;
   // the ledger's price is the broker's cash ÷ contracts (a contract's price) where the broker sends an amount; with no
   // amount it is the broker's own price, which is already per share — it is not divided by the contract size again
-  const price = row.price == null ? null : act.amount == null ? row.price : row.price / perContract;
+  // with no amount, the broker's own price is read the way the holding is quoted: a bond quoted per $100 of face is a
+  // hundredth of it a unit of face (97 is $0.97), the same factor as its list; where the quote is not clear, not known
+  const quoted = isOption ? 1 : perUnitOf(holding);
+  const price = row.price == null ? null : act.amount == null ? (quoted == null ? null : row.price * quoted) : row.price / perContract;
   const amount = act.amount == null ? null : row.amount.toNumber(2);
   const fee = abs(act.fee);
   const base = { accountId, holding, date, settlementDate, source: SOURCE, ref, word: row.sourceWord } as const;
   const other = (): NewRow => ({ ...base, kind: 'OTHER', shares, price, amount, fee });
   const cashRow = (kind: RowKind): NewRow => ({ ...base, holding, kind, amount, fee, ...(shares != null ? { shares } : {}), ...(price != null ? { price } : {}) });
 
-  const split = splitOf(record, accountId, holding, date, act, row);
+  const split = splitOf(record, accountId, holding, date, act, row, ref);
   if (split) return split;
 
   switch (row.event) {
@@ -339,7 +343,7 @@ function eventRow(record: readonly AssetRow[], accountId: string, act: StActivit
  * Formula also on the master file · functions_from_code · MK-NW-F-287
  * Changed ..... not in git yet (—)
  */
-function splitOf(record: readonly AssetRow[], accountId: string, holding: string | null, date: string | null, act: StActivity, row: LedgerRow): NewRow | null {
+function splitOf(record: readonly AssetRow[], accountId: string, holding: string | null, date: string | null, act: StActivity, row: LedgerRow, ref: string): NewRow | null {
   const word = String(act.type ?? '').toUpperCase();
   const saysSplit = /SPLIT/.test(word) || (row.event === 'CORPORATE_ACTION' || word === 'CORPORATE_ACTION') && /\bSPLIT\b/i.test(String(act.description ?? ''));
   if (!saysSplit || holding == null || dayOrNull(date) == null) return null;
@@ -355,8 +359,75 @@ function splitOf(record: readonly AssetRow[], accountId: string, holding: string
   if (!(held > EPS)) return null;
   const ratio = (held + units) / held;
   if (!(ratio > EPS) || Math.abs(ratio - 1) <= EPS) return null;
-  const ref = act.id ? String(act.id) : activityKey(accountId, act);
   return { accountId, holding, kind: 'SPLIT', date, settlementDate: act.settlement_date ?? null, ratio, source: SOURCE, ref, word: row.sourceWord };
+}
+
+/** The key each activity is saved under. The broker's id can change when it reprocesses its history, so it is never the
+ *  key: the activity's own content is (activityKey — the sync's one reading), numbered among activities alike in this
+ *  update, so two sales alike sent together are two sales and the same sale sent again under a new id is one. A row
+ *  saved before under the broker's id keeps that key: the same id sent again is that row, and an activity of the same
+ *  event under an id this update no longer sends is that row too — nothing is saved twice. */
+/* ─ MK-NW-F-289 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+ * activityRefs
+ *
+ * Answers ..... The key each activity is saved under.
+ *
+ * Formula .....
+ *     ids = a list with no repeats of for each of acts: string(id)   if id
+ *     nothing   otherwise where (x): x is string => x ≠ nothing
+ *     saved = record where account id = account id and source = SOURCE and ref
+ *     held = a list with no repeats of for each of saved: ref as string
+ *     by content = (ref: string) => ref.starts with(`${account id}|`)
+ *     same = (a: number | nothing | undefined, b: number | nothing | undefined) => (a = nothing or b = nothing ? a = nothing and b = nothing : math.abs(a − b) ≤ EPS)
+ *     claimed = new set<string>()
+ *     id = string(id)   if id
+ *     nothing   otherwise
+ *     nothing   when id = nothing (or !held.has(id) (or claimed.has(id) when missing or zero) when missing or zero)
+ *     the answer = id
+ *     nth = new map<string, number>()
+ *     k = activity key(account id, a)
+ *     … the first steps only — the rest of the body needs reading by hand.
+ *
+ * Called by ... MK-NW-F-194 brokerUpdateToRecord
+ *
+ * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-194 brokerUpdateToRecord · MK-XS-F-199 profileOnTheWayIn
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-004 holding quantity (shares)
+ *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-289
+ * Changed ..... not in git yet (—)
+ */
+function activityRefs(record: readonly AssetRow[], accountId: string, acts: readonly StActivity[], drafts: readonly NewRow[]): string[] {
+  const ids = new Set(acts.map((a) => (a.id ? String(a.id) : null)).filter((x): x is string => x != null));
+  const saved = record.filter((r) => r.accountId === accountId && r.source === SOURCE && r.ref);
+  const held = new Set(saved.map((r) => r.ref as string));
+  const byContent = (ref: string) => ref.startsWith(`${accountId}|`);
+  const same = (a: number | null | undefined, b: number | null | undefined) => (a == null || b == null ? a == null && b == null : Math.abs(a - b) <= EPS);
+  const sameEvent = (r: AssetRow, d: NewRow) => r.kind === d.kind && r.holding === oneHoldingSpelling(d.holding) && r.date === dayOrNull(d.date)
+    && same(r.shares, d.shares == null ? null : Math.abs(d.shares)) && same(r.price, d.price) && same(r.amount, d.amount);
+  const claimed = new Set<string>();
+  const out: (string | null)[] = acts.map((a) => {
+    const id = a.id ? String(a.id) : null;
+    if (id == null || !held.has(id) || claimed.has(id)) return null;
+    claimed.add(id);
+    return id;
+  });
+  const nth = new Map<string, number>();
+  acts.forEach((a, i) => {
+    if (out[i] != null) return;
+    const k = activityKey(accountId, a);
+    const n = (nth.get(k) ?? 0) + 1;
+    nth.set(k, n);
+    const ref = n === 1 ? k : `${k}|#${n}`;
+    if (held.has(ref) && !claimed.has(ref)) { claimed.add(ref); out[i] = ref; return; }
+    const before = saved.find((r) => !byContent(r.ref as string) && !claimed.has(r.ref as string) && !ids.has(r.ref as string) && sameEvent(r, drafts[i]));
+    if (before) { claimed.add(before.ref as string); out[i] = before.ref as string; return; }
+    out[i] = ref;
+  });
+  return out as string[];
 }
 
 /** ONE BROKER UPDATE, as what the record's calling order takes: the events (for sortArriving), each holding's list
@@ -369,17 +440,20 @@ function splitOf(record: readonly AssetRow[], accountId: string, holding: string
  * Formula .....
  *     st = payload.account
  *     list day = day of instant(st.sync status.holdings.last successful sync ?? nothing)
- *     events = for each of payload.activities (or none when missing): event row(record, account id, each)
  *     synced = ingest sync([], {}, [payload], st.sync status.holdings.last successful sync ?? '1970 − 01 − 01T00:00:00.000Z').accounts[0] as any
  *     pairs = for each of payload.positions (or none when missing): each = each
  *     m = map position(each) where (x): x is { raw: typeof raw; m: non nullable<typeof m> } => m ≠ nothing
- *     lists = []
- *     holdings = []
- *     holding = one holding spelling(ticker) as string
- *     pos = synced.positions.[i]
- *     per = contract multiplier(pos)   if pos
- *     1   otherwise
- *     unclear = pos.price quote = 'unclear'
+ *     quote of = new map<string, string | undefined>()
+ *     1   when holding = nothing
+ *     quote = quote of.get(holding)   if quote of.has(holding)
+ *     facts of(record, account id, holding).price quote   otherwise
+ *     the answer:
+ *     0.01   if quote = 'per_100_of_face'
+ *     nothing   if quote = 'unclear'
+ *     1   otherwise   otherwise
+ *     acts = payload.activities (or none when missing)
+ *     drafts = for each of acts: event row(record, account id, each, activity key(account id, each), per unit of)
+ *     refs = activity refs(record, account id, acts, drafts)
  *     … the first steps only — the rest of the body needs reading by hand.
  *
  * Called by ... MK-XS-F-199 profileOnTheWayIn
@@ -407,11 +481,23 @@ export function brokerUpdateToRecord(record: AssetRow[], payload: AccountSyncPay
   // the broker's own date of the holdings — never the phone's
   const listDay = dayOfInstant(st.sync_status?.holdings?.last_successful_sync ?? null);
 
-  const events = (payload.activities ?? []).map((act) => eventRow(record, accountId, act));
-
   // the sync's own reading of the account (the cash net of a money-market fund, how a bond's price is quoted)
   const synced = ingestSync([], {}, [payload], st.sync_status?.holdings?.last_successful_sync ?? '1970-01-01T00:00:00.000Z').accounts[0] as any;
   const pairs = (payload.positions ?? []).map((raw) => ({ raw, m: mapPosition(raw) })).filter((x): x is { raw: typeof x.raw; m: NonNullable<typeof x.m> } => x.m != null);
+
+  // how each holding's price is quoted: as this update's list reads it, else as the record's own fact for the holding.
+  // A bond quoted per $100 of face is a hundredth a unit; a quote that is not clear gives no price (never guessed)
+  const quoteOf = new Map<string, string | undefined>();
+  pairs.forEach(({ m }, i) => { const h = oneHoldingSpelling(m.ticker); if (h != null) quoteOf.set(h, synced?.positions?.[i]?.price_quote); });
+  const perUnitOf = (holding: string | null): number | null => {
+    if (holding == null) return 1;
+    const quote = quoteOf.has(holding) ? quoteOf.get(holding) : factsOf(record, accountId, holding).price_quote;
+    return quote === 'per_100_of_face' ? 0.01 : quote === 'unclear' ? null : 1;
+  };
+  const acts = payload.activities ?? [];
+  const drafts = acts.map((act) => eventRow(record, accountId, act, activityKey(accountId, act), perUnitOf));
+  const refs = activityRefs(record, accountId, acts, drafts);
+  const events = drafts.map((row, i) => ({ ...row, ref: refs[i] }));
 
   const lists: BrokerUpdate['lists'] = [];
   const holdings: { holding: string; shares: number | null; price: number | null; value: number | null }[] = [];

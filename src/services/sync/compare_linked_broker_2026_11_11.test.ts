@@ -176,7 +176,9 @@ test('(6) a phone that synced before today: old copies hold 500 MSFT with its hi
   expect(calls[0][1].startDate).toBeUndefined();               // no start date: the whole history, once
   const c = compare();
   expect((useStore.getState() as any).transactions.length).toBe(txBefore);   // the re-read adds nothing twice to the old copies
-  expect(c.s.assetRecord.some((r: any) => r.source === 'linked' && r.ref === 'a-buy-1')).toBe(true);
+  // the broker's history buy of Jul 30 is on the record (keyed by what it says, not the broker's id, which can change);
+  // that it is held once is the open-purchases line below
+  expect(c.s.assetRecord.some((r: any) => r.source === 'linked' && r.kind === 'PURCHASE' && r.date === '2026-07-30' && r.shares === 500 && r.ref != null)).toBe(true);
   expect(c.looked).toEqual({ accounts: 1, holdings: 1 });
   expect(openPurchases(c.s.assetRecord, 'st-acc-1', 'MSFT').map((o) => [o.date, o.shares, o.price])).toEqual([['2026-07-30', 500, 350]]);
   expect(c.differences).toEqual([

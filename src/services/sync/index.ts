@@ -50,10 +50,11 @@ export class SandboxSyncProvider implements SyncProvider {
 }
 
 let overrideProvider: SyncProvider | null | undefined;   // tests inject here
+/** Lets a test put in its own connection provider in place of the real one. */
 /* ─ MK-XS-F-098 ──────────────────────────────────────────────────────────────────── 1 · ACTION
  * setSyncProviderForTesting
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... Lets a test put in its own connection provider in place of the real one.
  *
  * Formula .....
  *     It records or announces something and returns no figure — no arithmetic of its own.

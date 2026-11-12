@@ -11614,6 +11614,24 @@
    "apply_steps": "1. priceFeedValues in MoneyKeel/functions/networth-and-performance/asset-record-from-prices.ts uses the last close on or before the day, however old. 2. Where that close is more than 7 days before the day, the row saves the close’s own day as priceDate (asset-record.ts, valueRows and valueBatchesOf). 3. A test in asset-record-from-prices.test.ts holds the example. 4. Phase 3: the screens reading the record show “price from <date>” beside an old price. 5. Phase 4: the Performance tab’s refusal of a window’s start price more than 7 days old (DEC-9486) is brought to this rule.",
    "not_a_repeat_of": "DEC-0301 — that decision is “source always, date only when stale”. This decision refines it and does not replace it: it applies it to the master record’s values — an old price is used, and its date is the one shown. Every part of DEC-0301 stands. DEC-9486 — that decision, the lead’s and not his, refuses a window’s start price more than 7 days old on the Performance tab. This decision governs the master record’s daily values; the Performance tab is brought to it in phase 4 of the approved plan.",
    "proof": "MoneyKeel/functions/networth-and-performance/asset-record-from-prices.test.ts — “a fund whose last close is 10 days before the day is still valued at that close, and the row says the price is from Oct 27” (passed 2026-11-11); not verified by him"
+  },
+  {
+   "decided": "2026-11-12",
+   "answers": [],
+   "tab": "multiple_screens",
+   "status": "RULED, NOT CODED",
+   "standard_carrier": "",
+   "type": "RULE",
+   "screens": "Every screen that shows what an account holder owns, through the one master record kept in the cloud account (no screen changes in phase 2)",
+   "his_words": "go",
+   "subject": "The cloud copy of the master record is saved only by the phone that last saved it, and only after the cloud copy has loaded and been read (his “go”, 2026-11-12, to Claude’s recommendation after the second outside check)",
+   "plain": "His reply in chat, 2026-11-12, to Claude’s recommendation: “Now: fix the 3 critical faults with the simplest safe rule. The cloud copy is saved only when this phone is the one that last saved it, and nothing is saved until the cloud copy has loaded and been read correctly. Now: fix the 9 high faults. Then: draw up one design for the cloud copy (two phones, sign-in, key recovery) and one for how questions and answers behave, before phase 3.” The wording is Claude’s; his word was “go”. The high faults were 8, not 9; Claude corrected the count in chat the same day.",
+   "means": "Example: the cloud holds 390 rows. Phone A adds 20 and saves; phone B, still believing 390, adds 5. Before: B wrote over part of A’s rows and 10 were lost. Now: B sees it is not the phone that last saved, saves nothing, keeps both copies, and records why.",
+   "governs": "src/services/sync/assetRecordCloud.ts — saveRecordToCloud, recordOnSignIn · src/services/firebase.ts — saveAssetRecordPart, loadAssetRecordPart · app/_layout.tsx — the record’s load, save and one-time move",
+   "changed": "",
+   "apply_steps": "1. Keep a marker in the cloud beside the record’s parts: which phone saved last and how many rows. 2. Before each save, read the marker; save only if this phone saved last and the counts match; otherwise save nothing and record a fault. 3. A part that cannot be read (no key yet) blocks every save until it can be read. 4. The one-time move and any save run only after this person’s accounts have loaded from the cloud. 5. Tests hold the two-phone, password-reset and sign-in cases with the checker’s numbers. 6. Phase 2 follow-up: one written design for the cloud copy (two phones, sign-in, key recovery) and one for questions and answers.",
+   "not_a_repeat_of": "DEC-10514 — that decision is that the master record is saved to the cloud account as well as the phone. This decision refines it and does not replace it: it says when a save may happen, so two phones and two people never mix. Every part of DEC-10514 stands.",
+   "proof": ""
   }
  ]
 }

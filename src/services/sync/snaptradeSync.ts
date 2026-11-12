@@ -39,10 +39,11 @@ export const SIGNS_REFETCH = 'signs-2026-10-21';
  */
 export const refetchMarkKey = (accountId: string) => `refetch:${accountId}`;
 
+/** Whether a connected account is due its daily refresh: yes when it was never refreshed, its last refresh time cannot be read, or that was over 20 hours ago. */
 /* ─ MK-XS-F-115 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * shouldDailySync
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... Whether a connected account is due its daily refresh: yes when it was never refreshed, its last refresh time cannot be read, or that was over 20 hours ago.
  *
  * Formula .....
  *     true   when last sync at is missing
@@ -104,10 +105,11 @@ function unwrapActivities(raw: unknown): { batch: StActivity[]; total: number | 
   return { batch: Array.isArray(data) ? (data as StActivity[]) : [], total: typeof total === 'number' ? total : null };
 }
 
+/** Every activity of one connected account, read page by page until all are in or the page limit is reached. */
 /* ─ MK-XS-F-149 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * allActivities
  *
- * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ * Answers ..... Every activity of one connected account, read page by page until all are in or the page limit is reached.
  *
  * Formula .....
  *     out = []

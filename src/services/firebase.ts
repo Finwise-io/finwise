@@ -30,7 +30,9 @@ import {
   addDoc,
   collection,
   serverTimestamp,
+  runTransaction,
 } from 'firebase/firestore';
+import { sameMarker, UNREADABLE, type CloudMarker, type CommitRecord, type PartRead } from './sync/assetRecordCloud';
 import { firebaseApp } from './firebaseConfig';
 import {
   cacheDataKey, clearDataKey, getDataKey, encryptForSync, decryptFromSync,
@@ -184,7 +186,7 @@ export function isEmailVerified(): boolean {
  *
  * Called by ... MK-XS-F-147 call
  *
- * Reaches ..... 561 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 567 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -194,7 +196,7 @@ export function isEmailVerified(): boolean {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 543 more — the full list is on functions_from_code
+ *               … and 549 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -479,7 +481,7 @@ export async function saveUserData(uid: string, data: object) {
 /** THE MASTER RECORD IN THE CLOUD (his "yes", 2026-11-11): one encrypted document per part, under
  *  users/{uid}/assetRecord/{part} — readable and writable only by the account holder and a household member (the rules for
  *  users/{uid} and everything under it). The parts and which to write are decided in services/sync/assetRecordCloud. */
-/* ─ MK-XS-F-222 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+/* ─ MK-XS-F-222 ──────────────────────────────────────────────────────────────────── 1 · ACTION
  * saveAssetRecordPart
  *
  * Answers ..... THE MASTER RECORD IN THE CLOUD (his "yes", 2026-11-11): one encrypted document per part, under users/{uid}/assetRecord/{part} — readable and writable only by the account holder and a household member (the rules for users/{uid} and everything under it).
@@ -517,7 +519,7 @@ export async function saveAssetRecordPart(uid: string, part: number, rows: unkno
  *     nothing   otherwise
  *     the answer:
  *     (plain as any).rows   if array.is array((plain as any).rows)
- *     nothing   otherwise
+ *     UNREADABLE   otherwise
  *
  * Called by ... nothing — it is an entry point, or nothing reaches it
  *
@@ -526,12 +528,193 @@ export async function saveAssetRecordPart(uid: string, part: number, rows: unkno
  * Formula also on the master file · functions_from_code · MK-XS-F-223
  * Changed ..... 2026-11-11 (d188fd68)
  */
-export async function loadAssetRecordPart(uid: string, part: number): Promise<unknown[] | null> {
+export async function loadAssetRecordPart(uid: string, part: number): Promise<PartRead> {
   const snap = await getDoc(doc(db, 'users', uid, 'assetRecord', String(part)));
-  if (!snap.exists()) return null;
+  if (!snap.exists()) return null;   // no such part: the record ends before it
   const d = snap.data();
   const plain = d?.enc != null ? await decryptFromSync(d.enc) : null;
-  return Array.isArray((plain as any)?.rows) ? (plain as any).rows : null;
+  // the part is there but cannot be read (no key on this phone yet, or the text does not open): told apart from "no such part",
+  // so it is never taken as the end of the record (outside check 2, 2026-11-12)
+  return Array.isArray((plain as any)?.rows) ? (plain as any).rows : UNREADABLE;
+}
+
+/** The marker beside the record's parts (users/{uid}/assetRecord/marker): which phone saved last, how many rows, the last row.
+ *  Null where no phone has saved one yet. */
+/* ─ MK-XS-F-231 ──────────────────────────────────────────────────────────── 4 · BRINGS DATA IN
+ * loadAssetRecordMarker
+ *
+ * Answers ..... The marker beside the record's parts (users/{uid}/assetRecord/marker): which phone saved last, how many rows, the last row.
+ *
+ * Formula .....
+ *     snap = await get doc(doc(db, 'users', uid, 'assetRecord', 'marker'))
+ *     the answer:
+ *     marker from(snap.data())   if snap.exists()
+ *     nothing   otherwise
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-231
+ * Changed ..... not in git yet (—)
+ */
+export async function loadAssetRecordMarker(uid: string): Promise<CloudMarker | null> {
+  const snap = await getDoc(doc(db, 'users', uid, 'assetRecord', 'marker'));
+  return snap.exists() ? markerFrom(snap.data()) : null;
+}
+
+/* ─ MK-XS-F-232 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * markerFrom
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     nothing   when d is missing (or writer is not a string (or rows is not a number when missing or zero) when missing or zero)
+ *     writer = writer
+ *     rows = rows
+ *     last row id = last row id (or nothing when missing)
+ *     last written at = last written at (or nothing when missing)
+ *     at = at
+ *
+ * Called by ... MK-XS-F-231 loadAssetRecordMarker · MK-XS-F-233 commitAssetRecord
+ *
+ * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-233 commitAssetRecord · MK-XS-F-231 loadAssetRecordMarker
+ *               MK-XS-F-239 loadCloudRecord
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-232
+ * Changed ..... not in git yet (—)
+ */
+function markerFrom(d: any): CloudMarker | null {
+  if (!d || typeof d.writer !== 'string' || typeof d.rows !== 'number') return null;
+  return { writer: d.writer, rows: d.rows, lastRowId: d.lastRowId ?? null, lastWrittenAt: d.lastWrittenAt ?? null, at: d.at };
+}
+
+/** SAVE THE RECORD'S PARTS ONLY WHERE THIS PHONE SAVED OR READ THE CLOUD'S COPY LAST (his "go", 2026-11-12). One cloud
+ *  transaction reads the marker and, only where it still equals `expected`, writes the parts and the new marker together;
+ *  where another phone saved in between, the transaction is retried by the cloud, sees the new marker, and writes nothing.
+ *  Every part is encrypted first; where there is no key yet, nothing is written at all. */
+/* ─ MK-XS-F-233 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * commitAssetRecord
+ *
+ * Answers ..... SAVE THE RECORD'S PARTS ONLY WHERE THIS PHONE SAVED OR READ THE CLOUD'S COPY LAST (his "go", 2026-11-12).
+ *
+ * Formula .....
+ *     encs = []
+ *     enc = await encrypt for sync({ rows: JSON.parse(JSON.stringify(rows)) })
+ *     status = 'no − key'   when enc = nothing
+ *     marker ref = doc(db, 'users', uid, 'assetRecord', 'marker')
+ *     snap = await tx.get(marker ref)
+ *     actual = marker from(snap.data())   if snap.exists()
+ *     nothing   otherwise
+ *     status = 'moved − on' as const
+ *     marker = actual   when !same marker(actual, expected)
+ *     the answer = status = 'saved' as const
+ *
+ * Called by ... MK-XS-F-239 loadCloudRecord
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-XS-F-239 loadCloudRecord
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-233
+ * Changed ..... not in git yet (—)
+ */
+export function commitAssetRecord(uid: string): CommitRecord {
+  return async (parts, expected, next) => {
+    const encs: { part: number; enc: string }[] = [];
+    for (const { part, rows } of parts) {
+      const enc = await encryptForSync({ rows: JSON.parse(JSON.stringify(rows)) });
+      if (enc == null) return { status: 'no-key' };   // NEVER store plaintext; the save is tried again later
+      encs.push({ part, enc });
+    }
+    const markerRef = doc(db, 'users', uid, 'assetRecord', 'marker');
+    return runTransaction(db, async (tx) => {
+      const snap = await tx.get(markerRef);
+      const actual = snap.exists() ? markerFrom(snap.data()) : null;
+      if (!sameMarker(actual, expected)) return { status: 'moved-on' as const, marker: actual };
+      for (const { part, enc } of encs) tx.set(doc(db, 'users', uid, 'assetRecord', String(part)), { enc });
+      tx.set(markerRef, { ...next });
+      return { status: 'saved' as const };
+    });
+  };
+}
+
+/** This phone's own id, made once and kept on the phone: the marker names the phone that saved the record last. */
+let phoneIdCache: string | null = null;
+/* ─ MK-XS-F-234 ──────────────────────────────────────────────────────────── 4 · BRINGS DATA IN
+ * getPhoneId
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     phone id cache   when phone id cache
+ *     key = 'moneykeel − phone − id'
+ *     id = await async storage.get item(KEY)
+ *     the answer = id
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Decides .....
+ *     · Uses today's date from the device clock, so the answer changes by itself overnight.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-234
+ * Changed ..... not in git yet (—)
+ */
+export async function getPhoneId(): Promise<string> {
+  if (phoneIdCache) return phoneIdCache;
+  const KEY = 'moneykeel-phone-id';
+  let id = await AsyncStorage.getItem(KEY);
+  if (!id) {
+    id = `phone-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}${Math.random().toString(36).slice(2, 10)}`;
+    await AsyncStorage.setItem(KEY, id);
+  }
+  phoneIdCache = id;
+  return id;
+}
+
+/** What must reach the cloud before a sign-out clears the phone: the app's root registers it (app/_layout.tsx), and the sign-out
+ *  waits for it, up to a few seconds, so nothing typed in the last two seconds is lost. */
+let signOutFlush: (() => Promise<void>) | null = null;
+/* ─ MK-XS-F-235 ──────────────────────────────────────────────────────────────────── 1 · ACTION
+ * onSignOutFlush
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-235
+ * Changed ..... not in git yet (—)
+ */
+export function onSignOutFlush(fn: (() => Promise<void>) | null) { signOutFlush = fn; }
+/* ─ MK-XS-F-236 ──────────────────────────────────────────────────────────────────── 1 · ACTION
+ * flushBeforeSignOut
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     It records or announces something and returns no figure — no arithmetic of its own.
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-236
+ * Changed ..... not in git yet (—)
+ */
+export async function flushBeforeSignOut(timeoutMs = 4000): Promise<void> {
+  if (!signOutFlush) return;
+  await Promise.race([signOutFlush().catch(() => {}), new Promise<void>((r) => setTimeout(r, timeoutMs))]);
 }
 
 /* ─ MK-XS-F-074 ──────────────────────────────────────────────────────────── 4 · BRINGS DATA IN

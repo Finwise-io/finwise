@@ -279,6 +279,11 @@
   "file": "MoneyKeel/functions/networth-and-performance/asset-record.ts",
   "category": "3 · DEPENDENT (feeds an action only)"
  },
+ "activityRefs": {
+  "id": "MK-NW-F-289",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record-from-broker.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
  "actualDebtPayment": {
   "id": "MK-CF-F-026",
   "file": "src/domain/debt/index.ts",
@@ -942,6 +947,11 @@
  "colFactor": {
   "id": "MK-PL-F-047",
   "file": "src/domain/retirement/col.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "commitAssetRecord": {
+  "id": "MK-XS-F-233",
+  "file": "src/services/firebase.ts",
   "category": "2 · DISPLAYED"
  },
  "compareMortgageToTreasury": {
@@ -1639,6 +1649,11 @@
   "file": "MoneyKeel/functions/_figure-spec.ts",
   "category": "2 · DISPLAYED"
  },
+ "flushBeforeSignOut": {
+  "id": "MK-XS-F-236",
+  "file": "src/services/firebase.ts",
+  "category": "1 · ACTION"
+ },
  "formatMoney": {
   "id": "MK-ST-F-049",
   "file": "src/domain/_shared/money.ts",
@@ -1732,6 +1747,11 @@
  "getOrCreateKey": {
   "id": "MK-XS-F-173",
   "file": "src/store/secureStorage.ts",
+  "category": "4 · BRINGS DATA IN"
+ },
+ "getPhoneId": {
+  "id": "MK-XS-F-234",
+  "file": "src/services/firebase.ts",
   "category": "4 · BRINGS DATA IN"
  },
  "getProfileReadModel": {
@@ -2299,6 +2319,11 @@
   "file": "src/domain/income/limits.ts",
   "category": "2 · DISPLAYED"
  },
+ "keptAwayByEvent": {
+  "id": "MK-NW-F-293",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
  "knownAmount": {
   "id": "MK-NW-F-155",
   "file": "src/domain/bonds/index.ts",
@@ -2394,6 +2419,11 @@
   "file": "src/services/appLock.ts",
   "category": "3 · DEPENDENT"
  },
+ "loadAssetRecordMarker": {
+  "id": "MK-XS-F-231",
+  "file": "src/services/firebase.ts",
+  "category": "4 · BRINGS DATA IN"
+ },
  "loadAssetRecordPart": {
   "id": "MK-XS-F-223",
   "file": "src/services/firebase.ts",
@@ -2403,6 +2433,11 @@
   "id": "MK-CF-F-015",
   "file": "src/domain/budget/index.ts",
   "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "loadCloudRecord": {
+  "id": "MK-XS-F-239",
+  "file": "src/services/sync/assetRecordCloud.ts",
+  "category": "2 · DISPLAYED"
  },
  "loadDebt": {
   "id": "MK-CF-F-039",
@@ -2427,7 +2462,7 @@
  "loadRecordFromCloud": {
   "id": "MK-XS-F-227",
   "file": "src/services/sync/assetRecordCloud.ts",
-  "category": "2 · DISPLAYED"
+  "category": "3 · DEPENDENT"
  },
  "loadSentry": {
   "id": "MK-XS-F-133",
@@ -2509,6 +2544,11 @@
   "file": "MoneyKeel/functions/networth-and-performance/asset-record-from-typed.ts",
   "category": "1 · ACTION"
  },
+ "lotsOf": {
+  "id": "MK-NW-F-291",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record-move.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
  "ltcgRateFor": {
   "id": "MK-CF-F-104",
   "file": "src/domain/income/tax.ts",
@@ -2568,6 +2608,16 @@
   "id": "MK-CF-F-103",
   "file": "src/domain/income/tax.ts",
   "category": "2 · DISPLAYED"
+ },
+ "markerFrom": {
+  "id": "MK-XS-F-232",
+  "file": "src/services/firebase.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "markerOf": {
+  "id": "MK-XS-F-237",
+  "file": "src/services/sync/assetRecordCloud.ts",
+  "category": "3 · DEPENDENT"
  },
  "marketGap": {
   "id": "MK-PF-F-066",
@@ -2789,6 +2839,11 @@
   "file": "src/domain/income/old-rent-migration.ts",
   "category": "3 · DEPENDENT (feeds an action only)"
  },
+ "movedMark": {
+  "id": "MK-NW-F-290",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record-move.ts",
+  "category": "1 · ACTION"
+ },
  "movementsOf": {
   "id": "MK-ST-F-082",
   "file": "Calculation Module code/engines/time-weighted-return.ts",
@@ -2949,6 +3004,11 @@
   "file": "Calculation Module code/engines/snapshots.ts",
   "category": "3 · DEPENDENT"
  },
+ "onSignOutFlush": {
+  "id": "MK-XS-F-235",
+  "file": "src/services/firebase.ts",
+  "category": "1 · ACTION"
+ },
  "oneHoldingSpelling": {
   "id": "MK-NW-F-232",
   "file": "MoneyKeel/functions/networth-and-performance/asset-record.ts",
@@ -3028,6 +3088,11 @@
   "id": "MK-PF-F-083",
   "file": "src/domain/performance/index.ts",
   "category": "3 · DEPENDENT"
+ },
+ "pairUp": {
+  "id": "MK-NW-F-292",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record-move.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
  },
  "parseCsv": {
   "id": "MK-XS-F-013",
@@ -3564,6 +3629,11 @@
   "file": "src/services/sync/assetRecordCloud.ts",
   "category": "3 · DEPENDENT"
  },
+ "recordWorkAllowed": {
+  "id": "MK-XS-F-241",
+  "file": "src/services/sync/assetRecordCloud.ts",
+  "category": "2 · DISPLAYED"
+ },
  "recordedBuysExplain": {
   "id": "MK-PF-F-080",
   "file": "src/domain/performance/index.ts",
@@ -3603,6 +3673,11 @@
   "id": "MK-XS-F-112",
   "file": "src/services/sync/snaptradeClient.ts",
   "category": "3 · DEPENDENT"
+ },
+ "removalKept": {
+  "id": "MK-NW-F-294",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
  },
  "remove": {
   "id": "MK-NW-F-220",
@@ -3984,6 +4059,11 @@
   "file": "MoneyKeel/functions/networth-and-performance/asset-record-from-file.ts",
   "category": "1 · ACTION"
  },
+ "sameMarker": {
+  "id": "MK-XS-F-238",
+  "file": "src/services/sync/assetRecordCloud.ts",
+  "category": "3 · DEPENDENT"
+ },
  "sameNumber": {
   "id": "MK-NW-F-237",
   "file": "MoneyKeel/functions/networth-and-performance/asset-record.ts",
@@ -3992,7 +4072,7 @@
  "sameShares": {
   "id": "MK-NW-F-274",
   "file": "MoneyKeel/functions/networth-and-performance/asset-record.ts",
-  "category": "3 · DEPENDENT (feeds an action only)"
+  "category": "1 · ACTION"
  },
  "sampleAskLine": {
   "id": "MK-PL-F-028",
@@ -4007,7 +4087,7 @@
  "saveAssetRecordPart": {
   "id": "MK-XS-F-222",
   "file": "src/services/firebase.ts",
-  "category": "2 · DISPLAYED"
+  "category": "1 · ACTION"
  },
  "saveBudget": {
   "id": "MK-CF-F-016",
@@ -4034,10 +4114,15 @@
   "file": "src/domain/profile/index.ts",
   "category": "1 · ACTION"
  },
+ "saveRecordGuarded": {
+  "id": "MK-XS-F-240",
+  "file": "src/services/sync/assetRecordCloud.ts",
+  "category": "2 · DISPLAYED"
+ },
  "saveRecordToCloud": {
   "id": "MK-XS-F-226",
   "file": "src/services/sync/assetRecordCloud.ts",
-  "category": "2 · DISPLAYED"
+  "category": "3 · DEPENDENT (feeds an action only)"
  },
  "saveUserData": {
   "id": "MK-XS-F-073",
