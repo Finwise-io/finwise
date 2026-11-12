@@ -141,6 +141,8 @@ test('(3) the re-saved file states no date: the same differences, plus the value
   expect(c.looked.accounts).toBeGreaterThanOrEqual(file.accounts);
   expect(c.looked.holdings).toBeGreaterThanOrEqual(file.holdings.length);
   expect(c.looked).toEqual({ accounts: 1, holdings: 4 });
+  // the old copy says its date is the import day, not the file's (outside check, 2026-11-12), so nothing reads it as the file's
+  expect(acct.value_as_of_from_file).toBe(false);
   expect(pinned(c.differences)).toEqual([
     ...FROM_THE_IMPORT,
     // His ruling (an undated file stays undated and asks for a date): the old copy dates the values by the phone's

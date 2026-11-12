@@ -357,10 +357,14 @@ describe('a correction is followed by whatever named the old row (audit round 1)
     expect(correctRow(sold(), '99', { price: 1 }, 'typed', '2026-11-11T09:00:00.000Z').problem).toMatch(/not in the record/);
   });
 
-  test('#21 a purchase a sale names is not taken away: the removal is refused and the sale keeps its $14,000', () => {
+  test('#21 a purchase a sale sold from is taken away when the account holder says so: the sale becomes a question, never a refusal', () => {
+    // his rule (2026-11-12): the account holder can always override. The 200 sold on Nov 10 had come from row 1; with row 1
+    // gone, the 100 of Nov 5 (row 2) is the one purchase they could have come from, and the account holder is asked
     const c = removeRow(sold(), '1', 'typed', '2026-11-11T09:00:00.000Z');
-    expect(c.problem).toMatch(/took shares from this purchase/);
-    expect(saleGain(c.record, '3')).toBe(14000);
+    expect(c.problem).toBeNull();
+    expect(rowsInForce(c.record).filter((r) => r.kind === 'PURCHASE').map((r) => r.rowId)).toEqual(['2']);
+    expect(salesNeedingAnAnswer(c.record, A).map((q) => [q.rowId, q.shares, q.choices.map((p) => p.rowId)])).toEqual([['3', 100, ['2']]]);
+    expect(soldBeyondRecord(c.record, A, 'MSFT')).toEqual([{ rowId: '3', shares: 100 }]);
   });
 });
 
@@ -2472,5 +2476,37 @@ describe('phase 1 round 8: each finding, held', () => {
     let r = addRows([], [purchase('2025-01-10', 70, 200)], '2026-06-01T17:00:00.000Z');
     r = addRows(r, [saleRow({ accountId: A, holding: 'MSFT', date: '2026-06-20', shares: 30, price: 230, source: 'linked' })], '2026-06-20T17:00:00.000Z');
     expect(differsFromGiven(r, '1', { date: '2026-06-25' }).map((d) => [d.field, d.given, d.entered])).toEqual([['date', '2025-01-10', '2026-06-25'], ['saleGain', 900, null], ['sharesHeld', 40, 70]]);
+  });
+});
+
+describe('the account holder can always take a row away, and put it back (outside check, 2026-11-12)', () => {
+  const vti = (over: Partial<NewRow>): NewRow => ({ accountId: A, holding: 'VTI', kind: 'PURCHASE', date: '2026-10-01', shares: 20, price: 100, amount: 2000, source: 'typed', ...over });
+
+  test('bought 20 VTI on Oct 1, sold 5 on Oct 15, then the buy is deleted: the removal is saved and the sale of 5 is a question, not a refusal', () => {
+    let r = addRows([], [vti({ ref: 'typed-txn:buy' })], '2026-10-01T17:00:00.000Z');
+    r = addRows(r, [saleRow({ accountId: A, holding: 'VTI', date: '2026-10-15', shares: 5, price: 120, source: 'typed' })], '2026-10-15T17:00:00.000Z');
+    const c = removeRow(r, '1', 'typed', '2026-11-12T09:00:00.000Z');
+    expect(c.problem).toBeNull();
+    expect(c.record).toHaveLength(3);                               // the buy and its removal both stay in the record
+    expect(rowsInForce(c.record).filter((x) => x.kind === 'PURCHASE')).toEqual([]);
+    // no purchase is left to have sold from: the 5 shares are sold beyond the record, and the shares held are 0, not 15
+    expect(soldBeyondRecord(c.record, A, 'VTI')).toEqual([{ rowId: '2', shares: 5 }]);
+    expect(sharesOnRecord(c.record, A, 'VTI')).toBe(0);
+    // a later purchase dated before the sale (Oct 10, 30 shares) is never chosen for it in silence: the account holder is asked
+    const more = addRows(c.record, [vti({ date: '2026-10-10', shares: 30, amount: 3000 })], '2026-11-12T10:00:00.000Z');
+    expect(salesNeedingAnAnswer(more, A).map((q) => [q.rowId, q.shares, q.choices.map((p) => [p.date, p.shares])])).toEqual([['2', 5, [['2026-10-10', 30]]]]);
+    // the answer names the purchase: the question is gone and 25 shares are held
+    const answered = correctRow(more, '2', { sells: [{ rowId: '4', shares: 5 }] }, 'typed', '2026-11-12T11:00:00.000Z').record;
+    expect([salesNeedingAnAnswer(answered, A), sharesOnRecord(answered, A, 'VTI'), saleGain(answered, '2')]).toEqual([[], 25, 100]);
+  });
+
+  test('100 VTI deleted, then added again with the same lot number: 100 shares on record, not 0', () => {
+    let r = addRows([], sortArriving([], [vti({ date: '2025-03-03', shares: 100, price: 80, amount: 8000, ref: 'typed-lot:acct-1:l1' })]).save, '2026-11-12T09:00:00.000Z');
+    r = removeRow(r, '1', 'typed', '2026-11-12T09:01:00.000Z').record;
+    expect(sharesOnRecord(r, A, 'VTI')).toBe(0);
+    r = addRows(r, sortArriving(r, [vti({ date: '2025-03-03', shares: 100, price: 80, amount: 8000, ref: 'typed-lot:acct-1:l1' })]).save, '2026-11-12T09:02:00.000Z');
+    expect(sharesOnRecord(r, A, 'VTI')).toBe(100);
+    // sent again, the same lot is saved once
+    expect(sortArriving(r, [vti({ date: '2025-03-03', shares: 100, price: 80, amount: 8000, ref: 'typed-lot:acct-1:l1' })]).save).toEqual([]);
   });
 });

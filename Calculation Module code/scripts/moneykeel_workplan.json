@@ -5226,6 +5226,30 @@
     "status": "TO DO — ruled 2026-11-10, not coded yet; step 1 is being written",
     "comments": "His words, 2026-11-10, on DEC-10342 word for word."
    }
+  },
+  {
+   "task": "Today's value of an account typed by hand leaves out money recorded after its last value (found by the phase 2 comparison check, 2026-11-11)",
+   "todo": "1. Phase 3: the part that works out today's value from the master record adds deposits, withdrawals, dividends and interest dated after the last value. 2. A test holds his example: Savings $1,000 as of Nov 1, plus $500 moved in on Nov 12, reads $1,500.",
+   "status": "TO DO — phase 3, step 1",
+   "ref": "DEC-10342 · MK-NW-F-244 valuesNow · src/__tests__/compare_typed_households_2026_11_11.test.ts",
+   "date": "2026-11-12",
+   "comments": "",
+   "_written": {
+    "status": "TO DO — phase 3, step 1",
+    "comments": ""
+   }
+  },
+  {
+   "task": "Add an account: a balance left empty is saved as $0, not as not entered (found 2026-11-11)",
+   "todo": "1. Draw the fix on the Add an account mock first. 2. An empty balance box saves no value, and no 'Value as of' date. 3. A test holds it.",
+   "status": "TO DO — phase 3; mock first",
+   "ref": "src/screens/AddAccountScreen.tsx · DEC-10342",
+   "date": "2026-11-12",
+   "comments": "",
+   "_written": {
+    "status": "TO DO — phase 3; mock first",
+    "comments": ""
+   }
   }
  ]
 }

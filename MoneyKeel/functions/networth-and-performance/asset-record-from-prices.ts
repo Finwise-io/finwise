@@ -20,28 +20,133 @@
 //   · It writes nothing when the values for that day are the same as the price feed's last ones (a refresh every ten
 //     minutes over a weekend adds one set, not hundreds).
 //   · It never changes the count of shares: values are what shares were worth, never a transaction.
-//   · It writes nothing for an account typed by hand whose total the account holder typed (not built from its holdings,
-//     derive_balance): its holdings are a part of that total tracked for performance, so their prices are not its value
-//     (comparison check, 2026-11-11).
+//   · It values ONLY an account built from its holdings (derive_balance true, set by a file import). For an account typed
+//     by hand the balance the account holder typed is its value, and its holdings are a part of it tracked for
+//     performance, so their prices are not its value (owner's ruling; comparison check, 2026-11-11). An account with no
+//     `source` at all — every sign-up account and older rows — is one typed by hand (outside check, 2026-11-12: only
+//     'manual' was checked, so a typed $40,000 read $70,000 after a refresh and a sign-up $50,000 read unknown).
+//   · It writes nothing for an account that is no longer among the accounts, or that the record says was removed
+//     (outside check, 2026-11-12: a deleted typed account still got a price-feed value).
 import {
-  rowsInForce, sharesOnRecord, valueBatchesOf, valueRows, oneHoldingSpelling,
+  rowsInForce, sharesOnRecord, valueBatchesOf, valueRows, oneHoldingSpelling, factsOf,
   type AssetRow, type NewRow, type ValueBatch,
 } from './asset-record';
 import { closeOnOrBefore, staleStartClose, contractMultiplier, type PriceSeries, type Position } from '../../../src/domain/performance';
 
 const EPS = 1e-9;
+/** Whether two amounts are the same to a billionth, or both missing. */
+/* ─ MK-NW-F-202 ──────────────────────────────────────────────────────────────────── 1 · ACTION
+ * equalOrBothBlank
+ *
+ * Answers ..... Whether two amounts are the same to a billionth, or both missing.
+ *
+ * Formula .....
+ *     x = nothing and y = nothing   if x = nothing (or y = nothing when missing or zero)
+ *     size of(x − y) ≤ EPS   otherwise
+ *
+ * Called by ... MK-NW-F-205 priceFeedValues
+ *
+ * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-205 priceFeedValues · MK-XS-F-199 profileOnTheWayIn
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-202
+ * Changed ..... not in git yet (—)
+ */
 const equalOrBothBlank = (x: number | null | undefined, y: number | null | undefined) => (x == null || y == null ? x == null && y == null : Math.abs(x - y) <= EPS);
+/** Whether a day of values was given by the broker, a file or the account holder, not calculated from the price feed. */
+/* ─ MK-NW-F-203 ──────────────────────────────────────────────────────────────────── 1 · ACTION
+ * isGiven
+ *
+ * Answers ..... Whether a day of values was given by the broker, a file or the account holder, not calculated from the price feed.
+ *
+ * Formula .....
+ *     source ! = 'price − feed'
+ *
+ * Called by ... MK-NW-F-204 lastGivenBy · MK-NW-F-205 priceFeedValues
+ *
+ * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-204 lastGivenBy · MK-NW-F-205 priceFeedValues
+ *               MK-XS-F-199 profileOnTheWayIn
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-203
+ * Changed ..... not in git yet (—)
+ */
 const isGiven = (b: ValueBatch) => b.source !== 'price-feed';
 
 /** The latest values given (not the price feed's) dated on or before a day — the cash and the holdings' figures to
  *  carry where the feed has none. */
+/* ─ MK-NW-F-204 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+ * lastGivenBy
+ *
+ * Answers ..... The latest values given (not the price feed's) dated on or before a day — the cash and the holdings' figures to carry where the feed has none.
+ *
+ * Formula .....
+ *     fit = batches where is given(each) and date ≠ nothing and date ≤ day
+ *     fit.reduce((a, b) => ((date as string) > (date as string) or (date = date and written at ≥ written at) ? b : a))   when count of fit
+ *     undated = batches where is given(each) and date = nothing
+ *     the answer:
+ *     undated.reduce((a, b) => (written at ≥ written at ? b : a))   if count of undated
+ *     nothing   otherwise
+ *
+ * Called by ... MK-NW-F-205 priceFeedValues
+ *
+ * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-205 priceFeedValues · MK-XS-F-199 profileOnTheWayIn
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-204
+ * Changed ..... not in git yet (—)
+ */
 function lastGivenBy(batches: ValueBatch[], day: string): ValueBatch | null {
   const fit = batches.filter((b) => isGiven(b) && b.date != null && b.date <= day);
-  return fit.length ? fit.reduce((a, b) => ((b.date as string) > (a.date as string) || (b.date === a.date && b.writtenAt >= a.writtenAt) ? b : a)) : null;
+  if (fit.length) return fit.reduce((a, b) => ((b.date as string) > (a.date as string) || (b.date === a.date && b.writtenAt >= a.writtenAt) ? b : a));
+  // values given with no date (a sign-up answer, cash typed with no as-of day) are not passed over: with nothing dated on
+  // or before the day, the latest undated set is the one last given (outside check, 2026-11-12)
+  const undated = batches.filter((b) => isGiven(b) && b.date == null);
+  return undated.length ? undated.reduce((a, b) => (b.writtenAt >= a.writtenAt ? b : a)) : null;
 }
 
 /** THE PRICE FEED'S VALUES FOR EACH ACCOUNT WITH HOLDINGS ON RECORD, as rows to save. `accounts` gives each holding's
  *  quote (an option, a bond quoted per $100); `prices` is the price cache, keyed by ticker in capitals. */
+/* ─ MK-NW-F-205 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+ * priceFeedValues
+ *
+ * Answers ..... THE PRICE FEED'S VALUES FOR EACH ACCOUNT WITH HOLDINGS ON RECORD, as rows to save.
+ *
+ * Formula .....
+ *     out = []
+ *     live = rows in force(record)
+ *     ids = [...new set(live.filter((r) => holding ≠ nothing and (kind = 'PURCHASE' or kind = 'TRANSFER')).map((r) => account id))]
+ *     acct = accounts.find((a) => string(asset id) = id)
+ *     last days = for each of held: prices[each].points.at(-1).date where (d): d is string => typeof d = 'string'
+ *     day = last days.reduce((a, b) => (b > a ? b : a))
+ *     batches = value batches of(record, id)
+ *     given = last given by(batches, day)
+ *     positions = accounts.find((a) => string(asset id) = id).positions (or none when missing)
+ *     shares = shares on record(record, id, h, day)
+ *     close = close on or before(prices[h], day)
+ *     [LOOP — the answer is found inside a loop the extractor cannot render; the steps above are the ones before it. Read by hand.]
+ *     … the first steps only — the rest of the body needs reading by hand.
+ *
+ * Called by ... MK-XS-F-199 profileOnTheWayIn
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-XS-F-199 profileOnTheWayIn
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-004 holding quantity (shares)
+ *               MK-XS-I-005 holding price
+ *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
+ *               MK-XS-I-063 option contract multiplier — 100 unless the broker or the person states otherwise
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-205
+ * Changed ..... 2026-11-11 (c4a137f1)
+ */
 export function priceFeedValues(
   record: readonly AssetRow[],
   accounts: readonly { asset_id: string | number; positions?: Position[]; source?: string; derive_balance?: boolean }[],
@@ -52,7 +157,8 @@ export function priceFeedValues(
   const ids = [...new Set(live.filter((r) => r.holding != null && (r.kind === 'PURCHASE' || r.kind === 'TRANSFER')).map((r) => r.accountId))];
   for (const id of ids) {
     const acct = accounts.find((a) => String(a.asset_id) === id);
-    if (acct && acct.source === 'manual' && acct.derive_balance !== true) continue;
+    // only an account built from its holdings is valued from prices; one gone from the accounts, or removed on the record, gets nothing
+    if (!acct || acct.derive_balance !== true || factsOf(record, id, null).accountRemoved === true) continue;
     const held = [...new Set(live.filter((r) => r.holding != null && (r.accountId === id || r.toAccountId === id)).map((r) => r.holding as string))]
       .filter((h) => sharesOnRecord(record, id, h) > EPS);
     if (!held.length) continue;

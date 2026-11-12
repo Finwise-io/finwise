@@ -184,6 +184,11 @@
   "file": "MoneyKeel/functions/networth-and-performance/net-worth.ts",
   "category": "3 · DEPENDENT"
  },
+ "abs": {
+  "id": "MK-NW-F-189",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record-from-broker.ts",
+  "category": "1 · ACTION"
+ },
  "accountAllowsTicker": {
   "id": "MK-NW-F-005",
   "file": "src/domain/assets/index.ts",
@@ -218,6 +223,11 @@
   "id": "MK-NW-F-024",
   "file": "src/domain/assets/index.ts",
   "category": "3 · DEPENDENT"
+ },
+ "accountValueRows": {
+  "id": "MK-NW-F-214",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record-from-typed.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
  },
  "accountValuesOn": {
   "id": "MK-ST-F-083",
@@ -264,6 +274,11 @@
   "file": "src/services/sync/snaptrade.ts",
   "category": "3 · DEPENDENT (feeds an action only)"
  },
+ "activityOf": {
+  "id": "MK-NW-F-284",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
  "actualDebtPayment": {
   "id": "MK-CF-F-026",
   "file": "src/domain/debt/index.ts",
@@ -293,6 +308,11 @@
   "id": "MK-XS-F-090",
   "file": "src/services/notifications.ts",
   "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "addRows": {
+  "id": "MK-NW-F-233",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record.ts",
+  "category": "3 · DEPENDENT"
  },
  "addedAfterRecord": {
   "id": "MK-CF-F-231",
@@ -404,6 +424,21 @@
   "file": "src/domain/income/onboarding.ts",
   "category": "3 · DEPENDENT (feeds an action only)"
  },
+ "answerEventQuestion": {
+  "id": "MK-NW-F-273",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "answerListQuestion": {
+  "id": "MK-NW-F-278",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "answerValuesQuestion": {
+  "id": "MK-NW-F-248",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
  "applyTransaction": {
   "id": "MK-CF-F-111",
   "file": "src/domain/transactions/index.ts",
@@ -413,6 +448,21 @@
   "id": "MK-NW-F-060",
   "file": "src/domain/bonds/index.ts",
   "category": "3 · DEPENDENT"
+ },
+ "arrive": {
+  "id": "MK-NW-F-218",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record-from-typed.ts",
+  "category": "1 · ACTION"
+ },
+ "arrivingKey": {
+  "id": "MK-NW-F-268",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record.ts",
+  "category": "1 · ACTION"
+ },
+ "asFileList": {
+  "id": "MK-NW-F-225",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record-move.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
  },
  "asPercent": {
   "id": "MK-CF-F-182",
@@ -534,6 +584,11 @@
   "file": "src/domain/income/onboarding.ts",
   "category": "2 · DISPLAYED"
  },
+ "besideTheList": {
+  "id": "MK-NW-F-275",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
  "biggestOutLine": {
   "id": "MK-CF-F-318",
   "file": "MoneyKeel/functions/cashflow/this-month.ts",
@@ -598,6 +653,11 @@
   "id": "MK-ST-F-086",
   "file": "Calculation Module code/engines/holding-class.ts",
   "category": "3 · DEPENDENT"
+ },
+ "brokerUpdateToRecord": {
+  "id": "MK-NW-F-194",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record-from-broker.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
  },
  "budgetEditorBuckets": {
   "id": "MK-CF-F-256",
@@ -909,14 +969,29 @@
   "file": "src/domain/income/take-home-mode-migration.ts",
   "category": "3 · DEPENDENT (feeds an action only)"
  },
+ "correct": {
+  "id": "MK-NW-F-219",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record-from-typed.ts",
+  "category": "1 · ACTION"
+ },
  "correctClassOf": {
   "id": "MK-NW-F-053",
   "file": "src/domain/assets/reclassify.ts",
   "category": "3 · DEPENDENT"
  },
+ "correctRow": {
+  "id": "MK-NW-F-281",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record.ts",
+  "category": "3 · DEPENDENT"
+ },
  "costBasis": {
   "id": "MK-PF-F-002",
   "file": "src/domain/performance/index.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "costPerUnit": {
+  "id": "MK-NW-F-198",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record-from-file.ts",
   "category": "3 · DEPENDENT (feeds an action only)"
  },
  "countedTaxableLine": {
@@ -999,6 +1074,16 @@
   "file": "src/domain/gaps/index.ts",
   "category": "2 · DISPLAYED"
  },
+ "dateAsGiven": {
+  "id": "MK-NW-F-208",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record-from-typed.ts",
+  "category": "1 · ACTION"
+ },
+ "dateAsSent": {
+  "id": "MK-NW-F-190",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record-from-broker.ts",
+  "category": "1 · ACTION"
+ },
  "dateShown": {
   "id": "MK-ST-F-078",
   "file": "src/domain/_shared/dates.ts",
@@ -1024,6 +1109,16 @@
   "file": "src/domain/performance/index.ts",
   "category": "3 · DEPENDENT"
  },
+ "dayOfInstant": {
+  "id": "MK-NW-F-286",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record-from-broker.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "dayOrNull": {
+  "id": "MK-NW-F-229",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record.ts",
+  "category": "3 · DEPENDENT"
+ },
  "dayWords": {
   "id": "MK-ST-F-003",
   "file": "Calculation Module code/engines/coverage.ts",
@@ -1038,6 +1133,11 @@
   "id": "MK-CF-F-160",
   "file": "src/domain/cashflow/index.ts",
   "category": "3 · DEPENDENT"
+ },
+ "daysFromOneDateToAnother": {
+  "id": "MK-NW-F-267",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record.ts",
+  "category": "1 · ACTION"
  },
  "daysInMonth": {
   "id": "MK-ST-F-098",
@@ -1158,6 +1258,11 @@
   "id": "MK-XS-F-138",
   "file": "src/services/dataCrypto.ts",
   "category": "3 · DEPENDENT"
+ },
+ "differsFromGiven": {
+  "id": "MK-NW-F-279",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
  },
  "directionOf": {
   "id": "MK-ST-F-009",
@@ -1294,6 +1399,11 @@
   "file": "MoneyKeel/functions/cashflow/base-pay.ts",
   "category": "2 · DISPLAYED"
  },
+ "equalOrBothBlank": {
+  "id": "MK-NW-F-202",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record-from-prices.ts",
+  "category": "1 · ACTION"
+ },
  "equityByMonth": {
   "id": "MK-CF-F-018",
   "file": "src/domain/cashflow/index.ts",
@@ -1334,6 +1444,11 @@
   "file": "src/domain/bonds/index.ts",
   "category": "3 · DEPENDENT"
  },
+ "eventAnswers": {
+  "id": "MK-NW-F-269",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
  "eventDays": {
   "id": "MK-PF-F-079",
   "file": "src/domain/performance/index.ts",
@@ -1343,6 +1458,16 @@
   "id": "MK-PF-F-077",
   "file": "src/domain/performance/index.ts",
   "category": "3 · DEPENDENT"
+ },
+ "eventRow": {
+  "id": "MK-NW-F-193",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record-from-broker.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "eventsThatDiffer": {
+  "id": "MK-NW-F-271",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
  },
  "expenses": {
   "id": "MK-CF-O-002",
@@ -1359,10 +1484,20 @@
   "file": "src/domain/income/onboarding.ts",
   "category": "2 · DISPLAYED"
  },
+ "factRow": {
+  "id": "MK-NW-F-215",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record-from-typed.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
  "factorOverMonths": {
   "id": "MK-PF-F-022",
   "file": "src/domain/performance/lookBack.ts",
   "category": "3 · DEPENDENT"
+ },
+ "factsOf": {
+  "id": "MK-NW-F-285",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
  },
  "feeNotInPrice": {
   "id": "MK-PF-F-057",
@@ -1403,6 +1538,31 @@
   "id": "MK-XS-F-216",
   "file": "src/domain/import/holdingsImport.ts",
   "category": "3 · DEPENDENT"
+ },
+ "fileFacts": {
+  "id": "MK-NW-F-227",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record-move.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "fileHoldingName": {
+  "id": "MK-NW-F-196",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record-from-file.ts",
+  "category": "1 · ACTION"
+ },
+ "fileRowsToSave": {
+  "id": "MK-NW-F-201",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record-from-file.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "fileToRecord": {
+  "id": "MK-NW-F-199",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record-from-file.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "fileValues": {
+  "id": "MK-NW-F-226",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record-move.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
  },
  "filingStatusOf": {
   "id": "MK-CF-F-085",
@@ -1447,6 +1607,11 @@
  "firstEvent": {
   "id": "MK-PF-F-076",
   "file": "src/domain/performance/index.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "firstRowOf": {
+  "id": "MK-NW-F-235",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record.ts",
   "category": "3 · DEPENDENT"
  },
  "fixStoredFees": {
@@ -1578,6 +1743,11 @@
   "id": "MK-ST-F-041",
   "file": "src/domain/_shared/firestore.ts",
   "category": "4 · BRINGS DATA IN"
+ },
+ "givenNumber": {
+  "id": "MK-NW-F-207",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record-from-typed.ts",
+  "category": "1 · ACTION"
  },
  "goalMonthsRemaining": {
   "id": "MK-PL-F-019",
@@ -1714,6 +1884,11 @@
   "file": "src/domain/assets/index.ts",
   "category": "2 · DISPLAYED"
  },
+ "historyPurchaseRow": {
+  "id": "MK-NW-F-265",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
  "holdingBondFacts": {
   "id": "MK-NW-F-141",
   "file": "MoneyKeel/functions/networth-and-performance/bonds.ts",
@@ -1804,6 +1979,11 @@
   "file": "src/domain/import/holdingsImport.ts",
   "category": "2 · DISPLAYED"
  },
+ "importedListDay": {
+  "id": "MK-NW-F-288",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record-move.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
  "inMonth": {
   "id": "MK-CF-F-148",
   "file": "MoneyKeel/functions/cashflow/logged-expenses.ts",
@@ -1884,6 +2064,11 @@
   "file": "src/services/crashReporter.ts",
   "category": "1 · ACTION"
  },
+ "instantOf": {
+  "id": "MK-NW-F-231",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record.ts",
+  "category": "3 · DEPENDENT"
+ },
  "interestAndDividendsForYear": {
   "id": "MK-CF-F-264",
   "file": "src/domain/income/from-accounts.ts",
@@ -1963,6 +2148,11 @@
   "id": "MK-XS-F-051",
   "file": "src/services/dataCrypto.ts",
   "category": "3 · DEPENDENT"
+ },
+ "isGiven": {
+  "id": "MK-NW-F-203",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record-from-prices.ts",
+  "category": "1 · ACTION"
  },
  "isIndividualBondOrCD": {
   "id": "MK-PF-F-047",
@@ -2134,6 +2324,16 @@
   "file": "MoneyKeel/functions/networth-and-performance/performance.ts",
   "category": "2 · DISPLAYED"
  },
+ "lastGivenBy": {
+  "id": "MK-NW-F-204",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record-from-prices.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "lastListDay": {
+  "id": "MK-NW-F-264",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
  "latestClose": {
   "id": "MK-PF-F-009",
   "file": "src/domain/performance/index.ts",
@@ -2174,6 +2374,11 @@
   "file": "src/domain/assets/index.ts",
   "category": "3 · DEPENDENT"
  },
+ "listAnswered": {
+  "id": "MK-NW-F-266",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
  "listedShares": {
   "id": "MK-NW-F-171",
   "file": "MoneyKeel/functions/networth-and-performance/account.ts",
@@ -2188,6 +2393,11 @@
   "id": "MK-XS-F-132",
   "file": "src/services/appLock.ts",
   "category": "3 · DEPENDENT"
+ },
+ "loadAssetRecordPart": {
+  "id": "MK-XS-F-223",
+  "file": "src/services/firebase.ts",
+  "category": "4 · BRINGS DATA IN"
  },
  "loadBudget": {
   "id": "MK-CF-F-015",
@@ -2213,6 +2423,11 @@
   "id": "MK-XS-F-021",
   "file": "src/domain/profile/index.ts",
   "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "loadRecordFromCloud": {
+  "id": "MK-XS-F-227",
+  "file": "src/services/sync/assetRecordCloud.ts",
+  "category": "2 · DISPLAYED"
  },
  "loadSentry": {
   "id": "MK-XS-F-133",
@@ -2278,6 +2493,21 @@
   "id": "MK-ST-F-092",
   "file": "Calculation Module code/engines/snapshots.ts",
   "category": "2 · DISPLAYED"
+ },
+ "lotRef": {
+  "id": "MK-NW-F-210",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record-from-typed.ts",
+  "category": "1 · ACTION"
+ },
+ "lotRow": {
+  "id": "MK-NW-F-213",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record-from-typed.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "lotsFollow": {
+  "id": "MK-NW-F-221",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record-from-typed.ts",
+  "category": "1 · ACTION"
  },
  "ltcgRateFor": {
   "id": "MK-CF-F-104",
@@ -2549,6 +2779,11 @@
   "file": "MoneyKeel/functions/networth-and-performance/net-worth.ts",
   "category": "3 · DEPENDENT"
  },
+ "moveOldCopies": {
+  "id": "MK-NW-F-228",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record-move.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
  "moveOldRentFigure": {
   "id": "MK-CF-F-218",
   "file": "src/domain/income/old-rent-migration.ts",
@@ -2689,6 +2924,11 @@
   "file": "src/domain/planning/hub.ts",
   "category": "2 · DISPLAYED"
  },
+ "oldestLotFirst": {
+  "id": "MK-NW-F-251",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record.ts",
+  "category": "1 · ACTION"
+ },
  "on": {
   "id": "MK-ST-F-039",
   "file": "src/domain/_shared/eventBus.ts",
@@ -2709,6 +2949,16 @@
   "file": "Calculation Module code/engines/snapshots.ts",
   "category": "3 · DEPENDENT"
  },
+ "oneHoldingSpelling": {
+  "id": "MK-NW-F-232",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record.ts",
+  "category": "1 · ACTION"
+ },
+ "openPurchases": {
+  "id": "MK-NW-F-253",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
  "openingRecordsHeld": {
   "id": "MK-CF-F-288",
   "file": "src/domain/transactions/index.ts",
@@ -2717,6 +2967,16 @@
  "openingRecordsOf": {
   "id": "MK-CF-F-224",
   "file": "src/domain/transactions/index.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "openingRow": {
+  "id": "MK-NW-F-223",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record-from-typed.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "optionName": {
+  "id": "MK-NW-F-192",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record-from-broker.ts",
   "category": "3 · DEPENDENT (feeds an action only)"
  },
  "optionTradesOnTheWayIn": {
@@ -2789,10 +3049,20 @@
   "file": "src/services/receiptOCR.ts",
   "category": "4 · BRINGS DATA IN"
  },
+ "partsOf": {
+  "id": "MK-XS-F-224",
+  "file": "src/services/sync/assetRecordCloud.ts",
+  "category": "3 · DEPENDENT"
+ },
  "partsShown": {
   "id": "MK-XS-F-194",
   "file": "MoneyKeel/functions/_figure-spec.ts",
   "category": "2 · DISPLAYED"
+ },
+ "partsToWrite": {
+  "id": "MK-XS-F-225",
+  "file": "src/services/sync/assetRecordCloud.ts",
+  "category": "3 · DEPENDENT"
  },
  "pastMonthFlow": {
   "id": "MK-CF-F-220",
@@ -2949,6 +3219,11 @@
   "file": "src/services/receiptScan.ts",
   "category": "2 · DISPLAYED"
  },
+ "placedOn": {
+  "id": "MK-NW-F-240",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
  "planCompleteness": {
   "id": "MK-XS-F-001",
   "file": "src/domain/completeness/index.ts",
@@ -3028,6 +3303,11 @@
   "id": "MK-NW-F-069",
   "file": "src/domain/bonds/index.ts",
   "category": "3 · DEPENDENT"
+ },
+ "priceFeedValues": {
+  "id": "MK-NW-F-205",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record-from-prices.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
  },
  "priceFreshness": {
   "id": "MK-XS-F-082",
@@ -3149,6 +3429,11 @@
   "file": "src/domain/transactions/index.ts",
   "category": "3 · DEPENDENT (feeds an action only)"
  },
+ "purchasesFromList": {
+  "id": "MK-NW-F-277",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
  "purchasesHeld": {
   "id": "MK-PF-F-064",
   "file": "src/domain/performance/index.ts",
@@ -3198,6 +3483,11 @@
   "id": "MK-XS-F-009",
   "file": "src/domain/history.ts",
   "category": "2 · DISPLAYED"
+ },
+ "readImport": {
+  "id": "MK-NW-F-195",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record-from-file.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
  },
  "readMoney": {
   "id": "MK-ST-F-018",
@@ -3264,6 +3554,16 @@
   "file": "Calculation Module code/engines/snapshots.ts",
   "category": "2 · DISPLAYED"
  },
+ "recordOnSignIn": {
+  "id": "MK-XS-F-230",
+  "file": "src/services/sync/assetRecordCloud.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "recordToKeep": {
+  "id": "MK-XS-F-228",
+  "file": "src/services/sync/assetRecordCloud.ts",
+  "category": "3 · DEPENDENT"
+ },
  "recordedBuysExplain": {
   "id": "MK-PF-F-080",
   "file": "src/domain/performance/index.ts",
@@ -3303,6 +3603,16 @@
   "id": "MK-XS-F-112",
   "file": "src/services/sync/snaptradeClient.ts",
   "category": "3 · DEPENDENT"
+ },
+ "remove": {
+  "id": "MK-NW-F-220",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record-from-typed.ts",
+  "category": "1 · ACTION"
+ },
+ "removeRow": {
+  "id": "MK-NW-F-282",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record.ts",
+  "category": "2 · DISPLAYED"
  },
  "removeShares": {
   "id": "MK-CF-F-139",
@@ -3347,6 +3657,11 @@
  "repairHourlyTakeHome": {
   "id": "MK-CF-F-310",
   "file": "src/domain/income/take-home-mode-migration.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "replacedPurchase": {
+  "id": "MK-NW-F-276",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record.ts",
   "category": "3 · DEPENDENT (feeds an action only)"
  },
  "requestNotificationPermission": {
@@ -3544,10 +3859,20 @@
   "file": "Calculation Module code/engines/ledger.ts",
   "category": "1 · ACTION"
  },
+ "rowAsItStands": {
+  "id": "MK-NW-F-236",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record.ts",
+  "category": "3 · DEPENDENT"
+ },
  "rowOf": {
   "id": "MK-NW-F-072",
   "file": "MoneyKeel/functions/networth-and-performance/bonds.ts",
   "category": "3 · DEPENDENT"
+ },
+ "rowOfLot": {
+  "id": "MK-NW-F-216",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record-from-typed.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
  },
  "rowVestYear": {
   "id": "MK-CF-F-063",
@@ -3558,6 +3883,16 @@
   "id": "MK-ST-F-015",
   "file": "Calculation Module code/engines/ledger.ts",
   "category": "3 · DEPENDENT"
+ },
+ "rowsInForce": {
+  "id": "MK-NW-F-234",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "rowsNotYetSaved": {
+  "id": "MK-NW-F-239",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
  },
  "rsuAnnual": {
   "id": "MK-CF-F-066",
@@ -3604,15 +3939,60 @@
   "file": "src/domain/income/salary-months.ts",
   "category": "3 · DEPENDENT (feeds an action only)"
  },
+ "saleGain": {
+  "id": "MK-NW-F-261",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "saleRow": {
+  "id": "MK-NW-F-258",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
  "saleShortOfPurchasesSentence": {
   "id": "MK-PF-F-046",
   "file": "src/domain/performance/realized.ts",
   "category": "2 · DISPLAYED"
  },
+ "salesMovedBy": {
+  "id": "MK-NW-F-272",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "salesNeedingAnAnswer": {
+  "id": "MK-NW-F-256",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "same": {
+  "id": "MK-NW-F-206",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record-from-typed.ts",
+  "category": "1 · ACTION"
+ },
  "sameCents": {
   "id": "MK-XS-F-218",
   "file": "src/domain/import/holdingsImport.ts",
   "category": "1 · ACTION"
+ },
+ "sameEventElsewhere": {
+  "id": "MK-NW-F-270",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "sameJson": {
+  "id": "MK-NW-F-200",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record-from-file.ts",
+  "category": "1 · ACTION"
+ },
+ "sameNumber": {
+  "id": "MK-NW-F-237",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record.ts",
+  "category": "1 · ACTION"
+ },
+ "sameShares": {
+  "id": "MK-NW-F-274",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
  },
  "sampleAskLine": {
   "id": "MK-PL-F-028",
@@ -3622,6 +4002,11 @@
  "sampleOddsLine": {
   "id": "MK-PL-F-025",
   "file": "src/domain/planning/hub.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "saveAssetRecordPart": {
+  "id": "MK-XS-F-222",
+  "file": "src/services/firebase.ts",
   "category": "2 · DISPLAYED"
  },
  "saveBudget": {
@@ -3648,6 +4033,11 @@
   "id": "MK-XS-F-022",
   "file": "src/domain/profile/index.ts",
   "category": "1 · ACTION"
+ },
+ "saveRecordToCloud": {
+  "id": "MK-XS-F-226",
+  "file": "src/services/sync/assetRecordCloud.ts",
+  "category": "2 · DISPLAYED"
  },
  "saveUserData": {
   "id": "MK-XS-F-073",
@@ -3799,6 +4189,26 @@
   "file": "src/domain/debt/index.ts",
   "category": "2 · DISPLAYED"
  },
+ "sharesOnRecord": {
+  "id": "MK-NW-F-262",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "sharesPerContract": {
+  "id": "MK-NW-F-191",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record-from-broker.ts",
+  "category": "1 · ACTION"
+ },
+ "sharesTakenBy": {
+  "id": "MK-NW-F-254",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "sharesThatDisagree": {
+  "id": "MK-NW-F-263",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
  "sharesThroughWindow": {
   "id": "MK-PF-F-073",
   "file": "src/domain/performance/index.ts",
@@ -3869,6 +4279,16 @@
   "file": "src/domain/income/onboarding.ts",
   "category": "3 · DEPENDENT"
  },
+ "soldBeyondRecord": {
+  "id": "MK-NW-F-255",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "soldFrom": {
+  "id": "MK-NW-F-260",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
  "soldOutPositions": {
   "id": "MK-PF-F-075",
   "file": "src/domain/performance/index.ts",
@@ -3883,6 +4303,11 @@
   "id": "MK-CF-F-106",
   "file": "src/domain/paycheck/index.ts",
   "category": "3 · DEPENDENT"
+ },
+ "sortArriving": {
+  "id": "MK-NW-F-238",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
  },
  "sourceWording": {
   "id": "MK-NW-F-045",
@@ -3923,6 +4348,21 @@
   "id": "MK-PL-F-086",
   "file": "src/domain/decumulation/index.ts",
   "category": "3 · DEPENDENT"
+ },
+ "splitByOf": {
+  "id": "MK-NW-F-280",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "splitOf": {
+  "id": "MK-NW-F-287",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record-from-broker.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "splitsBetween": {
+  "id": "MK-NW-F-283",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
  },
  "ssBenefitAt": {
   "id": "MK-PL-F-060",
@@ -3998,6 +4438,11 @@
   "id": "MK-PF-F-085",
   "file": "src/domain/performance/index.ts",
   "category": "3 · DEPENDENT"
+ },
+ "statedTotalGap": {
+  "id": "MK-NW-F-250",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
  },
  "stepDay": {
   "id": "MK-ST-F-068",
@@ -4174,6 +4619,11 @@
   "file": "MoneyKeel/functions/cashflow/income-summary.ts",
   "category": "2 · DISPLAYED"
  },
+ "theLater": {
+  "id": "MK-NW-F-243",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
  "theLookBack": {
   "id": "MK-NW-O-007",
   "file": "MoneyKeel/functions/networth-and-performance/look-back.ts",
@@ -4314,6 +4764,16 @@
   "file": "src/domain/performance/index.ts",
   "category": "3 · DEPENDENT"
  },
+ "transactionRow": {
+  "id": "MK-NW-F-217",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record-from-typed.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "transferRow": {
+  "id": "MK-NW-F-259",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
  "trendPoints": {
   "id": "MK-XS-F-005",
   "file": "src/domain/history.ts",
@@ -4329,10 +4789,35 @@
   "file": "src/domain/transactions/index.ts",
   "category": "2 · DISPLAYED"
  },
+ "txnRef": {
+  "id": "MK-NW-F-211",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record-from-typed.ts",
+  "category": "1 · ACTION"
+ },
  "typed": {
   "id": "MK-CF-F-216",
   "file": "src/domain/income/old-rent-migration.ts",
   "category": "1 · ACTION"
+ },
+ "typedAccountRows": {
+  "id": "MK-NW-F-222",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record-from-typed.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "typedChangeToRecord": {
+  "id": "MK-NW-F-224",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record-from-typed.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "typedIntoRecord": {
+  "id": "MK-XS-F-229",
+  "file": "src/store/useStore.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "typedSalesTheListContradicts": {
+  "id": "MK-NW-F-257",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
  },
  "typedValueDatedBack": {
   "id": "MK-XS-F-192",
@@ -4389,9 +4874,19 @@
   "file": "src/domain/assets/index.ts",
   "category": "3 · DEPENDENT"
  },
+ "unitPriceFactor": {
+  "id": "MK-NW-F-212",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record-from-typed.ts",
+  "category": "1 · ACTION"
+ },
  "unitWorth": {
   "id": "MK-ST-F-091",
   "file": "Calculation Module code/engines/snapshots.ts",
+  "category": "1 · ACTION"
+ },
+ "unitsOf": {
+  "id": "MK-NW-F-197",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record-from-file.ts",
   "category": "1 · ACTION"
  },
  "unitsOn": {
@@ -4479,6 +4974,11 @@
   "file": "src/domain/performance/index.ts",
   "category": "3 · DEPENDENT (feeds an action only)"
  },
+ "valueBatchesOf": {
+  "id": "MK-NW-F-242",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
  "valueChanged": {
   "id": "MK-NW-F-185",
   "file": "MoneyKeel/functions/networth-and-performance/net-worth.ts",
@@ -4509,9 +5009,44 @@
   "file": "src/domain/import/holdingsImport.ts",
   "category": "1 · ACTION"
  },
+ "valueRows": {
+  "id": "MK-NW-F-241",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
  "valuedByYouWords": {
   "id": "MK-PF-F-088",
   "file": "src/domain/performance/index.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "valuesAreTyped": {
+  "id": "MK-NW-F-209",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record-from-typed.ts",
+  "category": "1 · ACTION"
+ },
+ "valuesLastGiven": {
+  "id": "MK-NW-F-245",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "valuesNeedingADate": {
+  "id": "MK-NW-F-249",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "valuesNow": {
+  "id": "MK-NW-F-244",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "valuesOn": {
+  "id": "MK-NW-F-246",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "valuesThatDiffer": {
+  "id": "MK-NW-F-247",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record.ts",
   "category": "3 · DEPENDENT (feeds an action only)"
  },
  "verdict": {
@@ -4569,10 +5104,20 @@
   "file": "MoneyKeel/functions/networth-and-performance/performance.ts",
   "category": "2 · DISPLAYED"
  },
+ "walkHolding": {
+  "id": "MK-NW-F-252",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record.ts",
+  "category": "3 · DEPENDENT"
+ },
  "walkShown": {
   "id": "MK-XS-F-193",
   "file": "MoneyKeel/functions/_figure-spec.ts",
   "category": "2 · DISPLAYED"
+ },
+ "wasGiven": {
+  "id": "MK-NW-F-230",
+  "file": "MoneyKeel/functions/networth-and-performance/asset-record.ts",
+  "category": "1 · ACTION"
  },
  "waterfall": {
   "id": "MK-PL-F-012",

@@ -116,11 +116,15 @@ export interface LedgerRow {
  *     legacy = TO_LEGACY[event]
  *     is trade = legacy = 'BUY' (or legacy = 'SELL' when missing or zero)
  *
- * Called by ... MK-XS-F-102 ingestSync · MK-XS-F-188 fixStoredFees
+ * Called by ... MK-NW-F-192 optionName · MK-NW-F-193 eventRow
+ *               MK-XS-F-102 ingestSync · MK-XS-F-188 fixStoredFees
  *
- * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 11 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-194 brokerUpdateToRecord · MK-NW-F-193 eventRow
+ *               MK-NW-F-201 fileRowsToSave · MK-NW-F-199 fileToRecord
  *               MK-XS-F-188 fixStoredFees · MK-XS-F-219 importedAccountOf
- *               MK-XS-F-102 ingestSync · MK-XS-F-199 profileOnTheWayIn
+ *               MK-XS-F-102 ingestSync · MK-NW-F-192 optionName
+ *               MK-XS-F-199 profileOnTheWayIn · MK-NW-F-195 readImport
  *               MK-XS-F-192 typedValueDatedBack
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
@@ -232,7 +236,7 @@ export interface StoredMoneyRow { type?: string | null; amount?: unknown; direct
  *
  * Called by ... MK-ST-F-013 personalFlowTotals · MK-ST-F-088 moneyIntoAccount
  *
- * Reaches ..... 488 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 561 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -242,7 +246,7 @@ export interface StoredMoneyRow { type?: string | null; amount?: unknown; direct
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 470 more — the full list is on functions_from_code
+ *               … and 543 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -280,7 +284,7 @@ function readingOf(t: StoredMoneyRow): { sign: 1 | -1; size: boolean } {
  *               MK-ST-F-089 amountNotOnRecord · MK-XS-F-011 buildChangeWalk
  *               MK-XS-F-102 ingestSync
  *
- * Reaches ..... 488 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 561 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -290,7 +294,7 @@ function readingOf(t: StoredMoneyRow): { sign: 1 | -1; size: boolean } {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 470 more — the full list is on functions_from_code
+ *               … and 543 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -318,17 +322,17 @@ export function moneyIntoAccount(t: StoredMoneyRow): number | null {
  *
  * Called by ... MK-NW-O-002 theAccount
  *
- * Reaches ..... 43 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 49 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
  *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
  *               MK-NW-F-140 LEFT_OUT · MK-NW-F-083 PERF
  *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
- *               MK-NW-F-144 beforeTheRecordSentence · MK-PF-F-014 buildPerformance
- *               MK-CF-F-118 cashEffect · MK-NW-F-084 categoryEarnings
- *               MK-NW-F-142 classReturnOf · MK-PF-F-068 dayAfterDay
- *               MK-PF-F-012 earliestPurchaseDate · MK-PF-F-079 eventDays
- *               … and 25 more — the full list is on functions_from_code
+ *               MK-NW-F-144 beforeTheRecordSentence · MK-NW-F-194 brokerUpdateToRecord
+ *               MK-PF-F-014 buildPerformance · MK-CF-F-118 cashEffect
+ *               MK-NW-F-084 categoryEarnings · MK-NW-F-142 classReturnOf
+ *               MK-PF-F-068 dayAfterDay · MK-PF-F-012 earliestPurchaseDate
+ *               … and 31 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -361,17 +365,17 @@ export interface PersonalFlowTotals {
  * Called by ... MK-NW-O-002 theAccount · MK-NW-O-008 thePerformance
  *               MK-ST-F-012 toLedgerRow
  *
- * Reaches ..... 43 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 49 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
  *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
  *               MK-NW-F-140 LEFT_OUT · MK-NW-F-083 PERF
  *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
- *               MK-NW-F-144 beforeTheRecordSentence · MK-PF-F-014 buildPerformance
- *               MK-CF-F-118 cashEffect · MK-NW-F-084 categoryEarnings
- *               MK-NW-F-142 classReturnOf · MK-PF-F-068 dayAfterDay
- *               MK-PF-F-012 earliestPurchaseDate · MK-PF-F-079 eventDays
- *               … and 25 more — the full list is on functions_from_code
+ *               MK-NW-F-144 beforeTheRecordSentence · MK-NW-F-194 brokerUpdateToRecord
+ *               MK-PF-F-014 buildPerformance · MK-CF-F-118 cashEffect
+ *               MK-NW-F-084 categoryEarnings · MK-NW-F-142 classReturnOf
+ *               MK-PF-F-068 dayAfterDay · MK-PF-F-012 earliestPurchaseDate
+ *               … and 31 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-010 transaction words (the institution's own wording)
@@ -425,9 +429,13 @@ export interface ImportIdentity {
  *
  * Called by ... MK-XS-F-108 activityKey
  *
- * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
- *               MK-XS-F-108 activityKey · MK-XS-F-109 dedupeActivities
+ * Reaches ..... 11 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-108 activityKey · MK-NW-F-194 brokerUpdateToRecord
+ *               MK-XS-F-109 dedupeActivities · MK-NW-F-193 eventRow
+ *               MK-NW-F-201 fileRowsToSave · MK-NW-F-199 fileToRecord
  *               MK-XS-F-219 importedAccountOf · MK-XS-F-102 ingestSync
+ *               MK-XS-F-199 profileOnTheWayIn · MK-NW-F-195 readImport
+ *               MK-NW-F-287 splitOf
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-010 transaction words (the institution's own wording)
@@ -549,7 +557,7 @@ export interface UnnamedActivity { word: string; amount: number | null }
  * Called by ... MK-NW-O-002 theAccount · MK-ST-F-082 movementsOf
  *               MK-XS-F-002 dataGaps · MK-XS-F-102 ingestSync
  *
- * Reaches ..... 488 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 561 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -559,7 +567,7 @@ export interface UnnamedActivity { word: string; amount: number | null }
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 470 more — the full list is on functions_from_code
+ *               … and 543 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -598,9 +606,12 @@ export function unnamedActivityOf(t: {
  *
  * Called by ... MK-ST-F-012 toLedgerRow
  *
- * Reaches ..... 6 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 12 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-194 brokerUpdateToRecord · MK-NW-F-193 eventRow
+ *               MK-NW-F-201 fileRowsToSave · MK-NW-F-199 fileToRecord
  *               MK-XS-F-188 fixStoredFees · MK-XS-F-219 importedAccountOf
- *               MK-XS-F-102 ingestSync · MK-XS-F-199 profileOnTheWayIn
+ *               MK-XS-F-102 ingestSync · MK-NW-F-192 optionName
+ *               MK-XS-F-199 profileOnTheWayIn · MK-NW-F-195 readImport
  *               MK-ST-F-012 toLedgerRow · MK-XS-F-192 typedValueDatedBack
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.

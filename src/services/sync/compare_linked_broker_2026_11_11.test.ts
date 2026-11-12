@@ -30,7 +30,7 @@ const msft = { id: 'u-msft', raw_symbol: 'MSFT', description: 'Microsoft Corp', 
 const account = (total: number, listDay: string) => ({
   id: 'acc-1', brokerage_authorization: 'conn-1', name: 'Robinhood Individual', number: '998877665', institution_name: 'Robinhood', raw_type: 'Individual',
   balance: { total: { amount: total, currency: 'USD' } },
-  sync_status: { holdings: { initial_sync_completed: true, last_successful_sync: `${listDay}T06:00:00Z` } },
+  sync_status: { holdings: { initial_sync_completed: true, last_successful_sync: `${listDay}T20:30:00Z` /* 4:30 pm New York: the same day in every United States time zone and in UTC */ } },
 });
 const lot = (shares: number) => ({ original_purchase_date: '2026-07-30T00:00:00Z', quantity: shares, purchased_price: 350 });
 const position = (shares: number, price: number, withLots = true) =>

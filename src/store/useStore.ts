@@ -33,7 +33,7 @@ import { fetchPriceSeries } from '../services/marketData';
  *               MK-ST-F-028 buildDayFromAccounts · MK-XS-F-199 profileOnTheWayIn
  *               MK-XS-F-205 recordsOnTheWayIn
  *
- * Reaches ..... 488 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 561 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -43,7 +43,7 @@ import { fetchPriceSeries } from '../services/marketData';
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 470 more — the full list is on functions_from_code
+ *               … and 543 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
@@ -94,6 +94,64 @@ function recomputeBalances(accs: AssetAccount[], cache: Record<string, PriceSeri
   });
 }
 
+/** WHAT THE ACCOUNT HOLDER ENTERED, saved into the master record beside the old copies (phase 2, 2026-11-11). A
+ *  difference from what a broker or a file gave is kept as a question under the account; a change the record refuses,
+ *  or a fault, is kept and never stops the entry. */
+/* ─ MK-XS-F-229 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+ * typedIntoRecord
+ *
+ * Answers ..... WHAT THE ACCOUNT HOLDER ENTERED, saved into the master record beside the old copies (phase 2, 2026-11-11).
+ *
+ * Formula .....
+ *     {}   when count of changes is missing
+ *     at = the date ).to isostring(
+ *     record = asset record (or none when missing)
+ *     questions = { ...(asset record questions ?? {}) }
+ *     faults = [...(asset record faults ?? [])]
+ *     out = typed change to record(record, c, at)
+ *     the answer:
+ *     asset record = record
+ *     asset record questions = questions
+ *     asset record faults = faults.slice(-50)
+ *
+ * Called by ... MK-XS-F-199 profileOnTheWayIn
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-XS-F-199 profileOnTheWayIn
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
+ *
+ * Decides .....
+ *     · Uses today's date from the device clock, so the answer changes by itself overnight.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-229
+ * Changed ..... not in git yet (—)
+ */
+function typedIntoRecord(s: any, changes: TypedChange[]): Record<string, unknown> {
+  if (!changes.length) return {};
+  const at = new Date().toISOString();
+  let record: AssetRow[] = s.assetRecord ?? [];
+  const questions = { ...(s.assetRecordQuestions ?? {}) };
+  const faults = [...(s.assetRecordFaults ?? [])];
+  for (const c of changes) {
+    const id = 'account' in c ? String(c.account.asset_id) : 'after' in c && 'update' in c ? String(c.after.asset_id)
+      : 'transaction' in c ? String(c.transaction.account_id) : String((c as any).accountId);
+    try {
+      const out = typedChangeToRecord(record, c, at);
+      record = out.record;
+      if (out.ask.length) {
+        const key = `${id}#typed`, was = questions[key] ?? { events: [], lists: [] };
+        questions[key] = { ...was, events: [...(was.events ?? []), ...out.ask], at };
+      }
+      for (const p of out.problems) faults.push({ at, where: `refused: ${c.kind} ${id}`, message: p.slice(0, 300) });
+    } catch (e) {
+      faults.push({ at, where: `${c.kind} ${id}`, message: String((e as Error)?.message ?? e).slice(0, 300) });
+    }
+  }
+  return { assetRecord: record, assetRecordQuestions: questions, assetRecordFaults: faults.slice(-50) };
+}
+
 /** A VALUE TYPED WITH AN EARLIER "VALUE AS OF" DATE GOES ON THAT DATE (2026-10-20). The Bonds and Other investments
  *  editors let a person date a value ("$24,900, as of Sep 30"); the daily record was written from today's accounts, so
  *  that value read as a change today. The function typedValueOnItsDate (snapshots.ts) supersedes the recorded days from
@@ -141,33 +199,6 @@ function recomputeBalances(accs: AssetAccount[], cache: Record<string, PriceSeri
  * Formula also on the master file · functions_from_code · MK-XS-F-192
  * Changed ..... not in git yet (—)
  */
-/** WHAT THE ACCOUNT HOLDER ENTERED, saved into the master record beside the old copies (phase 2, 2026-11-11). A
- *  difference from what a broker or a file gave is kept as a question under the account; a change the record refuses,
- *  or a fault, is kept and never stops the entry. */
-function typedIntoRecord(s: any, changes: TypedChange[]): Record<string, unknown> {
-  if (!changes.length) return {};
-  const at = new Date().toISOString();
-  let record: AssetRow[] = s.assetRecord ?? [];
-  const questions = { ...(s.assetRecordQuestions ?? {}) };
-  const faults = [...(s.assetRecordFaults ?? [])];
-  for (const c of changes) {
-    const id = 'account' in c ? String(c.account.asset_id) : 'after' in c && 'update' in c ? String(c.after.asset_id)
-      : 'transaction' in c ? String(c.transaction.account_id) : String((c as any).accountId);
-    try {
-      const out = typedChangeToRecord(record, c, at);
-      record = out.record;
-      if (out.ask.length) {
-        const key = `${id}#typed`, was = questions[key] ?? { events: [], lists: [] };
-        questions[key] = { ...was, events: [...(was.events ?? []), ...out.ask], at };
-      }
-      for (const p of out.problems) faults.push({ at, where: `refused: ${c.kind} ${id}`, message: p.slice(0, 300) });
-    } catch (e) {
-      faults.push({ at, where: `${c.kind} ${id}`, message: String((e as Error)?.message ?? e).slice(0, 300) });
-    }
-  }
-  return { assetRecord: record, assetRecordQuestions: questions, assetRecordFaults: faults.slice(-50) };
-}
-
 function typedValueDatedBack(s: any, update: Partial<AssetAccount>, account: AssetAccount | undefined): Record<string, unknown> {
   if (!account || !update || !('value_as_of' in update)) return {};
   const before = (s.assetAccounts ?? []).find((x: AssetAccount) => x.asset_id === account.asset_id);
@@ -562,7 +593,7 @@ type AppState = {
   /** Save rows to the master record, all stamped with one time (now, unless given). Rows are only ever added. */
   saveToAssetRecord: (rows: NewRecordRow[], writtenAt?: string) => void;
   /** A file imported for an account: its purchases, values and facts saved to the master record, dated by the file. */
-  recordFileImport: (result: ImportResult, accountId: string) => void;
+  recordFileImport: (result: ImportResult, accountId: string | null, valueOnlyIds?: string[]) => void;
   /** Moves what the phone holds onto the master record, once per account (phase 2, 2026-11-11). */
   moveOldCopiesToRecordOnce: () => void;
   rebuildLinkedHistory: () => void;              // rebuild each linked account's past from its own records (founder approved 2026-09-25)
@@ -670,9 +701,10 @@ const DEFAULT_BADGES: Badge[] = [
  *               MK-XS-F-074 loadUserData · MK-XS-F-077 setUserHousehold
  *               MK-XS-F-078 joinHouseholdMembership · MK-XS-F-079 loadUserRoot
  *               MK-XS-F-138 deriveKeyFromSecret · MK-XS-F-139 wrapWithSecret
- *               MK-XS-F-199 profileOnTheWayIn
+ *               MK-XS-F-199 profileOnTheWayIn · MK-XS-F-222 saveAssetRecordPart
+ *               MK-XS-F-223 loadAssetRecordPart
  *
- * Reaches ..... 488 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 561 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -682,7 +714,7 @@ const DEFAULT_BADGES: Badge[] = [
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 470 more — the full list is on functions_from_code
+ *               … and 543 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -748,9 +780,8 @@ function recordsOnTheWayIn(d: any): { transactions?: Transaction[]; assetAccount
  *     a   when it is missing
  *     g   when it is missing
  *     {}   when reclassify version = RECLASSIFY_VERSION
+ *     {}   when count of out.moved is missing
  *     {}   when count of linked is missing
- *     rebuilt from = out.start by account
- *     rebuilt at = the date ).to isostring(   when count of out.days is missing
  *     [LOOP — the answer is found inside a loop the extractor cannot render; the steps above are the ones before it. Read by hand.]
  *     … the first steps only — the rest of the body needs reading by hand.
  *
@@ -1081,7 +1112,7 @@ export const useStore = create<AppState>()(
         const before = (s.assetAccounts.find((a) => a.asset_id === accountId)?.positions ?? []).find((p) => p.position_id === positionId);
         const transactions = before && patch.lots ? purchaseRecordsFollowEdit(s.transactions, accountId, before, { ...before, ...stamped } as Position) : s.transactions;
         return { assetAccounts: recomputeBalances(accounts, s.priceCache), ...(transactions !== s.transactions ? { transactions } : {}),
-          ...(before && patch.lots ? typedIntoRecord(s, [{ kind: 'holding-changed', accountId: String(accountId), before: before as Position, after: { ...before, ...stamped } as Position }]) : {}) };
+          ...(before && (patch.lots || (patch.ticker != null && patch.ticker !== before.ticker)) ? typedIntoRecord(s, [{ kind: 'holding-changed', accountId: String(accountId), before: before as Position, after: { ...before, ...stamped } as Position }]) : {}) };
       }),
       deletePosition: (accountId, positionId) => set((s) => {
         const accounts = s.assetAccounts.map((a) => a.asset_id === accountId
@@ -1310,12 +1341,22 @@ export const useStore = create<AppState>()(
       // An observed day is never replaced by a reconstruction.
       saveToAssetRecord: (rows, writtenAt) => set((s: any) => (rows.length
         ? { assetRecord: addRecordRows(s.assetRecord ?? [], rows, writtenAt ?? new Date().toISOString()) } : {})),
-      recordFileImport: (result, accountId) => set((s: any) => {
+      recordFileImport: (result, accountId, valueOnlyIds = []) => set((s: any) => {
         const at = new Date().toISOString();
         try {
-          const f = fileRowsToSave(s.assetRecord ?? [], result, accountId);
-          return { assetRecord: addRecordRows(s.assetRecord ?? [], f.rows, at),
-            assetRecordQuestions: { ...(s.assetRecordQuestions ?? {}), [accountId]: { events: f.askEvents, lists: f.askLists, needsADate: f.needsADate, at } } };
+          const f = fileRowsToSave(s.assetRecord ?? [], result, accountId, valueOnlyIds);
+          // a file's questions are ADDED to the ones still unanswered, as typedIntoRecord adds them (outside check, 2026-11-12:
+          // each import put its questions in place of the last ones); the same question asked again is kept once
+          const questions = { ...(s.assetRecordQuestions ?? {}) };
+          const merge = (key: string, events: any[], lists: any[]) => {
+            const was = questions[key] ?? { events: [], lists: [] };
+            questions[key] = { ...was, at, needsADate: Boolean(was.needsADate) || f.needsADate,
+              events: [...(was.events ?? []).filter((q: any) => !events.some((n) => n.key === q.key)), ...events],
+              lists: [...(was.lists ?? []).filter((q: any) => !lists.some((n) => n.signature === q.signature)), ...lists] };
+          };
+          if (accountId != null) merge(accountId, f.askEvents, f.askLists);
+          if (f.needsADate) for (const id of valueOnlyIds) merge(id, [], []);
+          return { assetRecord: addRecordRows(s.assetRecord ?? [], f.rows, at), assetRecordQuestions: questions };
         } catch (e) {
           return { assetRecordFaults: [...(s.assetRecordFaults ?? []), { at, where: 'file import', message: String((e as Error)?.message ?? e).slice(0, 300) }].slice(-50) };
         }
@@ -1610,6 +1651,11 @@ export const useStore = create<AppState>()(
         ...data,
         ...recordsOnTheWayIn(data),   // an option bought before 2026-10-23 carries its shares per contract (NW2-18)
         ...(data?.onboardingProfile ? { onboardingProfile: profileOnTheWayIn(data.onboardingProfile) } : {}),   // the take-home too (IN-09)
+        // THE MASTER RECORD is not part of the profile: the cloud's profile replaces the phone's, so the phone's record, its
+        // questions and its faults go with it — they may be another person's (outside check, 2026-11-12: user B signing in
+        // after user A kept A's record, and the next save wrote it into B's cloud). The sign-in brings the record back from
+        // the record's own cloud parts, and keeps the phone's only where it is this same person's (app/_layout.tsx).
+        assetRecord: [], assetRecordQuestions: {}, assetRecordFaults: [],
         user: s.user,
       })),
     }),

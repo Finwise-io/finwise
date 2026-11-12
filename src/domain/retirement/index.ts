@@ -198,7 +198,7 @@ export interface RetirementState {
  *
  * Called by ... MK-PL-F-050 simulate
  *
- * Reaches ..... 488 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 561 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -208,7 +208,7 @@ export interface RetirementState {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 470 more — the full list is on functions_from_code
+ *               … and 543 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -234,7 +234,7 @@ function mulberry32(seed: number) {
  *
  * Called by ... MK-PL-F-050 simulate
  *
- * Reaches ..... 488 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 561 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -244,7 +244,7 @@ function mulberry32(seed: number) {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 470 more — the full list is on functions_from_code
+ *               … and 543 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -270,7 +270,7 @@ function normal(rng: () => number, mean: number, sd: number): number {
  *
  * Called by ... MK-PL-F-050 simulate
  *
- * Reaches ..... 488 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 561 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -280,7 +280,7 @@ function normal(rng: () => number, mean: number, sd: number): number {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 470 more — the full list is on functions_from_code
+ *               … and 543 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -327,7 +327,7 @@ function pctOfSorted(sorted: number[], p: number): number {
  *               MK-PL-F-065 volOf · MK-PL-F-068 selectWillItLast
  *               MK-PL-F-069 oddsAt · MK-PL-F-071 oddsOf
  *
- * Reaches ..... 488 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 561 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -337,7 +337,7 @@ function pctOfSorted(sorted: number[], p: number): number {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 470 more — the full list is on functions_from_code
+ *               … and 543 more — the full list is on functions_from_code
  *
  * Serves ...... MK-CF-M-022 · MK-PL-M-034 · MK-XS-M-002
  * Reads ....... MK-XS-I-018 retirement age

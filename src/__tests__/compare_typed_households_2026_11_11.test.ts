@@ -199,11 +199,12 @@ test('Brokerage typed $0: BUY 20 VTI at $100 Oct 1, then updatePosition changes 
   expect(r.move.looked).toEqual({ accounts: 1, holdings: 1 });
   // the store road corrects the purchase to $95
   expect(short(r.store.differences)).toEqual([]);
-  // fixed 2026-11-11: the BUY at $100 no longer leaves the lot the holding shows ($95), so the move saves the lot as it
-  // stands ($1,900 paid, Oct 1) and says why; it had saved the BUY and listed $2,000. The value is the typed $0.
+  // fixed 2026-11-11, and again 2026-11-12 (outside check: a sale after such an edit was lost): the BUY at $100 and the
+  // lot at $95 differ only in price, so the move keeps the BUY on its own date and saves the edit as its correction to
+  // $95 ($1,900 paid, Oct 1) — nothing is set aside, so no sentence. The value is the typed $0.
   expect(short(r.move.differences)).toEqual([]);
   expect(openPurchases(r.moveRecord, id, 'VTI').map((o) => [o.date, o.shares, o.price])).toEqual([['2026-10-01', 20, 95]]);
-  expect(r.moveProblems).toEqual([expect.stringMatching(/^The activity of VTI did not leave the tax lots it shows \(20 shares\)/)]);
+  expect(r.moveProblems).toEqual([]);
 });
 
 test('Options typed $0: addPosition AAPL call, 2 contracts × 100 shares at $3.50 on Sep 1 2026 → 200 shares, $700 paid', () => {

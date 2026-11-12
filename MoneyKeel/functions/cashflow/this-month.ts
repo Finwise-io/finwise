@@ -63,7 +63,7 @@ export interface Line { label: string; amount: number; kind: 'in' | 'debt' | 'sp
  *
  * Called by ... MK-CF-F-005 actualMonthFlow · MK-CF-F-220 pastMonthFlow
  *
- * Reaches ..... 488 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 561 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -73,7 +73,7 @@ export interface Line { label: string; amount: number; kind: 'in' | 'debt' | 'sp
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 470 more — the full list is on functions_from_code
+ *               … and 543 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -266,7 +266,7 @@ export function biggestOutLine(lines: Line[], shown: number[]): { label: string;
  * Called by ... MK-CF-F-005 actualMonthFlow · MK-CF-F-156 plannedMonthFlow
  *               MK-CF-O-004 incomeSummary
  *
- * Reaches ..... 488 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 561 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -276,7 +276,7 @@ export function biggestOutLine(lines: Line[], shown: number[]): { label: string;
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 470 more — the full list is on functions_from_code
+ *               … and 543 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -309,7 +309,7 @@ export function inflowLabel(prefix: 'Inflow' | 'Actual inflow' | 'Planned inflow
  *
  * Called by ... MK-CF-F-192 inflowLabel
  *
- * Reaches ..... 489 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 562 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -319,7 +319,7 @@ export function inflowLabel(prefix: 'Inflow' | 'Actual inflow' | 'Planned inflow
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 471 more — the full list is on functions_from_code
+ *               … and 544 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -365,15 +365,20 @@ export function inflowSourceWord(source: string): string {
  *               MK-NW-F-142 classReturnOf · MK-NW-F-148 lastCloseLabel
  *               MK-NW-F-151 linkedSplit · MK-NW-F-153 uninvestedCashOf
  *               MK-NW-F-159 settleBondValue · MK-NW-F-160 pricePer100OfFace
- *               MK-NW-F-185 valueChanged · MK-NW-O-004 theEmergencyFund
- *               MK-NW-O-008 thePerformance · MK-PF-F-014 buildPerformance
- *               MK-PL-F-010 drawOrderOutcome · MK-PL-F-022 goalProgressPct
- *               MK-ST-F-010 nameEvidence · MK-ST-F-072 undo
- *               MK-ST-F-093 typedValueOnItsDate · MK-XS-F-031 buildSnapshot
- *               MK-XS-F-102 ingestSync · MK-XS-F-107 mapActivityType
- *               MK-XS-F-184 theirCost · MK-XS-F-219 importedAccountOf
+ *               MK-NW-F-185 valueChanged · MK-NW-F-194 brokerUpdateToRecord
+ *               MK-NW-F-199 fileToRecord · MK-NW-F-201 fileRowsToSave
+ *               MK-NW-F-205 priceFeedValues · MK-NW-F-213 lotRow
+ *               MK-NW-F-226 fileValues · MK-NW-F-240 placedOn
+ *               MK-NW-F-242 valueBatchesOf · MK-NW-F-248 answerValuesQuestion
+ *               MK-NW-O-004 theEmergencyFund · MK-NW-O-008 thePerformance
+ *               MK-PF-F-014 buildPerformance · MK-PL-F-010 drawOrderOutcome
+ *               MK-PL-F-022 goalProgressPct · MK-ST-F-010 nameEvidence
+ *               MK-ST-F-072 undo · MK-ST-F-093 typedValueOnItsDate
+ *               MK-XS-F-031 buildSnapshot · MK-XS-F-102 ingestSync
+ *               MK-XS-F-107 mapActivityType · MK-XS-F-184 theirCost
+ *               MK-XS-F-219 importedAccountOf
  *
- * Reaches ..... 499 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 573 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -383,7 +388,7 @@ export function inflowSourceWord(source: string): string {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 481 more — the full list is on functions_from_code
+ *               … and 555 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -414,7 +419,7 @@ export const cash = (n: number): number => (n === 0 ? 0 : (n));
  *
  * Called by ... MK-CF-O-003 thisMonth
  *
- * Reaches ..... 488 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 561 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -424,7 +429,7 @@ export const cash = (n: number): number => (n === 0 ? 0 : (n));
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 470 more — the full list is on functions_from_code
+ *               … and 543 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-042 how a stream is paid — monthly, yearly or one lump
@@ -516,7 +521,7 @@ export function plannedMonthFlow(m: MonthInput): MonthBlock {
  *
  * Called by ... MK-CF-F-157 debtPaymentsByDebt · MK-CF-O-003 thisMonth
  *
- * Reaches ..... 488 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 561 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -526,7 +531,7 @@ export function plannedMonthFlow(m: MonthInput): MonthBlock {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 470 more — the full list is on functions_from_code
+ *               … and 543 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-024 logged expenses
@@ -620,7 +625,7 @@ export function actualMonthFlow(m: MonthInput): MonthBlock {
  *
  * Called by ... MK-CF-F-005 actualMonthFlow
  *
- * Reaches ..... 488 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 561 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -630,7 +635,7 @@ export function actualMonthFlow(m: MonthInput): MonthBlock {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 470 more — the full list is on functions_from_code
+ *               … and 543 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-014 debt balance
@@ -944,7 +949,7 @@ export const FIGURES = declareFigures({
  *
  * Called by ... MK-CF-F-241 M · MK-CF-O-010 theMonth
  *
- * Reaches ..... 488 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 561 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -954,7 +959,7 @@ export const FIGURES = declareFigures({
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 470 more — the full list is on functions_from_code
+ *               … and 543 more — the full list is on functions_from_code
  *
  * Serves ...... MK-CF-M-047 · MK-CF-M-048 · MK-CF-M-049 · MK-CF-M-050
  *               MK-CF-M-051 · MK-CF-M-052 · MK-CF-M-053 · MK-CF-M-054

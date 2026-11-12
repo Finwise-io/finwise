@@ -61,3 +61,80 @@ test('an account linked to a broker is not moved: its next update reads the brok
   const acct = { asset_id: 'rh', label: 'Robinhood', kind: 'brokerage', balance: 9_000, source: 'connected', positions: [] } as any;
   expect(moveOldCopies([], [acct], [], AT)).toMatchObject({ moved: [], record: [] });
 });
+
+describe('outside check, 2026-11-12', () => {
+  const { applyTransaction } = require('../../../src/domain/transactions');
+  const { importHoldings, importedAccountOf, valueOnlyAccountsOf } = require('../../../src/domain/import/holdingsImport');
+  const typed = (id: string, extra: Record<string, unknown> = {}) => ({ asset_id: id, label: id, kind: 'brokerage', balance: 0, cash_balance: 0, source: 'manual', positions: [], ...extra }) as any;
+
+  test('3 MSFT first entered in account A, then moved to account B with "transfer shares": 3 MSFT on record, all in B, bought Jan 2, 2025 at $100', () => {
+    let accs: any[] = [typed('A'), typed('B')];
+    const o = txn({ id: 'o1', type: 'OPENING_POSITION', account_id: 'A', ticker: 'MSFT', shares: 3, price: 100, date: '2025-01-02' });
+    accs = applyTransaction(accs, o); o.lot_id = accs[0].positions[0].lots[0].lot_id;
+    const t = txn({ id: 'k1', type: 'TRANSFER_IN_KIND', account_id: 'A', counter_account_id: 'B', ticker: 'MSFT', date: '2026-03-01' });
+    accs = applyTransaction(accs, t);
+    const out = moveOldCopies([], accs, [o, t], AT);
+    expect(out.problems).toEqual([]);
+    expect(sharesOnRecord(out.record, 'A', 'MSFT')).toBe(0);
+    expect(sharesOnRecord(out.record, 'B', 'MSFT')).toBe(3);
+    expect(openPurchases(out.record, 'B', 'MSFT')).toEqual([expect.objectContaining({ date: '2025-01-02', shares: 3, price: 100 })]);
+    expect(rowsInForce(out.record).filter((r) => r.kind === 'TRANSFER')).toEqual([expect.objectContaining({ accountId: 'A', toAccountId: 'B', shares: 3, date: '2026-03-01' })]);
+    expect(moveOldCopies(out.record, accs, [o, t], AT2).record).toEqual(out.record);
+  });
+
+  test('20 QQQ bought Jan 10 at $100, the lot edited to $95, 5 sold Mar 10 at $120: the purchase of 20 is kept and corrected to $95, and the sale made 5 × ($120 − $95) = $125', () => {
+    let accs: any[] = [typed('E')];
+    const b = txn({ id: 'b1', type: 'BUY', account_id: 'E', ticker: 'QQQ', shares: 20, price: 100, date: '2026-01-10' });
+    accs = applyTransaction(accs, b);
+    accs[0].positions[0].lots[0].cost_per_share = 95;
+    const s = txn({ id: 's1', type: 'SELL', account_id: 'E', ticker: 'QQQ', shares: 5, price: 120, date: '2026-03-10' });
+    accs = applyTransaction(accs, s);
+    const out = moveOldCopies([], accs, [b, s], AT);
+    expect(out.problems).toEqual([]);
+    expect(sharesOnRecord(out.record, 'E', 'QQQ')).toBe(15);
+    expect(rowsInForce(out.record).filter((r) => r.kind === 'PURCHASE').map((r) => [r.date, r.shares, r.price, r.replacesRowId != null])).toEqual([['2026-01-10', 20, 95, true]]);
+    const sale = rowsInForce(out.record).find((r) => r.kind === 'SALE')!;
+    expect(saleGain(out.record, sale.rowId)).toBe(125);
+  });
+
+  test('an old option buy of 2 contracts at $5 with no shares-per-contract figure, 1 sold at $8: counted as 200 shares bought and 100 sold, the sale made $300', () => {
+    let accs: any[] = [typed('O')];
+    const b = txn({ id: 'b', type: 'BUY', account_id: 'O', ticker: 'SPY 261218C600', kind: 'options', shares: 2, price: 5, date: '2026-05-01' });
+    const s = txn({ id: 's', type: 'SELL', account_id: 'O', ticker: 'SPY 261218C600', kind: 'options', shares: 1, price: 8, date: '2026-06-01' });
+    accs = applyTransaction(accs, b); accs = applyTransaction(accs, s);
+    const out = moveOldCopies([], accs, [b, s], AT);
+    expect(out.problems).toEqual([]);
+    expect(sharesOnRecord(out.record, 'O', 'SPY 261218C600')).toBe(100);
+    expect(rowsInForce(out.record).filter((r) => r.kind === 'PURCHASE').map((r) => [r.shares, r.price])).toEqual([[200, 5]]);
+    expect(saleGain(out.record, rowsInForce(out.record).find((r) => r.kind === 'SALE')!.rowId)).toBe(300);
+  });
+
+  const H = 'Symbol,Quantity,Price Paid $,Last Price $,Value $,Date Acquired\n';
+  test('a phone holding a file of 10 AAPL, a $5,000 bond with no quantity and $1,000 cash, dated Jun 21: moved as $3,000 on the file\'s account and $5,000 on the bond\'s own, both on Jun 21', () => {
+    const r = importHoldings(H + 'AAPL,10,150,200,2000,01/05/2026\nUS TREASURY BOND 4% 2030,,,,5000,\nCASH,,,,1000,\nGenerated at Jun 21 2026 03:37 PM ET\n');
+    const main = { ...importedAccountOf(r, { institution: 'Fid', name: '', nowIso: '2026-06-22T10:00:00Z' }), asset_id: 'main' };
+    const bond = { ...valueOnlyAccountsOf(r, { institution: 'Fid', nowIso: '2026-06-22T10:00:00Z' })[0], asset_id: 'bond' };
+    const out = moveOldCopies([], [main, bond], [], AT);
+    expect(valuesNow(out.record, 'main')).toMatchObject({ date: '2026-06-21', total: 3000 });
+    expect(valuesNow(out.record, 'bond')).toMatchObject({ date: '2026-06-21', total: 5000, source: 'file' });
+  });
+
+  test('a file with no date, imported Jun 22: its values and tax lots are moved undated, never on Jun 22 — and an account saved before the file\'s date was kept apart from the import day reads the same', () => {
+    const r = importHoldings(H + 'AAPL,10,150,200,2000,01/05/2026\nCASH,,,,1000,\n');
+    const acct = { ...importedAccountOf(r, { institution: 'Fid', name: '', nowIso: '2026-06-22T10:00:00Z' }), asset_id: 'nd' } as any;
+    // the old copy still shows the import day (phase 2 changes no screen) and says it is not the file's own
+    expect([acct.value_as_of, acct.value_as_of_from_file]).toEqual(['2026-06-22', false]);
+    const out = moveOldCopies([], [acct], [], AT);
+    const dates = rowsInForce(out.record).filter((x) => x.kind === 'VALUE').map((x) => x.date);
+    expect(dates.length).toBeGreaterThan(0);
+    expect(dates.every((d) => d == null)).toBe(true);
+    expect(rowsInForce(out.record).filter((x) => x.kind === 'PURCHASE').map((x) => x.stillHeldOn ?? null)).toEqual([null]);
+    // an older phone's account: "Value as of" filled with the import day, and no word on where it came from
+    const old = { ...acct, value_as_of: '2026-06-22', value_as_of_from_file: undefined, last_synced: '2026-06-22T10:00:00Z' };
+    const outOld = moveOldCopies([], [old], [], AT);
+    expect(rowsInForce(outOld.record).filter((x) => x.kind === 'VALUE').every((x) => x.date == null)).toBe(true);
+    // the same older account whose "Value as of" is not its import day kept the file's date: it is trusted
+    const dated = moveOldCopies([], [{ ...old, value_as_of: '2026-06-21' }], [], AT);
+    expect(valuesNow(dated.record, 'nd')?.date).toBe('2026-06-21');
+  });
+});

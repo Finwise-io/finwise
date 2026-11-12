@@ -102,12 +102,15 @@ describe('a holding changed by hand', () => {
     expect(sharesOnRecord(out.record, 'van', 'VTI')).toBe(0);
   });
 
-  test('a holding a sale has sold from is not removed: the record says why and stays as it was', () => {
+  // the account holder can always take a purchase away (outside check, 2026-11-12): it was refused here, so the app and
+  // the record disagreed; the removal is saved and the sale it sold from is left for the account holder to place
+  test('a holding a sale has sold from is removed when the account holder removes it: 0 shares held, the sale of 10 kept and left to place', () => {
     let rec = start();
     rec = run(rec, { kind: 'transaction-recorded', transaction: { id: 's1', type: 'SELL', account_id: 'van', ticker: 'VTI', shares: 10, price: 100, date: '2026-10-01', created_at: AT } as any }, AT2).record;
     const out = run(rec, { kind: 'holding-removed', accountId: 'van', position: vti }, AT3);
-    expect(out.problems).toHaveLength(1);
-    expect(out.record).toEqual(rec);
+    expect(out.problems).toEqual([]);
+    expect(sharesOnRecord(out.record, 'van', 'VTI')).toBe(0);
+    expect(rowsInForce(out.record).filter((r) => r.kind === 'SALE').map((r) => r.shares)).toEqual([10]);
   });
 
   test('a broker\'s tax lot corrected by the account holder is found by its date, shares and price, and saved as typed', () => {
@@ -190,5 +193,31 @@ describe('savings moved, accounts removed or unlinked', () => {
   test('an account unlinked and kept: a fact saying so, nothing removed', () => {
     const out = run([], { kind: 'account-unlinked', accountId: 'rh', keptAsTyped: true });
     expect(factsOf(out.record, 'rh', null)).toEqual({ unlinked: true });
+  });
+});
+
+describe('outside check, 2026-11-12', () => {
+  const brk = (id: string) => ({ asset_id: id, label: id, institution: 'Vanguard', kind: 'brokerage', balance: 0, source: 'manual', positions: [] }) as any;
+
+  test('3 MSFT moved from account A to account B with "transfer shares" (the app sends no share count): one transfer of 3 shares, A holds 0 and B holds 3', () => {
+    const msft = { position_id: 'm', ticker: 'MSFT', kind: 'stocks_etf', lots: [{ lot_id: 'lm', shares: 3, cost_per_share: 100, purchase_date: '2025-01-02' }] } as any;
+    const one = run([], { kind: 'account-added', account: { ...brk('A'), positions: [msft] } }).record;
+    const out = run(one, { kind: 'transaction-recorded', transaction: { id: 'tk', type: 'TRANSFER_IN_KIND', account_id: 'A', counter_account_id: 'B', ticker: 'MSFT', date: '2026-03-01', created_at: AT } as any }, AT2);
+    expect(rowsInForce(out.record).filter((r) => r.kind === 'TRANSFER')).toEqual([expect.objectContaining({ accountId: 'A', toAccountId: 'B', holding: 'MSFT', shares: 3, date: '2026-03-01' })]);
+    expect(rowsInForce(out.record).filter((r) => r.kind === 'OTHER')).toEqual([]);
+    expect(sharesOnRecord(out.record, 'A', 'MSFT')).toBe(0);
+    expect(sharesOnRecord(out.record, 'B', 'MSFT')).toBe(3);
+    // the shares keep their own purchase: bought Jan 2, 2025 at $100
+    expect(openPurchases(out.record, 'B', 'MSFT')).toEqual([expect.objectContaining({ date: '2025-01-02', shares: 3, price: 100 })]);
+  });
+
+  test('10 APPL bought Mar 3, 2025 at $150, the ticker corrected to AAPL: 0 APPL and 10 AAPL, bought Mar 3, 2025 at $150', () => {
+    const appl = { position_id: 'p', ticker: 'APPL', kind: 'stocks_etf', lots: [{ lot_id: 'l1', shares: 10, cost_per_share: 150, purchase_date: '2025-03-03' }] } as any;
+    const one = run([], { kind: 'holding-added', accountId: 'van', position: appl }).record;
+    const out = run(one, { kind: 'holding-changed', accountId: 'van', before: appl, after: { ...appl, ticker: 'AAPL' } }, AT2);
+    expect(out.problems).toEqual([]);
+    expect(sharesOnRecord(out.record, 'van', 'APPL')).toBe(0);
+    expect(sharesOnRecord(out.record, 'van', 'AAPL')).toBe(10);
+    expect(openPurchases(out.record, 'van', 'AAPL')).toEqual([expect.objectContaining({ date: '2025-03-03', shares: 10, price: 150 })]);
   });
 });

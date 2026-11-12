@@ -5,7 +5,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { importHoldings, importedAccountOf } from '../../../src/domain/import/holdingsImport';
 import { fileToRecord, fileRowsToSave } from './asset-record-from-file';
-import { addRows, factsOf, openPurchases, valuesNeedingADate, valuesNow, valuesOn, statedTotalGap, type AssetRow } from './asset-record';
+import { addRows, factsOf, openPurchases, sharesOnRecord, valuesNeedingADate, valuesNow, valuesOn, statedTotalGap, type AssetRow } from './asset-record';
 
 const HIS_FILE = fs.readFileSync(path.join(__dirname, '../../../src/screens/__tests__/__fixtures__/build55-nov4-26-jj_as-exported.csv'), 'utf8');
 const A = 'rh';
@@ -122,5 +122,36 @@ describe('a file with purchase dates and costs per lot', () => {
     const f = fileToRecord(importHoldings('Symbol,Quantity,Average Cost,Value\nVTI,20,250,5000'), A);
     expect(f.lists).toEqual([{ holding: 'VTI', listed: [{ date: null, shares: 20, price: 250, average: true }] }]);
     expect(f.values[0].amount).toBeNull();
+  });
+});
+
+describe('outside check, 2026-11-12', () => {
+  const HEAD = 'Symbol,Quantity,Price Paid $,Last Price $,Value $,Date Acquired\n';
+  const save = (record: AssetRow[], text: string, at: string, ids: string[] = []) => {
+    const got = fileRowsToSave(record, importHoldings(text), A, ids);
+    return { got, record: addRows(record, got.rows, at) };
+  };
+
+  test('Jun 21: 10 AAPL and 5 MSFT; Jul 21: AAPL only — the file no longer lists MSFT, so it is asked, and the 5 MSFT stay until answered', () => {
+    const one = save([], HEAD + 'AAPL,10,150,200,2000,01/05/2026\nMSFT,5,300,400,2000,02/01/2026\nCASH,,,,1000,\nGenerated at Jun 21 2026 03:37 PM ET\n', '2026-06-22T10:00:00Z');
+    expect(one.got.askLists).toEqual([]);
+    const two = save(one.record, HEAD + 'AAPL,10,150,210,2100,01/05/2026\nCASH,,,,3100,\nGenerated at Jul 21 2026 03:37 PM ET\n', '2026-07-22T10:00:00Z');
+    expect(two.got.askLists.map((q) => [q.holding, q.kind, q.sharesOnRecord, q.sharesListed, q.listDay])).toEqual([['MSFT', 'not-listed', 5, 0, '2026-07-21']]);
+    expect(sharesOnRecord(two.record, A, 'MSFT')).toBe(5);
+    expect(sharesOnRecord(two.record, A, 'AAPL')).toBe(10);
+    // a holding bought after the file's own day is not one the file could list: not asked
+    const later = save(one.record, HEAD + 'AAPL,10,150,200,2000,01/05/2026\nMSFT,5,300,400,2000,02/01/2026\nCASH,,,,1000,\nGenerated at Jun 21 2026 03:37 PM ET\n', '2026-06-23T10:00:00Z');
+    expect(later.got.askLists).toEqual([]);
+  });
+
+  test('10 AAPL, a $5,000 bond with no quantity and $1,000 cash: the account holds $3,000 and the bond\'s own account $5,000, both on Jun 21', () => {
+    const { got, record } = save([], HEAD + 'AAPL,10,150,200,2000,01/05/2026\nUS TREASURY BOND 4% 2030,,,,5000,\nCASH,,,,1000,\nGenerated at Jun 21 2026 03:37 PM ET\n', '2026-06-22T10:00:00Z', ['bond']);
+    expect(got.askLists).toEqual([]);
+    expect(valuesNow(record, A)).toMatchObject({ date: '2026-06-21', total: 3000 });
+    expect(valuesNow(record, 'bond')).toMatchObject({ date: '2026-06-21', total: 5000, source: 'file' });
+    // a file of only such a row has no account of its own to hold anything: the bond's account still gets its $5,000
+    const only = fileRowsToSave([], importHoldings(HEAD + 'US TREASURY BOND 4% 2030,,,,5000,\nGenerated at Jun 21 2026 03:37 PM ET\n'), null, ['bond']);
+    expect(valuesNow(addRows([], only.rows, '2026-06-22T10:00:00Z'), 'bond')).toMatchObject({ date: '2026-06-21', total: 5000 });
+    expect(only.rows.every((r) => r.accountId === 'bond')).toBe(true);
   });
 });

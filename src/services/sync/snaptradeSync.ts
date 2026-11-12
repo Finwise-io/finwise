@@ -227,8 +227,9 @@ export async function runSnapTradeSync(opts: { force?: boolean } = {}): Promise<
       const activities = await allActivities(account.id, startDate);
       payloads.push({
         account,
-        positions: h.positions ?? [],
-        optionPositions: h.optionPositions ?? [],
+        // a list the broker did not send stays missing: it is never read as "holds nothing" (that would empty the account)
+        positions: h.positions ?? undefined,
+        optionPositions: h.optionPositions ?? undefined,
         balancesCash: usdCash(h.balances),
         activities,
       });

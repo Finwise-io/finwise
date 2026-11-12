@@ -100,6 +100,15 @@ const CUSIP = /^[0-9A-Z]{9}$/;
  *               MK-NW-F-104 closedWith · MK-NW-F-106 mortgagesByProperty
  *               MK-NW-F-117 propertyUseMap · MK-NW-F-130 notIncludedSentence
  *               MK-NW-F-143 gainRowBetween · MK-NW-F-149 withoutBlankRows
+ *               MK-NW-F-194 brokerUpdateToRecord · MK-NW-F-201 fileRowsToSave
+ *               MK-NW-F-221 lotsFollow · MK-NW-F-228 moveOldCopies
+ *               MK-NW-F-233 addRows · MK-NW-F-234 rowsInForce
+ *               MK-NW-F-235 firstRowOf · MK-NW-F-238 sortArriving
+ *               MK-NW-F-243 theLater · MK-NW-F-245 valuesLastGiven
+ *               MK-NW-F-247 valuesThatDiffer · MK-NW-F-249 valuesNeedingADate
+ *               MK-NW-F-263 sharesThatDisagree · MK-NW-F-270 sameEventElsewhere
+ *               MK-NW-F-277 purchasesFromList · MK-NW-F-284 activityOf
+ *               MK-NW-F-285 factsOf · MK-NW-F-288 importedListDay
  *               MK-NW-O-003 theNetWorth · MK-NW-O-004 theEmergencyFund
  *               MK-NW-O-008 thePerformance · MK-PF-F-015 topHoldingConcentration
  *               MK-PF-F-029 closeAsOf · MK-PF-F-047 isIndividualBondOrCD
@@ -116,7 +125,7 @@ const CUSIP = /^[0-9A-Z]{9}$/;
  *               MK-XS-F-187 fixStoredMoney · MK-XS-F-188 fixStoredFees
  *               MK-XS-F-199 profileOnTheWayIn
  *
- * Reaches ..... 511 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 588 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -126,7 +135,7 @@ const CUSIP = /^[0-9A-Z]{9}$/;
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 493 more — the full list is on functions_from_code
+ *               … and 570 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

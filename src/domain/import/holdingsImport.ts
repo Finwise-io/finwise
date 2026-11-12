@@ -757,7 +757,11 @@ export function matchImportAccount(accounts: AssetAccount[], institution: string
  *     typed = opts.name.trim()
  *     … the first steps only — the rest of the body needs reading by hand.
  *
- * Called by ... nothing — it is an entry point, or nothing reaches it
+ * Called by ... MK-NW-F-195 readImport
+ *
+ * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-201 fileRowsToSave · MK-NW-F-199 fileToRecord
+ *               MK-XS-F-199 profileOnTheWayIn · MK-NW-F-195 readImport
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
@@ -819,7 +823,10 @@ export function importedAccountOf(
     // an imported file names no tax type, so none is stated — never Taxable for the person (DEC-4036f)
     kind: 'brokerage', tax_bucket: undefined, target_return: 0.08,
     institution: opts.institution.trim(), source: 'imported', last_synced: nowIso,
-    value_as_of: r.asOf ?? isoLocalDate(new Date(nowIso)),
+    // "Value as of" on the account as the screens read it today stays the file's date, or the day of the import where the
+    // file states none (phase 2 changes no screen). value_as_of_from_file says which it is, so the master record never
+    // takes the import day for the file's date (outside check, 2026-11-12; asset-record-move.ts)
+    value_as_of: r.asOf ?? isoLocalDate(new Date(nowIso)), value_as_of_from_file: r.asOf != null,
     derive_balance: true, cash_balance: cash, positions: positions as any,
     // held exact (DEC-0403): the cash plus what the file says each holding is worth; prices refresh it later
     balance: cash + values.reduce((t, v) => t + v, 0),
@@ -836,10 +843,13 @@ export function importedAccountOf(
  * Formula .....
  *     holdings where asset class ! = 'cash' and !(shares > 0) and value > 0
  *
- * Called by ... MK-XS-F-219 importedAccountOf · MK-XS-F-221 valueOnlyAccountsOf
- *
- * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ * Called by ... MK-NW-F-195 readImport · MK-NW-F-199 fileToRecord
  *               MK-XS-F-219 importedAccountOf · MK-XS-F-221 valueOnlyAccountsOf
+ *
+ * Reaches ..... 6 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-201 fileRowsToSave · MK-NW-F-199 fileToRecord
+ *               MK-XS-F-219 importedAccountOf · MK-XS-F-199 profileOnTheWayIn
+ *               MK-NW-F-195 readImport · MK-XS-F-221 valueOnlyAccountsOf
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -860,10 +870,13 @@ const valueOnlyRows = (r: ImportResult) => r.holdings.filter((h) => h.assetClass
  * Formula .....
  *     now iso = opts.now iso (or the date ).to isostring( when missing)
  *
- * Called by ... MK-XS-F-219 importedAccountOf
- *
- * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ * Called by ... MK-NW-F-195 readImport · MK-NW-F-199 fileToRecord
  *               MK-XS-F-219 importedAccountOf
+ *
+ * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-201 fileRowsToSave · MK-NW-F-199 fileToRecord
+ *               MK-XS-F-219 importedAccountOf · MK-XS-F-199 profileOnTheWayIn
+ *               MK-NW-F-195 readImport
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
@@ -891,6 +904,8 @@ export function valueOnlyAccountsOf(
     kind: h.assetClass === 'bonds' ? 'fixed_income' : h.assetClass === 'alternatives' ? 'other_asset' : h.assetClass === 'real_estate' ? 'home' : 'brokerage',
     tax_bucket: h.assetClass === 'real_estate' || h.assetClass === 'personal_property' ? 'PROPERTY' : undefined,
     asset_class: h.assetClass, balance: h.value, target_return: h.assetClass === 'bonds' ? 0.042 : 0.05,
-    institution: opts.institution.trim(), source: 'imported', last_synced: nowIso, value_as_of: r.asOf ?? isoLocalDate(new Date(nowIso)),
+    institution: opts.institution.trim(), source: 'imported', last_synced: nowIso,
+    // as importedAccountOf: the screens' date unchanged, and whether it is the file's own
+    value_as_of: r.asOf ?? isoLocalDate(new Date(nowIso)), value_as_of_from_file: r.asOf != null,
   }) as unknown as Omit<AssetAccount, 'asset_id'>);
 }

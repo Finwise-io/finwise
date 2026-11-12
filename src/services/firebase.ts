@@ -184,7 +184,7 @@ export function isEmailVerified(): boolean {
  *
  * Called by ... MK-XS-F-147 call
  *
- * Reaches ..... 488 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 561 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -194,7 +194,7 @@ export function isEmailVerified(): boolean {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 470 more — the full list is on functions_from_code
+ *               … and 543 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -479,13 +479,53 @@ export async function saveUserData(uid: string, data: object) {
 /** THE MASTER RECORD IN THE CLOUD (his "yes", 2026-11-11): one encrypted document per part, under
  *  users/{uid}/assetRecord/{part} — readable and writable only by the account holder and a household member (the rules for
  *  users/{uid} and everything under it). The parts and which to write are decided in services/sync/assetRecordCloud. */
-export async function saveAssetRecordPart(uid: string, part: number, rows: unknown[]) {
+/* ─ MK-XS-F-222 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * saveAssetRecordPart
+ *
+ * Answers ..... THE MASTER RECORD IN THE CLOUD (his "yes", 2026-11-11): one encrypted document per part, under users/{uid}/assetRecord/{part} — readable and writable only by the account holder and a household member (the rules for users/{uid} and everything under it).
+ *
+ * Formula .....
+ *     enc = await encrypt for sync({ rows: JSON.parse(JSON.stringify(rows)) })
+ *     false   when enc = nothing
+ *     the answer = true
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-222
+ * Changed ..... 2026-11-11 (d188fd68)
+ */
+export async function saveAssetRecordPart(uid: string, part: number, rows: unknown[]): Promise<boolean> {
   const enc = await encryptForSync({ rows: JSON.parse(JSON.stringify(rows)) });
-  if (enc == null) return;   // no key yet → skip the cloud write (NEVER store plaintext); the phone's copy is safe
+  if (enc == null) return false;   // no key yet → skip the cloud write (NEVER store plaintext) and say so, so the part is written again later
   await setDoc(doc(db, 'users', uid, 'assetRecord', String(part)), { enc });
+  return true;
 }
 
 /** One part of the master record from the cloud, or null where there is none. */
+/* ─ MK-XS-F-223 ──────────────────────────────────────────────────────────── 4 · BRINGS DATA IN
+ * loadAssetRecordPart
+ *
+ * Answers ..... One part of the master record from the cloud, or null where there is none.
+ *
+ * Formula .....
+ *     snap = await get doc(doc(db, 'users', uid, 'assetRecord', string(part)))
+ *     nothing   when !snap.exists()
+ *     d = snap.data()
+ *     plain = await decrypt from sync(enc)   if enc ≠ nothing
+ *     nothing   otherwise
+ *     the answer:
+ *     (plain as any).rows   if array.is array((plain as any).rows)
+ *     nothing   otherwise
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-223
+ * Changed ..... 2026-11-11 (d188fd68)
+ */
 export async function loadAssetRecordPart(uid: string, part: number): Promise<unknown[] | null> {
   const snap = await getDoc(doc(db, 'users', uid, 'assetRecord', String(part)));
   if (!snap.exists()) return null;

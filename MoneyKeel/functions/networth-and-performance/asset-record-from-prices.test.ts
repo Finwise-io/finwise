@@ -7,7 +7,8 @@ const AT = '2026-11-08T10:00:00.000Z', AT2 = '2026-11-08T10:10:00.000Z';
 const buy = (shares: number, price: number, date: string, holding = 'VTI'): NewRow => ({ accountId: 'van', holding, kind: 'PURCHASE', date, shares, price, amount: shares * price, source: 'typed' });
 const series = (ticker: string, pts: [string, number][]) => ({ ticker, points: pts.map(([date, close]) => ({ date, close })) });
 const PRICES = { VTI: series('VTI', [['2026-11-05', 295], ['2026-11-06', 300]]) };
-const accts = [{ asset_id: 'van', positions: [{ position_id: 'p', ticker: 'VTI', kind: 'stocks_etf', lots: [] }] as any }];
+// an account built from its holdings (derive_balance, set by a file import): the only kind the price feed values
+const accts = [{ asset_id: 'van', derive_balance: true, positions: [{ position_id: 'p', ticker: 'VTI', kind: 'stocks_etf', lots: [] }] as any }];
 
 test('100 VTI, refreshed on Sunday Nov 8: one value dated Friday Nov 6 (the close\'s own day), 100 × $300 = $30,000', () => {
   const rec = addRows([], [buy(100, 80, '2025-03-03')], AT);
@@ -71,4 +72,38 @@ test('a fund whose last close is 10 days before the day is still valued at that 
   expect(valuesNow(saved, 'van')?.holdings).toEqual(expect.arrayContaining([{ holding: 'OLDFUND', shares: 10, price: 60, value: 600, priceDate: '2026-10-27' }]));
   // VTI's close is Nov 6's own, so it carries no old-price day
   expect(valuesNow(saved, 'van')?.holdings.find((x) => x.holding === 'VTI')).not.toHaveProperty('priceDate');
+});
+
+// OUTSIDE CHECK, 2026-11-12 — the price feed values only an account built from its holdings (owner's ruling: the balance
+// the account holder typed is the value of a typed account; its holdings are a tracked part of it).
+const typedAcct = (extra: Record<string, unknown> = {}) => [{ asset_id: 'van', positions: [{ position_id: 'p', ticker: 'VTI', kind: 'stocks_etf', lots: [] }] as any, ...extra }];
+
+test('an account with no source (absent means typed by hand), typed $40,000 on Nov 1, 100 VTI tracked: a refresh at $300 writes nothing, and its value stays $40,000', () => {
+  let rec = addRows([], [buy(100, 80, '2025-03-03')], AT);
+  rec = addRows(rec, valueRows({ accountId: 'van', date: '2026-11-01', source: 'typed', typedValue: 40_000 }), AT);
+  expect(priceFeedValues(rec, typedAcct(), PRICES)).toEqual([]);
+  expect(priceFeedValues(rec, typedAcct({ source: 'manual' }), PRICES)).toEqual([]);
+  expect(valuesNow(rec, 'van')?.total).toBe(40_000);
+});
+
+test('a sign-up answer of $50,000 (no date) with 100 VTI added to track it: a refresh writes nothing, and its value stays $50,000', () => {
+  let rec = addRows([], [buy(100, 80, '2025-03-03')], AT);
+  rec = addRows(rec, valueRows({ accountId: 'van', date: null, source: 'typed', typedValue: 50_000 }), AT);
+  expect(priceFeedValues(rec, typedAcct(), PRICES)).toEqual([]);
+  expect(valuesNow(rec, 'van')?.total).toBe(50_000);
+});
+
+test('an account built from its holdings with $2,000 cash given with no date: the refresh carries the $2,000, 100 × $300 + $2,000 = $32,000', () => {
+  let rec = addRows([], [buy(100, 80, '2025-03-03')], AT);
+  rec = addRows(rec, valueRows({ accountId: 'van', date: null, source: 'typed', cash: 2_000 }), AT);
+  const saved = addRows(rec, priceFeedValues(rec, accts, PRICES), AT2);
+  expect(valuesNow(saved, 'van')).toMatchObject({ date: '2026-11-06', source: 'price-feed', cash: 2_000, total: 32_000 });
+});
+
+test('the $40,000 typed account was deleted (no longer among the accounts, or removed on the record): a refresh writes nothing for it', () => {
+  let rec = addRows([], [buy(100, 80, '2025-03-03')], AT);
+  rec = addRows(rec, valueRows({ accountId: 'van', date: '2026-11-01', source: 'typed', typedValue: 40_000 }), AT);
+  expect(priceFeedValues(rec, [], PRICES)).toEqual([]);
+  const removed = addRows(rec, [{ accountId: 'van', holding: null, kind: 'FACT', date: null, source: 'typed', facts: { accountRemoved: true } }], AT2);
+  expect(priceFeedValues(removed, accts, PRICES)).toEqual([]);
 });

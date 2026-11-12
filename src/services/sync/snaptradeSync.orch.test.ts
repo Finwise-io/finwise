@@ -130,3 +130,14 @@ test('a cursor honored by the old copies is set aside once when the master recor
   expect(call?.[1]?.startDate).toBeUndefined();                // the whole history, once
   expect(((useStore.getState() as any).assetRecord ?? []).some((r: any) => r.source === 'linked')).toBe(true);
 });
+
+test('a holdings reply with no list of positions stays missing — never sent on as "holds nothing"', async () => {
+  api.holdings.mockImplementation(async (id: string) => (id === 'acc-bad' ? Promise.reject(new Error('broker maintenance')) : { balances: [{ cash: 9000 }] }));
+  const seen: any[] = [];
+  const ingest = (useStore.getState() as any).ingestSnapTradeSync;
+  useStore.setState({ ingestSnapTradeSync: (payloads: any[], meta: any) => { seen.push(...payloads); return ingest(payloads, meta); } } as any);
+  await runSnapTradeSync({ force: true });
+  expect(seen).toHaveLength(1);
+  expect(seen[0].positions).toBeUndefined();
+  expect(seen[0].optionPositions).toBeUndefined();
+});

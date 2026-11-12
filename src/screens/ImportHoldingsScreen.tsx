@@ -102,20 +102,27 @@ export default function ImportHoldingsScreen() {
       // (importedAccountOf), never here. It used to be split into one account per class.
       const acct = importedAccountOf(result, { institution, name: accountName });
       const holdsSomething = (acct.positions?.length ?? 0) > 0 || (acct.cash_balance ?? 0) !== 0;
+      // each row with a value and no quantity is its own account, added first so the master record is told which account
+      // holds each one (outside check, 2026-11-12: the record put a $5,000 bond on the file's account, and a file of only
+      // such rows never reached the record); addAsset puts each new account first on the list
+      const valueOnlyIds = valueOnlyAccountsOf(result, { institution }).map((a) => {
+        store.addAsset(a);
+        return String(useStore.getState().assetAccounts[0]?.asset_id);
+      });
       if (!holdsSomething) {
         // a file of value-only rows: nothing for the one account to hold, so no empty account is made
+        if (valueOnlyIds.length) store.recordFileImport?.(result, null, valueOnlyIds);
       } else if (matched && mergeChoice === 'update') {
         // Merge-not-duplicate (Import v2): refresh the existing account. asset_id is preserved,
         // so its history, retirement earmark and class settings survive. Never a twin.
         store.updateAsset(matched.asset_id, acct);
-        store.recordFileImport?.(result, String(matched.asset_id));   // the master record, beside the old copies (phase 2)
+        store.recordFileImport?.(result, String(matched.asset_id), valueOnlyIds);   // the master record, beside the old copies (phase 2)
       } else {
         store.addAsset(acct);
         // the account just added is the first on the list (addAsset puts it there)
         const added = useStore.getState().assetAccounts[0];
-        if (added) store.recordFileImport?.(result, String(added.asset_id));
+        if (added) store.recordFileImport?.(result, String(added.asset_id), valueOnlyIds);
       }
-      valueOnlyAccountsOf(result, { institution }).forEach((a) => store.addAsset(a));
       store.refreshPrices?.();   // best-effort: pull live prices so equity market values populate
       Alert.alert('Holdings imported 🎉', `Added ${plural(result.holdings.length, 'holding')} to ${acct.label}.`, [
         { text: 'Done', onPress: () => router.back() },

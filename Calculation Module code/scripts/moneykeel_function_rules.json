@@ -3822,6 +3822,916 @@
    "name": "biggestOutLine",
    "rule": "The biggest amount going out of a month, as its row prints it: of the month's rows, only those going out are read — not the money coming in, not a row not set, not a payment not entered, and only where the printed amount is below zero; the one with the most negative printed amount wins, the first of equal ones kept. It gives that row's name and its printed amount; nothing when no row goes out.",
    "read_from": "f9e22aeed0"
+  },
+  "MK-NW-F-229": {
+   "name": "dayOrNull",
+   "rule": "A date as a row keeps it. Anything that is not text gives nothing. The text, with spaces at its ends cut off, must be four digits, a dash, two digits, a dash, two digits, optionally followed by a time part that starts with T; anything else gives nothing. The day is the first 10 characters. It is read as year, month and day, and must be a day that exists on the calendar: the year, month and day of that calendar day must come back exactly as written. A real day is returned as written; otherwise nothing.",
+   "read_from": "cc59e2e281"
+  },
+  "MK-NW-F-230": {
+   "name": "wasGiven",
+   "rule": "Whether a text was given at all: yes only when the value is text and, with spaces at its ends cut off, is not empty. A missing value, a number, or text of only spaces gives no.",
+   "read_from": "47c5634b17"
+  },
+  "MK-NW-F-231": {
+   "name": "instantOf",
+   "rule": "The moment a time-stamp names, as a count of milliseconds, read with its own time zone so two stamps written in different time zones are put in their true order. A time-stamp that cannot be read counts as moment 0, the earliest possible.",
+   "read_from": "6f33dc96f7"
+  },
+  "MK-NW-F-232": {
+   "name": "oneHoldingSpelling",
+   "rule": "One spelling for a holding: a missing name, or a name of only spaces, gives nothing. Otherwise the name with spaces at its ends cut off, in capital letters, so a lower-case and an upper-case spelling are one holding.",
+   "read_from": "b331012ce7"
+  },
+  "MK-NW-F-233": {
+   "name": "addRows",
+   "rule": "Saves new rows after the rows already on record, which are kept unchanged. Numbering starts from the larger of the number of rows on record and the highest row number on record (a row number that is not a number counts as 0); each new row gets the next number up, one by one. Every new row is stamped with the one save time given. For each new row: if it names a row to replace, that row must be one that stands today (the same reading as MK-NW-F-234 rowsInForce, over the record including rows already added in this save), or the save stops with a message that nothing can replace it; and if the row it replaces was typed by the account holder, the new row must also be typed, or the save stops. The holding name is put in its one spelling (MK-NW-F-232 oneHoldingSpelling). The date is read as MK-NW-F-229 dayOrNull reads it; the settlement date is read the same way, except a missing settlement date stays missing as given. On a purchase, a sale or a transfer, shares given with a minus sign are saved as the same number without it. Where a date (or settlement date) was given but cannot be read as a day, the date is left blank and the text given is kept beside it (judged given by MK-NW-F-230 wasGiven). A value row that does not replace another is put in a set of values: the account's own value row (no holding) starts a new set named by its own row number, and each holding's value row after it in the same save joins the latest set started for that account; a holding's value row with no account value row before it in this save stops the save with a message. The answer is the full record with the new rows at the end.",
+   "figures_checked_by_hand": {
+    "234": "not a figure: part of the identifier MK-NW-F-234 of a function this rule names",
+    "232": "not a figure: part of the identifier MK-NW-F-232 of a function this rule names",
+    "229": "not a figure: part of the identifier MK-NW-F-229 of a function this rule names",
+    "230": "not a figure: part of the identifier MK-NW-F-230 of a function this rule names"
+   },
+   "read_from": "dc1e462d16"
+  },
+  "MK-NW-F-234": {
+   "name": "rowsInForce",
+   "rule": "The rows that count today: every row whose number no other row names as the row it replaces, and that is not itself marked as a removal. A row is dropped from the answer the moment any row in the record names it as replaced, whatever that row's own standing.",
+   "read_from": "84bf2e7c7d"
+  },
+  "MK-NW-F-235": {
+   "name": "firstRowOf",
+   "rule": "Builds a lookup that, given a row number, finds the row it began as: start at the row with that number, and while it names a row it replaces that is on record, step to that row; a row already visited stops the stepping, so a loop of corrections cannot run forever. Gives the row reached, or nothing when the row number is not on record.",
+   "read_from": "80ec87d0a0"
+  },
+  "MK-NW-F-236": {
+   "name": "rowAsItStands",
+   "rule": "The row that stands today for a row number, however many times it was corrected. First the row it began as is found (the same reading as MK-NW-F-235 firstRowOf); where the number is not on record the answer is nothing. Otherwise, among the rows in force (MK-NW-F-234 rowsInForce), the first one whose own beginning is that same row is the answer; where none is in force (it was taken away) the answer is nothing.",
+   "figures_checked_by_hand": {
+    "235": "not a figure: part of the identifier MK-NW-F-235 of a function this rule names",
+    "234": "not a figure: part of the identifier MK-NW-F-234 of a function this rule names"
+   },
+   "read_from": "3889ad1db4"
+  },
+  "MK-NW-F-237": {
+   "name": "sameNumber",
+   "rule": "Whether two amounts are the same. When either is missing, they are the same only when both are missing. Otherwise they are the same when the size of their difference is no more than EPS (one billionth).",
+   "read_from": "c07f3d4ab6"
+  },
+  "MK-NW-F-238": {
+   "name": "sortArriving",
+   "rule": "Sorts what arrives from a broker or a file into rows to save and events to ask the account holder about. First, keys: an event (a purchase, sale, dividend, interest payment, deposit, withdrawal, transfer, fee, split or other broker word, that does not replace a row) with a readable date and no key of its own is given a key made of its source, kind, date, holding, shares without a minus sign, price, amount, account reached and whether it arrives, plus its count among rows alike in this delivery for that account (so two alike in one delivery are two). The record already holds an account and key where some row carries it and either a row in force (MK-NW-F-234 rowsInForce) carries it or no row of the account holder's that takes a row away (typed by the account holder, not by an answer) carries it; a key that only rows the account holder took away still carry counts as not held, so the row goes on to the later steps. A row whose account and key the record already holds is not saved: where the row standing for it today is not typed by the account holder, not taken away, and the arriving row now carries another date, other shares, another price, or (on a split) another ratio, it becomes a question (why: ratio, else date, else price) unless that question was already answered (the answers of MK-NW-F-269 eventAnswers); otherwise it is dropped silently. A row with no key, or a new key, goes on. Next, each remaining event that matches an event on record from another source (MK-NW-F-270 sameEventElsewhere), on the same day and, where it has shares, at the same price, is left out and that record row is claimed. Last, for each remaining row in order: for an event with a readable date, if no in-force match on the same day exists and a match is among rows the account holder took away (removed by a typed row, not by an answer about a list, and not first typed by the account holder), it is a question (why: taken away), asked only if not already answered, and is not saved. Otherwise, matches from another source: if any was already answered mine, or this arriving event was answered mine before (by MK-NW-F-268 arrivingKey), it is left out unasked; if any match's difference was already answered about a list (MK-NW-F-266 listAnswered), it is left out; if a match not yet answered exists, that row is claimed and it is a question (why: price when on the same day, else date). Then a correction from the same source: an in-force row not claimed and not sent again under its key in this delivery, of the same source, account, kind, holding, day and shares at another price, and with no other row of this delivery matching it exactly, is claimed and becomes a price question if not already answered; either way the row is not saved. For a transfer with a holding and shares: against the record plus the rows chosen to save so far, if this row reports shares arriving and a transfer of the same holding and shares, within NEARBY_DAYS (five days, by MK-NW-F-267 daysFromOneDateToAnother) and naming this account as the one reached, is already there, it is left out; if this row names the account reached and that account already holds a matching arrival not typed by the account holder, a row taking that arrival away is saved first. Every row not left out is saved. The answer is the rows to save and the questions.",
+   "figures_checked_by_hand": {
+    "269": "not a figure: part of the identifier MK-NW-F-269 of a function this rule names",
+    "270": "not a figure: part of the identifier MK-NW-F-270 of a function this rule names",
+    "268": "not a figure: part of the identifier MK-NW-F-268 of a function this rule names",
+    "266": "not a figure: part of the identifier MK-NW-F-266 of a function this rule names",
+    "267": "not a figure: part of the identifier MK-NW-F-267 of a function this rule names",
+    "234": "not a figure: part of the identifier MK-NW-F-234 of a function this rule names"
+   },
+   "read_from": "a1a3890cb9"
+  },
+  "MK-NW-F-239": {
+   "name": "rowsNotYetSaved",
+   "rule": "The rows not yet in the record: exactly the rows to save that MK-NW-F-238 sortArriving gives for the same record and arriving rows; its questions are dropped.",
+   "figures_checked_by_hand": {
+    "238": "not a figure: part of the identifier MK-NW-F-238 of a function this rule names"
+   },
+   "read_from": "056638296d"
+  },
+  "MK-NW-F-240": {
+   "name": "placedOn",
+   "rule": "Where a row sits in time: its own date where it has one; otherwise the day part (the first 10 characters) of the time it was saved. Only the order of reading uses this; the row's date stays blank.",
+   "read_from": "e78c88cda8"
+  },
+  "MK-NW-F-241": {
+   "name": "valueRows",
+   "rule": "The rows for one account's values on one day, to be saved together. First, one value row for the account itself with no holding: its amount is the uninvested cash, with the broker's stated total and a typed value beside it, each blank where not given. Then one value row per holding listed, in the order listed, each with the holding's name, shares, price, and its value as the amount (blank where not given), and the price's own day where one is given. Every row carries the same account, date and source. With no holdings given, only the account's own row.",
+   "read_from": "5c42041bf0"
+  },
+  "MK-NW-F-242": {
+   "name": "valueBatchesOf",
+   "rule": "Every set of values saved for one account, read from the value rows in force (MK-NW-F-234 rowsInForce), so a corrected row is read in its place. One set per account value row with no holding. Its holdings are the in-force holding value rows carrying the same set number, each with shares, price, value (the row's amount) and price day, blank where not given. Cash is the account row's amount and the typed value is its typed value. The set's number is the account row's set number, or its own row number where it has none. Its date and source are the account row's; its save time is the save time of the row it began as (MK-NW-F-235 firstRowOf). It is marked typed when any row of the set was typed by the account holder. Its total is blank where any holding's value is blank, or where both cash and the typed value are blank; otherwise cash (blank counts as 0) plus the typed value (blank counts as 0) plus every holding's value.",
+   "figures_checked_by_hand": {
+    "234": "not a figure: part of the identifier MK-NW-F-234 of a function this rule names",
+    "235": "not a figure: part of the identifier MK-NW-F-235 of a function this rule names"
+   },
+   "read_from": "0acbb5040f"
+  },
+  "MK-NW-F-244": {
+   "name": "valuesNow",
+   "rule": "What the screens show today for one account: of every set of values (MK-NW-F-242 valueBatchesOf), the one that wins when they are compared two at a time by the rule for which set to read (of two sets: a dated one wins over an undated one; the later date wins; on one date, one given by a broker, a file or the account holder wins over the price feed's, then one the account holder typed wins, then the later save time as MK-NW-F-231 instantOf reads it, then the higher set number). With no sets, nothing.",
+   "figures_checked_by_hand": {
+    "242": "not a figure: part of the identifier MK-NW-F-242 of a function this rule names",
+    "231": "not a figure: part of the identifier MK-NW-F-231 of a function this rule names"
+   },
+   "read_from": "2dbaf39546"
+  },
+  "MK-NW-F-245": {
+   "name": "valuesLastGiven",
+   "rule": "The latest values given by a broker, a file or the account holder for one account, never the price feed's: the sets of values (MK-NW-F-242 valueBatchesOf) whose source is linked, file or typed, compared two at a time by the rule for which set to read (of two sets: a dated one wins over an undated one; the later date wins; on one date, one given by a broker, a file or the account holder wins over the price feed's, then one the account holder typed wins, then the later save time as MK-NW-F-231 instantOf reads it, then the higher set number). With none, nothing.",
+   "figures_checked_by_hand": {
+    "242": "not a figure: part of the identifier MK-NW-F-242 of a function this rule names",
+    "231": "not a figure: part of the identifier MK-NW-F-231 of a function this rule names"
+   },
+   "read_from": "54a2cdfd7a"
+  },
+  "MK-NW-F-246": {
+   "name": "valuesOn",
+   "rule": "What an account was worth on one day: the sets of values (MK-NW-F-242 valueBatchesOf) dated exactly that day, compared two at a time by the rule for which set to read (of two sets: a dated one wins over an undated one; the later date wins; on one date, one given by a broker, a file or the account holder wins over the price feed's, then one the account holder typed wins, then the later save time as MK-NW-F-231 instantOf reads it, then the higher set number). Undated sets belong to no day. With none, nothing.",
+   "figures_checked_by_hand": {
+    "242": "not a figure: part of the identifier MK-NW-F-242 of a function this rule names",
+    "231": "not a figure: part of the identifier MK-NW-F-231 of a function this rule names"
+   },
+   "read_from": "9774564a1f"
+  },
+  "MK-NW-F-247": {
+   "name": "valuesThatDiffer",
+   "rule": "On one day, a value the account holder typed and a later differing one from a broker or a file, handed back as pairs to ask about. Of the account's sets of values (MK-NW-F-242 valueBatchesOf), the typed ones with a date are kept only where no other typed set on the same date was saved later. For each such typed set, every set that is not typed, is given by a broker, a file or the account holder, has the same date, was saved later (moments by MK-NW-F-231 instantOf), and whose total differs (MK-NW-F-237 sameNumber, so a blank total against a known one differs) is paired with it, unless the account holder already answered that pair: an in-force typed fact row of this account whose values-answered note names the typed set and the given set. The answer is every such pair; with none, an empty list.",
+   "figures_checked_by_hand": {
+    "242": "not a figure: part of the identifier MK-NW-F-242 of a function this rule names",
+    "231": "not a figure: part of the identifier MK-NW-F-231 of a function this rule names",
+    "237": "not a figure: part of the identifier MK-NW-F-237 of a function this rule names"
+   },
+   "read_from": "33388d3b8e"
+  },
+  "MK-NW-F-248": {
+   "name": "answerValuesQuestion",
+   "rule": "The rows to save for the account holder's answer about a typed set of values and a broker's set (the pair named by both set numbers). If the record is given, the latest in-force answer to this pair was theirs, and the answer now is mine: a typed fact row noting the pair and the answer mine, then the account holder's own values of that day saved again as typed (MK-NW-F-241 valueRows, with the typed set's date, cash, stated total, typed value and holdings). Otherwise, if the record is given and the pair is no longer a difference (read by MK-NW-F-247 valuesThatDiffer over the record without any fact rows that answer this pair), nothing is saved. Otherwise a typed fact row with no date noting the pair and the answer; with the answer mine, that row alone; with the answer theirs, that row followed by the broker's figures of that day saved as typed by the account holder (MK-NW-F-241 valueRows with the given set's date, cash, stated total, typed value and holdings).",
+   "figures_checked_by_hand": {
+    "241": "not a figure: part of the identifier MK-NW-F-241 of a function this rule names",
+    "247": "not a figure: part of the identifier MK-NW-F-247 of a function this rule names"
+   },
+   "read_from": "6afd97e344"
+  },
+  "MK-NW-F-249": {
+   "name": "valuesNeedingADate",
+   "rule": "The sets of values for one account (MK-NW-F-242 valueBatchesOf) that have no date and were given by a broker, a file or the account holder, never the price feed: the account holder is asked what day they are from. With none, an empty list.",
+   "figures_checked_by_hand": {
+    "242": "not a figure: part of the identifier MK-NW-F-242 of a function this rule names"
+   },
+   "read_from": "e080e0e22c"
+  },
+  "MK-NW-F-250": {
+   "name": "statedTotalGap",
+   "rule": "The broker's own stated total minus the total the set's rows add up to. Blank where either the stated total or the added-up total is blank.",
+   "read_from": "135b393c30"
+  },
+  "MK-NW-F-251": {
+   "name": "oldestLotFirst",
+   "rule": "The order purchases are listed and sold in. Dates are compared as written, with a missing date counted as empty text, so a purchase with no date comes before every dated one; then the older date first. On the same date (or both undated), the one whose first row number is lower comes first.",
+   "read_from": "247e1cd0c2"
+  },
+  "MK-NW-F-252": {
+   "name": "walkHolding",
+   "rule": "Walks one holding (in its one spelling, MK-NW-F-232 oneHoldingSpelling) through every account. Events read: in-force rows (MK-NW-F-234 rowsInForce) of that holding that are a split, a purchase, a sale, or a transfer with more than 0 shares. Each event's day is its date; an undated purchase counts as empty text, so it is first; any other undated event takes the day of the save of the row it began as. Where a last day is given, events after it are skipped. Order: by day; on one day a split, then purchases, then transfers, then sales; then by the number of the row each began as. A purchase becomes a lot with its shares (blank counts as 0), price, date, the first date it was given with, its source, the day a list said it was still held, a split count of 1, and whether it was first typed by the account holder; a purchase from a broker's history that a list already counts is kept aside as shown, not held. A split with a ratio (blank counts as 1; 0 or less is skipped) multiplies the shares and split count and divides the price of every held or shown lot in that account whose starting day is before the split's day: the day it arrived by transfer, else the day a list said it was still held, else for a lot the account holder entered with a date before the day it was entered the entry day, else its date, else the entry day. A transfer that reports shares arriving from outside adds a lot of those shares with no date, its price only where given, arriving that day. A sale or a transfer out takes its shares (blank counts as 0) as follows. First, from each purchase it names, up to the named shares and what is left, only pieces of that purchase in this account dated by the sale's day. Next, where rows of that holding that were taken away list shares of this sale to be asked about (added up over every such row, by the row the sale began as), and some of the sale is left: the shares asked are the smaller of what is left and those listed shares; of them, as many as the held lots of this account arrived or dated by the sale's day still have free (not yet taken by this sale, less the shares already waiting in this account, never below 0) wait for the account holder's answer, when more than EPS; the rest of the shares asked are counted beyond the record, and none of the shares asked are sold from another purchase. Then, for what is left: from the shown history lots of this account dated by the sale's day whose list is not before the sale (a sale on the list's own day is read as already in the list), oldest first (MK-NW-F-251 oldestLotFirst), only shares that list no longer states; a lot an answer kept to show is used only by a sale saved after it or one it names. Then the held lots that could have been sold: in this account, arrived or dated by the sale's day, not on a list dated on or after the sale, with shares not yet taken. If none could and the sale is before a list: where more than one listed lot dated by the sale's day exists and one has no date, the rest wait for the account holder's answer; where one or more exist, the oldest is named as sold from and its shares sold before the list grow by the rest, which counts as attributed; with none, the rest are counted as before the list. Else, if more than one lot could and one has no date, and either shares already wait for an answer in this account or the rest is less than all shares free (less EPS), the rest, up to the free shares less those waiting, waits for an answer. Else the lots are taken oldest first, never taking shares already waiting. Taken shares leave their lots; on a transfer to another account they arrive there as the same purchases, with their dates and prices, arriving that day, and any shares not found plus waiting shares arrive there as a lot with no date. For each sale or transfer out it records the lots taken from (named first), the shares beyond the record (what is left plus the shares asked that could not wait, when over EPS), the shares waiting, the shares before the list and the shares attributed. It returns the lots with more than EPS shares, those records, and every lot.",
+   "figures_checked_by_hand": {
+    "232": "not a figure: part of the identifier MK-NW-F-232 of a function this rule names",
+    "234": "not a figure: part of the identifier MK-NW-F-234 of a function this rule names",
+    "251": "not a figure: part of the identifier MK-NW-F-251 of a function this rule names"
+   },
+   "read_from": "ff3bc77caa"
+  },
+  "MK-NW-F-253": {
+   "name": "openPurchases",
+   "rule": "The purchases of one holding still held in one account: the lots from MK-NW-F-252 walkHolding in that account (walked up to a last day where one is given, otherwise over everything), put in order by MK-NW-F-251 oldestLotFirst. Where shares wait for the account holder's answer in that account (more than EPS) and those waiting shares take every share left (the lots' shares minus the waiting shares is no more than EPS), the answer is an empty list; otherwise every lot.",
+   "figures_checked_by_hand": {
+    "252": "not a figure: part of the identifier MK-NW-F-252 of a function this rule names",
+    "251": "not a figure: part of the identifier MK-NW-F-251 of a function this rule names"
+   },
+   "read_from": "aa44325411"
+  },
+  "MK-NW-F-254": {
+   "name": "sharesTakenBy",
+   "rule": "What each sale and transfer out of one account took for one holding: the records from MK-NW-F-252 walkHolding, read over the whole record, kept for that account only.",
+   "figures_checked_by_hand": {
+    "252": "not a figure: part of the identifier MK-NW-F-252 of a function this rule names"
+   },
+   "read_from": "a0a4fc6d64"
+  },
+  "MK-NW-F-255": {
+   "name": "soldBeyondRecord",
+   "rule": "The sales and transfers out of one account, for one holding, that took more shares than the purchases on record hold: from MK-NW-F-254 sharesTakenBy, each one whose shares beyond the record are more than EPS, with its row number and those shares. An empty list means every share sold was a share on record.",
+   "figures_checked_by_hand": {
+    "254": "not a figure: part of the identifier MK-NW-F-254 of a function this rule names"
+   },
+   "read_from": "3f5b0c0e2a"
+  },
+  "MK-NW-F-256": {
+   "name": "salesNeedingAnAnswer",
+   "rule": "The sales the account holder is asked about. The holdings are those named on in-force sales or transfers of this account. For each, from MK-NW-F-254 sharesTakenBy, every sale or transfer out with more than EPS shares waiting for an answer gives one question: its row number, the holding, the waiting shares, and the choices, which are every lot of that holding in this account from MK-NW-F-252 walkHolding, in order by MK-NW-F-251 oldestLotFirst (kept even where the waiting shares take every share left), dated on or before the sale's date as it stands today (MK-NW-F-236 rowAsItStands); an undated purchase is always a choice, and with no sale date every such lot is.",
+   "figures_checked_by_hand": {
+    "254": "not a figure: part of the identifier MK-NW-F-254 of a function this rule names",
+    "236": "not a figure: part of the identifier MK-NW-F-236 of a function this rule names",
+    "252": "not a figure: part of the identifier MK-NW-F-252 of a function this rule names",
+    "251": "not a figure: part of the identifier MK-NW-F-251 of a function this rule names"
+   },
+   "read_from": "37efb32bbb"
+  },
+  "MK-NW-F-257": {
+   "name": "typedSalesTheListContradicts",
+   "rule": "The sales the account holder typed that a later list contradicts. The holdings are those on in-force typed sales of this account. For each record from MK-NW-F-254 sharesTakenBy whose sale, as it stands today (MK-NW-F-236 rowAsItStands), was typed by the account holder: where its shares before the list plus its attributed shares are more than EPS, it is handed back with that number of shares. Otherwise, add up the shares it took from purchases that stand today, were not saved by an answer about a list as a shown purchase, and for which another in-force purchase of the same account and holding, not typed, carries a still-held day on or after the sale's date and the same date as that purchase; where that sum is more than EPS it is handed back with that sum. Nothing changes; each is a question.",
+   "figures_checked_by_hand": {
+    "254": "not a figure: part of the identifier MK-NW-F-254 of a function this rule names",
+    "236": "not a figure: part of the identifier MK-NW-F-236 of a function this rule names"
+   },
+   "read_from": "8c21d92cfe"
+  },
+  "MK-NW-F-258": {
+   "name": "saleRow",
+   "rule": "A sale as it is saved: kind sale, on its own date, with its settlement date (blank where not given), its shares without a minus sign, its price, and its fee (blank where not given). The amount is the given amount without a minus sign; where no amount is given, the shares times the price; where neither the amount nor the price is given, blank. It carries the broker's key only where given, and the purchases it sold only where at least one is named.",
+   "read_from": "d44c77c76f"
+  },
+  "MK-NW-F-259": {
+   "name": "transferRow",
+   "rule": "Shares moved from one account to another, as one row: kind transfer, saved on the account the shares leave, naming the account they reach, with the holding, the date, the shares without a minus sign and the source. It carries the broker's key only where given, and the purchases the shares came from only where at least one is named.",
+   "read_from": "2050fda800"
+  },
+  "MK-NW-F-260": {
+   "name": "soldFrom",
+   "rule": "The purchases a sale sold and how many shares of each. The sale is read as it stands today (MK-NW-F-236 rowAsItStands); where it does not stand or has no holding, an empty list. Otherwise its record from MK-NW-F-254 sharesTakenBy gives each purchase's row number and shares; with no record, an empty list.",
+   "figures_checked_by_hand": {
+    "236": "not a figure: part of the identifier MK-NW-F-236 of a function this rule names",
+    "254": "not a figure: part of the identifier MK-NW-F-254 of a function this rule names"
+   },
+   "read_from": "c9e6d34b8b"
+  },
+  "MK-NW-F-261": {
+   "name": "saleGain",
+   "rule": "What a sale made, before fees. The sale is read as it stands today (MK-NW-F-236 rowAsItStands). Blank where it does not stand, is not a sale, has no price, or has no holding; blank where it has no record in MK-NW-F-254 sharesTakenBy, or its shares beyond the record, waiting for an answer, or before the list are more than EPS, or it took from no purchase; blank where any purchase it took from has no price. Otherwise, for each purchase it took from, the shares taken times the sale's price minus that purchase's price as the splits before the sale left it, all added up starting from 0.",
+   "figures_checked_by_hand": {
+    "236": "not a figure: part of the identifier MK-NW-F-236 of a function this rule names",
+    "254": "not a figure: part of the identifier MK-NW-F-254 of a function this rule names"
+   },
+   "read_from": "d027d0dab1"
+  },
+  "MK-NW-F-262": {
+   "name": "sharesOnRecord",
+   "rule": "The shares of a holding the record adds up to in one account, up to a given day where one is given (otherwise everything): the shares of every lot in that account from MK-NW-F-252 walkHolding, starting from 0, minus the shares that sales of that account took which wait for the account holder's answer (counted as sold).",
+   "figures_checked_by_hand": {
+    "252": "not a figure: part of the identifier MK-NW-F-252 of a function this rule names"
+   },
+   "read_from": "4ff82df0db"
+  },
+  "MK-NW-F-263": {
+   "name": "sharesThatDisagree",
+   "rule": "Where the record's shares and the shares stated by the latest values a broker, a file or the account holder gave (MK-NW-F-245 valuesLastGiven) do not agree. With no such values, an empty list. Each holding listed with shares is added up (a holding listed more than once is summed); a holding listed with blank shares is left out entirely. Also named: every holding on an in-force purchase or transfer that is in this account or reaches it, stated at 0 where the values do not list it. For each, the shares on record are counted up to the day those values are from (MK-NW-F-262 sharesOnRecord; where those values have no date, everything is counted), and the gap is stated shares minus shares on record. Kept only where the size of the gap is more than EPS and the account holder has not already answered mine is correct for that holding with that same gap: an in-force typed fact row of this account and holding whose keeps-over-list note ends in a number that is the same shares as the gap by MK-NW-F-274 sameShares. Each comes back as the holding, the shares on record, the stated shares and the gap.",
+   "figures_checked_by_hand": {
+    "245": "not a figure: part of the identifier MK-NW-F-245 of a function this rule names",
+    "262": "not a figure: part of the identifier MK-NW-F-262 of a function this rule names",
+    "274": "not a figure: part of the identifier MK-NW-F-274 of a function this rule names"
+   },
+   "read_from": "6650630ab2"
+  },
+  "MK-NW-F-264": {
+   "name": "lastListDay",
+   "rule": "The latest day a broker's or a file's list was taken into the record for one holding of one account. The holding is first written one way (the same reading as MK-NW-F-232 oneHoldingSpelling: no spaces at its ends, in capitals). Every row of the record, taken-away and replaced rows included, that belongs to that account and that holding, is a purchase, and carries a still-held-on day is read; the latest of those days, compared as text, is the answer. Nothing when no such row exists.",
+   "figures_checked_by_hand": {
+    "232": "not a figure: the identifier digits of a function this rule names (MK-...-232)"
+   },
+   "read_from": "b132a7d7f2"
+  },
+  "MK-NW-F-265": {
+   "name": "historyPurchaseRow",
+   "rule": "A purchase from a broker's history, made ready to save. The shares are always taken as a positive count: the size of the shares given, whatever their sign. The amount is the size of the amount given; with no amount given it is those shares times the price; with no price either it is blank. The date, the price and the source are kept as given; the settlement date and the fee are kept as given, or blank where not given; the broker's own reference is kept only where one was given. Then the latest list day for that account and holding is found (MK-NW-F-264 lastListDay). Where there is one, and the purchase's date does not read as a real day (the same reading as MK-NW-F-229 dayOrNull) or reads as a day on or before that list day, the row is marked as already counted in that day's list, so it adds no shares. Otherwise nothing is marked and the purchase adds its shares.",
+   "figures_checked_by_hand": {
+    "264": "not a figure: the identifier digits of a function this rule names (MK-...-264)",
+    "229": "not a figure: the identifier digits of a function this rule names (MK-...-229)"
+   },
+   "read_from": "a3a9a3614c"
+  },
+  "MK-NW-F-266": {
+   "name": "listAnswered",
+   "rule": "Whether the account holder already answered a question about a broker's list that set this purchase against a tax lot of a given day. A row that is not a purchase: false. Otherwise the purchase is traced back to the row it began as (MK-NW-F-235 firstRowOf), its own number used when nothing leads back. The answer is true where any row of the record, in force or not, is a fact the account holder typed for the same account and holding that carries a kept-over-list answer as text; that text is cut at each upright bar, the second piece is read as a comma-separated list of purchase numbers and the third as a comma-separated list of days, and the purchase's first number must be in the first list and the given day in the second. Otherwise false.",
+   "figures_checked_by_hand": {
+    "235": "not a figure: the identifier digits of a function this rule names (MK-...-235)"
+   },
+   "read_from": "d79bac994d"
+  },
+  "MK-NW-F-267": {
+   "name": "daysFromOneDateToAnother",
+   "rule": "The number of days between two dates, whichever comes first: each date is read as a moment in time, one is taken from the other, the size of the difference is kept (never below zero), and it is divided by 86400000, the milliseconds in one day. A date that cannot be read gives no number at all, so every comparison made with the answer fails.",
+   "read_from": "1cf5f9b4e7"
+  },
+  "MK-NW-F-268": {
+   "name": "arrivingKey",
+   "rule": "What marks an arriving row as the same event as one already saved. Where the source gave its own reference, that reference is the key. Otherwise the key is six pieces joined by an upright bar: the kind; the date read as a real day (MK-NW-F-229 dayOrNull), or empty; the holding written one way (MK-NW-F-232 oneHoldingSpelling), or empty; the size of the shares, or empty where there are none; the price, or empty; the amount, or empty.",
+   "figures_checked_by_hand": {
+    "229": "not a figure: the identifier digits of a function this rule names (MK-...-229)",
+    "232": "not a figure: the identifier digits of a function this rule names (MK-...-232)"
+   },
+   "read_from": "b8edff7004"
+  },
+  "MK-NW-F-269": {
+   "name": "eventAnswers",
+   "rule": "The answers the account holder has given about arriving events, by pair. The rows in force (MK-NW-F-234 rowsInForce) are read in record order; every fact the account holder typed that carries an event pair as text adds that pair with its event answer written as text. Where the same pair appears more than once, the later row's answer stands. None found: an empty list.",
+   "figures_checked_by_hand": {
+    "234": "not a figure: the identifier digits of a function this rule names (MK-...-234)"
+   },
+   "read_from": "e65a7dd583"
+  },
+  "MK-NW-F-270": {
+   "name": "sameEventElsewhere",
+   "rule": "The rows an arriving event could be the same as, nearest first. The arriving holding is written one way (MK-NW-F-232 oneHoldingSpelling), its date read as a real day (MK-NW-F-229 dayOrNull), and its shares taken by size (blank where there are none). With no readable arriving day: none. Otherwise a row of the rows handed in counts only when every one of these holds: its number is not among those already claimed; it has the same account, kind and holding; either it is dated and lies no more than NEARBY_DAYS (5) days from the arriving day (MK-NW-F-267 daysFromOneDateToAnother), or it has no date and both it and the arriving row are purchases, it has a price, and the two prices are the same (MK-NW-F-237 sameNumber); the shares are the same (MK-NW-F-237 sameNumber, two blanks counting as the same), and where the arriving row has no shares the amounts are the same too; the account the shares reach is the same, none counting as the same as none; and both arrive from outside the record or neither does. The rows that count are put in order of how many days they lie from the arriving day, an undated row counting as 99 days away. The record itself is not read; only the rows handed in are.",
+   "figures_checked_by_hand": {
+    "232": "not a figure: the identifier digits of a function this rule names (MK-...-232)",
+    "229": "not a figure: the identifier digits of a function this rule names (MK-...-229)",
+    "267": "not a figure: the identifier digits of a function this rule names (MK-...-267)",
+    "237": "not a figure: the identifier digits of a function this rule names (MK-...-237)"
+   },
+   "read_from": "c6dbb2a1c7"
+  },
+  "MK-NW-F-271": {
+   "name": "eventsThatDiffer",
+   "rule": "The questions for the account holder about arriving events that differ from what the record holds: exactly the questions MK-NW-F-238 sortArriving returns for the same record and the same arriving rows. Nothing is added or taken out here, and nothing is saved.",
+   "figures_checked_by_hand": {
+    "238": "not a figure: the identifier digits of a function this rule names (MK-...-238)"
+   },
+   "read_from": "8ebdff2b35"
+  },
+  "MK-NW-F-272": {
+   "name": "salesMovedBy",
+   "rule": "The past sales an answer of 'theirs' would move, each with what it made now and what it would make. Where the event on record is not a purchase, or has no holding: none. Otherwise the rows that answer would save (MK-NW-F-273 answerEventQuestion with the answer 'theirs' and the record) are added to a copy of the record (MK-NW-F-233 addRows), stamped as saved at 9999-12-31T00:00:00.000Z so they come after every real row. Every sale in force (MK-NW-F-234 rowsInForce) in the same account and holding is then read twice by MK-NW-F-261 saleGain: on the record as it is, and on the copy. Only the sales where the two figures differ (MK-NW-F-237 sameNumber) are returned, each with its row number, what it made and what it would make. The record itself is not changed.",
+   "figures_checked_by_hand": {
+    "273": "not a figure: the identifier digits of a function this rule names (MK-...-273)",
+    "233": "not a figure: the identifier digits of a function this rule names (MK-...-233)",
+    "234": "not a figure: the identifier digits of a function this rule names (MK-...-234)",
+    "261": "not a figure: the identifier digits of a function this rule names (MK-...-261)",
+    "237": "not a figure: the identifier digits of a function this rule names (MK-...-237)"
+   },
+   "read_from": "0ee85bda7a"
+  },
+  "MK-NW-F-273": {
+   "name": "answerEventQuestion",
+   "rule": "The account holder's answer about an arriving event ('theirs', 'mine' or 'both'), as rows to save. The record is optional; none counts as an empty one. FIRST, with a record, where the answer is 'mine', the last answer saved for this pair (MK-NW-F-269 eventAnswers) was 'theirs', and the event on record still stands (MK-NW-F-236 rowAsItStands): two rows. One is that row again with the date, price and amount the event on record had when the question was asked (and its ratio, where it had one), saved as typed, replacing the row as it stands, marked as changing the date, price and ratio. The other is a typed fact remembering the pair with the answer 'mine'. OTHERWISE the question is asked again: with a record, of the record with every fact naming this pair left out, through MK-NW-F-238 sortArriving with the arriving row alone, keeping the question with the same pair; with no record, the question as asked is used. No such question (it was settled since): nothing to save. A fact to remember the answer is made for the account and holding of the event on record: no date, typed, carrying the pair and the answer. 'MINE': only that fact. Where the event on record is a purchase and the arriving date reads as a real day (MK-NW-F-229 dayOrNull), the fact also keeps the date over the list (the first piece of the pair, up to its first upright bar, then that day), and, where the question was about a price, keeps the price over the list (that day, then the size of the arriving shares, 0 where none, then the arriving price). 'BOTH', or any answer about an event the account holder took away: the fact, with the answer written as 'both', and the arriving row itself, saved beside the other. 'THEIRS': the event on record is saved again as typed, replacing it, no longer taken away, its date as given dropped, with the arriving date; the arriving settlement date, else its own, else blank; the arriving price, else its own; the arriving amount, else its own; the arriving fee, else its own; the arriving ratio and the arriving reference where there are such; marked as changing the date, price, settlement date and ratio. Then the fact. Then, where the event is a purchase, every other purchase in force (MK-NW-F-234 rowsInForce) in the same account and holding that a list states as still held, is not typed, is not already counted in a list, is under the same date as the event on record, and holds no more shares than it plus EPS (any number where the event on record has no shares; a lot with no shares counting as 0), is saved again as typed, replacing it, with the arriving date, the arriving price (else its own), and an amount of its shares times the arriving price (its own amount where there is no arriving price or it has no shares), marked as changing the date and price.",
+   "figures_checked_by_hand": {
+    "269": "not a figure: the identifier digits of a function this rule names (MK-...-269)",
+    "236": "not a figure: the identifier digits of a function this rule names (MK-...-236)",
+    "238": "not a figure: the identifier digits of a function this rule names (MK-...-238)",
+    "229": "not a figure: the identifier digits of a function this rule names (MK-...-229)",
+    "234": "not a figure: the identifier digits of a function this rule names (MK-...-234)"
+   },
+   "read_from": "e61549d437"
+  },
+  "MK-NW-F-274": {
+   "name": "sameShares",
+   "rule": "Whether two share counts are the same: true where the size of their difference is no more than EPS (one billionth of a share). Both counts must be given.",
+   "read_from": "0506366646"
+  },
+  "MK-NW-F-275": {
+   "name": "besideTheList",
+   "rule": "Sets the tax lots a broker's or a file's list states beside the purchases still held, so that each lot is held, the same purchase stated differently, or not held. A lot is UNDER a purchase when: the lot's date reads as a real day (MK-NW-F-229 dayOrNull) and the purchase's first date or its date as it stands is that day; or the lot's date does not read as a day but was given (MK-NW-F-230 wasGiven) and the purchase's row as it stands (MK-NW-F-236 rowAsItStands) keeps exactly that text as its date as given; or the lot has no date at all and the purchase has no date, no first date and no date as given, and is not a broker's average. Each purchase can be matched once: when matched it leaves the pool. In each pass the lots are read in list order and the first purchase in the pool that fits is taken. PASS ONE: a lot under a purchase with the same shares (MK-NW-F-274 sameShares) and the same price (MK-NW-F-237 sameNumber, or either price blank) is held. PASS TWO, of the lots left: a lot under a purchase with the same shares, whatever the price, is held. PASS THREE, of the lots still left: a lot under any purchase differs from it (one purchase, two share counts). PASS FOUR, of the lots still left: a lot whose date reads as a day and a dated purchase with the same shares no more than NEARBY_DAYS (5) days away (MK-NW-F-267 daysFromOneDateToAnother) differ (one purchase, two dates). A lot left after all four passes is not held. The answer is the held pairs, the differing pairs, the lots not held, and the purchases left in the pool, which the list does not state.",
+   "figures_checked_by_hand": {
+    "229": "not a figure: the identifier digits of a function this rule names (MK-...-229)",
+    "230": "not a figure: the identifier digits of a function this rule names (MK-...-230)",
+    "236": "not a figure: the identifier digits of a function this rule names (MK-...-236)",
+    "274": "not a figure: the identifier digits of a function this rule names (MK-...-274)",
+    "237": "not a figure: the identifier digits of a function this rule names (MK-...-237)",
+    "267": "not a figure: the identifier digits of a function this rule names (MK-...-267)"
+   },
+   "read_from": "51711e1f33"
+  },
+  "MK-NW-F-276": {
+   "name": "replacedPurchase",
+   "rule": "A purchase marked as replaced. The purchase's row as it stands (MK-NW-F-236 rowAsItStands) is read; where there is none, or where the purchase's shares reached the account by a transfer: nothing. The shares already sold from it are the row's shares (0 where blank) less the shares still held divided by how many shares each first share has become through the splits since. Where that is more than EPS, the row is saved again holding only those sold shares, with an amount of those shares times the row's price (blank with no price), the given source, replacing the row. Otherwise the row is saved again with the given source, replacing it, and taken away. Either way the old row itself stays in the record.",
+   "figures_checked_by_hand": {
+    "236": "not a figure: the identifier digits of a function this rule names (MK-...-236)"
+   },
+   "read_from": "a54b2c060e"
+  },
+  "MK-NW-F-277": {
+   "name": "purchasesFromList",
+   "rule": "What a broker's update or a file's list does to the purchases of one holding of one account: rows to save, and questions for the account holder. SETUP. The holding is written one way (MK-NW-F-232 oneHoldingSpelling); The still-held day is the list day read as a real day (MK-NW-F-229 dayOrNull). Where there is a still-held day and the record has, in force (MK-NW-F-234 rowsInForce), a sale, a purchase, a split or a transfer of more than 0 shares in this account and holding dated after it, the list is read as of that day: the purchases still held, the shares on record and the shares waiting for an answer are all taken up to the still-held day; otherwise over everything. The purchases still held are MK-NW-F-253 openPurchases. Only listed lines with more than 0 shares count; those marked as an average are average lines, the rest are tax lots. A listed line is saved as a purchase in this account and holding with its own date, shares and price, the given source, an amount of shares times price (blank with no price), the still-held day where there is one, and marked as a broker's average where the line is one. A question carries its kind, the purchases in question and their shares added up, the lines it states and their shares added up, everything the list stated, the list day, the source, and a signature: unless one is given, the kind (written 'list' for the kinds 'typed' and 'not-listed'), the purchases' first row numbers sorted and joined by commas, the lines' dates sorted and joined by commas, and the listed shares less the shares on record, all four joined by an upright bar. The answers kept are the kept-over-list texts on every fact in force (MK-NW-F-234 rowsInForce) the account holder typed for this account and holding; where answered questions are to be included, that set is emptied. At the end every question whose signature is among the answers kept is dropped. EARLY STOPS. Where the questions this update's history already asks include one about a split ratio for this holding: no rows and no questions. Where sales are still waiting for the account holder to say which lot they sold (the unassigned shares of MK-NW-F-254 sharesTakenBy, or when read as of the still-held day those of this account in the walk of the holding up to that day by MK-NW-F-252 walkHolding, added up, are more than EPS) and the shares on record (MK-NW-F-262 sharesOnRecord) are the same (MK-NW-F-274 sameShares) as all the counted listed shares added up: nothing saved and nothing asked. TERMS. EVERYTHING is every purchase in force in this account and holding that is not already counted in a list; the holding was EVER HELD where that or the purchases still held are not empty. A listed line was TAKEN AWAY where any row of the record is a typed purchase in this account and holding that was taken away, not by an answer, dated on the line's day. The last list day is MK-NW-F-264 lastListDay. WHEN THERE ARE TAX LOTS, OR NO AVERAGE LINES. Case two (the first list over the broker's own history): where no list was taken in before, there is a still-held day and at least one lot, everything is not empty, no lot was taken away, no purchase still held arrived by a transfer, and every row of everything is not typed, has no still-held day, and is dated on or before the still-held day (no date counting as earliest): each of those rows is saved again in the given source, replacing itself, marked as counted in the list of the still-held day; then every lot is saved; and it stops. Otherwise the lots are set beside the purchases still held (MK-NW-F-275 besideTheList). PRICES OF THE HELD PAIRS, skipping a pair whose row no longer stands, whose lot has no price, or whose purchase arrived by a transfer: where the row is typed, its first row was typed too, and no fact in force for this account and holding already records this lot price for the purchase's first row number, a fact recording that list price (the lot price divided by, then multiplied by, the splits) is saved. Case five: where the row has no price and was not typed, it is saved again with the lot price times the splits as its price and its shares (0 where blank) times that as its amount, replacing it. Else, where the purchase has a price that is not the same (MK-NW-F-237 sameNumber) as the lot price: for a row that was not typed this is a price difference; for a typed row, the broker's figure is the price of the latest version of that purchase that was not typed and not taken away, divided by the splits, or else the price in the latest fact in force recording a list price for that purchase; it is a price difference only where such a figure exists and is not the same as the lot price. A price difference is dropped where this update's history already asks about a purchase of the same date and shares, or about a purchase under the same date and price, or the account holder already kept their own price for that date, those shares and that price. SALES THAT EXPLAIN A SMALLER LOT. The waiting sales are those of MK-NW-F-254 sharesTakenBy whose shares before the list plus shares attributed are more than EPS, with those two added together. A differing pair is explained where its row stands, was not typed, has a still-held day, did not arrive by a transfer, and the waiting sales dated on or before that still-held day and first saved after the row was written add up to more than EPS and to the same shares (MK-NW-F-274 sameShares) as the purchase's shares less the lot's shares. Each explained pair's row is saved again, replacing it, with a still-held day of the day before the earliest waiting sale dated on or before its still-held day (that date less 86400000 milliseconds). WHAT IS LEFT. The unanswered pairs are the differing pairs not explained whose pair signature ('pair', the purchase's first row number, the lot's date, the lot's shares less the purchase's shares) is not among the answers kept, leaving out a pair where the account holder kept their date over the list for that purchase and the lot's day and the shares are the same. A purchase the list does not state and a lot not held with the same shares are both set aside where this update's history asks about that purchase under the lot's day, or the account holder kept their date for that day. Unanswered pairs whose purchase this update's history asks about are dropped from the questions to come. OWN ENTRIES are the purchases the list does not state that the account holder entered themselves and that stand as typed; the REST are the other purchases the list does not state. A lot is LATER where its date reads as a day, it was not taken away, and either a list was taken in before and the lot is dated after it, or a purchase in force in the broker's history, not typed, counted in the list of that same day and dated that day, holds the same shares. Case one: never held and no lot taken away: every lot not held is saved. Case three: no differing pairs, no own entries, at least one of the rest and one lot not held, no lot taken away, and every one of the rest is a broker's average, not typed, not arrived by a transfer: each of the rest is marked replaced (MK-NW-F-276 replacedPurchase) and the lots not held are saved. Otherwise: one question per unanswered pair, of the kind 'typed' where the purchase is typed and 'not-listed' where not, with its pair signature. Then case four: where there are none of the rest, every lot not held is later, and either a list was taken in before or there are no own entries: with no unanswered pairs the lots not held are saved, else any lots not held become one 'not-listed' question; and any own entries become one 'typed' question. Where case four does not apply but something is left (the rest, lots not held, or own entries), one question about all of them: 'removed' where a lot not held was taken away, else 'typed' where any of those purchases is typed, else 'not-listed'. Last, any price differences left become one 'price' question whose signature is 'price' and each purchase's first row number with its lot price. WHEN THERE ARE ONLY AVERAGE LINES. They are added into one line with no date: the shares added up, and a price of the total cost divided by those shares (blank where any line has no price). Never held and no typed purchase of this holding taken away (not by an answer): the line is saved. Never held but one was taken away: a 'removed' question. Shares on record not the same as the line's shares: a 'count' question over all the purchases still held, its signature 'count' and the line's shares less the shares on record. Otherwise, where the line has a price: the earlier figure is the latest fact in force not typed that states an average (its price and shares), else the latest broker's average purchase in this account and holding that is not typed and not by an answer (its price and shares). Where there is no earlier price, at least one purchase still held is the account holder's own entry standing as typed, and every purchase still held has a price: the typed cost is the purchases' shares times their prices, added up, divided by the line's shares; where it differs from the line's price by 0.005 or more, a 'price' question over the purchases still held, its signature 'price', 'average', the shares and the price, and nothing is saved. Otherwise, where there is no earlier price, no earlier shares, or other shares: a fact stating the new average price and shares is saved, unless the earlier price exists and is the same (MK-NW-F-237 sameNumber). Where the shares are the same and the prices differ by 0.005 or more: a 'price' question over the purchases still held, its signature 'price', 'average', the shares and the price.",
+   "figures_checked_by_hand": {
+    "232": "not a figure: the identifier digits of a function this rule names (MK-...-232)",
+    "253": "not a figure: the identifier digits of a function this rule names (MK-...-253)",
+    "229": "not a figure: the identifier digits of a function this rule names (MK-...-229)",
+    "234": "not a figure: the identifier digits of a function this rule names (MK-...-234)",
+    "254": "not a figure: the identifier digits of a function this rule names (MK-...-254)",
+    "262": "not a figure: the identifier digits of a function this rule names (MK-...-262)",
+    "274": "not a figure: the identifier digits of a function this rule names (MK-...-274)",
+    "264": "not a figure: the identifier digits of a function this rule names (MK-...-264)",
+    "275": "not a figure: the identifier digits of a function this rule names (MK-...-275)",
+    "237": "not a figure: the identifier digits of a function this rule names (MK-...-237)",
+    "276": "not a figure: the identifier digits of a function this rule names (MK-...-276)",
+    "252": "not a figure: the identifier digits of a function this rule names (MK-...-252)"
+   },
+   "read_from": "d2d9251b3e"
+  },
+  "MK-NW-F-278": {
+   "name": "answerListQuestion",
+   "rule": "The account holder's answer to a question about a list, as rows to save. The question is first asked again of the record as it stands: MK-NW-F-277 purchasesFromList with everything the list stated (else the lines in question), the question's own source and list day where it kept them (else those given), no history questions, and answered questions included only when the answer is that the list is correct; the question with the same signature is kept. None: nothing to save. 'MINE IS CORRECT': one typed fact for the account and holding keeping that signature over the list. 'THE LIST IS CORRECT': the still-held day is the list day read as a real day (MK-NW-F-229 dayOrNull). The waiting sales are those of MK-NW-F-254 sharesTakenBy with unassigned shares, shares beyond the record, or shares before the list of more than EPS, each named by the row it began as (MK-NW-F-235 firstRowOf). In what follows a purchase's SHARES ALREADY SOLD are its row's shares (0 where blank) less its shares still held divided by its splits. A COUNT QUESTION over any purchase that is not a broker's average: the gap is the listed shares less the shares on record. A gap above EPS: one undated purchase of the gap with no price and no amount, in the given source, marked as a broker's average and as an answer, with the still-held day where there is one; nothing else. Otherwise the shortfall is taken from the purchases in order: first those the account holder raised by hand (standing as typed but not their own entry), then oldest first (MK-NW-F-251 oldestLotFirst), skipping those whose row no longer stands or that arrived by a transfer, until the shortfall is no more than EPS. From each, the smaller of its shares and the shortfall is taken. What stays is the shares kept (its shares less those taken, divided by its splits) plus the shares already sold; above EPS the row is saved again typed with those shares and an amount at the row's price (blank with no price), else taken away, either way replacing it as an answer. With a still-held day, the shares taken (divided by the splits) are kept to show as a typed purchase on the row's date and price (amount blank with no price), counted in that day's list, as an answer, naming the waiting sales where there are any. A PRICE QUESTION STATING ONE AVERAGE LINE: each purchase in question that is a broker's average and not typed, and also, where there is exactly one purchase in question, it has no date and its shares are the same (MK-NW-F-274 sameShares) as the line's, that one purchase, is saved again typed at the line price times its splits, with an amount of its shares (0 where blank) times that, as an answer (skipped where its row no longer stands or the line has no price); then a typed fact keeping the signature, and a fact in the question's source stating the average price and shares. ANY OTHER PRICE QUESTION: each purchase in question is paired with the listed line in the same place; where its row stands and that line has a price, it is saved again typed at the line price times its splits, with an amount of its shares (0 where blank) times that, marked as changing the price. EVERY OTHER QUESTION: the gap is the shares on record less the listed shares, never below 0, taken from the purchases oldest first (MK-NW-F-251 oldestLotFirst). For each purchase in question whose row stands: where its shares arrived by a transfer, a typed transfer row of this account that brought them from outside the record is taken away as an answer, and otherwise one typed transfer row dated the still-held day ends those shares here, naming the purchase they came from and its shares, marked as restated and as an answer. Any other purchase is saved again typed with only its shares already sold, where more than EPS, and their amount at its price (blank with no price), else taken away, either way as an answer; and the part of the gap taken from it, divided by its splits, where more than EPS and there is a still-held day, is kept to show as a typed purchase on the row's date and price, counted in that day's list, as an answer, naming the waiting sales. Then every listed line is saved as a purchase in the given source with its date, shares and price, an amount of shares times price (blank with no price), the still-held day where there is one, marked as an average where it is one, and naming the purchase it stands for: the purchase in question, not arrived by a transfer, whose date or first date is the line's day; or, where there is exactly one purchase in question and one listed line, that purchase.",
+   "figures_checked_by_hand": {
+    "277": "not a figure: the identifier digits of a function this rule names (MK-...-277)",
+    "229": "not a figure: the identifier digits of a function this rule names (MK-...-229)",
+    "254": "not a figure: the identifier digits of a function this rule names (MK-...-254)",
+    "235": "not a figure: the identifier digits of a function this rule names (MK-...-235)",
+    "251": "not a figure: the identifier digits of a function this rule names (MK-...-251)",
+    "274": "not a figure: the identifier digits of a function this rule names (MK-...-274)"
+   },
+   "read_from": "de67a4c760"
+  },
+  "MK-NW-F-279": {
+   "name": "differsFromGiven",
+   "rule": "Where what the account holder is about to enter for a row differs from what a broker or a file gave, for the confirmation the account holder sees before saving. The row as it stands (MK-NW-F-236 rowAsItStands); none: an empty list. Every version of the row (all rows leading back to the same first row, MK-NW-F-235 firstRowOf) that was not taken away is read, and the figures given are those of the latest version that was not typed. Where there is none and the row is a purchase, the latest fact in force for the account and holding recording a list price for this purchase's first row number stands in: the row as it stands with that price times its splits (MK-NW-F-280 splitByOf). Still none: an empty list, as the row is the account holder's own entry. For a purchase with a holding the splits are MK-NW-F-280 splitByOf, else 1. The figures given are shown as the date (blank where none), the price divided by the splits, the shares times the splits, and the amount. The shares held now are those of the purchase still held that began as this row (MK-NW-F-253 openPurchases), else the row's shares times the splits, else blank. For each of date, price, shares and amount that the change names, a line carries the figure given, the figure entered (blank where the change leaves it blank), the holding and the shares held now; it is kept only where the two differ: two numbers by more than EPS, anything else by not being identical. Where the row is a purchase with a holding and at least one line was kept, the change is tried on a copy (MK-NW-F-281 correctRow, as typed, stamped 9999-12-31T00:00:00.000Z): each sale in force in the same account and holding whose gain (MK-NW-F-261 saleGain) is not the same (MK-NW-F-237 sameNumber) on the record and on the copy adds a sale-gain line with both figures, the sale's shares and its row number; and where the shares on record (MK-NW-F-262 sharesOnRecord) are not the same on the two, a shares-held line with both figures.",
+   "figures_checked_by_hand": {
+    "236": "not a figure: the identifier digits of a function this rule names (MK-...-236)",
+    "235": "not a figure: the identifier digits of a function this rule names (MK-...-235)",
+    "280": "not a figure: the identifier digits of a function this rule names (MK-...-280)",
+    "253": "not a figure: the identifier digits of a function this rule names (MK-...-253)",
+    "281": "not a figure: the identifier digits of a function this rule names (MK-...-281)",
+    "261": "not a figure: the identifier digits of a function this rule names (MK-...-261)",
+    "237": "not a figure: the identifier digits of a function this rule names (MK-...-237)",
+    "262": "not a figure: the identifier digits of a function this rule names (MK-...-262)"
+   },
+   "read_from": "f5b0185e1d"
+  },
+  "MK-NW-F-280": {
+   "name": "splitByOf",
+   "rule": "How many shares each first share of a purchase has become through the splits since it was bought. The purchase is traced back to the row it began as (MK-NW-F-235 firstRowOf; its own number where nothing leads back). In the walk of its holding over the whole record (MK-NW-F-252 walkHolding), the purchase still held that began as that row and did not arrive by a transfer is found; failing that, any purchase still held that began as that row. Its split count is the answer; with no such purchase, 1.",
+   "figures_checked_by_hand": {
+    "235": "not a figure: the identifier digits of a function this rule names (MK-...-235)",
+    "252": "not a figure: the identifier digits of a function this rule names (MK-...-252)"
+   },
+   "read_from": "844155abb8"
+  },
+  "MK-NW-F-281": {
+   "name": "correctRow",
+   "rule": "Corrects a row: the old row stays in the record, and a new row carrying the change names it. The row as it stands (MK-NW-F-236 rowAsItStands) is read. REFUSED, with the record left as it was and a sentence saying why: there is no such row or it was taken away; the row was typed and the change does not come from the account holder; a date or settlement date in the change was given (MK-NW-F-230 wasGiven) but does not read as a real day (MK-NW-F-229 dayOrNull); the row is a value and the change would put it on another day. OTHERWISE: for a purchase with a holding whose change names a price or shares, the splits since are MK-NW-F-280 splitByOf, else 1; where they are not 1, a price entered is multiplied by them and shares entered are divided by them, so the row is saved as bought. The new row is the old row with the change laid over it, in the given source, replacing the old row. Where the change comes from the account holder, the marks of an answer's row are dropped (saved by an answer, the purchase it stands for, the sales it was kept for) and the row records which figures were changed: every figure the change names except the taken-away mark and the list of sales to ask about. A change naming a date drops the date as given; one naming a settlement date drops the settlement date as given. TWINS: where the account holder changes a purchase's price or date (and it is not a removal), every other purchase in force (MK-NW-F-234 rowsInForce) in the same account and holding, of another first row, dated the same as the old row, where one of the two is a list's tax lot (a still-held day, not counted in a list) and the other a history row (counted in a list, not by an answer), is saved again as typed, replacing it: with the new date where the change names one, and with the price entered times that twin's own splits (MK-NW-F-280 splitByOf) and an amount of its shares times that price (its own amount where it has no shares) where a price was entered, marked as changing whichever of price and date the change named. The new row and its twins are added (MK-NW-F-233 addRows) at the given time.",
+   "figures_checked_by_hand": {
+    "236": "not a figure: the identifier digits of a function this rule names (MK-...-236)",
+    "230": "not a figure: the identifier digits of a function this rule names (MK-...-230)",
+    "229": "not a figure: the identifier digits of a function this rule names (MK-...-229)",
+    "280": "not a figure: the identifier digits of a function this rule names (MK-...-280)",
+    "234": "not a figure: the identifier digits of a function this rule names (MK-...-234)",
+    "233": "not a figure: the identifier digits of a function this rule names (MK-...-233)"
+   },
+   "read_from": "f925ac75f7"
+  },
+  "MK-NW-F-282": {
+   "name": "removeRow",
+   "rule": "Takes a row away. Where the row as it stands (MK-NW-F-236 rowAsItStands) is a purchase with a holding, the account holder can always take it away: in the walk of that holding (MK-NW-F-252 walkHolding), each sale or transfer out that took shares from a purchase that began as the same row (MK-NW-F-235 firstRowOf) is listed by the row it began as, with those shares added up, where more than EPS. Where any is listed, it is a correction that marks the row taken away and carries that list of sales to ask about (MK-NW-F-281 correctRow), so the shares they took become a question of which purchase they came from. Otherwise it is a correction that marks the row taken away (MK-NW-F-281 correctRow). Either way it is from the given source at the given time, with every refusal that function makes.",
+   "figures_checked_by_hand": {
+    "236": "not a figure: the identifier digits of a function this rule names (MK-...-236)",
+    "252": "not a figure: the identifier digits of a function this rule names (MK-...-252)",
+    "235": "not a figure: the identifier digits of a function this rule names (MK-...-235)",
+    "281": "not a figure: the identifier digits of a function this rule names (MK-...-281)"
+   },
+   "read_from": "c6c43eaf5e"
+  },
+  "MK-NW-F-283": {
+   "name": "splitsBetween",
+   "rule": "How many shares each share of one holding in one account became through its splits between two days: every split in force (MK-NW-F-234 rowsInForce) for that account and holding that has a date and a ratio above 0, dated after the start day (any date where there is no start day) and on or before the end day, dates compared as text; their ratios multiplied together, starting from 1. With no such split, 1.",
+   "figures_checked_by_hand": {
+    "234": "not a figure: the identifier digits of a function this rule names (MK-...-234)"
+   },
+   "read_from": "82d190497e"
+  },
+  "MK-NW-F-284": {
+   "name": "activityOf",
+   "rule": "The activity of one account, every purchase shown once as it was bought, the dated lines oldest first, with adjustment lines so that the shares add up. ROOT of a purchase: the row it began as (MK-NW-F-235 firstRowOf), then, where that row stands for another purchase, that purchase's first row, and so on until a row stands for nothing or is met again. OTHER ACTIVITY: the rows in force (MK-NW-F-234 rowsInForce) of this account, or reaching it by a transfer, that are not values, facts or purchases, and are not restated transfers. PURCHASES: every purchase row of the account, in force or not, is grouped under its root. In a group with no row in force where some version was taken away by the account holder (typed, not by an answer), each dated version marks its holding and date as taken away. A group is left out where: its root was saved by an answer and is counted in a list; its root was saved by an answer, stands for nothing and replaces nothing; some version is a history row (counted in a list, not by an answer) and the root's holding and date are marked taken away; some version was taken away by the account holder (typed, not by an answer, with no figures marked changed) and nothing is in force; or nothing is in force and no version came by an answer. Otherwise the line starts from the root's shares and price as bought: where a version has a still-held day, its shares are divided and its price multiplied by the splits (MK-NW-F-283 splitsBetween) from the root's date to that day, else they are as saved. The date starts as the root's. Each other version in record order, skipping removals and an answer's rows counted in a list, then works on it: a typed version with figures marked changed sets the date where it changed the date and the price (as bought) where it changed the price, and marks the line corrected; else a version standing for another purchase sets the date, and the price (its own as bought, else the one so far). The row shown is the latest version in force, else the root. Where that row or the root is a list's tax lot (a still-held day, not typed, not counted in a list) and the shares are known, the shares sold before the list from every lot in the holding's walk (MK-NW-F-252 walkHolding) of this account that began in this group are added back, where more than EPS. The line is the row shown with that date, price and shares, and an amount of shares times price (else the row's own amount); it counts as a lot where the root or the row shown is a list's tax lot, and as corrected only where it was corrected and the root was not typed. Lines of one holding are joined into a group where their root and shown dates share a day, or neither has any date at all; joined groups chain. In each group the lots are shown where there are more lots than other lines, or no other lines, or where some lot was corrected and no other line was; else the other lines are shown. ORDER: dated lines by date, then by row number; undated lines after them, by row number. ADJUSTMENTS, for each holding shown: a running count over that holding's shown lines and its splits in force (dated, ratio above 0), in date order with a split first on its own day: a split multiplies the count by its ratio; a purchase adds its shares; a sale from this account and a transfer out of it (not arriving) take theirs away; a transfer into this account, or arriving in it, adds them; blank shares count as 0. Then the save moments of every row of this account and holding saved by an answer, or typed with the shares marked changed, are put in time order (MK-NW-F-231 instantOf). For each moment, the shares on record (MK-NW-F-262 sharesOnRecord) with the changes up to and including that moment, less those with the changes before it only, is that moment's change; where it is more than EPS either way it becomes one adjustment line of those shares: where the account holder corrected the count themselves, dated by the moment's own day and worded 'the account holder corrected the count'; else dated by the latest counted-in-list or still-held day among that moment's rows of the holding (blank where none) and worded 'the account holder accepted the broker's list'. Last, the shares on record less the running count less all those changes, where more than EPS either way, is one undated line worded 'held before the record begins'. The lines and the adjustments are returned together in the same order.",
+   "figures_checked_by_hand": {
+    "235": "not a figure: the identifier digits of a function this rule names (MK-...-235)",
+    "234": "not a figure: the identifier digits of a function this rule names (MK-...-234)",
+    "283": "not a figure: the identifier digits of a function this rule names (MK-...-283)",
+    "252": "not a figure: the identifier digits of a function this rule names (MK-...-252)",
+    "231": "not a figure: the identifier digits of a function this rule names (MK-...-231)",
+    "262": "not a figure: the identifier digits of a function this rule names (MK-...-262)"
+   },
+   "read_from": "f80e3eb05a"
+  },
+  "MK-NW-F-285": {
+   "name": "factsOf",
+   "rule": "The facts on record for an account (no holding) or one of its holdings (written one way, MK-NW-F-232 oneHoldingSpelling): every fact in force (MK-NW-F-234 rowsInForce) for it, read in the order saved (by moment, MK-NW-F-231 instantOf, then by row number). Each named fact takes the latest value given, except that once the account holder has typed a fact, a later one that was not typed does not replace it. A blank or empty value is skipped and changes nothing. Nothing found: no facts.",
+   "figures_checked_by_hand": {
+    "232": "not a figure: the identifier digits of a function this rule names (MK-...-232)",
+    "234": "not a figure: the identifier digits of a function this rule names (MK-...-234)",
+    "231": "not a figure: the identifier digits of a function this rule names (MK-...-231)"
+   },
+   "read_from": "4a0a088ab2"
+  },
+  "MK-NW-F-202": {
+   "name": "equalOrBothBlank",
+   "rule": "Whether two amounts are the same. Where either is blank: true only when both are blank. Otherwise true where the size of their difference is no more than EPS (one billionth).",
+   "read_from": "757a56afef"
+  },
+  "MK-NW-F-203": {
+   "name": "isGiven",
+   "rule": "Whether a day of values was given by the broker, a file or the account holder: true for every source except the price feed.",
+   "read_from": "20a2a6b7da"
+  },
+  "MK-NW-F-204": {
+   "name": "lastGivenBy",
+   "rule": "The latest values given, not worked out from the price feed (MK-NW-F-203 isGiven), dated on or before a day. Of the given value days with a date on or before that day, the one with the latest date wins; on the same date, the one saved latest wins, save stamps compared as text, a later or equal one replacing the one before. Where none is dated on or before that day, the given value days with no date stand in: the one saved latest wins, a later or equal stamp replacing the one before. None of either: nothing.",
+   "figures_checked_by_hand": {
+    "203": "not a figure: the identifier digits of a function this rule names (MK-...-203)"
+   },
+   "read_from": "b0c984495b"
+  },
+  "MK-NW-F-205": {
+   "name": "priceFeedValues",
+   "rule": "The price feed's values for each account with holdings on record, as rows to save. ACCOUNTS: every account that a purchase or transfer in force (MK-NW-F-234 rowsInForce) with a holding belongs to. An account is skipped when it is not among the account holder's accounts, when its balance is not built from its holdings, or when its facts on record (MK-NW-F-285 factsOf, for the account itself) say it was removed. HOLDINGS: every holding of a row in force in the account or reaching it, whose shares on record today (MK-NW-F-262 sharesOnRecord) are more than EPS; none: the account is skipped. THE DAY is the latest of the last price days in the price cache for those holdings; no price days: skipped. Where one of the account's value days (MK-NW-F-242 valueBatchesOf) given by a broker, a file or the account holder (MK-NW-F-203 isGiven) is already on that day: skipped. The last given values on or before the day are MK-NW-F-204 lastGivenBy. EACH HOLDING: its shares on record up to the day; its close on or before the day (MK-PF-F-034 closeOnOrBefore); its multiplier is that of the account's position for the holding (MK-PF-F-031 contractMultiplier: a bond quoted per hundred of face counts a hundredth), except an option, where it is 1 because its shares already count every share in its contracts, and 1 with no position. With a close: the price is the close and the value is shares times close times multiplier; where the close is old (MK-PF-F-086 staleStartClose) the close's own day is kept beside it as the price's day. With no close: the price last given for the holding, else blank, and the value last given only where its shares are the same as now (MK-NW-F-202 equalOrBothBlank), else blank. Holdings with no more than EPS shares are dropped; none left: skipped. The cash and the typed value are those last given, else blank. Where the latest price-feed values already on that day (the one saved last, stamps compared as text) have the same cash, the same typed value, the same number of holdings, and for each holding the same shares, price and value (MK-NW-F-202 equalOrBothBlank): skipped. Otherwise the rows for that day are made by MK-NW-F-241 valueRows, in the price feed's name. The count of shares is never changed.",
+   "figures_checked_by_hand": {
+    "234": "not a figure: the identifier digits of a function this rule names (MK-...-234)",
+    "262": "not a figure: the identifier digits of a function this rule names (MK-...-262)",
+    "242": "not a figure: the identifier digits of a function this rule names (MK-...-242)",
+    "203": "not a figure: the identifier digits of a function this rule names (MK-...-203)",
+    "204": "not a figure: the identifier digits of a function this rule names (MK-...-204)",
+    "034": "not a figure: the identifier digits of a function this rule names (MK-...-034)",
+    "031": "not a figure: the identifier digits of a function this rule names (MK-...-031)",
+    "086": "not a figure: the identifier digits of a function this rule names (MK-...-086)",
+    "202": "not a figure: the identifier digits of a function this rule names (MK-...-202)",
+    "241": "not a figure: the identifier digits of a function this rule names (MK-...-241)",
+    "285": "not a figure: the identifier digits of a function this rule names (MK-...-285)"
+   },
+   "read_from": "a6a23af98c"
+  },
+  "MK-NW-F-225": {
+   "name": "asFileList",
+   "rule": "One holding's tax lots taken in as a file's list. No lots: no questions, nothing saved. Otherwise MK-NW-F-277 purchasesFromList is asked with the record built so far, the account, the holding, the lots, the source 'file' and the list day; the rows it gives are added to the record being built (MK-NW-F-233 addRows) at the given time, and the questions it gives are returned.",
+   "figures_checked_by_hand": {
+    "277": "not a figure: the identifier digits of a function this rule names (MK-...-277)",
+    "233": "not a figure: the identifier digits of a function this rule names (MK-...-233)"
+   },
+   "read_from": "a5996cf95d"
+  },
+  "MK-NW-F-226": {
+   "name": "fileValues",
+   "rule": "An imported account's values on the list day it is given (MK-NW-F-288 importedListDay works it out for the caller), saved as the file's. An account with no positions, whose balance is not built from its holdings and which has a balance given (MK-NW-F-207 givenNumber), holds one value: where its label, written one way (MK-NW-F-232 oneHoldingSpelling), gives a holding name, the rows are made by MK-NW-F-241 valueRows for the account on the list day, source 'file', cash 0, with that one holding, no shares, no price and the balance as its value. Otherwise each position with a holding name (written one way, MK-NW-F-232 oneHoldingSpelling; none: skipped) gives one holding: its multiplier is MK-PF-F-031 contractMultiplier; its lots' shares are added up (each by MK-NW-F-207 givenNumber, a blank counting as 0); its shares are that total times the multiplier for an option, and the total itself for anything else; its price is the last price given (MK-NW-F-207 givenNumber, blank where not given); its value is the total of the lots' shares times the price times the multiplier, blank with no price. The rows are made by MK-NW-F-241 valueRows for the account, dated by the list day given (blank where none), source 'file', with the cash balance given as its cash (blank where not given).",
+   "figures_checked_by_hand": {
+    "232": "not a figure: the identifier digits of a function this rule names (MK-...-232)",
+    "031": "not a figure: the identifier digits of a function this rule names (MK-...-031)",
+    "207": "not a figure: the identifier digits of a function this rule names (MK-...-207)",
+    "241": "not a figure: the identifier digits of a function this rule names (MK-...-241)",
+    "288": "not a figure: the identifier digits of a function this rule names (MK-...-288)"
+   },
+   "read_from": "95ea474aa7"
+  },
+  "MK-NW-F-227": {
+   "name": "fileFacts",
+   "rule": "An imported account's facts, as the file's import saves them. For each position with a holding name (written one way, MK-NW-F-232 oneHoldingSpelling; none: skipped): its face value and coupon rate where not blank, its maturity date and price quote where given and not empty, and, for an option with a shares-per-contract figure, that figure. Where any of these is present, one undated fact row in the source 'file' for the account and holding carries them; where none is, nothing.",
+   "figures_checked_by_hand": {
+    "232": "not a figure: the identifier digits of a function this rule names (MK-...-232)"
+   },
+   "read_from": "f737e876ad"
+  },
+  "MK-NW-F-228": {
+   "name": "moveOldCopies",
+   "rule": "Moves what a phone already holds onto the record, once, for every account the record holds nothing for. Left alone: an account that already has any row in force (MK-NW-F-234 rowsInForce), and an account linked to a broker ('connected'); every other account is moved. A transaction moves shares of a holding where it is an opening position, a buy, a sell or a transfer in kind; its holding is the ticker written one way (MK-NW-F-232 oneHoldingSpelling), and other kinds have none. THE ACTIVITY is the transactions of every account moved, not from a broker, read as one, oldest first by date, then by when made. A buy, a sell or an opening position of a holding that carries no shares per contract of its own, and is an option or belongs to a position of that account and holding that is an option, is given the shares per contract of that option position, or where there is no such option position the shares per contract of an option that states none (MK-PF-F-031 contractMultiplier); every other transaction is kept as it is. The activity's share-moving transactions are replayed alone on an empty record: one that has an opening row (MK-NW-F-223 openingRow) adds it directly (MK-NW-F-233 addRows); any other goes through MK-NW-F-224 typedChangeToRecord. DECIDE, for each position with a holding of each account moved: the shares per contract are the option's own figure (MK-PF-F-031 contractMultiplier) for an option, and otherwise the largest above 0 that the account's transactions of that holding state, or 1 where none states one; the shares shown are its lots' shares added up (MK-NW-F-207 givenNumber, a blank counting as 0) times that figure. The lots with more than 0 shares are written as shares times that figure and purchase day ('-' where none), and, where prices are compared, cost per share times the unit price factor (MK-NW-F-212 unitPriceFactor; '-' where no cost), and sorted; the replay's purchases still held in that account (MK-NW-F-253 openPurchases) are written as shares and date, and price ('-' where none) where prices are compared, the same way, and sorted. The activity explains the lots where the replay's shares on record for that account and holding (MK-NW-F-262 sharesOnRecord) are within 1e-9 of the shares shown, the replay holds at least one row of that holding from or to that account, and the two lists written without prices are identical. Where it does not, the holding is taken from its lots. Where it does but the lists written with prices differ, the holding keeps its activity and its lots' prices are saved later as corrections. A TRANSFER IN KIND of a holding between two accounts that are both moved: where the account it leaves is taken from its lots, the account it reaches is also taken from its lots (and has no corrections); where the account it reaches is taken from its lots and the one it leaves is not, the transfer is marked as leaving the record. This is repeated until nothing changes, so shares are never counted in both accounts nor in neither. SAVE, account by account: the list day of an imported account (its source is 'imported') is MK-NW-F-288 importedListDay, and a typed account has none. Its own rows are added (MK-NW-F-233 addRows): for an imported account its values (MK-NW-F-226 fileValues, on that list day) and facts (MK-NW-F-227 fileFacts); for a typed one MK-NW-F-222 typedAccountRows. For each of its holdings that keeps its activity: for an imported account the holding is marked as taken from its openings and the account's opening positions of that holding (their opening rows' date, shares and price) are taken in as the file's list (MK-NW-F-225 asFileList, on the list day); for a typed account nothing more is done here. For each holding taken from its lots: for an imported account its lots with more than 0 shares become the file's list (date read as a day by MK-NW-F-229 dayOrNull, shares times the shares per contract, cost per share times the unit price factor, blank with no cost; MK-NW-F-225 asFileList, on the list day); for a typed one the position is added as a holding (MK-NW-F-224 typedChangeToRecord), its questions and problems kept; and where the account had transactions of that holding other than opening positions, a problem sentence says its tax lots as they stand were moved and how many of its recorded purchases and sales were not. THEN every transaction of the activity, oldest first, is saved as typed, except those of a holding taken from its lots in its own account, and the opening positions of a holding taken from its openings; a transfer marked as leaving the record is saved naming no account it goes to. One with an opening row goes through MK-NW-F-238 sortArriving, adding what it says to save and keeping its questions under its account; any other opening position is skipped; anything else goes through MK-NW-F-224 typedChangeToRecord, keeping its questions and problems. LAST, for each holding with corrections: its lots with more than 0 shares (keyed by shares times the shares per contract and purchase day) and its purchases still held on the record now (keyed by shares and date) are each sorted by key and paired in order. A pair is corrected only where the keys match, the lot has a cost, and the purchase has no price or one more than 1e-9 away from the lot's cost per share times the unit price factor; the purchase's row as it stands (MK-NW-F-236 rowAsItStands) must exist; it is corrected as typed (MK-NW-F-281 correctRow) to that price and an amount of the row's shares (0 where none) times that price times the purchase's split factor, and a problem the correction returns is kept instead. Every account moved is listed as moved, with its questions listed under it where there are any. The answer is the record, the accounts moved, the questions and the problems.",
+   "figures_checked_by_hand": {
+    "234": "not a figure: the identifier digits of a function this rule names (MK-...-234)",
+    "229": "not a figure: the identifier digits of a function this rule names (MK-...-229)",
+    "232": "not a figure: the identifier digits of a function this rule names (MK-...-232)",
+    "233": "not a figure: the identifier digits of a function this rule names (MK-...-233)",
+    "226": "not a figure: the identifier digits of a function this rule names (MK-...-226)",
+    "227": "not a figure: the identifier digits of a function this rule names (MK-...-227)",
+    "222": "not a figure: the identifier digits of a function this rule names (MK-...-222)",
+    "031": "not a figure: the identifier digits of a function this rule names (MK-...-031)",
+    "207": "not a figure: the identifier digits of a function this rule names (MK-...-207)",
+    "223": "not a figure: the identifier digits of a function this rule names (MK-...-223)",
+    "224": "not a figure: the identifier digits of a function this rule names (MK-...-224)",
+    "212": "not a figure: the identifier digits of a function this rule names (MK-...-212)",
+    "253": "not a figure: the identifier digits of a function this rule names (MK-...-253)",
+    "262": "not a figure: the identifier digits of a function this rule names (MK-...-262)",
+    "225": "not a figure: the identifier digits of a function this rule names (MK-...-225)",
+    "238": "not a figure: the identifier digits of a function this rule names (MK-...-238)",
+    "288": "not a figure: the identifier digits of a function this rule names (MK-...-288)",
+    "236": "not a figure: the identifier digits of a function this rule names (MK-...-236)",
+    "281": "not a figure: the identifier digits of a function this rule names (MK-...-281)"
+   },
+   "read_from": "667d2af7b7"
+  },
+  "MK-NW-F-189": {
+   "name": "abs",
+   "rule": "A number the broker sent, as its size without its sign: a number given as text is read as a number first, and a minus sign is dropped, so a sale sent as minus five shares is five. Nothing comes back when the broker sent nothing, or when what it sent does not read as a finite number.",
+   "read_from": "674548e50e"
+  },
+  "MK-NW-F-190": {
+   "name": "dateAsSent",
+   "rule": "A date the broker gave. Where it reads as a calendar day (the same reading as MK-NW-F-229 dayOrNull) it is cut to that day. Where it does not read as a day but is text with something other than spaces in it, it is kept exactly as sent, so the record can keep it and ask about it. Otherwise (missing, empty or only spaces, or not text) it is nothing.",
+   "figures_checked_by_hand": {
+    "229": "not a figure: part of the identifier of a function this rule names"
+   },
+   "read_from": "cad9be922f"
+  },
+  "MK-NW-F-191": {
+   "name": "sharesPerContract",
+   "rule": "How many shares one contract of an option stands for, read by the sync's one rule (MK-XS-F-106, the sync's option reader, asked as if for one contract). The broker's option symbol is passed in when it is an object; anything else is passed as an empty symbol. A symbol the broker marks as a mini option gives 10 shares a contract; every other option, including an empty symbol, gives 100. Should that reading give nothing, the answer is 100.",
+   "figures_checked_by_hand": {
+    "106": "not a figure: part of the identifier of a function this rule names",
+    "10": "the shares a contract of a mini option, read from MK-XS-F-106 mapOptionHolding, which this function asks"
+   },
+   "read_from": "3300bb76aa"
+  },
+  "MK-NW-F-192": {
+   "name": "optionName",
+   "rule": "An option's own name on the record: the ticker the broker sends inside the option's symbol, else the label the sync writes for it (MK-XS-F-106, the sync's option reader: the underlying ticker, the strike, put or call and the expiry), else nothing; whichever is found is written the one way the record writes every holding's name (MK-NW-F-232 oneHoldingSpelling). No name and no label gives nothing.",
+   "figures_checked_by_hand": {
+    "106": "not a figure: part of the identifier of a function this rule names",
+    "232": "not a figure: part of the identifier of a function this rule names"
+   },
+   "read_from": "628e2040a4"
+  },
+  "MK-NW-F-193": {
+   "name": "eventRow",
+   "rule": "One broker activity as one row of the record. The sync's ledger (MK-ST-F-012, the ledger's row reader, read with a negative amount meaning money out) is given the activity's word, amount, units, price, trade date (blank when the broker sends none), ticker and description, and says what the activity is and which way it went. The activity is an option when it carries an option symbol or an option type. Its reference is the broker's own id; without one it is the sync's key for the activity (MK-XS-F-108, the sync's activity key). Its date is the trade date and its settlement date the settlement date, each blank where not sent; the phone's date is never used. Its holding is the option symbol's ticker for an option (else the ledger's ticker), the ledger's ticker otherwise, written the one way (MK-NW-F-232 oneHoldingSpelling). For an option the ledger's units are contracts: shares are units times the shares a contract (MK-NW-F-191 sharesPerContract) and the price is the ledger's price divided by that where the broker sent an amount (the ledger's price is then a contract's price), but the ledger's price as it is where the broker sent no amount (the broker's own price, already per share); anything else uses 1, so shares and price are as the ledger read them. Missing shares or price stay blank. The amount is the ledger's amount rounded to 2 decimal places, blank when the broker sent no amount. The fee is its size without a sign (MK-NW-F-189 abs). First, an activity that is a split the record can size (MK-NW-F-287 splitOf) becomes that split row. Otherwise, by what the ledger says it is: a buy or a reinvested purchase becomes a purchase through MK-NW-F-265 historyPurchaseRow; a sale or a return of capital becomes a sale through MK-NW-F-258 saleRow; either one with no holding or no shares is kept as an other row. A dividend or capital gain distribution is a dividend row, and interest an interest row, unless the money went out, which is kept as an other row. A fee, tax withheld or margin interest is a fee row, unless the money came in, which is kept as an other row. Cash in or cash out is a withdrawal when the money went out, a deposit when it came in, and where the ledger gives no direction a deposit for cash in and a withdrawal for cash out. Securities in are a transfer that arrives; securities out are a transfer naming no account they go to, so the shares leave the record; either with no holding or no shares is an other row. A transfer between the account holder's own accounts is a transfer row that arrives when the money came in. Anything else (a sweep, a corporate action such as a split that could not be sized, an option's expiry or exercise, a word the ledger does not know) is an other row, counted in nothing. Every row carries the account, the holding, both dates, the source as linked, the reference and the broker's own word; a cash row carries shares and price only where they are known.",
+   "figures_checked_by_hand": {
+    "012": "not a figure: part of the identifier of a function this rule names",
+    "108": "not a figure: part of the identifier of a function this rule names",
+    "232": "not a figure: part of the identifier of a function this rule names",
+    "191": "not a figure: part of the identifier of a function this rule names",
+    "189": "not a figure: part of the identifier of a function this rule names",
+    "265": "not a figure: part of the identifier of a function this rule names",
+    "258": "not a figure: part of the identifier of a function this rule names",
+    "287": "not a figure: part of the identifier of a function this rule names"
+   },
+   "read_from": "b33c0aec53"
+  },
+  "MK-NW-F-194": {
+   "name": "brokerUpdateToRecord",
+   "rule": "One broker update, as the three things the record takes. The day of the list is the broker's own date of its last successful holdings update, read as a day by MK-NW-F-286 dayOfInstant (a stamp with a time is read on the phone's own clock); blank where the broker gives none. The events are each activity turned into one row (MK-NW-F-193 eventRow); none when the broker sends no activities. The account is also read once by the sync (MK-XS-F-102, the sync's account reader), given that same date or, where there is none, 1970-01-01, for its cash and how each bond is quoted. Each position the sync can read (MK-XS-F-105, the sync's position reader) is a holding, its name written the one way (MK-NW-F-232 oneHoldingSpelling). Its list of purchases is the broker's tax lots, each with its purchase date as sent (MK-NW-F-190 dateAsSent), shares and cost per share times the sync's figure for how its price is quoted, when at least one tax lot has a quantity above 0 (a missing quantity counts as 0); otherwise it is one line of the broker's average, undated, with the position's shares and cost per share times that same figure. Either cost is blank where none is given or the quote is unclear. The list is kept only when the position's shares are above 0. Its value is shares times price times the sync's figure for how its price is quoted (MK-PF-F-031 contractMultiplier, 1 where the sync has no matching position, read by the position's place in the list), and blank where there is no price or the quote is unclear. Each option position the sync can read (MK-XS-F-106, the sync's option reader) that has a name (MK-NW-F-192 optionName) is a holding with shares equal to its contracts times its shares a contract; when those shares are above 0 its list is one undated average line priced at the broker's average purchase price divided by the shares a contract (blank where there is none); a short option is valued but not listed. Its value is the sync's value of the option and its price the broker's price. When the broker sent a list of positions at all, every holding still on the record for this account (a purchase or transfer row in force, from or to this account) that the broker left out, and of which the record still holds more than EPS shares (MK-NW-F-262 sharesOnRecord), gets an empty list, meaning it is no longer held. The cash is the sync's cash balance, and blank when the broker sent no cash balance; the stated total is the broker's total balance, blank where none. The values are built from the account, the day of the list, the source as linked, the cash, the stated total and the holdings (MK-NW-F-241 valueRows). The values are left out, and nothing else changes, when the record already holds a linked batch of values for this account on the same day with the same cash, the same stated total and the same holdings in the same order, each with the same name, shares, price and value; two figures count as the same when both are blank or they are no more than EPS apart. It hands back the events, the lists, the values and the day of the list.",
+   "figures_checked_by_hand": {
+    "193": "not a figure: part of the identifier of a function this rule names",
+    "102": "not a figure: part of the identifier of a function this rule names",
+    "105": "not a figure: part of the identifier of a function this rule names",
+    "232": "not a figure: part of the identifier of a function this rule names",
+    "190": "not a figure: part of the identifier of a function this rule names",
+    "031": "not a figure: part of the identifier of a function this rule names",
+    "106": "not a figure: part of the identifier of a function this rule names",
+    "192": "not a figure: part of the identifier of a function this rule names",
+    "262": "not a figure: part of the identifier of a function this rule names",
+    "241": "not a figure: part of the identifier of a function this rule names",
+    "286": "not a figure: part of the identifier of a function this rule names"
+   },
+   "read_from": "1c31b2365a"
+  },
+  "MK-NW-F-195": {
+   "name": "readImport",
+   "rule": "An imported file read once, through the import's own account builder (MK-XS-F-219) and value-only builder (MK-XS-F-221), given an empty institution and name and a fixed time of 1970-01-01 that nothing here reads. The file's rows are walked in order against the account's holdings in order: a row is a held holding when the next unmatched holding has the row's ticker (or its symbol trimmed and in capitals where there is no ticker) and its first lot has exactly the row's shares; every other row is set aside. If not every one of the account's holdings was matched, it stops with an error naming how many there were and how many were found. The set-aside rows are then walked against the value-only accounts in order: a row matches when the next value-only account has the row's label (or its symbol where there is no label) and a balance exactly equal to the row's value. If not every value-only account was matched, it stops with an error the same way. Every set-aside row that is not value-only is a cash row. It hands back the held rows, the value-only rows, the cash (the account's cash balance when there is at least one cash row, otherwise nothing, never $0) and the account's balance.",
+   "figures_checked_by_hand": {
+    "219": "not a figure: part of the identifier of a function this rule names",
+    "221": "not a figure: part of the identifier of a function this rule names"
+   },
+   "read_from": "1ff263b2f5"
+  },
+  "MK-NW-F-196": {
+   "name": "fileHoldingName",
+   "rule": "A file holding's name: its ticker, or its symbol where the ticker is empty, written the one way the record writes every holding's name (MK-NW-F-232 oneHoldingSpelling).",
+   "figures_checked_by_hand": {
+    "232": "not a figure: part of the identifier of a function this rule names"
+   },
+   "read_from": "9eb7fc698a"
+  },
+  "MK-NW-F-197": {
+   "name": "unitsOf",
+   "rule": "A file holding's units as the record counts them: where the file gives a shares-per-contract figure, the holding's quantity times that figure (an option's contracts become shares); otherwise the quantity as given.",
+   "read_from": "47b0880fe7"
+  },
+  "MK-NW-F-198": {
+   "name": "costPerUnit",
+   "rule": "A file purchase's price per unit as the record counts units. When the file's cost per share is not above 0 (the import writes 0 where the file gives no cost) the answer is nothing, never $0. For a bond or CD quoted per $100 of face value, it is the cost per share divided by 100, because its units are dollars of face. Otherwise it is the cost per share as given.",
+   "read_from": "2bf35f0268"
+  },
+  "MK-NW-F-199": {
+   "name": "fileToRecord",
+   "rule": "One imported file, as the rows of the record. The day of the list is the file's own date read as a day (MK-NW-F-229 dayOrNull); blank where the file states none, and then the account holder needs to be asked a date. The file is read once (MK-NW-F-195 readImport) into held rows, value-only rows and cash. Every purchase is marked as the broker's average only when the file's cost column heading contains average or avg, in any capitals. The file has values only when it has a value column. Each held row becomes one purchase line under its holding name (MK-NW-F-196 fileHoldingName): its date read as a day, blank where missing; its units (MK-NW-F-197 unitsOf); its price (MK-NW-F-198 costPerUnit); rows of the same holding are listed together in file order. A value-only row (a value with no quantity) is held by its own account, never by this one. The values are built (MK-NW-F-241 valueRows) for the account on the day of the list, source file, with the cash and a stated total that is the file's stated total less the sum of the value-only rows' values (blank where the file states no total), from each held row only (its name, its units, its last price or blank, and its value only when the file has a value column). Each value-only row that has an account given for it, matched by its place among the value-only rows, gets its own values built the same way for that account: the day of the list, source file, cash 0, and one holding with its name and its value, with no shares and no price; a value-only row with no account given gets none. A fact row, undated and from the file, is made for each held or value-only row that is in the bonds class or has a face value, a coupon rate, a maturity date or a shares-per-contract figure; it belongs to the value-only row's own account where one is given, otherwise to this account; it carries only those of face value, coupon rate, maturity date, how its price is quoted and shares per contract that the file gives, and a row left with none is dropped. A holdings file carries no events. It hands back no events, the lists, the values, the value-only accounts' values, the facts, the day of the list, and whether a date must be asked (when the day is blank).",
+   "figures_checked_by_hand": {
+    "229": "not a figure: part of the identifier of a function this rule names",
+    "195": "not a figure: part of the identifier of a function this rule names",
+    "196": "not a figure: part of the identifier of a function this rule names",
+    "197": "not a figure: part of the identifier of a function this rule names",
+    "198": "not a figure: part of the identifier of a function this rule names",
+    "241": "not a figure: part of the identifier of a function this rule names"
+   },
+   "read_from": "7a00ce326f"
+  },
+  "MK-NW-F-200": {
+   "name": "sameJson",
+   "rule": "Whether two lists of values or facts read the same: both are written out as text in full, and they are the same only when the two texts are exactly equal, so the same items in another order read as different.",
+   "read_from": "3d2f03ee82"
+  },
+  "MK-NW-F-201": {
+   "name": "fileRowsToSave",
+   "rule": "The rows to save for one imported file, and the questions for the account holder. The file is read into rows (MK-NW-F-199 fileToRecord), with the accounts given for its value-only rows (and an empty account name where no account is given). A set of one account's values is saved only when it is not already on the record: it counts as already there when the record holds, for that account, a batch from a file, not typed, on the same day as the list, with exactly the same cash and stated total as the set's own first value row, no typed value, and holdings that read the same (MK-NW-F-200 sameJson) as the set's holding values, each with its name written the one way, its shares, its price and its value (blank where missing). The value-only accounts' values are taken two rows at a time (the account's own row and its one value), each pair checked that way. A fact is saved only when no fact in force from a file for the same account and holding already carries the same facts (MK-NW-F-200 sameJson). Where no account is given for the file itself, it hands back only the value-only accounts' values not yet saved and the new facts that belong to a value-only account, with the day of the list, whether a date must be asked, and no questions. Otherwise its events go through MK-NW-F-238 sortArriving against the record, and the ones to save are added to a copy of the record (MK-NW-F-233 addRows). For each holding's list, MK-NW-F-277 purchasesFromList is run on that copy for this account, source file, with the day of the list and the event questions, and its purchase rows and its questions are gathered. Then every holding with a purchase in force in this account on that copy (MK-NW-F-234 rowsInForce) that the file does not list is set against an empty list by MK-NW-F-277 purchasesFromList, the same way, and only its questions are kept, so it is asked about and its shares stay until answered; it is not asked when none of its purchases are still held (MK-NW-F-253 openPurchases), or when the file has a day and every purchase still held is dated after that day. It hands back the rows to save in this order: the events, the purchases, this account's values (unless already there), the value-only accounts' values (unless already there), the new facts; and the day of the list, whether a date must be asked, the event questions and the list questions.",
+   "figures_checked_by_hand": {
+    "199": "not a figure: part of the identifier of a function this rule names",
+    "238": "not a figure: part of the identifier of a function this rule names",
+    "233": "not a figure: part of the identifier of a function this rule names",
+    "277": "not a figure: part of the identifier of a function this rule names",
+    "200": "not a figure: part of the identifier of a function this rule names",
+    "234": "not a figure: part of the identifier of a function this rule names",
+    "253": "not a figure: part of the identifier of a function this rule names"
+   },
+   "read_from": "5304674570"
+  },
+  "MK-NW-F-206": {
+   "name": "same",
+   "rule": "Whether two amounts the account holder gave are the same: true when both are missing; false when only one is missing; otherwise true when they are no more than EPS apart (one billionth), so an edit that changes nothing saves nothing.",
+   "read_from": "41602c174d"
+  },
+  "MK-NW-F-207": {
+   "name": "givenNumber",
+   "rule": "A number the account holder typed: nothing when the box was missing or left empty, or when what it holds does not read as a finite number; otherwise that entry read as a number.",
+   "read_from": "b3afd8f76e"
+  },
+  "MK-NW-F-208": {
+   "name": "dateAsGiven",
+   "rule": "A date as the account holder gave it. Where it reads as a calendar day (the same reading as MK-NW-F-229 dayOrNull) it is cut to that day. Where it does not read as a day but is text with something other than spaces in it, it is kept exactly as given. Otherwise (missing, empty or only spaces, or not text) it is nothing.",
+   "figures_checked_by_hand": {
+    "229": "not a figure: part of the identifier of a function this rule names"
+   },
+   "read_from": "5a207d1854"
+  },
+  "MK-NW-F-209": {
+   "name": "valuesAreTyped",
+   "rule": "Whether an account's values and purchases are the ones the account holder gives: true when there is an account and it is neither linked to a broker (source connected) nor made from an imported file (source imported); false when there is no account.",
+   "read_from": "82bda8fe6c"
+  },
+  "MK-NW-F-210": {
+   "name": "lotRef",
+   "rule": "The key a tax lot the account holder typed carries: the words typed-lot, then the account's id, then the lot's id, joined by colons, so a later edit or removal of that lot finds its row.",
+   "read_from": "f4497c40e5"
+  },
+  "MK-NW-F-211": {
+   "name": "txnRef",
+   "rule": "The key a transaction the account holder recorded carries: the words typed-txn, a colon, then the transaction's id, so deleting it finds its row.",
+   "read_from": "25ce84bb88"
+  },
+  "MK-NW-F-212": {
+   "name": "unitPriceFactor",
+   "rule": "What one unit's quoted price is worth per unit the record counts. For an option it is 1, because an option is counted in shares and quoted per share. For anything else it is the shared figure of MK-PF-F-031 contractMultiplier: a hundredth for a bond or CD quoted per $100 of face value, and otherwise 1.",
+   "figures_checked_by_hand": {
+    "031": "not a figure: part of the identifier of a function this rule names",
+    "$100": "not a figure this function uses: names how a bond is quoted, a rule held inside MK-PF-F-031 contractMultiplier"
+   },
+   "read_from": "c78e0fae5c"
+  },
+  "MK-NW-F-213": {
+   "name": "lotRow",
+   "rule": "One tax lot as a purchase row. The holding is the position's ticker written the one way (MK-NW-F-232 oneHoldingSpelling). Shares a contract are MK-PF-F-031 contractMultiplier for an option, and 1 for anything else. The lot's shares and cost per share are read as typed numbers (MK-NW-F-207 givenNumber). No row is made when there is no holding name, no shares, or shares of 0 or less. The price is the cost per share times the unit price factor (MK-NW-F-212 unitPriceFactor), blank where no cost was typed. The row is a purchase for the account and holding, dated by the lot's purchase date as given (MK-NW-F-208 dateAsGiven), with shares equal to the typed shares times the shares a contract, that price, an amount equal to those shares times the price (blank where the price is blank), the source as typed, and the lot's key (MK-NW-F-210 lotRef).",
+   "figures_checked_by_hand": {
+    "232": "not a figure: part of the identifier of a function this rule names",
+    "031": "not a figure: part of the identifier of a function this rule names",
+    "207": "not a figure: part of the identifier of a function this rule names",
+    "212": "not a figure: part of the identifier of a function this rule names",
+    "208": "not a figure: part of the identifier of a function this rule names",
+    "210": "not a figure: part of the identifier of a function this rule names"
+   },
+   "read_from": "5719e1132b"
+  },
+  "MK-NW-F-214": {
+   "name": "accountValueRows",
+   "rule": "The value rows of an account the account holder values by hand, dated by the account's value-as-of date as given (MK-NW-F-208 dateAsGiven), never the phone's date. An account that has holdings and works its balance out from them gives only its cash: nothing when the cash is marked as not entered or no cash number was typed, otherwise value rows (MK-NW-F-241 valueRows) with that cash. Otherwise, a bond or CD whose balance was set from what was paid or from its face value gives no value rows, because those figures are its facts. Otherwise the account's typed balance (MK-NW-F-207 givenNumber) gives value rows with that typed value; no balance number gives none. Every row carries the account's id and the source as typed.",
+   "figures_checked_by_hand": {
+    "208": "not a figure: part of the identifier of a function this rule names",
+    "241": "not a figure: part of the identifier of a function this rule names",
+    "207": "not a figure: part of the identifier of a function this rule names"
+   },
+   "read_from": "b0ccba1dbe"
+  },
+  "MK-NW-F-215": {
+   "name": "factRow",
+   "rule": "A bond's or CD's own details as one fact row. It reads only the change it is given when there is one, otherwise the whole account. Of face value, coupon rate, maturity date, purchase date, amount paid, the date the CD was bought, and accrued interest, it keeps each one that is present and is neither missing nor empty. When at least one is kept, the answer is one undated fact row for the account, with no holding, the source as typed, carrying those details; when none is kept, nothing.",
+   "read_from": "483dc46533"
+  },
+  "MK-NW-F-216": {
+   "name": "rowOfLot",
+   "rule": "The purchase on the record a tax lot stands for. It looks only at purchase rows in force for this account. If exactly one of them carries the lot's key (MK-NW-F-210 lotRef), that row is the answer. Otherwise the lot is turned into the purchase it would be (MK-NW-F-213 lotRow); if it makes no row, the answer is none. Otherwise it takes the purchases of the same holding with the same date (both blank counts as the same) and the same shares and price (MK-NW-F-206 same). Of those, the ones that are not part of a broker's or a file's list are preferred; if there are none such, all of them are used. Exactly one gives that row; more than one gives many; none gives none.",
+   "figures_checked_by_hand": {
+    "210": "not a figure: part of the identifier of a function this rule names",
+    "213": "not a figure: part of the identifier of a function this rule names",
+    "206": "not a figure: part of the identifier of a function this rule names"
+   },
+   "read_from": "0278c57026"
+  },
+  "MK-NW-F-217": {
+   "name": "transactionRow",
+   "rule": "One transaction the account holder recorded as one row, on its own date (MK-NW-F-208 dateAsGiven), carrying its key (MK-NW-F-211 txnRef) and the source as typed. The account is the transaction's account, the holding its ticker written the one way (MK-NW-F-232 oneHoldingSpelling), blank where none. Shares a contract are the transaction's multiplier when it is above 0, otherwise 1. Shares are the size of the typed shares, without a sign, times that; the price is the typed price as given (an option's price is per share); the amount and the fee are each the size of the typed figure without a sign. Any of these not typed as a number (MK-NW-F-207 givenNumber) is blank. A buy is a purchase whose amount is the typed amount, or else shares times price, or blank where there is no price. A sale goes through MK-NW-F-258 saleRow. A buy or sale with no holding or no shares is an other row. A dividend is a dividend row; interest or a coupon is an interest row. A deposit is a withdrawal row when its direction is out, else a deposit row; a withdrawal is a deposit row when its direction is in, else a withdrawal row. A fee is a fee row. A cash transfer is a transfer row with no holding, naming the other account as where it goes when one is named. A transfer of shares in kind with no holding or no shares is an other row; coming in, it is a transfer that arrives; going out to a named account it goes through MK-NW-F-259 transferRow; going out with no account named, the shares leave the record. Opening cash is the first value row (MK-NW-F-241 valueRows) with that cash on that date, with the transaction's key, and nothing when no amount was typed. An opening position gives nothing here (MK-NW-F-223 openingRow writes it). Any other type is an other row. Cash rows carry shares and price only where they are known.",
+   "figures_checked_by_hand": {
+    "208": "not a figure: part of the identifier of a function this rule names",
+    "211": "not a figure: part of the identifier of a function this rule names",
+    "232": "not a figure: part of the identifier of a function this rule names",
+    "207": "not a figure: part of the identifier of a function this rule names",
+    "258": "not a figure: part of the identifier of a function this rule names",
+    "259": "not a figure: part of the identifier of a function this rule names",
+    "241": "not a figure: part of the identifier of a function this rule names",
+    "223": "not a figure: part of the identifier of a function this rule names"
+   },
+   "read_from": "bbeb8aac1e"
+  },
+  "MK-NW-F-218": {
+   "name": "arrive",
+   "rule": "Saves new rows the account holder made through the record's one arrival pass. With no rows it does nothing. Otherwise the rows go through MK-NW-F-238 sortArriving against the record as it stands, the ones to save are added (MK-NW-F-233 addRows) with the time they were written, and every question it raises about a difference from what a broker or a file gave is added to the questions for the account holder.",
+   "figures_checked_by_hand": {
+    "238": "not a figure: part of the identifier of a function this rule names",
+    "233": "not a figure: part of the identifier of a function this rule names"
+   },
+   "read_from": "e39a41fd45"
+  },
+  "MK-NW-F-219": {
+   "name": "correct",
+   "rule": "An edit of the account holder's to one row: MK-NW-F-281 correctRow writes a new row, source typed, at the time given, that names the row it corrects, so the old one is kept. If the correction is refused, its sentence is added to the problems and the record stays as it was; otherwise the record becomes the corrected one.",
+   "figures_checked_by_hand": {
+    "281": "not a figure: part of the identifier of a function this rule names"
+   },
+   "read_from": "73190c7c1c"
+  },
+  "MK-NW-F-220": {
+   "name": "remove",
+   "rule": "A removal by the account holder of one row: MK-NW-F-282 removeRow writes a new row, source typed, at the time given, that marks the old row removed, so its history is kept. If the removal is refused, its sentence is added to the problems and the record stays as it was; otherwise the record becomes the one with the removal.",
+   "figures_checked_by_hand": {
+    "282": "not a figure: part of the identifier of a function this rule names"
+   },
+   "read_from": "8dbedc920e"
+  },
+  "MK-NW-F-221": {
+   "name": "lotsFollow",
+   "rule": "Each tax lot of a holding before and after an edit, matched by the lot's id. Where the edit changed the holding's name (the names written the one way, MK-NW-F-232 oneHoldingSpelling, differ), the lots are not matched: every lot before is taken out as if the holding had gone (this same reading from the before holding to no holding), then every lot after that makes a purchase (MK-NW-F-213 lotRow) is saved as a new purchase together (MK-NW-F-218 arrive), and where its reference is already used by a row of this account on the record, the new holding's name is added to the end of its reference after a colon, so the two are not taken for one. Otherwise, a missing before or after counts as no lots. A lot only in the after list becomes a new purchase (MK-NW-F-213 lotRow), where it makes one. For a lot in both: if after the edit it makes no purchase, the purchase it stood for (MK-NW-F-216 rowOfLot) is removed (MK-NW-F-220 remove), when exactly one was found. If before and after make purchases with the same date (both blank counts as the same), the same shares and the same price (MK-NW-F-206 same), nothing is done. Otherwise the purchase it stood for is found: none found means the new purchase is added; more than one found means nothing is changed and a problem is written saying more than one purchase of that holding matches the tax lot that was changed; one found is corrected (MK-NW-F-219 correct) with only what differs: the date where it differs, the shares where they differ, and the price together with the amount where the price differs, and nothing is written when nothing differs. A lot only in the before list is taken out: more than one matching purchase writes a problem saying more than one purchase of that holding matches the tax lot that was taken out, one is removed, none does nothing. Last, the new purchases are saved together (MK-NW-F-218 arrive).",
+   "figures_checked_by_hand": {
+    "213": "not a figure: part of the identifier of a function this rule names",
+    "216": "not a figure: part of the identifier of a function this rule names",
+    "220": "not a figure: part of the identifier of a function this rule names",
+    "206": "not a figure: part of the identifier of a function this rule names",
+    "219": "not a figure: part of the identifier of a function this rule names",
+    "218": "not a figure: part of the identifier of a function this rule names",
+    "232": "not a figure: part of the identifier of a function this rule names"
+   },
+   "read_from": "9399066559"
+  },
+  "MK-NW-F-222": {
+   "name": "typedAccountRows",
+   "rule": "An account typed by hand, without its holdings: its value rows (MK-NW-F-214 accountValueRows), followed by its one fact row of a bond's or CD's details (MK-NW-F-215 factRow) where it has any.",
+   "figures_checked_by_hand": {
+    "214": "not a figure: part of the identifier of a function this rule names",
+    "215": "not a figure: part of the identifier of a function this rule names"
+   },
+   "read_from": "75b9d172b2"
+  },
+  "MK-NW-F-223": {
+   "name": "openingRow",
+   "rule": "An opening record (a holding the account holder already owned when it was first entered) as the purchase of its tax lot. Nothing comes back unless the transaction is an opening position with a holding name (its ticker written the one way, MK-NW-F-232 oneHoldingSpelling) and typed shares (MK-NW-F-207 givenNumber) above 0. Shares a contract are the transaction's multiplier when it is above 0, otherwise 1. The row is a purchase for the transaction's account and holding, dated as given (MK-NW-F-208 dateAsGiven), with shares equal to the typed shares times shares a contract, the typed price, an amount equal to those shares times the price (blank where no price was typed), the source as typed, and the key of its tax lot (MK-NW-F-210 lotRef) when it names a lot, otherwise the transaction's key (MK-NW-F-211 txnRef).",
+   "figures_checked_by_hand": {
+    "232": "not a figure: part of the identifier of a function this rule names",
+    "207": "not a figure: part of the identifier of a function this rule names",
+    "208": "not a figure: part of the identifier of a function this rule names",
+    "210": "not a figure: part of the identifier of a function this rule names",
+    "211": "not a figure: part of the identifier of a function this rule names"
+   },
+   "read_from": "52efd64209"
+  },
+  "MK-NW-F-224": {
+   "name": "typedChangeToRecord",
+   "rule": "What the account holder entered, saved into the record, starting from a copy of the record with no questions and no problems. An account added: only when its values are typed (MK-NW-F-209 valuesAreTyped), its value and fact rows (MK-NW-F-222 typedAccountRows) are added (MK-NW-F-233 addRows), and then every tax lot of every holding that makes a purchase (MK-NW-F-213 lotRow) is saved together (MK-NW-F-218 arrive). An account changed: only when its values are typed after the change. When the change touched the balance, the value-as-of date or the cash, its value rows (MK-NW-F-214 accountValueRows) are added; the bond or CD details in the change itself (MK-NW-F-215 factRow) are added where there are any. When the change touched the holdings and the account's values were also typed before it, each holding found before or after, by its position id, has its lots followed (MK-NW-F-221 lotsFollow). An account removed: one undated fact row, source typed, marking the account removed. An account unlinked: one such fact row marking it unlinked, and also removed unless it is kept as a typed account. A holding added, changed or taken away: its lots are followed from no holding, from before to after, or to no holding. A transaction recorded: where it is a transfer of shares that is not marked as coming in, names a holding (written the one way, MK-NW-F-232 oneHoldingSpelling) and gives no share count (MK-NW-F-207 givenNumber), the shares moved are all the shares the record holds of that holding in the account they leave (MK-NW-F-262 sharesOnRecord, with no day), when those are more than EPS, and no shares per contract is applied to them again. It is then turned into a row (MK-NW-F-217 transactionRow); a value row is added straight to the record, any other row is saved through the arrival pass, and no row does nothing. A transaction deleted: every row in force carrying its key (MK-NW-F-211 txnRef) is removed (MK-NW-F-220 remove). Savings moved: only when the amount is above 0, one deposit with no holding, on the date given, carrying the amount, the source as typed and a key made of the words typed-savings, the account id and the time written, is saved through the arrival pass. It hands back the record, the questions and the problems.",
+   "figures_checked_by_hand": {
+    "209": "not a figure: part of the identifier of a function this rule names",
+    "222": "not a figure: part of the identifier of a function this rule names",
+    "233": "not a figure: part of the identifier of a function this rule names",
+    "213": "not a figure: part of the identifier of a function this rule names",
+    "218": "not a figure: part of the identifier of a function this rule names",
+    "214": "not a figure: part of the identifier of a function this rule names",
+    "215": "not a figure: part of the identifier of a function this rule names",
+    "221": "not a figure: part of the identifier of a function this rule names",
+    "217": "not a figure: part of the identifier of a function this rule names",
+    "211": "not a figure: part of the identifier of a function this rule names",
+    "220": "not a figure: part of the identifier of a function this rule names",
+    "232": "not a figure: part of the identifier of a function this rule names",
+    "207": "not a figure: part of the identifier of a function this rule names",
+    "262": "not a figure: part of the identifier of a function this rule names"
+   },
+   "read_from": "124e0315ea"
+  },
+  "MK-NW-F-243": {
+   "name": "theLater",
+   "rule": "Of two sets of values, the one to read. A dated one wins over an undated one. Between two dates, the later date wins (dates compared as written, year first). On the same date, one given by a broker, a file or the account holder wins over one from the price feed; then one the account holder typed wins over one not typed; then the later save time wins (moments read by MK-NW-F-231 instantOf); at the same save time, the one with the higher set number wins.",
+   "figures_checked_by_hand": {
+    "231": "not a figure: part of the identifier MK-NW-F-231 of a function this rule names"
+   },
+   "read_from": "29ea6f97e0"
+  },
+  "MK-NW-F-286": {
+   "name": "dayOfInstant",
+   "rule": "The day of the broker's last update. Anything that is not text, and text that is only a plain day (four digits, a dash, two digits, a dash, two digits, with spaces at its ends allowed), is read as MK-NW-F-229 dayOrNull reads it, a missing value counting as nothing. Any other text carries a time, so it is read as one moment in time; where it cannot be read as a moment, it is read as MK-NW-F-229 dayOrNull reads it. A moment is turned into its calendar day on the phone's own clock, so the same moment written with any time zone gives one day: the year, then the month, then the day of the month, the month and the day each written with two digits, joined by dashes.",
+   "figures_checked_by_hand": {
+    "229": "not a figure: the identifier digits of a function this rule names (MK-...-229)"
+   },
+   "read_from": "b78dabaebc"
+  },
+  "MK-NW-F-287": {
+   "name": "splitOf",
+   "rule": "A split the broker sends as an activity, as a SPLIT row, only where the activity says enough to know how many shares each share became. The activity's word is read in capitals. The activity says split where that word contains SPLIT, or where the ledger called it a corporate action (or the word itself is CORPORATE_ACTION) and the description holds the whole word split, in any case. The answer is nothing when the activity does not say split, when there is no holding, or when the date does not read as a real day (MK-NW-F-229 dayOrNull). The units are read as a number; nothing when they are not a finite number or their size is at most 1e-9. The split is a reverse split where the word or the description contains reverse, in any case; nothing when that disagrees with the sign of the units (a reverse split must take shares away, any other split must add them). The shares held are the shares on record for that account and holding up to the day before the split's day (the split's day less 86400000 milliseconds, written as a day in universal time), so a split dated that day is not counted twice (MK-NW-F-262 sharesOnRecord); nothing unless more than 1e-9 shares are held. The ratio is the shares held plus the units, divided by the shares held; nothing unless the ratio is more than 1e-9 and differs from 1 by more than 1e-9. The row saved: the account, the holding, kind SPLIT, the date as given, the settlement date as given or blank, the ratio, source linked, the activity's own id as the reference where it has one (otherwise a key made from the account and the activity), and the ledger's source word.",
+   "figures_checked_by_hand": {
+    "229": "not a figure: the identifier digits of a function this rule names (MK-...-229)",
+    "262": "not a figure: the identifier digits of a function this rule names (MK-...-262)"
+   },
+   "read_from": "32cbb84cae"
+  },
+  "MK-NW-F-288": {
+   "name": "importedListDay",
+   "rule": "The day an imported account's values are from: the file's own date, never the day of the import. The given day is the account's value-as-of date read as MK-NW-F-229 dayOrNull reads it. Where the account says that date came from the file, the given day is the answer (nothing if it does not read as a real day). Where the account says the date did not come from the file, or there is no given day, the answer is nothing. Otherwise, for an account saved before it said which: with no last-synced time, or one that cannot be read as a moment in time, the given day is the answer. Else the import days are the last-synced time's calendar day on the phone's own clock and its first 10 characters as written; where the given day is one of the import days, the answer is nothing (blank, and asked), otherwise the given day.",
+   "figures_checked_by_hand": {
+    "229": "not a figure: the identifier digits of a function this rule names (MK-...-229)"
+   },
+   "read_from": "875905f0d3"
   }
  },
  "pack_sent": {

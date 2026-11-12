@@ -114,8 +114,11 @@ export interface WrapperGuess { kind: string; tax_bucket: 'CASH' | 'TAXABLE' | '
  *
  * Called by ... MK-XS-F-102 ingestSync
  *
- * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
- *               MK-XS-F-219 importedAccountOf · MK-XS-F-102 ingestSync
+ * Reaches ..... 7 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-194 brokerUpdateToRecord · MK-NW-F-201 fileRowsToSave
+ *               MK-NW-F-199 fileToRecord · MK-XS-F-219 importedAccountOf
+ *               MK-XS-F-102 ingestSync · MK-XS-F-199 profileOnTheWayIn
+ *               MK-NW-F-195 readImport
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-002 account type (taxable, pre-tax, Roth)
@@ -162,9 +165,11 @@ export function mapAccountType(rawType: string | null | undefined, category?: st
  *
  * Called by ... MK-XS-F-105 mapPosition
  *
- * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
- *               MK-XS-F-219 importedAccountOf · MK-XS-F-102 ingestSync
- *               MK-XS-F-105 mapPosition
+ * Reaches ..... 8 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-194 brokerUpdateToRecord · MK-NW-F-201 fileRowsToSave
+ *               MK-NW-F-199 fileToRecord · MK-XS-F-219 importedAccountOf
+ *               MK-XS-F-102 ingestSync · MK-XS-F-105 mapPosition
+ *               MK-XS-F-199 profileOnTheWayIn · MK-NW-F-195 readImport
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -207,10 +212,13 @@ export interface MappedPosition {
  *     code = (sym.type.code ?? '').to lower case()
  *     tick = (sym.raw symbol or sym.symbol or '').to upper case()
  *
- * Called by ... MK-XS-F-102 ingestSync
+ * Called by ... MK-NW-F-194 brokerUpdateToRecord · MK-XS-F-102 ingestSync
  *
- * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
- *               MK-XS-F-219 importedAccountOf · MK-XS-F-102 ingestSync
+ * Reaches ..... 7 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-194 brokerUpdateToRecord · MK-NW-F-201 fileRowsToSave
+ *               MK-NW-F-199 fileToRecord · MK-XS-F-219 importedAccountOf
+ *               MK-XS-F-102 ingestSync · MK-XS-F-199 profileOnTheWayIn
+ *               MK-NW-F-195 readImport
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -267,9 +275,13 @@ const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', '
  *
  * Called by ... MK-XS-F-106 mapOptionHolding
  *
- * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 11 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-194 brokerUpdateToRecord · MK-NW-F-193 eventRow
+ *               MK-NW-F-201 fileRowsToSave · MK-NW-F-199 fileToRecord
  *               MK-XS-F-219 importedAccountOf · MK-XS-F-102 ingestSync
- *               MK-XS-F-106 mapOptionHolding
+ *               MK-XS-F-106 mapOptionHolding · MK-NW-F-192 optionName
+ *               MK-XS-F-199 profileOnTheWayIn · MK-NW-F-195 readImport
+ *               MK-NW-F-191 sharesPerContract
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-007 purchase price and date (per lot)
@@ -301,10 +313,15 @@ export interface MappedOption { label: string; contracts: number; value: number;
  *     strike = `$${os.strike price}`   if os.strike price ≠ nothing
  *     ''   otherwise
  *
- * Called by ... MK-XS-F-102 ingestSync
+ * Called by ... MK-NW-F-191 sharesPerContract · MK-NW-F-192 optionName
+ *               MK-NW-F-194 brokerUpdateToRecord · MK-XS-F-102 ingestSync
  *
- * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 10 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-194 brokerUpdateToRecord · MK-NW-F-193 eventRow
+ *               MK-NW-F-201 fileRowsToSave · MK-NW-F-199 fileToRecord
  *               MK-XS-F-219 importedAccountOf · MK-XS-F-102 ingestSync
+ *               MK-NW-F-192 optionName · MK-XS-F-199 profileOnTheWayIn
+ *               MK-NW-F-195 readImport · MK-NW-F-191 sharesPerContract
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-007 purchase price and date (per lot)
@@ -457,11 +474,15 @@ export function mapActivityType(a: StActivity): MappedActivity {
  * Formula .....
  *     the answer = import key(account, trade date or settlement date, type, amount, units, security, reference, description)
  *
- * Called by ... MK-XS-F-102 ingestSync · MK-XS-F-109 dedupeActivities
+ * Called by ... MK-NW-F-193 eventRow · MK-NW-F-287 splitOf
+ *               MK-XS-F-102 ingestSync · MK-XS-F-109 dedupeActivities
  *
- * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
- *               MK-XS-F-109 dedupeActivities · MK-XS-F-219 importedAccountOf
- *               MK-XS-F-102 ingestSync
+ * Reaches ..... 10 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-194 brokerUpdateToRecord · MK-XS-F-109 dedupeActivities
+ *               MK-NW-F-193 eventRow · MK-NW-F-201 fileRowsToSave
+ *               MK-NW-F-199 fileToRecord · MK-XS-F-219 importedAccountOf
+ *               MK-XS-F-102 ingestSync · MK-XS-F-199 profileOnTheWayIn
+ *               MK-NW-F-195 readImport · MK-NW-F-287 splitOf
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-010 transaction words (the institution's own wording)
@@ -525,8 +546,11 @@ export function dedupeActivities(accountId: string, incoming: StActivity[], seen
  *
  * Called by ... MK-XS-F-102 ingestSync
  *
- * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
- *               MK-XS-F-219 importedAccountOf · MK-XS-F-102 ingestSync
+ * Reaches ..... 7 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-194 brokerUpdateToRecord · MK-NW-F-201 fileRowsToSave
+ *               MK-NW-F-199 fileToRecord · MK-XS-F-219 importedAccountOf
+ *               MK-XS-F-102 ingestSync · MK-XS-F-199 profileOnTheWayIn
+ *               MK-NW-F-195 readImport
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -568,8 +592,11 @@ export function netCashSleeve(balancesCash: number | null | undefined, positions
  *
  * Called by ... MK-XS-F-102 ingestSync
  *
- * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
- *               MK-XS-F-219 importedAccountOf · MK-XS-F-102 ingestSync
+ * Reaches ..... 7 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-194 brokerUpdateToRecord · MK-NW-F-201 fileRowsToSave
+ *               MK-NW-F-199 fileToRecord · MK-XS-F-219 importedAccountOf
+ *               MK-XS-F-102 ingestSync · MK-XS-F-199 profileOnTheWayIn
+ *               MK-NW-F-195 readImport
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
