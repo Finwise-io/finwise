@@ -11650,6 +11650,24 @@
    "apply_steps": "1. Sign-in: a profile the phone cannot read yet is never taken as a new account; the phone keeps its data, nothing is saved, and the profile loads again once the recovery code is entered. 2. Sync: questions still open are kept, added to, never replaced; a sale that may have sold an undated purchase is asked. 3. The record saves once the profile loads after an offline start. 4. The move: each holding's lots as the phone shows them are what is held; each past sale is saved on its date with the gain the app shows today; what cannot be explained is marked and asked. 5. A test for each with the checker’s numbers. 6. Workplan: the household, offline-edit and delete-account faults go into the cloud design.",
    "not_a_repeat_of": "DEC-10685 — that decision is when the cloud copy may be saved. This decision is about the sign-in profile, the sync’s questions and the one-time move. Every part of DEC-10685 stands. DEC-10342 — that decision is the one master record. This decision says how the phone’s old copies are moved onto it. Every part of DEC-10342 stands.",
    "proof": ""
+  },
+  {
+   "decided": "2026-11-12",
+   "answers": [],
+   "tab": "multiple_screens",
+   "status": "RULED, NOT CODED",
+   "standard_carrier": "",
+   "type": "RULE",
+   "screens": "Every screen — sign-in on a phone another person used (a spouse signing in to their own account on the account holder's phone)",
+   "his_words": "just to clarify, today, if user A's spouse B take the phone and sign-in to his account (B's account), it will save left over data from user A into user B's account? … fix it",
+   "subject": "When a different person signs in on a phone, the previous person's data is set aside on the phone, locked, and the phone starts clean; it comes back when that person signs in again (his “fix it”, 2026-11-12)",
+   "plain": "His question and his “fix it” in chat, 2026-11-12, after Claude confirmed that in Build 57 the items B's account never filled in stay as A's and are saved into B's account within seconds, a brand-new B account gets A's monthly budget target, emergency fund months and hourly rate, and A's activity list and daily values stay on the phone for B to see. The rule's wording is Claude's proposal, which he asked to be built.",
+   "means": "Example: A has Savings $12,400 and an estate plan on the phone and signs out; B, A's spouse, signs in to B's own account. Before: B's cloud account received A's estate plan and daily net worth history, and B saw A's activity. Now: A's data is set aside on the phone, B sees only B's own, and A's comes back when A signs in again.",
+   "governs": "app/_layout.tsx — sign-in · src/store/useStore.ts — resetAll, loadFromCloud and the set-aside store · src/store/secureStorage.ts",
+   "changed": "",
+   "apply_steps": "1. Note whose data the phone holds. 2. When a different person signs in, set the phone's per-person data aside, encrypted, under its owner, and clear every per-person field before that person's cloud profile loads. 3. When that owner signs in again, give back what only the phone held (activity, daily values, the master record) beside their cloud profile. 4. A phone whose owner was never noted: its data is set aside unnamed and given back only to the person whose cloud accounts are the same accounts. 5. A brand-new account starts with nothing of another person's. 6. Tests for the spouse cases with real numbers; an outside check.",
+   "not_a_repeat_of": "DEC-10685 — that decision is when the master record's cloud copy may be saved. This decision is what the phone shows and saves when a different person signs in. Every part of DEC-10685 stands. DEC-10749 — that decision is the password reset and the one-time move. This decision is a different person signing in. Every part of DEC-10749 stands.",
+   "proof": ""
   }
  ]
 }

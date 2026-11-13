@@ -3,7 +3,7 @@ import { reclassifyAccounts, RECLASSIFY_VERSION } from '../domain/assets/reclass
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { secureStorage } from './secureStorage';
+import { secureStorage, setAsideStorage, type SetAside } from './secureStorage';
 import { assetsFromOnboarding, isRealAsset, holdingClassOf, holdingTagFor, type AssetAccount } from '../domain/assets';
 import { settleBondValue } from '../../MoneyKeel/functions/networth-and-performance/bonds';   // the one value rule, through the bonds door (DEC-0281)
 import { benchmarkTicker, marketValue, latestCloseLookup, closeOnOrBefore, paidOnRecord, priceOnRecord, type Position, type PriceSeries } from '../domain/performance';
@@ -33,7 +33,7 @@ import { fetchPriceSeries } from '../services/marketData';
  *               MK-ST-F-028 buildDayFromAccounts · MK-XS-F-199 profileOnTheWayIn
  *               MK-XS-F-205 recordsOnTheWayIn
  *
- * Reaches ..... 567 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 568 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -43,7 +43,7 @@ import { fetchPriceSeries } from '../services/marketData';
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 549 more — the full list is on functions_from_code
+ *               … and 550 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
@@ -671,6 +671,13 @@ type AppState = {
   loadFromCloud: (data: Partial<AppState>) => void;
   /** Sign-out: the phone keeps nothing of this person's — what resetAll clears, and the record's owner and the household. */
   signOutClear: () => void;
+  /** Whose (a person's uid, never the household) the phone's per-person data is; null where never noted (DEC-10813). */
+  phoneDataOwner: string | null;
+  /** Whose (household or person) the phone's master record is. */
+  assetRecordOwner?: string | null;
+  notePhoneOwner: (uid: string | null) => void;
+  /** Every per-person field back to a fresh account's; the device settings stay (DEC-10813). */
+  clearPerson: () => void;
 };
 
 const DEFAULT_BADGES: Badge[] = [
@@ -719,11 +726,12 @@ const DEFAULT_BADGES: Badge[] = [
  *               MK-XS-F-074 loadUserData · MK-XS-F-077 setUserHousehold
  *               MK-XS-F-078 joinHouseholdMembership · MK-XS-F-079 loadUserRoot
  *               MK-XS-F-138 deriveKeyFromSecret · MK-XS-F-139 wrapWithSecret
- *               MK-XS-F-199 profileOnTheWayIn · MK-XS-F-222 saveAssetRecordPart
- *               MK-XS-F-223 loadAssetRecordPart · MK-XS-F-231 loadAssetRecordMarker
- *               MK-XS-F-233 commitAssetRecord · MK-XS-F-242 readUserProfile
+ *               MK-XS-F-192 typedValueDatedBack · MK-XS-F-199 profileOnTheWayIn
+ *               MK-XS-F-222 saveAssetRecordPart · MK-XS-F-223 loadAssetRecordPart
+ *               MK-XS-F-231 loadAssetRecordMarker · MK-XS-F-233 commitAssetRecord
+ *               MK-XS-F-242 readUserProfile
  *
- * Reaches ..... 567 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 568 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -733,7 +741,7 @@ const DEFAULT_BADGES: Badge[] = [
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 549 more — the full list is on functions_from_code
+ *               … and 550 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -843,6 +851,8 @@ export const useStore = create<AppState>()(
       onboardingPaused: false,
       appLockEnabled: false,
       householdId: null,
+      phoneDataOwner: null,
+      assetRecordOwner: null,
 
       // Onboarding settings
       employmentStatus: null,
@@ -945,6 +955,8 @@ export const useStore = create<AppState>()(
       setOnboardingComplete: (v) => set({ onboardingComplete: v }),
       setOnboardingPaused: (v) => set({ onboardingPaused: v }),
       setHouseholdId: (v) => set({ householdId: v }),
+      notePhoneOwner: (uid) => set((s: any) => (s.phoneDataOwner === uid ? s : { phoneDataOwner: uid })),
+      clearPerson: () => set(freshPersonFields() as any),
 
       // ── Onboarding actions ───────────────────────────────────────
       setEmploymentStatus: (s) => set({ employmentStatus: s }),
@@ -1656,6 +1668,11 @@ export const useStore = create<AppState>()(
         lastCheckIn: null, onboardingComplete: false, onboardingPaused: false, retirementPlan: null,
         employmentStatus: null, onboardingDraft: null, onboardingProfile: null, selectedGoals: [], budgetCategories: [], customCategories: [],
         currency: 'USD', locale: 'en-US', displayMode: 'simple',
+        // what resetAll left as the last person's (DEC-10813, 2026-11-12): a brand-new account after another person
+        // started with their budget, hourly rate and emergency months, and saved them into the new account
+        budgetFrequency: 'monthly', payFrequency: 'monthly', expenseTargetType: 'percent', expenseTargetAmount: 0, expenseTargetPercent: 80,
+        savingsDistribution: 'leftover', priceRefreshFailed: false,
+        monthlyBudgetTarget: 3500, hourlyRate: 25, jobRiskLevel: null, emergencyMonths: 6,
       }),
 
       // Re-run setup as a CLEAN OVERWRITE: wipe the onboarding answers + everything setup derived
@@ -1694,8 +1711,8 @@ export const useStore = create<AppState>()(
       // is cleared — what resetAll clears (the record, its questions and faults among it) — and the phone's data now belongs to
       // nobody, so nothing moves or is saved until the next person's profile has loaded from the cloud.
       signOutClear: () => {
-        get().resetAll();
-        set({ user: null, householdId: null, assetRecordOwner: null } as any);
+        get().clearPerson();
+        set({ user: null, householdId: null, assetRecordOwner: null, phoneDataOwner: null } as any);
       },
     }),
     {
@@ -1713,6 +1730,314 @@ export const useStore = create<AppState>()(
     }
   )
 );
+
+// ── WHOSE DATA THE PHONE HOLDS, AND ONE PERSON'S DATA SET ASIDE (DEC-10813, his "fix it", 2026-11-12) ─────────────────
+// Shipped in Build 57: A signed out, the phone kept A's data, B signed in, and every synced item B's cloud profile lacked
+// stayed A's and was saved into B's account; a brand-new B kept A's budget and hourly rate; and A's activity and daily
+// values stayed on screen for B. Now the phone notes whose data it holds; a different person's sign-in sets that data
+// aside (encrypted, on this phone only) and starts from nothing; the owner gets back what only the phone held.
+
+/** The phone's own settings, not a person's: they stay when another person signs in. Every other field is per-person. */
+export const DEVICE_FIELDS = [
+  'user', 'appLockEnabled', 'displayMode', 'hideBalances', 'fontScale', 'pendingRecoveryCode', 'securingAccount',
+  'inflationRate', 'treasuryYield', 'inflationIsFallback', 'treasuryIsFallback', 'phoneDataOwner',
+] as const;
+/** Market prices the phone fetched: per-person by resetAll, but not a sign that the phone holds anyone's data. */
+const NOT_A_PERSONS_DATA = ['priceCache', 'pricesFetchedAt', 'priceRefreshFailed', 'assetRecordFaults'];
+
+/** The store as a fresh install starts it, before any person’s data. */
+/* ─ MK-XS-F-245 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * initialState
+ *
+ * Answers ..... The store as a fresh install starts it, before any person’s data.
+ *
+ * Formula .....
+ *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
+ *
+ * Called by ... MK-XS-F-247 perPersonKeys · MK-XS-F-248 freshPersonFields
+ *               MK-XS-F-250 phoneHoldsPersonData · MK-XS-F-254 giveBackSetAside
+ *
+ * Reaches ..... 6 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-248 freshPersonFields · MK-XS-F-254 giveBackSetAside
+ *               MK-XS-F-247 perPersonKeys · MK-XS-F-250 phoneHoldsPersonData
+ *               MK-XS-F-199 profileOnTheWayIn · MK-XS-F-252 setPhoneDataAside
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-245
+ * Changed ..... not in git yet (—)
+ */
+function initialState(): Record<string, any> { return (useStore as any).getInitialState(); }
+/** A copy of a value that shares nothing with the original, so a set-aside or a reset never changes what it was copied from. */
+/* ─ MK-XS-F-246 ──────────────────────────────────────────────────────────────────── 1 · ACTION
+ * copyOf
+ *
+ * Answers ..... A copy of a value that shares nothing with the original, so a set-aside or a reset never changes what it was copied from.
+ *
+ * Formula .....
+ *     undefined   if v = undefined
+ *     JSON.parse(JSON.stringify(v))   otherwise
+ *
+ * Called by ... MK-XS-F-248 freshPersonFields · MK-XS-F-252 setPhoneDataAside
+ *
+ * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-248 freshPersonFields · MK-XS-F-199 profileOnTheWayIn
+ *               MK-XS-F-252 setPhoneDataAside
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-246
+ * Changed ..... not in git yet (—)
+ */
+const copyOf = (v: any) => (v === undefined ? undefined : JSON.parse(JSON.stringify(v)));
+
+/** Every per-person field of the store: all of its data but the device settings. */
+/* ─ MK-XS-F-247 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * perPersonKeys
+ *
+ * Answers ..... Every per-person field of the store: all of its data but the device settings.
+ *
+ * Formula .....
+ *     init = initial state()
+ *     device = new set<string>(DEVICE_FIELDS)
+ *     the answer = the names in init where typeof init[each] ! = 'function' and !device.has(each)
+ *
+ * Called by ... MK-XS-F-248 freshPersonFields · MK-XS-F-250 phoneHoldsPersonData
+ *               MK-XS-F-252 setPhoneDataAside · MK-XS-F-254 giveBackSetAside
+ *
+ * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-248 freshPersonFields · MK-XS-F-254 giveBackSetAside
+ *               MK-XS-F-250 phoneHoldsPersonData · MK-XS-F-199 profileOnTheWayIn
+ *               MK-XS-F-252 setPhoneDataAside
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-247
+ * Changed ..... not in git yet (—)
+ */
+export function perPersonKeys(): string[] {
+  const init = initialState();
+  const device = new Set<string>(DEVICE_FIELDS);
+  return Object.keys(init).filter((k) => typeof init[k] !== 'function' && !device.has(k));
+}
+
+/** Every per-person field at its fresh-install value: what a person signing in on a phone another person used starts from. */
+/* ─ MK-XS-F-248 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+ * freshPersonFields
+ *
+ * Answers ..... Every per-person field at its fresh-install value: what a person signing in on a phone another person used starts from.
+ *
+ * Formula .....
+ *     init = initial state()
+ *     out = {}
+ *     [LOOP — the answer is found inside a loop the extractor cannot render; the steps above are the ones before it. Read by hand.]
+ *
+ * Called by ... MK-XS-F-199 profileOnTheWayIn
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-XS-F-199 profileOnTheWayIn
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-248
+ * Changed ..... not in git yet (—)
+ */
+function freshPersonFields(): Record<string, any> {
+  const init = initialState();
+  const out: Record<string, any> = {};
+  for (const k of perPersonKeys()) out[k] = copyOf(init[k]);
+  return out;
+}
+
+/** Whether two values read the same once written out, a missing value reading as none. */
+/* ─ MK-XS-F-249 ──────────────────────────────────────────────────────────────────── 1 · ACTION
+ * asJsonEqual
+ *
+ * Answers ..... Whether two values read the same once written out, a missing value reading as none.
+ *
+ * Formula .....
+ *     JSON.stringify(a ?? nothing) = JSON.stringify(b ?? nothing)
+ *
+ * Called by ... MK-XS-F-250 phoneHoldsPersonData · MK-XS-F-253 giveBackField
+ *
+ * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-253 giveBackField · MK-XS-F-254 giveBackSetAside
+ *               MK-XS-F-250 phoneHoldsPersonData
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-249
+ * Changed ..... not in git yet (—)
+ */
+const asJsonEqual = (a: any, b: any) => JSON.stringify(a ?? null) === JSON.stringify(b ?? null);
+
+/** Does the phone hold anything of a person's (anything a fresh account would not have)? */
+/* ─ MK-XS-F-250 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * phoneHoldsPersonData
+ *
+ * Answers ..... Does the phone hold anything of a person's (anything a fresh account would not have)?
+ *
+ * Formula .....
+ *     init = initial state()
+ *     the answer = per person keys().some((k) => !NOT_A_PERSONS_DATA.includes(k) and !as json equal(s[k], init[k]))
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-250
+ * Changed ..... not in git yet (—)
+ */
+export function phoneHoldsPersonData(s: Record<string, any> = useStore.getState() as any): boolean {
+  const init = initialState();
+  return perPersonKeys().some((k) => !NOT_A_PERSONS_DATA.includes(k) && !asJsonEqual(s[k], init[k]));
+}
+
+/** Account ids: random, so an id two lists share names the same account. */
+/* ─ MK-XS-F-251 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * accountIdsOf
+ *
+ * Answers ..... Account ids: random, so an id two lists share names the same account.
+ *
+ * Formula .....
+ *     for each of array.is array(accounts) ? accounts: asset id where x ≠ nothingfor each of : string: []
+ *
+ * Called by ... MK-XS-F-254 giveBackSetAside
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-XS-F-254 giveBackSetAside
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-251
+ * Changed ..... not in git yet (—)
+ */
+export function accountIdsOf(accounts: any): string[] {
+  return Array.isArray(accounts) ? accounts.map((a: any) => a?.asset_id).filter((x: any) => x != null).map(String) : [];
+}
+
+/** Set the phone's per-person data aside for its owner (null: never noted), then clear every per-person field.
+ *  Written first, cleared after: nothing is lost if the phone stops in between. */
+/* ─ MK-XS-F-252 ──────────────────────────────────────────────────────────────────── 1 · ACTION
+ * setPhoneDataAside
+ *
+ * Answers ..... Set the phone's per-person data aside for its owner (null: never noted), then clear every per-person field.
+ *
+ * Formula .....
+ *     s = use store.get state()
+ *     data = {}
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Decides .....
+ *     · Uses today's date from the device clock, so the answer changes by itself overnight.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-252
+ * Changed ..... not in git yet (—)
+ */
+export async function setPhoneDataAside(owner: string | null): Promise<void> {
+  const s: any = useStore.getState();
+  const data: Record<string, any> = {};
+  for (const k of perPersonKeys()) data[k] = copyOf(s[k]);
+  await setAsideStorage.put(owner, new Date().toISOString(), data);
+  (useStore.getState() as any).clearPerson();
+}
+
+/** What a set-aside gives back onto what the phone holds now: the set-aside fills a field still fresh; a list keeps what
+ *  was added since; a plain map takes both; any other value typed since stands. */
+/* ─ MK-XS-F-253 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * giveBackField
+ *
+ * Answers ..... What a set-aside gives back onto what the phone holds now: the set-aside fills a field still fresh; a list keeps what was added since; a plain map takes both; any other value typed since stands.
+ *
+ * Formula .....
+ *     now   when aside = undefined
+ *     aside   when as json equal(now, fresh)
+ *     id of = (x: any) => (x and typeof x = 'object' and id ≠ nothing ? 'id:' + id : 'v:' + JSON.stringify(x))
+ *     seen = a list with no repeats of for each of aside: id of
+ *     the answer = [...aside, ...now.filter((x: any) => !seen.has(id of(x)))]
+ *     { ...aside, ...now }   when now and aside and typeof now = 'object' and typeof aside = 'object' and !array.is array(now)
+ *
+ * Called by ... MK-XS-F-254 giveBackSetAside
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-XS-F-254 giveBackSetAside
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-253
+ * Changed ..... not in git yet (—)
+ */
+function giveBackField(now: any, aside: any, fresh: any): any {
+  if (aside === undefined) return now;
+  if (asJsonEqual(now, fresh)) return aside;
+  if (Array.isArray(now) && Array.isArray(aside)) {
+    const idOf = (x: any) => (x && typeof x === 'object' && x.id != null ? 'id:' + x.id : 'v:' + JSON.stringify(x));
+    const seen = new Set(aside.map(idOf));
+    return [...aside, ...now.filter((x: any) => !seen.has(idOf(x)))];
+  }
+  if (now && aside && typeof now === 'object' && typeof aside === 'object' && !Array.isArray(now)) return { ...aside, ...now };
+  return now;
+}
+
+/** This person's set-asides: the ones noted as theirs, and an unnamed one whose accounts share an id with their cloud
+ *  profile's. The cloud profile is the truth for every synced field; what only the phone held comes back from the
+ *  set-aside (activity, daily values, the master record with its questions and faults, and the rest), and the
+ *  set-aside is deleted. Returns how many came back. */
+/* ─ MK-XS-F-254 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * giveBackSetAside
+ *
+ * Answers ..... This person's set-asides: the ones noted as theirs, and an unnamed one whose accounts share an id with their cloud profile's.
+ *
+ * Formula .....
+ *     all = await set aside storage.list()
+ *     cloud ids = a list with no repeats of account ids of(cloud state.asset accounts)
+ *     unreadable = await set aside storage.unreadable not yet said((owner) => owner = uid or owner = nothing)
+ *     given = 0
+ *     unreadable = unreadable   when count of theirs is missing
+ *     init = initial state()
+ *     in cloud = (k: string) => !!cloud state and cloud state[k] ! = undefined
+ *     synced = new set<string>(synced keys)
+ *     keys = per person keys() where each ! = 'householdId' and !(synced.has(each) and in cloud(each))
+ *     s = use store.get state()
+ *     patch = {}
+ *     the answer:
+ *     given = count of theirs
+ *     unreadable = unreadable
+ *     … the first steps only — the rest of the body needs reading by hand.
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-254
+ * Changed ..... not in git yet (—)
+ */
+export async function giveBackSetAside(uid: string, cloudState: Record<string, any> | null | undefined, syncedKeys: readonly string[]): Promise<{ given: number; unreadable: string[] }> {
+  const all: SetAside[] = await setAsideStorage.list();
+  const cloudIds = new Set(accountIdsOf(cloudState?.assetAccounts));
+  const theirs = all.filter((a) => a.owner === uid
+    || (a.owner == null && accountIdsOf(a.data.assetAccounts).some((id) => cloudIds.has(id))));
+  // a set-aside of theirs this phone cannot decrypt: kept, never deleted, and said once (outside check 5, L7)
+  const unreadable = await setAsideStorage.unreadableNotYetSaid((owner) => owner === uid || owner == null);
+  if (!theirs.length) return { given: 0, unreadable };
+  const init = initialState();
+  // a synced field is the cloud's — where the cloud's copy has it; one the cloud copy lacks (never saved, or a brand-new
+  // account in the cloud) comes back from the set-aside (outside check 5, L3 and L8)
+  const inCloud = (k: string) => !!cloudState && cloudState[k] !== undefined;
+  const synced = new Set<string>(syncedKeys);
+  const keys = perPersonKeys().filter((k) => k !== 'householdId' && !(synced.has(k) && inCloud(k)));
+  for (const a of theirs) {
+    const s: any = useStore.getState();
+    const patch: Record<string, any> = {};
+    for (const k of keys) patch[k] = giveBackField(s[k], a.data[k], init[k]);
+    useStore.setState(patch as any);
+    await setAsideStorage.remove(a.key);
+  }
+  return { given: theirs.length, unreadable };
+}
 
 // ── Selectors ──────────────────────────────────────────────────────────
 /* ─ MK-XS-F-176 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED

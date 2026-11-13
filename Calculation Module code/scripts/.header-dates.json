@@ -1151,5 +1151,16 @@
 "src/services/sync/assetRecordCloud.ts::markerOf": "not in git yet|\u2014",
 "src/services/firebase.ts::dataKeyIsReady": "not in git yet|\u2014",
 "src/services/firebase.ts::onDataKeyReady": "not in git yet|\u2014",
-"src/services/firebase.ts::readUserProfile": "not in git yet|\u2014"
+"src/services/firebase.ts::readUserProfile": "not in git yet|\u2014",
+"src/store/useStore.ts::giveBackSetAside": "not in git yet|\u2014",
+"src/store/useStore.ts::giveBackField": "not in git yet|\u2014",
+"src/store/useStore.ts::setPhoneDataAside": "not in git yet|\u2014",
+"src/store/useStore.ts::accountIdsOf": "not in git yet|\u2014",
+"src/store/useStore.ts::phoneHoldsPersonData": "not in git yet|\u2014",
+"src/store/useStore.ts::asJsonEqual": "not in git yet|\u2014",
+"src/store/useStore.ts::freshPersonFields": "not in git yet|\u2014",
+"src/store/useStore.ts::perPersonKeys": "not in git yet|\u2014",
+"src/store/useStore.ts::copyOf": "not in git yet|\u2014",
+"src/store/useStore.ts::initialState": "not in git yet|\u2014",
+"src/store/secureStorage.ts::ownerOfSetAsideKey": "not in git yet|\u2014"
 }

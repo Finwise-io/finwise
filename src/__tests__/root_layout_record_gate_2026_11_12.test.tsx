@@ -46,7 +46,7 @@ beforeEach(() => {
   jest.useFakeTimers();
   jest.clearAllMocks();
   st().resetAll();
-  useStore.setState({ user: null, householdId: null, assetRecordOwner: null, assetRecord: [], assetRecordQuestions: {}, assetRecordFaults: [] } as any);
+  useStore.setState({ user: null, householdId: null, assetRecordOwner: null, phoneDataOwner: null, assetRecord: [], assetRecordQuestions: {}, assetRecordFaults: [] } as any);
 });
 afterEach(() => jest.useRealTimers());
 
@@ -65,7 +65,10 @@ test('B signs in after A on the same phone and B\'s profile load fails: A\'s Sav
   expect(mockFb.commitAssetRecord).not.toHaveBeenCalled();
   expect(mockFb.saveUserData).not.toHaveBeenCalled();                    // A's profile never goes to B's cloud either
   expect(st().assetRecord).toEqual([]);                             // nothing of A's moved
-  expect(st().assetRecordOwner).toBe('uidA');
+  // DEC-10813, outside check 5 (L8): the phone's owner was never noted, so A's data is set aside at B's sign-in, and B's
+  // screens hold none of it while B's profile cannot load
+  expect(st().assetRecordOwner).toBeNull();
+  expect(st().assetAccounts).toEqual([]);
 });
 
 test('a part of the cloud\'s record this phone cannot read: nothing is saved, a fault says so, and the load is tried again on the next change', async () => {
@@ -100,7 +103,9 @@ test('B signs in after A on the same phone and B\'s profile loads: A\'s Savings 
   await flush();
   expect(st().assetRecordOwner).toBe('uidB');
   expect(st().assetRecord.filter((r: any) => r.kind === 'VALUE')).toEqual([]);           // nothing of A's moved
-  expect(st().assetRecordFaults.map((f: any) => f.message)).toContain('This phone held another person\u2019s accounts, so they were not moved onto this person\u2019s record.');
+  // DEC-10813 (2026-11-12): B's cloud accounts share no id with the phone's, so A's are set aside and B's phone holds none of them
+  expect(st().assetAccounts).toEqual([]);
+  expect(st().phoneDataOwner).toBe('uidB');
 });
 
 test('A signs in on A\'s own phone: A\'s Savings $12,400 typed as of Nov 1 is moved onto the record once, and the record is saved once', async () => {
@@ -144,7 +149,7 @@ const keyReady = () => (global as any).mockKeyReady?.();
 function phoneOfA() {
   st().addAsset({ label: 'A Savings', institution: 'Ally', kind: 'savings', tax_bucket: 'CASH', balance: 12_400, source: 'manual', value_as_of: '2026-11-01' });
   st().addAsset({ label: 'A Brokerage', institution: 'Vanguard', kind: 'brokerage', tax_bucket: 'TAXABLE', balance: 30_000, source: 'manual', value_as_of: '2026-11-01' });
-  useStore.setState({ assetRecordOwner: 'uidA', onboardingComplete: true, transactions: [{ id: 't1' }] } as any);
+  useStore.setState({ assetRecordOwner: 'uidA', phoneDataOwner: 'uidA', onboardingComplete: true, transactions: [{ id: 't1' }] } as any);   // A's phone, owner noted
   return JSON.parse(JSON.stringify(st().assetAccounts));
 }
 
@@ -198,7 +203,7 @@ test('O3-1b after a sign-out the key is not unwrapped yet when the profile loads
 
 test('O3-2 offline at launch, back online: 3 changes load the profile again at the first change, and the record then loads and saves', async () => {
   st().addAsset({ label: 'A Savings', institution: 'Ally', kind: 'savings', tax_bucket: 'CASH', balance: 12_400, source: 'manual', value_as_of: '2026-11-01' });
-  useStore.setState({ assetRecord: [], assetRecordOwner: 'uidA', onboardingComplete: true } as any);
+  useStore.setState({ assetRecord: [], assetRecordOwner: 'uidA', phoneDataOwner: 'uidA', onboardingComplete: true } as any);
   mockFb.loadUserRoot.mockRejectedValueOnce(new Error('offline'))
     .mockResolvedValue({ householdId: null, appState: { onboardingComplete: true, assetAccounts: JSON.parse(JSON.stringify(st().assetAccounts)) } });
   mockFb.loadAssetRecordPart.mockResolvedValue(null);

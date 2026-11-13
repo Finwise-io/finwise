@@ -173,7 +173,7 @@ const EPS = 1e-9;
  *               MK-NW-F-288 importedListDay · MK-NW-F-289 activityRefs
  *               MK-NW-F-291 lotsOf
  *
- * Reaches ..... 47 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 48 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-214 accountValueRows · MK-NW-F-289 activityRefs
  *               MK-NW-F-233 addRows · MK-NW-F-273 answerEventQuestion
  *               MK-NW-F-278 answerListQuestion · MK-NW-F-248 answerValuesQuestion
@@ -183,7 +183,7 @@ const EPS = 1e-9;
  *               MK-XS-F-002 dataGaps · MK-NW-F-208 dateAsGiven
  *               MK-NW-F-190 dateAsSent · MK-NW-F-286 dayOfInstant
  *               MK-NW-F-279 differsFromGiven · MK-NW-F-193 eventRow
- *               … and 29 more — the full list is on functions_from_code
+ *               … and 30 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -210,7 +210,7 @@ export function dayOrNull(v: unknown): string | null {
  * Called by ... MK-NW-F-233 addRows · MK-NW-F-275 besideTheList
  *               MK-NW-F-281 correctRow
  *
- * Reaches ..... 31 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 32 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-289 activityRefs · MK-NW-F-233 addRows
  *               MK-NW-F-273 answerEventQuestion · MK-NW-F-278 answerListQuestion
  *               MK-NW-F-248 answerValuesQuestion · MK-NW-F-218 arrive
@@ -218,9 +218,9 @@ export function dayOrNull(v: unknown): string | null {
  *               MK-NW-F-219 correct · MK-NW-F-281 correctRow
  *               MK-XS-F-002 dataGaps · MK-NW-F-279 differsFromGiven
  *               MK-NW-F-271 eventsThatDiffer · MK-NW-F-201 fileRowsToSave
- *               MK-NW-F-221 lotsFollow · MK-NW-F-228 moveOldCopies
- *               MK-XS-F-199 profileOnTheWayIn · MK-NW-F-277 purchasesFromList
- *               … and 13 more — the full list is on functions_from_code
+ *               MK-XS-F-254 giveBackSetAside · MK-NW-F-221 lotsFollow
+ *               MK-NW-F-228 moveOldCopies · MK-XS-F-199 profileOnTheWayIn
+ *               … and 14 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -241,7 +241,7 @@ const wasGiven = (v: unknown): v is string => typeof v === 'string' && v.trim() 
  *               MK-NW-F-252 walkHolding · MK-NW-F-277 purchasesFromList
  *               MK-NW-F-284 activityOf · MK-NW-F-285 factsOf
  *
- * Reaches ..... 49 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 50 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-284 activityOf · MK-NW-F-289 activityRefs
  *               MK-NW-F-273 answerEventQuestion · MK-NW-F-278 answerListQuestion
  *               MK-NW-F-248 answerValuesQuestion · MK-NW-F-218 arrive
@@ -250,8 +250,8 @@ const wasGiven = (v: unknown): v is string => typeof v === 'string' && v.trim() 
  *               MK-XS-F-002 dataGaps · MK-NW-F-279 differsFromGiven
  *               MK-NW-F-193 eventRow · MK-NW-F-271 eventsThatDiffer
  *               MK-NW-F-285 factsOf · MK-NW-F-201 fileRowsToSave
- *               MK-NW-F-221 lotsFollow · MK-NW-F-228 moveOldCopies
- *               … and 31 more — the full list is on functions_from_code
+ *               MK-XS-F-254 giveBackSetAside · MK-NW-F-221 lotsFollow
+ *               … and 32 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -282,7 +282,7 @@ const instantOf = (stamp: string): number => { const t = Date.parse(stamp); retu
  *               MK-NW-F-273 answerEventQuestion · MK-NW-F-277 purchasesFromList
  *               MK-NW-F-285 factsOf · MK-NW-F-289 activityRefs
  *
- * Reaches ..... 59 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 60 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-284 activityOf · MK-NW-F-289 activityRefs
  *               MK-NW-F-233 addRows · MK-NW-F-273 answerEventQuestion
  *               MK-NW-F-278 answerListQuestion · MK-NW-F-248 answerValuesQuestion
@@ -292,7 +292,7 @@ const instantOf = (stamp: string): number => { const t = Date.parse(stamp); retu
  *               MK-XS-F-002 dataGaps · MK-NW-F-279 differsFromGiven
  *               MK-NW-F-193 eventRow · MK-NW-F-271 eventsThatDiffer
  *               MK-NW-F-285 factsOf · MK-NW-F-227 fileFacts
- *               … and 41 more — the full list is on functions_from_code
+ *               … and 42 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -334,17 +334,17 @@ export const oneHoldingSpelling = (h: string | null | undefined): string | null 
  *               MK-NW-F-238 sortArriving · MK-NW-F-272 salesMovedBy
  *               MK-NW-F-281 correctRow · MK-NW-F-289 activityRefs
  *
- * Reaches ..... 30 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 31 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-289 activityRefs · MK-NW-F-273 answerEventQuestion
  *               MK-NW-F-278 answerListQuestion · MK-NW-F-248 answerValuesQuestion
  *               MK-NW-F-218 arrive · MK-NW-F-275 besideTheList
  *               MK-NW-F-194 brokerUpdateToRecord · MK-NW-F-219 correct
  *               MK-NW-F-281 correctRow · MK-XS-F-002 dataGaps
  *               MK-NW-F-279 differsFromGiven · MK-NW-F-271 eventsThatDiffer
- *               MK-NW-F-201 fileRowsToSave · MK-NW-F-221 lotsFollow
- *               MK-NW-F-228 moveOldCopies · MK-XS-F-199 profileOnTheWayIn
- *               MK-NW-F-277 purchasesFromList · MK-NW-F-294 removalKept
- *               … and 12 more — the full list is on functions_from_code
+ *               MK-NW-F-201 fileRowsToSave · MK-XS-F-254 giveBackSetAside
+ *               MK-NW-F-221 lotsFollow · MK-NW-F-228 moveOldCopies
+ *               MK-XS-F-199 profileOnTheWayIn · MK-NW-F-277 purchasesFromList
+ *               … and 13 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -406,7 +406,7 @@ export function addRows(record: readonly AssetRow[], rows: readonly NewRow[], wr
  *               MK-NW-F-285 factsOf · MK-NW-F-293 keptAwayByEvent
  *               MK-NW-F-294 removalKept
  *
- * Reaches ..... 57 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 58 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-284 activityOf · MK-NW-F-289 activityRefs
  *               MK-NW-F-233 addRows · MK-NW-F-273 answerEventQuestion
  *               MK-NW-F-278 answerListQuestion · MK-NW-F-248 answerValuesQuestion
@@ -416,7 +416,7 @@ export function addRows(record: readonly AssetRow[], rows: readonly NewRow[], wr
  *               MK-NW-F-279 differsFromGiven · MK-NW-F-269 eventAnswers
  *               MK-NW-F-193 eventRow · MK-NW-F-271 eventsThatDiffer
  *               MK-NW-F-285 factsOf · MK-NW-F-201 fileRowsToSave
- *               … and 39 more — the full list is on functions_from_code
+ *               … and 40 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -447,7 +447,7 @@ export function rowsInForce(record: readonly AssetRow[]): AssetRow[] {
  *               MK-NW-F-280 splitByOf · MK-NW-F-281 correctRow
  *               MK-NW-F-282 removeRow · MK-NW-F-284 activityOf
  *
- * Reaches ..... 53 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 54 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-284 activityOf · MK-NW-F-289 activityRefs
  *               MK-NW-F-273 answerEventQuestion · MK-NW-F-278 answerListQuestion
  *               MK-NW-F-248 answerValuesQuestion · MK-NW-F-218 arrive
@@ -455,9 +455,9 @@ export function rowsInForce(record: readonly AssetRow[]): AssetRow[] {
  *               MK-NW-F-219 correct · MK-NW-F-281 correctRow
  *               MK-XS-F-002 dataGaps · MK-NW-F-279 differsFromGiven
  *               MK-NW-F-193 eventRow · MK-NW-F-271 eventsThatDiffer
- *               MK-NW-F-201 fileRowsToSave · MK-NW-F-293 keptAwayByEvent
- *               MK-NW-F-266 listAnswered · MK-NW-F-221 lotsFollow
- *               … and 35 more — the full list is on functions_from_code
+ *               MK-NW-F-201 fileRowsToSave · MK-XS-F-254 giveBackSetAside
+ *               MK-NW-F-293 keptAwayByEvent · MK-NW-F-266 listAnswered
+ *               … and 36 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -495,17 +495,17 @@ function firstRowOf(record: readonly AssetRow[]): (rowId: string) => AssetRow | 
  *               MK-NW-F-279 differsFromGiven · MK-NW-F-281 correctRow
  *               MK-NW-F-282 removeRow · MK-NW-F-293 keptAwayByEvent
  *
- * Reaches ..... 37 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 38 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-289 activityRefs · MK-NW-F-273 answerEventQuestion
  *               MK-NW-F-278 answerListQuestion · MK-NW-F-248 answerValuesQuestion
  *               MK-NW-F-218 arrive · MK-NW-F-275 besideTheList
  *               MK-NW-F-194 brokerUpdateToRecord · MK-NW-F-219 correct
  *               MK-NW-F-281 correctRow · MK-XS-F-002 dataGaps
  *               MK-NW-F-279 differsFromGiven · MK-NW-F-271 eventsThatDiffer
- *               MK-NW-F-201 fileRowsToSave · MK-NW-F-293 keptAwayByEvent
- *               MK-NW-F-221 lotsFollow · MK-NW-F-228 moveOldCopies
- *               MK-XS-F-199 profileOnTheWayIn · MK-NW-F-277 purchasesFromList
- *               … and 19 more — the full list is on functions_from_code
+ *               MK-NW-F-201 fileRowsToSave · MK-XS-F-254 giveBackSetAside
+ *               MK-NW-F-293 keptAwayByEvent · MK-NW-F-221 lotsFollow
+ *               MK-NW-F-228 moveOldCopies · MK-XS-F-199 profileOnTheWayIn
+ *               … and 20 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -1190,7 +1190,7 @@ const ORDER: Partial<Record<RowKind, number>> = { SPLIT: 0, PURCHASE: 1, TRANSFE
  * Called by ... MK-NW-F-252 walkHolding · MK-NW-F-253 openPurchases
  *               MK-NW-F-256 salesNeedingAnAnswer · MK-NW-F-278 answerListQuestion
  *
- * Reaches ..... 45 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 46 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-284 activityOf · MK-NW-F-289 activityRefs
  *               MK-NW-F-273 answerEventQuestion · MK-NW-F-278 answerListQuestion
  *               MK-NW-F-248 answerValuesQuestion · MK-NW-F-218 arrive
@@ -1198,9 +1198,9 @@ const ORDER: Partial<Record<RowKind, number>> = { SPLIT: 0, PURCHASE: 1, TRANSFE
  *               MK-NW-F-219 correct · MK-NW-F-281 correctRow
  *               MK-XS-F-002 dataGaps · MK-NW-F-279 differsFromGiven
  *               MK-NW-F-193 eventRow · MK-NW-F-271 eventsThatDiffer
- *               MK-NW-F-201 fileRowsToSave · MK-NW-F-221 lotsFollow
- *               MK-NW-F-228 moveOldCopies · MK-NW-F-253 openPurchases
- *               … and 27 more — the full list is on functions_from_code
+ *               MK-NW-F-201 fileRowsToSave · MK-XS-F-254 giveBackSetAside
+ *               MK-NW-F-221 lotsFollow · MK-NW-F-228 moveOldCopies
+ *               … and 28 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -1243,7 +1243,7 @@ const oldestLotFirst = (a: OpenPurchase, b: OpenPurchase) =>
  *               MK-NW-F-277 purchasesFromList · MK-NW-F-280 splitByOf
  *               MK-NW-F-282 removeRow · MK-NW-F-284 activityOf
  *
- * Reaches ..... 44 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 45 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-284 activityOf · MK-NW-F-289 activityRefs
  *               MK-NW-F-273 answerEventQuestion · MK-NW-F-278 answerListQuestion
  *               MK-NW-F-248 answerValuesQuestion · MK-NW-F-218 arrive
@@ -1251,9 +1251,9 @@ const oldestLotFirst = (a: OpenPurchase, b: OpenPurchase) =>
  *               MK-NW-F-219 correct · MK-NW-F-281 correctRow
  *               MK-XS-F-002 dataGaps · MK-NW-F-279 differsFromGiven
  *               MK-NW-F-193 eventRow · MK-NW-F-271 eventsThatDiffer
- *               MK-NW-F-201 fileRowsToSave · MK-NW-F-221 lotsFollow
- *               MK-NW-F-228 moveOldCopies · MK-NW-F-253 openPurchases
- *               … and 26 more — the full list is on functions_from_code
+ *               MK-NW-F-201 fileRowsToSave · MK-XS-F-254 giveBackSetAside
+ *               MK-NW-F-221 lotsFollow · MK-NW-F-228 moveOldCopies
+ *               … and 27 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -2995,17 +2995,17 @@ export function differsFromGiven(record: readonly AssetRow[], rowId: string, cha
  *
  * Called by ... MK-NW-F-279 differsFromGiven · MK-NW-F-281 correctRow
  *
- * Reaches ..... 30 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 31 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-289 activityRefs · MK-NW-F-273 answerEventQuestion
  *               MK-NW-F-278 answerListQuestion · MK-NW-F-248 answerValuesQuestion
  *               MK-NW-F-218 arrive · MK-NW-F-275 besideTheList
  *               MK-NW-F-194 brokerUpdateToRecord · MK-NW-F-219 correct
  *               MK-NW-F-281 correctRow · MK-XS-F-002 dataGaps
  *               MK-NW-F-279 differsFromGiven · MK-NW-F-271 eventsThatDiffer
- *               MK-NW-F-201 fileRowsToSave · MK-NW-F-221 lotsFollow
- *               MK-NW-F-228 moveOldCopies · MK-XS-F-199 profileOnTheWayIn
- *               MK-NW-F-277 purchasesFromList · MK-NW-F-294 removalKept
- *               … and 12 more — the full list is on functions_from_code
+ *               MK-NW-F-201 fileRowsToSave · MK-XS-F-254 giveBackSetAside
+ *               MK-NW-F-221 lotsFollow · MK-NW-F-228 moveOldCopies
+ *               MK-XS-F-199 profileOnTheWayIn · MK-NW-F-277 purchasesFromList
+ *               … and 13 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -3061,17 +3061,17 @@ function splitByOf(record: readonly AssetRow[], row: AssetRow): number {
  * Called by ... MK-NW-F-219 correct · MK-NW-F-228 moveOldCopies
  *               MK-NW-F-279 differsFromGiven · MK-NW-F-282 removeRow
  *
- * Reaches ..... 29 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 30 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-289 activityRefs · MK-NW-F-273 answerEventQuestion
  *               MK-NW-F-278 answerListQuestion · MK-NW-F-248 answerValuesQuestion
  *               MK-NW-F-218 arrive · MK-NW-F-275 besideTheList
  *               MK-NW-F-194 brokerUpdateToRecord · MK-NW-F-219 correct
  *               MK-XS-F-002 dataGaps · MK-NW-F-279 differsFromGiven
  *               MK-NW-F-271 eventsThatDiffer · MK-NW-F-201 fileRowsToSave
- *               MK-NW-F-221 lotsFollow · MK-NW-F-228 moveOldCopies
- *               MK-XS-F-199 profileOnTheWayIn · MK-NW-F-277 purchasesFromList
- *               MK-NW-F-294 removalKept · MK-NW-F-220 remove
- *               … and 11 more — the full list is on functions_from_code
+ *               MK-XS-F-254 giveBackSetAside · MK-NW-F-221 lotsFollow
+ *               MK-NW-F-228 moveOldCopies · MK-XS-F-199 profileOnTheWayIn
+ *               MK-NW-F-277 purchasesFromList · MK-NW-F-294 removalKept
+ *               … and 12 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -3140,11 +3140,11 @@ export function correctRow(
  *
  * Called by ... MK-NW-F-220 remove
  *
- * Reaches ..... 7 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-221 lotsFollow · MK-NW-F-228 moveOldCopies
- *               MK-XS-F-199 profileOnTheWayIn · MK-NW-F-220 remove
- *               MK-NW-F-224 typedChangeToRecord · MK-XS-F-229 typedIntoRecord
- *               MK-XS-F-192 typedValueDatedBack
+ * Reaches ..... 8 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-254 giveBackSetAside · MK-NW-F-221 lotsFollow
+ *               MK-NW-F-228 moveOldCopies · MK-XS-F-199 profileOnTheWayIn
+ *               MK-NW-F-220 remove · MK-NW-F-224 typedChangeToRecord
+ *               MK-XS-F-229 typedIntoRecord · MK-XS-F-192 typedValueDatedBack
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)

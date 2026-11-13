@@ -80,7 +80,7 @@ const SOURCE = 'linked' as const;
  *               MK-XS-F-197 chainShown · MK-XS-F-211 pointsDigits
  *               MK-XS-F-215 isWholeToTheCent · MK-XS-F-218 sameCents
  *
- * Reaches ..... 618 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 619 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -90,7 +90,7 @@ const SOURCE = 'linked' as const;
  *               MK-CF-F-237 LATER · MK-NW-F-081 LB
  *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
  *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
- *               … and 600 more — the full list is on functions_from_code
+ *               … and 601 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

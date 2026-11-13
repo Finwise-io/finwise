@@ -214,6 +214,11 @@
   "file": "Calculation Module code/engines/snapshots.ts",
   "category": "1 · ACTION"
  },
+ "accountIdsOf": {
+  "id": "MK-XS-F-251",
+  "file": "src/store/useStore.ts",
+  "category": "2 · DISPLAYED"
+ },
  "accountInvestments": {
   "id": "MK-NW-F-154",
   "file": "src/domain/assets/index.ts",
@@ -462,6 +467,11 @@
  "arrivingKey": {
   "id": "MK-NW-F-268",
   "file": "MoneyKeel/functions/networth-and-performance/asset-record.ts",
+  "category": "1 · ACTION"
+ },
+ "asJsonEqual": {
+  "id": "MK-XS-F-249",
+  "file": "src/store/useStore.ts",
   "category": "1 · ACTION"
  },
  "asPercent": {
@@ -973,6 +983,11 @@
   "id": "MK-CF-F-186",
   "file": "src/domain/income/take-home-mode-migration.ts",
   "category": "3 · DEPENDENT (feeds an action only)"
+ },
+ "copyOf": {
+  "id": "MK-XS-F-246",
+  "file": "src/store/useStore.ts",
+  "category": "1 · ACTION"
  },
  "correct": {
   "id": "MK-NW-F-219",
@@ -1674,6 +1689,11 @@
   "file": "MoneyKeel/functions/cashflow/base-pay.ts",
   "category": "3 · DEPENDENT"
  },
+ "freshPersonFields": {
+  "id": "MK-XS-F-248",
+  "file": "src/store/useStore.ts",
+  "category": "3 · DEPENDENT (feeds an action only)"
+ },
  "fullRetirementAge": {
   "id": "MK-PL-F-057",
   "file": "src/domain/retirement/ssTiming.ts",
@@ -1763,6 +1783,16 @@
   "id": "MK-ST-F-041",
   "file": "src/domain/_shared/firestore.ts",
   "category": "4 · BRINGS DATA IN"
+ },
+ "giveBackField": {
+  "id": "MK-XS-F-253",
+  "file": "src/store/useStore.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "giveBackSetAside": {
+  "id": "MK-XS-F-254",
+  "file": "src/store/useStore.ts",
+  "category": "2 · DISPLAYED"
  },
  "givenNumber": {
   "id": "MK-NW-F-207",
@@ -2078,6 +2108,11 @@
   "id": "MK-XS-F-036",
   "file": "src/services/crashReporter.ts",
   "category": "1 · ACTION"
+ },
+ "initialState": {
+  "id": "MK-XS-F-245",
+  "file": "src/store/useStore.ts",
+  "category": "3 · DEPENDENT"
  },
  "installGlobalHandler": {
   "id": "MK-XS-F-134",
@@ -3074,6 +3109,11 @@
   "file": "src/domain/performance/index.ts",
   "category": "3 · DEPENDENT"
  },
+ "ownerOfSetAsideKey": {
+  "id": "MK-XS-F-255",
+  "file": "src/store/secureStorage.ts",
+  "category": "4 · BRINGS DATA IN"
+ },
  "paidMonthsOf": {
   "id": "MK-CF-F-244",
   "file": "MoneyKeel/functions/cashflow/base-pay.ts",
@@ -3229,6 +3269,11 @@
   "file": "src/domain/income/limits.ts",
   "category": "3 · DEPENDENT"
  },
+ "perPersonKeys": {
+  "id": "MK-XS-F-247",
+  "file": "src/store/useStore.ts",
+  "category": "3 · DEPENDENT"
+ },
  "percent2": {
   "id": "MK-HM-F-007",
   "file": "src/domain/insights/index.ts",
@@ -3277,6 +3322,11 @@
  "personalFlowTotals": {
   "id": "MK-ST-F-013",
   "file": "Calculation Module code/engines/ledger.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "phoneHoldsPersonData": {
+  "id": "MK-XS-F-250",
+  "file": "src/store/useStore.ts",
   "category": "2 · DISPLAYED"
  },
  "pickReceipt": {
@@ -4217,6 +4267,11 @@
  "setMoneyFormat": {
   "id": "MK-ST-F-044",
   "file": "src/domain/_shared/money.ts",
+  "category": "1 · ACTION"
+ },
+ "setPhoneDataAside": {
+  "id": "MK-XS-F-252",
+  "file": "src/store/useStore.ts",
   "category": "1 · ACTION"
  },
  "setSyncProviderForTesting": {

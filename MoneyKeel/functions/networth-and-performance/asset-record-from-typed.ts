@@ -45,7 +45,7 @@ const EPS = 1e-9;
  *               MK-PF-F-015 topHoldingConcentration · MK-ST-F-084 fillBetweenObservations
  *               MK-ST-F-093 typedValueOnItsDate · MK-XS-F-079 loadUserRoot
  *
- * Reaches ..... 567 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 568 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -55,7 +55,7 @@ const EPS = 1e-9;
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 549 more — the full list is on functions_from_code
+ *               … and 550 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -602,11 +602,13 @@ function correct(out: TypedResult, rowId: string, change: Partial<NewRow>, writt
  *     c = remove row(out.record, row id, SOURCE, written at)
  *
  * Called by ... MK-NW-F-221 lotsFollow · MK-NW-F-224 typedChangeToRecord
+ *               MK-XS-F-254 giveBackSetAside
  *
- * Reaches ..... 6 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-221 lotsFollow · MK-NW-F-228 moveOldCopies
- *               MK-XS-F-199 profileOnTheWayIn · MK-NW-F-224 typedChangeToRecord
- *               MK-XS-F-229 typedIntoRecord · MK-XS-F-192 typedValueDatedBack
+ * Reaches ..... 7 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-254 giveBackSetAside · MK-NW-F-221 lotsFollow
+ *               MK-NW-F-228 moveOldCopies · MK-XS-F-199 profileOnTheWayIn
+ *               MK-NW-F-224 typedChangeToRecord · MK-XS-F-229 typedIntoRecord
+ *               MK-XS-F-192 typedValueDatedBack
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
