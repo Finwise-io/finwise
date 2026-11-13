@@ -53,14 +53,15 @@ export type SignConvention =
  *
  * Called by ... MK-ST-F-012 toLedgerRow
  *
- * Reaches ..... 13 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 15 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-194 brokerUpdateToRecord · MK-NW-F-193 eventRow
  *               MK-NW-F-201 fileRowsToSave · MK-NW-F-199 fileToRecord
- *               MK-XS-F-188 fixStoredFees · MK-XS-F-219 importedAccountOf
- *               MK-XS-F-102 ingestSync · MK-NW-F-228 moveOldCopies
- *               MK-NW-F-192 optionName · MK-XS-F-199 profileOnTheWayIn
- *               MK-NW-F-195 readImport · MK-ST-F-012 toLedgerRow
- *               MK-XS-F-192 typedValueDatedBack
+ *               MK-NW-F-226 fileValues · MK-XS-F-188 fixStoredFees
+ *               MK-XS-F-219 importedAccountOf · MK-XS-F-102 ingestSync
+ *               MK-NW-F-228 moveOldCopies · MK-NW-F-192 optionName
+ *               MK-XS-F-199 profileOnTheWayIn · MK-NW-F-195 readImport
+ *               MK-ST-F-012 toLedgerRow · MK-XS-F-192 typedValueDatedBack
+ *               MK-XS-F-221 valueOnlyAccountsOf
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-048 the person’s own asset-class answer
@@ -103,7 +104,7 @@ export function readMoney(
  * Called by ... MK-CF-F-207 SOURCE · MK-PF-F-047 isIndividualBondOrCD
  *               MK-ST-F-012 toLedgerRow · MK-ST-F-020 sumSigned
  *
- * Reaches ..... 569 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 638 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -113,7 +114,7 @@ export function readMoney(
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 551 more — the full list is on functions_from_code
+ *               … and 620 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -173,7 +174,7 @@ export function sumSigned(items: Money[]): Dec {
  *               MK-NW-O-008 thePerformance · MK-ST-F-012 toLedgerRow
  *               MK-XS-F-102 ingestSync · MK-XS-F-189 tradeFeeOnRecord
  *
- * Reaches ..... 53 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 55 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
  *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
@@ -183,7 +184,7 @@ export function sumSigned(items: Money[]): Dec {
  *               MK-PF-F-014 buildPerformance · MK-CF-F-118 cashEffect
  *               MK-NW-F-084 categoryEarnings · MK-NW-F-142 classReturnOf
  *               MK-PF-F-068 dayAfterDay · MK-PF-F-012 earliestPurchaseDate
- *               … and 35 more — the full list is on functions_from_code
+ *               … and 37 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

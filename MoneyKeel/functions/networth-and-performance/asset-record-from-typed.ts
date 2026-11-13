@@ -17,8 +17,8 @@
 //   · It never deletes a row. A removal is a row that names the one it takes away (removeRow); a refused removal is
 //     handed back as a problem and the record stays as it was.
 import {
-  addRows, sortArriving, correctRow, removeRow, rowsInForce, valueRows, saleRow, transferRow, dayOrNull, oneHoldingSpelling, sharesOnRecord,
-  type AssetRow, type NewRow, type EventQuestion,
+  addRows, sortArriving, correctRow, removeRow, rowsInForce, valueRows, saleRow, transferRow, dayOrNull, oneHoldingSpelling, sharesOnRecord, lotChange,
+  type AssetRow, type NewRow, type EventQuestion, type EditQuestion,
 } from './asset-record';
 import { contractMultiplier, type Position, type Lot } from '../../../src/domain/performance';
 import type { Transaction } from '../../../src/domain/transactions';
@@ -37,15 +37,16 @@ const EPS = 1e-9;
  *     size of(x − y) ≤ EPS   otherwise
  *
  * Called by ... MK-CF-F-087 monthlyTaxRates · MK-CF-F-107 buildPaycheckYear
- *               MK-CF-F-289 purchaseRecordsFollowEdit · MK-NW-F-084 categoryEarnings
- *               MK-NW-F-194 brokerUpdateToRecord · MK-NW-F-199 fileToRecord
- *               MK-NW-F-216 rowOfLot · MK-NW-F-221 lotsFollow
- *               MK-NW-F-228 moveOldCopies · MK-NW-F-238 sortArriving
- *               MK-NW-F-281 correctRow · MK-NW-F-289 activityRefs
- *               MK-PF-F-015 topHoldingConcentration · MK-ST-F-084 fillBetweenObservations
- *               MK-ST-F-093 typedValueOnItsDate · MK-XS-F-079 loadUserRoot
+ *               MK-NW-F-084 categoryEarnings · MK-NW-F-194 brokerUpdateToRecord
+ *               MK-NW-F-199 fileToRecord · MK-NW-F-216 rowOfLot
+ *               MK-NW-F-221 lotsFollow · MK-NW-F-228 moveOldCopies
+ *               MK-NW-F-238 sortArriving · MK-NW-F-281 correctRow
+ *               MK-NW-F-289 activityRefs · MK-NW-F-296 askWhich
+ *               MK-NW-F-343 lotChange · MK-PF-F-015 topHoldingConcentration
+ *               MK-ST-F-084 fillBetweenObservations · MK-ST-F-093 typedValueOnItsDate
+ *               MK-XS-F-079 loadUserRoot
  *
- * Reaches ..... 568 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 637 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -55,7 +56,7 @@ const EPS = 1e-9;
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 550 more — the full list is on functions_from_code
+ *               … and 619 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -78,14 +79,16 @@ const same = (x: number | null | undefined, y: number | null | undefined) => (x 
  *               MK-NW-F-224 typedChangeToRecord · MK-NW-F-226 fileValues
  *               MK-NW-F-228 moveOldCopies · MK-NW-F-291 lotsOf
  *
- * Reaches ..... 14 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-214 accountValueRows · MK-NW-F-226 fileValues
+ * Reaches ..... 17 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-214 accountValueRows · MK-NW-F-296 askWhich
+ *               MK-NW-F-226 fileValues · MK-NW-F-319 listQuestionToAsk
  *               MK-NW-F-213 lotRow · MK-NW-F-221 lotsFollow
  *               MK-NW-F-291 lotsOf · MK-NW-F-228 moveOldCopies
  *               MK-NW-F-223 openingRow · MK-XS-F-199 profileOnTheWayIn
- *               MK-NW-F-216 rowOfLot · MK-NW-F-217 transactionRow
- *               MK-NW-F-222 typedAccountRows · MK-NW-F-224 typedChangeToRecord
- *               MK-XS-F-229 typedIntoRecord · MK-XS-F-192 typedValueDatedBack
+ *               MK-NW-F-324 questionsOf · MK-NW-F-216 rowOfLot
+ *               MK-NW-F-217 transactionRow · MK-NW-F-222 typedAccountRows
+ *               MK-NW-F-224 typedChangeToRecord · MK-XS-F-229 typedIntoRecord
+ *               MK-XS-F-192 typedValueDatedBack
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -107,13 +110,14 @@ export const givenNumber = (v: unknown): number | null => (v == null || v === ''
  *               MK-NW-F-217 transactionRow · MK-NW-F-223 openingRow
  *               MK-NW-F-224 typedChangeToRecord
  *
- * Reaches ..... 12 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-214 accountValueRows · MK-NW-F-213 lotRow
- *               MK-NW-F-221 lotsFollow · MK-NW-F-228 moveOldCopies
- *               MK-NW-F-223 openingRow · MK-XS-F-199 profileOnTheWayIn
- *               MK-NW-F-216 rowOfLot · MK-NW-F-217 transactionRow
- *               MK-NW-F-222 typedAccountRows · MK-NW-F-224 typedChangeToRecord
- *               MK-XS-F-229 typedIntoRecord · MK-XS-F-192 typedValueDatedBack
+ * Reaches ..... 13 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-214 accountValueRows · MK-NW-F-296 askWhich
+ *               MK-NW-F-213 lotRow · MK-NW-F-221 lotsFollow
+ *               MK-NW-F-228 moveOldCopies · MK-NW-F-223 openingRow
+ *               MK-XS-F-199 profileOnTheWayIn · MK-NW-F-216 rowOfLot
+ *               MK-NW-F-217 transactionRow · MK-NW-F-222 typedAccountRows
+ *               MK-NW-F-224 typedChangeToRecord · MK-XS-F-229 typedIntoRecord
+ *               MK-XS-F-192 typedValueDatedBack
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
@@ -142,6 +146,9 @@ export interface TypedResult {
   ask: EventQuestion[];
   /** Changes the record refused, each in a sentence; the record is left as it was for that change. */
   problems: string[];
+  /** R1 (design v02, step 7): an edit that matches more than one purchase — the account holder is asked which, and
+   *  nothing changes until he answers. */
+  which: EditQuestion[];
 }
 
 /** An account whose values and purchases the account holder gives: not linked to a broker, not made from a file. */
@@ -180,12 +187,12 @@ export const valuesAreTyped = (a: Pick<AssetAccount, 'source'> | null | undefine
  * Called by ... MK-NW-F-213 lotRow · MK-NW-F-216 rowOfLot
  *               MK-NW-F-223 openingRow · MK-NW-F-228 moveOldCopies
  *
- * Reaches ..... 9 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-213 lotRow · MK-NW-F-221 lotsFollow
- *               MK-NW-F-228 moveOldCopies · MK-NW-F-223 openingRow
- *               MK-XS-F-199 profileOnTheWayIn · MK-NW-F-216 rowOfLot
- *               MK-NW-F-224 typedChangeToRecord · MK-XS-F-229 typedIntoRecord
- *               MK-XS-F-192 typedValueDatedBack
+ * Reaches ..... 10 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-296 askWhich · MK-NW-F-213 lotRow
+ *               MK-NW-F-221 lotsFollow · MK-NW-F-228 moveOldCopies
+ *               MK-NW-F-223 openingRow · MK-XS-F-199 profileOnTheWayIn
+ *               MK-NW-F-216 rowOfLot · MK-NW-F-224 typedChangeToRecord
+ *               MK-XS-F-229 typedIntoRecord · MK-XS-F-192 typedValueDatedBack
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-082 the purchase an opening record is of — so editing or removing that purchase changes or removes its record
@@ -233,12 +240,13 @@ export const txnRef = (t: Pick<Transaction, 'id'>): string => `typed-txn:${t.id}
  * Called by ... MK-NW-F-213 lotRow · MK-NW-F-228 moveOldCopies
  *               MK-NW-F-291 lotsOf
  *
- * Reaches ..... 9 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 12 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-296 askWhich · MK-NW-F-319 listQuestionToAsk
  *               MK-NW-F-213 lotRow · MK-NW-F-221 lotsFollow
  *               MK-NW-F-291 lotsOf · MK-NW-F-228 moveOldCopies
- *               MK-XS-F-199 profileOnTheWayIn · MK-NW-F-216 rowOfLot
- *               MK-NW-F-224 typedChangeToRecord · MK-XS-F-229 typedIntoRecord
- *               MK-XS-F-192 typedValueDatedBack
+ *               MK-XS-F-199 profileOnTheWayIn · MK-NW-F-324 questionsOf
+ *               MK-NW-F-216 rowOfLot · MK-NW-F-224 typedChangeToRecord
+ *               MK-XS-F-229 typedIntoRecord · MK-XS-F-192 typedValueDatedBack
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
@@ -268,13 +276,13 @@ export const unitPriceFactor = (p: Position): number => (p.kind === 'options' ? 
  *     cost × unit price factor(p)   otherwise
  *
  * Called by ... MK-NW-F-216 rowOfLot · MK-NW-F-221 lotsFollow
- *               MK-NW-F-224 typedChangeToRecord
+ *               MK-NW-F-224 typedChangeToRecord · MK-NW-F-296 askWhich
  *
- * Reaches ..... 7 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-221 lotsFollow · MK-NW-F-228 moveOldCopies
- *               MK-XS-F-199 profileOnTheWayIn · MK-NW-F-216 rowOfLot
- *               MK-NW-F-224 typedChangeToRecord · MK-XS-F-229 typedIntoRecord
- *               MK-XS-F-192 typedValueDatedBack
+ * Reaches ..... 8 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-296 askWhich · MK-NW-F-221 lotsFollow
+ *               MK-NW-F-228 moveOldCopies · MK-XS-F-199 profileOnTheWayIn
+ *               MK-NW-F-216 rowOfLot · MK-NW-F-224 typedChangeToRecord
+ *               MK-XS-F-229 typedIntoRecord · MK-XS-F-192 typedValueDatedBack
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -524,6 +532,10 @@ function transactionRow(t: Transaction): NewRow | null {
       return amount == null ? null : { ...valueRows({ accountId, date, source: SOURCE, cash: amount })[0], ref };
     case 'OPENING_POSITION':
       return null;
+    case 'ADJUSTMENT':
+      // an option's expiry the account holder records is a sale at $0 on its date (design v02, rule 6)
+      if (holding != null && shares != null && /option\s?expir/i.test(`${t.unclassified_word ?? ''} ${t.note ?? ''}`)) return saleRow({ accountId, holding, date, shares, price: 0, amount: 0, source: SOURCE, ref });
+      return cashRow('OTHER');
     default:
       return cashRow('OTHER');
   }
@@ -570,17 +582,17 @@ function arrive(out: TypedResult, rows: NewRow[], writtenAt: string): void {
  *               MK-NW-F-270 sameEventElsewhere · MK-NW-F-278 answerListQuestion
  *               MK-NW-F-294 removalKept · MK-XS-F-002 dataGaps
  *
- * Reaches ..... 26 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-289 activityRefs · MK-NW-F-273 answerEventQuestion
- *               MK-NW-F-278 answerListQuestion · MK-NW-F-248 answerValuesQuestion
+ * Reaches ..... 44 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-289 activityRefs · MK-NW-F-342 afterAWrite
+ *               MK-NW-F-273 answerEventQuestion · MK-NW-F-278 answerListQuestion
+ *               MK-NW-F-337 answerQuestion · MK-NW-F-248 answerValuesQuestion
  *               MK-NW-F-218 arrive · MK-NW-F-275 besideTheList
- *               MK-NW-F-194 brokerUpdateToRecord · MK-XS-F-002 dataGaps
- *               MK-NW-F-279 differsFromGiven · MK-NW-F-271 eventsThatDiffer
- *               MK-NW-F-201 fileRowsToSave · MK-NW-F-221 lotsFollow
- *               MK-NW-F-228 moveOldCopies · MK-XS-F-199 profileOnTheWayIn
- *               MK-NW-F-277 purchasesFromList · MK-NW-F-294 removalKept
- *               MK-NW-F-239 rowsNotYetSaved · MK-NW-F-272 salesMovedBy
- *               … and 8 more — the full list is on functions_from_code
+ *               MK-NW-F-194 brokerUpdateToRecord · MK-NW-F-326 confirmMyChangeQuestion
+ *               MK-XS-F-002 dataGaps · MK-NW-F-279 differsFromGiven
+ *               MK-NW-F-325 editQuestionToAsk · MK-NW-F-317 eventQuestionToAsk
+ *               MK-NW-F-271 eventsThatDiffer · MK-NW-F-201 fileRowsToSave
+ *               MK-NW-F-343 lotChange · MK-NW-F-221 lotsFollow
+ *               … and 26 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -635,11 +647,8 @@ function remove(out: TypedResult, rowId: string, writtenAt: string): void {
  *     old = was.get(id)
  *     from = lot row(account id, before as position, old), to = lot row(account id, after as position, lot)
  *     at = row of lot(out.record, account id, before as position, old)
- *     change = {}
- *     prior = from (or at when missing)
- *     shares = change.shares (or at.shares (or 0 when missing) when missing)
+ *     change = lot change(from ?? at, at, to)
  *     at = row of lot(out.record, account id, before as position, old)
- *     … the first steps only — the rest of the body needs reading by hand.
  *
  * Called by ... MK-NW-F-224 typedChangeToRecord
  *
@@ -651,9 +660,6 @@ function remove(out: TypedResult, rowId: string, writtenAt: string): void {
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
  *               MK-XS-I-082 the purchase an opening record is of — so editing or removing that purchase changes or removes its record
- *
- * Decides .....
- *     · If shares is missing it uses 0.
  *
  * Formula also on the master file · functions_from_code · MK-NW-F-221
  * Changed ..... not in git yet (—)
@@ -680,27 +686,61 @@ function lotsFollow(out: TypedResult, accountId: string, before: Position | null
     if (from && (from.date ?? null) === (to.date ?? null) && same(from.shares, to.shares) && same(from.price, to.price)) continue;
     const at = rowOfLot(out.record, accountId, before as Position, old);
     if (at === 'none') { added.push(to); continue; }
-    if (at === 'many') { out.problems.push(`More than one purchase of ${to.holding} matches the tax lot that was changed, so none was changed.`); continue; }
+    if (at === 'many') { askWhich(out, accountId, before as Position, old, from, to); continue; }
     // what the account holder changed is read from the lot before and after, never from the purchase: a lot shows the
     // shares LEFT after sales, so the purchase keeps its own shares and takes only the difference (outside check 2,
     // 2026-11-12: 100 bought, 30 sold, the $80 price of the 70 left edited to $85 — the purchase was cut to 70 and the
     // sale of 30 counted again, leaving 40)
-    const change: Partial<NewRow> = {};
-    const prior = from ?? at;
-    if ((prior.date ?? null) !== (to.date ?? null) && (at.date ?? null) !== (to.date ?? null)) change.date = to.date;
-    if (!same(prior.shares, to.shares)) change.shares = (at.shares ?? 0) + ((to.shares ?? 0) - (prior.shares ?? 0));
-    const shares = change.shares ?? at.shares ?? 0;
-    if (!same(prior.price, to.price) && !same(at.price, to.price)) { change.price = to.price; change.amount = to.price == null ? null : shares * to.price; }
-    else if (change.shares != null && at.price != null) change.amount = shares * at.price;
+    const change = lotChange(from ?? at, at, to);
     if (Object.keys(change).length) correct(out, at.rowId, change, writtenAt);
   }
   for (const [id, old] of was) {
     if (now.has(id)) continue;
     const at = rowOfLot(out.record, accountId, before as Position, old);
-    if (at === 'many') out.problems.push(`More than one purchase of ${oneHoldingSpelling(before?.ticker ?? '')} matches the tax lot that was taken out, so none was taken out.`);
+    if (at === 'many') askWhich(out, accountId, before as Position, old, lotRow(accountId, before as Position, old), null);
     else if (at !== 'none') remove(out, at.rowId, writtenAt);
   }
   arrive(out, added, writtenAt);
+}
+
+/** R1: an edit of a tax lot that matches more than one purchase (the same holding, date, shares and price) is asked —
+ *  which one — never refused in silence. `to` null is the lot taken out. */
+/* ─ MK-NW-F-296 ──────────────────────────────────────────────────────────────────── 1 · ACTION
+ * askWhich
+ *
+ * Answers ..... R1: an edit of a tax lot that matches more than one purchase (the same holding, date, shares and price) is asked — which one — never refused in silence.
+ *
+ * Formula .....
+ *     want = lot row(account id, p, lot)
+ *     lots = alike where in list of is missing
+ *     matches = for each of lots   if count of lots
+ *     alike   otherwise: row id
+ *     pick = (x: new row | nothing) => (x ? { date: date ?? nothing, shares: shares ?? nothing, price: price ?? nothing } : nothing)
+ *
+ * Called by ... MK-NW-F-221 lotsFollow
+ *
+ * Reaches ..... 6 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-221 lotsFollow · MK-NW-F-228 moveOldCopies
+ *               MK-XS-F-199 profileOnTheWayIn · MK-NW-F-224 typedChangeToRecord
+ *               MK-XS-F-229 typedIntoRecord · MK-XS-F-192 typedValueDatedBack
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-004 holding quantity (shares)
+ *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-296
+ * Changed ..... not in git yet (—)
+ */
+function askWhich(out: TypedResult, accountId: string, p: Position, lot: Lot, from: NewRow | null, to: NewRow | null): void {
+  const want = lotRow(accountId, p, lot);
+  if (!want) return;
+  // the same purchases rowOfLot found more than one of
+  const alike = rowsInForce(out.record).filter((r) => r.kind === 'PURCHASE' && r.accountId === accountId && r.holding === want.holding
+    && (r.date ?? null) === (want.date ?? null) && same(r.shares, want.shares) && same(r.price, want.price));
+  const lots = alike.filter((r) => !r.inListOf);
+  const matches = (lots.length ? lots : alike).map((r) => r.rowId);
+  const pick = (x: NewRow | null) => (x ? { date: x.date ?? null, shares: x.shares ?? null, price: x.price ?? null } : null);
+  out.which.push({ accountId, holding: want.holding as string, lotDate: dayOrNull(want.date), from: pick(from), to: pick(to), matches });
 }
 
 /** An account typed by hand, without its holdings: its value on the date given and a bond's or CD's facts. */
@@ -773,6 +813,7 @@ export function openingRow(t: Transaction): NewRow | null {
  *     out = record = [...record]
  *     ask = []
  *     problems = []
+ *     which = []
  *     a = change.account
  *     id = string(asset id)
  *     valued = 'balance' in update (or 'value_as_of' in update (or 'cash_balance' in update when missing or zero) when missing or zero)
@@ -800,7 +841,7 @@ export function openingRow(t: Transaction): NewRow | null {
  * Changed ..... 2026-11-11 (d188fd68)
  */
 export function typedChangeToRecord(record: readonly AssetRow[], change: TypedChange, writtenAt: string): TypedResult {
-  const out: TypedResult = { record: [...record], ask: [], problems: [] };
+  const out: TypedResult = { record: [...record], ask: [], problems: [], which: [] };
   switch (change.kind) {
     case 'account-added': {
       const a = change.account;

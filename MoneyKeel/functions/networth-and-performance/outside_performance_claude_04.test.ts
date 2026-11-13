@@ -241,8 +241,9 @@ describe('MK-PF-F-029 closeAsOf — five cases', () => {
   test('complex · Target between two sparse marks of a hand-priced fund: the May 29 value, $10.538, however old (R19a)', () => {
     expect(closeAsOf({ ...S([['2026-04-30', 10.412], ['2026-05-29', 10.538], ['2026-07-31', 10.701]]), byHand: true } as any, D('2026-06-30'))).toBe(10.538);
   });
-  test('…the same marks as MARKET closes: May 29 is 32 days before the start, so no start (R19 — a market closes every trading day)', () => {
-    expect(closeAsOf(S([['2026-04-30', 10.412], ['2026-05-29', 10.538], ['2026-07-31', 10.701]]), D('2026-06-30'))).toBeNull();
+  // CHANGED 2026-11-12 by his DEC-10558 ("if price is stale, app just state so. but still display it and use it."), replacing R19
+  test('…the same marks as MARKET closes: May 29 is 32 days before the start — used, and its date said (DEC-10558; R19 refused it)', () => {
+    expect(closeAsOf(S([['2026-04-30', 10.412], ['2026-05-29', 10.538], ['2026-07-31', 10.701]]), D('2026-06-30'))).toBe(10.538);
   });
   // UNCLEAR: app gives 25.00 (the first close, dated five months after the target, index.ts:506), expected REFUSES — the
   // fallback is written in on purpose; closeOnOrBefore (MK-PF-F-034) is the no-fallback twin. Open question as MK-PF-F-010.

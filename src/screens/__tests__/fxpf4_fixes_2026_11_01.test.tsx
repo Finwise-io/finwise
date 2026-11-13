@@ -110,20 +110,22 @@ describe('R18 · a typed-total account\'s Return is its walk\'s own — one func
 });
 
 // ═══ R19 ════════════════════════════════════════════════════════════════════════════════════════════════════════════════
-describe('R19 · a window never starts from a stale price', () => {
+// CHANGED 2026-11-12 by his DEC-10558 ("if price is stale, app just state so. but still display it and use it."), which replaces R19:
+// a window starts from its last close however old, and the sentence states the close's date. START_CLOSE_DAYS decides only when.
+describe('R19, replaced by DEC-10558 · a window starts from its last close however old, and says so', () => {
   const S = (pts: [string, number][]) => ({ ticker: 'VTI', points: pts.map(([date, close]) => ({ date, close })) });
-  test('the one limit is 7 calendar days, written once and held equal where closeAsOf writes it out', () => {
+  test('the 7 calendar days are written once, in staleStartClose; closeAsOf refuses no old close (DEC-10558)', () => {
     expect(START_CLOSE_DAYS).toBe(7);
     const src = fs.readFileSync(path.join(__dirname, '..', '..', 'domain', 'performance', 'index.ts'), 'utf8');
     const body = src.slice(src.indexOf('function closeAsOf('), src.indexOf('\n}\n', src.indexOf('function closeAsOf(')));
-    expect(body).toMatch(/\/ 86_400_000 > 7\) return null;/);
+    expect(body).not.toMatch(/86_400_000 > 7\) return null;/);
   });
-  test('a long weekend counts (Fri close for a Mon start, 3 days); a close 8 days back is no start, and its day is named', () => {
+  test('a long weekend says nothing (Fri close for a Mon start, 3 days); a close 8 days back has its day named', () => {
     expect(staleStartClose(S([['2026-08-28', 90]]), '2026-08-31')).toBeNull();
     expect(staleStartClose(S([['2026-08-28', 90]]), '2026-09-04')).toBeNull();       // 7 days: still a start
     expect(staleStartClose(S([['2026-08-28', 90]]), '2026-09-05')).toEqual({ day: '2026-08-28', close: 90 });
   });
-  test('NW4-02: 1Y from Sep 29, 2025 with only VTI\'s Aug 1, 2024 close — no Return, and the sentence names that close', () => {
+  test('NW4-02: 1Y from Sep 29, 2025 with only VTI\'s Aug 1, 2024 close — +42.86%, and the sentence names that close (DEC-10558)', () => {
     const T = '2026-09-30';
     const acct = { asset_id: 'van', label: 'Brokerage', kind: 'brokerage', tax_bucket: 'TAXABLE', balance: 10_000, derive_balance: true,
       positions: [{ position_id: 'v', ticker: 'VTI', label: 'VTI', lots: [{ lot_id: 'l', shares: 100, cost_per_share: 50, purchase_date: '2023-01-02' }] }] };
@@ -132,8 +134,8 @@ describe('R19 · a window never starts from a stale price', () => {
     const rows = buildPerformance(acct.positions, () => series, '1Y', new Date(`${T}T12:00:00`), () => null, undefined, { transactions: [], accounts: [acct] });
     const f = thePerformance({ windowStart: windowStartKey('1Y', [], T), windowLabel: 'the past year', today: T, holdings: rows, priceOf: () => series as any,
       transactions: [], snapshotDays: [], investmentAccountIds: new Set(['van']), accounts: [acct] });
-    expect(f.cumulative).toBeNull();                                                 // 100 ÷ 70 − 1 = +42.86% was printed
-    expect(f.notIncluded).toBe('VTI ($10,000) has no price near the window’s start: its last close before it is Aug 1, 2024, so its gains are not included.');
+    expect(f.cumulative).toBeCloseTo(100 / 70 - 1, 12);                              // +42.86%: R19 left it out, DEC-10558 uses it
+    expect(f.notIncluded).toBe('VTI’s starting price is its last close before the window, Aug 1, 2024, so its return runs from that day and covers more than the window.');
   });
 });
 

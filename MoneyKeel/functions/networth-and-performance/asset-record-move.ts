@@ -29,6 +29,7 @@
 // by its key, a tax lot by its key or its date, shares and price, a value or a fact by what it holds.
 import { addRows, correctRow, rowsInForce, sharesTakenBy, saleRow, saleGain, transferRow, valueRows, dayOrNull, oneHoldingSpelling, type AssetRow, type NewRow, type RowSource, type ListQuestion, type EventQuestion } from './asset-record';
 import { typedChangeToRecord, typedAccountRows, givenNumber, unitPriceFactor, lotRef, txnRef } from './asset-record-from-typed';
+import { optionOfLine } from './asset-record-from-file';
 import { contractMultiplier, type Position } from '../../../src/domain/performance';
 import { realizedFromLedger } from '../../../src/domain/performance/realized';
 import type { Transaction } from '../../../src/domain/transactions';
@@ -111,6 +112,29 @@ const movedMark = (accountId: string): string => `moved-from-phone:${accountId}`
 /** The transactions that move shares of a holding. */
 const SHARE_MOVES: ReadonlySet<string> = new Set(['OPENING_POSITION', 'BUY', 'SELL', 'TRANSFER_IN_KIND']);
 
+/** The holding an account made for one file row with a value and no quantity holds: the row's own name as the import
+ *  writes it (valueOnlyAccountsOf keeps it as file_holding), else the account's label. */
+/* ─ MK-NW-F-297 ──────────────────────────────────────────────────────────────────── 1 · ACTION
+ * valueOnlyHoldingName
+ *
+ * Answers ..... The holding an account made for one file row with a value and no quantity holds: the row's own name as the import writes it (valueOnlyAccountsOf keeps it as file_holding), else the account's label.
+ *
+ * Formula .....
+ *     one holding spelling((a as any).file holding.name ?? (a as any).label ?? nothing)
+ *
+ * Called by ... MK-NW-F-226 fileValues · MK-NW-F-227 fileFacts
+ *
+ * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-227 fileFacts · MK-NW-F-226 fileValues
+ *               MK-NW-F-228 moveOldCopies · MK-XS-F-199 profileOnTheWayIn
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-297
+ * Changed ..... not in git yet (—)
+ */
+const valueOnlyHoldingName = (a: AssetAccount): string | null => oneHoldingSpelling((a as any).file_holding?.name ?? (a as any).label ?? null);
+
 /** An imported account's values on the day of its list, as the file's. */
 /* ─ MK-NW-F-226 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
  * fileValues
@@ -118,7 +142,7 @@ const SHARE_MOVES: ReadonlySet<string> = new Set(['OPENING_POSITION', 'BUY', 'SE
  * Answers ..... An imported account's values on the day of its list, as the file's.
  *
  * Formula .....
- *     holding = one holding spelling((a as any).label ?? nothing)
+ *     holding = value only holding name(a)
  *     value rows({ account id: string(asset id), date: list day, source: 'file', cash: 0, holdings: [{ holding, shares: nothing, price: nothing, value: given number(balance) }] })   when holding ≠ nothing
  *     holdings = []
  *     holding = one holding spelling(ticker)
@@ -147,7 +171,10 @@ function fileValues(a: AssetAccount, listDay: string | null): NewRow[] {
   // an account the import made for one row with a value and no quantity (valueOnlyAccountsOf: no holdings, its balance
   // the row's value) holds that value and no cash (outside check, 2026-11-12: it was moved with no value at all)
   if (!(a.positions ?? []).length && (a as any).derive_balance !== true && givenNumber(a.balance) != null) {
-    const holding = oneHoldingSpelling((a as any).label ?? null);
+    // named as the import names it — the file row's own name, kept on the account (valueOnlyAccountsOf, file_holding) —
+    // and by its label only for an account imported before that was kept (outside check, 2026-11-12: "TREASURY BOND"
+    // beside the import's "US TREASURY BOND 4.25% 05/15/2030")
+    const holding = valueOnlyHoldingName(a);
     if (holding != null) return valueRows({ accountId: String(a.asset_id), date: listDay, source: 'file', cash: 0, holdings: [{ holding, shares: null, price: null, value: givenNumber(a.balance) }] });
   }
   const holdings: { holding: string; shares: number | null; price: number | null; value: number | null }[] = [];
@@ -171,8 +198,15 @@ function fileValues(a: AssetAccount, listDay: string | null): NewRow[] {
  *
  * Formula .....
  *     out = []
+ *     row = (a as any).file holding, row name = value only holding name(a)
  *     holding = one holding spelling(ticker)
- *     the answer = out
+ *     the answer:
+ *     option expiry = expiry
+ *     option underlying = underlying
+ *     option strike = strike
+ *     option type = type
+ *     shares per contract = multiplier   if o
+ *     {}   otherwise
  *
  * Called by ... MK-NW-F-228 moveOldCopies
  *
@@ -184,6 +218,7 @@ function fileValues(a: AssetAccount, listDay: string | null): NewRow[] {
  *               MK-XS-I-011 bond face value
  *               MK-XS-I-012 bond coupon rate
  *               MK-XS-I-013 bond maturity date
+ *               MK-XS-I-034 option positions — contracts, strike, expiry, put or call
  *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
  *               MK-XS-I-063 option contract multiplier — 100 unless the broker or the person states otherwise
  *               MK-XS-I-068 how a linked bond's price is quoted — per $100 of face value, or per unit like a share
@@ -193,6 +228,12 @@ function fileValues(a: AssetAccount, listDay: string | null): NewRow[] {
  */
 function fileFacts(a: AssetAccount): NewRow[] {
   const out: NewRow[] = [];
+  // an account the import made for one row with a value and no quantity: that row's facts — a bond's rate and maturity —
+  // as the import saves them on the record (outside check, 2026-11-12: the move dropped them)
+  const row = (a as any).file_holding, rowName = valueOnlyHoldingName(a);
+  if (!(a.positions ?? []).length && rowName != null && row?.facts && Object.keys(row.facts).length) {
+    out.push({ accountId: String(a.asset_id), holding: rowName, kind: 'FACT', date: null, source: 'file', facts: { ...row.facts } });
+  }
   for (const p of (a.positions ?? []) as any[]) {
     const holding = oneHoldingSpelling(p.ticker);
     if (holding == null) continue;
@@ -202,6 +243,12 @@ function fileFacts(a: AssetAccount): NewRow[] {
       ...(p.maturity_date ? { maturity_date: p.maturity_date } : {}),
       ...(p.price_quote ? { price_quote: p.price_quote } : {}),
       ...(p.kind === 'options' && p.multiplier != null ? { multiplier: p.multiplier } : {}),
+      // an option's own details, its expiry above all, read from its line exactly as the import reads them (rule 7,
+      // optionOfLine): the move dropped them after the import began saving them (2026-11-12)
+      ...(() => {
+        const o = p.kind === 'options' && p.multiplier != null ? optionOfLine(String(p.ticker ?? '')) ?? (p.label ? optionOfLine(String(p.label)) : null) : null;
+        return o ? { optionExpiry: o.expiry, optionUnderlying: o.underlying, optionStrike: o.strike, optionType: o.type, sharesPerContract: p.multiplier } : {};
+      })(),
     };
     if (Object.keys(facts).length) out.push({ accountId: String(a.asset_id), holding, kind: 'FACT', date: null, source: 'file', facts });
   }
@@ -224,10 +271,11 @@ type ShownLot = { shares: number; date: string | null; price: number | null };
  *     price = nothing   if c = nothing
  *     c × unit price factor(p)   otherwise
  *
- * Called by ... MK-NW-F-228 moveOldCopies
+ * Called by ... MK-NW-F-228 moveOldCopies · MK-NW-F-319 listQuestionToAsk
  *
- * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-228 moveOldCopies · MK-XS-F-199 profileOnTheWayIn
+ * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-319 listQuestionToAsk · MK-NW-F-228 moveOldCopies
+ *               MK-XS-F-199 profileOnTheWayIn · MK-NW-F-324 questionsOf
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)

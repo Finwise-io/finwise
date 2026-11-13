@@ -22,9 +22,15 @@
 //      100 shares at $50.35); a bond's cost per $100 of face ÷ 100 (its units are dollars of face).
 //   5. AN UNKNOWN IS NOT $0: a file with no cash line gives no cash; a file with no value column gives no values.
 //   6. THE SAME FILE IMPORTED TWICE ADDS NOTHING (fileRowsToSave).
+//   7. AN OPTION'S EXPIRY (questions-and-answers design v02, step 6 and rules 5-6, 2026-11-12): the option's own details —
+//      its expiry date above all — are kept as a fact, read from its line ("AAPL Feb 20 '26 $260 Call"). A file that still
+//      lists an option past its expiry is a sale at $0 on the expiry date, and nothing is asked. An option the file no
+//      longer lists past its expiry is one question, did it expire (X1) — and where its shares arrive in the same file, one
+//      question, never two (X2). A newer file that matches the record as it stood before an answer undoes that answer.
 
 import {
   addRows, dayOrNull, oneHoldingSpelling, openPurchases, purchasesFromList, rowsInForce, sortArriving, valueBatchesOf, valueRows,
+  optionExpiryOf, sharesOnRecord, saleRow, newerListUndoes, oneQuestionPerExercise,
   type AssetRow, type EventQuestion, type ListedPurchase, type ListQuestion, type NewRow,
 } from './asset-record';
 import { importedAccountOf, valueOnlyAccountsOf, type ImportedHolding, type ImportResult } from '../../../src/domain/import/holdingsImport';
@@ -67,9 +73,11 @@ export interface FileRows {
  *
  * Called by ... MK-NW-F-199 fileToRecord
  *
- * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 8 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-201 fileRowsToSave · MK-NW-F-199 fileToRecord
- *               MK-XS-F-199 profileOnTheWayIn
+ *               MK-NW-F-226 fileValues · MK-XS-F-219 importedAccountOf
+ *               MK-NW-F-228 moveOldCopies · MK-XS-F-199 profileOnTheWayIn
+ *               MK-NW-F-195 readImport · MK-XS-F-221 valueOnlyAccountsOf
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
@@ -115,9 +123,11 @@ function readImport(result: ImportResult) {
  *
  * Called by ... MK-NW-F-199 fileToRecord
  *
- * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 8 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-201 fileRowsToSave · MK-NW-F-199 fileToRecord
- *               MK-XS-F-199 profileOnTheWayIn
+ *               MK-NW-F-226 fileValues · MK-XS-F-219 importedAccountOf
+ *               MK-NW-F-228 moveOldCopies · MK-XS-F-199 profileOnTheWayIn
+ *               MK-NW-F-195 readImport · MK-XS-F-221 valueOnlyAccountsOf
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -138,9 +148,11 @@ const fileHoldingName = (h: ImportedHolding): string => oneHoldingSpelling(h.tic
  *
  * Called by ... MK-NW-F-199 fileToRecord · MK-NW-F-228 moveOldCopies
  *
- * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 8 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-201 fileRowsToSave · MK-NW-F-199 fileToRecord
+ *               MK-NW-F-226 fileValues · MK-XS-F-219 importedAccountOf
  *               MK-NW-F-228 moveOldCopies · MK-XS-F-199 profileOnTheWayIn
+ *               MK-NW-F-195 readImport · MK-XS-F-221 valueOnlyAccountsOf
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -164,9 +176,11 @@ const unitsOf = (h: ImportedHolding): number => (h.multiplier != null ? h.shares
  *
  * Called by ... MK-NW-F-199 fileToRecord
  *
- * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 8 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-201 fileRowsToSave · MK-NW-F-199 fileToRecord
- *               MK-XS-F-199 profileOnTheWayIn
+ *               MK-NW-F-226 fileValues · MK-XS-F-219 importedAccountOf
+ *               MK-NW-F-228 moveOldCopies · MK-XS-F-199 profileOnTheWayIn
+ *               MK-NW-F-195 readImport · MK-XS-F-221 valueOnlyAccountsOf
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -177,6 +191,50 @@ function costPerUnit(h: ImportedHolding): number | null {
   if (!(h.costPerShare > 0)) return null;           // the import writes 0 where the file gives no cost
   if (h.priceQuote === 'per_100_of_face') return h.costPerShare / 100;
   return h.costPerShare;
+}
+
+const MONTH_OF: Record<string, string> = { JAN: '01', FEB: '02', MAR: '03', APR: '04', MAY: '05', JUN: '06', JUL: '07', AUG: '08', SEP: '09', OCT: '10', NOV: '11', DEC: '12' };
+/** Rule 7: an option's own details as its line writes them — "AAPL Feb 20 '26 $260 Call" (E*TRADE), "AAPL 02/20/2026 260.00 C".
+ *  Null where the line says no such thing. */
+/* ─ MK-NW-F-356 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+ * optionOfLine
+ *
+ * Answers ..... Rule 7: an option's own details as its line writes them — "AAPL Feb 20 '26 $260 Call" (E*TRADE), "AAPL 02/20/2026 260.00 C".
+ *
+ * Formula .....
+ *     t = text.trim().to upper case().replace( ÷ \s+ ÷ g, ' ')
+ *     year = (y: string) => (length = 2 ? `20${y}` : y)
+ *     m = ÷ ^([A − Z.]{1,6}) ([A − Z]{3}) (\d{1,2}),? '?(\d{2}|\d{4}) \$?([\d,]+(?:\.\d+)?) (CALL|PUT)S?$ ÷ .exec(t)
+ *     out = nothing
+ *     the answer:
+ *     ...out = ...out
+ *     expiry = out.expiry   if out and out.expiry ≠ nothing and number.is finite(out.strike)
+ *     nothing   otherwise
+ *
+ * Called by ... MK-NW-F-199 fileToRecord · MK-NW-F-227 fileFacts
+ *
+ * Reaches ..... 9 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-227 fileFacts · MK-NW-F-201 fileRowsToSave
+ *               MK-NW-F-199 fileToRecord · MK-NW-F-226 fileValues
+ *               MK-XS-F-219 importedAccountOf · MK-NW-F-228 moveOldCopies
+ *               MK-XS-F-199 profileOnTheWayIn · MK-NW-F-195 readImport
+ *               MK-XS-F-221 valueOnlyAccountsOf
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-034 option positions — contracts, strike, expiry, put or call
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-356
+ * Changed ..... not in git yet (—)
+ */
+export function optionOfLine(text: string): { underlying: string; expiry: string; strike: number; type: 'call' | 'put' } | null {
+  const t = text.trim().toUpperCase().replace(/\s+/g, ' ');
+  const year = (y: string) => (y.length === 2 ? `20${y}` : y);
+  let m = /^([A-Z.]{1,6}) ([A-Z]{3}) (\d{1,2}),? '?(\d{2}|\d{4}) \$?([\d,]+(?:\.\d+)?) (CALL|PUT)S?$/.exec(t);
+  let out: { underlying: string; expiry: string | null; strike: number; type: 'call' | 'put' } | null = null;
+  if (m && MONTH_OF[m[2]]) out = { underlying: m[1], expiry: dayOrNull(`${year(m[4])}-${MONTH_OF[m[2]]}-${m[3].padStart(2, '0')}`), strike: Number(m[5].replace(/,/g, '')), type: m[6] === 'CALL' ? 'call' : 'put' };
+  m = out ? null : /^([A-Z.]{1,6}) (\d{1,2})\/(\d{1,2})\/(\d{2}|\d{4}) \$?([\d,]+(?:\.\d+)?) (C|P|CALL|PUT)$/.exec(t);
+  if (m) out = { underlying: m[1], expiry: dayOrNull(`${year(m[4])}-${m[2].padStart(2, '0')}-${m[3].padStart(2, '0')}`), strike: Number(m[5].replace(/,/g, '')), type: m[6].startsWith('C') ? 'call' : 'put' };
+  return out && out.expiry != null && Number.isFinite(out.strike) ? { ...out, expiry: out.expiry } : null;
 }
 
 /** ONE IMPORTED FILE, AS THE ROWS OF THE RECORD — in the calling order of asset-record.ts. */
@@ -199,28 +257,30 @@ function costPerUnit(h: ImportedHolding): number | null {
  *     stated = result.account.stated total (or nothing when missing)
  *     owner of = (h: imported holding) => { const i = value only rows.index of(h); return i ≥ 0 and value only ids[i] ≠ nothing ? value only ids[i] : account id; }
  *     the answer:
- *     events = []
- *     lists = lists
- *     values = values
- *     value only values = value only values
- *     facts = facts
- *     list day = list day
- *     needs adate = list day = nothing
+ *     option expiry = expiry
+ *     option underlying = underlying
+ *     option strike = strike
+ *     option type = type
+ *     shares per contract = multiplier   if o
+ *     {}   otherwise
  *
- * Called by ... MK-NW-F-201 fileRowsToSave
+ * Called by ... MK-NW-F-201 fileRowsToSave · MK-XS-F-221 valueOnlyAccountsOf
  *
- * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-201 fileRowsToSave · MK-XS-F-199 profileOnTheWayIn
+ * Reaches ..... 8 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-201 fileRowsToSave · MK-NW-F-199 fileToRecord
+ *               MK-NW-F-226 fileValues · MK-XS-F-219 importedAccountOf
+ *               MK-NW-F-228 moveOldCopies · MK-XS-F-199 profileOnTheWayIn
+ *               MK-NW-F-195 readImport · MK-XS-F-221 valueOnlyAccountsOf
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
  *               MK-XS-I-011 bond face value
  *               MK-XS-I-012 bond coupon rate
  *               MK-XS-I-013 bond maturity date
+ *               MK-XS-I-034 option positions — contracts, strike, expiry, put or call
  *               MK-XS-I-048 the person’s own asset-class answer
  *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
  *               MK-XS-I-063 option contract multiplier — 100 unless the broker or the person states otherwise
- *               MK-XS-I-068 how a linked bond's price is quoted — per $100 of face value, or per unit like a share
  *
  * Formula also on the master file · functions_from_code · MK-NW-F-199
  * Changed ..... 2026-11-11 (c4a137f1)
@@ -263,6 +323,11 @@ export function fileToRecord(result: ImportResult, accountId: string, valueOnlyI
         ...(h.maturityDate ? { maturity_date: h.maturityDate } : {}),
         ...(h.priceQuote ? { price_quote: h.priceQuote } : {}),
         ...(h.multiplier != null ? { multiplier: h.multiplier } : {}),
+        // rule 7: an option's own details, its expiry date above all, as its line writes them
+        ...(() => {
+          const o = h.multiplier != null ? optionOfLine(h.symbol) ?? (h.label ? optionOfLine(h.label) : null) : null;
+          return o ? { optionExpiry: o.expiry, optionUnderlying: o.underlying, optionStrike: o.strike, optionType: o.type, sharesPerContract: h.multiplier } : {};
+        })(),
       },
     }))
     .filter((f) => Object.keys(f.facts).length > 0);
@@ -280,10 +345,11 @@ export function fileToRecord(result: ImportResult, accountId: string, valueOnlyI
  * Formula .....
  *     JSON.stringify(a) = JSON.stringify(b)
  *
- * Called by ... MK-NW-F-201 fileRowsToSave
+ * Called by ... MK-NW-F-201 fileRowsToSave · MK-NW-F-295 sameHoldings
  *
- * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-201 fileRowsToSave · MK-XS-F-199 profileOnTheWayIn
+ *               MK-NW-F-295 sameHoldings
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -291,6 +357,29 @@ export function fileToRecord(result: ImportResult, accountId: string, valueOnlyI
  * Changed ..... not in git yet (—)
  */
 const sameJson = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b);
+/** Whether two lists of holdings' values hold the same values in any order: the same file with its rows in another order
+ *  is the same file (outside check, 2026-11-12: the Aug 21 file re-imported with its rows reversed saved a second set of
+ *  values for Aug 21). */
+/* ─ MK-NW-F-295 ──────────────────────────────────────────────────────────────────── 1 · ACTION
+ * sameHoldings
+ *
+ * Answers ..... Whether two lists of holdings' values hold the same values in any order: the same file with its rows in another order is the same file (outside check, 2026-11-12: the Aug 21 file re-imported with its rows reversed saved a second set of values for Aug 21).
+ *
+ * Formula .....
+ *     count of length = b
+ *
+ * Called by ... MK-NW-F-201 fileRowsToSave
+ *
+ * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-201 fileRowsToSave · MK-XS-F-199 profileOnTheWayIn
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-295
+ * Changed ..... not in git yet (—)
+ */
+const sameHoldings = (a: readonly unknown[], b: readonly unknown[]) => a.length === b.length
+  && sameJson(a.map((x) => JSON.stringify(x)).sort(), b.map((x) => JSON.stringify(x)).sort());
 
 /** THE CALLING ORDER, RUN: the rows to save for one file, and the questions for the account holder. The values are left
  *  out where the record already holds the same values from a file for that day; a fact where the record already holds
@@ -311,9 +400,9 @@ const sameJson = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringif
  *     values   otherwise
  *     value only = []
  *     sorted = sort arriving(record, events)
- *     after events = add rows(record, sorted.save, '')
- *     purchases = [], ask lists: list question[] = []
- *     got = purchases from list(after events, account id, holding, listed, 'file', list day, sorted.ask)
+ *     facts = new facts(facts)
+ *     after events = add rows(record, [...sorted.save, ...facts], '')
+ *     expiry sales = []
  *     [LOOP — the answer is found inside a loop the extractor cannot render; the steps above are the ones before it. Read by hand.]
  *     … the first steps only — the rest of the body needs reading by hand.
  *
@@ -324,6 +413,7 @@ const sameJson = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringif
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
+ *               MK-XS-I-034 option positions — contracts, strike, expiry, put or call
  *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
  *
  * Formula also on the master file · functions_from_code · MK-NW-F-201
@@ -331,6 +421,8 @@ const sameJson = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringif
  */
 export function fileRowsToSave(record: readonly AssetRow[], result: ImportResult, accountId: string | null, valueOnlyIds: readonly string[] = []): {
   rows: NewRow[]; listDay: string | null; needsADate: boolean; askEvents: EventQuestion[]; askLists: ListQuestion[];
+  /** Rule 5: what the account holder is told where this file undid an earlier answer. */
+  notes: string[];
 } {
   const f = fileToRecord(result, accountId ?? '', valueOnlyIds);
   const inForce = rowsInForce(record);
@@ -341,27 +433,48 @@ export function fileRowsToSave(record: readonly AssetRow[], result: ImportResult
     const own = values[0], holdings = values.slice(1);
     const already = valueBatchesOf(record, own.accountId).some((b) => b.source === 'file' && b.date === f.listDay && !b.typed
       && b.cash === (own.amount ?? null) && b.statedTotal === (own.statedTotal ?? null) && b.typedValue == null
-      && sameJson(b.holdings, holdings.map((h) => ({ holding: oneHoldingSpelling(h.holding), shares: h.shares ?? null, price: h.price ?? null, value: h.amount ?? null }))));
+      && sameHoldings(b.holdings, holdings.map((h) => ({ holding: oneHoldingSpelling(h.holding), shares: h.shares ?? null, price: h.price ?? null, value: h.amount ?? null }))));
     return already ? [] : values;
   };
   // each account holding a value-only row has two rows: its own (no cash) and the one value
   const valueOnly: NewRow[] = [];
   for (let i = 0; i < f.valueOnlyValues.length; i += 2) valueOnly.push(...notYetSaved(f.valueOnlyValues.slice(i, i + 2)));
   if (accountId == null) {
-    return { rows: [...valueOnly, ...newFacts(f.facts.filter((x) => x.accountId !== ''))], listDay: f.listDay, needsADate: f.needsADate, askEvents: [], askLists: [] };
+    return { rows: [...valueOnly, ...newFacts(f.facts.filter((x) => x.accountId !== ''))], listDay: f.listDay, needsADate: f.needsADate, askEvents: [], askLists: [], notes: [] };
   }
 
   const sorted = sortArriving(record, f.events);
-  const afterEvents = addRows(record, sorted.save, '');
-  const purchases: NewRow[] = [], askLists: ListQuestion[] = [];
-  for (const { holding, listed } of f.lists) {
+  // the facts first (rule 7): an option's expiry date is read from them below
+  const facts = newFacts(f.facts);
+  let afterEvents = addRows(record, [...sorted.save, ...facts], '');
+  // rule 7: an option the file still lists past its expiry date expired — a sale at $0 on that date of the shares on
+  // record then, and the line is not set against the record (already sold at $0, the same file again adds nothing)
+  const expirySales: NewRow[] = [];
+  const lists: { holding: string; listed: ListedPurchase[] }[] = [];
+  for (const l of f.lists) {
+    const expiry = optionExpiryOf(afterEvents, accountId, l.holding);
+    if (expiry == null || f.listDay == null || expiry >= f.listDay) { lists.push(l); continue; }
+    const held = sharesOnRecord(afterEvents, accountId, l.holding, expiry);
+    if (held > 1e-9) expirySales.push(saleRow({ accountId, holding: l.holding, date: expiry, shares: held, price: 0, amount: 0, source: 'file', ref: `file:expiry|${l.holding}|${expiry}` }));
+    else if (sharesOnRecord(afterEvents, accountId, l.holding) <= 1e-9 && !rowsInForce(afterEvents).some((r) => r.accountId === accountId && r.holding === l.holding && r.kind === 'PURCHASE')) lists.push(l);
+  }
+  if (expirySales.length) afterEvents = addRows(afterEvents, expirySales, '');
+  // rule 5: a newer list that matches the record as it stood before an older list's answer undoes that answer
+  const undone: NewRow[] = [], notes: string[] = [];
+  for (const { holding, listed } of lists) {
+    const u = newerListUndoes(afterEvents, accountId, holding, listed, 'file', f.listDay);
+    if (u.rows.length) { afterEvents = addRows(afterEvents, u.rows, ''); undone.push(...u.rows); notes.push(...u.notes); }
+  }
+  const purchases: NewRow[] = [];
+  let askLists: ListQuestion[] = [];
+  for (const { holding, listed } of lists) {
     const got = purchasesFromList(afterEvents, accountId, holding, listed, 'file', f.listDay, sorted.ask);
     purchases.push(...got.rows); askLists.push(...got.ask);
   }
   // A HOLDING THE FILE NO LONGER LISTS (outside check, 2026-11-12: Jun 21 listed 5 MSFT, Jul 21 did not, and nothing was
   // asked): set against an empty list, so it is asked as any other difference is, and its shares stay until answered —
   // unless every purchase of it still held is dated after the file's own day, which the file could not have listed
-  const listedNow = new Set(f.lists.map((l) => l.holding));
+  const listedNow = new Set(f.lists.map((l) => l.holding));   // an expired option the file still lists is settled above
   const heldOnRecord = [...new Set(rowsInForce(afterEvents).filter((r) => r.accountId === accountId && r.kind === 'PURCHASE' && r.holding != null).map((r) => r.holding as string))];
   for (const holding of heldOnRecord) {
     if (listedNow.has(holding)) continue;
@@ -369,5 +482,7 @@ export function fileRowsToSave(record: readonly AssetRow[], result: ImportResult
     if (!open.length || (f.listDay != null && open.every((p) => p.date != null && p.date > (f.listDay as string)))) continue;
     askLists.push(...purchasesFromList(afterEvents, accountId, holding, [], 'file', f.listDay, sorted.ask).ask);
   }
-  return { rows: [...sorted.save, ...purchases, ...notYetSaved(f.values), ...valueOnly, ...newFacts(f.facts)], listDay: f.listDay, needsADate: f.needsADate, askEvents: sorted.ask, askLists };
+  // X2 (rule 6): an option that left the file as its shares arrived is one question, never two
+  askLists = oneQuestionPerExercise(afterEvents, accountId, f.lists, askLists);
+  return { rows: [...sorted.save, ...facts, ...expirySales, ...undone, ...purchases, ...notYetSaved(f.values), ...valueOnly], listDay: f.listDay, needsADate: f.needsADate, askEvents: sorted.ask, askLists, notes };
 }

@@ -14,4 +14,9 @@ Naming and structure: `MoneyKeel/documents/standards/moneykeel_naming_spec_file-
 - `moneykeel_pres_mock_step-by-step-add_v02.html` — Net worth’s step-by-step add, its ＋ Add sheet and the Edit account sheet (A–P), drawn from the build 2026-10-31; no approval on record. v01 is in `archive/`.
 - `moneykeel_pres_mock_add-account-edit-mode_v02.html` — Add an account opened on a saved account (A–E), drawn from the build 2026-10-31; no approval on record. v01 is in `archive/`.
   All three are held line by line and box by box — words, sizes, weights, colours, and what each box holds — by `src/screens/__tests__/drawn_from_build_nw_2026_10_27.test.tsx`; run it with FXNW_DRAW_OUT=<folder> to write each state again from the build.
+- **Phase 3 of the master-record plan, drawn 2026-11-12, NOT APPROVED (waits on his TestFlight review, DEC-9228).** Until each is approved, the version before it stays in place as the design the build is held to, and moves to `archive/` the day the new one is approved (the Net worth v08 precedent):
+  - `moneykeel_pres_mock_account-page_v02.html` — the account page: an account's questions asked in place (V2 with his re-saved Robinhood file), the value's own date ("as of"), "Price from …" on a stale price, holdings with a question waiting. v01 stays the build's design.
+  - `moneykeel_pres_mock_holding-detail_v03.html` — the Holding page: E1, E2, L1, L2, S1, X1 and his C1 sentence, each with the page after the answer. v02 stays the build's design.
+  - `moneykeel_pres_mock_performance_v18.html` — the Performance tab, frame 1: the day the accounts' value is from. v17 stays the build's design.
+  - `moneykeel_pres_mock_add-account-by-hand_v03.html` — a balance left empty is not entered, never $0. v02 stays the build's design.
 - `moneykeel_pres_mock_empty-state-pattern_v01.html` — the empty-state pattern, approved 2026-09-12.

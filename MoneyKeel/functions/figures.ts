@@ -69,10 +69,12 @@ const DOORS: [string, Record<string, FigureSpec>][] = [
  *     from = {}
  *     the answer = out
  *
- * Called by ... MK-XS-F-199 profileOnTheWayIn
+ * Called by ... MK-XS-F-199 profileOnTheWayIn · MK-XS-F-307 composeNames
+ *               MK-XS-F-309 mergeNaming
  *
- * Reaches ..... 1 function. Change the arithmetic above and these change with it:
- *               MK-XS-F-199 profileOnTheWayIn
+ * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-307 composeNames · MK-XS-F-309 mergeNaming
+ *               MK-XS-F-199 profileOnTheWayIn · MK-XS-F-286 saveRecordMerging
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

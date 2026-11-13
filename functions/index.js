@@ -82,3 +82,26 @@ exports.aiTips = onRequest(
 // SnapTrade relay (design v2, 2026-07-18) — signing + secrets live here, never in the app.
 const { snaptradeRelay } = require('./snaptrade');
 exports.snaptradeRelay = snaptradeRelay;
+
+// R16 (design v02 of the cloud copy of the master record, 2026-11-12): delete account runs on the server. The app's
+// deleteAccount (MK-XS-F-072) re-signs in, then POSTs here with its sign-in token (DELETE_ACCOUNT_URL in the app's config).
+// Deploy waits for the founder's build approval.
+const { deleteAccountData } = require('./accountDelete');
+exports.deleteAccount = onRequest({ cors: true, region: 'us-central1' }, async (req, res) => {
+  if (req.method !== 'POST') return res.status(405).json({ error: 'POST only' });
+  const admin = require('firebase-admin');
+  if (!admin.apps.length) admin.initializeApp();
+  let uid;
+  try {
+    const token = (req.headers.authorization || '').replace(/^Bearer\s+/i, '');
+    uid = (await admin.auth().verifyIdToken(token)).uid;
+  } catch {
+    return res.status(401).json({ error: 'Sign in again to delete your account.' });
+  }
+  try {
+    const done = await deleteAccountData(admin.firestore(), uid, admin.firestore.FieldValue);
+    return res.status(200).json({ ok: true, kind: done.kind });
+  } catch (e) {
+    return res.status(500).json({ error: 'Your account could not be deleted right now.' });
+  }
+});

@@ -33,7 +33,7 @@ import { fetchPriceSeries } from '../services/marketData';
  *               MK-ST-F-028 buildDayFromAccounts · MK-XS-F-199 profileOnTheWayIn
  *               MK-XS-F-205 recordsOnTheWayIn
  *
- * Reaches ..... 568 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 637 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -43,7 +43,7 @@ import { fetchPriceSeries } from '../services/marketData';
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 550 more — the full list is on functions_from_code
+ *               … and 619 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
@@ -112,10 +112,12 @@ function recomputeBalances(accs: AssetAccount[], cache: Record<string, PriceSeri
  *     touched = new set<string>()
  *     sales = sales needing an answer(record, id)
  *     was = questions[id]
+ *     checked = after awrite(record, questions, at)
  *     the answer:
- *     asset record = record
- *     asset record questions = questions
+ *     asset record = checked.record
+ *     asset record questions = checked.questions
  *     asset record faults = faults.slice(-50)
+ *     … the first steps only — the rest of the body needs reading by hand.
  *
  * Called by ... MK-XS-F-199 profileOnTheWayIn
  *
@@ -143,9 +145,10 @@ function typedIntoRecord(s: any, changes: TypedChange[]): Record<string, unknown
     try {
       const out = typedChangeToRecord(record, c, at);
       record = out.record;
-      if (out.ask.length) {
+      if (out.ask.length || out.which.length) {
+        // R1 (design v02, step 7): an edit that matches two purchases is asked which, kept with the account's questions
         const key = `${id}#typed`, was = questions[key] ?? { events: [], lists: [] };
-        questions[key] = { ...was, events: [...(was.events ?? []), ...out.ask], at };
+        questions[key] = { ...was, events: [...(was.events ?? []), ...out.ask], ...(out.which.length ? { edits: [...(was.edits ?? []), ...out.which] } : {}), at };
       }
       for (const p of out.problems) faults.push({ at, where: `refused: ${c.kind} ${id}`, message: p.slice(0, 300) });
     } catch (e) {
@@ -165,7 +168,9 @@ function typedIntoRecord(s: any, changes: TypedChange[]): Record<string, unknown
     const was = questions[id];
     if (sales.length || was?.sales?.length) questions[id] = { ...(was ?? { events: [], lists: [] }), sales, at: was?.at ?? at };
   }
-  return { assetRecord: record, assetRecordQuestions: questions, assetRecordFaults: faults.slice(-50) };
+  // every kept question asked again of the record as it now stands (design v02, step 8)
+  const checked = afterAWrite(record, questions, at);
+  return { assetRecord: checked.record, assetRecordQuestions: checked.questions, assetRecordFaults: faults.slice(-50) };
 }
 
 /** A VALUE TYPED WITH AN EARLIER "VALUE AS OF" DATE GOES ON THAT DATE (2026-10-20). The Bonds and Other investments
@@ -202,12 +207,12 @@ function typedIntoRecord(s: any, changes: TypedChange[]): Record<string, unknown
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
  *               MK-XS-I-002 account type (taxable, pre-tax, Roth)
+ *               MK-XS-I-004 holding quantity (shares)
  *               MK-XS-I-006 price fetched at
  *               MK-XS-I-010 transaction words (the institution's own wording)
  *               MK-XS-I-018 retirement age
  *               MK-XS-I-020 Social Security monthly amount
  *               MK-XS-I-021 Social Security claim age
- *               MK-XS-I-024 logged expenses
  *
  * Decides .....
  *     · Uses today's date from the device clock, so the answer changes by itself overnight.
@@ -235,6 +240,8 @@ import { buildDayFromAccounts, record as recordSnapshotDay, prune as pruneSnapsh
 import { rebuildDays, fillBetweenObservations } from '../../Calculation Module code/engines/rebuild-history';
 import { newEntityId } from '../domain/_shared/ids';
 import { addRows as addRecordRows, sortArriving, purchasesFromList, salesNeedingAnAnswer, type AssetRow, type NewRow as NewRecordRow, type EventQuestion, type ListQuestion } from '../../MoneyKeel/functions/networth-and-performance/asset-record';
+import { afterAWrite, answerQuestion, confirmMyChangeQuestion, correctRow as correctRecordRow, newerListUndoes, oneQuestionPerExercise,
+  type AssetQuestion, type AnswerChoice, type StoredQuestions } from '../../MoneyKeel/functions/networth-and-performance/asset-record';
 import { brokerUpdateToRecord } from '../../MoneyKeel/functions/networth-and-performance/asset-record-from-broker';
 import { fileRowsToSave } from '../../MoneyKeel/functions/networth-and-performance/asset-record-from-file';
 import { typedChangeToRecord, type TypedChange } from '../../MoneyKeel/functions/networth-and-performance/asset-record-from-typed';
@@ -484,7 +491,7 @@ type AppState = {
    *  dated row, nothing overwritten. Phase 2: written beside the three old copies; nothing on screen reads it yet. */
   assetRecord: AssetRow[];
   /** The questions the last broker update or file left for the account holder, by account (shown in phase 3). */
-  assetRecordQuestions: Record<string, { events: EventQuestion[]; lists: ListQuestion[]; needsADate?: boolean; sales?: ReturnType<typeof salesNeedingAnAnswer>; at: string }>;
+  assetRecordQuestions: Record<string, StoredQuestions>;
   /** Where saving to the master record failed, so a fault there never stops the old copies (phase 2). */
   assetRecordFaults: { at: string; where: string; message: string }[];
   snapshotDays: SnapshotDay[];                   // Track 1 step 6: the full daily record (per-account, per-holding, units+price apart) — what "beginning" is READ from instead of back-solved
@@ -612,6 +619,13 @@ type AppState = {
   recordFileImport: (result: ImportResult, accountId: string | null, valueOnlyIds?: string[]) => void;
   /** Moves what the phone holds onto the master record, once per account (phase 2, 2026-11-11). */
   moveOldCopiesToRecordOnce: () => void;
+  /** The account holder's answer to a question about the master record (design v02, step 4): the earlier answer to the
+   *  same question undone, the choice written, then every kept question asked again. Returns a question to put first
+   *  (a row he changed since the earlier answer) and a sentence to tell (a question a newer list already settled). */
+  answerAssetRecordQuestion: (accountId: string, question: AssetQuestion, choice: AnswerChoice) => { ask: AssetQuestion[]; told: string | null };
+  /** C1: the account holder confirms changing a figure a broker or a file gave (MK-NW-F-279, MK-NW-F-281). Asked at once,
+   *  never stored: `confirmMyChangeQuestion` gives the sentence. Returns why it was refused, or null. */
+  confirmMyChange: (accountId: string, rowId: string, change: Partial<Pick<NewRecordRow, 'date' | 'price' | 'shares' | 'amount'>>) => string | null;
   rebuildLinkedHistory: () => void;              // rebuild each linked account's past from its own records (founder approved 2026-09-25)
   runReclassifyOnce: () => void;
   reclassifyVersion?: string;
@@ -675,6 +689,10 @@ type AppState = {
   phoneDataOwner: string | null;
   /** Whose (household or person) the phone's master record is. */
   assetRecordOwner?: string | null;
+  /** The profile's sync on this phone (design v02 of the cloud copy of the master record, R8–R11, R15, R18): its data owner,
+   *  the items as last agreed with the cloud, the unsaved changes (time and value) and the notes of values that lost. Per
+   *  person, so it is set aside with its owner's data (R15). Null: none yet — it starts empty (R18). */
+  profileSync?: import('../services/sync/profileMerge').ProfileSync | null;
   notePhoneOwner: (uid: string | null) => void;
   /** Every per-person field back to a fresh account's; the device settings stay (DEC-10813). */
   clearPerson: () => void;
@@ -729,9 +747,10 @@ const DEFAULT_BADGES: Badge[] = [
  *               MK-XS-F-192 typedValueDatedBack · MK-XS-F-199 profileOnTheWayIn
  *               MK-XS-F-222 saveAssetRecordPart · MK-XS-F-223 loadAssetRecordPart
  *               MK-XS-F-231 loadAssetRecordMarker · MK-XS-F-233 commitAssetRecord
- *               MK-XS-F-242 readUserProfile
+ *               MK-XS-F-242 readUserProfile · MK-XS-F-278 joinHouseholdWithKeyCode
+ *               MK-XS-F-280 restoreOwnerWithReturnCode
  *
- * Reaches ..... 568 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 637 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -741,7 +760,7 @@ const DEFAULT_BADGES: Badge[] = [
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 550 more — the full list is on functions_from_code
+ *               … and 619 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -808,7 +827,7 @@ function recordsOnTheWayIn(d: any): { transactions?: Transaction[]; assetAccount
  *     g   when it is missing
  *     {}   when reclassify version = RECLASSIFY_VERSION
  *     {}   when count of out.moved is missing
- *     {}   when count of linked is missing
+ *     asset record faults = the first 300) }].slice(-50 of [...(asset record faults ?? []), { at, where: `refused: confirm ${account id}`, message: out.problem   when out.problem
  *     [LOOP — the answer is found inside a loop the extractor cannot render; the steps above are the ones before it. Read by hand.]
  *     … the first steps only — the rest of the body needs reading by hand.
  *
@@ -853,6 +872,7 @@ export const useStore = create<AppState>()(
       householdId: null,
       phoneDataOwner: null,
       assetRecordOwner: null,
+      profileSync: null,
 
       // Onboarding settings
       employmentStatus: null,
@@ -1040,12 +1060,19 @@ export const useStore = create<AppState>()(
           try {
             const u = brokerUpdateToRecord(record, p, id);
             const sorted = sortArriving(record, u.events);
-            let next = addRecordRows(record, sorted.save, at);
-            const lists: ListQuestion[] = [], fromLists: NewRecordRow[] = [];
+            // each option's own details (its expiry date) are kept with the events (design v02, step 6)
+            let next = addRecordRows(record, [...sorted.save, ...(u.facts ?? [])], at);
+            let lists: ListQuestion[] = [];
+            const fromLists: NewRecordRow[] = [], notes: string[] = [];
             for (const l of u.lists) {
+              // a newer list that matches the record as it was before an older list's answer undoes that answer (rule 5)
+              const undone = newerListUndoes(next, id, l.holding, l.listed, 'linked', u.listDay);
+              if (undone.rows.length) { next = addRecordRows(next, undone.rows, at); notes.push(...undone.notes); }
               const got = purchasesFromList(next, id, l.holding, l.listed, 'linked', u.listDay, sorted.ask);
               fromLists.push(...got.rows); lists.push(...got.ask);
             }
+            // an option that left the list as its shares arrived is one question, never two (X2)
+            lists = oneQuestionPerExercise(next, id, u.lists, lists);
             next = addRecordRows(next, [...fromLists, ...u.values], at);
             record = next;
             // the questions still unanswered are KEPT and this sync's are added (outside check, 2026-11-12: each sync put its
@@ -1059,13 +1086,16 @@ export const useStore = create<AppState>()(
               && purchasesFromList(next, q.accountId, q.holding, q.listedAll ?? q.listed, q.source ?? 'linked', q.listDay ?? null, events).ask
                 .some((x) => x.signature === q.signature));
             // each sale that may have sold a purchase with no date: asked which (his ruling, 2026-11-10), until answered
-            questions[id] = { ...was, events, lists: [...keptLists, ...lists], sales: salesNeedingAnAnswer(next, id), at };
+            questions[id] = { ...was, events, lists: [...keptLists, ...lists], sales: salesNeedingAnAnswer(next, id), at,
+              ...(notes.length ? { notes: [...(was.notes ?? []), ...notes] } : {}) };
           } catch (e) {
             faults.push({ at, where: `broker update ${id}`, message: String((e as Error)?.message ?? e).slice(0, 300) });
           }
         }
+        // every kept question asked again of the record as it now stands, under all three keys (design v02, step 8)
+        const checked = afterAWrite(record, questions, at);
         return {
-          assetRecord: record, assetRecordQuestions: questions, assetRecordFaults: faults.slice(-50),
+          assetRecord: checked.record, assetRecordQuestions: checked.questions, assetRecordFaults: faults.slice(-50),
           assetAccounts: r.accounts,
           // an older share transfer that carries no direction takes the one the broker reports for it; an older money
           // record takes the broker's direction, and its real $0, the same way (fixStoredMoney, 2026-10-21); an older buy or
@@ -1397,8 +1427,12 @@ export const useStore = create<AppState>()(
               lists: [...(was.lists ?? []).filter((q: any) => !lists.some((n) => n.signature === q.signature)), ...lists] };
           };
           if (accountId != null) merge(accountId, f.askEvents, f.askLists);
+          // rule 5: a newer file that undid an earlier answer says so (design v02, step 6, as the sync does)
+          if (accountId != null && f.notes?.length) questions[accountId] = { ...questions[accountId], notes: [...(questions[accountId]?.notes ?? []), ...f.notes] };
           if (f.needsADate) for (const id of valueOnlyIds) merge(id, [], []);
-          return { assetRecord: addRecordRows(s.assetRecord ?? [], f.rows, at), assetRecordQuestions: questions };
+          // every kept question asked again of the record as it now stands; needsADate is read again (design v02, step 8)
+          const checked = afterAWrite(addRecordRows(s.assetRecord ?? [], f.rows, at), questions, at);
+          return { assetRecord: checked.record, assetRecordQuestions: checked.questions };
         } catch (e) {
           return { assetRecordFaults: [...(s.assetRecordFaults ?? []), { at, where: 'file import', message: String((e as Error)?.message ?? e).slice(0, 300) }].slice(-50) };
         }
@@ -1410,12 +1444,49 @@ export const useStore = create<AppState>()(
           if (!out.moved.length) return {};
           const questions = { ...(s.assetRecordQuestions ?? {}) };
           for (const q of out.ask) questions[`${q.accountId}#moved`] = { events: q.events, lists: q.lists, unexplained: q.unexplained, at };
-          return { assetRecord: out.record, assetRecordQuestions: questions,
+          const checked = afterAWrite(out.record, questions, at);   // the questions still true (design v02, step 8)
+          return { assetRecord: checked.record, assetRecordQuestions: checked.questions,
             assetRecordFaults: [...(s.assetRecordFaults ?? []), ...out.problems.map((m) => ({ at, where: 'move of what the phone held', message: m.slice(0, 300) }))].slice(-50) };
         } catch (e) {
           return { assetRecordFaults: [...(s.assetRecordFaults ?? []), { at, where: 'move of what the phone held', message: String((e as Error)?.message ?? e).slice(0, 300) }].slice(-50) };
         }
       }),
+      answerAssetRecordQuestion: (accountId, question, choice) => {
+        let result: { ask: AssetQuestion[]; told: string | null } = { ask: [], told: null };
+        set((s: any) => {
+          const at = new Date().toISOString();
+          try {
+            const out = answerQuestion(s.assetRecord ?? [], question, choice, at);
+            result = { ask: out.ask, told: out.told };
+            const questions: Record<string, StoredQuestions> = { ...(s.assetRecordQuestions ?? {}) };
+            // R1 "Cancel" writes nothing: the question is dropped
+            if (question.kind === 'R1' && choice.id === 'cancel') for (const [k, e] of Object.entries(questions)) {
+              if (k.split('#')[0] === accountId && e.edits?.length) questions[k] = { ...e, edits: e.edits.filter((ed) => ed !== question.edit && JSON.stringify(ed) !== JSON.stringify(question.edit)) };
+            }
+            const checked = afterAWrite(out.record, questions, at);
+            return { assetRecord: checked.record, assetRecordQuestions: checked.questions };
+          } catch (e) {
+            result = { ask: [], told: null };
+            return { assetRecordFaults: [...(s.assetRecordFaults ?? []), { at, where: `answer ${question.kind} ${accountId}`, message: String((e as Error)?.message ?? e).slice(0, 300) }].slice(-50) };
+          }
+        });
+        return result;
+      },
+      confirmMyChange: (accountId, rowId, change) => {
+        let problem: string | null = null;
+        set((s: any) => {
+          const at = new Date().toISOString();
+          const record: AssetRow[] = s.assetRecord ?? [];
+          const q = confirmMyChangeQuestion(record, rowId, change);
+          const c = q ? answerQuestion(record, q, { id: 'confirm' }, at) : null;
+          const out = c ? { record: c.record, problem: null } : correctRecordRow(record, rowId, change, 'typed', at);
+          problem = out.problem;
+          if (out.problem) return { assetRecordFaults: [...(s.assetRecordFaults ?? []), { at, where: `refused: confirm ${accountId}`, message: out.problem.slice(0, 300) }].slice(-50) };
+          const checked = afterAWrite(out.record, s.assetRecordQuestions ?? {}, at);
+          return { assetRecord: checked.record, assetRecordQuestions: checked.questions };
+        });
+        return problem;
+      },
       rebuildLinkedHistory: () => set((s: any) => {
         const linked = ((s.assetAccounts ?? []) as any[]).filter((a) => a.source === 'connected');
         if (!linked.length) return {};
@@ -1743,7 +1814,7 @@ export const DEVICE_FIELDS = [
   'inflationRate', 'treasuryYield', 'inflationIsFallback', 'treasuryIsFallback', 'phoneDataOwner',
 ] as const;
 /** Market prices the phone fetched: per-person by resetAll, but not a sign that the phone holds anyone's data. */
-const NOT_A_PERSONS_DATA = ['priceCache', 'pricesFetchedAt', 'priceRefreshFailed', 'assetRecordFaults'];
+const NOT_A_PERSONS_DATA = ['priceCache', 'pricesFetchedAt', 'priceRefreshFailed', 'assetRecordFaults', 'profileSync'];
 
 /** The store as a fresh install starts it, before any person’s data. */
 /* ─ MK-XS-F-245 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT

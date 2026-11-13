@@ -18,7 +18,7 @@ import { Colors, Spacing, Radii, Tap } from '../utils/theme';
 import { money } from '../domain/_shared/num';
 import { maskedMoney, maskedMoney2, maskedPrice, coinQuantity, spokenMoney } from '../components/useMoney';
 import { theHolding, undatedGainSentence, SECTION_1256_LINE, NOT_CAPITAL_GAINS_LINE, yardstickName, gapWords, purchaseQuantityWords, holdingRowsIn, SHARE_COUNT_NOT_STATED } from '../../MoneyKeel/functions/networth-and-performance/holding';
-import { windowStartKey, lastCloseLabel, overTheYearsSentence } from '../../MoneyKeel/functions/networth-and-performance/performance';
+import { windowStartKey, lastCloseLabel, overTheYearsSentence, staleStartSentence } from '../../MoneyKeel/functions/networth-and-performance/performance';
 import { fig, figSaid, figWords } from '../components/figure';   // rule 11: a figure prints with its identifier
 import { SaidText } from '../components/SaidText';   // a line of figures said through the one spoken writer: "hidden", "a year" (2026-10-22)
 import { InfoDot } from '../components/UI';
@@ -359,6 +359,17 @@ export default function HoldingDetailScreen() {
           {yearly && row.benchTotal != null && (
             <Text style={s.noteLine}>{`The market: ${overTheYearsSentence({ cumulative: row.benchTotal ?? null, perYear: row.benchReturn, years: row.years as number }, (v, per) => (per ? `${fig('MK-NW-M-070', v)}/year` : fig('MK-NW-M-070', v)))}.`}</Text>
           )}
+          {/* AN OLD START CLOSE IS USED AND SAID, IN THE PERFORMANCE TAB'S WORDS (his DEC-10558, 2026-11-11: "if price is stale, app just
+              state so. but still display it and use it."): the holding's or the market's last close before the window, more than 7 days
+              back (staleWindowStart), is named by the one sentence the tab prints (staleStartSentence). It said "has no price near the
+              window's start" and showed no return. A purchase inside the window starts from what was paid and says nothing. */}
+          {!row.cappedSince && (() => {
+            const now = new Date();
+            const own = staleWindowStart(series, period as any, now);
+            const mkt = row.benchTicker ? staleWindowStart(priceOf(row.benchTicker), period as any, now) : null;
+            return [own ? staleStartSentence(ticker, own.day) : null, mkt ? staleStartSentence(String(row.benchTicker), mkt.day) : null]
+              .filter(Boolean).map((t) => <Text key={t as string} style={s.noteLine}>{t}</Text>);
+          })()}
           {/* CORRECTED 2026-10-12 (DEC-4645): this read "price changes only — dividends not included", which was false —
               the holding and its market yardstick (SPY or AGG) are both read from dividend-adjusted closes, so both
               figures include their dividends and interest. The drawing (holding-detail v02) carries a dated line. */}
@@ -371,21 +382,13 @@ export default function HoldingDetailScreen() {
           <View style={s.pageBand}><SectionBand title={`VS ${(yardstick ?? 'the market').toUpperCase()}`} /></View>
           {/* a purchase with no date beside dated ones: no return since purchase, and the reason is that, not the prices
               (2026-10-21, MK-PF-F-040, the lead's decision under DEC-3523 tenet 3) */}
-          {/* A START R19 REFUSES SAYS SO, IN R19'S OWN WORDS (2026-11-01, FX-PF; the lead's ruling R19b, PF5-1, NW5-04): the holding's or the
-              market's last close before the window's start is named — never 'check back as prices fill in' where prices exist. A purchase
-              inside the window is not a start (it takes its own day's close), so only a holding held when the window began is asked. */}
+          {/* NO START IS REFUSED FOR ITS AGE ANY MORE (his DEC-10558, 2026-11-12, replacing the lead's R19 / R19b): an old start close is
+              used, and the comparison above says its date, so this line no longer names one. */}
           <Text style={s.note}>{yardstick == null
             ? 'This holding is Unclassified, so there is no market to compare it with.'
             : row?.undatedPurchase
             ? 'A purchase of this holding has no date on record, so its return since purchase cannot be measured.'
-            : (() => {
-              const now = new Date();
-              const own = !row?.cappedSince ? staleWindowStart(series, period as any, now) : null;
-              const mkt = !row?.cappedSince && row?.benchTicker ? staleWindowStart(priceOf(row.benchTicker), period as any, now) : null;
-              return own ? `${ticker} has no price near the window’s start: its last close before it is ${dateShown(own.day)}.`
-                : mkt ? `The market (${row.benchTicker}) has no price near the window’s start: its last close before it is ${dateShown(mkt.day)}.`
-                : 'Not enough price history for a fair comparison — check back as prices fill in.';
-            })()}</Text>
+            : 'Not enough price history for a fair comparison — check back as prices fill in.'}</Text>
         </View>
       ))}
 

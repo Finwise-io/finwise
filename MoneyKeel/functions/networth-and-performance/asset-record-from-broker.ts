@@ -17,7 +17,7 @@
 //   · It never puts a minus sign on shares or amounts: the kind of the row says which way they went.
 //   · It never calls an unknown $0: cash the broker does not send stays blank.
 import {
-  dayOrNull, historyPurchaseRow, saleRow, valueRows, valueBatchesOf, sharesOnRecord, rowsInForce, oneHoldingSpelling, factsOf,
+  dayOrNull, historyPurchaseRow, saleRow, valueRows, valueBatchesOf, sharesOnRecord, rowsInForce, oneHoldingSpelling, factsOf, optionExpiryOf,
   type AssetRow, type NewRow, type ListedPurchase, type RowKind,
 } from './asset-record';
 import { toLedgerRow, type LedgerRow } from '../../../Calculation Module code/engines/ledger';
@@ -30,6 +30,9 @@ export interface BrokerUpdate {
   lists: { holding: string; listed: ListedPurchase[] }[];
   values: NewRow[];
   listDay: string | null;
+  /** Each option's own details — its expiry date above all — kept as a fact where the record does not hold them yet
+   *  (design v02, step 6: an option's expiry is a sale at $0 on its expiry date). */
+  facts: NewRow[];
 }
 
 const EPS = 1e-9;
@@ -62,7 +65,11 @@ const SOURCE = 'linked' as const;
  *               MK-NW-F-273 answerEventQuestion · MK-NW-F-274 sameShares
  *               MK-NW-F-277 purchasesFromList · MK-NW-F-279 differsFromGiven
  *               MK-NW-F-284 activityOf · MK-NW-F-287 splitOf
- *               MK-NW-F-289 activityRefs · MK-NW-O-002 theAccount
+ *               MK-NW-F-289 activityRefs · MK-NW-F-300 countWords
+ *               MK-NW-F-301 dollarWords · MK-NW-F-310 differenceKey
+ *               MK-NW-F-317 eventQuestionToAsk · MK-NW-F-319 listQuestionToAsk
+ *               MK-NW-F-324 questionsOf · MK-NW-F-336 stillAsked
+ *               MK-NW-F-345 accountWalksShown · MK-NW-O-002 theAccount
  *               MK-NW-O-005 theAlternativesOutlook · MK-NW-O-008 thePerformance
  *               MK-PF-F-014 buildPerformance · MK-PF-F-020 portfolioBenchReturn
  *               MK-PF-F-033 quantityWithUnit · MK-PF-F-058 gainOnPartSentence
@@ -80,7 +87,7 @@ const SOURCE = 'linked' as const;
  *               MK-XS-F-197 chainShown · MK-XS-F-211 pointsDigits
  *               MK-XS-F-215 isWholeToTheCent · MK-XS-F-218 sameCents
  *
- * Reaches ..... 619 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 692 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -90,7 +97,7 @@ const SOURCE = 'linked' as const;
  *               MK-CF-F-237 LATER · MK-NW-F-081 LB
  *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
  *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
- *               … and 601 more — the full list is on functions_from_code
+ *               … and 674 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -272,6 +279,16 @@ function eventRow(record: readonly AssetRow[], accountId: string, act: StActivit
 
   const split = splitOf(record, accountId, holding, date, act, row, ref);
   if (split) return split;
+
+  // AN OPTION'S EXPIRY IS A SALE AT $0 ON ITS EXPIRY DATE (design v02, rule 6; DEC-10471: a transaction detail): the
+  // shares are the contracts × shares per contract — the shares on record where the broker sends none — and the date is
+  // the broker's, else the option's own
+  if (row.event === 'OPTION_EXPIRY' && holding != null && (isOption || optionExpiryOf(record, accountId, holding) != null)) {
+    const own = dayOrNull((optionSymbol as { expiration_date?: string | null } | null | undefined)?.expiration_date ?? null) ?? optionExpiryOf(record, accountId, holding);
+    const held = shares != null && Math.abs(shares) > EPS ? Math.abs(shares) : sharesOnRecord(record, accountId, holding);
+    const day = date ?? own;
+    if (held > EPS && day != null) return { ...saleRow({ accountId, holding, date: day, settlementDate, shares: held, price: 0, amount: 0, fee, source: SOURCE, ref }), word: row.sourceWord };
+  }
 
   switch (row.event) {
     case 'BUY': case 'REINVEST_PURCHASE':
@@ -515,10 +532,19 @@ export function brokerUpdateToRecord(record: AssetRow[], payload: AccountSyncPay
     if (m.shares > 0) lists.push({ holding, listed });
     holdings.push({ holding, shares: m.shares, price: m.price, value: m.price == null || unclear ? null : m.shares * m.price * per });
   });
+  const facts: NewRow[] = [];
   for (const o of payload.optionPositions ?? []) {
     const mo = mapOptionHolding(o);
     const holding = optionName(o);
     if (!mo || holding == null) continue;
+    // the option's own details, kept once: its expiry date is the date its expiry is saved on (rule 6)
+    const os = o.symbol?.option_symbol;
+    const own: Record<string, unknown> = { optionExpiry: dayOrNull(os?.expiration_date ?? null), optionStrike: os?.strike_price ?? null, optionType: os?.option_type ?? null,
+      optionUnderlying: oneHoldingSpelling((os as { underlying_symbol?: { raw_symbol?: string | null; symbol?: string | null } } | undefined)?.underlying_symbol?.raw_symbol
+        ?? (os as { underlying_symbol?: { symbol?: string | null } } | undefined)?.underlying_symbol?.symbol ?? null), sharesPerContract: mo.multiplier };
+    const held = factsOf(record, accountId, holding);
+    const newer = Object.fromEntries(Object.entries(own).filter(([k, v]) => v != null && held[k] !== v));
+    if (Object.keys(newer).length) facts.push({ accountId, holding, kind: 'FACT', date: null, source: SOURCE, facts: newer });
     const shares = mo.contracts * mo.multiplier;
     // a short option (contracts below zero) holds no purchase: it is valued, never listed as a tax lot
     if (shares > 0) lists.push({ holding, listed: [{ date: null, shares, price: o.average_purchase_price == null ? null : o.average_purchase_price / mo.multiplier, average: true }] });
@@ -541,5 +567,5 @@ export function brokerUpdateToRecord(record: AssetRow[], payload: AccountSyncPay
     && b.holdings.length === holdings.length
     && b.holdings.every((h, i) => h.holding === oneHoldingSpelling(holdings[i].holding) && same(h.shares, holdings[i].shares) && same(h.price, holdings[i].price) && same(h.value, holdings[i].value)));
 
-  return { events, lists, values: sentBefore ? [] : values, listDay };
+  return { events, lists, values: sentBefore ? [] : values, listDay, facts };
 }

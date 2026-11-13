@@ -13,9 +13,9 @@ let LA: any = null;
  *
  * Called by ... MK-XS-F-034 isLockAvailable · MK-XS-F-035 authenticate
  *
- * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
  *               MK-XS-F-035 authenticate · MK-XS-F-072 deleteAccount
- *               MK-XS-F-034 isLockAvailable
+ *               MK-XS-F-034 isLockAvailable · MK-XS-F-275 loadMinAppVersion
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -76,8 +76,8 @@ export async function isLockAvailable(): Promise<boolean> {
  *
  * Called by ... MK-XS-F-072 deleteAccount
  *
- * Reaches ..... 1 function. Change the arithmetic above and these change with it:
- *               MK-XS-F-072 deleteAccount
+ * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-072 deleteAccount · MK-XS-F-275 loadMinAppVersion
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

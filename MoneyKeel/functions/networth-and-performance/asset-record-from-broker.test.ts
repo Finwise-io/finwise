@@ -3,6 +3,7 @@
 import { brokerUpdateToRecord } from './asset-record-from-broker';
 import {
   addRows, sortArriving, purchasesFromList, answerListQuestion, answerEventQuestion, removeRow, sharesThatDisagree, sharesOnRecord, valuesNow, rowsInForce, saleGain,
+  listQuestionToAsk, answerQuestion,
   type AssetRow, type ListQuestion, type EventQuestion,
 } from './asset-record';
 import type { AccountSyncPayload } from '../../../src/services/sync/ingest';
@@ -267,7 +268,9 @@ describe('the faults the second outside check reproduced (2026-11-12)', () => {
     expect(out.asks).toEqual([]);
   });
 
-  test('two lots of 100, a sale of 50, the Feb lot shown sold; "mine" to both, then one changed to "the list is correct": 200 against 150 is asked', () => {
+  // CHANGED 2026-11-12 (design v02, rule 3 · L6): this case asked two questions, one per lot; the lots differ only by
+  // which purchase the sale of 50 came from, so it is ONE question — and "the list is correct" names the Feb lot
+  test('two lots of 100, a sale of 50, the Feb lot shown sold: ONE question (L6); "mine", then changed to "the list is correct": 150, the sale makes $250, nothing more is asked', () => {
     const both = [lot('2026-01-10', 100, 50), lot('2026-02-10', 100, 60)], after = [lot('2026-01-10', 100, 50), lot('2026-02-10', 50, 60)];
     let r = runAsking([], payload({ account: day('2026-03-01'), positions: held(msft, 70, both), activities: [] }), NOW).rec;
     r = runAsking(r, payload({ account: day('2026-03-09'), positions: held(msft, 70, both),
@@ -275,17 +278,18 @@ describe('the faults the second outside check reproduced (2026-11-12)', () => {
     const out = runAsking(r, payload({ account: day('2026-03-12', 10500), positions: held(msft, 70, after), activities: [] }), '2026-11-12T11:00:00.000Z');
     r = out.rec;
     const qs = out.asks as ListQuestion[];
-    expect(qs).toHaveLength(2);
-    for (const q of qs) r = addRows(r, answerListQuestion(r, q, false, 'linked', out.listDay), '2026-11-12T12:00:00.000Z');
-    r = addRows(r, answerListQuestion(r, qs[0], true, 'linked', out.listDay), '2026-11-12T13:00:00.000Z');
+    expect(qs.map((q) => q.kind)).toEqual(['sold-from']);
+    const [q] = listQuestionToAsk(r, qs[0], () => 'Robinhood');
+    expect(q.kind).toBe('L6');
+    const sale = rowsInForce(r).find((x) => x.kind === 'SALE')!;
+    expect(saleGain(r, sale.rowId)).toBe(750);
+    r = answerQuestion(r, q, { id: 'mine-correct' }, '2026-11-12T12:00:00.000Z').record;
+    expect([sharesOnRecord(r, ACC, 'MSFT'), saleGain(r, sale.rowId)]).toEqual([150, 750]);
+    r = answerQuestion(r, q, { id: 'list-correct' }, '2026-11-12T13:00:00.000Z').record;
+    // the keep-mine fact is undone, and the sale names the Feb lot: 50 × ($65 − $60) = $250
+    expect([sharesOnRecord(r, ACC, 'MSFT'), saleGain(r, sale.rowId), rowsInForce(r).filter((x) => typeof x.facts?.keepsOverList === 'string').length]).toEqual([150, 250, 0]);
     const later = runAsking(r, payload({ account: day('2026-03-15', 10500), positions: held(msft, 70, after), activities: [] }), '2026-11-13T10:00:00.000Z');
-    // the record (200) and the broker (150) disagree by 50 shares that no standing answer covers: asked, never kept in silence
-    expect([sharesOnRecord(later.rec, ACC, 'MSFT'), later.asks.map((q) => (q as ListQuestion).signature), sharesThatDisagree(later.rec, ACC).map((d) => d.gap)])
-      .toEqual([200, ['pair|2|2026-02-10|-50'], [-50]]);
-    // "the list is correct" for the Feb lot: 150, as the broker states, and nothing more is asked
-    const fixed = addRows(later.rec, answerListQuestion(later.rec, later.asks[0] as ListQuestion, true, 'linked', later.listDay), '2026-11-13T11:00:00.000Z');
-    const after2 = runAsking(fixed, payload({ account: day('2026-03-16', 10500), positions: held(msft, 70, after), activities: [] }), '2026-11-14T10:00:00.000Z');
-    expect([sharesOnRecord(after2.rec, ACC, 'MSFT'), after2.asks, sharesThatDisagree(after2.rec, ACC)]).toEqual([150, [], []]);
+    expect([sharesOnRecord(later.rec, ACC, 'MSFT'), later.asks, sharesThatDisagree(later.rec, ACC)]).toEqual([150, [], []]);
   });
 
   test('lots of 10 and 20; the Jan lot and its purchase taken away; the broker sends it again and "theirs" brings it back: 30, nothing asked', () => {

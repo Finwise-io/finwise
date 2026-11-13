@@ -96,7 +96,9 @@ const sourceSlice = (file: string, start: string, end: string) => {
   const at = text.indexOf(start);
   const to = text.indexOf(end, at);
   if (at < 0 || to < 0) throw new Error(`${start} not found in ${file}`);
-  return ts.transpileModule(text.slice(at, to), { compilerOptions: { target: ts.ScriptTarget.ES2019 } }).outputText;
+  // an exported function inside the range is compiled as a plain one: `export` cannot run inside new Function (2026-11-12,
+  // staleStartSentence MK-NW-F-357 is exported for the Holding page and sits between gainOfRow and MK-NW-F-092)
+  return ts.transpileModule(text.slice(at, to).replace(/^export (?=function |const )/gm, ''), { compilerOptions: { target: ts.ScriptTarget.ES2019 } }).outputText;
 };
 // plural is handed in too since 2026-10-13: the sentence's has / have comes from the one list (MK-NW-F-130)
 // writeFigure and the declared figures since 2026-10-19: the sentence writes its two amounts under MK-PF-M-021 / 022 (DEC-6076)

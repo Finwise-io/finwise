@@ -17,40 +17,86 @@ service cloud.firestore {
         && exists(/databases/$(database)/documents/households/$(owner)/members/$(request.auth.uid));
     }
 
-    // Each user's data lives at users/{uid} (appState payload + any subcollections).
-    // Readable/writable by the owner, or by a partner who joined the owner's household via a code.
+    // Each user's data lives at users/{uid} (the encrypted profile + the record's parts, marker and questions beneath it).
+    // The account holder reads and writes it; a member who joined the household with a proof of the key code (R13, design
+    // v02 of the cloud copy of the master record, 2026-11-12) reads it and saves the profile, the parts, the marker and the
+    // questions, but never the key envelopes, the household or a move, and never deletes anything.
+    // R8a: a new profile is accepted only with profileRev = the stored value + 1 (a profile with none counts as 0, R18),
+    // so an old app's plain save (Build 57) cannot overwrite a merged profile.
+    function profileFields() { return ['appStateEnc', 'appState', 'profileRev']; }
+    function keyFields() { return ['keyEnvelope', 'householdKeyEnvelope', 'householdId', 'movedFrom', 'email', 'name', 'createdAt']; }
+    function changedKeys() {
+      return resource == null ? request.resource.data.keys() : request.resource.data.diff(resource.data).affectedKeys();
+    }
+    function storedRev() { return resource == null ? 0 : resource.data.get('profileRev', 0); }
+    function profileRevOk() {
+      return !changedKeys().hasAny(profileFields()) || request.resource.data.get('profileRev', -1) == storedRev() + 1;
+    }
     match /users/{uid} {
-      allow read, write: if signedIn() && (request.auth.uid == uid || isMember(uid));
+      allow read: if signedIn() && (request.auth.uid == uid || isMember(uid));
+      allow create, update: if signedIn() && profileRevOk()
+        && (request.auth.uid == uid || (isMember(uid) && !changedKeys().hasAny(keyFields())));
+      allow delete: if signedIn() && request.auth.uid == uid;
 
-      match /{document=**} {
-        allow read, write: if signedIn() && (request.auth.uid == uid || isMember(uid));
+      // everything beneath the user document (never the document itself: in rules version 2 a bare {document=**} also
+      // matches users/{uid}, which let any write past the checks above)
+      match /{sub}/{document=**} {
+        allow read: if signedIn() && (request.auth.uid == uid || isMember(uid));
+        allow create, update: if signedIn() && (request.auth.uid == uid || isMember(uid));
+        allow delete: if signedIn() && request.auth.uid == uid;
       }
     }
 
     // Household membership grant. The grant lives on the OWNER's side and is bound to a real invite:
-    // you may create ONLY your own member doc, and only by presenting a `code` for an invite that
-    // exists and points at {owner}. No self-claim, no forging another user's membership, no edits.
+    // you may create ONLY your own member doc, and only by presenting a `code` for an invite that exists and points at
+    // {owner}, AND a `keyCodeProof` whose SHA-256 equals the invite's `keyCodeCheck` (R13: the 6-letter invite code alone
+    // opens nothing), before the invite's 7 days run out (counted from its server creation time). No edits.
+    function inviteOf(code) { return get(/databases/$(database)/documents/invites/$(code)).data; }
     match /households/{owner}/members/{member} {
       allow read: if signedIn() && (request.auth.uid == owner || request.auth.uid == member);
       allow create: if signedIn()
         && request.auth.uid == member
         && request.resource.data.code is string
+        && request.resource.data.keyCodeProof is string
         && exists(/databases/$(database)/documents/invites/$(request.resource.data.code))
-        && get(/databases/$(database)/documents/invites/$(request.resource.data.code)).data.householdId == owner;
+        && inviteOf(request.resource.data.code).householdId == owner
+        && inviteOf(request.resource.data.code).keyCodeCheck is string
+        && hashing.sha256(request.resource.data.keyCodeProof).toHexString().lower() == inviteOf(request.resource.data.code).keyCodeCheck.lower()
+        && request.time < inviteOf(request.resource.data.code).createdAt + duration.value(7, 'd');
       allow update: if false;
       // either side may end the partnership by removing the member doc.
       allow delete: if signedIn() && (request.auth.uid == owner || request.auth.uid == member);
     }
 
-    // Partner invites: created by a signed-in user FOR their own household (or one they belong to);
-    // any signed-in user may redeem (get) a code they were given. No listing, edits, or deletes.
+    // R14: the household key locked by a one-time return code, left by a member for an owner who lost both codes.
+    match /households/{owner}/keyReturn/{doc} {
+      allow read: if signedIn() && (request.auth.uid == owner || isMember(owner));
+      allow create, update: if isMember(owner);
+      allow delete: if signedIn() && (request.auth.uid == owner || isMember(owner));
+    }
+
+    // Partner invites: created by the account holder FOR their own household, carrying the key locked by a one-time key code
+    // and a check value of that code (R13); createdAt must be the server's time, and the 7 days count from it. Any signed-in
+    // user may redeem (get) a code they were given. The owner, or the member who joined with it, deletes it. No listing, edits.
     match /invites/{code} {
       allow create: if signedIn()
         && request.resource.data.householdId is string
-        && (request.resource.data.householdId == request.auth.uid
-            || isMember(request.resource.data.householdId));
+        && request.resource.data.householdId == request.auth.uid
+        && request.resource.data.wrappedKey is string
+        && request.resource.data.keyCodeCheck is string
+        && request.resource.data.createdAt == request.time;
       allow get: if signedIn();
-      allow list, update, delete: if false;
+      allow delete: if signedIn()
+        && (resource.data.householdId == request.auth.uid
+            || (exists(/databases/$(database)/documents/households/$(resource.data.householdId)/members/$(request.auth.uid))
+                && get(/databases/$(database)/documents/households/$(resource.data.householdId)/members/$(request.auth.uid)).data.code == code));
+      allow list, update: if false;
+    }
+
+    // R8a: the minimum app version that may still save; read by anyone signed in, written only from the console.
+    match /config/app {
+      allow read: if signedIn();
+      allow write: if false;
     }
 
     // Feedback: any signed-in user may submit (create); nobody may read/update/delete from the client.

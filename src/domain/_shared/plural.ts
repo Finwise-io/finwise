@@ -11,6 +11,8 @@ export const PLURAL_WORDS = {
   account: 'accounts',
   answer: 'answers',
   bond: 'bonds',
+  // an option named by its kind: "one QQQ $600 put", "two QQQ $600 puts" (the record's expired / exercised question, 2026-11-12)
+  call: 'calls',
   CD: 'CDs',
   // the units a quantity is counted in (MK-PF-F-033 quantityWithUnit, 2026-10-21): coin, ounce and unit were made
   // singular by dropping the final s, outside this list (outside re-run OpenAI part 3)
@@ -33,6 +35,7 @@ export const PLURAL_WORDS = {
   payment: 'payments',
   property: 'properties',
   purchase: 'purchases',
+  put: 'puts',
   record: 'records',
   row: 'rows',
   // 'sale' left the list on 2026-10-12: the only count of sales in words ("1 sale had no recorded purchase") became one
@@ -63,13 +66,14 @@ export type CountedWord = keyof typeof PLURAL_WORDS;
  *               MK-NW-F-028 classPortionLabel · MK-NW-F-046 historyCoverage
  *               MK-NW-F-052 buildItemizedAccounts · MK-NW-F-070 accruedInterestCaveat
  *               MK-NW-F-130 notIncludedSentence · MK-NW-F-154 accountInvestments
- *               MK-NW-F-188 howReturnCalculated · MK-PF-F-033 quantityWithUnit
- *               MK-PF-F-045 priceHistoryShortSentence · MK-PL-F-028 sampleAskLine
- *               MK-PL-F-031 taxOrganizer · MK-PL-F-063 fraLabel
- *               MK-ST-F-075 agoLabel · MK-XS-F-002 dataGaps
- *               MK-XS-F-003 gapsHeadline · MK-XS-F-183 writeFigure
+ *               MK-NW-F-188 howReturnCalculated · MK-NW-F-319 listQuestionToAsk
+ *               MK-PF-F-033 quantityWithUnit · MK-PF-F-045 priceHistoryShortSentence
+ *               MK-PL-F-028 sampleAskLine · MK-PL-F-031 taxOrganizer
+ *               MK-PL-F-063 fraLabel · MK-ST-F-075 agoLabel
+ *               MK-XS-F-002 dataGaps · MK-XS-F-003 gapsHeadline
+ *               MK-XS-F-183 writeFigure
  *
- * Reaches ..... 578 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 647 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -79,7 +83,7 @@ export type CountedWord = keyof typeof PLURAL_WORDS;
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 560 more — the full list is on functions_from_code
+ *               … and 629 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-064 the unit beside a quantity — shares, coins, contracts, ounces or units
@@ -134,7 +138,7 @@ const LETTER_SAID_WITH_AN = 'AEFHILMNORSX';
  *
  * Called by ... MK-CF-F-302 setupLoanSentences · MK-NW-F-067 plural
  *
- * Reaches ..... 579 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 648 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -144,7 +148,7 @@ const LETTER_SAID_WITH_AN = 'AEFHILMNORSX';
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 561 more — the full list is on functions_from_code
+ *               … and 630 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

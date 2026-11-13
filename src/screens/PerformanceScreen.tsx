@@ -13,7 +13,7 @@ import { SectionBand } from '../components/SectionBand';
 import { SourceChip, sourceWords } from '../components/SourceChip';
 import { DataGapsBanner } from '../components/DataGapsBanner';
 import { dataGaps } from '../domain/gaps';
-import { thePerformance, categoryEarnings, categoriesEarnedTotal, walkDirectionWords, windowStartKey, investmentAccountIdsOf, investmentRecordDates, overTheYearsSentence, howReturnCalculated } from '../../MoneyKeel/functions/networth-and-performance/performance';
+import { thePerformance, categoryEarnings, categoriesEarnedTotal, walkDirectionWords, windowStartKey, investmentAccountIdsOf, investmentRecordDates, overTheYearsSentence, howReturnCalculated, accountWalksShown } from '../../MoneyKeel/functions/networth-and-performance/performance';
 import { personalFlowTotals } from '../../Calculation Module code/engines/ledger';
 import { windowBounds } from '../../Calculation Module code/engines/window-return';
 import { Dec } from '../../Calculation Module code/engines/decimal';
@@ -462,16 +462,20 @@ export default function PerformanceScreen() {
           $2,000 short of its own page and the accounts stopped summing to the total above them. */}
       {!nothingEntered && (() => {
         const names = accountDisplayNames(accounts);   // one account name, used everywhere
-        const list = (resolvedNwAccounts as AssetAccount[]).filter((a) => investIds.has(String(a.asset_id)) && (a.balance > 0 || (a.positions?.length ?? 0) > 0));
-        return list.map((acct, i) => {
-          const id = String(acct.asset_id);
-          const label = names.get(acct.asset_id) ?? acct.label ?? 'Account';
+        // EVERY ACCOUNT THAT HAD A VALUE OR MONEY MOVED INSIDE THE WINDOW IS LISTED, WORTH $0 TODAY OR NOT (2026-11-12, Performance phase 4
+        // item 5; DEC-3523 tenets 2 and 3; the lead's DEC-7450 for a holding sold in full, widened to an account). An account sold to $0
+        // and withdrawn inside the window was in the total and on no card: A $60,000, $61,500 taken out Aug 14, and B $40,000 → $41,300
+        // read Wealth generated $2,800 above one card of $1,300. Now A is listed at $0 with its $1,500: $1,500 + $1,300 = $2,800. An
+        // account emptied before the window began (nothing then, nothing moved since) is not listed. To reverse: list balance > 0 or
+        // holdings only.
+        const cardOf = (acct: AssetAccount) => {
           // this account's own holdings: the door decides their gain, and an account with no positions counts as its
           // own instrument — a CD by its rate (DEC-3656, 2026-10-09), anything else left out of Wealth generated and
           // Return and named below them (DEC-5068, 2026-10-13)
           // (a holding sold in full inside the window names its own account — its row is built from the sale records, 2026-10-22)
+          const id = String(acct.asset_id);
           const held = (rows as any[]).filter((r) => (owned.find((x) => x.p.position_id === r.position.position_id)?.accountId ?? r.position?.account_id) === acct.asset_id);
-          const one = thePerformance({
+          return thePerformance({
             windowStart: now.windowStart, windowLabel: phraseFor(period), today: todayKey,
             holdings: held,
             // each holding's price history: the days of a window before the daily record begins are worked back from it and joined to the record's own return (DEC-6412, 2026-10-19)
@@ -483,7 +487,23 @@ export default function PerformanceScreen() {
             accounts: resolvedNwAccounts as any[],
             wholeRecord: (period as string) === 'SINCE',
           });
+        };
+        const hadMoney = (w: { beginning: number; contributions: number; withdrawals: number; dividends: number; interest: number } | null) =>
+          !!w && [w.beginning, w.contributions, w.withdrawals, w.dividends, w.interest].some((v) => Math.abs(v || 0) >= 0.005);
+        const cards = (resolvedNwAccounts as AssetAccount[]).filter((a) => investIds.has(String(a.asset_id)))
+          .map((acct) => ({ acct, one: cardOf(acct) }))
+          .filter(({ acct, one }) => acct.balance > 0 || (acct.positions?.length ?? 0) > 0 || hadMoney(one.walk));
+        // EACH LINE OF THE CARDS ADDS UP TO THE SAME LINE OF THE TOTAL ABOVE (2026-11-12, phase 4 item 6; MK-XS-F-194 partsShown through
+        // accountWalksShown): three cards $1,000.40 → $1,100.80 read $101 each, $303 under a total of $301; now $100 + $101 + $100.
+        const shared = accountWalksShown(cards.map((c) => c.one.walk), walk);
+        const list = cards.map((c) => c.acct);
+        return cards.map(({ acct, one }, i) => {
+          const id = String(acct.asset_id);
+          const label = names.get(acct.asset_id) ?? acct.label ?? 'Account';
           const w = one.walk;
+          // the card's printed lines: its share of each line of the total; its bar is its own printed ending
+          const ws = shared[i] ?? (w ? walkShown(w) : null);
+          const barValue = ws ? ws.ending : (acct.balance || 0);
           // the drawing opens the first account when there are several (phone 1) and leaves a lone one
           // closed (phone 3); on day one every walk is open and there is nothing to collapse (phone 4)
           const isOpen = dayOneView || (openAcctWalk[id] ?? (i === 0 && list.length > 1));
@@ -495,14 +515,14 @@ export default function PerformanceScreen() {
             <View key={id} style={styles.card}>
               <TouchableOpacity accessibilityRole="button" activeOpacity={0.85} disabled={dayOneView}
                 onPress={() => setOpenAcctWalk((m) => ({ ...m, [id]: !isOpen }))}
-                accessibilityLabel={`${label}, ${figSaid('MK-PF-M-005', acct.balance || 0)}.${dayOneView ? '' : ` ${isOpen ? 'Collapses' : 'Expands'} its walk.`}`}
+                accessibilityLabel={`${label}, ${figSaid('MK-PF-M-005', barValue)}.${dayOneView ? '' : ` ${isOpen ? 'Collapses' : 'Expands'} its walk.`}`}
                 /* THE ACCOUNT'S OWN PAGE, FOR A SCREEN READER TOO (2026-10-23, E2E-68): the bar is one button (it opens and closes
                    the walk), so the name's door and the "›" inside it could not be reached by VoiceOver — the account's page could
                    not be opened at all. It is the bar's action, named as the door is, opening the same page on the same window
                    (the Home hero card's pattern, W-A11Y 2026-10-22). To reverse: remove the two props. */
                 accessibilityActions={[{ name: 'openAccountPage', label: `Open ${label} — this account’s own page` }]}
                 onAccessibilityAction={(ev) => { if (ev.nativeEvent.actionName === 'openAccountPage') openPage(); }}>
-                <SectionBand inCard title={`${dayOneView ? '' : isOpen ? '▾ ' : '▸ '}${label}`} value={fig('MK-PF-M-005', acct.balance || 0)}
+                <SectionBand inCard title={`${dayOneView ? '' : isOpen ? '▾ ' : '▸ '}${label}`} value={fig('MK-PF-M-005', barValue)}
                   // the page opens on the window picked here (account-page drawing v01, row 18, DEC-6457)
                   onTitlePress={() => router.push(`/account-detail?id=${id}&period=${period}` as any)}
                   /* v17 draws "›" after every account bar: the bar opens that account's page (frame 2). It sits in the
@@ -517,12 +537,12 @@ export default function PerformanceScreen() {
                   {/* THE SOURCE IS THE LABEL, AS ON AN OPEN ACCOUNT (v17 READ THIS FIRST, 2026-10-12 (6): "🔗 Linked" in green on light green,
                       as Net worth v08 draws it; "✍️ By hand · you update it" the grey label v08 draws — 2026-10-25, MM-PF D4 and D21). The
                       closed line printed it as plain grey words. Said as one line, as before. To reverse: print src.icon and src.text as words. */}
-                  <View style={styles.closedLine} accessible accessibilityLabel={`${src.text}${w ? `, wealth generated ${figSaid('MK-PF-M-014', walkShown(w).wealthGenerated)}` : ''}${one.ret != null ? `, return ${yearsSaid('MK-PF-M-016', one) ?? figSaid('MK-PF-M-016', one.ret)}` : ''}`}>
+                  <View style={styles.closedLine} accessible accessibilityLabel={`${src.text}${ws ? `, wealth generated ${figSaid('MK-PF-M-014', ws.wealthGenerated)}` : ''}${one.ret != null ? `, return ${yearsSaid('MK-PF-M-016', one) ?? figSaid('MK-PF-M-016', one.ret)}` : ''}`}>
                     <SourceChip account={acct} />
                     {/* over a window longer than a year, the account's own total and the yearly rate it makes (DEC-0237, DEC-0404) */}
-                    {(!!w || !!oneReturn) && (
+                    {(!!ws || !!oneReturn) && (
                       <Text style={[styles.sumNote, styles.closedRest]}>
-                        {w ? `· wealth generated ${walkShown(w).wealthGenerated < 0 ? '−' : ''}${fig('MK-PF-M-014', Math.abs(walkShown(w).wealthGenerated))}` : ''}{oneReturn ? `${w ? ' ' : ''}· return ${yearsShown('MK-PF-M-016', one) ?? oneReturn}` : ''}
+                        {ws ? `· wealth generated ${ws.wealthGenerated < 0 ? '−' : ''}${fig('MK-PF-M-014', Math.abs(ws.wealthGenerated))}` : ''}{oneReturn ? `${ws ? ' ' : ''}· return ${yearsShown('MK-PF-M-016', one) ?? oneReturn}` : ''}
                       </Text>
                     )}
                   </View>
@@ -533,7 +553,7 @@ export default function PerformanceScreen() {
                 <>
                   <View style={styles.walkChip}><SourceChip account={acct} /></View>
                   {!dayOneView && !!one.sentence && <Text style={styles.sumNote} accessibilityLabel={spokenDollars(one.sentence)}>{maskDollars(one.sentence)}</Text>}
-                  {w && walkRows(w, { begin: 'MK-PF-M-013', line: 'MK-PF-M-015', wealth: 'MK-PF-M-014', end: 'MK-PF-M-004' })}
+                  {w && ws && walkRows(w, { begin: 'MK-PF-M-013', line: 'MK-PF-M-015', wealth: 'MK-PF-M-014', end: 'MK-PF-M-004' }, ws)}
                   {dayOneView ? (
                     <Text style={styles.sumNote}>These lines fill in as days pass.</Text>
                   ) : (

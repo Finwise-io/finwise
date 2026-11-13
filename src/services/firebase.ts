@@ -32,12 +32,14 @@ import {
   serverTimestamp,
   runTransaction,
 } from 'firebase/firestore';
-import { sameMarker, UNREADABLE, type CloudMarker, type CommitRecord, type PartRead } from './sync/assetRecordCloud';
+import { sameMarker, UNREADABLE, mergeQuestions, type CloudMarker, type CommitRecord, type PartRead, type QuestionsDoc } from './sync/assetRecordCloud';
+import { mergeProfile, splitStamps, withStamps, type ProfileSync, type ProfileStamps, type MergeNote, type PendingChange } from './sync/profileMerge';
 import { firebaseApp } from './firebaseConfig';
 import {
   cacheDataKey, clearDataKey, getDataKey, encryptForSync, decryptFromSync,
   generateDataKey, generateRecoveryCode, makeEnvelope, unwrapWithPassword, unwrapWithRecovery,
   rewrapPassword, rewrapRecovery, type KeyEnvelope,
+  keyIdOf, keyCodeProof, keyCodeCheck, generateKeyCode, wrapWithKeyCode, unwrapWithKeyCode, wrapWithReturnCode, unwrapWithReturnCode,
 } from './dataCrypto';
 
 // React Native: getAuth() at module load throws "Component auth has not been
@@ -186,7 +188,7 @@ export function isEmailVerified(): boolean {
  *
  * Called by ... MK-XS-F-147 call
  *
- * Reaches ..... 568 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 637 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -196,7 +198,7 @@ export function isEmailVerified(): boolean {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 550 more — the full list is on functions_from_code
+ *               … and 619 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -241,6 +243,10 @@ export function currentUserEmail(): string | null {
  *     env = (snap.data() as any).key envelope   if snap.exists()
  *     undefined   otherwise
  *     dek = unwrap with password(env, uid, password)
+ *     hh env = (snap.data() as any).household key envelope   if (snap.data() as any).household id
+ *     undefined   otherwise
+ *     hh key = unwrap with password(hh env, uid, password)   if hh env
+ *     nothing   otherwise
  *     the answer:
  *     user = cred.user
  *     needs recovery = true
@@ -262,7 +268,12 @@ export async function loginUser(email: string, password: string, onCodeReady?: (
 
   if (env) {
     const dek = unwrapWithPassword(env, uid, password);
-    if (dek) { await cacheDataKey(dek); await dataKeyIsReady(); return { user: cred.user, needsRecovery: false }; }
+    if (dek) {
+      // R13: a member reads and writes the household's copy, locked by the household key they re-locked under their own password
+      const hhEnv: KeyEnvelope | undefined = (snap.data() as any)?.householdId ? (snap.data() as any)?.householdKeyEnvelope : undefined;
+      const hhKey = hhEnv ? unwrapWithPassword(hhEnv, uid, password) : null;
+      await cacheDataKey(hhKey ?? dek); await dataKeyIsReady(); return { user: cred.user, needsRecovery: false };
+    }
     // Password is valid for Firebase but can't open the data → it was reset. Need the recovery code.
     return { user: cred.user, needsRecovery: true };
   }
@@ -294,6 +305,10 @@ export async function loginUser(email: string, password: string, onCodeReady?: (
  *     env = (snap.data() as any).key envelope   if snap.exists()
  *     undefined   otherwise
  *     dek = unwrap with recovery(env, uid, recovery code)
+ *     hh env = (snap.data() as any).household key envelope   if (snap.data() as any).household id
+ *     undefined   otherwise
+ *     hh key = unwrap with recovery(hh env, uid, recovery code)   if hh env
+ *     nothing   otherwise
  *
  * Called by ... nothing — it is an entry point, or nothing reaches it
  *
@@ -310,8 +325,14 @@ export async function restoreWithRecoveryCode(recoveryCode: string, newPassword:
   if (!env) throw new Error('No recovery information was found for this account.');
   const dek = unwrapWithRecovery(env, u.uid, recoveryCode);
   if (!dek) throw new Error('That recovery code is incorrect.');
-  await setDoc(doc(db, 'users', u.uid), { keyEnvelope: rewrapPassword(env, dek, u.uid, newPassword) }, { merge: true });
-  await cacheDataKey(dek);
+  // R14: a member's recovery code unlocks both keys — their own and the household's
+  const hhEnv: KeyEnvelope | undefined = (snap.data() as any)?.householdId ? (snap.data() as any)?.householdKeyEnvelope : undefined;
+  const hhKey = hhEnv ? unwrapWithRecovery(hhEnv, u.uid, recoveryCode) : null;
+  await setDoc(doc(db, 'users', u.uid), {
+    keyEnvelope: rewrapPassword(env, dek, u.uid, newPassword),
+    ...(hhEnv && hhKey ? { householdKeyEnvelope: rewrapPassword(hhEnv, hhKey, u.uid, newPassword) } : {}),
+  }, { merge: true });
+  await cacheDataKey(hhKey ?? dek);
   await dataKeyIsReady();   // the profile this phone could not read loads now, as a normal sign-in would (DEC-10749)
 }
 
@@ -412,7 +433,7 @@ export function onAuthChange(callback: (user: any) => void) {
 // Re-authenticates first (deletion is sensitive and Firebase requires a recent login), then removes
 // the Firestore data, then the Auth user — in that order so we never leave an orphaned auth account
 // with no data. `password` is required because the app uses email/password auth.
-/* ─ MK-XS-F-072 ──────────────────────────────────────────────────────────────────── 1 · ACTION
+/* ─ MK-XS-F-072 ──────────────────────────────────────────────────────────── 4 · BRINGS DATA IN
  * deleteAccount
  *
  * Answers ..... Permanently delete the signed-in user's account (App Store Guideline 5.1.1(v)).
@@ -420,9 +441,15 @@ export function onAuthChange(callback: (user: any) => void) {
  * Formula .....
  *     u = auth.current user
  *     cred = email auth provider.credential(email, password)
+ *     url = delete account url()
+ *     token = await get id token()
+ *     res = await fetch(url, { method: 'POST', headers: { 'content − Type': 'application ÷ json', authorization: `bearer ${token}` }, body: '{}' })
  *     root = await load user root(uid)
  *
- * Called by ... nothing — it is an entry point, or nothing reaches it
+ * Called by ... MK-XS-F-275 loadMinAppVersion
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-XS-F-275 loadMinAppVersion
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -437,8 +464,18 @@ export async function deleteAccount(password: string): Promise<void> {
   const cred = EmailAuthProvider.credential(u.email, password);
   await reauthenticateWithCredential(u, cred);
 
-  // 2) Remove Firestore data while still authenticated. If part of a spouse household, drop the
-  //    membership doc too (rules let either side delete it). Best-effort so a missing doc never blocks.
+  // 2) R16 (design v02, 2026-11-12): delete account runs on the server — solo: everything under users/{self}; a member: their
+  //    own document and member document; an owner with a member: the household moves to the member first. Where the server
+  //    function's address is not set yet (before it is deployed), the phone removes what the rules let it, as before.
+  const url = deleteAccountUrl();
+  if (url) {
+    const token = await u.getIdToken();
+    const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: '{}' });
+    if (!res.ok) throw new Error('Your account could not be deleted right now. Please try again.');
+    await deleteUser(u);
+    await clearDataKey();
+    return;
+  }
   try {
     const root = await loadUserRoot(u.uid);
     if (root.householdId && root.householdId !== u.uid) {
@@ -455,28 +492,146 @@ export async function deleteAccount(password: string): Promise<void> {
 // Sync fields stored ENCRYPTED under users/{uid}.appStateEnc (zero-knowledge — see dataCrypto.ts).
 // Firestore rejects `undefined` field values (e.g. optional institution / change_amount / due_day on
 // assets & debts) and would throw, silently failing the whole sync. Strip undefined first.
-/* ─ MK-XS-F-073 ──────────────────────────────────────────────────────────────────── 1 · ACTION
+/* ─ MK-XS-F-073 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * saveUserData
  *
  * Answers ..... Sync fields stored ENCRYPTED under users/{uid}.appStateEnc (zero-knowledge — see dataCrypto.ts).
  *
  * Formula .....
  *     clean = JSON.parse(JSON.stringify(data ?? {}))
- *     enc = await encrypt for sync(clean)
+ *     key = await get data key()
+ *     status = 'no − key'   when key is missing
+ *     my key id = key id of(key)
+ *     used = JSON.parse(JSON.stringify(sync.pending ?? {}))
+ *     ref = doc(db, 'users', uid)
+ *     snap = await tx.get(ref)
+ *     d = snap.data()   if snap.exists()
+ *     {}   otherwise
+ *     rev = profile rev   if profile rev is a number
+ *     0   otherwise
+ *     cloud stored = nothing
+ *     status = 'unreadable' as const   when key id and key id ! = my key id
+ *     … the first steps only — the rest of the body needs reading by hand.
  *
  * Called by ... nothing — it is an entry point, or nothing reaches it
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
+ * Decides .....
+ *     · Uses today's date from the device clock, so the answer changes by itself overnight.
+ *
  * Formula also on the master file · functions_from_code · MK-XS-F-073
  * Changed ..... 2026-06-19 (d42df82)
  */
-export async function saveUserData(uid: string, data: object) {
+export async function saveUserData(uid: string, data: object, sync?: Pick<ProfileSync, 'base' | 'pending'>): Promise<ProfileSaveResult> {
   const clean = JSON.parse(JSON.stringify(data ?? {}));
-  const enc = await encryptForSync(clean);
-  if (enc == null) return;   // no key yet → skip the cloud write (NEVER store plaintext); local copy is safe
-  // Write the ciphertext and remove any legacy plaintext field (migrates old accounts on first save).
-  await setDoc(doc(db, 'users', uid), { appStateEnc: enc, appState: deleteField() }, { merge: true });
+  const key = await getDataKey();
+  if (!key) return { status: 'no-key' };   // no key yet → skip the cloud write (NEVER store plaintext); local copy is safe
+  const myKeyId = keyIdOf(key);
+  const used: Record<string, PendingChange> = JSON.parse(JSON.stringify(sync?.pending ?? {}));
+  const ref = doc(db, 'users', uid);
+  // R8 + R8a: one transaction reads profileRev and the cloud's profile, merges this phone's unsaved changes item by item, and
+  // writes profileRev + 1 (the access rules refuse anything else). R12: a profile locked by another key is never written over.
+  return runTransaction(db, async (tx) => {
+    const snap = await tx.get(ref);
+    const d: any = snap.exists() ? snap.data() : {};
+    const rev: number = typeof d?.profileRev === 'number' ? d.profileRev : 0;   // R18: none counts as 0
+    let cloudStored: Record<string, any> | null = null;
+    if (d?.appStateEnc != null) {
+      if (d.keyId && d.keyId !== myKeyId) return { status: 'unreadable' as const };
+      cloudStored = await decryptFromSync(d.appStateEnc);
+      if (cloudStored == null) return { status: 'unreadable' as const };
+    } else if (d?.appState) cloudStored = d.appState;   // legacy plaintext (pre-encryption accounts)
+    const now = new Date().toISOString();
+    const { profile: cloud, stamps: cloudStamps } = splitStamps(cloudStored);
+    let profile: Record<string, any>, stamps: ProfileStamps, notes: MergeNote[] = [];
+    if (sync && cloud) ({ profile, stamps, notes } = mergeProfile(cloud, cloudStamps, { base: sync.base, pending: used }, now));
+    else {
+      // nothing in the cloud yet (or a caller with no list of changes): the phone's profile, stamped with its unsaved changes
+      profile = clean; stamps = { ...(cloudStamps ?? {}) };
+      for (const [k, p] of Object.entries(used)) if (!p.deleted) stamps[k] = p.at;
+    }
+    const enc = await encryptForSync(withStamps(profile, stamps));
+    if (enc == null) return { status: 'no-key' as const };
+    tx.set(ref, { appStateEnc: enc, keyId: myKeyId, profileRev: rev + 1, appState: deleteField() }, { merge: true });
+    return { status: 'saved' as const, profile, stamps, notes, used, profileRev: rev + 1 };
+  });
+}
+/** What a profile save did: saved (with the merged profile the phone now keeps), no key on the phone yet, or a cloud profile
+ *  this phone cannot open (R12: nothing is written). */
+export type ProfileSaveResult =
+  | { status: 'saved'; profile: Record<string, any>; stamps: ProfileStamps; notes: MergeNote[]; used: Record<string, PendingChange>; profileRev: number }
+  | { status: 'no-key' } | { status: 'unreadable' };
+
+/** R12 + R18: open an encrypted value that may carry a fingerprint. A fingerprint not of this phone's key: unreadable, never
+ *  tried. None (written before this change): the key is tried. */
+/* ─ MK-XS-F-272 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * openWithId
+ *
+ * Answers ..... R12 + R18: open an encrypted value that may carry a fingerprint.
+ *
+ * Formula .....
+ *     nothing   when value = nothing
+ *     key = await get data key()
+ *     nothing   when key is missing (or key id of(key) ! = key id when missing or zero)
+ *     the answer = decrypt from sync(value)
+ *
+ * Called by ... MK-XS-F-074 loadUserData · MK-XS-F-079 loadUserRoot
+ *               MK-XS-F-223 loadAssetRecordPart · MK-XS-F-242 readUserProfile
+ *               MK-XS-F-274 syncAssetRecordQuestions
+ *
+ * Reaches ..... 8 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-072 deleteAccount · MK-XS-F-223 loadAssetRecordPart
+ *               MK-XS-F-275 loadMinAppVersion · MK-XS-F-074 loadUserData
+ *               MK-XS-F-079 loadUserRoot · MK-XS-F-242 readUserProfile
+ *               MK-XS-F-077 setUserHousehold · MK-XS-F-274 syncAssetRecordQuestions
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-272
+ * Changed ..... not in git yet (—)
+ */
+async function openWithId(value: unknown, keyId: string | null | undefined): Promise<any | null> {
+  if (value == null) return null;
+  if (keyId) {
+    const key = await getDataKey();
+    if (!key || keyIdOf(key) !== keyId) return null;
+  }
+  return decryptFromSync(value);
+}
+/** Encrypt with this phone's key, naming the key (R12): null where there is no key yet. */
+/* ─ MK-XS-F-273 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * sealWithId
+ *
+ * Answers ..... Encrypt with this phone's key, naming the key (R12): null where there is no key yet.
+ *
+ * Formula .....
+ *     key = await get data key()
+ *     nothing   when key is missing
+ *     enc = await encrypt for sync(obj)
+ *     the answer:
+ *     nothing   if enc = nothing
+ *     enc = enc
+ *     key id = key id of(key)   otherwise
+ *
+ * Called by ... MK-XS-F-222 saveAssetRecordPart · MK-XS-F-233 commitAssetRecord
+ *               MK-XS-F-274 syncAssetRecordQuestions
+ *
+ * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-233 commitAssetRecord · MK-XS-F-239 loadCloudRecord
+ *               MK-XS-F-285 mergeQuestions · MK-XS-F-222 saveAssetRecordPart
+ *               MK-XS-F-274 syncAssetRecordQuestions
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-273
+ * Changed ..... not in git yet (—)
+ */
+async function sealWithId(obj: unknown): Promise<{ enc: string; keyId: string } | null> {
+  const key = await getDataKey();
+  if (!key) return null;
+  const enc = await encryptForSync(obj);
+  return enc == null ? null : { enc, keyId: keyIdOf(key) };
 }
 
 /** THE MASTER RECORD IN THE CLOUD (his "yes", 2026-11-11): one encrypted document per part, under
@@ -488,8 +643,8 @@ export async function saveUserData(uid: string, data: object) {
  * Answers ..... THE MASTER RECORD IN THE CLOUD (his "yes", 2026-11-11): one encrypted document per part, under users/{uid}/assetRecord/{part} — readable and writable only by the account holder and a household member (the rules for users/{uid} and everything under it).
  *
  * Formula .....
- *     enc = await encrypt for sync({ rows: JSON.parse(JSON.stringify(rows)) })
- *     false   when enc = nothing
+ *     sealed = await seal with id({ rows: JSON.parse(JSON.stringify(rows)) })
+ *     false   when sealed = nothing
  *     the answer = true
  *
  * Called by ... nothing — it is an entry point, or nothing reaches it
@@ -500,9 +655,9 @@ export async function saveUserData(uid: string, data: object) {
  * Changed ..... 2026-11-11 (d188fd68)
  */
 export async function saveAssetRecordPart(uid: string, part: number, rows: unknown[]): Promise<boolean> {
-  const enc = await encryptForSync({ rows: JSON.parse(JSON.stringify(rows)) });
-  if (enc == null) return false;   // no key yet → skip the cloud write (NEVER store plaintext) and say so, so the part is written again later
-  await setDoc(doc(db, 'users', uid, 'assetRecord', String(part)), { enc });
+  const sealed = await sealWithId({ rows: JSON.parse(JSON.stringify(rows)) });
+  if (sealed == null) return false;   // no key yet → skip the cloud write (NEVER store plaintext) and say so, so the part is written again later
+  await setDoc(doc(db, 'users', uid, 'assetRecord', String(part)), sealed);
   return true;
 }
 
@@ -516,7 +671,7 @@ export async function saveAssetRecordPart(uid: string, part: number, rows: unkno
  *     snap = await get doc(doc(db, 'users', uid, 'assetRecord', string(part)))
  *     nothing   when !snap.exists()
  *     d = snap.data()
- *     plain = await decrypt from sync(enc)   if enc ≠ nothing
+ *     plain = await open with id(enc, key id)   if enc ≠ nothing
  *     nothing   otherwise
  *     the answer:
  *     (plain as any).rows   if array.is array((plain as any).rows)
@@ -533,7 +688,7 @@ export async function loadAssetRecordPart(uid: string, part: number): Promise<Pa
   const snap = await getDoc(doc(db, 'users', uid, 'assetRecord', String(part)));
   if (!snap.exists()) return null;   // no such part: the record ends before it
   const d = snap.data();
-  const plain = d?.enc != null ? await decryptFromSync(d.enc) : null;
+  const plain = d?.enc != null ? await openWithId(d.enc, d.keyId) : null;   // R12: another key's part is unreadable, never tried
   // the part is there but cannot be read (no key on this phone yet, or the text does not open): told apart from "no such part",
   // so it is never taken as the end of the record (outside check 2, 2026-11-12)
   return Array.isArray((plain as any)?.rows) ? (plain as any).rows : UNREADABLE;
@@ -579,9 +734,10 @@ export async function loadAssetRecordMarker(uid: string): Promise<CloudMarker | 
  *
  * Called by ... MK-XS-F-231 loadAssetRecordMarker · MK-XS-F-233 commitAssetRecord
  *
- * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
  *               MK-XS-F-233 commitAssetRecord · MK-XS-F-231 loadAssetRecordMarker
- *               MK-XS-F-239 loadCloudRecord
+ *               MK-XS-F-239 loadCloudRecord · MK-XS-F-285 mergeQuestions
+ *               MK-XS-F-274 syncAssetRecordQuestions
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -604,8 +760,8 @@ function markerFrom(d: any): CloudMarker | null {
  *
  * Formula .....
  *     encs = []
- *     enc = await encrypt for sync({ rows: JSON.parse(JSON.stringify(rows)) })
- *     status = 'no − key'   when enc = nothing
+ *     sealed = await seal with id({ rows: JSON.parse(JSON.stringify(rows)) })
+ *     status = 'no − key'   when sealed = nothing
  *     marker ref = doc(db, 'users', uid, 'assetRecord', 'marker')
  *     snap = await tx.get(marker ref)
  *     actual = marker from(snap.data())   if snap.exists()
@@ -616,8 +772,9 @@ function markerFrom(d: any): CloudMarker | null {
  *
  * Called by ... MK-XS-F-239 loadCloudRecord
  *
- * Reaches ..... 1 function. Change the arithmetic above and these change with it:
- *               MK-XS-F-239 loadCloudRecord
+ * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-239 loadCloudRecord · MK-XS-F-285 mergeQuestions
+ *               MK-XS-F-274 syncAssetRecordQuestions
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -626,18 +783,18 @@ function markerFrom(d: any): CloudMarker | null {
  */
 export function commitAssetRecord(uid: string): CommitRecord {
   return async (parts, expected, next) => {
-    const encs: { part: number; enc: string }[] = [];
+    const encs: { part: number; enc: string; keyId: string }[] = [];
     for (const { part, rows } of parts) {
-      const enc = await encryptForSync({ rows: JSON.parse(JSON.stringify(rows)) });
-      if (enc == null) return { status: 'no-key' };   // NEVER store plaintext; the save is tried again later
-      encs.push({ part, enc });
+      const sealed = await sealWithId({ rows: JSON.parse(JSON.stringify(rows)) });
+      if (sealed == null) return { status: 'no-key' };   // NEVER store plaintext; the save is tried again later
+      encs.push({ part, ...sealed });
     }
     const markerRef = doc(db, 'users', uid, 'assetRecord', 'marker');
     return runTransaction(db, async (tx) => {
       const snap = await tx.get(markerRef);
       const actual = snap.exists() ? markerFrom(snap.data()) : null;
       if (!sameMarker(actual, expected)) return { status: 'moved-on' as const, marker: actual };
-      for (const { part, enc } of encs) tx.set(doc(db, 'users', uid, 'assetRecord', String(part)), { enc });
+      for (const { part, enc, keyId } of encs) tx.set(doc(db, 'users', uid, 'assetRecord', String(part)), { enc, keyId });
       tx.set(markerRef, { ...next });
       return { status: 'saved' as const };
     });
@@ -727,7 +884,7 @@ export async function flushBeforeSignOut(timeoutMs = 4000): Promise<void> {
  *     snap = await get doc(doc(db, 'users', uid))
  *     nothing   when !snap.exists()
  *     d = snap.data()
- *     await decrypt from sync(app state enc)   when app state enc ≠ nothing
+ *     await open with id(app state enc, key id)   when app state enc ≠ nothing
  *     the answer = app state (or nothing when missing)
  *
  * Called by ... MK-XS-F-077 setUserHousehold
@@ -744,7 +901,7 @@ export async function loadUserData(uid: string): Promise<Record<string, any> | n
   const snap = await getDoc(doc(db, 'users', uid));
   if (!snap.exists()) return null;
   const d = snap.data();
-  if (d?.appStateEnc != null) return await decryptFromSync(d.appStateEnc);
+  if (d?.appStateEnc != null) return await openWithId(d.appStateEnc, d.keyId);
   return d?.appState ?? null;   // legacy plaintext (pre-encryption accounts)
 }
 
@@ -764,10 +921,10 @@ export async function loadUserData(uid: string): Promise<Record<string, any> | n
  *     alphabet = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789'
  *     the answer = array.from({ length: 6 }, () => ALPHABET[math.floor(math.random() × ALPHABET.length)]).join('')
  *
- * Called by ... MK-XS-F-075 createInvite
+ * Called by ... MK-XS-F-075 createInvite · MK-XS-F-277 createInviteWithKeyCode
  *
- * Reaches ..... 1 function. Change the arithmetic above and these change with it:
- *               MK-XS-F-075 createInvite
+ * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-075 createInvite · MK-XS-F-277 createInviteWithKeyCode
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -894,30 +1051,27 @@ export async function joinHouseholdMembership(uid: string, householdId: string, 
  *     app state = nothing
  *     app state unreadable = false   when !snap.exists()
  *     d = snap.data() as any
- *     app state = await decrypt from sync(app state enc)   if app state enc ≠ nothing
+ *     app state = await open with id(app state enc, key id)   if app state enc ≠ nothing
  *     app state (or nothing when missing)   otherwise
- *     the answer:
- *     household id = household id (or nothing when missing)
- *     app state = app state
- *     app state unreadable = app state enc ≠ nothing and app state = nothing
  *
  * Called by ... MK-XS-F-072 deleteAccount
  *
- * Reaches ..... 1 function. Change the arithmetic above and these change with it:
- *               MK-XS-F-072 deleteAccount
+ * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-072 deleteAccount · MK-XS-F-275 loadMinAppVersion
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
  * Formula also on the master file · functions_from_code · MK-XS-F-079
  * Changed ..... 2026-06-20 (3ca4a85)
  */
-export async function loadUserRoot(uid: string): Promise<{ householdId: string | null; appState: Record<string, any> | null; appStateUnreadable: boolean }> {
+export async function loadUserRoot(uid: string): Promise<{ householdId: string | null; appState: Record<string, any> | null; appStateUnreadable: boolean; movedFrom?: string }> {
   const snap = await getDoc(doc(db, 'users', uid));
   if (!snap.exists()) return { householdId: null, appState: null, appStateUnreadable: false };
   const d = snap.data() as any;
-  const appState = d?.appStateEnc != null ? await decryptFromSync(d.appStateEnc) : (d?.appState ?? null);
+  const appState = d?.appStateEnc != null ? await openWithId(d.appStateEnc, d.keyId) : (d?.appState ?? null);
   // a profile in the cloud this phone has no key for yet is never "no profile" (DEC-10749, 2026-11-12)
-  return { householdId: d?.householdId ?? null, appState, appStateUnreadable: d?.appStateEnc != null && appState == null };
+  return { householdId: d?.householdId ?? null, appState, appStateUnreadable: d?.appStateEnc != null && appState == null,
+    ...(d?.movedFrom ? { movedFrom: d.movedFrom as string } : {}) };   // R16: the household moved here from this owner
 }
 
 /** A profile document (the household's shared one) read so that "nothing in the cloud" and "there, but this phone has no key
@@ -932,7 +1086,7 @@ export async function loadUserRoot(uid: string): Promise<{ householdId: string |
  *     app state = nothing
  *     app state unreadable = false   when !snap.exists()
  *     d = snap.data() as any
- *     app state = await decrypt from sync(app state enc)   if app state enc ≠ nothing
+ *     app state = await open with id(app state enc, key id)   if app state enc ≠ nothing
  *     app state (or nothing when missing)   otherwise
  *     the answer:
  *     app state = app state
@@ -949,7 +1103,7 @@ export async function readUserProfile(uid: string): Promise<{ appState: Record<s
   const snap = await getDoc(doc(db, 'users', uid));
   if (!snap.exists()) return { appState: null, appStateUnreadable: false };
   const d = snap.data() as any;
-  const appState = d?.appStateEnc != null ? await decryptFromSync(d.appStateEnc) : (d?.appState ?? null);
+  const appState = d?.appStateEnc != null ? await openWithId(d.appStateEnc, d.keyId) : (d?.appState ?? null);
   return { appState, appStateUnreadable: d?.appStateEnc != null && appState == null };
 }
 
@@ -983,9 +1137,11 @@ export function onDataKeyReady(fn: (() => Promise<void> | void) | null) { keyRea
  *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
  *
  * Called by ... MK-XS-F-066 loginUser · MK-XS-F-067 restoreWithRecoveryCode
+ *               MK-XS-F-278 joinHouseholdWithKeyCode · MK-XS-F-280 restoreOwnerWithReturnCode
  *
- * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
- *               MK-XS-F-066 loginUser · MK-XS-F-067 restoreWithRecoveryCode
+ * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-278 joinHouseholdWithKeyCode · MK-XS-F-066 loginUser
+ *               MK-XS-F-280 restoreOwnerWithReturnCode · MK-XS-F-067 restoreWithRecoveryCode
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -1029,4 +1185,265 @@ export async function submitFeedback(payload: {
     status: 'new',
     createdAt: serverTimestamp(),
   });
+}
+
+// ── THE CLOUD COPY OF THE MASTER RECORD, design v02 (2026-11-12) ─────────────────────────────────────────────────────
+
+/** R6a: open questions live in one encrypted document beside the record's parts (users/{owner}/assetRecord/questions). One
+ *  transaction reads it, merges this phone's questions by key (`seenInCloud`: the keys this phone last read there, so an
+ *  answer on either phone removes the question from both), and writes the merge. Returns the merged questions and the keys
+ *  answered on another phone, for this phone to drop; null where the phone has no key or the document is another key's. */
+/* ─ MK-XS-F-274 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+ * syncAssetRecordQuestions
+ *
+ * Answers ..... R6a: open questions live in one encrypted document beside the record's parts (users/{owner}/assetRecord/questions).
+ *
+ * Formula .....
+ *     key = await get data key()
+ *     nothing   when key is missing
+ *     ref = doc(db, 'users', owner, 'assetRecord', 'questions')
+ *     snap = await tx.get(ref)
+ *     d = snap.data()   if snap.exists()
+ *     nothing   otherwise
+ *     cloud = {}
+ *     plain = await open with id(enc, key id)
+ *     nothing   when plain = nothing
+ *     m = merge questions(cloud, phone, seen in cloud)
+ *     sealed = await seal with id({ questions: JSON.parse(JSON.stringify(questions)) })
+ *     nothing   when sealed is missing
+ *     … the first steps only — the rest of the body needs reading by hand.
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-274
+ * Changed ..... not in git yet (—)
+ */
+export async function syncAssetRecordQuestions(owner: string, phone: QuestionsDoc, seenInCloud: readonly string[]):
+  Promise<{ questions: QuestionsDoc; answeredElsewhere: string[] } | null> {
+  const key = await getDataKey();
+  if (!key) return null;
+  const ref = doc(db, 'users', owner, 'assetRecord', 'questions');
+  return runTransaction(db, async (tx) => {
+    const snap = await tx.get(ref);
+    const d: any = snap.exists() ? snap.data() : null;
+    let cloud: QuestionsDoc = {};
+    if (d?.enc != null) {
+      const plain = await openWithId(d.enc, d.keyId);
+      if (plain == null) return null;   // R12: never written over
+      cloud = plain?.questions ?? {};
+    }
+    const m = mergeQuestions(cloud, phone, seenInCloud);
+    const sealed = await sealWithId({ questions: JSON.parse(JSON.stringify(m.questions)) });
+    if (!sealed) return null;
+    tx.set(ref, sealed);
+    return { questions: m.questions, answeredElsewhere: m.answeredElsewhere };
+  });
+}
+
+/** R8a: the minimum app version that may still save (config/app.minVersion), or null where none is set or it cannot be read. */
+/* ─ MK-XS-F-275 ──────────────────────────────────────────────────────────── 4 · BRINGS DATA IN
+ * loadMinAppVersion
+ *
+ * Answers ..... R8a: the minimum app version that may still save (config/app.minVersion), or null where none is set or it cannot be read.
+ *
+ * Formula .....
+ *     snap = await get doc(doc(db, 'config', 'app'))
+ *     v = (snap.data() as any).min version   if snap.exists()
+ *     nothing   otherwise
+ *     the answer:
+ *     v   if v is a string
+ *     nothing   otherwise
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-275
+ * Changed ..... not in git yet (—)
+ */
+export async function loadMinAppVersion(): Promise<string | null> {
+  try {
+    const snap = await getDoc(doc(db, 'config', 'app'));
+    const v = snap.exists() ? (snap.data() as any)?.minVersion : null;
+    return typeof v === 'string' ? v : null;
+  } catch { return null; }
+}
+
+/** R16: the server function's address that deletes an account (functions/index.js deleteAccount). */
+/* ─ MK-XS-F-276 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * deleteAccountUrl
+ *
+ * Answers ..... R16: the server function's address that deletes an account (functions/index.js deleteAccount).
+ *
+ * Formula .....
+ *     constants = require('expo − constants').default
+ *     the answer = (constants.expo config.extra as any).DELETE_ACCOUNT_URL (or process.env.DELETE_ACCOUNT_URL (or nothing when missing or zero) when missing or zero)
+ *
+ * Called by ... MK-XS-F-072 deleteAccount
+ *
+ * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-072 deleteAccount · MK-XS-F-275 loadMinAppVersion
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-276
+ * Changed ..... not in git yet (—)
+ */
+export function deleteAccountUrl(): string | null {
+  try {
+    const Constants = require('expo-constants').default;
+    return (Constants?.expoConfig?.extra as any)?.DELETE_ACCOUNT_URL || process.env.DELETE_ACCOUNT_URL || null;
+  } catch { return process.env.DELETE_ACCOUNT_URL || null; }
+}
+
+/** R13: an invite that shares the household's key. The owner's phone shows the 6-letter invite code AND a one-time 20-letter
+ *  key code; the invite holds the key locked by the key code and a check value of it, and the access rules give it 7 days
+ *  from the server's creation time. Needs the key on the phone. (The screen that shows the key code waits for its mock.) */
+/* ─ MK-XS-F-277 ──────────────────────────────────────────────────────────────────── 1 · ACTION
+ * createInviteWithKeyCode
+ *
+ * Answers ..... R13: an invite that shares the household's key.
+ *
+ * Formula .....
+ *     dek = await get data key()
+ *     code = make invite code()
+ *     key code = generate key code()
+ *     the answer = { code, key code }
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-277
+ * Changed ..... not in git yet (—)
+ */
+export async function createInviteWithKeyCode(householdId: string, inviterName: string | null): Promise<{ code: string; keyCode: string }> {
+  const dek = await getDataKey();
+  if (!dek) throw new Error('Unlock the app first, then try again.');
+  const code = makeInviteCode();
+  const keyCode = generateKeyCode();
+  await setDoc(doc(db, 'invites', code), {
+    householdId,
+    inviterName: inviterName ?? null,
+    createdAt: serverTimestamp(),
+    wrappedKey: wrapWithKeyCode(dek, keyCode, code),
+    keyCodeCheck: keyCodeCheck(keyCode),
+  });
+  return { code, keyCode };
+}
+
+/** R13: join a household with the invite code and the key code. The key code opens the household key; the member document
+ *  carries the proof the access rules check; the member re-locks the key under their own password and recovery code, and
+ *  deletes the invite. Throws where the invite is gone or the key code is wrong. */
+/* ─ MK-XS-F-278 ──────────────────────────────────────────────────────────── 4 · BRINGS DATA IN
+ * joinHouseholdWithKeyCode
+ *
+ * Answers ..... R13: join a household with the invite code and the key code.
+ *
+ * Formula .....
+ *     code = invite code.trim().to upper case()
+ *     snap = await get doc(doc(db, 'invites', code))
+ *     inv = snap.data()   if snap.exists()
+ *     nothing   otherwise
+ *     hh key = unwrap with key code(inv.wrapped key, key code, code)
+ *     the answer = inv.household id
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-278
+ * Changed ..... not in git yet (—)
+ */
+export async function joinHouseholdWithKeyCode(uid: string, inviteCode: string, keyCode: string, password: string, recoveryCode: string): Promise<string> {
+  const code = inviteCode.trim().toUpperCase();
+  const snap = await getDoc(doc(db, 'invites', code));
+  const inv: any = snap.exists() ? snap.data() : null;
+  if (!inv?.householdId || !inv?.wrappedKey) throw new Error('That invite code was not found. Ask for a new one.');
+  if (keyCodeCheck(keyCode) !== inv.keyCodeCheck) throw new Error('That key code does not match the invite.');
+  const hhKey = unwrapWithKeyCode(inv.wrappedKey, keyCode, code);
+  if (!hhKey) throw new Error('That key code does not match the invite.');
+  await setDoc(doc(db, 'households', inv.householdId, 'members', uid), { code, joinedAt: serverTimestamp(), keyCodeProof: keyCodeProof(keyCode) });
+  await setDoc(doc(db, 'users', uid), { householdId: inv.householdId, householdKeyEnvelope: makeEnvelope(hhKey, uid, password, recoveryCode) }, { merge: true });
+  await cacheDataKey(hhKey);
+  try { await deleteDoc(doc(db, 'invites', code)); } catch { /* the 7 days end it anyway */ }
+  await dataKeyIsReady();
+  return inv.householdId;
+}
+
+/** R14: a member gives an owner who lost both codes a one-time return code: the member's phone stores the household key
+ *  locked by it beside the household (7 days). Returns the code to pass on. */
+/* ─ MK-XS-F-279 ──────────────────────────────────────────────────────────────────── 1 · ACTION
+ * leaveReturnCode
+ *
+ * Answers ..... R14: a member gives an owner who lost both codes a one-time return code: the member's phone stores the household key locked by it beside the household (7 days).
+ *
+ * Formula .....
+ *     dek = await get data key()
+ *     return code = generate recovery code()
+ *     the answer = return code
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Decides .....
+ *     · Uses today's date from the device clock, so the answer changes by itself overnight.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-279
+ * Changed ..... not in git yet (—)
+ */
+export async function leaveReturnCode(owner: string): Promise<string> {
+  const dek = await getDataKey();
+  if (!dek) throw new Error('Unlock the app first, then try again.');
+  const returnCode = generateRecoveryCode();
+  await setDoc(doc(db, 'households', owner, 'keyReturn', 'current'), {
+    enc: wrapWithReturnCode(dek, returnCode, owner),
+    expiresAt: new Date(Date.now() + 7 * 86400000).toISOString(),
+  });
+  return returnCode;
+}
+
+/** R14: the owner types the return code: the key comes back, is locked under a new password and a new recovery code (returned
+ *  to show once), and the return document is deleted. */
+/* ─ MK-XS-F-280 ──────────────────────────────────────────────────────────── 4 · BRINGS DATA IN
+ * restoreOwnerWithReturnCode
+ *
+ * Answers ..... R14: the owner types the return code: the key comes back, is locked under a new password and a new recovery code (returned to show once), and the return document is deleted.
+ *
+ * Formula .....
+ *     u = auth.current user
+ *     snap = await get doc(doc(db, 'households', uid, 'keyReturn', 'current'))
+ *     d = snap.data()   if snap.exists()
+ *     nothing   otherwise
+ *     dek = unwrap with return code(enc, return code, uid)
+ *     recovery code = generate recovery code()
+ *     the answer = recovery code
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Decides .....
+ *     · Uses today's date from the device clock, so the answer changes by itself overnight.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-280
+ * Changed ..... not in git yet (—)
+ */
+export async function restoreOwnerWithReturnCode(returnCode: string, newPassword: string): Promise<string> {
+  const u = auth.currentUser;
+  if (!u) throw new Error('You are not signed in.');
+  const snap = await getDoc(doc(db, 'households', u.uid, 'keyReturn', 'current'));
+  const d: any = snap.exists() ? snap.data() : null;
+  if (!d?.enc || (d.expiresAt && Date.parse(d.expiresAt) < Date.now())) throw new Error('No return code is waiting. Ask your household member for a new one.');
+  const dek = unwrapWithReturnCode(d.enc, returnCode, u.uid);
+  if (!dek) throw new Error('That return code is incorrect.');
+  const recoveryCode = generateRecoveryCode();
+  await setDoc(doc(db, 'users', u.uid), { keyEnvelope: makeEnvelope(dek, u.uid, newPassword, recoveryCode) }, { merge: true });
+  await cacheDataKey(dek);
+  try { await deleteDoc(doc(db, 'households', u.uid, 'keyReturn', 'current')); } catch { /* expires */ }
+  await dataKeyIsReady();
+  return recoveryCode;
 }

@@ -6,6 +6,7 @@ import {
   addRows, rowsInForce, correctRow, removeRow, valueRows, valueBatchesOf, valuesNow, valuesOn, openPurchases, saleRow, saleGain,
   sharesOnRecord, sharesThatDisagree, purchasesFromList, answerListQuestion, historyPurchaseRow, differsFromGiven, eventsThatDiffer, answerEventQuestion, lastListDay, sortArriving, typedSalesTheListContradicts, valuesThatDiffer, answerValuesQuestion, salesMovedBy, salesNeedingAnAnswer, valuesNeedingADate, activityOf, factsOf, placedOn, dayOrNull, rowAsItStands, rowsNotYetSaved,
   soldBeyondRecord, statedTotalGap, transferRow, soldFrom, valuesLastGiven, rowsInForce as inForce, type AssetRow, type NewRow,
+  eventQuestionToAsk, answerQuestion, questionsOf,
 } from './asset-record';
 
 const A = 'acct-1';
@@ -2449,19 +2450,22 @@ describe('phase 1 round 8: each finding, held', () => {
     expect(purchasesFromList(r, A, 'MSFT', [{ date: '2025-01-10', shares: 90, price: 205 }], 'linked', '2026-06-04').ask.map((q) => q.kind)).toEqual(['price']);
   });
 
+  // CHANGED 2026-11-12 (design v02, step 3): the "mine after theirs" branches of answerEventQuestion and
+  // answerValuesQuestion are deleted; a changed answer goes through answerQuestion, which undoes the earlier answer first
   test('MEDIUM 9 · a changed answer is taken both ways: "theirs" then "mine" puts the account holder\'s price back; the same for a day\'s value', () => {
     let r = addRows([], sortArriving([], [purchase('2025-01-10', 100, 200, { source: 'file' })]).save, '2026-06-01T12:00:00.000Z');
-    const [q] = sortArriving(r, [purchase('2025-01-10', 100, 202, { source: 'file' })]).ask;
-    r = addRows(r, answerEventQuestion(q, 'theirs', r), '2026-06-02T09:00:00.000Z');
+    const [eq] = sortArriving(r, [purchase('2025-01-10', 100, 202, { source: 'file' })]).ask;
+    const q = eventQuestionToAsk(r, eq);
+    r = answerQuestion(r, q, { id: 'change' }, '2026-06-02T09:00:00.000Z').record;
     expect(openPurchases(r, A, 'MSFT')[0].price).toBe(202);
-    r = addRows(r, answerEventQuestion(q, 'mine', r), '2026-06-03T09:00:00.000Z');
+    r = answerQuestion(r, q, { id: 'keep-mine' }, '2026-06-03T09:00:00.000Z').record;
     expect(openPurchases(r, A, 'MSFT')[0].price).toBe(200);
     let v = addRows([], valueRows({ accountId: A, date: '2026-09-15', source: 'typed', cash: 0, holdings: [{ holding: 'MSFT', shares: 1, price: 45000, value: 45000 }] }), '2026-09-15T09:00:00.000Z');
     v = addRows(v, msftDay('2026-09-15', 44500, 1), '2026-09-15T17:00:00.000Z');
-    const [d] = valuesThatDiffer(v, A);
-    v = addRows(v, answerValuesQuestion(d, 'theirs', v), '2026-09-15T18:00:00.000Z');
+    const d = questionsOf(v, {}, A).find((x) => x.kind === 'V1')!;
+    v = answerQuestion(v, d, { id: 'change' }, '2026-09-15T18:00:00.000Z').record;
     expect(valuesNow(v, A)!.total).toBe(44500);
-    v = addRows(v, answerValuesQuestion(d, 'mine', v), '2026-09-15T19:00:00.000Z');
+    v = answerQuestion(v, d, { id: 'keep-mine' }, '2026-09-15T19:00:00.000Z').record;
     expect([valuesNow(v, A)!.total, valuesThatDiffer(v, A)]).toEqual([45000, []]);
   });
 

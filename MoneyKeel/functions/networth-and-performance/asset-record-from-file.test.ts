@@ -49,7 +49,8 @@ describe('his file', () => {
     const cd = f.facts.find((x) => x.holding === CD)!;
     expect(cd.facts).toEqual({ face_value: 110000, coupon_rate: 0.0385, maturity_date: '2026-08-24', price_quote: 'per_100_of_face' });
     expect(cd.source).toBe('file');
-    expect(f.facts.find((x) => x.holding === PUT)!.facts).toEqual({ multiplier: 100 });
+    // and, since step 6 of the questions-and-answers design (2026-11-12), its own details read from its line
+    expect(f.facts.find((x) => x.holding === PUT)!.facts).toEqual({ multiplier: 100, optionExpiry: '2026-12-31', optionUnderlying: 'QQQ', optionStrike: 600, optionType: 'put', sharesPerContract: 100 });
     expect(f.facts).toHaveLength(2);
   });
 
@@ -153,5 +154,76 @@ describe('outside check, 2026-11-12', () => {
     const only = fileRowsToSave([], importHoldings(HEAD + 'US TREASURY BOND 4% 2030,,,,5000,\nGenerated at Jun 21 2026 03:37 PM ET\n'), null, ['bond']);
     expect(valuesNow(addRows([], only.rows, '2026-06-22T10:00:00Z'), 'bond')).toMatchObject({ date: '2026-06-21', total: 5000 });
     expect(only.rows.every((r) => r.accountId === 'bond')).toBe(true);
+  });
+});
+
+/* THE QUESTIONS-AND-ANSWERS DESIGN v02, STEP 6, FOR A FILE (2026-11-12): an option's expiry date kept as a fact; a file
+ * still listing an option past its expiry is a sale at $0 on that date (rule 6); an option the file no longer lists past
+ * its expiry is X1, and with its shares arriving in the same file one X2 question (rule 6); a newer file that matches the
+ * record as it stood before an answer undoes that answer (rule 5). The design's numbers: 2 AAPL $260 calls expiring
+ * Feb 20, 2026, bought at $4.00 a share ($800); VTI Jan 10 20 at $200 ($4,000). */
+import { listQuestionToAsk, answerQuestion, newerListUndoes, rowsInForce, saleGain } from './asset-record';
+
+const CALL = "AAPL FEB 20 '26 $260 CALL";
+const fileOf = (generated: string, lines: string[]) => importHoldings(
+  `Symbol,Quantity,Price Paid $,Value $,Date Acquired\n${lines.join('\n')}\n,,,,\nGenerated at ${generated} 03:37 PM ET,,,,`);
+const callLine = "AAPL Feb 20 '26 $260 Call,2,4,0,02/01/2026";
+const on = (day: string) => `${day}T12:00:00.000Z`;
+/** The file imported as the store does it: its rows saved, its questions kept. */
+const imported = (record: AssetRow[], result: ReturnType<typeof importHoldings>, day: string) => {
+  const got = fileRowsToSave(record, result, A);
+  return { ...got, record: addRows(record, got.rows, on(day)) };
+};
+
+describe('step 6 and rule 5, for a file', () => {
+  test('the option\'s own details are kept as a fact: expiry Feb 20, 2026, AAPL, $260, a call, 100 shares a contract', () => {
+    const r = imported([], fileOf('Feb 1 2026', [callLine]), '2026-02-01').record;
+    expect(factsOf(r, A, CALL)).toMatchObject({ optionExpiry: '2026-02-20', optionUnderlying: 'AAPL', optionStrike: 260, optionType: 'call', sharesPerContract: 100, multiplier: 100 });
+    expect(sharesOnRecord(r, A, CALL)).toBe(200);
+  });
+
+  test('option-expiry-sale: a file of Feb 21 still lists the calls that expired Feb 20 — a sale of 200 at $0 on Feb 20, −$800, nothing asked', () => {
+    const start = imported([], fileOf('Feb 1 2026', [callLine]), '2026-02-01').record;
+    const feb21 = imported(start, fileOf('Feb 21 2026', [callLine]), '2026-02-21');
+    expect([feb21.askEvents, feb21.askLists]).toEqual([[], []]);
+    const sale = rowsInForce(feb21.record).filter((x) => x.kind === 'SALE');
+    expect(sale.map((s) => [s.holding, s.date, s.shares, s.price, s.source])).toEqual([[CALL, '2026-02-20', 200, 0, 'file']]);
+    expect(saleGain(feb21.record, sale[0].rowId)).toBe(-800);
+    expect(sharesOnRecord(feb21.record, A, CALL)).toBe(0);
+    // the same file again adds nothing
+    expect(imported(feb21.record, fileOf('Feb 21 2026', [callLine]), '2026-02-22').rows.filter((x) => x.kind === 'SALE')).toEqual([]);
+  });
+
+  test('X1: a file of Feb 21 no longer lists the calls — one question, did they expire worthless', () => {
+    const start = imported([], fileOf('Feb 1 2026', [callLine]), '2026-02-01').record;
+    const feb21 = imported(start, fileOf('Feb 21 2026', ['MSFT,1,400,410,01/05/2026']), '2026-02-21');
+    expect(feb21.askLists.map((q) => q.kind)).toEqual(['expired']);
+    const q = listQuestionToAsk(feb21.record, feb21.askLists[0], () => 'your file');
+    expect(q.map((x) => x.kind)).toEqual(['X1']);
+  });
+
+  test('X2 exercise-one-question: the calls leave and 200 AAPL arrive in one file — one question, never two', () => {
+    const start = imported([], fileOf('Feb 1 2026', [callLine]), '2026-02-01').record;
+    const feb21 = imported(start, fileOf('Feb 21 2026', ['AAPL,200,260,52000,02/20/2026']), '2026-02-21');
+    expect(feb21.askLists.map((q) => [q.kind, q.holding, q.arrivedHolding, q.arrivedShares])).toEqual([['exercised', CALL, 'AAPL', 200]]);
+    const q = listQuestionToAsk(feb21.record, feb21.askLists[0], () => 'your file');
+    expect(q.map((x) => x.kind)).toEqual(['X2']);
+  });
+
+  test('newer-list-undoes-answer: Jun 30 lists VTI Jan 10 20 at $200; Jul 31 leaves it out and he answers "The list is correct"; Aug 31 lists it again — the Jul answer is undone: 20 shares, $4,000, with the note', () => {
+    const vti = 'VTI,20,200,4400,01/10/2026';
+    let r = imported([], fileOf('Jun 30 2026', [vti]), '2026-06-30').record;
+    const jul = imported(r, fileOf('Jul 31 2026', ['MSFT,1,400,410,01/05/2026']), '2026-07-31');
+    const raw = jul.askLists.find((q) => q.holding === 'VTI')!;
+    const q = listQuestionToAsk(jul.record, raw, () => 'your file')[0];
+    r = answerQuestion(jul.record, q, { id: 'list-correct' }, on('2026-08-01'), () => 'your file').record;
+    expect(sharesOnRecord(r, A, 'VTI')).toBe(0);
+    const aug = imported(r, fileOf('Aug 31 2026', [vti, 'MSFT,1,400,410,01/05/2026']), '2026-08-31');
+    expect(aug.notes).toEqual([expect.stringMatching(/^Your file’s list of Aug 31 shows the .* VTI again, so your Jul 31 answer was undone\.$/)]);
+    expect(aug.askLists.filter((x) => x.holding === 'VTI')).toEqual([]);
+    expect(openPurchases(aug.record, A, 'VTI').map((p) => [p.date, p.shares, p.price])).toEqual([['2026-01-10', 20, 200]]);
+    expect(openPurchases(aug.record, A, 'VTI').reduce((t, p) => t + p.shares * (p.price ?? 0), 0)).toBe(4000);
+    // the newer list closes: nothing is undone twice
+    expect(newerListUndoes(aug.record, A, 'VTI', [{ date: '2026-01-10', shares: 20, price: 200 }], 'file', '2026-08-31').rows).toEqual([]);
   });
 });

@@ -19,12 +19,12 @@
 //     convention was checked: GIPS forbids annualising under a year and annualises above it, and
 //     brokerage statements do the same). His ruling: show BOTH, and label them.
 import { availableCash } from '../../../src/domain/transactions';
-import { declareFigures, writeFigure } from '../_figure-spec';
+import { declareFigures, writeFigure, walkShown, partsShown, type WalkLines } from '../_figure-spec';
 import { staleStartClose, portfolioBenchReturn, startDateFor, contractMultiplier, totalShares, windowTotal, paidOnRecord, purchaseDateOnRecord, lotCostOnRecord, worthWithInterest, closeOnOrBefore, latestClose, bondInterestInWindow, statedCdRate, returnWithInterest, periodReturnSince, marketGap, calendarDay, returnSplitAtPurchases, type HoldingPath, type Period, type PriceSeries } from '../../../src/domain/performance';
 import { formatMoney } from '../../../src/domain/_shared/money';
 import { buildChangeWalk, type ChangeWalk } from '../../../src/domain/history';
 import { personalFlowTotals, moneyIntoAccount } from '../../../Calculation Module code/engines/ledger';
-import { windowBounds } from '../../../Calculation Module code/engines/window-return';
+import { windowBounds, daysEarning } from '../../../Calculation Module code/engines/window-return';
 import { valueOn, covers as snapshotCovers, buildDayFromAccounts, accountValuesOn, record as recordDay } from '../../../Calculation Module code/engines/snapshots';
 import { timeWeightedReturn, movementsOf, type TimeWeightedVerdict } from '../../../Calculation Module code/engines/time-weighted-return';
 import { dateShown, isoLocalDate } from '../../../src/domain/_shared/dates';
@@ -329,6 +329,9 @@ export type GainRow = {
   periodReturn?: number | null;
   marketValue?: number;
   couponRate?: number | null;
+  /** The years of this window a CD as its own account earns its rate: up to its maturity date, never after (daysEarning,
+   *  2026-11-12, Performance phase 4 item 3). Absent: the window's own years. */
+  couponYears?: number | null;
   position?: { position_id?: string | number; ticker?: string; label?: string; name?: string; kind?: string; asset_class?: string; multiplier?: number; last_price?: number; value_now?: number; lots?: { shares?: number }[] };
   /** The window's own total, never a yearly rate — buildPerformance writes it beside periodReturn. Where it is
    *  absent and the window is longer than a year, periodReturn is read as a yearly rate (outside review Claude
@@ -374,7 +377,7 @@ export type GainRow = {
  *     worth with interest(r) − start value   if start value > 0
  *     0   otherwise   when start value ≠ nothing
  *     nothing   when (position as any).sold out
- *     mv × (1 − 1 ÷ math.pow(1 + coupon rate, years))   if mv > 0
+ *     mv × (1 − 1 ÷ math.pow(1 + coupon rate, coupon years ?? years))   if mv > 0
  *     0   otherwise   when coupon rate ≠ nothing and number.is finite(coupon rate) and coupon rate ≥ 0
  *     0   when position and holding class of(position) = 'cash'
  *     shares = total shares({ lots: position.lots ?? [] } as any)   if position
@@ -453,7 +456,8 @@ function gainOfRow(r: GainRow, years: number): number | null {
   if ((r.position as any)?.sold_out) return null;
   // AN ENTERED 0% IS A RATE OF 0%, gaining $0; a rate never entered (null) stays unknown below (DEC-2748b, 2026-10-12:
   // "a typed 0 rate is a zero-coupon bond" / "a face value or rate that was never entered stays blank")
-  if (r.couponRate != null && Number.isFinite(r.couponRate) && r.couponRate >= 0) return mv > 0 ? mv * (1 - 1 / Math.pow(1 + r.couponRate, years)) : 0;
+  // …and only up to its maturity date (couponYears, 2026-11-12, phase 4 item 3; DEC-7933, DEC-9675)
+  if (r.couponRate != null && Number.isFinite(r.couponRate) && r.couponRate >= 0) return mv > 0 ? mv * (1 - 1 / Math.pow(1 + r.couponRate, r.couponYears ?? years)) : 0;
   // CASH GAINS NOTHING, and is not a holding with no price history (DEC-5291, 2026-10-13): a cash position with no
   // price series of its own gained $0 and is never named as left out. A money-market FUND with prices is measured above.
   if (r.position && holdingClassOf(r.position) === 'cash') return 0;   // the one order (MK-NW-F-109), not the stored tag alone
@@ -540,12 +544,14 @@ function heldValueOf(r: GainRow): number | null {
  *     nm   if ÷ ^[0 − 9A − Z]{9}$ ÷ test(t) and ÷ \d ÷ .test(t) and nm
  *     t (or nm (or 'a holding' when missing or zero) when missing or zero)   otherwise
  *
- * Called by ... MK-NW-O-008 thePerformance
+ * Called by ... MK-NW-F-344 staleStartSentences · MK-NW-O-008 thePerformance
  *
- * Reaches ..... 6 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 9 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-140 LEFT_OUT
  *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
- *               MK-NW-F-093 QUIET_PERF · MK-NW-O-008 thePerformance
+ *               MK-NW-F-093 QUIET_PERF · MK-NW-F-143 gainRowBetween
+ *               MK-NW-F-091 pricedGainOf · MK-NW-F-344 staleStartSentences
+ *               MK-NW-O-008 thePerformance
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -584,9 +590,6 @@ function gainRowName(r: GainRow): string {
  *     the answer:
  *     `A${said.slice(1)}`   if list = 'a holding'
  *     said   otherwise
- *     who = `${string(name ?? '').trim() or 'A holding'} (${write figure(PERFORMANCE_FIGURES['MK − PF − M − 022'], value)})`   if value ≠ nothing
- *     string(name ?? '').trim() (or 'A holding' when missing or zero)   otherwise
- *     … the first steps only — the rest of the body needs reading by hand.
  *
  * Called by ... MK-NW-F-144 beforeTheRecordSentence · MK-NW-O-008 thePerformance
  *
@@ -597,12 +600,11 @@ function gainRowName(r: GainRow): string {
  *               MK-NW-O-008 thePerformance
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- * Reads ....... MK-XS-I-005 holding price
  *
  * Formula also on the master file · functions_from_code · MK-NW-F-130
  * Changed ..... not in git yet (—)
  */
-function notIncludedSentence(left: { name: string; value: number | null; why?: 'history' | 'paid' | 'sale' | 'stale'; day?: string }[], countedValue: number): string {
+function notIncludedSentence(left: { name: string; value: number | null; why?: 'history' | 'paid' | 'sale' }[], countedValue: number): string {
   // HIS WORDING (DEC-6076, 2026-10-19, "approved.", after "State D - for summary box - we need to explain that 10%
   // return is on 40K and not 50K."): the first sentence names the dollars the return is on — the holdings
   // knownHoldingsReturn (MK-NW-F-138) counts — and the second names what is left out with its value today. Each
@@ -638,20 +640,86 @@ function notIncludedSentence(left: { name: string; value: number | null; why?: '
     // a sentence that opens on the generic name opens with a capital; a holding's own name is printed as it is
     return list === 'a holding' ? `A${said.slice(1)}` : said;
   };
-  // A START TOO OLD TO MEASURE FROM (R19, 2026-11-01): each such holding named with the day of the last close it has before the
-  // window began — 'VTI ($10,000) has no price near the window’s start: its last close before it is Aug 1, 2024, so its gains are
-  // not included.'
-  const stale = (left ?? []).filter((r) => r?.why === 'stale').map((r) => {
-    const who = r.value != null ? `${String(r.name ?? '').trim() || 'A holding'} (${writeFigure(PERFORMANCE_FIGURES['MK-PF-M-022'], r.value)})` : (String(r.name ?? '').trim() || 'A holding');
-    return `${who} has no price near the window’s start: its last close before it is ${dateShown(String(r.day))}, so its gains are not included.`;
-  });
   const said = [...(['history', 'paid', 'sale'] as const)
     .map((why) => ({ why, group: (left ?? []).filter((r) => (r?.why ?? 'history') === why) }))
     .filter((x) => x.group.length > 0)
-    .map((x) => sentence(x.group, x.why)), ...stale].join(' ') || sentence([], 'history');
+    .map((x) => sentence(x.group, x.why))].join(' ') || sentence([], 'history');
   return countedValue > 0
     ? `Return is on the ${writeFigure(PERFORMANCE_FIGURES['MK-PF-M-021'], countedValue)} with a price history. ${said}`
     : said;
+}
+
+/** A START CLOSE OLDER THAN A WEEK IS USED, AND SAID (his DEC-10558, 2026-11-11: "if price is stale, app just state so. but still
+ *  display it and use it."; it replaces the lead's R19 / DEC-9486, which left such a holding out). For each holding counted whose
+ *  window starts from a close more than START_CLOSE_DAYS (7) before the window (staleStartClose), one sentence names the close's day
+ *  and says the return covers more than the window: 'VTI’s starting price is its last close before the window, Aug 1, 2024, so its
+ *  return runs from that day and covers more than the window.' A holding bought inside the window starts from what was paid, not a
+ *  close, and says nothing. Each holding once. To reverse: return ''. */
+/* ─ MK-NW-F-344 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * staleStartSentences
+ *
+ * Answers ..... A START CLOSE OLDER THAN A WEEK IS USED, AND SAID (his DEC-10558, 2026-11-11: "if price is stale, app just state so.
+ *
+ * Formula .....
+ *     ''   when eve is missing (or price of is missing when missing or zero)
+ *     said = new map<string, string>()
+ *     tk = (position as any).ticker
+ *     old = stale start close(price of(string(tk)), eve)
+ *     name = gain row name(r)
+ *     the answer = [...said.values()].join(' ')
+ *
+ * Called by ... MK-NW-F-143 gainRowBetween · MK-NW-O-008 thePerformance
+ *
+ * Reaches ..... 8 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-140 LEFT_OUT
+ *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
+ *               MK-NW-F-093 QUIET_PERF · MK-NW-F-143 gainRowBetween
+ *               MK-NW-F-091 pricedGainOf · MK-NW-O-008 thePerformance
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-005 holding price
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-344
+ * Changed ..... not in git yet (—)
+ */
+function staleStartSentences(rows: GainRow[], eve: string | null, priceOf?: (ticker: string) => PriceSeries | null | undefined): string {
+  if (!eve || !priceOf) return '';
+  const said = new Map<string, string>();
+  for (const r of rows ?? []) {
+    const tk = (r?.position as any)?.ticker;
+    if (!tk || r.cappedSince) continue;
+    const old = staleStartClose(priceOf(String(tk)), eve);
+    const name = gainRowName(r);
+    if (old && !said.has(name)) said.set(name, staleStartSentence(name, old.day));
+  }
+  return [...said.values()].join(' ');
+}
+/** The one wording of an old start close (DEC-10558), for the Performance tab and the Holding page alike (2026-11-12). */
+/* ─ MK-NW-F-357 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * staleStartSentence
+ *
+ * Answers ..... The one wording of an old start close (DEC-10558), for the Performance tab and the Holding page alike (2026-11-12).
+ *
+ * Formula .....
+ *     `${name}’s starting price is its last close before the window, ${date shown(day)}, so its return runs from that day and covers more than the window.`
+ *
+ * Called by ... MK-NW-F-344 staleStartSentences
+ *
+ * Reaches ..... 9 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-140 LEFT_OUT
+ *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
+ *               MK-NW-F-093 QUIET_PERF · MK-NW-F-143 gainRowBetween
+ *               MK-NW-F-091 pricedGainOf · MK-NW-F-344 staleStartSentences
+ *               MK-NW-O-008 thePerformance
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-005 holding price
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-357
+ * Changed ..... not in git yet (—)
+ */
+export function staleStartSentence(name: string, day: string): string {
+  return `${name}’s starting price is its last close before the window, ${dateShown(day)}, so its return runs from that day and covers more than the window.`;
 }
 
 /** MK-NW-F-092 · Which accounts this door measures: the invested ones. Cash and property are not
@@ -722,7 +790,7 @@ export function knownHoldingsReturn(rows: GainRow[], years = 0): number | null {
   return classReturnOf((rows ?? []).map((r) => {
     const pr = windowTotal(r.periodReturn, r.periodTotal, years);
     const total = pr != null ? pr
-      : r.couponRate != null && Number.isFinite(r.couponRate) && r.couponRate >= 0 ? Math.pow(1 + r.couponRate, years) - 1
+      : r.couponRate != null && Number.isFinite(r.couponRate) && r.couponRate >= 0 ? Math.pow(1 + r.couponRate, r.couponYears ?? years) - 1
       : null;
     // a holding bought inside the window starts from what it was measured from; the real start is a held one's (2026-10-22)
     return { marketValue: r.marketValue, interest: r.interest, total, startValue: r.startValue, path: r.path,
@@ -960,6 +1028,7 @@ function closedWith(days: any[], ids: Set<string>, today: string, ending: number
  * Reads ....... MK-XS-I-004 holding quantity (shares)
  *               MK-XS-I-005 holding price
  *               MK-XS-I-007 purchase price and date (per lot)
+ *               MK-XS-I-013 bond maturity date
  *               MK-XS-I-024 logged expenses
  *               MK-XS-I-063 option contract multiplier — 100 unless the broker or the person states otherwise
  *
@@ -993,16 +1062,19 @@ function gainRowBetween(r: GainRow, from: string, to: string, priceOf: (ticker: 
   // holding whose prices begin late (MK-PF-F-039); prices that begin after the record's first day reach none of them
   const firstPoint = [...(series?.points ?? [])].filter((x) => /^\d{4}-\d{2}-\d{2}/.test(String(x?.date ?? ''))).sort((x, y) => String(x.date).localeCompare(String(y.date)))[0];
   const closeTo = closeOnOrBefore(series, to);
-  // R19 (2026-11-01): a close more than 7 days before those days' start is no start (staleStartClose)
-  // `insideDay`: a day inside the window (money moved), which takes its own day's close (R19b, 2026-11-01)
-  const closeFrom = !insideDay && staleStartClose(series, from) ? null : closeOnOrBefore(series, from) ?? (firstPoint && String(firstPoint.date).slice(0, 10) <= to ? firstPoint.close : null);
+  // the last close on or before those days' start, however old (his DEC-10558, 2026-11-11, replacing the lead's R19 / DEC-9486: an
+  // old close is used, and thePerformance's sentence states its date — staleStartSentences). `insideDay` (R19b): a day inside the window.
+  const closeFrom = closeOnOrBefore(series, from) ?? (firstPoint && String(firstPoint.date).slice(0, 10) <= to ? firstPoint.close : null);
   // A CD WITH A STATED RATE, NO PRICES, HELD THROUGH THOSE DAYS (2026-10-27, FX-PF, PF-5; DEC-3656): it grows by its rate over
   // them, as it does over the whole window — its value on a day is its value today ÷ (1 + rate)^(the days from then to today ÷
   // 365). $10,400 at 4.00% with the record beginning 90 days ago, over 1Y: on the record's first day 10,400 ÷ 1.04^(90 ÷ 365),
   // and over the 276 days before it +2.97%. It was named "has no price history". Bought inside those days, it stays unknown.
   const rate = closeTo == null ? statedCdRate(p) : null;
   if (rate != null && today != null && r.marketValue != null && r.marketValue > 0 && !inside.length && lots.length > 0 && to <= today) {
-    const yearsTo = (d: string) => (Date.parse(`${today}T00:00:00Z`) - Date.parse(`${d}T00:00:00Z`)) / 86_400_000 / 365;
+    // its rate stops at its maturity date (2026-11-12, phase 4 item 3; DEC-7933, DEC-9675): a day after it is read as that date
+    const matured = calendarDay(String(p.maturity_date ?? '').slice(0, 10));
+    const upTo = (d: string) => (matured != null && d > matured ? matured : d);
+    const yearsTo = (d: string) => (Date.parse(`${upTo(today)}T00:00:00Z`) - Date.parse(`${upTo(d)}T00:00:00Z`)) / 86_400_000 / 365;
     const valueThen = r.marketValue / Math.pow(1 + rate, yearsTo(to));
     const start = r.marketValue / Math.pow(1 + rate, yearsTo(from));
     const total = valueThen / start - 1;
@@ -1166,8 +1238,8 @@ const whyLeftOut = (r: GainRow): 'history' | 'paid' | 'sale' => (r.paidInside ==
  *               MK-XS-I-008 transaction amount
  *               MK-XS-I-009 transaction date
  *               MK-XS-I-012 bond coupon rate
+ *               MK-XS-I-013 bond maturity date
  *               MK-XS-I-024 logged expenses
- *               MK-XS-I-063 option contract multiplier — 100 unless the broker or the person states otherwise
  * Ruled by .... DEC-0008 · DEC-0015 · DEC-0046 · DEC-0056 · DEC-0063 · DEC-0064
  *               DEC-0065 · DEC-0084 · DEC-0093 · DEC-0097 · DEC-0106 · DEC-0112
  *               DEC-0126 · DEC-0133 · DEC-0134 · DEC-0135 · DEC-0136 · DEC-0142
@@ -1376,19 +1448,18 @@ export function thePerformance(input: {
       marketValue: a.balance,
       // a CD's entered rate, 0% included; no rate entered → null, so its gain stays unknown (DEC-2748b, 2026-10-12)
       couponRate: isCertificateOfDeposit(a) && a.coupon_rate != null && Number.isFinite(a.coupon_rate) && a.coupon_rate >= 0 ? a.coupon_rate : null,
+      // its rate stops at its maturity date (2026-11-12, phase 4 item 3): the window's days up to it ÷ 365
+      couponYears: windowStart && bounds ? daysEarning(windowStart, today, a.maturity_date) / 365 : null,
       periodReturn: null,
     }));
   const gainRows: GainRow[] = [...(input.holdings ?? []), ...instrumentRows];
   const rowGains = gainRows.map((r) => pricedGainOf([r], years));
-  // the evening before the window's first day, where its start close is read (R19 names a close too old to start from)
+  // the evening before the window's first day, where its start close is read (DEC-10558 states a close older than 7 days)
   const startEve = windowStart ? new Date(Date.parse(`${windowStart}T00:00:00Z`) - 86_400_000).toISOString().slice(0, 10) : null;
-  const unknownNames: { name: string; value: number | null; why?: 'history' | 'paid' | 'sale' | 'stale'; day?: string }[] = gainRows.filter((_, i) => rowGains[i] == null)
-    .map((r) => {
-      const why = whyLeftOut(r);
-      const tk = (r.position as any)?.ticker;
-      const old = (why ?? 'history') === 'history' && tk && startEve && input.priceOf ? staleStartClose(input.priceOf(String(tk)), startEve) : null;
-      return old ? { name: gainRowName(r), value: leftOutValueOf(r), why: 'stale' as const, day: old.day } : { name: gainRowName(r), value: leftOutValueOf(r), why };
-    });
+  // a holding with an old start close is no longer left out (his DEC-10558, 2026-11-11, replacing R19): it counts, and is stated below
+  const unknownNames: { name: string; value: number | null; why?: 'history' | 'paid' | 'sale' }[] = gainRows.filter((_, i) => rowGains[i] == null)
+    .map((r) => ({ name: gainRowName(r), value: leftOutValueOf(r), why: whyLeftOut(r) }));
+  const staleNote = (rows: GainRow[], eve: string | null) => staleStartSentences(rows, eve, input.priceOf);
   // a caller still handing over a dollar figure (no holdings) whose gain is unknown: named generically, its value unknown
   if (!input.holdings && input.pricedGain === null) unknownNames.push({ name: 'a holding', value: null });
   // THE DOLLARS THE RETURN IS ON (DEC-6076, 2026-10-19): today's value of each holding knownHoldingsReturn keeps,
@@ -1474,7 +1545,7 @@ export function thePerformance(input: {
           windowStart, ledger, walk: cwalk, ending: cwalk.ending, measured: null, covered: false,
           beginningAsOf: bounds.beginningAsOf, ret: cPerYear ?? ccum, cumulative: ccum, perYear: cPerYear, years,
           sentence: reachedRefused ? reached.sentence : '',
-          notIncluded: left.length ? notIncludedSentence(left, countedHere) : '', workedBack: true,
+          notIncluded: [left.length ? notIncludedSentence(left, countedHere) : '', staleNote(lateRows.filter((r) => gainOfRow(r, years) != null), startEve)].filter(Boolean).join(' '), workedBack: true,
         };
       }
     }
@@ -1528,9 +1599,10 @@ export function thePerformance(input: {
     instrumentAccounts.forEach((a: any, i: number) => {
       const id = String(a?.asset_id), rate = instrumentRows[i].couponRate;
       // its value on the record's first day: read there, or — worked back on its own — its value now less its rate's growth
-      const v = there.has(id) ? there.get(id)! : workedInPart.has(id) && rate != null ? (a.balance || 0) / Math.pow(1 + rate, partYears) : null;
+      // (each part earns only up to its maturity date, 2026-11-12, phase 4 item 3)
+      const v = there.has(id) ? there.get(id)! : workedInPart.has(id) && rate != null ? (a.balance || 0) / Math.pow(1 + rate, daysEarning(since, today, a?.maturity_date) / 365) : null;
       if (v == null) return;
-      pairs.push({ gap: { ...instrumentRows[i], marketValue: v }, now: instrumentRows[i] });
+      pairs.push({ gap: { ...instrumentRows[i], marketValue: v, couponYears: daysEarning(windowStart!, first, a?.maturity_date) / 365 }, now: instrumentRows[i] });
     });
     const gapRows = pairs.map((x) => x.gap);
     const gapGains = gapRows.map((r) => gainOfRow(r, gapYears));
@@ -1562,7 +1634,7 @@ export function thePerformance(input: {
       windowStart, ledger, walk: walkJoined, ending: walkJoined.ending, measured: null, covered: false,
       beginningAsOf: B, ret: per ?? cum, cumulative: cum, perYear: per, years: yrs,
       sentence: cum == null ? part.sentence : '',
-      notIncluded: left.length ? beforeTheRecordSentence(left, countedToday, first) : '',
+      notIncluded: [left.length ? beforeTheRecordSentence(left, countedToday, first) : '', staleNote(pairs.filter((_, i) => gapGains[i] != null).map((x) => x.now), B)].filter(Boolean).join(' '),
       workedBack: true, recordBegins: first,
     };
   };
@@ -1624,9 +1696,12 @@ export function thePerformance(input: {
   const typedCount = typedParts.filter((x) => x.f.cumulative != null).length;
   const notIncludedBase = workedBack && unknownNames.length > 0 ? notIncludedSentence(unknownNames, countedValue) : '';
   const firstSentence = `Return is on the ${fig21(countedValue)} with a price history.`;
-  const notIncluded = typedRest > 0.5 && notIncludedBase.startsWith(firstSentence)
+  const notIncludedTyped = typedRest > 0.5 && notIncludedBase.startsWith(firstSentence)
     ? notIncludedBase.replace(firstSentence, `Return is on the ${fig21(countedValue + typedRest)}: ${fig21(countedValue)} with a price history and ${fig21(typedRest)} of ${typedCount > 1 ? 'accounts whose totals were typed' : 'an account whose total was typed'}, worked back from its records.`)
     : notIncludedBase;
+  // A START CLOSE OLDER THAN 7 DAYS IS USED AND STATED (his DEC-10558, 2026-11-11), wherever the beginning is worked back from prices
+  const notIncluded = [notIncludedTyped, workedBack && windowStart !== today ? staleNote(gainRows.filter((_, i) => rowGains[i] != null), startEve) : '']
+    .filter(Boolean).join(' ');
   // AN ACCOUNT WITH NO HOLDINGS LISTED, ITS VALUE TYPED AND ITS GAIN NOT KNOWN (2026-11-01, FX-PF; R18, NW5-03): a bond or a fund typed
   // as a value, with no price history. Its own move is unknown, so it adds nothing — and its interest or coupon was carved out of that
   // nothing: 'Change in investment value −$200' after a $200 coupon, a loss nobody measured. The coupon is income on its own line, so
@@ -2846,3 +2921,79 @@ export const PERFORMANCE_FIGURES = declareFigures({
     },
   },
 });
+
+/** THE ACCOUNT CARDS SHARE EACH PRINTED LINE OF THE TOTAL (2026-11-12, Performance phase 4 item 6; the lead's ruling DEC-7937 and its
+ *  rule MK-XS-F-194 partsShown, already used by Cash flow; DEC-0264 round once, at display; DEC-3523 tenet 2, every number adds up).
+ *  Each card was rounded on its own (walkShown), so three accounts each $1,000.40 → $1,100.80 printed $1,000 → $1,101 and $101 each:
+ *  $303 against a total of $301, endings $3,303 against $3,302. Now each line — beginnings, money put in, money taken out, dividends,
+ *  interest and endings — is shared out across the cards by partsShown (each rounded down, the missing dollars to the most cents),
+ *  so the cards add up to the total's own printed line: beginnings $1,001 / $1,000 / $1,000 = $3,001, endings $1,101 / $1,101 /
+ *  $1,100 = $3,302. Where the total's walk prints a line a dollar off the plain rounding of the same exact amount (it shares its own
+ *  lines by the same method, within the walk), that dollar goes to the card with the most cents left (or the fewest, taken back).
+ *  Each card's change in investment value is then what is left of its own walk, so its Wealth generated is its own ending − beginning
+ *  − money moved: $100 / $101 / $100 = $301. A card with no walk has no lines. To reverse: walkShown on each card. */
+/* ─ MK-NW-F-345 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * accountWalksShown
+ *
+ * Answers ..... THE ACCOUNT CARDS SHARE EACH PRINTED LINE OF THE TOTAL (2026-11-12, Performance phase 4 item 6; the lead's ruling DEC-7937 and its rule MK-XS-F-194 partsShown, already used by Cash flow; DEC-0264 round once, at display; DEC-3523 tenet 2, every number adds up).
+ *
+ * Formula .....
+ *     at = for each of walks: i   if each
+ *     -1   otherwise where each ≥ 0
+ *     for each of walks: nothing   when count of at is missing
+ *     total shown = walk shown(total)   if total
+ *     nothing   otherwise
+ *     v = size of(withdrawals)   if k = 'withdrawals'
+ *     w[k]   otherwise
+ *     the answer:
+ *     v   if number.is finite(v)
+ *     0   otherwise
+ *     exact = for each of at: read(walks[each]!, k)
+ *     parts   when total is missing (or total shown is missing when missing or zero)
+ *     exact sum = Σ over exact of (each)
+ *     parts   when size of(exact sum − read(total, k)) > 0.005
+ *     missing = (k = 'withdrawals' ? math.abs(total shown.withdrawals) : total shown[k]) − sum
+ *     left = for each of exact: r = each − parts[j]
+ *     j = j
+ *     [LOOP — the answer is found inside a loop the extractor cannot render; the steps above are the ones before it. Read by hand.]
+ *     … the first steps only — the rest of the body needs reading by hand.
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-345
+ * Changed ..... not in git yet (—)
+ */
+export function accountWalksShown(walks: (ChangeWalk | null | undefined)[], total: ChangeWalk | null | undefined): (WalkLines | null)[] {
+  const at = walks.map((w, i) => (w ? i : -1)).filter((i) => i >= 0);
+  if (!at.length) return walks.map(() => null);
+  const totalShown = total ? walkShown(total) : null;
+  const read = (w: ChangeWalk, k: 'beginning' | 'contributions' | 'withdrawals' | 'dividends' | 'interest' | 'ending') => {
+    const v = k === 'withdrawals' ? Math.abs(w.withdrawals) : w[k];
+    return Number.isFinite(v) ? v : 0;
+  };
+  const share = (k: 'beginning' | 'contributions' | 'withdrawals' | 'dividends' | 'interest' | 'ending'): number[] => {
+    const exact = at.map((i) => read(walks[i]!, k));
+    const { parts, total: sum } = partsShown(exact);
+    if (!total || !totalShown) return parts;
+    // the total's own printed line, where the cards' exact amounts are the total's (to the cent)
+    const exactSum = exact.reduce((t, v) => t + v, 0);
+    if (Math.abs(exactSum - read(total, k)) > 0.005) return parts;
+    let missing = (k === 'withdrawals' ? Math.abs(totalShown.withdrawals) : totalShown[k]) - sum;
+    const left = exact.map((v, j) => ({ r: v - parts[j], j }));
+    const up = left.slice().sort((a, b) => b.r - a.r || a.j - b.j);
+    const down = left.slice().sort((a, b) => a.r - b.r || a.j - b.j);
+    for (let n = 0; missing > 0 && n < 1000; n += 1, missing -= 1) parts[up[n % up.length].j] += 1;
+    for (let n = 0; missing < 0 && n < 1000; n += 1, missing += 1) parts[down[n % down.length].j] -= 1;
+    return parts;
+  };
+  const [beginning, contributions, withdrawals, dividends, interest, ending] = (['beginning', 'contributions', 'withdrawals', 'dividends', 'interest', 'ending'] as const).map(share);
+  const out: (WalkLines | null)[] = walks.map(() => null);
+  at.forEach((i, j) => {
+    const marketChange = ending[j] - beginning[j] - contributions[j] + withdrawals[j] - dividends[j] - interest[j];
+    out[i] = { beginning: beginning[j], contributions: contributions[j], withdrawals: withdrawals[j], dividends: dividends[j], interest: interest[j],
+      marketChange, wealthGenerated: dividends[j] + interest[j] + marketChange, ending: ending[j] };
+  });
+  return out;
+}

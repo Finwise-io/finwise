@@ -33,15 +33,17 @@ let cachedKey: string | null = null;
  *
  * Called by ... MK-XS-F-042 getDataKey · MK-XS-F-173 getOrCreateKey
  *
- * Reaches ..... 15 functions. Change the arithmetic above and these change with it:
- *               MK-XS-F-233 commitAssetRecord · MK-XS-F-055 decryptFromSync
- *               MK-XS-F-072 deleteAccount · MK-XS-F-054 encryptForSync
+ * Reaches ..... 25 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-233 commitAssetRecord · MK-XS-F-277 createInviteWithKeyCode
+ *               MK-XS-F-258 currentKeyId · MK-XS-F-055 decryptFromSync
+ *               MK-XS-F-259 decryptFromSyncWithId · MK-XS-F-072 deleteAccount
+ *               MK-XS-F-054 encryptForSync · MK-XS-F-260 encryptForSyncWithId
  *               MK-XS-F-042 getDataKey · MK-XS-F-173 getOrCreateKey
- *               MK-XS-F-223 loadAssetRecordPart · MK-XS-F-239 loadCloudRecord
+ *               MK-XS-F-279 leaveReturnCode · MK-XS-F-223 loadAssetRecordPart
+ *               MK-XS-F-239 loadCloudRecord · MK-XS-F-275 loadMinAppVersion
  *               MK-XS-F-074 loadUserData · MK-XS-F-079 loadUserRoot
- *               MK-XS-F-242 readUserProfile · MK-XS-F-068 regenerateRecoveryCode
- *               MK-XS-F-222 saveAssetRecordPart · MK-XS-F-073 saveUserData
- *               MK-XS-F-077 setUserHousehold
+ *               MK-XS-F-285 mergeQuestions · MK-XS-F-272 openWithId
+ *               … and 7 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -62,9 +64,10 @@ export async function secureGet(name: string): Promise<string | null> {
  *
  * Called by ... MK-XS-F-041 cacheDataKey · MK-XS-F-173 getOrCreateKey
  *
- * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 7 functions. Change the arithmetic above and these change with it:
  *               MK-XS-F-041 cacheDataKey · MK-XS-F-173 getOrCreateKey
- *               MK-XS-F-066 loginUser · MK-XS-F-060 registerUser
+ *               MK-XS-F-278 joinHouseholdWithKeyCode · MK-XS-F-066 loginUser
+ *               MK-XS-F-060 registerUser · MK-XS-F-280 restoreOwnerWithReturnCode
  *               MK-XS-F-067 restoreWithRecoveryCode
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
@@ -86,9 +89,9 @@ export async function secureSet(name: string, value: string): Promise<void> {
  *
  * Called by ... MK-XS-F-043 clearDataKey
  *
- * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
  *               MK-XS-F-043 clearDataKey · MK-XS-F-072 deleteAccount
- *               MK-XS-F-069 logoutUser
+ *               MK-XS-F-275 loadMinAppVersion · MK-XS-F-069 logoutUser
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -111,10 +114,12 @@ async function secureDelete(name: string): Promise<void> {
  *     keeps the data-encryption key in memory and in the device's secure store
  *
  * Called by ... MK-XS-F-060 registerUser · MK-XS-F-066 loginUser
- *               MK-XS-F-067 restoreWithRecoveryCode
+ *               MK-XS-F-067 restoreWithRecoveryCode · MK-XS-F-278 joinHouseholdWithKeyCode
+ *               MK-XS-F-280 restoreOwnerWithReturnCode
  *
- * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
- *               MK-XS-F-066 loginUser · MK-XS-F-060 registerUser
+ * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-278 joinHouseholdWithKeyCode · MK-XS-F-066 loginUser
+ *               MK-XS-F-060 registerUser · MK-XS-F-280 restoreOwnerWithReturnCode
  *               MK-XS-F-067 restoreWithRecoveryCode
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
@@ -137,16 +142,23 @@ export async function cacheDataKey(dek: string): Promise<void> {
  *     cached key
  *
  * Called by ... MK-XS-F-054 encryptForSync · MK-XS-F-055 decryptFromSync
- *               MK-XS-F-068 regenerateRecoveryCode
+ *               MK-XS-F-068 regenerateRecoveryCode · MK-XS-F-073 saveUserData
+ *               MK-XS-F-258 currentKeyId · MK-XS-F-259 decryptFromSyncWithId
+ *               MK-XS-F-260 encryptForSyncWithId · MK-XS-F-272 openWithId
+ *               MK-XS-F-273 sealWithId · MK-XS-F-274 syncAssetRecordQuestions
+ *               MK-XS-F-277 createInviteWithKeyCode · MK-XS-F-279 leaveReturnCode
  *
- * Reaches ..... 13 functions. Change the arithmetic above and these change with it:
- *               MK-XS-F-233 commitAssetRecord · MK-XS-F-055 decryptFromSync
- *               MK-XS-F-072 deleteAccount · MK-XS-F-054 encryptForSync
- *               MK-XS-F-223 loadAssetRecordPart · MK-XS-F-239 loadCloudRecord
+ * Reaches ..... 23 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-233 commitAssetRecord · MK-XS-F-277 createInviteWithKeyCode
+ *               MK-XS-F-258 currentKeyId · MK-XS-F-055 decryptFromSync
+ *               MK-XS-F-259 decryptFromSyncWithId · MK-XS-F-072 deleteAccount
+ *               MK-XS-F-054 encryptForSync · MK-XS-F-260 encryptForSyncWithId
+ *               MK-XS-F-279 leaveReturnCode · MK-XS-F-223 loadAssetRecordPart
+ *               MK-XS-F-239 loadCloudRecord · MK-XS-F-275 loadMinAppVersion
  *               MK-XS-F-074 loadUserData · MK-XS-F-079 loadUserRoot
+ *               MK-XS-F-285 mergeQuestions · MK-XS-F-272 openWithId
  *               MK-XS-F-242 readUserProfile · MK-XS-F-068 regenerateRecoveryCode
- *               MK-XS-F-222 saveAssetRecordPart · MK-XS-F-073 saveUserData
- *               MK-XS-F-077 setUserHousehold
+ *               … and 5 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -169,8 +181,9 @@ export async function getDataKey(): Promise<string | null> {
  *
  * Called by ... MK-XS-F-069 logoutUser · MK-XS-F-072 deleteAccount
  *
- * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
- *               MK-XS-F-072 deleteAccount · MK-XS-F-069 logoutUser
+ * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-072 deleteAccount · MK-XS-F-275 loadMinAppVersion
+ *               MK-XS-F-069 logoutUser
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -219,11 +232,14 @@ export function generateDataKey(): string {
  *     the answer = (out.match( ÷ .{1,4} ÷ g) as string[]).join('-')
  *
  * Called by ... MK-XS-F-060 registerUser · MK-XS-F-066 loginUser
- *               MK-XS-F-068 regenerateRecoveryCode
+ *               MK-XS-F-068 regenerateRecoveryCode · MK-XS-F-264 generateKeyCode
+ *               MK-XS-F-279 leaveReturnCode · MK-XS-F-280 restoreOwnerWithReturnCode
  *
- * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
- *               MK-XS-F-066 loginUser · MK-XS-F-068 regenerateRecoveryCode
- *               MK-XS-F-060 registerUser
+ * Reaches ..... 7 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-277 createInviteWithKeyCode · MK-XS-F-264 generateKeyCode
+ *               MK-XS-F-279 leaveReturnCode · MK-XS-F-066 loginUser
+ *               MK-XS-F-068 regenerateRecoveryCode · MK-XS-F-060 registerUser
+ *               MK-XS-F-280 restoreOwnerWithReturnCode
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -251,14 +267,20 @@ export function generateRecoveryCode(): string {
  *     crypto js.PBKDF2(secret.trim(), uid, { key size: 256 ÷ 32, iterations: PBKDF2_ITERS }).to string(crypto js.enc.hex)
  *
  * Called by ... MK-XS-F-047 unwrapWithPassword · MK-XS-F-048 unwrapWithRecovery
- *               MK-XS-F-139 wrapWithSecret
+ *               MK-XS-F-139 wrapWithSecret · MK-XS-F-268 wrapWithKeyCode
+ *               MK-XS-F-269 unwrapWithKeyCode · MK-XS-F-270 wrapWithReturnCode
+ *               MK-XS-F-271 unwrapWithReturnCode
  *
- * Reaches ..... 10 functions. Change the arithmetic above and these change with it:
- *               MK-XS-F-066 loginUser · MK-XS-F-046 makeEnvelope
- *               MK-XS-F-068 regenerateRecoveryCode · MK-XS-F-060 registerUser
+ * Reaches ..... 18 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-277 createInviteWithKeyCode · MK-XS-F-278 joinHouseholdWithKeyCode
+ *               MK-XS-F-279 leaveReturnCode · MK-XS-F-066 loginUser
+ *               MK-XS-F-046 makeEnvelope · MK-XS-F-068 regenerateRecoveryCode
+ *               MK-XS-F-060 registerUser · MK-XS-F-280 restoreOwnerWithReturnCode
  *               MK-XS-F-067 restoreWithRecoveryCode · MK-XS-F-049 rewrapPassword
- *               MK-XS-F-050 rewrapRecovery · MK-XS-F-047 unwrapWithPassword
- *               MK-XS-F-048 unwrapWithRecovery · MK-XS-F-139 wrapWithSecret
+ *               MK-XS-F-050 rewrapRecovery · MK-XS-F-269 unwrapWithKeyCode
+ *               MK-XS-F-047 unwrapWithPassword · MK-XS-F-048 unwrapWithRecovery
+ *               MK-XS-F-271 unwrapWithReturnCode · MK-XS-F-268 wrapWithKeyCode
+ *               MK-XS-F-270 wrapWithReturnCode · MK-XS-F-139 wrapWithSecret
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -279,9 +301,10 @@ function deriveKeyFromSecret(secret: string, uid: string): string {
  * Called by ... MK-XS-F-046 makeEnvelope · MK-XS-F-049 rewrapPassword
  *               MK-XS-F-050 rewrapRecovery
  *
- * Reaches ..... 7 functions. Change the arithmetic above and these change with it:
- *               MK-XS-F-066 loginUser · MK-XS-F-046 makeEnvelope
- *               MK-XS-F-068 regenerateRecoveryCode · MK-XS-F-060 registerUser
+ * Reaches ..... 9 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-278 joinHouseholdWithKeyCode · MK-XS-F-066 loginUser
+ *               MK-XS-F-046 makeEnvelope · MK-XS-F-068 regenerateRecoveryCode
+ *               MK-XS-F-060 registerUser · MK-XS-F-280 restoreOwnerWithReturnCode
  *               MK-XS-F-067 restoreWithRecoveryCode · MK-XS-F-049 rewrapPassword
  *               MK-XS-F-050 rewrapRecovery
  *
@@ -304,9 +327,11 @@ function wrapWithSecret(dek: string, uid: string, secret: string): string {
  *     r = wrap with secret(dek, uid, recovery code)
  *
  * Called by ... MK-XS-F-060 registerUser · MK-XS-F-066 loginUser
+ *               MK-XS-F-278 joinHouseholdWithKeyCode · MK-XS-F-280 restoreOwnerWithReturnCode
  *
- * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
- *               MK-XS-F-066 loginUser · MK-XS-F-060 registerUser
+ * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-278 joinHouseholdWithKeyCode · MK-XS-F-066 loginUser
+ *               MK-XS-F-060 registerUser · MK-XS-F-280 restoreOwnerWithReturnCode
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -419,14 +444,19 @@ export function rewrapRecovery(env: KeyEnvelope, dek: string, uid: string, recov
  *     typeof v = 'string' and (v as string).starts with(PREFIX)
  *
  * Called by ... MK-XS-F-053 decryptWithKey · MK-XS-F-055 decryptFromSync
+ *               MK-XS-F-259 decryptFromSyncWithId
  *
- * Reaches ..... 12 functions. Change the arithmetic above and these change with it:
- *               MK-XS-F-055 decryptFromSync · MK-XS-F-053 decryptWithKey
- *               MK-XS-F-072 deleteAccount · MK-XS-F-223 loadAssetRecordPart
- *               MK-XS-F-074 loadUserData · MK-XS-F-079 loadUserRoot
- *               MK-XS-F-066 loginUser · MK-XS-F-242 readUserProfile
- *               MK-XS-F-067 restoreWithRecoveryCode · MK-XS-F-077 setUserHousehold
- *               MK-XS-F-047 unwrapWithPassword · MK-XS-F-048 unwrapWithRecovery
+ * Reaches ..... 21 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-055 decryptFromSync · MK-XS-F-259 decryptFromSyncWithId
+ *               MK-XS-F-053 decryptWithKey · MK-XS-F-072 deleteAccount
+ *               MK-XS-F-278 joinHouseholdWithKeyCode · MK-XS-F-223 loadAssetRecordPart
+ *               MK-XS-F-275 loadMinAppVersion · MK-XS-F-074 loadUserData
+ *               MK-XS-F-079 loadUserRoot · MK-XS-F-066 loginUser
+ *               MK-XS-F-272 openWithId · MK-XS-F-242 readUserProfile
+ *               MK-XS-F-280 restoreOwnerWithReturnCode · MK-XS-F-067 restoreWithRecoveryCode
+ *               MK-XS-F-073 saveUserData · MK-XS-F-077 setUserHousehold
+ *               MK-XS-F-274 syncAssetRecordQuestions · MK-XS-F-269 unwrapWithKeyCode
+ *               … and 3 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -445,15 +475,20 @@ export function isEncrypted(v: unknown): boolean {
  *     PREFIX + crypto js.AES.encrypt(JSON.stringify(obj), key hex).to string()
  *
  * Called by ... MK-XS-F-054 encryptForSync · MK-XS-F-139 wrapWithSecret
+ *               MK-XS-F-260 encryptForSyncWithId · MK-XS-F-268 wrapWithKeyCode
+ *               MK-XS-F-270 wrapWithReturnCode
  *
- * Reaches ..... 13 functions. Change the arithmetic above and these change with it:
- *               MK-XS-F-233 commitAssetRecord · MK-XS-F-054 encryptForSync
+ * Reaches ..... 23 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-233 commitAssetRecord · MK-XS-F-277 createInviteWithKeyCode
+ *               MK-XS-F-054 encryptForSync · MK-XS-F-260 encryptForSyncWithId
+ *               MK-XS-F-278 joinHouseholdWithKeyCode · MK-XS-F-279 leaveReturnCode
  *               MK-XS-F-239 loadCloudRecord · MK-XS-F-066 loginUser
- *               MK-XS-F-046 makeEnvelope · MK-XS-F-068 regenerateRecoveryCode
- *               MK-XS-F-060 registerUser · MK-XS-F-067 restoreWithRecoveryCode
+ *               MK-XS-F-046 makeEnvelope · MK-XS-F-285 mergeQuestions
+ *               MK-XS-F-068 regenerateRecoveryCode · MK-XS-F-060 registerUser
+ *               MK-XS-F-280 restoreOwnerWithReturnCode · MK-XS-F-067 restoreWithRecoveryCode
  *               MK-XS-F-049 rewrapPassword · MK-XS-F-050 rewrapRecovery
  *               MK-XS-F-222 saveAssetRecordPart · MK-XS-F-073 saveUserData
- *               MK-XS-F-139 wrapWithSecret
+ *               … and 5 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -477,15 +512,20 @@ export function encryptWithKey(obj: unknown, keyHex: string): string {
  *     nothing   otherwise
  *
  * Called by ... MK-XS-F-047 unwrapWithPassword · MK-XS-F-048 unwrapWithRecovery
- *               MK-XS-F-055 decryptFromSync
+ *               MK-XS-F-055 decryptFromSync · MK-XS-F-259 decryptFromSyncWithId
+ *               MK-XS-F-269 unwrapWithKeyCode · MK-XS-F-271 unwrapWithReturnCode
  *
- * Reaches ..... 11 functions. Change the arithmetic above and these change with it:
- *               MK-XS-F-055 decryptFromSync · MK-XS-F-072 deleteAccount
- *               MK-XS-F-223 loadAssetRecordPart · MK-XS-F-074 loadUserData
- *               MK-XS-F-079 loadUserRoot · MK-XS-F-066 loginUser
- *               MK-XS-F-242 readUserProfile · MK-XS-F-067 restoreWithRecoveryCode
- *               MK-XS-F-077 setUserHousehold · MK-XS-F-047 unwrapWithPassword
- *               MK-XS-F-048 unwrapWithRecovery
+ * Reaches ..... 20 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-055 decryptFromSync · MK-XS-F-259 decryptFromSyncWithId
+ *               MK-XS-F-072 deleteAccount · MK-XS-F-278 joinHouseholdWithKeyCode
+ *               MK-XS-F-223 loadAssetRecordPart · MK-XS-F-275 loadMinAppVersion
+ *               MK-XS-F-074 loadUserData · MK-XS-F-079 loadUserRoot
+ *               MK-XS-F-066 loginUser · MK-XS-F-272 openWithId
+ *               MK-XS-F-242 readUserProfile · MK-XS-F-280 restoreOwnerWithReturnCode
+ *               MK-XS-F-067 restoreWithRecoveryCode · MK-XS-F-073 saveUserData
+ *               MK-XS-F-077 setUserHousehold · MK-XS-F-274 syncAssetRecordQuestions
+ *               MK-XS-F-269 unwrapWithKeyCode · MK-XS-F-047 unwrapWithPassword
+ *               … and 2 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -516,12 +556,13 @@ export function decryptWithKey(blob: string, keyHex: string): any | null {
  *     encrypt with key(obj, key)   if key
  *     nothing   otherwise
  *
- * Called by ... MK-XS-F-073 saveUserData · MK-XS-F-222 saveAssetRecordPart
- *               MK-XS-F-233 commitAssetRecord
+ * Called by ... MK-XS-F-073 saveUserData · MK-XS-F-273 sealWithId
  *
- * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 7 functions. Change the arithmetic above and these change with it:
  *               MK-XS-F-233 commitAssetRecord · MK-XS-F-239 loadCloudRecord
- *               MK-XS-F-222 saveAssetRecordPart · MK-XS-F-073 saveUserData
+ *               MK-XS-F-285 mergeQuestions · MK-XS-F-222 saveAssetRecordPart
+ *               MK-XS-F-073 saveUserData · MK-XS-F-273 sealWithId
+ *               MK-XS-F-274 syncAssetRecordQuestions
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -547,13 +588,14 @@ export async function encryptForSync(obj: unknown): Promise<string | null> {
  *     decrypt with key(value as string, key)   if key
  *     nothing   otherwise
  *
- * Called by ... MK-XS-F-074 loadUserData · MK-XS-F-079 loadUserRoot
- *               MK-XS-F-223 loadAssetRecordPart · MK-XS-F-242 readUserProfile
+ * Called by ... MK-XS-F-073 saveUserData · MK-XS-F-272 openWithId
  *
- * Reaches ..... 6 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 10 functions. Change the arithmetic above and these change with it:
  *               MK-XS-F-072 deleteAccount · MK-XS-F-223 loadAssetRecordPart
- *               MK-XS-F-074 loadUserData · MK-XS-F-079 loadUserRoot
- *               MK-XS-F-242 readUserProfile · MK-XS-F-077 setUserHousehold
+ *               MK-XS-F-275 loadMinAppVersion · MK-XS-F-074 loadUserData
+ *               MK-XS-F-079 loadUserRoot · MK-XS-F-272 openWithId
+ *               MK-XS-F-242 readUserProfile · MK-XS-F-073 saveUserData
+ *               MK-XS-F-077 setUserHousehold · MK-XS-F-274 syncAssetRecordQuestions
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -565,4 +607,392 @@ export async function decryptFromSync(value: unknown): Promise<any | null> {
   if (!isEncrypted(value)) return value;   // legacy plaintext object
   const key = await getDataKey();
   return key ? decryptWithKey(value as string, key) : null;
+}
+
+// ── THE CLOUD COPY OF THE MASTER RECORD, design v02 (2026-11-12) ─────────────────────────────────────────────────────
+
+/** R12: the fingerprint of a key — a salted one-way hash (HMAC-SHA-256 under a fixed label), its first 12 hex letters. It
+ *  names which key locked a document and cannot reveal the key. */
+/* ─ MK-XS-F-257 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * keyIdOf
+ *
+ * Answers ..... R12: the fingerprint of a key — a salted one-way hash (HMAC-SHA-256 under a fixed label), its first 12 hex letters.
+ *
+ * Formula .....
+ *     the first 12 of crypto js.hmac sha256('moneykeel − key − fingerprint − v1', key hex).to string(crypto js.enc.hex)
+ *
+ * Called by ... MK-XS-F-073 saveUserData · MK-XS-F-258 currentKeyId
+ *               MK-XS-F-259 decryptFromSyncWithId · MK-XS-F-260 encryptForSyncWithId
+ *               MK-XS-F-272 openWithId · MK-XS-F-273 sealWithId
+ *
+ * Reaches ..... 18 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-233 commitAssetRecord · MK-XS-F-258 currentKeyId
+ *               MK-XS-F-259 decryptFromSyncWithId · MK-XS-F-072 deleteAccount
+ *               MK-XS-F-260 encryptForSyncWithId · MK-XS-F-223 loadAssetRecordPart
+ *               MK-XS-F-239 loadCloudRecord · MK-XS-F-275 loadMinAppVersion
+ *               MK-XS-F-074 loadUserData · MK-XS-F-079 loadUserRoot
+ *               MK-XS-F-285 mergeQuestions · MK-XS-F-272 openWithId
+ *               MK-XS-F-242 readUserProfile · MK-XS-F-222 saveAssetRecordPart
+ *               MK-XS-F-073 saveUserData · MK-XS-F-273 sealWithId
+ *               MK-XS-F-077 setUserHousehold · MK-XS-F-274 syncAssetRecordQuestions
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-257
+ * Changed ..... not in git yet (—)
+ */
+export function keyIdOf(keyHex: string): string {
+  return CryptoJS.HmacSHA256('moneykeel-key-fingerprint-v1', keyHex).toString(CryptoJS.enc.Hex).slice(0, 12);
+}
+/** The fingerprint of the key on this phone, or null where there is none yet. */
+/* ─ MK-XS-F-258 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+ * currentKeyId
+ *
+ * Answers ..... The fingerprint of the key on this phone, or null where there is none yet.
+ *
+ * Formula .....
+ *     key = await get data key()
+ *     the answer:
+ *     key id of(key)   if key
+ *     nothing   otherwise
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-258
+ * Changed ..... not in git yet (—)
+ */
+export async function currentKeyId(): Promise<string | null> {
+  const key = await getDataKey();
+  return key ? keyIdOf(key) : null;
+}
+/** R12 + R18: open a synced value carrying a fingerprint. A fingerprint that is not this phone's key's: unreadable (null),
+ *  never tried. No fingerprint (written before this change): the key is tried — it opens, it is this key's. */
+/* ─ MK-XS-F-259 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+ * decryptFromSyncWithId
+ *
+ * Answers ..... R12 + R18: open a synced value carrying a fingerprint.
+ *
+ * Formula .....
+ *     nothing   when value = nothing
+ *     value   when !is encrypted(value)
+ *     key = await get data key()
+ *     nothing   when key is missing
+ *     nothing   when key id and key id of(key) ! = key id
+ *     the answer = decrypt with key(value as string, key)
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-259
+ * Changed ..... not in git yet (—)
+ */
+export async function decryptFromSyncWithId(value: unknown, keyId: string | null | undefined): Promise<any | null> {
+  if (value == null) return null;
+  if (!isEncrypted(value)) return value;
+  const key = await getDataKey();
+  if (!key) return null;
+  if (keyId && keyIdOf(key) !== keyId) return null;
+  return decryptWithKey(value as string, key);
+}
+/** Encrypt with the phone's key and name the key: { enc, keyId }, or null where the phone has no key yet. */
+/* ─ MK-XS-F-260 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+ * encryptForSyncWithId
+ *
+ * Answers ..... Encrypt with the phone's key and name the key: { enc, keyId }, or null where the phone has no key yet.
+ *
+ * Formula .....
+ *     key = await get data key()
+ *     the answer:
+ *     enc = encrypt with key(obj, key)
+ *     key id = key id of(key)   if key
+ *     nothing   otherwise
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-260
+ * Changed ..... not in git yet (—)
+ */
+export async function encryptForSyncWithId(obj: unknown): Promise<{ enc: string; keyId: string } | null> {
+  const key = await getDataKey();
+  return key ? { enc: encryptWithKey(obj, key), keyId: keyIdOf(key) } : null;
+}
+
+/** R1: 12 letters from the secure random source the data key comes from (a–z and 0–9). */
+/* ─ MK-XS-F-261 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * generateDeviceTag
+ *
+ * Answers ..... R1: 12 letters from the secure random source the data key comes from (a–z and 0–9).
+ *
+ * Formula .....
+ *     a = 'abcdefghijklmnopqrstuvwxyz0123456789'
+ *     w = crypto js.lib.word array.random(12).words
+ *     out = ''
+ *     [LOOP — the answer is found inside a loop the extractor cannot render; the steps above are the ones before it. Read by hand.]
+ *
+ * Called by ... MK-XS-F-262 getDeviceTag
+ *
+ * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-262 getDeviceTag · MK-XS-F-309 mergeNaming
+ *               MK-XS-F-310 questionsAfterMerge · MK-XS-F-263 renewDeviceTag
+ *               MK-XS-F-308 startRowTag
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-261
+ * Changed ..... not in git yet (—)
+ */
+export function generateDeviceTag(): string {
+  const A = 'abcdefghijklmnopqrstuvwxyz0123456789';
+  const w = CryptoJS.lib.WordArray.random(12).words;
+  let out = '';
+  for (let i = 0; i < 12; i++) out += A[((w[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xff) % A.length];
+  return out;
+}
+const DEVICE_TAG = 'moneykeel-row-tag';
+let deviceTagCache: string | null = null;
+/** R1: this phone's row tag, kept in the keychain with the "this device only" setting, so a backup restored on another phone
+ *  has none and makes its own. Where the keychain cannot keep it, it lives in memory only (never in backed-up storage): a new
+ *  tag next launch, which is safe — names stay unique. */
+/* ─ MK-XS-F-262 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * getDeviceTag
+ *
+ * Answers ..... R1: this phone's row tag, kept in the keychain with the "this device only" setting, so a backup restored on another phone has none and makes its own.
+ *
+ * Formula .....
+ *     device tag cache   when device tag cache
+ *     tag = nothing
+ *     the answer = tag
+ *
+ * Called by ... MK-XS-F-263 renewDeviceTag · MK-XS-F-308 startRowTag
+ *
+ * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-309 mergeNaming · MK-XS-F-310 questionsAfterMerge
+ *               MK-XS-F-263 renewDeviceTag · MK-XS-F-308 startRowTag
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-262
+ * Changed ..... not in git yet (—)
+ */
+export async function getDeviceTag(): Promise<string> {
+  if (deviceTagCache) return deviceTagCache;
+  let tag: string | null = null;
+  try { tag = await SecureStore.getItemAsync(DEVICE_TAG, { keychainAccessible: SecureStore.WHEN_UNLOCKED_THIS_DEVICE_ONLY } as any); } catch { tag = null; }
+  if (!tag) {
+    tag = generateDeviceTag();
+    try { await SecureStore.setItemAsync(DEVICE_TAG, tag, { keychainAccessible: SecureStore.WHEN_UNLOCKED_THIS_DEVICE_ONLY } as any); } catch { /* memory only */ }
+  }
+  deviceTagCache = tag;
+  return tag;
+}
+/** R1: a phone that finds its tag on rows it did not write takes a new one (the caller decides; part B wires it). */
+/* ─ MK-XS-F-263 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * renewDeviceTag
+ *
+ * Answers ..... R1: a phone that finds its tag on rows it did not write takes a new one (the caller decides; part B wires it).
+ *
+ * Formula .....
+ *     get device tag()
+ *
+ * Called by ... MK-XS-F-310 questionsAfterMerge
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-XS-F-310 questionsAfterMerge
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-263
+ * Changed ..... not in git yet (—)
+ */
+export async function renewDeviceTag(): Promise<string> {
+  deviceTagCache = null;
+  try { await SecureStore.deleteItemAsync(DEVICE_TAG, { keychainAccessible: SecureStore.WHEN_UNLOCKED_THIS_DEVICE_ONLY } as any); } catch { /* ignore */ }
+  return getDeviceTag();
+}
+
+/** R13: the one-time key code the owner's phone shows beside the invite code — 20 letters from the recovery-code alphabet. */
+/* ─ MK-XS-F-264 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+ * generateKeyCode
+ *
+ * Answers ..... R13: the one-time key code the owner's phone shows beside the invite code — 20 letters from the recovery-code alphabet.
+ *
+ * Formula .....
+ *     generate recovery code().replace( ÷ - ÷ g, '')
+ *
+ * Called by ... MK-XS-F-277 createInviteWithKeyCode
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-XS-F-277 createInviteWithKeyCode
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-264
+ * Changed ..... not in git yet (—)
+ */
+export function generateKeyCode(): string {
+  return generateRecoveryCode().replace(/-/g, '');
+}
+/** Writes a typed code one way: spaces and dashes taken out, letters in capitals, so a code typed with or without them opens the same lock. */
+/* ─ MK-XS-F-265 ──────────────────────────────────────────────────────────────────── 1 · ACTION
+ * normCode
+ *
+ * Answers ..... Writes a typed code one way: spaces and dashes taken out, letters in capitals, so a code typed with or without them opens the same lock.
+ *
+ * Formula .....
+ *     replace( ÷ [\s-] ÷ g, '').to upper case()
+ *
+ * Called by ... MK-XS-F-266 keyCodeProof · MK-XS-F-268 wrapWithKeyCode
+ *               MK-XS-F-269 unwrapWithKeyCode · MK-XS-F-270 wrapWithReturnCode
+ *               MK-XS-F-271 unwrapWithReturnCode
+ *
+ * Reaches ..... 10 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-277 createInviteWithKeyCode · MK-XS-F-278 joinHouseholdWithKeyCode
+ *               MK-XS-F-267 keyCodeCheck · MK-XS-F-266 keyCodeProof
+ *               MK-XS-F-279 leaveReturnCode · MK-XS-F-280 restoreOwnerWithReturnCode
+ *               MK-XS-F-269 unwrapWithKeyCode · MK-XS-F-271 unwrapWithReturnCode
+ *               MK-XS-F-268 wrapWithKeyCode · MK-XS-F-270 wrapWithReturnCode
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-265
+ * Changed ..... not in git yet (—)
+ */
+const normCode = (c: string) => c.replace(/[\s-]/g, '').toUpperCase();
+/** R13: the proof of a key code, sent when joining (its SHA-256 is the check value the access rules compare). */
+/* ─ MK-XS-F-266 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+ * keyCodeProof
+ *
+ * Answers ..... R13: the proof of a key code, sent when joining (its SHA-256 is the check value the access rules compare).
+ *
+ * Formula .....
+ *     crypto js.SHA256('moneykeel − key − code − proof:' + norm code(key code)).to string(crypto js.enc.hex)
+ *
+ * Called by ... MK-XS-F-267 keyCodeCheck · MK-XS-F-278 joinHouseholdWithKeyCode
+ *
+ * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-277 createInviteWithKeyCode · MK-XS-F-278 joinHouseholdWithKeyCode
+ *               MK-XS-F-267 keyCodeCheck
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-266
+ * Changed ..... not in git yet (—)
+ */
+export function keyCodeProof(keyCode: string): string {
+  return CryptoJS.SHA256('moneykeel-key-code-proof:' + normCode(keyCode)).toString(CryptoJS.enc.Hex);
+}
+/** R13: the check value the invite holds: the SHA-256 of the proof. Neither reveals the key code. */
+/* ─ MK-XS-F-267 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+ * keyCodeCheck
+ *
+ * Answers ..... R13: the check value the invite holds: the SHA-256 of the proof.
+ *
+ * Formula .....
+ *     crypto js.SHA256(key code proof(key code)).to string(crypto js.enc.hex)
+ *
+ * Called by ... MK-XS-F-277 createInviteWithKeyCode · MK-XS-F-278 joinHouseholdWithKeyCode
+ *
+ * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-277 createInviteWithKeyCode · MK-XS-F-278 joinHouseholdWithKeyCode
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-267
+ * Changed ..... not in git yet (—)
+ */
+export function keyCodeCheck(keyCode: string): string {
+  return CryptoJS.SHA256(keyCodeProof(keyCode)).toString(CryptoJS.enc.Hex);
+}
+/** R13: the household key locked by the key code (the invite code salts it). */
+/* ─ MK-XS-F-268 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+ * wrapWithKeyCode
+ *
+ * Answers ..... R13: the household key locked by the key code (the invite code salts it).
+ *
+ * Formula .....
+ *     encrypt with key(dek, derive key from secret(norm code(key code), 'moneykeel − key − code:' + norm code(invite code)))
+ *
+ * Called by ... MK-XS-F-277 createInviteWithKeyCode
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-XS-F-277 createInviteWithKeyCode
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-268
+ * Changed ..... not in git yet (—)
+ */
+export function wrapWithKeyCode(dek: string, keyCode: string, inviteCode: string): string {
+  return encryptWithKey(dek, deriveKeyFromSecret(normCode(keyCode), 'moneykeel-key-code:' + normCode(inviteCode)));
+}
+/** Opens the household key locked by a key code and the household invite code; nothing when the codes are wrong. */
+/* ─ MK-XS-F-269 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+ * unwrapWithKeyCode
+ *
+ * Answers ..... Opens the household key locked by a key code and the household invite code; nothing when the codes are wrong.
+ *
+ * Formula .....
+ *     decrypt with key(wrapped, derive key from secret(norm code(key code), 'moneykeel − key − code:' + norm code(invite code)))
+ *
+ * Called by ... MK-XS-F-278 joinHouseholdWithKeyCode
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-XS-F-278 joinHouseholdWithKeyCode
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-269
+ * Changed ..... not in git yet (—)
+ */
+export function unwrapWithKeyCode(wrapped: string, keyCode: string, inviteCode: string): string | null {
+  return decryptWithKey(wrapped, deriveKeyFromSecret(normCode(keyCode), 'moneykeel-key-code:' + normCode(inviteCode)));
+}
+/** R14: the household key locked by a one-time return code a member gives an owner who lost both codes. */
+/* ─ MK-XS-F-270 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+ * wrapWithReturnCode
+ *
+ * Answers ..... R14: the household key locked by a one-time return code a member gives an owner who lost both codes.
+ *
+ * Formula .....
+ *     encrypt with key(dek, derive key from secret(norm code(return code), 'moneykeel − return − code:' + owner))
+ *
+ * Called by ... MK-XS-F-279 leaveReturnCode
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-XS-F-279 leaveReturnCode
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-270
+ * Changed ..... not in git yet (—)
+ */
+export function wrapWithReturnCode(dek: string, returnCode: string, owner: string): string {
+  return encryptWithKey(dek, deriveKeyFromSecret(normCode(returnCode), 'moneykeel-return-code:' + owner));
+}
+/** Opens the household key locked by a one-time return code for its owner; nothing when the code is wrong. */
+/* ─ MK-XS-F-271 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+ * unwrapWithReturnCode
+ *
+ * Answers ..... Opens the household key locked by a one-time return code for its owner; nothing when the code is wrong.
+ *
+ * Formula .....
+ *     decrypt with key(wrapped, derive key from secret(norm code(return code), 'moneykeel − return − code:' + owner))
+ *
+ * Called by ... MK-XS-F-280 restoreOwnerWithReturnCode
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-XS-F-280 restoreOwnerWithReturnCode
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-271
+ * Changed ..... not in git yet (—)
+ */
+export function unwrapWithReturnCode(wrapped: string, returnCode: string, owner: string): string | null {
+  return decryptWithKey(wrapped, deriveKeyFromSecret(normCode(returnCode), 'moneykeel-return-code:' + owner));
 }

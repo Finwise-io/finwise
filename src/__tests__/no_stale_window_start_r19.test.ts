@@ -1,4 +1,10 @@
-/** A WINDOW NEVER STARTS FROM A STALE PRICE — THE GUARD (2026-11-01, FX-PF; the lead's rulings R19 and R19a, NW4-02, tenet 2).
+/** A WINDOW'S START CLOSE — THE GUARD (2026-11-01, FX-PF; the lead's rulings R19 and R19a, NW4-02, tenet 2).
+ *
+ *  CHANGED 2026-11-12 BY HIS DEC-10558 (2026-11-11: "if price is stale, app just state so. but still display it and use it."), which
+ *  replaces the lead's R19 / DEC-9486. A window now starts from its last close however old; a close more than START_CLOSE_DAYS (7)
+ *  before the start is USED and STATED, never refused. What this guard holds now: every start is still read through closeAsOf or a
+ *  known read (part 1, unchanged), closeAsOf carries NO day-gap refusal at all, START_CLOSE_DAYS lives only in staleStartClose and
+ *  decides only when the date is said, and the sentence states the close's date and that the return covers more than the window.
  *
  *  1. Every read of "the close on or before a day" in the app's code is listed here with what it is. A WINDOW'S START is read only
  *     through closeAsOf (MK-PF-F-029) or behind staleStartClose; every other read is named for what it is instead (the end of a
@@ -26,7 +32,7 @@ const READ = /\b(closeOnOrBefore|closeDayOnOrBefore)\(/;
 /** each known read: the file, words its line carries, and what it is */
 const KNOWN: [string, string, string][] = [
   // the readers themselves
-  ['src/domain/performance/index.ts', 'return closeOnOrBefore(series, day) ?? firstClose(series)?.close ?? null;', 'closeAsOf, the one start reader — its 7-day check written out above it'],
+  ['src/domain/performance/index.ts', 'return closeOnOrBefore(series, day) ?? firstClose(series)?.close ?? null;', 'closeAsOf, the one start reader — its last close however old (DEC-10558)'],
   ['src/domain/performance/index.ts', 'return closeDayOnOrBefore(series, isoDate)?.close ?? null;', 'closeOnOrBefore is closeDayOnOrBefore\'s close'],
   ['src/domain/performance/index.ts', 'return closeOnOrBefore(series, day) ?? firstClose(series)?.close ?? null;', 'closeAsOfInside, the one INSIDE reader (R19b): a day inside a window takes its own close'],
   ['src/domain/performance/index.ts', 'if (!on || series?.byHand === true) return null;', 'staleStartClose, the start check (byHand exempt, R19a)'],
@@ -44,7 +50,7 @@ const KNOWN: [string, string, string][] = [
   ['MoneyKeel/functions/networth-and-performance/asset-record-from-prices.ts', 'const close = closeOnOrBefore(prices[h], day);', 'a holding\'s value on the record\'s day: an old close is used and its own day kept beside it (his ruling, 2026-11-11), so the screen can say the price is old — not a window\'s start'],
   ['MoneyKeel/functions/networth-and-performance/performance.ts', 'const closeTo = closeOnOrBefore(series, to);', 'the END of those days (today, or the record\'s first day)'],
   ['MoneyKeel/functions/networth-and-performance/performance.ts', 'const cNow = latestClose(series), cEve = closeOnOrBefore(series, ev);', 'a money-moved day inside the window, its trades undone (R18, R19b): its own day\'s close'],
-  ['MoneyKeel/functions/networth-and-performance/performance.ts', 'const closeFrom = !insideDay && staleStartClose(series, from) ? null : closeOnOrBefore(series, from)', 'a START behind staleStartClose; a money-moved day inside the window (insideDay, R19b) takes its own close'],
+  ['MoneyKeel/functions/networth-and-performance/performance.ts', 'const closeFrom = closeOnOrBefore(series, from)', 'a START, its last close however old (DEC-10558) — stated by staleStartSentences'],
 ];
 
 type Hit = { file: string; line: number; text: string };
@@ -75,29 +81,31 @@ test('the probe: a start read straight off the closes is caught', () => {
   expect(known(planted[0])).toBeUndefined();                                         // in neither list: it would fail the test above
 });
 
-test('the 7-day limit is START_CLOSE_DAYS alone: staleStartClose reads it, and closeAsOf\'s written-out 7 equals it', () => {
+test('DEC-10558: closeAsOf refuses no old close; the 7-day limit is START_CLOSE_DAYS alone and only says the date', () => {
   expect(START_CLOSE_DAYS).toBe(7);
   const src = fs.readFileSync(path.join(ROOT, 'src/domain/performance/index.ts'), 'utf8');
   const body = (name: string) => { const at = src.indexOf(`function ${name}(`); return src.slice(at, src.indexOf('\n}\n', at)); };
   expect(body('staleStartClose')).toMatch(/gap > START_CLOSE_DAYS/);
-  expect(body('closeAsOf')).toMatch(new RegExp(`/ 86_400_000 > ${START_CLOSE_DAYS}\\) return null;`));
-  // no other day-gap limit over closes in the start readers' files
+  expect(body('closeAsOf').replace(/\/\/.*$/gm, '')).not.toMatch(/86_400_000|START_CLOSE_DAYS/);
+  // no day-gap limit over closes in the start readers' files (closeAsOf's 7 is gone, 2026-11-12)
   for (const f of ['src/domain/performance/index.ts', 'MoneyKeel/functions/networth-and-performance/performance.ts', 'MoneyKeel/functions/networth-and-performance/holding.ts']) {
     const code = fs.readFileSync(path.join(ROOT, f), 'utf8').replace(/\/\/.*$/gm, '');
-    expect([f, (code.match(/86_400_000 > \d+\)/g) ?? []).length]).toEqual([f, f.endsWith('index.ts') ? 1 : 0]);
+    expect([f, (code.match(/86_400_000 > \d+\)/g) ?? []).length]).toEqual([f, 0]);
   }
-  // and it behaves so: 7 days is a start, 8 is not
+  // staleStartClose still tells when the date is said: 7 days says nothing, 8 says it
   const S = (d: string) => ({ ticker: 'X', points: [{ date: d, close: 10 }] });
   expect(staleStartClose(S('2026-08-28'), '2026-09-04')).toBeNull();
   expect(staleStartClose(S('2026-08-28'), '2026-09-05')).not.toBeNull();
 });
 
-test('a series typed by hand is exempt (R19a): a month-old value starts the window; the same marks as market closes do not', () => {
+test('a series typed by hand is never said to be old (R19a); a month-old value starts the window either way (DEC-10558)', () => {
   const marks = [{ date: '2026-04-30', close: 10.412 }, { date: '2026-05-29', close: 10.538 }, { date: '2026-09-30', close: 10.701 }];
   const now = new Date('2026-09-30T12:00:00');
   // a window from Jul 1, 2026: its start is read on Jul 1 — the last value is May 29's $10.538, 33 days back
   expect(periodReturnSince({ ticker: 'F', points: marks, byHand: true } as any, '2026-07-01', now)).toBeCloseTo(10.701 / 10.538 - 1, 12);
-  expect(periodReturnSince({ ticker: 'F', points: marks } as any, '2026-07-01', now)).toBeNull();
+  // the same marks as market closes start there too since DEC-10558 (2026-11-12; R19 refused them) — and their date is said
+  expect(periodReturnSince({ ticker: 'F', points: marks } as any, '2026-07-01', now)).toBeCloseTo(10.701 / 10.538 - 1, 12);
+  expect(staleStartClose({ ticker: 'F', points: marks } as any, '2026-07-01')).toEqual({ day: '2026-05-29', close: 10.538 });
   expect(staleStartClose({ ticker: 'F', points: marks, byHand: true } as any, '2026-07-01')).toBeNull();
 });
 
@@ -121,10 +129,12 @@ test('R19b: every call of the start reader and the inside reader is classified �
   // and only these two files may read a purchase or a flow day inside a window with the stale check switched off
   const engine = fs.readFileSync(path.join(ROOT, 'MoneyKeel/functions/networth-and-performance/performance.ts'), 'utf8');
   expect((engine.match(/cEve = closeOnOrBefore\(series, ev\)/g) ?? []).length).toBe(1);    // flowTwr's money-moved day, its trades undone
-  expect(engine).toMatch(/const closeFrom = !insideDay && staleStartClose\(series, from\)/);
+  // DEC-10558 (2026-11-12): the start of those days is its last close however old — no stale check switches it off any more
+  expect(engine).toMatch(/const closeFrom = closeOnOrBefore\(series, from\)/);
+  expect(engine).not.toMatch(/staleStartClose\(series, from\) \? null/);
 });
 
-test('R19b: a start refused always speaks — the Performance tab\'s sentence names the holding and its last close (PF5-2)', () => {
+test('DEC-10558: an old start close is used and stated — the Performance tab counts VTI and its sentence names Aug 1, 2024', () => {
   const { thePerformance, windowStartKey } = require('../../MoneyKeel/functions/networth-and-performance/performance');
   const { buildPerformance } = require('../domain/performance');
   const T = '2026-09-30';
@@ -137,15 +147,19 @@ test('R19b: a start refused always speaks — the Performance tab\'s sentence na
     const f = thePerformance({ windowStart: windowStartKey(w, [], T), windowLabel: w, today: T, holdings: rows, priceOf: () => series,
       transactions: [], snapshotDays: [{ date: T, accounts: [{ date: T, accountId: 'van', cash: 0, statedTotal: 10_000, currency: 'USD' }], holdings: [] }],
       investmentAccountIds: new Set(['van']), accounts: [acct] });
-    expect([w, f.cumulative, f.workedBack]).toEqual([w, null, true]);                 // worked back, not greyed, not day one
-    expect(f.notIncluded).toMatch(/^VTI \(\$10,000\) has no price near the window’s start: its last close before it is Aug 1, 2024, so its gains are not included\.$/);
+    expect([w, f.workedBack]).toEqual([w, true]);                                     // worked back, not greyed, not day one
+    expect(f.cumulative).toBeCloseTo(100 / 70 - 1, 12);                                // +42.86% from the Aug 1, 2024 close (R19 left it out)
+    expect(f.notIncluded).toBe('VTI’s starting price is its last close before the window, Aug 1, 2024, so its return runs from that day and covers more than the window.');
   }
 });
 
-test('R19b: the Holding page\'s refusal names the close before its words for prices that have not filled in (PF5-1, NW5-04)', () => {
+// CHANGED 2026-11-12 by DEC-10558: the Holding page no longer refuses an old start; it prints the return and the Performance tab's own
+// sentence, from the one writer staleStartSentence (shown on screen in src/screens/__tests__/perf_phase4_pages_2026_11_12.test.tsx).
+test('DEC-10558: the Holding page states an old start close through the tab\'s one sentence — never "has no price near the window’s start"', () => {
   const screen = fs.readFileSync(path.join(ROOT, 'src/screens/HoldingDetailScreen.tsx'), 'utf8');
   const at = (t: string) => screen.indexOf(t);
   expect(at('staleWindowStart(series, period as any, now)')).toBeGreaterThan(0);
-  expect(at('has no price near the window’s start: its last close before it is')).toBeGreaterThan(0);
-  expect(at('has no price near the window’s start: its last close before it is')).toBeLessThan(screen.lastIndexOf("'Not enough price history for a fair comparison — check back as prices fill in.'"));
+  expect(at('staleStartSentence(ticker, own.day)')).toBeGreaterThan(0);
+  expect(screen).not.toMatch(/has no price near the window/);
+  expect(screen).not.toMatch(/starting price is its last close/);              // the words live in performance.ts alone
 });

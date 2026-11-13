@@ -297,8 +297,9 @@ describe('Workplan row 106 · the expense door has its own words (canon row 27)'
 
 describe('Workplan row 363 · the Bill calendar’s typed cash on hand round-trips through the cloud copy', () => {
   test('it is a synced field, and a cloud copy brings back the figure and its day', () => {
-    // the list the app writes to the cloud, read from the file, never from memory
-    const src = fs.readFileSync(path.join(ROOT, 'app/_layout.tsx'), 'utf8');
+    // the list the app writes to the cloud, read from the file, never from memory (moved beside the profile's merge,
+    // design v02 of the cloud copy of the master record, 2026-11-12)
+    const src = fs.readFileSync(path.join(ROOT, 'src/services/sync/profileMerge.ts'), 'utf8');
     const list = src.slice(src.indexOf('const SYNC_FIELDS = ['), src.indexOf('] as const;', src.indexOf('const SYNC_FIELDS')));
     const fields = [...list.matchAll(/'([A-Za-z]+)'/g)].map((m) => m[1]);
     expect(fields.length).toBeGreaterThanOrEqual(45);

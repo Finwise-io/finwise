@@ -113,6 +113,9 @@ test('fault 4 (H2): a sale of 8 where the app matches 3 shares and counts $120 â
   txn({ type: 'SELL', account_id: A, ticker: 'AAPL', shares: 6, price: 200, date: '2025-01-10', amount: 1200 });
   const p = pos(A, 'AAPL');
   st().updatePosition(A, p.position_id, { lots: p.lots.map((l: any) => ({ ...l })) });
+  // a phone that ran the holding editor before 2026-11-12: its unchanged save rewrote the part-sold purchase's opening
+  // record to the 4 shares left (the editor no longer does; outside check, 2026-11-12), so the app matches 3 of the 8
+  useStore.setState({ transactions: st().transactions.map((t: any) => (t.type === 'OPENING_POSITION' && t.lot_id === 'b1' ? { ...t, shares: 4 } : t)) } as any);
   txn({ type: 'SELL', account_id: A, ticker: 'AAPL', shares: 8, price: 210, date: '2025-05-10', amount: 1680 });
   oldPhone();
   moveTwiceSame();

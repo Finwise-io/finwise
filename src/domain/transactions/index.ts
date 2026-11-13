@@ -17,7 +17,7 @@ export type TxnType =
   | 'DEPOSIT'            // external cash in (paycheck, contribution)
   | 'WITHDRAWAL'         // cash out (spend)
   | 'TRANSFER'           // cash between accounts
-  | 'TRANSFER_IN_KIND'   // whole position moved between accounts
+  | 'TRANSFER_IN_KIND'   // shares moved between accounts: the shares stated, else the whole position
   | 'DIVIDEND' | 'INTEREST' | 'COUPON'   // income on a holding/account (cash or reinvested)
   | 'FEE'
   | 'ADJUSTMENT';   // broker split/adjustment (SnapTrade v2): a visible history row — touches NOTHING
@@ -127,18 +127,29 @@ export interface Transaction {
  *               MK-NW-F-201 fileRowsToSave · MK-NW-F-205 priceFeedValues
  *               MK-NW-F-221 lotsFollow · MK-NW-F-224 typedChangeToRecord
  *               MK-NW-F-228 moveOldCopies · MK-NW-F-229 dayOrNull
- *               MK-NW-F-234 rowsInForce · MK-NW-F-235 firstRowOf
- *               MK-NW-F-238 sortArriving · MK-NW-F-241 valueRows
- *               MK-NW-F-242 valueBatchesOf · MK-NW-F-247 valuesThatDiffer
- *               MK-NW-F-252 walkHolding · MK-NW-F-255 soldBeyondRecord
- *               MK-NW-F-256 salesNeedingAnAnswer · MK-NW-F-257 typedSalesTheListContradicts
- *               MK-NW-F-260 soldFrom · MK-NW-F-263 sharesThatDisagree
- *               MK-NW-F-264 lastListDay · MK-NW-F-272 salesMovedBy
- *               MK-NW-F-273 answerEventQuestion · MK-NW-F-277 purchasesFromList
- *               MK-NW-F-278 answerListQuestion · MK-NW-F-279 differsFromGiven
- *               MK-NW-F-282 removeRow · MK-NW-F-284 activityOf
- *               MK-NW-F-289 activityRefs · MK-NW-F-291 lotsOf
- *               MK-NW-F-293 keptAwayByEvent · MK-NW-O-001 theBonds
+ *               MK-NW-F-235 firstRowOf · MK-NW-F-238 sortArriving
+ *               MK-NW-F-241 valueRows · MK-NW-F-242 valueBatchesOf
+ *               MK-NW-F-247 valuesThatDiffer · MK-NW-F-252 walkHolding
+ *               MK-NW-F-255 soldBeyondRecord · MK-NW-F-256 salesNeedingAnAnswer
+ *               MK-NW-F-257 typedSalesTheListContradicts · MK-NW-F-260 soldFrom
+ *               MK-NW-F-263 sharesThatDisagree · MK-NW-F-264 lastListDay
+ *               MK-NW-F-272 salesMovedBy · MK-NW-F-273 answerEventQuestion
+ *               MK-NW-F-277 purchasesFromList · MK-NW-F-278 answerListQuestion
+ *               MK-NW-F-279 differsFromGiven · MK-NW-F-282 removeRow
+ *               MK-NW-F-284 activityOf · MK-NW-F-289 activityRefs
+ *               MK-NW-F-291 lotsOf · MK-NW-F-293 keptAwayByEvent
+ *               MK-NW-F-295 sameHoldings · MK-NW-F-296 askWhich
+ *               MK-NW-F-305 strip · MK-NW-F-306 listNameFromSignature
+ *               MK-NW-F-311 makeQuestion · MK-NW-F-314 listNamesTheSoldLot
+ *               MK-NW-F-316 salesSentence · MK-NW-F-318 lotsWords
+ *               MK-NW-F-319 listQuestionToAsk · MK-NW-F-320 saleQuestionToAsk
+ *               MK-NW-F-321 latestListDayOf · MK-NW-F-324 questionsOf
+ *               MK-NW-F-325 editQuestionToAsk · MK-NW-F-326 confirmMyChangeQuestion
+ *               MK-NW-F-328 keyOldAnswers · MK-NW-F-329 undoAnswer
+ *               MK-NW-F-330 undoAskQuestion · MK-NW-F-332 rowsOfChange
+ *               MK-NW-F-335 writeAnswer · MK-NW-F-337 answerQuestion
+ *               MK-NW-F-345 accountWalksShown · MK-NW-F-354 competingCorrections
+ *               MK-NW-F-355 keepOneCorrection · MK-NW-O-001 theBonds
  *               MK-NW-O-002 theAccount · MK-NW-O-003 theNetWorth
  *               MK-NW-O-004 theEmergencyFund · MK-NW-O-005 theAlternativesOutlook
  *               MK-NW-O-006 theHolding · MK-NW-O-008 thePerformance
@@ -179,8 +190,13 @@ export interface Transaction {
  *               MK-XS-F-217 fileAccountOf · MK-XS-F-219 importedAccountOf
  *               MK-XS-F-221 valueOnlyAccountsOf · MK-XS-F-225 partsToWrite
  *               MK-XS-F-251 accountIdsOf · MK-XS-F-253 giveBackField
+ *               MK-XS-F-282 mergeRecord · MK-XS-F-292 entriesOf
+ *               MK-XS-F-294 stableJson · MK-XS-F-298 mergeProfile
+ *               MK-XS-F-302 appMayStillSave · MK-XS-F-303 renameInside
+ *               MK-XS-F-304 repointValue · MK-XS-F-305 repointRow
+ *               MK-XS-F-306 repointQuestions · MK-XS-F-311 rowsAfterMerge
  *
- * Reaches ..... 637 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 724 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -190,7 +206,7 @@ export interface Transaction {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 619 more — the full list is on functions_from_code
+ *               … and 706 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -242,7 +258,7 @@ const cashOf = (a: AssetAccount) => a.cash_balance || 0;
  * Called by ... MK-CF-F-136 bumpCash · MK-CF-F-222 tradeCash
  *               MK-CF-F-292 optionTradesOnTheWayIn
  *
- * Reaches ..... 569 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 638 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -252,7 +268,7 @@ const cashOf = (a: AssetAccount) => a.cash_balance || 0;
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 551 more — the full list is on functions_from_code
+ *               … and 620 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
@@ -288,7 +304,7 @@ const usesSleeve = (a: AssetAccount) => a.tax_bucket !== 'CASH' && a.tax_bucket 
  *
  * Called by ... MK-CF-F-136 bumpCash · MK-NW-F-088 BENCH
  *
- * Reaches ..... 568 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 637 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -298,7 +314,7 @@ const usesSleeve = (a: AssetAccount) => a.tax_bucket !== 'CASH' && a.tax_bucket 
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 550 more — the full list is on functions_from_code
+ *               … and 619 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
@@ -333,7 +349,7 @@ const availableCash = (a: AssetAccount): number | null => {
  *
  * Called by ... MK-CF-F-111 applyTransaction · MK-XS-F-174 recomputeBalances
  *
- * Reaches ..... 568 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 637 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -343,7 +359,7 @@ const availableCash = (a: AssetAccount): number | null => {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 550 more — the full list is on functions_from_code
+ *               … and 619 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
@@ -419,7 +435,7 @@ function bumpCash(a: AssetAccount, delta: number): AssetAccount {
  *
  * Called by ... MK-CF-F-111 applyTransaction · MK-XS-F-174 recomputeBalances
  *
- * Reaches ..... 568 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 637 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -429,7 +445,7 @@ function bumpCash(a: AssetAccount, delta: number): AssetAccount {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 550 more — the full list is on functions_from_code
+ *               … and 619 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
@@ -475,7 +491,7 @@ function tradeCash(a: AssetAccount, gross: number, fee: number): AssetAccount {
  *
  * Called by ... MK-CF-F-292 optionTradesOnTheWayIn · MK-XS-F-199 profileOnTheWayIn
  *
- * Reaches ..... 568 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 637 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -485,7 +501,7 @@ function tradeCash(a: AssetAccount, gross: number, fee: number): AssetAccount {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 550 more — the full list is on functions_from_code
+ *               … and 619 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
@@ -608,11 +624,12 @@ const openingRecordsHeld = (transactions: Transaction[], accountId: EntityId, p:
  *     the answer = r
  *     after lots = a lookup of for each of after.lots (or none when missing): [string(lot id), each]
  *     rewrite = new map<string, transaction | nothing>()
+ *     known = (v: unknown): v is number => typeof v = 'number' and number.is finite(v)
  *     r = record of(l)
  *     now = after lots.get(string(lot id))
+ *     shares = shares + (now.shares − shares)   if known(shares) and known(shares) and known(now.shares)
+ *     now.shares   otherwise
  *     had = a list with no repeats of for each of before.lots (or none when missing): string(lot id)
- *     added = after.lots (or none when missing) where !had.has(string(lot id))
- *     kept = (transactions ?? []).flat map((t) => (rewrite.has(id) ? (rewrite.get(id) ? [rewrite.get(id)!] : []) : [t]))
  *     … the first steps only — the rest of the body needs reading by hand.
  *
  * Called by ... MK-XS-F-199 profileOnTheWayIn
@@ -640,14 +657,25 @@ export function purchaseRecordsFollowEdit(transactions: Transaction[], accountId
   };
   const afterLots = new Map((after.lots ?? []).map((l) => [String(l.lot_id), l]));
   const rewrite = new Map<string, Transaction | null>();   // record id → its new form, or null to remove it
+  const known = (v: unknown): v is number => typeof v === 'number' && Number.isFinite(v);
   for (const l of before.lots ?? []) {
     const r = recordOf(l);
     if (!r) continue;
     const now = afterLots.get(String(l.lot_id));
     if (!now) { rewrite.set(r.id, null); continue; }
-    const same = (r.lot_id != null) && String(r.date ?? '') === String(now.purchase_date ?? '') && (r.shares ?? null) === (now.shares ?? null)
-      && (r.price ?? null) === (now.cost_per_share ?? null);
-    if (!same) rewrite.set(r.id, { ...r, date: now.purchase_date, shares: now.shares, price: now.cost_per_share ?? undefined, lot_id: now.lot_id,
+    // WHAT THE EDITOR CHANGED IS THE PURCHASE AS SHOWN BEFORE AGAINST AS SAVED (outside check, 2026-11-12; DEC-10385, DEC-10471):
+    // a purchase part sold shows what is left of it (5 of 10 VTI at $110), while its opening record keeps the 10 bought, so
+    // the sales read it oldest first. Set against the record, an unchanged save rewrote the record to 5, and a later sale of
+    // 3 was read from the $120 purchase ($60) instead of the 5 left at $110 ($90). An unchanged purchase writes nothing (a
+    // record written before lots had identifiers only gains its lot's identifier); a changed one keeps the shares sold:
+    // the shares added or taken off in the editor are added to or taken off the record, its day and price as now typed
+    const sameLot = String(l.purchase_date ?? '') === String(now.purchase_date ?? '') && (l.shares ?? null) === (now.shares ?? null)
+      && (l.cost_per_share ?? null) === (now.cost_per_share ?? null);
+    const sameIds = r.lot_id != null && String(r.position_id ?? '') === String(after.position_id ?? r.position_id ?? '')
+      && String(r.ticker ?? '').toUpperCase() === String(after.ticker ?? r.ticker ?? '').toUpperCase() && (after.kind == null || r.kind === after.kind);
+    if (sameLot && sameIds) continue;
+    const shares = known(r.shares) && known(l.shares) && known(now.shares) ? r.shares + (now.shares - l.shares) : now.shares;
+    rewrite.set(r.id, { ...r, date: now.purchase_date, shares, price: now.cost_per_share ?? undefined, lot_id: now.lot_id,
       position_id: after.position_id, ticker: after.ticker?.toUpperCase(), kind: after.kind });
   }
   const had = new Set((before.lots ?? []).map((l) => String(l.lot_id)));
@@ -778,7 +806,7 @@ export function purchaseRecordsFollowReimport(transactions: Transaction[], accou
  *
  * Called by ... MK-XS-F-175 uid · MK-XS-F-205 recordsOnTheWayIn
  *
- * Reaches ..... 568 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 637 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -788,7 +816,7 @@ export function purchaseRecordsFollowReimport(transactions: Transaction[], accou
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 550 more — the full list is on functions_from_code
+ *               … and 619 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
@@ -835,7 +863,7 @@ export function optionTradesOnTheWayIn(transactions: Transaction[], accounts: As
  * Called by ... MK-CF-F-111 applyTransaction · MK-CF-F-138 addLot
  *               MK-CF-F-139 removeShares · MK-CF-F-223 tradeMultiplierOf
  *
- * Reaches ..... 568 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 637 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -845,7 +873,7 @@ export function optionTradesOnTheWayIn(transactions: Transaction[], accounts: As
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 550 more — the full list is on functions_from_code
+ *               … and 619 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -1003,6 +1031,9 @@ function removeShares(a: AssetAccount, t: Transaction, shares: number): AssetAcc
  *     src = accounts.find((a) => asset id = account id)
  *     pos = src and find pos(src, t)
  *     accounts   when src is missing (or pos is missing (or counter account id is missing when missing or zero) when missing or zero)
+ *     stated = shares   if typeof shares = 'number' and number.is finite(shares) and shares > 0
+ *     nothing   otherwise
+ *     has = total shares(pos)
  *     out = map(accounts, account id, (a) => ({ ...a, positions: (positions ?? []).filter((p) => p ! = pos) }))
  *     map(accounts, account id, (a) => (find pos(a, t) ? add lot(a, t, shares!, price!) : a))   when reinvested and shares and price
  *
@@ -1014,7 +1045,10 @@ function removeShares(a: AssetAccount, t: Transaction, shares: number): AssetAcc
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
  *               MK-XS-I-004 holding quantity (shares)
+ *               MK-XS-I-007 purchase price and date (per lot)
  *               MK-XS-I-008 transaction amount
+ *               MK-XS-I-048 the person’s own asset-class answer
+ *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
  *               MK-XS-I-063 option contract multiplier — 100 unless the broker or the person states otherwise
  *               MK-XS-I-077 that an account's cash was never entered — the cash figure is activity since the import or since it was added
  *
@@ -1072,6 +1106,30 @@ export function applyTransaction(accounts: AssetAccount[], t: Transaction): Asse
       const src = accounts.find((a) => a.asset_id === t.account_id);
       const pos = src && findPos(src, t);
       if (!src || !pos || !t.counter_account_id) return accounts;
+      // A TRANSFER THAT STATES ITS SHARES MOVES THOSE SHARES (outside check, 2026-11-12): 15 of 40 VTI moved all 40, so the
+      // record, which moves the 15 stated, held 25 in the account they left that the phone did not. Fewer shares than the
+      // holding has move oldest purchase first, each keeping its day and price; none stated, or all of them, moves the
+      // holding whole, as the app's "transfer shares" always has
+      const stated = typeof t.shares === 'number' && Number.isFinite(t.shares) && t.shares > 0 ? t.shares : null;
+      const has = totalShares(pos);
+      if (stated != null && has != null && stated < has - 1e-9) {
+        const moved: Position['lots'] = [];
+        let left = stated;
+        const oldestFirst = [...pos.lots].sort((x, y) => (purchaseDateOnRecord(x.purchase_date) ?? '9999').localeCompare(purchaseDateOnRecord(y.purchase_date) ?? '9999'));
+        for (const l of oldestFirst) {
+          if (left <= 1e-9) break;
+          const take = Math.min(l.shares, left);
+          if (take > 1e-9) moved.push({ ...l, lot_id: newEntityId('lot'), shares: take });
+          left -= take;
+        }
+        const less = map(accounts, t.account_id, (a) => removeShares(a, { ...t, position_id: pos.position_id }, stated));
+        return map(less, t.counter_account_id, (a) => {
+          const there = (a.positions ?? []).find((p) => p.ticker === pos.ticker && (p.kind ?? null) === (pos.kind ?? null));
+          return there
+            ? { ...a, positions: (a.positions ?? []).map((p) => (p === there ? { ...p, lots: [...p.lots, ...moved] } : p)) }
+            : { ...a, positions: [...(a.positions ?? []), { ...pos, position_id: newEntityId('pos'), lots: moved }] };
+        });
+      }
       let out = map(accounts, t.account_id, (a) => ({ ...a, positions: (a.positions ?? []).filter((p) => p !== pos) }));
       out = map(out, t.counter_account_id, (a) => ({ ...a, positions: [...(a.positions ?? []), pos] }));
       return out;
@@ -1299,7 +1357,7 @@ export function txnLabel(t: TxnType): string { return TYPE_LABEL[t] ?? t; }
  * Called by ... MK-NW-O-002 theAccount · MK-PF-F-072 tradesAfter
  *               MK-ST-F-012 toLedgerRow
  *
- * Reaches ..... 50 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 52 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
  *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
@@ -1309,7 +1367,7 @@ export function txnLabel(t: TxnType): string { return TYPE_LABEL[t] ?? t; }
  *               MK-PF-F-014 buildPerformance · MK-CF-F-118 cashEffect
  *               MK-NW-F-084 categoryEarnings · MK-NW-F-142 classReturnOf
  *               MK-PF-F-068 dayAfterDay · MK-PF-F-012 earliestPurchaseDate
- *               … and 32 more — the full list is on functions_from_code
+ *               … and 34 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)

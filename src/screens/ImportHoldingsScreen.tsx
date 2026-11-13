@@ -11,7 +11,7 @@ import * as DocumentPicker from 'expo-document-picker';
 import { readFileString } from '../services/fileRead';   // T19: supported read path (legacy readAsStringAsync throws at runtime)
 import { useStore } from '../store/useStore';
 import { SectionBand } from '../components/SectionBand';
-import { importHoldings, importedAccountOf, valueOnlyAccountsOf, decodeCsvBase64, matchImportAccount, type ImportResult } from '../domain/import/holdingsImport';
+import { importHoldings, importedAccountOf, valueOnlyAccountsOf, valueOnlyAccountMatchOf, decodeCsvBase64, matchImportAccount, type ImportResult } from '../domain/import/holdingsImport';
 import { ASSET_CLASS_LABEL, type AssetClass } from '../domain/assets';
 import { money2 } from '../domain/_shared/num';
 import { Colors, Spacing, Radii, Typography } from '../utils/theme';
@@ -105,7 +105,18 @@ export default function ImportHoldingsScreen() {
       // each row with a value and no quantity is its own account, added first so the master record is told which account
       // holds each one (outside check, 2026-11-12: the record put a $5,000 bond on the file's account, and a file of only
       // such rows never reached the record); addAsset puts each new account first on the list
+      // A ROW AN EARLIER IMPORT ALREADY MADE AN ACCOUNT FOR is updated in that account, never added again (outside check,
+      // 2026-11-12: the same file imported twice made a second account for its $5,000 bond, so the bond counted twice);
+      // "Add as a new account" still adds every account new
+      const reuse = !(matched && mergeChoice === 'new');
+      const taken = new Set<string>();
       const valueOnlyIds = valueOnlyAccountsOf(result, { institution }).map((a) => {
+        const was = reuse ? valueOnlyAccountMatchOf(useStore.getState().assetAccounts ?? [], a, taken) : null;
+        if (was) {
+          taken.add(String(was.asset_id));
+          store.updateAsset(was.asset_id, a);
+          return String(was.asset_id);
+        }
         store.addAsset(a);
         return String(useStore.getState().assetAccounts[0]?.asset_id);
       });

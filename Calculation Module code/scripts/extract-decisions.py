@@ -419,7 +419,12 @@ def sweep_prose():
     for path in paths:
         base = os.path.basename(path)
         try:
-            text = _strip_tags(open(path, encoding='utf8', errors='ignore').read())
+            raw = open(path, encoding='utf8', errors='ignore').read()
+            text = _strip_tags(raw)
+            # SCREEN COPY DRAWN IN THIS MOCK IS NOT HIS DECISION EITHER (2026-11-12): a phone's text line that is not
+            # built yet is in no app file, so APP_COPY cannot know it; a quote equal to a whole drawn line of the same
+            # mock is that line (three phase 3 mocks' drawn copy were read as his words: DEC-10877..10879)
+            drawn = {_norm_copy(x) for x in re.findall(r'>([^<>]{12,300})<', raw)}
         except Exception as e:
             quiet.append(f'{base}: could not be read — {e}')
             continue
@@ -442,7 +447,10 @@ def sweep_prose():
             # APP COPY DRAWN IN A PHONE IS NOT HIS DECISION (2026-10-01): "Itemize this account into holdings"
             # is a door the app prints, quoted in a mock beside the word "approved". His words are never
             # a string literal in the screens; the app's own are. One corpus, read once.
-            if _norm_copy(words) in APP_COPY:
+            if _norm_copy(words) in APP_COPY or _norm_copy(words) in drawn or any(_norm_copy(words) in d for d in drawn):
+                continue
+            # a document named as listing it ("the setup flow spec v03 lists the step as “…”") is my text quoting a document
+            if re.search(r'\b(spec|standard|section|mock|file|record)\b[^.]{0,80}\b(lists|names|calls|shows)\b[^.]{0,40}\bas\s*$', around, re.I):
                 continue
             if words.rstrip().endswith('›'):
                 continue                       # a door's own words (they end in the chevron), never his

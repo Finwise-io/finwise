@@ -39,3 +39,14 @@ test('10 APPL bought Mar 3, 2025 at $150, ticker corrected to AAPL in the holdin
   expect(sharesOnRecord(st().assetRecord, id, 'AAPL')).toBe(10);
   expect(openPurchases(st().assetRecord, id, 'AAPL')).toEqual([expect.objectContaining({ date: '2025-03-03', shares: 10, price: 150 })]);
 });
+
+test('step 6 for a file, through the store: a file of Feb 21 still lists 2 AAPL $260 calls that expired Feb 20 — a sale of 200 at $0 on Feb 20 is saved, nothing asked', () => {
+  const { rowsInForce } = require('../../MoneyKeel/functions/networth-and-performance/asset-record');
+  const F = 'Symbol,Quantity,Price Paid $,Value $,Date Acquired\n';
+  useStore.setState({ assetRecord: [], assetRecordQuestions: {} } as any);
+  st().recordFileImport(importHoldings(F + "AAPL Feb 20 '26 $260 Call,2,4,0,02/01/2026\nGenerated at Feb 1 2026 03:37 PM ET\n"), 'acc');
+  st().recordFileImport(importHoldings(F + "AAPL Feb 20 '26 $260 Call,2,4,0,02/01/2026\nGenerated at Feb 21 2026 03:37 PM ET\n"), 'acc');
+  const sales = rowsInForce(st().assetRecord).filter((r: any) => r.kind === 'SALE');
+  expect(sales.map((r: any) => [r.date, r.shares, r.price])).toEqual([['2026-02-20', 200, 0]]);
+  expect(st().assetRecordQuestions.acc?.lists ?? []).toEqual([]);
+});

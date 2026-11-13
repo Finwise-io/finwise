@@ -12,23 +12,23 @@ export type EntityId = string;   // asset_id | debt_id | goal_id | income_source
  *     `${prefix}_${date.now().to string(36)}${math.random().to string(36).slice(2, 8)}`
  *
  * Called by ... MK-CF-F-038 debtsFromOnboarding · MK-CF-F-079 incomeFromOnboarding
- *               MK-CF-F-112 makeTransaction · MK-CF-F-116 inverseOf
- *               MK-CF-F-138 addLot · MK-CF-F-291 purchaseRecordsFollowReimport
- *               MK-NW-F-040 assetsFromOnboarding · MK-PL-F-013 goalsFromOnboarding
- *               MK-XS-F-102 ingestSync · MK-XS-F-199 profileOnTheWayIn
- *               MK-XS-F-219 importedAccountOf
+ *               MK-CF-F-111 applyTransaction · MK-CF-F-112 makeTransaction
+ *               MK-CF-F-116 inverseOf · MK-CF-F-138 addLot
+ *               MK-CF-F-291 purchaseRecordsFollowReimport · MK-NW-F-040 assetsFromOnboarding
+ *               MK-PL-F-013 goalsFromOnboarding · MK-XS-F-102 ingestSync
+ *               MK-XS-F-199 profileOnTheWayIn · MK-XS-F-219 importedAccountOf
  *
- * Reaches ..... 27 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 29 functions. Change the arithmetic above and these change with it:
  *               MK-CF-F-138 addLot · MK-CF-F-111 applyTransaction
  *               MK-NW-F-040 assetsFromOnboarding · MK-NW-F-194 brokerUpdateToRecord
  *               MK-XS-F-031 buildSnapshot · MK-CF-F-038 debtsFromOnboarding
  *               MK-NW-F-201 fileRowsToSave · MK-NW-F-199 fileToRecord
- *               MK-PL-F-023 goalStatus · MK-PL-F-013 goalsFromOnboarding
- *               MK-XS-F-219 importedAccountOf · MK-CF-F-079 incomeFromOnboarding
- *               MK-XS-F-102 ingestSync · MK-CF-F-116 inverseOf
- *               MK-CF-F-112 makeTransaction · MK-NW-F-228 moveOldCopies
- *               MK-CF-F-288 openingRecordsHeld · MK-CF-F-224 openingRecordsOf
- *               … and 9 more — the full list is on functions_from_code
+ *               MK-NW-F-226 fileValues · MK-PL-F-023 goalStatus
+ *               MK-PL-F-013 goalsFromOnboarding · MK-XS-F-219 importedAccountOf
+ *               MK-CF-F-079 incomeFromOnboarding · MK-XS-F-102 ingestSync
+ *               MK-CF-F-116 inverseOf · MK-CF-F-112 makeTransaction
+ *               MK-NW-F-228 moveOldCopies · MK-CF-F-288 openingRecordsHeld
+ *               … and 11 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

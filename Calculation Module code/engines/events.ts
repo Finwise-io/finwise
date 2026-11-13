@@ -196,15 +196,16 @@ export interface Classified {
  *
  * Called by ... MK-ST-F-012 toLedgerRow · MK-XS-F-106 mapOptionHolding
  *
- * Reaches ..... 15 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 17 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-194 brokerUpdateToRecord · MK-NW-F-193 eventRow
  *               MK-NW-F-201 fileRowsToSave · MK-NW-F-199 fileToRecord
- *               MK-XS-F-188 fixStoredFees · MK-XS-F-219 importedAccountOf
- *               MK-XS-F-102 ingestSync · MK-XS-F-106 mapOptionHolding
- *               MK-NW-F-228 moveOldCopies · MK-NW-F-192 optionName
- *               MK-XS-F-199 profileOnTheWayIn · MK-NW-F-195 readImport
- *               MK-NW-F-191 sharesPerContract · MK-ST-F-012 toLedgerRow
- *               MK-XS-F-192 typedValueDatedBack
+ *               MK-NW-F-226 fileValues · MK-XS-F-188 fixStoredFees
+ *               MK-XS-F-219 importedAccountOf · MK-XS-F-102 ingestSync
+ *               MK-XS-F-106 mapOptionHolding · MK-NW-F-228 moveOldCopies
+ *               MK-NW-F-192 optionName · MK-XS-F-199 profileOnTheWayIn
+ *               MK-NW-F-195 readImport · MK-NW-F-191 sharesPerContract
+ *               MK-ST-F-012 toLedgerRow · MK-XS-F-192 typedValueDatedBack
+ *               MK-XS-F-221 valueOnlyAccountsOf
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -254,11 +255,12 @@ export function touches(e: CanonicalEvent, total: 'contributions' | 'withdrawals
  *
  * Called by ... MK-XS-F-102 ingestSync
  *
- * Reaches ..... 8 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 10 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-194 brokerUpdateToRecord · MK-NW-F-201 fileRowsToSave
- *               MK-NW-F-199 fileToRecord · MK-XS-F-219 importedAccountOf
- *               MK-XS-F-102 ingestSync · MK-NW-F-228 moveOldCopies
- *               MK-XS-F-199 profileOnTheWayIn · MK-NW-F-195 readImport
+ *               MK-NW-F-199 fileToRecord · MK-NW-F-226 fileValues
+ *               MK-XS-F-219 importedAccountOf · MK-XS-F-102 ingestSync
+ *               MK-NW-F-228 moveOldCopies · MK-XS-F-199 profileOnTheWayIn
+ *               MK-NW-F-195 readImport · MK-XS-F-221 valueOnlyAccountsOf
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

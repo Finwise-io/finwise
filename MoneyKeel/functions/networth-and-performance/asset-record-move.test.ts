@@ -262,12 +262,13 @@ describe('the rule of DEC-10749, 2026-11-12: the lots as the phone shows them, a
     expect(lotsShown(T, 'VTI')).toBe(17);
     expect(sharesOnRecord(st().assetRecord, T, 'VTI')).toBe(17);
     expect(openPurchases(st().assetRecord, T, 'VTI').map((x) => [x.date, x.shares, x.price])).toEqual([['2024-06-10', 2, 110], ['2025-01-10', 10, 120], ['2025-08-01', 5, 130]]);
-    // the app's reading (the editor's save rewrote the opening records, so its second sale reads $60, not $90): $700 and $60
-    expect(realizedFromLedger(st().transactions, { ticker: 'VTI', accountId: T }).realizedAllTime).toBeCloseTo(760, 9);
+    // the app's reading: an unchanged save of the holding editor writes nothing (outside check, 2026-11-12), so the second
+    // sale sells 3 of the 5 left at $110 — $700 and 3 × ($140 − $110) = $90
+    expect(realizedFromLedger(st().transactions, { ticker: 'VTI', accountId: T }).realizedAllTime).toBeCloseTo(790, 9);
     const got = sales(T);
     expect(got.map(([d, n]) => [d, n])).toEqual([['2025-06-01', 15], ['2025-09-01', 3]]);
     expect(got[0][2]).toBeCloseTo(700, 9);
-    expect(got[1][2]).toBeCloseTo(60, 9);
+    expect(got[1][2]).toBeCloseTo(90, 9);
     expect(st().assetRecordFaults).toEqual([]);
     const n = st().assetRecord.length;
     st().moveOldCopiesToRecordOnce();

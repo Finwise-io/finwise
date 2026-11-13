@@ -5,10 +5,15 @@ import { TouchableOpacity, Text, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useStore, setPhoneDataAside, giveBackSetAside, phoneHoldsPersonData, accountIdsOf } from '../src/store/useStore';
+import { setAsideStorage } from '../src/store/secureStorage';
 import { setMoneyFormat, setHideBalances } from '../src/domain/_shared/money';
 import { patchTextScaling, setGlobalFontScale } from '../src/utils/fontScale';
+import * as Fb from '../src/services/firebase';
 import { onAuthChange, readUserProfile, loadUserRoot, saveUserData, loadAssetRecordPart, loadAssetRecordMarker, commitAssetRecord, getPhoneId, onSignOutFlush, onDataKeyReady } from '../src/services/firebase';
-import { loadCloudRecord, recordOnSignIn, saveRecordGuarded, recordWorkAllowed, RecordCannotBeRead, RecordNotSettled, type CloudSeen } from '../src/services/sync/assetRecordCloud';
+import { loadCloudRecord, recordOnSignInMerging, saveRecordMerging, recordWorkAllowed, salesAskedAgain, RecordCannotBeRead, RecordNotSettled, startRowTag, mergeNaming, questionsAfterMerge, rowsAfterMerge, type CloudSeen } from '../src/services/sync/assetRecordCloud';
+import { SYNC_FIELDS, pickSyncFields, startSync, trackChanges, mergeProfile, settleSync, splitStamps, stableJson, appMayStillSave, UPDATE_TO_KEEP_SAVING, type ProfileSync } from '../src/services/sync/profileMerge';
+import type { AssetRow, EventQuestion } from '../MoneyKeel/functions/networth-and-performance/asset-record';
+import Constants from 'expo-constants';
 import { Colors } from '../src/utils/theme';
 import { ErrorBoundary } from '../src/components/ErrorBoundary';
 import { RecoveryCodeModal } from '../src/components/RecoveryCodeModal';
@@ -21,26 +26,25 @@ import { runSnapTradeSync } from '../src/services/sync/snaptradeSync';
 patchTextScaling();      // install the global font-scale hook once
 initCrashReporting();    // F-6: install global error handler + Sentry (when configured) once
 
-// Fields synced to Firestore (excludes auth user + ephemeral economic data)
-const SYNC_FIELDS = [
-  'onboardingComplete', 'selectedGoals', 'budgetFrequency', 'payFrequency',
-  'budgetCategories', 'expenseTargetType', 'expenseTargetAmount',
-  'expenseTargetPercent', 'savingsDistribution', 'retirementPlan',
-  'incomes', 'expenses', 'savings', 'investments', 'goals', 'badges',
-  'recurringIncomes', 'recurringExpenses', 'customCategories',
-  'assetAccounts', 'liabilities', 'nwSeeded', 'snaptradeConnections', 'wrapperConfirmQueue', 'nwSetupChoice', 'allocatedByMonth', 'allocPromptSkipped', 'monthlySnapshots', 'nwDaily', 'retirementAssumptions', 'retirementScenarios', 'bigCosts', 'benchmarkReturns', 'estatePlan',
-  'currency', 'locale',
-  'xp', 'streak', 'lastCheckIn', 'monthlyBudgetTarget', 'hourlyRate',
-  'jobRiskLevel', 'emergencyMonths', 'onboardingPaused', 'onboardingProfile',
-  // the cash on hand typed on the Bill calendar, with its day (DEC-8371): kept on the phone, and now in the cloud copy too, so a
-  // reinstall or a second phone reads what the person entered (workplan row 363, 2026-10-27, FX-CF-A)
-  'billCalendarStart',
-] as const;
+// Fields synced to Firestore: SYNC_FIELDS and pickSyncFields live in src/services/sync/profileMerge.ts (R17, design v02 of the
+// cloud copy of the master record, 2026-11-12), beside the item-by-item merge that uses them.
 
-function pickSyncFields(state: Record<string, any>) {
-  const out: Record<string, any> = {};
-  for (const key of SYNC_FIELDS) out[key] = state[key];
-  return out;
+/** R8 + R11: the profile's sync for this data owner — the phone's, or null where it holds none for this owner yet. */
+function syncFor(owner: string): ProfileSync | null {
+  const ps: ProfileSync | null | undefined = (useStore.getState() as any).profileSync;
+  return ps && ps.owner === owner ? ps : null;
+}
+/** R8a: this app's version as the cloud's minimum compares it: the version and the build number. */
+function appVersion(): string {
+  const c: any = Constants?.expoConfig ?? {};
+  return [c.version ?? '0', c.ios?.buildNumber].filter((x) => x != null && x !== '').join('.');
+}
+/** The synced fields of a merged profile that differ from what the phone holds: what must change on the phone. */
+function differingFields(profile: Record<string, any>): Record<string, any> {
+  const now: any = useStore.getState();
+  const patch: Record<string, any> = {};
+  for (const k of SYNC_FIELDS) if (profile[k] !== undefined && stableJson(profile[k]) !== stableJson(now[k])) patch[k] = profile[k];
+  return patch;
 }
 
 function BackButton({ onPress }: { onPress: () => void }) {
@@ -112,8 +116,11 @@ export default function RootLayout() {
       const cloud = await loadCloudRecord(() => loadAssetRecordMarker(owner), (part) => loadAssetRecordPart(owner, part) as any);
       const s: any = useStore.getState();
       if (s.assetRecordOwner !== owner || !recordWorkAllowed(currentUid.current, profileLoadedFor.current)) return;   // someone else signed in meanwhile
-      const start = recordOnSignIn({ record: s.assetRecord ?? [], owner: s.assetRecordOwner }, cloud.record, owner);
+      // R2: the phone's rows the cloud lacks are added after the cloud's (a clash of row names, part B, keeps the refusal)
+      const start = recordOnSignInMerging({ record: s.assetRecord ?? [], owner: s.assetRecordOwner }, cloud.record, owner, await mergeNaming());
       useStore.setState({ assetRecord: start.record } as any);
+      afterMergeNames(start);
+      if (start.added.length && start.record.length > cloud.record.length) askSalesAgain(start.record, start.added);
       if (start.fault) recordFault(start.fault);
       recordSeen.current = { marker: cloud.marker, rowsInCloud: start.rowsInCloud };
       recordMayUpload.current = start.mayUpload;
@@ -123,6 +130,7 @@ export default function RootLayout() {
       const phoneWasOwnedBy = phoneOwnerBeforeSignIn.current;
       if (phoneWasOwnedBy == null || phoneWasOwnedBy === owner) (useStore.getState() as any).moveOldCopiesToRecordOnce?.();
       else recordFault('This phone held another person\u2019s accounts, so they were not moved onto this person\u2019s record.');
+      await syncQuestions(owner);
     } catch (e) {
       // a part that cannot be read, or a record caught mid-save: said once; the next change tries the load again.
       // Offline: the phone's record stands and nothing is saved.
@@ -143,13 +151,28 @@ export default function RootLayout() {
     const record = now.assetRecord ?? [];
     if (record.length <= recordSeen.current.rowsInCloud) return;
     recordSaving.current = true;
+    const recordSeenBefore = recordSeen.current.rowsInCloud;
     let saved = false;
     try {
-      const out = await saveRecordGuarded(record, recordSeen.current, await getPhoneId(), commitAssetRecord(owner), new Date().toISOString());
+      // R2 + R7: another phone saved since → read its copy, add this phone's rows after it, try again (at most 3 times)
+      const out = await saveRecordMerging(record, recordSeen.current, await getPhoneId(), commitAssetRecord(owner), new Date().toISOString(),
+        () => loadCloudRecord(() => loadAssetRecordMarker(owner), (part) => loadAssetRecordPart(owner, part) as any), undefined, await mergeNaming());
       if (recordLoadedFor.current !== owner) return;
       recordSeen.current = out.seen;
       saved = out.status === 'saved';
-      if (out.status === 'moved-on') { recordMayUpload.current = false; if (out.fault) recordFault(out.fault); }
+      if (out.merged) {
+        // the merged record: the cloud's rows, then this phone's — plus any row added on this phone while the save ran
+        const nowRec: AssetRow[] = (useStore.getState() as any).assetRecord ?? [];
+        const sent = new Set(record.map((r: AssetRow) => r.rowId));
+        // R3 + R4: a row added meanwhile that names a renamed or dropped row names it as the cloud now does
+        const later = rowsAfterMerge(nowRec.filter((r) => !sent.has(r.rowId)), out.renamed);
+        useStore.setState({ assetRecord: [...out.record, ...later] } as any);
+        afterMergeNames(out);
+        askSalesAgain(out.record, record.slice(recordSeenBefore));
+      }
+      if (out.status === 'clash') { recordMayUpload.current = false; if (out.fault) recordFault(out.fault); }
+      if (out.status === 'moved-on' && out.fault) recordFault(out.fault);   // R7: the rows stay; the next change tries again
+      if (saved) await syncQuestions(owner);
     } catch (_) {
       // offline: the next save writes what the cloud lacks
     } finally {
@@ -161,6 +184,78 @@ export default function RootLayout() {
     if (saved && recordMayUpload.current && (after.assetRecord ?? []).length > recordSeen.current.rowsInCloud) saveRecordNow(uid);
   }
 
+  /** After a merge: R1 a tag found on another phone's rows is replaced; R3 + R4 the questions name renamed and dropped rows as
+   *  the record now does; R3 a copy dropped with other figures from the broker is asked about. */
+  function afterMergeNames(out: { renamed?: Record<string, string>; asks?: EventQuestion[]; tagTaken?: boolean }) {
+    const questions = questionsAfterMerge(out, (useStore.getState() as any).assetRecordQuestions ?? {}, new Date().toISOString());
+    if (questions) useStore.setState({ assetRecordQuestions: questions } as any);
+  }
+
+  /** R6: after a merge, every sale on an account a merged row names is checked again — a sale naming a purchase the other
+   *  phone removed is put to the account holder (MK-NW-F-256, the check a sync runs). */
+  function askSalesAgain(record: AssetRow[], rows: AssetRow[]) {
+    const questions = salesAskedAgain(record, rows, (useStore.getState() as any).assetRecordQuestions ?? {}, new Date().toISOString());
+    if (questions) useStore.setState({ assetRecordQuestions: questions } as any);
+  }
+
+  /** R6a: the keys of the open questions this phone last read in the cloud's questions document. */
+  const questionsSeen = useRef<{ owner: string; keys: string[] } | null>(null);
+  /** R6a: open questions go to the cloud and come back from it, merged by key; answered on either phone, gone from both. */
+  async function syncQuestions(owner: string) {
+    const fn = (Fb as any).syncAssetRecordQuestions;
+    if (typeof fn !== 'function' || !mayStillSave.current) return;
+    try {
+      const s: any = useStore.getState();
+      if (s.assetRecordOwner !== owner) return;
+      const seen = questionsSeen.current?.owner === owner ? questionsSeen.current.keys : [];
+      const out = await fn(owner, s.assetRecordQuestions ?? {}, seen);
+      if (!out || (useStore.getState() as any).assetRecordOwner !== owner) return;
+      useStore.setState({ assetRecordQuestions: out.questions } as any);
+      questionsSeen.current = { owner, keys: Object.keys(out.questions) };
+    } catch { /* offline: the next save tries again */ }
+  }
+
+  /** R8a: false once the cloud's minimum app version is above this app's — nothing more is saved, and the fault says
+   *  "Update MoneyKeel to keep saving" (the screen that shows it waits for its mock). */
+  const mayStillSave = useRef(true);
+  const minVersionChecked = useRef(false);
+  async function checkMinVersion() {
+    if (minVersionChecked.current) return;
+    const fn = (Fb as any).loadMinAppVersion;
+    if (typeof fn !== 'function') { minVersionChecked.current = true; return; }
+    try {
+      const min = await fn();
+      minVersionChecked.current = true;
+      if (!appMayStillSave(appVersion(), min)) { mayStillSave.current = false; recordFault(UPDATE_TO_KEEP_SAVING, 'app version'); }
+    } catch { /* tried again at the next change */ }
+  }
+
+  /** R8: note the phone's changes to the profile as stamped unsaved changes (only for the data owner the phone's sync is for). */
+  function trackProfile(owner: string) {
+    const ps = syncFor(owner);
+    if (!ps) return;
+    const next = trackChanges(ps, pickSyncFields(useStore.getState() as any), new Date().toISOString());
+    if (next !== ps) useStore.setState({ profileSync: next } as any);
+  }
+
+  /** R8 + R8a: save the profile in a profileRev transaction that merges this phone's unsaved changes with the cloud's copy;
+   *  the merged profile comes back onto the phone (an item another phone changed later). */
+  async function saveProfileNow(uid: string) {
+    if (!mayStillSave.current) return;
+    const now: any = useStore.getState();
+    const owner = now.householdId ?? uid;
+    if (!syncFor(owner)) useStore.setState({ profileSync: startSync(owner, pickSyncFields(now)) } as any);   // R18: starts empty
+    trackProfile(owner);
+    const ps = syncFor(owner)!;
+    const out: any = await saveUserData(owner, pickSyncFields(useStore.getState() as any), { base: ps.base, pending: ps.pending });
+    if (!out || out.status !== 'saved' || currentUid.current !== uid) return;
+    const patch = differingFields(out.profile);
+    const after = syncFor(owner);
+    if (!after) return;
+    const settled = settleSync(after, out.profile, out.used ?? {}, out.notes ?? []);
+    useStore.setState({ ...patch, profileSync: settled } as any);
+  }
+
   /** The phone's profile goes to the cloud only where it is this person's: their profile loaded in this session, or the phone's
    *  data was last loaded for them and nobody signed out since (offline start). Never another person's, never a cleared phone's. */
   function profileIsTheirs(uid: string) {
@@ -168,6 +263,9 @@ export default function RootLayout() {
     if (profileUnreadableFor.current === uid) return false;   // never the phone's copy over a cloud profile not yet read
     return profileLoadedFor.current === uid || (!!s.assetRecordOwner && s.assetRecordOwner === (s.householdId ?? uid));
   }
+
+  // R1: this phone's row tag, from the keychain ("this device only"), names every new row `<tag>.<count>`
+  useEffect(() => { startRowTag(); }, []);
 
   const currentUid = useRef<string | null>(null);
   // Hydrate from the cloud ONCE per signed-in user. onAuthChange also fires on token refresh / app
@@ -194,7 +292,13 @@ export default function RootLayout() {
     const s: any = useStore.getState();
     const noted: string | null = s.phoneDataOwner ?? s.user?.uid ?? null;
     if (!phoneHoldsPersonData(s)) { s.notePhoneOwner(uid); return; }
-    if (noted === uid) { s.notePhoneOwner(uid); return; }
+    if (noted === uid) {
+      s.notePhoneOwner(uid);
+      // R11: a pre-update phone (its data owner never noted) is noted as the signed-in person's at once, so its offline
+      // typing is saved, not replaced
+      if (!s.assetRecordOwner) useStore.setState({ assetRecordOwner: s.householdId ?? uid } as any);
+      return;
+    }
     // never noted (a phone from before this build, signed out): set aside unnamed at once, so nobody sees it before their
     // profile loads; it comes back to the person whose cloud accounts share an id with it (outside check 5, L8)
     await setPhoneDataAside(noted);
@@ -215,6 +319,29 @@ export default function RootLayout() {
       const s0: any = useStore.getState();
       if ((s0.householdId ?? null) !== (root.householdId ?? null)) s0.setHouseholdId?.(root.householdId);
       const owner = root.householdId ?? uid;
+      // R11 + R16: the data owner changed (joining or leaving a household): the phone's data is set aside under the old owner
+      // and the new owner's copy loads, never merged. A household moved to this member by the owner's delete is the same data.
+      const sOwn: any = useStore.getState();
+      const oldOwner: string | null = sOwn.assetRecordOwner ?? null;
+      if (oldOwner && oldOwner !== owner && sOwn.phoneDataOwner === uid) {
+        if ((root as any).movedFrom && (root as any).movedFrom === oldOwner) {
+          // R16 + R11 (DEC-10813): what this member set aside on joining stays aside — the household's data now carries the
+          // member's own id, and their pre-joining data must never be given back into it (the server set its cloud copy
+          // aside the same way, users/{member}/setAside/own)
+          for (const a of await setAsideStorage.list()) if (a.owner === owner) {
+            await setAsideStorage.put(`${owner}#before-joining-${oldOwner}`, a.at || new Date().toISOString(), a.data);
+            await setAsideStorage.remove(a.key);
+          }
+          if (currentUid.current !== uid) return;
+          const ps = sOwn.profileSync;
+          useStore.setState({ assetRecordOwner: owner, ...(ps ? { profileSync: { ...ps, owner } } : {}) } as any);
+        } else if (phoneHoldsPersonData(sOwn)) {
+          await setPhoneDataAside(oldOwner);
+          if (currentUid.current !== uid) return;
+          (useStore.getState() as any).notePhoneOwner(uid);
+          useStore.setState({ assetRecordOwner: owner, householdId: root.householdId ?? null } as any);
+        }
+      }
       const cloud = root.householdId ? await readUserProfile(root.householdId) : { appState: root.appState, appStateUnreadable: root.appStateUnreadable };
       if (currentUid.current !== uid) return;
       profileOffline.current = false;
@@ -240,7 +367,8 @@ export default function RootLayout() {
       let givenBack = 0;
       let unreadableAsides: string[] = [];
       if (!keepPhone) {
-        const back = await giveBackSetAside(uid, cloud.appState, SYNC_FIELDS);
+        // given back by data owner (R11): a member's own set-aside never comes back into the household's data
+        const back = await giveBackSetAside(owner, cloud.appState, SYNC_FIELDS);
         givenBack = back.given; unreadableAsides = back.unreadable;
         if (currentUid.current !== uid) return;
       }
@@ -251,9 +379,27 @@ export default function RootLayout() {
       phoneOwnerBeforeSignIn.current = before.assetRecordOwner ?? null;
       // a retry that finds nothing in the cloud keeps what was typed in this session, unless the phone's data is another person's
       const phoneIsAnothers = before.assetRecordOwner != null && before.assetRecordOwner !== owner;
+      // R8 + R11: each start merges — the cloud's profile, with this phone's unsaved changes for this same data owner on top
+      const { profile: cloudProfile, stamps: cloudStamps } = splitStamps(cloud.appState);
+      const ps = phoneIsAnothers ? null : syncFor(owner);
       if (!keepPhone) {
-        if (cloud.appState) loadFromCloud(cloud.appState);
-        else if ((!retry || phoneIsAnothers) && givenBack === 0) resetAll();   // brand-new account (nothing in the cloud) → clean slate so a prior account's local data can't leak
+        if (cloudProfile && ps && Object.keys(ps.pending).length) {
+          const m = mergeProfile(cloudProfile, cloudStamps, ps, new Date().toISOString());
+          loadFromCloud(m.profile);
+          useStore.setState({ profileSync: { ...ps, base: startSync(owner, cloudProfile).base, pending: Object.fromEntries(m.phoneWon.filter((k) => ps.pending[k]).map((k) => [k, ps.pending[k]])), notes: [...ps.notes, ...m.notes].slice(-50) } } as any);
+        } else if (cloudProfile) {
+          loadFromCloud(cloudProfile);
+          useStore.setState({ profileSync: startSync(owner, cloudProfile) } as any);
+        } else if ((!retry || phoneIsAnothers) && givenBack === 0) resetAll();   // brand-new account (nothing in the cloud) → clean slate so a prior account's local data can't leak
+      } else if (cloudProfile && ps && Object.keys(ps.pending).length) {
+        // back online after an offline start: the cloud's copy, with what was typed here on top (never replaced)
+        const m = mergeProfile(cloudProfile, cloudStamps, ps, new Date().toISOString());
+        useStore.setState({ ...differingFields(m.profile) } as any);
+        useStore.setState({ profileSync: { ...ps, base: startSync(owner, cloudProfile).base, pending: Object.fromEntries(m.phoneWon.filter((k) => ps.pending[k]).map((k) => [k, ps.pending[k]])), notes: [...ps.notes, ...m.notes].slice(-50) } } as any);
+      } else if (!ps) {
+        // an offline start with no list of unsaved changes: what the phone holds stands, and its differences from the cloud's
+        // copy are its unsaved changes (they were typed here)
+        useStore.setState({ profileSync: startSync(owner, cloudProfile ?? {}) } as any);
       }
       profileLoadedFor.current = uid;   // this person's profile is in: the record may now load and move
       // THE MASTER RECORD comes back from the cloud too (his "yes", 2026-11-11): the phone's record stays only where it
@@ -323,12 +469,15 @@ export default function RootLayout() {
       syncTimer.current = setTimeout(async () => {
         if (currentUid.current !== uid) return;
         // a profile load that failed (offline) or could not be read yet is tried again here — at a change, never in a loop
+        // R11: offline typing is stamped first, so the cloud's copy coming in below never replaces it
+        { const s: any = useStore.getState(); if (s.phoneDataOwner === uid && s.assetRecordOwner) trackProfile(s.assetRecordOwner); }
         if (profileLoadedFor.current !== uid) await loadProfileFor(uid, true);
         if (currentUid.current !== uid || !profileIsTheirs(uid)) return;
-        const now = useStore.getState() as any;
+        await checkMinVersion();
+        if (!mayStillSave.current) return;   // R8a: an app below the cloud's minimum version saves nothing
         // Household members write to the shared doc so both partners stay in sync.
-        saveUserData(now.householdId ?? uid, pickSyncFields(now as Record<string, any>)).catch(() => {
-          // Silently ignore offline write failures — next successful sync catches up
+        saveProfileNow(uid).catch(() => {
+          // offline: the unsaved changes stay on the phone, stamped, and the next change saves them (R11)
         });
         // the master record: only the parts that changed are written (it only ever grows), and only under the rules above
         saveRecordNow(uid);
@@ -339,8 +488,8 @@ export default function RootLayout() {
       const uid = currentUid.current;
       if (!uid || !profileIsTheirs(uid)) return;
       if (syncTimer.current) { clearTimeout(syncTimer.current); syncTimer.current = null; }
-      const s: any = useStore.getState();
-      await Promise.all([saveUserData(s.householdId ?? uid, pickSyncFields(s)).catch(() => {}), saveRecordNow(uid)]);
+      if (!mayStillSave.current) return;
+      await Promise.all([saveProfileNow(uid).catch(() => {}), saveRecordNow(uid)]);
     });
     // the key to the person's data has come (the recovery code, or a sign-in that unwrapped it): a profile this phone
     // could not read loads now, as a normal sign-in would

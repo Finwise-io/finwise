@@ -682,10 +682,10 @@ import type { AssetAccount } from '../assets';
  * Formula .....
  *     (s ?? '').trim().to lower case().replace( ÷ [^a − z0 − 9] ÷ g, '')
  *
- * Called by ... MK-XS-F-016 matchImportAccount
+ * Called by ... MK-XS-F-016 matchImportAccount · MK-XS-F-256 valueOnlyAccountMatchOf
  *
- * Reaches ..... 1 function. Change the arithmetic above and these change with it:
- *               MK-XS-F-016 matchImportAccount
+ * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-016 matchImportAccount · MK-XS-F-256 valueOnlyAccountMatchOf
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -759,10 +759,11 @@ export function matchImportAccount(accounts: AssetAccount[], institution: string
  *
  * Called by ... MK-NW-F-195 readImport · MK-NW-F-228 moveOldCopies
  *
- * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 8 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-201 fileRowsToSave · MK-NW-F-199 fileToRecord
+ *               MK-NW-F-226 fileValues · MK-XS-F-219 importedAccountOf
  *               MK-NW-F-228 moveOldCopies · MK-XS-F-199 profileOnTheWayIn
- *               MK-NW-F-195 readImport
+ *               MK-NW-F-195 readImport · MK-XS-F-221 valueOnlyAccountsOf
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
@@ -847,11 +848,11 @@ export function importedAccountOf(
  * Called by ... MK-NW-F-195 readImport · MK-NW-F-199 fileToRecord
  *               MK-XS-F-219 importedAccountOf · MK-XS-F-221 valueOnlyAccountsOf
  *
- * Reaches ..... 7 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 8 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-201 fileRowsToSave · MK-NW-F-199 fileToRecord
- *               MK-XS-F-219 importedAccountOf · MK-NW-F-228 moveOldCopies
- *               MK-XS-F-199 profileOnTheWayIn · MK-NW-F-195 readImport
- *               MK-XS-F-221 valueOnlyAccountsOf
+ *               MK-NW-F-226 fileValues · MK-XS-F-219 importedAccountOf
+ *               MK-NW-F-228 moveOldCopies · MK-XS-F-199 profileOnTheWayIn
+ *               MK-NW-F-195 readImport · MK-XS-F-221 valueOnlyAccountsOf
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -873,22 +874,23 @@ const valueOnlyRows = (r: ImportResult) => r.holdings.filter((h) => h.assetClass
  *     now iso = opts.now iso (or the date ).to isostring( when missing)
  *
  * Called by ... MK-NW-F-195 readImport · MK-NW-F-199 fileToRecord
- *               MK-XS-F-219 importedAccountOf
+ *               MK-NW-F-226 fileValues · MK-XS-F-219 importedAccountOf
  *
- * Reaches ..... 6 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 8 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-201 fileRowsToSave · MK-NW-F-199 fileToRecord
- *               MK-XS-F-219 importedAccountOf · MK-NW-F-228 moveOldCopies
- *               MK-XS-F-199 profileOnTheWayIn · MK-NW-F-195 readImport
+ *               MK-NW-F-226 fileValues · MK-XS-F-219 importedAccountOf
+ *               MK-NW-F-228 moveOldCopies · MK-XS-F-199 profileOnTheWayIn
+ *               MK-NW-F-195 readImport · MK-XS-F-221 valueOnlyAccountsOf
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
  *               MK-XS-I-002 account type (taxable, pre-tax, Roth)
  *               MK-XS-I-003 institution name
+ *               MK-XS-I-011 bond face value
+ *               MK-XS-I-012 bond coupon rate
+ *               MK-XS-I-013 bond maturity date
  *               MK-XS-I-028 assumed return
  *               MK-XS-I-033 the date a hand-typed value was set
- *               MK-XS-I-048 the person’s own asset-class answer
- *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
- *               MK-XS-I-066 last successful update of a linked or imported account
  *
  * Decides .....
  *     · Uses today's date from the device clock, so the answer changes by itself overnight.
@@ -909,5 +911,43 @@ export function valueOnlyAccountsOf(
     institution: opts.institution.trim(), source: 'imported', last_synced: nowIso,
     // as importedAccountOf: the screens' date unchanged, and whether it is the file's own
     value_as_of: r.asOf ?? isoLocalDate(new Date(nowIso)), value_as_of_from_file: r.asOf != null,
+    // the row's own name and facts, as the master record names the holding (fileToRecord): the one-time move reads them
+    // from here (outside check, 2026-11-12: the move named the bond by its account's label and dropped its rate and
+    // maturity). No screen reads this; the account's own label, value and kind are unchanged
+    file_holding: { name: h.ticker || h.symbol, facts: {
+      ...(h.faceValue != null ? { face_value: h.faceValue } : {}),
+      ...(h.couponRate != null ? { coupon_rate: h.couponRate } : {}),
+      ...(h.maturityDate ? { maturity_date: h.maturityDate } : {}),
+      ...(h.priceQuote ? { price_quote: h.priceQuote } : {}),
+      ...(h.multiplier != null ? { multiplier: h.multiplier } : {}),
+    } },
   }) as unknown as Omit<AssetAccount, 'asset_id'>);
+}
+
+/** THE ACCOUNT AN EARLIER IMPORT MADE FOR A ROW WITH A VALUE AND NO QUANTITY (outside check, 2026-11-12: the same file
+ *  imported twice made a second account for its $5,000 bond each time, so the bond was counted twice). Re-importing finds
+ *  it — an imported account of the same institution and the same label that holds no holdings — and updates it. An
+ *  account already found for another row of the same file (`taken`) is not found twice. */
+/* ─ MK-XS-F-256 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * valueOnlyAccountMatchOf
+ *
+ * Answers ..... THE ACCOUNT AN EARLIER IMPORT MADE FOR A ROW WITH A VALUE AND NO QUANTITY (outside check, 2026-11-12: the same file imported twice made a second account for its $5,000 bond each time, so the bond was counted twice).
+ *
+ * Formula .....
+ *     inst = norm inst(made.institution), label = string(made.label ?? '').trim().to lower case()
+ *     nothing   when inst is missing (or label is missing when missing or zero)
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-003 institution name
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-256
+ * Changed ..... not in git yet (—)
+ */
+export function valueOnlyAccountMatchOf(accounts: readonly AssetAccount[], made: Pick<AssetAccount, 'label' | 'institution'>, taken: ReadonlySet<string> = new Set()): AssetAccount | null {
+  const inst = normInst(made.institution), label = String(made.label ?? '').trim().toLowerCase();
+  if (!inst || !label) return null;
+  return accounts.find((a) => (a.source as string) === 'imported' && !taken.has(String(a.asset_id)) && !(a.positions ?? []).length
+    && normInst(a.institution) === inst && String(a.label ?? '').trim().toLowerCase() === label) ?? null;
 }

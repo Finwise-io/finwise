@@ -114,9 +114,11 @@ const stepDay = (d: string, days: number) => new Date(utcOfDay(d) + days * DAY).
  *
  * Called by ... MK-ST-F-072 undo · MK-ST-F-073 rebuildDays
  *
- * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 7 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-278 answerListQuestion · MK-NW-F-337 answerQuestion
  *               MK-XS-F-199 profileOnTheWayIn · MK-ST-F-073 rebuildDays
  *               MK-XS-F-192 typedValueDatedBack · MK-ST-F-072 undo
+ *               MK-NW-F-335 writeAnswer
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -207,11 +209,12 @@ export function rebuildableFrom(txns: RebuildTxn[], accountId: string): string |
  *     came = -1   if direction = 'OUT'
  *     1   otherwise
  *
- * Called by ... MK-ST-F-073 rebuildDays
+ * Called by ... MK-NW-F-337 answerQuestion · MK-ST-F-073 rebuildDays
  *
- * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 6 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-278 answerListQuestion · MK-NW-F-337 answerQuestion
  *               MK-XS-F-199 profileOnTheWayIn · MK-ST-F-073 rebuildDays
- *               MK-XS-F-192 typedValueDatedBack
+ *               MK-XS-F-192 typedValueDatedBack · MK-NW-F-335 writeAnswer
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)

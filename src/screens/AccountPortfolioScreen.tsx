@@ -35,7 +35,8 @@ import { AltEditor } from './OtherInvestmentsScreen';
 import { TransactionSheet } from './PerformanceScreen';   // the ONE trade sheet, the one the Holding page opens (gap 7, 2026-10-21)
 import { accountAllowsTicker } from '../domain/assets';   // DEC-2484g: which accounts can take a recorded buy or sale
 import { theHolding, holdingRowsIn, SHARE_COUNT_NOT_STATED } from '../../MoneyKeel/functions/networth-and-performance/holding';   // each holding's value, by its own door; its window row, the one way
-import { windowStartKey, thePerformance, classReturnOf, overTheYearsSentence, howReturnCalculated } from '../../MoneyKeel/functions/networth-and-performance/performance';
+import { windowStartKey, thePerformance, classReturnOf, overTheYearsSentence, howReturnCalculated, investmentAccountIdsOf, investmentRecordDates, accountWalksShown } from '../../MoneyKeel/functions/networth-and-performance/performance';
+import { resolveNetWorthRows } from '../domain/snapshot';   // the Performance tab's own accounts, for its cards' shared lines (2026-11-12)
 import { txnLabel, cashEffect, type Transaction } from '../domain/transactions';
 import { moneyIntoAccount } from '../../Calculation Module code/engines/ledger';
 import { maskedMoney, spokenMoney, typedAmount, maskDollars, coinQuantity } from '../components/useMoney';
@@ -298,6 +299,41 @@ export default function AccountPortfolioScreen() {
   const period: string = picked ?? (cannotPick(handed) ? 'SINCE' : handed);
   const now = byWindow[period];
   const walk = hasValue ? now?.walk : null;
+  /** THIS PAGE PRINTS ITS CARD'S FIGURES (2026-11-12, Performance phase 4 item 6; the lead's ruling DEC-7937, MK-XS-F-194 partsShown through
+   *  MK-NW-F-345 accountWalksShown; DEC-3523 tenet 2). The Performance tab shares each printed line of its total across the account cards:
+   *  three accounts $1,000.40 → $1,100.80 read $100 + $101 + $100 = $301 there, while each page rounded its own walk and read $101. The page
+   *  asks the tab's question with the tab's inputs — its accounts (resolveNetWorthRows), its invested accounts, its window, each account's
+   *  holdings (holdingRowsIn, as this page builds its own), each card from thePerformance — and prints this account's share. Only where the card's walk is this page's own walk
+   *  to the cent (on "Since" this page's first day can be its own, not the tab's); otherwise, and with one invested account, walkShown as
+   *  before. To reverse: walkShown(walk). */
+  const walkLines = (() => {
+    if (!walk) return null;
+    const own = walkShown(walk);
+    const all = (store.assetAccounts ?? []) as AssetAccount[];
+    const resolved = resolveNetWorthRows(store.user?.uid ?? 'local', store.onboardingProfile, store.nwSeeded ?? false, all, store.liabilities ?? []).accounts as AssetAccount[];
+    const invest = investmentAccountIdsOf(resolved as any, assetClassOf);
+    const me = String(account.asset_id);
+    if (!invest.has(me) || invest.size < 2) return own;
+    const start = windowStartKey(period, investmentRecordDates(days, invest), todayKey);
+    // each account's holdings by the one way a page builds them (holdingRowsIn), as this page builds its own
+    const rowsOf = (a: AssetAccount) => holdingRowsIn({ account: a, positions: (a.positions ?? []) as any, priceOf, period: period as Period,
+      transactions: (store.transactions ?? []) as any[], windowStart: period === 'SINCE' ? start : undefined });
+    const byAccount = new Map(all.map((a) => [String(a.asset_id), rowsOf(a)] as [string, PerformanceRow[]]));
+    const rows = [...byAccount.values()].flat();
+    const base = { windowStart: start, windowLabel: PHRASE[period] ?? 'this window', today: todayKey, priceOf, transactions: (store.transactions ?? []) as any[],
+      snapshotDays: days, accounts: resolved as any[], wholeRecord: period === 'SINCE' };
+    const total = thePerformance({ ...base, holdings: rows as any, investmentAccountIds: invest });
+    const moved = (w: any) => !!w && [w.beginning, w.contributions, w.withdrawals, w.dividends, w.interest].some((v: number) => Math.abs(v || 0) >= 0.005);
+    const cards = resolved.filter((a) => invest.has(String(a.asset_id)))
+      .map((a) => ({ id: String(a.asset_id), a, one: thePerformance({ ...base, investmentAccountIds: new Set([String(a.asset_id)]),
+        holdings: (byAccount.get(String(a.asset_id)) ?? []) as any }) }))
+      .filter(({ a, one }) => a.balance > 0 || (a.positions?.length ?? 0) > 0 || moved(one.walk));
+    const i = cards.findIndex((c) => c.id === me);
+    const card = cards[i]?.one.walk;
+    const same = !!card && (['beginning', 'contributions', 'withdrawals', 'dividends', 'interest', 'ending'] as const)
+      .every((k) => Math.abs((card[k] ?? 0) - ((walk as any)[k] ?? 0)) < 0.005);
+    return same ? accountWalksShown(cards.map((c) => c.one.walk), total.walk)[i] ?? own : own;
+  })();
   /** A HOLDING'S PAGE OPENS ON THE WINDOW PICKED HERE (2026-10-23, E2E-63; tenet 4, one holding, one window, one figure): the
    *  row's figure and the Holding page's "Your return" are the same figure only on the same window. It opened on 1Y whatever
    *  was picked, so on 2Y the row read +16.00% and the page it opened +7.69%. "Since" is not one of the Holding page's windows
@@ -747,7 +783,7 @@ export default function AccountPortfolioScreen() {
           <View style={p.trioCell}>
             <Text style={p.trioL}>Wealth generated</Text>
             {/* the walk's own Wealth generated as printed beneath it (walkShown, 2026-10-21) — one figure on the page */}
-            <SaidText style={[p.trioV, { color: signColor(walk ? walkShown(walk).wealthGenerated : null) }]}>{walk ? fig('MK-PF-M-014', walkShown(walk).wealthGenerated) : '—'}</SaidText>
+            <SaidText style={[p.trioV, { color: signColor(walkLines ? walkLines.wealthGenerated : null) }]}>{walkLines ? fig('MK-PF-M-014', walkLines.wealthGenerated) : '—'}</SaidText>
           </View>
           <View style={p.trioCell}>
             <Text style={p.trioL}>Return</Text>
@@ -828,7 +864,7 @@ export default function AccountPortfolioScreen() {
           <SectionBand inCard gutter={GUTTER}
             /* one title in every state, day one included, "· THIS ACCOUNT" as Performance v17 frame 2 draws it
                (DEC-5136, 2026-10-13: "HOW $38,000 BECAME $52,704 · ALL ACCOUNTS - this is the title.") */
-            title={figWords('MK-PF-M-003', `HOW ${fig('MK-PF-M-013', walk.beginning)} BECAME ${fig('MK-PF-M-004', walk.ending)} · THIS ACCOUNT`)} />
+            title={figWords('MK-PF-M-003', `HOW ${fig('MK-PF-M-013', walkLines!.beginning)} BECAME ${fig('MK-PF-M-004', walkLines!.ending)} · THIS ACCOUNT`)} />
           {/* the lines as printed: whole dollars that add up to the ending (walkShown, 2026-10-21; tenet 2, MK-PF-M-015) */}
           {((ws) => [
             [`Beginning market value (${sinceWords})`, ws.beginning, 'MK-PF-M-013', ''],
@@ -838,7 +874,7 @@ export default function AccountPortfolioScreen() {
             ['Dividends', ws.dividends, 'MK-PF-M-015', 'sub'],
             ['Interest', ws.interest, 'MK-PF-M-015', 'sub'],
             ['Change in investment value', ws.marketChange, 'MK-PF-M-015', 'sub'],
-          ] as [string, number, string, string][])(walkShown(walk)).map(([label, v, metric, kind]) => (
+          ] as [string, number, string, string][])(walkLines!).map(([label, v, metric, kind]) => (
             <View key={label} style={[p.wRow, kind === 'sub' && p.wSub]} accessible
               accessibilityLabel={`${label}, ${v < 0 ? 'minus ' : ''}${figSaid(metric, Math.abs(v))}`}>
               <Text style={[p.wL, kind === 'strong' && p.wStrongL]}>{label}</Text>
@@ -851,9 +887,9 @@ export default function AccountPortfolioScreen() {
             </View>
           ))}
           <View style={[p.wRow, p.wTotal]} accessible
-            accessibilityLabel={`Ending market value (${dayOneView ? 'today' : dateShown(todayKey)}), ${figSaid('MK-PF-M-004', walk.ending)}`}>
+            accessibilityLabel={`Ending market value (${dayOneView ? 'today' : dateShown(todayKey)}), ${figSaid('MK-PF-M-004', walkLines!.ending)}`}>
             <Text style={[p.wL, p.wStrongL]}>Ending market value ({dayOneView ? 'today' : dateShown(todayKey)})</Text>
-            <Text style={[p.wV, p.wStrongV, { color: Colors.primaryDark }]}>{fig('MK-PF-M-004', walk.ending)}</Text>
+            <Text style={[p.wV, p.wStrongV, { color: Colors.primaryDark }]}>{fig('MK-PF-M-004', walkLines!.ending)}</Text>
             <View testID="right-gutter" style={p.gutter} />
           </View>
           {/* THE FOOTNOTE (drawing v01, row 9): the lines open nothing, so nothing here promises they do. Day one says the

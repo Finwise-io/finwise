@@ -257,8 +257,10 @@ def types_named(sig, lines):
                 continue
             j, depth = m.end(), 0
             while j < len(text) and not (text[j] == ';' and depth == 0):
+                # the '>' of an arrow '=>' closes nothing (a function type, 2026-11-12: it ran on into the code after it)
+                arrow = text[j] == '>' and j > 0 and text[j - 1] == '='
                 depth += text[j] in '{(<['
-                depth -= text[j] in '})>]'
+                depth -= text[j] in '})>]' and not arrow
                 j += 1
             body = text[m.start():j + 1]
         body = re.sub(r'/\* ─ MK-[\s\S]*?\*/\n?', '', body)
