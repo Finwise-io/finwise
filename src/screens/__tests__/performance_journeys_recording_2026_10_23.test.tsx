@@ -266,7 +266,11 @@ describe('E2E-57 · Record a buy from the account page: tap "Add a buy or sale",
     const twoYear = (sh: Shot) => sh.lines[sh.lines.indexOf('2 years') + 1];
     // 2Y (R18, R20, 2026-11-01): the walk's own — VTI up $2,000 since its Mar 3, 2025 purchase, so $48,000 → $50,000 before and after
     // the buy: (50,000 ÷ 48,000)^(365 ÷ 731) − 1 = +2.06% a year, the chip reading "/year" (it read VTI's +11.79% and +11.74%)
-    expect([twoYear(invBefore), twoYear(invAfter)]).toEqual([`${pct((50_000 / 48_000) ** (365 / 731) - 1)}/year`, `${pct((50_000 / 48_000) ** (365 / 731) - 1)}/year`]);
+    // DEC-10982 (his words, 2026-11-12): the tab's chip is the household's (ending − beginning) ÷ beginning — Vanguard's $48,000 →
+    // $50,000 beside the drawing's US Treasury 4.00% 2030 ($9,850, no price history, counted as unchanged): (59,850 ÷ 57,850)^(365 ÷ 731)
+    // − 1 = +1.71% a year, before and after the buy (Vanguard's own walk, above, still reads its own)
+    const HH2Y = `${pct((59_850 / 57_850) ** (365 / 731) - 1)}/year`;
+    expect([twoYear(invBefore), twoYear(invAfter)]).toEqual([HH2Y, HH2Y]);
   });
 
   test('A2 · the cash a buy needs counts its fee: 50 VTI at $100.00 is the whole $5,000, and a $5 fee makes it $5,005 — refused, and said so', () => {
@@ -440,11 +444,15 @@ describe('E2E-57 · Record a buy from the account page: tap "Add a buy or sale",
 //   (9,000 + 3,650) ÷ (8,820 + 3,600) − 1 = +4.15% (no fee: (9,800 + 3,600) ÷ 13,100 × 12,650 ÷ 12,420 − 1 = +4.18%).
 //   VTI's own month: (8,820 + 975) ÷ 9,500 × 9,000 ÷ 8,820 − 1 = +5.21% (no fee: +5.26%).
 //   Realized from the sale, all time: $980 − $5 − 10 × $80 = +$175 (no fee: +$180).
-const SALE_RETURN = (8_820 + 975 + 3_600) / 13_100 * (9_000 + 3_650) / (8_820 + 3_600) - 1;
+const SALE_RETURN_TWR = (8_820 + 975 + 3_600) / 13_100 * (9_000 + 3_650) / (8_820 + 3_600) - 1;
+// THE ACCOUNT'S RETURN SINCE DEC-10982 (his words, 2026-11-12): nothing went in or out of the account (the sale's $975 stayed in it as
+// cash), so Return = (ending − beginning) ÷ beginning = (15,625 − 15,100) ÷ 15,100 = 525 ÷ 15,100 = +3.48%
+const SALE_RETURN = (15_625 - 15_100) / 15_100;
 const VTI_MONTH = (8_820 + 975) / 9_500 * 9_000 / 8_820 - 1;
 describe('E2E-58 · Record a sale with a $5 fee from the Holding page: the fee comes off what the sale brought in, once, on every screen', () => {
   test('the hand-worked figures: +4.15% (no fee +4.18%), VTI +5.21% (no fee +5.26%)', () => {
-    expect([pct(SALE_RETURN), pct((9_800 + 3_600) / 13_100 * 12_650 / 12_420 - 1), pct(VTI_MONTH), pct(9_800 / 9_500 * 9_000 / 8_820 - 1)]).toEqual(['+4.15%', '+4.18%', '+5.21%', '+5.26%']);
+    expect([pct(SALE_RETURN_TWR), pct((9_800 + 3_600) / 13_100 * 12_650 / 12_420 - 1), pct(VTI_MONTH), pct(9_800 / 9_500 * 9_000 / 8_820 - 1)]).toEqual(['+4.15%', '+4.18%', '+5.21%', '+5.26%']);
+    expect(pct(SALE_RETURN)).toBe('+3.48%');   // the account's, by DEC-10982
   });
   test('the sheet takes the fee; the record keeps it apart from the price; the account page, the Performance tab, the Holding page and Home all count $975 brought in', () => {
     household({ assetAccounts: [BUILT()], transactions: OPENINGS });
@@ -493,7 +501,7 @@ describe('E2E-58 · Record a sale with a $5 fee from the Holding page: the fee c
     expect(homeMonth(HOME)).toBe(`▲ up $525 (${pct(SALE_RETURN).slice(1)}) this month`);
     expect(HOME.lines).toContain("This month’s change is on $15,625: your investment accounts with the cash in them.");
   });
-  test('the same sale, read on its own: the account +4.15% and VTI +5.21% (they read +4.18% and +5.26% before the return was measured from the trades, 2026-10-23)', () => {
+  test('the same sale, read on its own: the account +3.48% (DEC-10982; it read +4.15%) and VTI +5.21%', () => {
     household({ assetAccounts: [BUILT()], transactions: OPENINGS });
     open('holding', { account: 'fid', position: 'vti', period: '1M' });
     press('Record a buy or sell for VTI');
@@ -517,12 +525,14 @@ describe('E2E-58 · Record a sale with a $5 fee from the Holding page: the fee c
 // $2,000 + $9,800 = $11,800, the account $11,800 + $3,650 = $15,450; the beginning still counts VTI's start value, 100 × $95:
 // $2,000 + $9,500 + $3,600 = $15,100; VTI gained $9,800 − $9,500 = $300, BND $50 → Wealth generated $350; Return
 // (9,800 + 3,600) ÷ 13,100 × 3,650 ÷ 3,600 − 1 = +3.71%.
-const GONE_RETURN = (9_800 + 3_600) / 13_100 * 3_650 / 3_600 - 1;
+// DEC-10982 (his words, 2026-11-12): the sale's $9,800 stayed in the account, so Return = (15,450 − 15,100) ÷ 15,100 = +2.32% (it read
+// the split +3.71%)
+const GONE_RETURN = (15_450 - 15_100) / 15_100;
 describe('E2E-59 · Sell a holding in full inside the window: the page closes, the beginning still counts what it was worth, every screen agrees', () => {
-  test('the hand-worked figure: +3.71%', () => {
-    expect(pct(GONE_RETURN)).toBe('+3.71%');
+  test('the hand-worked figure: +2.32%', () => {
+    expect(pct(GONE_RETURN)).toBe('+2.32%');
   });
-  test('recorded on its own page, the sale of every share closes the page (it stopped: "Rendered fewer hooks than expected"); the account page, the Performance tab and Home read $15,100 → $15,450, $350, +3.71%', () => {
+  test('recorded on its own page, the sale of every share closes the page (it stopped: "Rendered fewer hooks than expected"); the account page, the Performance tab and Home read $15,100 → $15,450, $350, +2.32%', () => {
     household({ assetAccounts: [BUILT()], transactions: OPENINGS });
     open('holding', { account: 'fid', position: 'vti', period: '1M' });
     press('Record a buy or sell for VTI');
@@ -646,9 +656,12 @@ describe('E2E-60 · A purchase with no share count and one with no price paid: b
 //   Return at $100, by the rule that a purchase counts in at what was paid (DEC-7451): the $1,000 counts in on Sep 15 and is
 //     worth $980 that evening — (9,800 + 3,600) ÷ 13,100 × (10,780 + 3,600) ÷ (9,800 + 1,000 + 3,600) × 14,650 ÷ 14,380 − 1 =
 //     +4.07% (it read +4.21%, the figure at $98, before the return was measured from the trades, 2026-10-23).
-const R100 = (9_800 + 3_600) / 13_100 * (10_780 + 3_600) / (9_800 + 1_000 + 3_600) * (11_000 + 3_650) / (10_780 + 3_600) - 1;
-const R98 = (9_800 + 3_600) / 13_100 * (11_000 + 3_650) / (10_780 + 3_600) - 1;
-const R0 = 13_650 / 13_100 - 1;
+// SINCE DEC-10982 (his words, 2026-11-12): nothing went in or out of the account (the buy was paid from its own cash), so the Return is
+// (ending − beginning) ÷ beginning on its walk: at $100 (15,650 − 15,100) ÷ 15,100 = +3.64%; at $98 570 ÷ 15,100 = +3.77%; deleted
+// 550 ÷ 15,100 = +3.64%. The time-weighted figures above (+4.07%, +4.21%, +4.20%) were the app's before.
+const R100 = (15_650 - 15_100) / 15_100;
+const R98 = (15_670 - 15_100) / 15_100;
+const R0 = (15_650 - 15_100) / 15_100;
 describe('E2E-61 · Edit a record (its price) from the ✎, then delete a record: every screen moves to the new numbers; a delete the app refuses says so', () => {
   const figures = () => {
     const acc = look('account', { id: 'fid', period: '1M' }), inv = look('invest', {}, pick('1 month')), home = look('home');
@@ -667,8 +680,8 @@ describe('E2E-61 · Edit a record (its price) from the ✎, then delete a record
     press('Record buy');
     screen.unmount();
   };
-  test('the hand-worked figures: +4.07% at $100.00 by the rule, +4.21% at $98.00, +4.20% with the buy deleted', () => {
-    expect([pct(R100), pct(R98), pct(R0)]).toEqual(['+4.07%', '+4.21%', '+4.20%']);
+  test('the hand-worked figures: +3.64% at $100.00, +3.77% at $98.00, +3.64% with the buy deleted (DEC-10982)', () => {
+    expect([pct(R100), pct(R98), pct(R0)]).toEqual(['+3.64%', '+3.77%', '+3.64%']);
   });
   test('a buy typed at $100.00 is corrected to $98.00 on its ✎, then deleted on the Activity sheet; the opening purchase cannot be deleted and both doors say so', () => {
     // 1 · the buy, at the wrong price: one figure for each line on the three screens
@@ -732,7 +745,7 @@ describe('E2E-61 · Edit a record (its price) from the ✎, then delete a record
     expect((useStore.getState().transactions as any[]).map((t) => t.id).sort()).toEqual(['o-bnd', 'o-vti']);
     expect([acct('fid').cash_balance, acct('fid').balance]).toEqual([2_000, 15_650]);
   });
-  test('at $100.00 the Return reads +4.07% on the account page and the Performance tab, the purchase in at what was paid (it read +4.21%, 2026-10-23)', () => {
+  test('at $100.00 the Return reads +3.64% on the account page and the Performance tab (DEC-10982; it read +4.07%)', () => {
     buyAt100();
     const f = figures();
     expect([f.acc[2], f.inv[2]]).toEqual([pct(R100), pct(R100)]);

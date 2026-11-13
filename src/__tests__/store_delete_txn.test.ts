@@ -20,7 +20,7 @@ const sharesOf = (id: string, ticker: string) => {
 const snapshot = () => JSON.parse(JSON.stringify({ accounts: S().assetAccounts, txns: S().transactions.map((t) => t.id) }));
 
 function reset(accounts: AssetAccount[]) {
-  useStore.setState({ assetAccounts: JSON.parse(JSON.stringify(accounts)), transactions: [], priceCache: {} } as any);
+  useStore.setState({ assetAccounts: JSON.parse(JSON.stringify(accounts)), transactions: [], priceCache: {}, assetRecord: [] } as any);
 }
 const record = (p: any) => { S().recordTransaction(p); return S().transactions[0].id; };
 const TODAY = '2026-07-12';

@@ -22,6 +22,8 @@ const NOT_A_STORED_READER: Record<string, string> = {
   'MoneyKeel/functions/networth-and-performance/performance.ts': 'the sentence for interest or a dividend with no amount (v.amount is the refusal\'s, not a record\'s)',
   'MoneyKeel/functions/networth-and-performance/asset-record-from-broker.ts': 'turns a broker\'s payload into rows of the master record before anything is stored: the amounts it reads are the broker\'s, as sent, and their direction becomes the row\'s kind (2026-11-11, phase 2)',
   'MoneyKeel/functions/networth-and-performance/asset-record-from-typed.ts': 'turns what the account holder typed into rows of the master record before anything is stored: change.amount is the dollars the account holder moved, always above zero (2026-11-11, phase 2)',
+  'MoneyKeel/functions/networth-and-performance/asset-record-readouts.ts': 'reads the master record\'s own rows, whose amount is always a size and whose kind says the direction; it reads no stored activity record (2026-11-12, phase 3)',
+  'src/testing/seedRecord.ts': 'a test aid: turns a fixture\'s activity back into the broker\'s signed payload before anything is stored (2026-11-12, phase 3)',
   'Calculation Module code/engines/time-weighted-return.ts': 'u.amount is unnamedActivityOf\'s unsigned amount for a record the app could not name; interest reads moved (moneyIntoAccount)',
 };
 

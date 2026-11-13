@@ -262,12 +262,13 @@ describe('MK-PF-M-020 Available cash', () => {
 });
 
 describe('MK-PF-M-021 the value the return is on · MK-PF-M-022 the value left out (DEC-6076)', () => {
-  test('the $50,000 example: Return is on the $40,000; Treasury 2031 ($10,000) is left out', () => {
+  // DEC-10982 (2026-11-12): no money in or out, so the Return is on the whole walk and its first half is not said
+  test('the $50,000 example: Treasury 2031 ($10,000) is left out', () => {
     const { PERFORMANCE_FIGURES } = require('./performance');
     for (const id of ['MK-PF-M-021', 'MK-PF-M-022']) {
       const w = PERFORMANCE_FIGURES[id].worked;
       expect(w.run()).toBe(w.answer);
-      expect(w.answer).toBe('Return is on the $40,000 with a price history. Treasury 2031 ($10,000) has no price history, so its gains are not included.');
+      expect(w.answer).toBe('Treasury 2031 ($10,000) has no price history, so its gains are not included.');
     }
   });
 });

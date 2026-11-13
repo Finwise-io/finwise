@@ -196,6 +196,9 @@ describe('3 · MK-PF-M-008 — Home\'s market is split on the same day as your r
 // Before (from today's 10 shares): gained $100, Beginning $12,050, Return 11,100 ÷ 11,000 − 1 = +0.91%.
 // ════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
 const SOLD_RETURN = ((2100 + 10000) / 12000) * ((1100 + 10000) / (1050 + 10000)) - 1;
+// NOW (DEC-10982, his words 2026-11-12): no money went in or out of the account — the sale's $1,050 stayed in it as cash — so the
+// Return is (ending − beginning) ÷ beginning on the walk: (12,150 − 12,000) ÷ 12,000 = 150 ÷ 12,000 = +1.25%
+const SOLD_RETURN_NOW = (12150 - 12000) / 12000;
 const SOLD_MARKET = ((2000 * 520 / 500 + 10000 * 102 / 100) / 12000) * ((1050 * 550 / 520 + 10000 * 104 / 102) / 11050) - 1;
 const H_SOLD = {
   assetAccounts: [{ asset_id: 's', label: 'Brokerage', institution: 'Schwab', kind: 'brokerage', tax_bucket: 'TAXABLE', asset_class: 'stocks_etf',
@@ -219,18 +222,19 @@ describe('4 · DEC-3656 — a holding that sold shares inside the window: one st
   test('the hand-worked figures: +1.29% (before +0.91%), the market +4.71%', () => {
     expect([pct(SOLD_RETURN), pct(11100 / 11000 - 1), pct(SOLD_MARKET)]).toEqual(['+1.29%', '+0.91%', '+4.71%']);
   });
-  test('Performance tab, 1M: Beginning $12,000 (it read $12,050), Wealth generated $150 (it read $100), Return +1.29% (it read +0.91%)', () => {
+  test('Performance tab, 1M: Beginning $12,000 (it read $12,050), Wealth generated $150 (it read $100), Return +1.25% (150 ÷ 12,000)', () => {
+    expect(pct(SOLD_RETURN_NOW)).toBe('+1.25%');
     expect(after(INV(), 'Beginning market value (Aug 29, 2026)')).toBe('$12,000');
     expect(after(INV(), 'Wealth generated')).toBe('$150');
-    expect(after(INV(), 'Return')).toBe(pct(SOLD_RETURN));
+    expect(after(INV(), 'Return')).toBe(pct(SOLD_RETURN_NOW));
   });
   test('account page, 1M: the same Beginning, Wealth generated and Return', () => {
     expect(printed(ACC(), 'MK-PF-M-013')[0]).toBe('$12,000');
     expect(printed(ACC(), 'MK-PF-M-014')[0]).toBe('$150');
-    expect(printed(ACC(), 'MK-PF-M-016')[0]).toBe(pct(SOLD_RETURN));
+    expect(printed(ACC(), 'MK-PF-M-016')[0]).toBe(pct(SOLD_RETURN_NOW));
   });
-  test('Home: up $150 (1.29%) this month, beside the market on the same days and weights, +4.71%', () => {
-    expect(HOME().lines).toContain(`▲ up $150 (${pct(SOLD_RETURN).slice(1)}) this month`);
+  test('Home: up $150 (1.25%) this month, beside the market on the same days and weights, +4.71%', () => {
+    expect(HOME().lines).toContain(`▲ up $150 (${pct(SOLD_RETURN_NOW).slice(1)}) this month`);
     expect(HOME().lines.some((l) => l.includes(`· market ${pct(SOLD_MARKET)} ·`))).toBe(true);
   });
   test('the Holding page and the account page give AAA one figure for the month: +10.00% ($100 → $110), the market +10.00%', () => {
@@ -383,10 +387,10 @@ const H_DAY = (bought: boolean) => ({
 });
 const DAY_PIECE = 11_000 / 10_900;
 const WINDOWS = [
-  { chip: '1 month', period: '1M', before: 100 / 95 - 1, after: 9_900 / 9_500 * DAY_PIECE - 1, market: 600 / 580 - 1, said: ['+5.26%', '+5.17%'] },
-  { chip: 'This year', period: 'YTD', before: 100 / 90 - 1, after: 9_900 / 9_000 * DAY_PIECE - 1, market: 600 / 540 - 1, said: ['+11.11%', '+11.01%'] },
-  { chip: '1 year', period: '1Y', before: 100 / 84 - 1, after: 9_900 / 8_400 * DAY_PIECE - 1, market: 600 / 520 - 1, said: ['+19.05%', '+18.94%'] },
-  { chip: '2 years', period: '2Y', before: 1.25 ** (365 / 731) - 1, after: (9_900 / 8_000 * DAY_PIECE) ** (365 / 731) - 1, market: 600 / 500 - 1, said: ['+11.79%', '+11.74%'] },
+  { chip: '1 month', period: '1M', acct: 500 / 11_550, before: 100 / 95 - 1, after: 9_900 / 9_500 * DAY_PIECE - 1, market: 600 / 580 - 1, said: ['+5.26%', '+5.17%'] },
+  { chip: 'This year', period: 'YTD', acct: 1_000 / 11_050, before: 100 / 90 - 1, after: 9_900 / 9_000 * DAY_PIECE - 1, market: 600 / 540 - 1, said: ['+11.11%', '+11.01%'] },
+  { chip: '1 year', period: '1Y', acct: 1_600 / 10_450, before: 100 / 84 - 1, after: 9_900 / 8_400 * DAY_PIECE - 1, market: 600 / 520 - 1, said: ['+19.05%', '+18.94%'] },
+  { chip: '2 years', period: '2Y', acct: (12_050 / 10_050) ** (365 / 731) - 1, before: 1.25 ** (365 / 731) - 1, after: (9_900 / 8_000 * DAY_PIECE) ** (365 / 731) - 1, market: 600 / 500 - 1, said: ['+11.79%', '+11.74%'] },
 ] as const;
 /** what a window reads on each screen: the Performance tab's chip, its Return and its category row; the account page's trio and
  *  its Stocks / Funds bar; the Holding page's own return */
@@ -412,9 +416,14 @@ describe('8 · one rule in every window: a buy at today\'s close moves 1M, This 
       const own = (x: number) => (yearly ? pct((1 + x) ** (731 / 365) - 1) : pct(x));
       // the 2Y chip says '/year' since 2026-11-01 (the lead's ruling R20; v17's and the account page's rows of that day): the same
       // yearly rate, +11.79% and +11.74% a year, now labelled as one; the trio's Return beside it prints the rate bare as before
-      expect(was).toEqual({ chip: `${pct(w.before)}${yearly ? '/year' : ''}`, ret: pct(w.before), category: `${pct(w.before)}${yearly ? '/year' : ''}`, account: pct(w.before),
+      // THE ACCOUNT'S RETURN IS (ENDING − BEGINNING) ÷ BEGINNING (DEC-10982, his words 2026-11-12): no money went in or out, so the
+      // account page's Return, the tab's chip and its Return read the walk, cash included — 1M $11,550 → $12,050: 500 ÷ 11,550 = +4.33%;
+      // This year $11,050 → $12,050: +9.05%; 1Y $10,450 → $12,050: +15.31%; 2Y $10,050 → $12,050 over 731 days: +9.49% a year. A buy
+      // from the account's own cash moves money inside the account, so the walk and that Return are the same before and after it. The
+      // holding's own return (its bar, its category row, its page) still moves with the buy, as worked above.
+      expect(was).toEqual({ chip: `${pct(w.acct)}${yearly ? '/year' : ''}`, ret: pct(w.acct), category: `${pct(w.before)}${yearly ? '/year' : ''}`, account: pct(w.acct),
         bar: pct(w.before), holding: own(w.before), market: pct(w.market) });
-      expect(now).toEqual({ chip: `${pct(w.after)}${yearly ? '/year' : ''}`, ret: pct(w.after), category: `${pct(w.after)}${yearly ? '/year' : ''}`, account: pct(w.after),
+      expect(now).toEqual({ chip: `${pct(w.acct)}${yearly ? '/year' : ''}`, ret: pct(w.acct), category: `${pct(w.after)}${yearly ? '/year' : ''}`, account: pct(w.acct),
         bar: pct(w.after), holding: own(w.after), market: pct(w.market) });
       seen.push(w.chip);
     });
@@ -424,5 +433,32 @@ describe('8 · one rule in every window: a buy at today\'s close moves 1M, This 
   });
   test.failing('the app before 2026-10-23, pinned: after the buy 1M still read its price move, +5.26%, while 2Y moved to +11.74% a year', () => {
     expect(readWindow(true, WINDOWS[0]).chip).toBe('+5.26%');
+  });
+});
+
+
+// ════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+// 9 · THE $50 DIVIDEND IS COUNTED ONCE IN THE WALK (2026-11-13, checking the walk the last outside check flagged). The price history
+// is dividend- and split-ADJUSTED (src/services/marketData.ts, DEC-4644): VTI's Aug 28 close of $95 is the adjusted close, so the
+// holding's $500 move (100 × ($100 − $95)) is its TOTAL return — the price move plus the $50 dividend paid to cash on Sep 20.
+// By hand, Schwab Brokerage over 1 month, before the buy:
+//   ending      = 100 VTI × $100 + $2,050 cash                       = $12,050
+//   beginning   = $12,050 − $500 (VTI's adjusted move)                = $11,550   (VTI then worth $9,550 at its real close, $2,000 cash)
+//   walk        = $11,550 + $50 dividends + $450 change in investment value = $12,050   (the $450 is the real price move: $500 − $50)
+//   return      = (12,050 − 11,550) ÷ 11,550                          = +4.33%
+// The $450 is right, not a dividend taken off twice: taking $500 as the price move as well would count the $50 twice ($12,100).
+// ════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+describe('9 · the walk counts a dividend once: Schwab 1M reads $11,550 + $50 dividends + $450 change = $12,050', () => {
+  test('the hand-worked walk adds up to the ending', () => {
+    expect(11_550 + 50 + 450).toBe(12_050);
+    expect(pct((12_050 - 11_550) / 11_550)).toBe('+4.33%');
+  });
+  test('the account page prints that walk', () => {
+    const ACC = shoot('account', H_DAY(false), TODAY, { id: 'w', period: '1M' });
+    const text = ACC.lines.join('\n');
+    expect(text).toContain('$11,550');
+    expect(text).toContain('$12,050');
+    expect(text).toMatch(/Dividends\n\+?\$50\b/);
+    expect(text).toMatch(/Change in investment value\n\+?\$450\b/);
   });
 });

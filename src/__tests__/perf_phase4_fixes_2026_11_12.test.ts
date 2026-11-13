@@ -11,7 +11,7 @@
  *           sentence gives Aug 1, 2024 and says the return covers more than the window. It replaces the lead's DEC-9486 (R19).
  */
 import { buildPerformance } from '../domain/performance';
-import { thePerformance, windowStartKey, accountWalksShown } from '../../MoneyKeel/functions/networth-and-performance/performance';
+import { thePerformance, windowStartKey, accountWalksShown, walkEndingAtOwnValue } from '../../MoneyKeel/functions/networth-and-performance/performance';
 import { walkShown } from '../../MoneyKeel/functions/_figure-spec';
 import { daysEarning } from '../../Calculation Module code/engines/window-return';
 import { buildDayFromAccounts } from '../../Calculation Module code/engines/snapshots';
@@ -128,6 +128,24 @@ describe('item 6 · the account cards share each printed line of the total (MK-X
 
   test('no walk on a card gives no card lines; no total leaves each card its own share', () => {
     expect(accountWalksShown([null, undefined], null)).toEqual([null, null]);
+  });
+});
+
+// ═══ WORKPLAN ROW 435 (2026-11-13) ════════════════════════════════════════════════════════════════════════════════════════
+// The account page's walk ends at the account's own value. Three accounts $1,000.40 → $1,100.80: the cards share the total's dollars
+// ($1,101 + $1,101 + $1,100 = $3,302), so account C's card ends $1,100 while its value line reads $1,101 (1,100.80 rounded). By hand,
+// C's page: beginning $1,000 (as its card), ending $1,101, the dollar on the last line — change in investment value $100 + $1 = $101.
+describe('row 435 · MK-NW-F-416 walkEndingAtOwnValue — the account page\'s walk ends at the account\'s own value', () => {
+  const card = { beginning: 1000, contributions: 0, withdrawals: 0, dividends: 0, interest: 0, marketChange: 100, wealthGenerated: 100, ending: 1100 };
+  const own = { beginning: 1000, contributions: 0, withdrawals: 0, dividends: 0, interest: 0, marketChange: 101, wealthGenerated: 101, ending: 1101 };
+  test('account C: card $1,000 → $1,100, own ending $1,101 → page $1,000 → $1,101, change in value $101, and the walk adds up', () => {
+    const w = walkEndingAtOwnValue(card, own);
+    expect([w.beginning, w.marketChange, w.wealthGenerated, w.ending]).toEqual([1000, 101, 101, 1101]);
+    expect(w.beginning + w.contributions - w.withdrawals + w.dividends + w.interest + w.marketChange).toBe(w.ending);
+  });
+  test('where the card already ends at the account\'s own value, its lines stand as they are (accounts A and B)', () => {
+    const a = { ...card, beginning: 1001, ending: 1101 };
+    expect(walkEndingAtOwnValue(a, own)).toBe(a);
   });
 });
 

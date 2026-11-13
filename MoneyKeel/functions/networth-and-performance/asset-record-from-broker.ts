@@ -57,37 +57,45 @@ const SOURCE = 'linked' as const;
  *               MK-NW-F-184 isPartOfAccount · MK-NW-F-193 eventRow
  *               MK-NW-F-194 brokerUpdateToRecord · MK-NW-F-202 equalOrBothBlank
  *               MK-NW-F-206 same · MK-NW-F-217 transactionRow
- *               MK-NW-F-228 moveOldCopies · MK-NW-F-237 sameNumber
- *               MK-NW-F-238 sortArriving · MK-NW-F-258 saleRow
- *               MK-NW-F-259 transferRow · MK-NW-F-263 sharesThatDisagree
- *               MK-NW-F-265 historyPurchaseRow · MK-NW-F-267 daysFromOneDateToAnother
- *               MK-NW-F-268 arrivingKey · MK-NW-F-270 sameEventElsewhere
- *               MK-NW-F-273 answerEventQuestion · MK-NW-F-274 sameShares
- *               MK-NW-F-277 purchasesFromList · MK-NW-F-279 differsFromGiven
- *               MK-NW-F-284 activityOf · MK-NW-F-287 splitOf
- *               MK-NW-F-289 activityRefs · MK-NW-F-300 countWords
- *               MK-NW-F-301 dollarWords · MK-NW-F-310 differenceKey
- *               MK-NW-F-317 eventQuestionToAsk · MK-NW-F-319 listQuestionToAsk
- *               MK-NW-F-324 questionsOf · MK-NW-F-336 stillAsked
- *               MK-NW-F-345 accountWalksShown · MK-NW-O-002 theAccount
- *               MK-NW-O-005 theAlternativesOutlook · MK-NW-O-008 thePerformance
- *               MK-PF-F-014 buildPerformance · MK-PF-F-020 portfolioBenchReturn
- *               MK-PF-F-033 quantityWithUnit · MK-PF-F-058 gainOnPartSentence
- *               MK-PF-F-070 holdingPath · MK-PF-F-071 returnSplitAtPurchases
- *               MK-PL-F-010 drawOrderOutcome · MK-ST-F-012 toLedgerRow
- *               MK-ST-F-013 personalFlowTotals · MK-ST-F-018 readMoney
- *               MK-ST-F-021 toNumber · MK-ST-F-049 formatMoney
- *               MK-ST-F-050 formatMoneyCents · MK-ST-F-051 moneyCompact
- *               MK-ST-F-060 verdict · MK-ST-F-081 timeWeightedReturn
- *               MK-ST-F-088 moneyIntoAccount · MK-ST-F-090 unnamedActivityOf
- *               MK-XS-F-015 importHoldings · MK-XS-F-102 ingestSync
- *               MK-XS-F-183 writeFigure · MK-XS-F-187 fixStoredMoney
- *               MK-XS-F-188 fixStoredFees · MK-XS-F-189 tradeFeeOnRecord
- *               MK-XS-F-193 walkShown · MK-XS-F-195 monthShown
- *               MK-XS-F-197 chainShown · MK-XS-F-211 pointsDigits
- *               MK-XS-F-215 isWholeToTheCent · MK-XS-F-218 sameCents
+ *               MK-NW-F-224 typedChangeToRecord · MK-NW-F-228 moveOldCopies
+ *               MK-NW-F-237 sameNumber · MK-NW-F-238 sortArriving
+ *               MK-NW-F-258 saleRow · MK-NW-F-259 transferRow
+ *               MK-NW-F-263 sharesThatDisagree · MK-NW-F-265 historyPurchaseRow
+ *               MK-NW-F-267 daysFromOneDateToAnother · MK-NW-F-268 arrivingKey
+ *               MK-NW-F-270 sameEventElsewhere · MK-NW-F-273 answerEventQuestion
+ *               MK-NW-F-274 sameShares · MK-NW-F-277 purchasesFromList
+ *               MK-NW-F-279 differsFromGiven · MK-NW-F-284 activityOf
+ *               MK-NW-F-287 splitOf · MK-NW-F-289 activityRefs
+ *               MK-NW-F-300 countWords · MK-NW-F-301 dollarWords
+ *               MK-NW-F-310 differenceKey · MK-NW-F-317 eventQuestionToAsk
+ *               MK-NW-F-319 listQuestionToAsk · MK-NW-F-324 questionsOf
+ *               MK-NW-F-336 stillAsked · MK-NW-F-345 accountWalksShown
+ *               MK-NW-F-360 cashMovedBy · MK-NW-F-363 lotOf
+ *               MK-NW-F-377 near · MK-NW-F-380 oldActivityWords
+ *               MK-NW-F-381 readOutDifferences · MK-NW-F-382 explainedDifference
+ *               MK-NW-F-390 priceShown · MK-NW-F-400 choiceMakes
+ *               MK-NW-F-406 purchaseOnRecord · MK-NW-F-407 enteredOverGiven
+ *               MK-NW-F-408 answerWords · MK-NW-F-415 confirmForSavedLots
+ *               MK-NW-F-419 fileLessRecordedTrades · MK-NW-F-420 recordsOwnTotal
+ *               MK-NW-O-002 theAccount · MK-NW-O-005 theAlternativesOutlook
+ *               MK-NW-O-008 thePerformance · MK-PF-F-014 buildPerformance
+ *               MK-PF-F-020 portfolioBenchReturn · MK-PF-F-033 quantityWithUnit
+ *               MK-PF-F-058 gainOnPartSentence · MK-PF-F-070 holdingPath
+ *               MK-PF-F-071 returnSplitAtPurchases · MK-PL-F-010 drawOrderOutcome
+ *               MK-ST-F-012 toLedgerRow · MK-ST-F-013 personalFlowTotals
+ *               MK-ST-F-018 readMoney · MK-ST-F-021 toNumber
+ *               MK-ST-F-049 formatMoney · MK-ST-F-050 formatMoneyCents
+ *               MK-ST-F-051 moneyCompact · MK-ST-F-060 verdict
+ *               MK-ST-F-081 timeWeightedReturn · MK-ST-F-088 moneyIntoAccount
+ *               MK-ST-F-090 unnamedActivityOf · MK-XS-F-015 importHoldings
+ *               MK-XS-F-102 ingestSync · MK-XS-F-183 writeFigure
+ *               MK-XS-F-187 fixStoredMoney · MK-XS-F-188 fixStoredFees
+ *               MK-XS-F-189 tradeFeeOnRecord · MK-XS-F-193 walkShown
+ *               MK-XS-F-195 monthShown · MK-XS-F-197 chainShown
+ *               MK-XS-F-211 pointsDigits · MK-XS-F-215 isWholeToTheCent
+ *               MK-XS-F-218 sameCents · MK-XS-F-320 typedValueDatedByDays
  *
- * Reaches ..... 692 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 753 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -97,7 +105,7 @@ const SOURCE = 'linked' as const;
  *               MK-CF-F-237 LATER · MK-NW-F-081 LB
  *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
  *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
- *               … and 674 more — the full list is on functions_from_code
+ *               … and 735 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -168,11 +176,16 @@ function dayOfInstant(v: string | null | undefined): string | null {
  * Formula .....
  *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
  *
- * Called by ... MK-NW-F-193 eventRow
+ * Called by ... MK-NW-F-193 eventRow · MK-NW-F-368 perContractOf
  *
- * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 14 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-194 brokerUpdateToRecord · MK-NW-F-193 eventRow
- *               MK-XS-F-199 profileOnTheWayIn
+ *               MK-NW-F-382 explainedDifference · MK-XS-F-324 holdTheSwitch
+ *               MK-NW-F-368 perContractOf · MK-XS-F-199 profileOnTheWayIn
+ *               MK-NW-F-376 readOuts · MK-XS-F-318 readOutsInShadow
+ *               MK-XS-F-322 savedTogether · MK-XS-F-317 screensFromTheRecord
+ *               MK-NW-F-385 screensReadTheRecord · MK-NW-F-371 transactionOf
+ *               MK-NW-F-372 transactionsReadOut · MK-XS-F-192 typedValueDatedBack
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-063 option contract multiplier — 100 unless the broker or the person states otherwise
@@ -300,11 +313,11 @@ function eventRow(record: readonly AssetRow[], accountId: string, act: StActivit
     // money the kind names one way: a reversal (a dividend or interest that LEFT, a fee that came IN) has no kind on the
     // record, so it is kept and shown as the broker's word, counted in nothing — never as income or a cost the wrong way
     case 'DIVIDEND': case 'CAPITAL_GAIN_DISTRIBUTION':
-      return row.direction === 'OUT' ? other() : cashRow('DIVIDEND');
+      return row.direction === 'OUT' ? { ...other(), reversalOf: 'DIVIDEND', direction: 'OUT' } : cashRow('DIVIDEND');
     case 'INTEREST':
-      return row.direction === 'OUT' ? other() : cashRow('INTEREST');
+      return row.direction === 'OUT' ? { ...other(), reversalOf: 'INTEREST', direction: 'OUT' } : cashRow('INTEREST');
     case 'FEE': case 'TAX_WITHHELD': case 'MARGIN_INTEREST':
-      return row.direction === 'IN' ? other() : cashRow('FEE');
+      return row.direction === 'IN' ? { ...other(), reversalOf: 'FEE', direction: 'IN' } : cashRow('FEE');
     case 'CASH_IN': case 'CASH_OUT':
       // a broker's "deposit" of −$500 is $500 that left: the direction the ledger reads decides the kind
       return cashRow(row.direction === 'OUT' ? 'WITHDRAWAL' : row.direction === 'IN' ? 'DEPOSIT' : row.event === 'CASH_IN' ? 'DEPOSIT' : 'WITHDRAWAL');

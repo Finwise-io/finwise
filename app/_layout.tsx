@@ -226,7 +226,10 @@ export default function RootLayout() {
     try {
       const min = await fn();
       minVersionChecked.current = true;
-      if (!appMayStillSave(appVersion(), min)) { mayStillSave.current = false; recordFault(UPDATE_TO_KEEP_SAVING, 'app version'); }
+      const mayStill = appMayStillSave(appVersion(), min);
+      // the banner "Update MoneyKeel to keep saving" on every tab and Settings reads this (update-to-keep-saving v01, 2026-11-12)
+      useStore.setState({ appUpdateNeeded: !mayStill } as any);
+      if (!mayStill) { mayStillSave.current = false; recordFault(UPDATE_TO_KEEP_SAVING, 'app version'); }
     } catch { /* tried again at the next change */ }
   }
 
@@ -549,7 +552,8 @@ export default function RootLayout() {
           visible={!!pendingRecoveryCode}
           code={pendingRecoveryCode ?? ''}
           securing={securingAccount}
-          onDone={() => setPendingRecoveryCode?.(null)}
+          returnedBy={(useStore.getState() as any).pendingRecoveryReturnedBy ?? null}
+          onDone={() => { setPendingRecoveryCode?.(null); useStore.setState({ pendingRecoveryReturnedBy: null } as any); }}
         />
         <Stack
           key={`fs-${fontScale ?? 1}-${displayMode ?? 'simple'}-${hideBalances ? 'h' : 's'}`}   /* remount the tree when text size / display mode / hide-balances changes so it applies everywhere live */

@@ -2,12 +2,15 @@
  * as a phone holds it before the update (no record), then the update's own typing, then the move. The rule is DEC-10749
  * (asset-record-move.ts). Every figure here can be worked by hand. */
 jest.mock('../services/marketData', () => ({ ...jest.requireActual('../services/marketData'), fetchPriceSeries: jest.fn(async () => ({})) }));
-import { useStore } from '../store/useStore';
+import { useStore, holdTheSwitch, SCREENS_READ_THE_RECORD } from '../store/useStore';
 import { importHoldings, importedAccountOf } from '../domain/import/holdingsImport';
 import { sharesOnRecord, rowsInForce, saleGain, factsOf, valueBatchesOf } from '../../MoneyKeel/functions/networth-and-performance/asset-record';
 import { realizedFromLedger } from '../domain/performance/realized';
 
 const st = () => useStore.getState() as any;
+// what a phone from before the update holds is built with the switch held (that build had none); oldPhone() lets it go
+beforeEach(() => holdTheSwitch(true));
+afterEach(() => holdTheSwitch(false));
 beforeEach(() => useStore.setState({ assetAccounts: [], transactions: [], liabilities: [], priceCache: {}, txnFlags: [], allocatedByMonth: {},
   snaptradeConnections: [], wrapperConfirmQueue: [], assetRecord: [], assetRecordQuestions: {}, assetRecordFaults: [] } as any));
 const acct = (label: string, extra: any = {}) => {
@@ -16,7 +19,13 @@ const acct = (label: string, extra: any = {}) => {
 };
 const pos = (id: string, ticker: string) => (st().assetAccounts.find((a: any) => a.asset_id === id)?.positions ?? []).find((p: any) => p.ticker === ticker);
 const txn = (o: any) => st().recordTransaction({ source: 'manual', ...o });
-const oldPhone = () => useStore.setState({ assetRecord: [], assetRecordQuestions: {} } as any);
+// the update opens: with the screens reading the record the phone's accounts are moved at once, before anything is typed
+// (the app moves them on its first save after opening); without the switch the move waits for moveTwiceSame below
+const oldPhone = () => {
+  useStore.setState({ assetRecord: [], assetRecordQuestions: {} } as any);
+  holdTheSwitch(false);
+  if (SCREENS_READ_THE_RECORD) st().moveOldCopiesToRecordOnce();
+};
 const rows = (id: string, kind?: string) => rowsInForce(st().assetRecord).filter((r) => r.accountId === id && (kind == null || r.kind === kind));
 const gains = (id: string, h: string) => rows(id, 'SALE').filter((r) => r.holding === h).map((r) => saleGain(st().assetRecord, r.rowId));
 const H = 'Symbol,Quantity,Price Paid $,Last Price $,Value $,Date Acquired\n';
@@ -60,7 +69,13 @@ test('fault 1 (H14): a savings balance typed after the update — the $1,000 dep
   moveTwiceSame();
   expect(rows(S, 'DEPOSIT').map((r) => [r.date, r.amount])).toEqual([['2025-05-01', 1000]]);
   expect(rows(S, 'WITHDRAWAL').map((r) => [r.date, r.amount])).toEqual([['2025-08-01', 200]]);
-  expect(valueBatchesOf(st().assetRecord, S).map((b) => [b.date, b.total])).toEqual([['2026-11-10', 6100]]);
+  // with the screens reading the record the phone's accounts are moved the moment it opens, before anything is typed: the
+  // $5,800 it shows ($5,000 + $1,000 − $200) is saved as of Aug 1, 2025, the last money recorded inside it — the account
+  // never held $5,800 on Jan 1. Without the switch the move comes after the $6,100 was typed, and saves that once
+  // with the switch the phone's $5,800 ($5,000 + $1,000 − $200) is moved first, as of Aug 1, 2025, the last money recorded
+  // inside it (it never held $5,800 on Jan 1); the $6,100 typed after it is its own value. Without it, $6,100 once
+  expect(valueBatchesOf(st().assetRecord, S).map((b) => [b.date, b.total]))
+    .toEqual(SCREENS_READ_THE_RECORD ? [['2025-08-01', 5000 + 1000 - 200], ['2026-11-10', 6100]] : [['2026-11-10', 6100]]);
 });
 
 test('fault 2 (H12): a file re-imported after the update — the move saves the $320 sale and the $2.40 dividend, and not the file twice', () => {
@@ -75,12 +90,17 @@ test('fault 2 (H12): a file re-imported after the update — the move saves the 
   st().recordFileImport(r2, I, []);
   const filed = st().assetRecord.length;
   moveTwiceSame();
-  expect(st().assetRecord.length).toBeGreaterThan(filed);
+  // the move ran once: without the switch at the line below; with it, on the first save after the update (the file's)
+  expect(rows(I, 'FACT').filter((x) => x.ref === `moved-from-phone:${I}`)).toHaveLength(1);
+  expect(st().assetRecord.length).toBeGreaterThanOrEqual(filed);
   expect(gains(I, 'AAPL')).toEqual([320]);                       // 4 × ($230 − $150)
   expect(rows(I, 'DIVIDEND').map((r) => r.amount)).toEqual([2.4]);
   expect(sharesOnRecord(st().assetRecord, I, 'AAPL')).toBe(6);
   expect(valueBatchesOf(st().assetRecord, I).map((b) => [b.date, b.total])).toEqual([['2026-11-10', 3362.4]]);   // 6 × $240 + $1,922.40, once
-  expect(factsOf(st().assetRecord, I, null).fileValuesNotMoved).toBeUndefined();
+  // with the switch the move came before the second file: the Jun 21 file's values are not known (the account was traded
+  // after it) and none were moved — the Nov 10 file's own values are on record beside that note. Without it, no note
+  if (SCREENS_READ_THE_RECORD) expect(String(factsOf(st().assetRecord, I, null).fileValuesNotMoved)).toContain('2026-06-21');
+  else expect(factsOf(st().assetRecord, I, null).fileValuesNotMoved).toBeUndefined();
 });
 
 test('fault 3 (H15): a file of 10 AAPL at $150 on Jun 21, edited to 12 at $140 — no value is saved under Jun 21, and the $140 lot is typed', () => {

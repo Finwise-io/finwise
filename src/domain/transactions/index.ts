@@ -67,6 +67,8 @@ export interface Transaction {
                                     // "worth a look" flag — hand-typed entries are NEVER questioned.
                                     // Absent = manual (every row recorded before F1 sync exists).
   created_at: string;        // ISO — when it was entered (audit)
+  /** The master record's row this activity record is read out of (phase 3, 2026-11-12): a delete removes that row. */
+  record_row?: string;
   undo_prev?: AssetAccount[]; // pre-apply copies of the touched accounts — lets a delete reverse
                               // this row's balance effect exactly (P0: ledger and balances must
                               // never drift; rows recorded before this field use inverseOf()).
@@ -149,7 +151,19 @@ export interface Transaction {
  *               MK-NW-F-330 undoAskQuestion · MK-NW-F-332 rowsOfChange
  *               MK-NW-F-335 writeAnswer · MK-NW-F-337 answerQuestion
  *               MK-NW-F-345 accountWalksShown · MK-NW-F-354 competingCorrections
- *               MK-NW-F-355 keepOneCorrection · MK-NW-O-001 theBonds
+ *               MK-NW-F-355 keepOneCorrection · MK-NW-F-361 valueToday
+ *               MK-NW-F-362 heldOnRecord · MK-NW-F-364 positionReadOut
+ *               MK-NW-F-365 accountReadOut · MK-NW-F-367 accountsReadOut
+ *               MK-NW-F-372 transactionsReadOut · MK-NW-F-373 snapshotOf
+ *               MK-NW-F-374 daysReadOut · MK-NW-F-375 invDailyReadOut
+ *               MK-NW-F-376 readOuts · MK-NW-F-379 lotsSummary
+ *               MK-NW-F-381 readOutDifferences · MK-NW-F-383 keepActivityIds
+ *               MK-NW-F-384 daysWithTheRecord · MK-NW-F-385 screensReadTheRecord
+ *               MK-NW-F-391 whoSaysFor · MK-NW-F-398 questionsCountLine
+ *               MK-NW-F-403 firstSourceOf · MK-NW-F-407 enteredOverGiven
+ *               MK-NW-F-408 answerWords · MK-NW-F-409 answersShown
+ *               MK-NW-F-410 accountValueDay · MK-NW-F-420 recordsOwnTotal
+ *               MK-NW-F-422 readableRecord · MK-NW-O-001 theBonds
  *               MK-NW-O-002 theAccount · MK-NW-O-003 theNetWorth
  *               MK-NW-O-004 theEmergencyFund · MK-NW-O-005 theAlternativesOutlook
  *               MK-NW-O-006 theHolding · MK-NW-O-008 thePerformance
@@ -189,14 +203,16 @@ export interface Transaction {
  *               MK-XS-F-199 profileOnTheWayIn · MK-XS-F-204 centsShown
  *               MK-XS-F-217 fileAccountOf · MK-XS-F-219 importedAccountOf
  *               MK-XS-F-221 valueOnlyAccountsOf · MK-XS-F-225 partsToWrite
- *               MK-XS-F-251 accountIdsOf · MK-XS-F-253 giveBackField
- *               MK-XS-F-282 mergeRecord · MK-XS-F-292 entriesOf
- *               MK-XS-F-294 stableJson · MK-XS-F-298 mergeProfile
- *               MK-XS-F-302 appMayStillSave · MK-XS-F-303 renameInside
- *               MK-XS-F-304 repointValue · MK-XS-F-305 repointRow
- *               MK-XS-F-306 repointQuestions · MK-XS-F-311 rowsAfterMerge
+ *               MK-XS-F-229 typedIntoRecord · MK-XS-F-251 accountIdsOf
+ *               MK-XS-F-253 giveBackField · MK-XS-F-282 mergeRecord
+ *               MK-XS-F-292 entriesOf · MK-XS-F-294 stableJson
+ *               MK-XS-F-298 mergeProfile · MK-XS-F-302 appMayStillSave
+ *               MK-XS-F-303 renameInside · MK-XS-F-304 repointValue
+ *               MK-XS-F-305 repointRow · MK-XS-F-306 repointQuestions
+ *               MK-XS-F-311 rowsAfterMerge · MK-XS-F-317 screensFromTheRecord
+ *               MK-XS-F-318 readOutsInShadow · MK-XS-F-320 typedValueDatedByDays
  *
- * Reaches ..... 724 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 780 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -206,7 +222,7 @@ export interface Transaction {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 706 more — the full list is on functions_from_code
+ *               … and 762 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -258,7 +274,7 @@ const cashOf = (a: AssetAccount) => a.cash_balance || 0;
  * Called by ... MK-CF-F-136 bumpCash · MK-CF-F-222 tradeCash
  *               MK-CF-F-292 optionTradesOnTheWayIn
  *
- * Reaches ..... 638 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 690 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -268,7 +284,7 @@ const cashOf = (a: AssetAccount) => a.cash_balance || 0;
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 620 more — the full list is on functions_from_code
+ *               … and 672 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
@@ -304,7 +320,7 @@ const usesSleeve = (a: AssetAccount) => a.tax_bucket !== 'CASH' && a.tax_bucket 
  *
  * Called by ... MK-CF-F-136 bumpCash · MK-NW-F-088 BENCH
  *
- * Reaches ..... 637 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 689 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -314,7 +330,7 @@ const usesSleeve = (a: AssetAccount) => a.tax_bucket !== 'CASH' && a.tax_bucket 
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 619 more — the full list is on functions_from_code
+ *               … and 671 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
@@ -349,7 +365,7 @@ const availableCash = (a: AssetAccount): number | null => {
  *
  * Called by ... MK-CF-F-111 applyTransaction · MK-XS-F-174 recomputeBalances
  *
- * Reaches ..... 637 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 689 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -359,7 +375,7 @@ const availableCash = (a: AssetAccount): number | null => {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 619 more — the full list is on functions_from_code
+ *               … and 671 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
@@ -435,7 +451,7 @@ function bumpCash(a: AssetAccount, delta: number): AssetAccount {
  *
  * Called by ... MK-CF-F-111 applyTransaction · MK-XS-F-174 recomputeBalances
  *
- * Reaches ..... 637 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 689 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -445,7 +461,7 @@ function bumpCash(a: AssetAccount, delta: number): AssetAccount {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 619 more — the full list is on functions_from_code
+ *               … and 671 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
@@ -491,7 +507,7 @@ function tradeCash(a: AssetAccount, gross: number, fee: number): AssetAccount {
  *
  * Called by ... MK-CF-F-292 optionTradesOnTheWayIn · MK-XS-F-199 profileOnTheWayIn
  *
- * Reaches ..... 637 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 689 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -501,7 +517,7 @@ function tradeCash(a: AssetAccount, gross: number, fee: number): AssetAccount {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 619 more — the full list is on functions_from_code
+ *               … and 671 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
@@ -806,7 +822,7 @@ export function purchaseRecordsFollowReimport(transactions: Transaction[], accou
  *
  * Called by ... MK-XS-F-175 uid · MK-XS-F-205 recordsOnTheWayIn
  *
- * Reaches ..... 637 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 689 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -816,7 +832,7 @@ export function purchaseRecordsFollowReimport(transactions: Transaction[], accou
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 619 more — the full list is on functions_from_code
+ *               … and 671 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
@@ -863,7 +879,7 @@ export function optionTradesOnTheWayIn(transactions: Transaction[], accounts: As
  * Called by ... MK-CF-F-111 applyTransaction · MK-CF-F-138 addLot
  *               MK-CF-F-139 removeShares · MK-CF-F-223 tradeMultiplierOf
  *
- * Reaches ..... 637 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 689 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -873,7 +889,7 @@ export function optionTradesOnTheWayIn(transactions: Transaction[], accounts: As
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 619 more — the full list is on functions_from_code
+ *               … and 671 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

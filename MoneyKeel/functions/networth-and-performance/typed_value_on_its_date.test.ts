@@ -160,7 +160,8 @@ describe('a value is never written over a day that holds a different one (2026-1
   const seedWithSale = (): SnapshotDay[] => RECORDED.reduce((d, date) =>
     record(d, buildDayFromAccounts([date < '2026-10-05' ? treasury : sold, ira], date, `${date}T20:00:00Z`)), [] as SnapshotDay[]);
   beforeEach(() => {
-    useStore.setState({ assetAccounts: [sold, ira], snapshotDays: seedWithSale(), transactions: [SALE],
+    // a fresh record: these accounts are moved onto it as this seed states them (the outer seed moved the Treasury at $24,650)
+    useStore.setState({ assetRecord: [], assetAccounts: [sold, ira], snapshotDays: seedWithSale(), transactions: [SALE],
       nwDaily: Object.fromEntries(RECORDED.map((d) => [d, d < '2026-10-05' ? 124_650 : 119_650])),
       invDaily: Object.fromEntries(RECORDED.map((d) => [d, d < '2026-10-05' ? 124_650 : 119_650])) } as any);
   });

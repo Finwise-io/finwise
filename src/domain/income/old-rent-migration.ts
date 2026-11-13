@@ -41,12 +41,13 @@
  *               MK-NW-F-124 maturityParts · MK-NW-F-206 same
  *               MK-NW-F-213 lotRow · MK-NW-F-228 moveOldCopies
  *               MK-NW-F-243 theLater · MK-NW-F-247 valuesThatDiffer
- *               MK-NW-F-277 purchasesFromList · MK-NW-O-008 thePerformance
+ *               MK-NW-F-277 purchasesFromList · MK-NW-F-365 accountReadOut
+ *               MK-NW-F-410 accountValueDay · MK-NW-O-008 thePerformance
  *               MK-PF-F-028 realizedFromLedger · MK-PL-F-044 planTarget
  *               MK-PL-F-102 planRetireAgeOf · MK-XS-F-187 fixStoredMoney
- *               MK-XS-F-192 typedValueDatedBack
+ *               MK-XS-F-192 typedValueDatedBack · MK-XS-F-314 loadHouseholdPeople
  *
- * Reaches ..... 643 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 695 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -56,7 +57,7 @@
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 625 more — the full list is on functions_from_code
+ *               … and 677 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

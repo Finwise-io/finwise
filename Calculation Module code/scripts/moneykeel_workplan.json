@@ -5278,13 +5278,13 @@
   {
    "task": "The 8 lower faults of the second outside check of phase 2 (2026-11-12)",
    "todo": "1. A file re-saved with its rows in another order adds a second set of values (asset-record-from-file.ts). 2. A file question a newer file settled stays open (useStore.ts). 3. A part transfer of shares (15 of 40) is moved as the whole holding (asset-record-move.ts; the app's transfer carries no share count). 4. A bond row with no quantity, imported twice, makes a second account (ImportHoldingsScreen.tsx). 5. The same bond is named two ways by the import and by the move, and the move drops its rate and maturity. 6. An option that expires worthless is saved only through a question, on the broker's list day, and its loss is not saved as a sale. 7. Answering 'the list is correct' leaves the sale on the oldest tax lot when the list shows another was sold. 8. One removal raises two questions, and changed answers are re-asked or ignored (with the questions-and-answers design).",
-   "status": "TO DO — after the critical and high fixes",
-   "ref": "second outside check repros: scratchpad outside2-file r1, r4, r7, r8, r10; outside2-broker s4, s5e, s6b, s7b",
+   "status": "DONE 2026-11-12 — 8 of 8 already fixed by the third and fourth outside checks of phase 2 and the questions-and-answers design (to 5075ce0d); the 3 test files named in column D pass, 49 of 49 tests (2026-11-13)",
+   "ref": "1 · 3 · 5: src/__tests__/outside_file_faults_2026_11_12.test.ts (fault 1 rows reversed; fault 2 transfer of 15 of 40; fault 4 bond name, 4.25%, May 15, 2030) · 4: src/screens/__tests__/import_value_only_rows_on_record_2026_11_12.test.tsx · 2 · 6 · 7 · 8: src/__tests__/questions_and_answers_master_record_v02.test.ts (newer-list-closes-older; option-expiry-sale; list-names-the-sold-lot; one-removal-one-question; changed-answers)",
    "date": "2026-11-12",
-   "comments": "",
+   "comments": "2026-11-12: the row read TO DO after the code had been fixed; closed against the tests named in column D.",
    "_written": {
-    "status": "TO DO — after the critical and high fixes",
-    "comments": ""
+    "status": "DONE 2026-11-12 — 8 of 8 already fixed by the third and fourth outside checks of phase 2 and the questions-and-answers design (to 5075ce0d); the 3 test files named in column D pass, 49 of 49 tests (2026-11-13)",
+    "comments": "2026-11-12: the row read TO DO after the code had been fixed; closed against the tests named in column D."
    }
   },
   {
@@ -5296,6 +5296,54 @@
    "comments": "",
    "_written": {
     "status": "TO DO — phase 3",
+    "comments": ""
+   }
+  },
+  {
+   "task": "Return = (ending − beginning) ÷ beginning, the sum shown beside it (his words, 2026-11-12)",
+   "todo": "Where no money went in or out, the Return is (ending market value − beginning market value) ÷ beginning market value, on the two values the walk prints, and the summary prints the sum. His file, 1 year: +2.12% on an unshown $157,817 → (169,665 − 170,411) ÷ 170,411 = −0.44%.",
+   "status": "DONE — coded and tested, not verified by him",
+   "ref": "DEC-10982 · src/__tests__/perf_his_three_rulings_2026_11_12.test.ts",
+   "date": "2026-11-12",
+   "comments": "",
+   "_written": {
+    "status": "DONE — coded and tested, not verified by him",
+    "comments": ""
+   }
+  },
+  {
+   "task": "a rate in an imported holding’s name is not interest (his words, 2026-11-12)",
+   "todo": "A CD or bond saved from an imported file earns nothing from the rate in its name. His KEY BANK CD 3.85%: $3,230 → $0 over 1 year; wealth generated $2,484 → −$746.",
+   "status": "DONE — coded and tested, not verified by him",
+   "ref": "DEC-10983 · src/__tests__/perf_his_three_rulings_2026_11_12.test.ts",
+   "date": "2026-11-12",
+   "comments": "",
+   "_written": {
+    "status": "DONE — coded and tested, not verified by him",
+    "comments": ""
+   }
+  },
+  {
+   "task": "an imported account’s total gain, as the file states it (his words, 2026-11-12)",
+   "todo": "The file’s own Total Gain $ is saved with the file’s date and shown on the account page: “Total gain from the file (Jun 21, 2026): −$4,146.87”.",
+   "status": "DONE — coded and tested, not verified by him",
+   "ref": "DEC-10984 · src/__tests__/perf_his_three_rulings_2026_11_12.test.ts",
+   "date": "2026-11-12",
+   "comments": "",
+   "_written": {
+    "status": "DONE — coded and tested, not verified by him",
+    "comments": ""
+   }
+  },
+  {
+   "task": "Account C on its own page: value $1,101 above a walk ending $1,100 (Performance phase 4, item 6 follow-up)",
+   "todo": "Three accounts $1,000.40 → $1,100.80. The Performance tab shares the dollar so the cards add to the total ($1,101 + $1,101 + $1,100 = $3,302), and the account page copies its card (MK-NW-F-345 accountWalksShown), so account C’s walk ends $1,100 while its value line (MK-NW-M-018 market value) reads $1,101. Make the two lines print the same figure without breaking the cards adding to the total.",
+   "status": "TO DO — needs MoneyKeel/functions/networth-and-performance/performance.ts and src/screens/AccountPortfolioScreen.tsx, both being changed by other work today; picked up when they are free",
+   "ref": "MK-NW-F-416 walkEndingAtOwnValue · src/__tests__/perf_phase4_fixes_2026_11_12.test.ts (row 435) · src/screens/__tests__/perf_phase4_pages_2026_11_12.test.tsx",
+   "date": "2026-11-12",
+   "comments": "",
+   "_written": {
+    "status": "TO DO — needs MoneyKeel/functions/networth-and-performance/performance.ts and src/screens/AccountPortfolioScreen.tsx, both being changed by other work today; picked up when they are free",
     "comments": ""
    }
   }

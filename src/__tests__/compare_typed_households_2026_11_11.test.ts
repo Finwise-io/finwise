@@ -11,7 +11,7 @@
  *
  * A guard must prove it looked: every case asserts the accounts and holdings compared, and the last test asserts the
  * totals over all cases. No production code is changed by this file. */
-import { useStore } from '../store/useStore';
+import { useStore, SCREENS_READ_THE_RECORD } from '../store/useStore';
 import { compareRecordToOldCopies, type Difference } from '../testing/compareRecordToOldCopies';
 import { moveOldCopies } from '../../MoneyKeel/functions/networth-and-performance/asset-record-move';
 import { rowsInForce, sharesOnRecord, valuesNow, factsOf, openPurchases, type AssetRow } from '../../MoneyKeel/functions/networth-and-performance/asset-record';
@@ -32,11 +32,18 @@ const short = (ds: Difference[]): Short[] => ds.map((d) => [d.label, d.holding, 
 function bothRoads() {
   const accounts = st().assetAccounts, txns = st().transactions;
   const store = compareRecordToOldCopies(st().assetRecord, accounts);
-  const moved = moveOldCopies([], accounts, txns, AT);
+  // with the switch on the copies are read out of the record, and the move refuses copies read out of a record (a phone that
+  // lost its record never moves them): the move road is then the record the store holds
+  const moved = SCREENS_READ_THE_RECORD && txns.some((t: any) => t.record_row != null)
+    ? { record: st().assetRecord as AssetRow[], problems: [] as string[], moved: [] as string[], ask: [] } : moveOldCopies([], accounts, txns, AT);
   const move = compareRecordToOldCopies(moved.record, accounts);
   total.cases++; total.accounts += store.looked.accounts + move.looked.accounts; total.holdings += store.looked.holdings + move.looked.holdings;
-  return { store, move, storeRecord: st().assetRecord as AssetRow[], moveRecord: moved.record, moveProblems: moved.problems };
+  return { store, move, storeRecord: st().assetRecord as AssetRow[], moveRecord: moved.record, moveProblems: moved.problems, moveIsStore: moved.record === st().assetRecord };
 }
+
+/** What the move road finds: none while the old copies stand; with the switch on the move road is the store's record, so it
+ *  finds what the store road finds. */
+const moveRoad = (r: { store: { differences: Difference[] }; moveIsStore: boolean }): Short[] => (r.moveIsStore ? short(r.store.differences) : []);
 
 beforeEach(reset);
 afterEach(() => expect(st().assetRecordFaults).toEqual([]));
@@ -68,7 +75,7 @@ test('Savings $12,400 typed with Value as of Sep 1 2026: both roads list $12,400
   expect(r.store.looked).toEqual({ accounts: 1, holdings: 0 });
   expect(r.move.looked).toEqual({ accounts: 1, holdings: 0 });
   expect(short(r.store.differences)).toEqual([]);
-  expect(short(r.move.differences)).toEqual([]);
+  expect(short(r.move.differences)).toEqual(moveRoad(r));
   expect(valuesNow(r.storeRecord, idOf('Savings'))).toMatchObject({ date: '2026-09-01', total: 12_400 });
   expect(valuesNow(r.moveRecord, idOf('Savings'))).toMatchObject({ date: '2026-09-01', total: 12_400 });
 });
@@ -78,7 +85,7 @@ test('Savings $5,000 typed with no Value as of: both roads list $5,000 undated (
   const r = bothRoads();
   expect(r.store.looked).toEqual({ accounts: 1, holdings: 0 });
   expect(short(r.store.differences)).toEqual([]);
-  expect(short(r.move.differences)).toEqual([]);
+  expect(short(r.move.differences)).toEqual(moveRoad(r));
   expect(valuesNow(r.storeRecord, idOf('Savings'))).toMatchObject({ date: null, total: 5_000 });
   expect(valuesNow(r.moveRecord, idOf('Savings'))).toMatchObject({ date: null, total: 5_000 });
 });
@@ -90,7 +97,7 @@ test('Savings $1,000 as of Sep 1 → updateAsset $1,200 as of Oct 1 → label ch
   const r = bothRoads();
   expect(r.store.looked).toEqual({ accounts: 1, holdings: 0 });
   expect(short(r.store.differences)).toEqual([]);
-  expect(short(r.move.differences)).toEqual([]);
+  expect(short(r.move.differences)).toEqual(moveRoad(r));
   expect(valuesNow(r.storeRecord, idOf('Ally savings'))).toMatchObject({ date: '2026-10-01', total: 1_200 });
   // the store road keeps the Sep 1 value as history; the move keeps only what the old copies still hold
   expect(rowsInForce(r.storeRecord).filter((x) => x.kind === 'VALUE').map((x) => [x.date, x.typedValue])).toEqual([['2026-09-01', 1_000], ['2026-10-01', 1_200]]);
@@ -111,9 +118,13 @@ test('Savings $1,000 as of Nov 1 2026, then allocateSavings $500 today: old copi
   // the old copies never recorded when the $500 arrived: allocateSavings raised the balance without moving "Value as of",
   // so the move lists $1,500 on Nov 1 and writes no deposit — no difference to the old copies, but the two roads
   // disagree on the same account ($1,000 vs $1,500)
-  expect(short(r.move.differences)).toEqual([]);
-  expect(valuesNow(r.moveRecord, idOf('Savings'))).toMatchObject({ date: '2026-11-01', total: 1_500 });
-  expect(rowsInForce(r.moveRecord).filter((x) => x.kind === 'DEPOSIT')).toEqual([]);
+  expect(short(r.move.differences)).toEqual(moveRoad(r));
+  // the move writes the $1,500 the old copies hold on Nov 1; the store's record (the move road with the switch on) holds the
+  // $1,000 of Nov 1, the $500 deposit beside it
+  expect(valuesNow(r.moveRecord, idOf('Savings'))).toMatchObject({ date: '2026-11-01', total: r.moveIsStore ? 1_000 : 1_500 });
+  // once the screens read the record (the switch, 2026-11-13) the copies are read out of it, the $500 deposit with them, so a
+  // move of those copies saves it too; the switch moves a copy only once, onto a record that does not hold it yet
+  expect(rowsInForce(r.moveRecord).filter((x) => x.kind === 'DEPOSIT').map((x) => x.amount)).toEqual(SCREENS_READ_THE_RECORD ? [500] : []);
 });
 
 test('Brokerage typed $0, then addPosition VTI: 100 at $80 on Mar 3 2025, 10 at $90 with no purchase date, 5 with no cost on Jun 2 2025 (115 shares)', () => {
@@ -137,7 +148,7 @@ test('Brokerage typed $0, then addPosition VTI: 100 at $80 on Mar 3 2025, 10 at 
   // by the total the account holder typed, its holdings a tracked part of it — so both roads now list the typed $0,
   // undated, and agree (the move had left it blank, the store had kept $0)
   expect(short(r.store.differences)).toEqual([]);
-  expect(short(r.move.differences)).toEqual([]);
+  expect(short(r.move.differences)).toEqual(moveRoad(r));
   expect(valuesNow(r.storeRecord, id)).toMatchObject({ date: null, total: 0 });
   expect(valuesNow(r.moveRecord, id)).toMatchObject({ date: null, total: 0 });
 });
@@ -151,7 +162,7 @@ test('Brokerage typed $0 with VTI handed in with the account (Import holdings): 
   for (const rec of [r.storeRecord, r.moveRecord]) expect(openPurchases(rec, id, 'VTI').map((o) => [o.date, o.shares, o.price])).toEqual([['2024-01-02', 50, 200]]);
   // fixed 2026-11-11: not built from its holdings, so its typed total ($0, undated) is its value on both roads
   expect(short(r.store.differences)).toEqual([]);
-  expect(short(r.move.differences)).toEqual([]);
+  expect(short(r.move.differences)).toEqual(moveRoad(r));
   for (const rec of [r.storeRecord, r.moveRecord]) expect(valuesNow(rec, id)).toMatchObject({ date: null, total: 0 });
 });
 
@@ -175,8 +186,9 @@ test('Brokerage typed $5,000: BUY 20 VTI at $100 Oct 1, SELL 5 at $120 Oct 15, D
   ]);
   // fixed 2026-11-11: the move writes the total the old copies hold as typed ($5,012, which already counts the dividend)
   // and never the $12 cash the app opened itself (cash_not_entered); it had listed $12
-  expect(short(r.move.differences)).toEqual([]);
-  expect(valuesNow(r.moveRecord, id)).toMatchObject({ date: null, total: 5_012 });
+  expect(short(r.move.differences)).toEqual(moveRoad(r));
+  // the move writes the $5,012 the old copies hold; the store's record holds the $5,000 typed, the $12 dividend beside it
+  expect(valuesNow(r.moveRecord, id)).toMatchObject({ date: null, total: r.moveIsStore ? 5_000 : 5_012 });
   expect(r.moveProblems).toEqual([]);
   // the sale deleted: back to 20 VTI on the store road, the same differences in value
   expect(st().deleteTransaction(st().transactions.find((t: any) => t.type === 'SELL').id)).toBe(true);
@@ -185,7 +197,7 @@ test('Brokerage typed $5,000: BUY 20 VTI at $100 Oct 1, SELL 5 at $120 Oct 15, D
   expect(sharesOnRecord(after.storeRecord, id, 'VTI')).toBe(20);
   expect(sharesOnRecord(after.moveRecord, id, 'VTI')).toBe(20);
   expect(short(after.store.differences)).toEqual([['Brokerage', null, 'value', 5_012, 5_000]]);   // phase 3: the value-today reader (as above)
-  expect(short(after.move.differences)).toEqual([]);                                              // fixed 2026-11-11 (as above)
+  expect(short(after.move.differences)).toEqual(moveRoad(after));                                              // fixed 2026-11-11 (as above)
 });
 
 test('Brokerage typed $0: BUY 20 VTI at $100 Oct 1, then updatePosition changes that lot to $95 ($1,900 paid)', () => {
@@ -202,7 +214,7 @@ test('Brokerage typed $0: BUY 20 VTI at $100 Oct 1, then updatePosition changes 
   // fixed 2026-11-11, and again 2026-11-12 (outside check: a sale after such an edit was lost): the BUY at $100 and the
   // lot at $95 differ only in price, so the move keeps the BUY on its own date and saves the edit as its correction to
   // $95 ($1,900 paid, Oct 1) — nothing is set aside, so no sentence. The value is the typed $0.
-  expect(short(r.move.differences)).toEqual([]);
+  expect(short(r.move.differences)).toEqual(moveRoad(r));
   expect(openPurchases(r.moveRecord, id, 'VTI').map((o) => [o.date, o.shares, o.price])).toEqual([['2026-10-01', 20, 95]]);
   expect(r.moveProblems).toEqual([]);
 });
@@ -219,7 +231,7 @@ test('Options typed $0: addPosition AAPL call, 2 contracts × 100 shares at $3.5
   }
   // fixed 2026-11-11: not built from its holdings, so the typed $0 is its value on both roads (the move had left it blank)
   expect(short(r.store.differences)).toEqual([]);
-  expect(short(r.move.differences)).toEqual([]);
+  expect(short(r.move.differences)).toEqual(moveRoad(r));
 });
 
 test('Bond typed with no market value: face $10,000, 4% coupon, matures May 15 2030, paid $9,800 → old copies balance $9,800 (value_basis paid)', () => {
@@ -234,7 +246,8 @@ test('Bond typed with no market value: face $10,000, 4% coupon, matures May 15 2
   ];
   expect(short(r.store.differences)).toEqual(expected);
   expect(short(r.move.differences)).toEqual(expected);
-  for (const rec of [r.storeRecord, r.moveRecord]) expect(factsOf(rec, idOf('Treasury'), null)).toEqual({ face_value: 10_000, coupon_rate: 0.04, maturity_date: '2030-05-15', amount_paid: 9_800 });
+  // …and that no market value was given, so a value typed before (none here) no longer stands (switch gap, 2026-11-13)
+  for (const rec of [r.storeRecord, r.moveRecord]) expect(factsOf(rec, idOf('Treasury'), null)).toEqual({ face_value: 10_000, coupon_rate: 0.04, maturity_date: '2030-05-15', amount_paid: 9_800, noMarketValue: true });
 });
 
 test('Bond typed by face only: face $20,000, 3% coupon, matures Jan 1 2031 (value_basis face), then a market value of $19,400 as of Nov 3 2026', () => {
@@ -250,7 +263,7 @@ test('Bond typed by face only: face $20,000, 3% coupon, matures Jan 1 2031 (valu
   const after = bothRoads();
   expect(after.store.looked).toEqual({ accounts: 1, holdings: 0 });
   expect(short(after.store.differences)).toEqual([]);
-  expect(short(after.move.differences)).toEqual([]);
+  expect(short(after.move.differences)).toEqual(moveRoad(after));
   expect(valuesNow(after.storeRecord, idOf('Muni'))).toMatchObject({ date: '2026-11-03', total: 19_400 });
 });
 
@@ -259,7 +272,7 @@ test('CD at the bank typed $5,000 with no Value as of: face $5,000, 4.5%, mature
   const r = bothRoads();
   expect(r.store.looked).toEqual({ accounts: 1, holdings: 0 });
   expect(short(r.store.differences)).toEqual([]);
-  expect(short(r.move.differences)).toEqual([]);
+  expect(short(r.move.differences)).toEqual(moveRoad(r));
   for (const rec of [r.storeRecord, r.moveRecord]) {
     expect(valuesNow(rec, idOf('CD'))).toMatchObject({ date: null, total: 5_000 });
     expect(factsOf(rec, idOf('CD'), null)).toEqual({ face_value: 5_000, coupon_rate: 0.045, maturity_date: '2027-06-01', amount_paid: 5_000, cd_bought: 'bank' });

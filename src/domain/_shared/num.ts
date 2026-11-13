@@ -52,7 +52,7 @@ export { round2 } from '../../../Calculation Module code/engines/money';
  *               MK-XS-F-030 effectiveAnnualContribution · MK-XS-F-031 buildSnapshot
  *               MK-XS-F-058 parseReceipt
  *
- * Reaches ..... 676 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 728 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -62,7 +62,7 @@ export { round2 } from '../../../Calculation Module code/engines/money';
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 658 more — the full list is on functions_from_code
+ *               … and 710 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -99,7 +99,7 @@ export const toNum = (v: any): number => {
  * Called by ... MK-CF-F-067 rentalList · MK-CF-F-219 rentEntryMonthly
  *               MK-NW-F-114 rentAmount · MK-NW-O-004 theEmergencyFund
  *
- * Reaches ..... 638 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 690 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -109,7 +109,7 @@ export const toNum = (v: any): number => {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 620 more — the full list is on functions_from_code
+ *               … and 672 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -147,7 +147,7 @@ export const rentFigure = (v: any): number | null => {
  *               MK-ST-F-012 toLedgerRow · MK-ST-F-044 setMoneyFormat
  *               MK-ST-F-048 currencySymbol · MK-XS-F-004 buildDatedGrid
  *
- * Reaches ..... 653 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 709 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -157,7 +157,7 @@ export const rentFigure = (v: any): number | null => {
  *               MK-CF-F-237 LATER · MK-NW-F-081 LB
  *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
  *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
- *               … and 635 more — the full list is on functions_from_code
+ *               … and 691 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -200,7 +200,7 @@ export const money2 = (n: number): string => formatMoneyCents(n);
  *
  * Called by ... MK-CF-F-109 reviewTransactions · MK-PL-F-050 simulate
  *
- * Reaches ..... 637 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 689 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -210,7 +210,7 @@ export const money2 = (n: number): string => formatMoneyCents(n);
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 619 more — the full list is on functions_from_code
+ *               … and 671 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

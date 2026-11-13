@@ -13,7 +13,7 @@ import { render, fireEvent, waitFor, screen } from '@testing-library/react-nativ
 import { StyleSheet } from 'react-native';
 import * as DocumentPicker from 'expo-document-picker';
 import * as FileSystem from 'expo-file-system';
-import { useStore } from '../../store/useStore';
+import { useStore, SCREENS_READ_THE_RECORD } from '../../store/useStore';
 import ImportHoldingsScreen from '../ImportHoldingsScreen';
 
 let mockParams: Record<string, string | undefined> = {};
@@ -98,7 +98,9 @@ test('(2c) the same file re-saved from a spreadsheet imports the same account; i
   expect([acct.label, acct.mask, acct.cash_balance, acct.recon_break]).toEqual(['Individual Brokerage', '••2203', 7096.82, undefined]);
   expect(acct.balance).toBeCloseTo(169664.71, 6);
   expect([cd.face_value, cd.coupon_rate, cd.maturity_date, cd.price_quote]).toEqual([110000, 0.0385, '2026-08-24', 'per_100_of_face']);
-  expect(acct.value_as_of).toBe(require('../../domain/_shared/dates').isoLocalDate(new Date()));   // the person's day, not UTC's
+  // the old copies dated it the person's day of import; the record keeps a date nobody gave blank (his rulings of 2026-11-10 and
+  // 2026-11-11: a missing date is never filled with the day it was saved), so once the screens read the record it reads blank
+  expect(acct.value_as_of).toBe(SCREENS_READ_THE_RECORD ? undefined : require('../../domain/_shared/dates').isoLocalDate(new Date()));
 });
 
 // THE MASTER RECORD, written beside the old copies when the screen imports a file (phase 2, 2026-11-11): the file's own

@@ -1,15 +1,39 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View, Text, TextInput, StyleSheet, ScrollView,
   TouchableOpacity, KeyboardAvoidingView, Platform, Alert, Modal, Image,
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { loginUser, registerUser, resetPassword, restoreWithRecoveryCode, lookupInvite, setUserHousehold, joinHouseholdMembership, loadUserData } from '../services/firebase';
+import { loginUser, registerUser, resetPassword, restoreWithRecoveryCode, loadUserData, checkInviteCodes, joinHouseholdWithKeyCode, deleteAccount, loadHouseholdPeople, restoreOwnerWithReturnCode, firstNameOf, type InviteCheck } from '../services/firebase';
+import { dayWithYear } from '../components/householdWords';
 import { useStore } from '../store/useStore';
 import { Button } from '../components/UI';
 import { Colors, Typography, Spacing, Radii, Tap } from '../utils/theme';
 
 type Mode = 'login' | 'register' | 'forgot';
+
+/** A refusal at sign-up names where it sits: under the invite code (it ran out, or was not found) or under the key code (invite-and-join
+ *  v01, states D and E). */
+type JoinRefusal = { under: 'invite' | 'key'; text: string };
+
+/** R13 (invite-and-join v01, 2026-11-12): what a refused invite says, in the drawing's words. `who` is the inviter's first name. */
+export function joinRefusalFor(check: InviteCheck, inviteCode: string): JoinRefusal | null {
+  const code = inviteCode.trim().toUpperCase();
+  const who = ('inviterName' in check && check.inviterName) || null;
+  const ask = who ?? 'your spouse';
+  const whose = who ? `${who}’s` : 'your spouse’s';
+  switch (check.status) {
+    case 'ok': return null;
+    case 'not-found': return { under: 'invite', text: `Invite code ${code} was not found. Double-check the code with your spouse.` };
+    case 'expired': return { under: 'invite', text: `Invite code ${code} ran out on ${dayWithYear(check.expiresAt)}. Ask ${ask} to create the two codes again.` };
+    case 'no-key-code': return { under: 'key', text: `Enter the key code too. It is on ${whose} phone, beside the invite code.` };
+    case 'wrong-key-code': return { under: 'key', text: `This key code does not match invite code ${code}. Ask ${ask} for the key code shown beside it.` };
+  }
+}
+
+/** A sign-up refused at the invite is undone (no account is half-made, state D): the account made to read the invite is deleted, and the
+ *  sign-in listener then shows this screen again. What was typed and the refusal are carried across that, in memory only. */
+let carriedSignUp: { name: string; email: string; password: string; confirm: string; inviteCode: string; keyCode: string; refusal: JoinRefusal } | null = null;
 
 // ── Email validation ───────────────────────────────────────────────
 function isValidEmail(email: string): boolean {
@@ -27,12 +51,17 @@ export default function AuthScreen() {
   const setPendingRecoveryCode = useStore((s: any) => s.setPendingRecoveryCode);
   const setSecuringAccount = useStore((s: any) => s.setSecuringAccount);
 
-  const [mode, setMode] = useState<Mode>('login');
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirm, setConfirm] = useState('');
-  const [inviteCode, setInviteCode] = useState('');     // optional spouse-invite (household join) at signup
+  const [carried] = useState(() => { const c = carriedSignUp; carriedSignUp = null; return c; });
+  const [mode, setMode] = useState<Mode>(carried ? 'register' : 'login');
+  const [name, setName] = useState(carried?.name ?? '');
+  const [email, setEmail] = useState(carried?.email ?? '');
+  const [password, setPassword] = useState(carried?.password ?? '');
+  const [confirm, setConfirm] = useState(carried?.confirm ?? '');
+  const [inviteCode, setInviteCode] = useState(carried?.inviteCode ?? '');     // optional spouse-invite (household join) at signup
+  const [keyCode, setKeyCode] = useState(carried?.keyCode ?? '');              // R13: the 20-letter key code beside it
+  const [joinRefusal, setJoinRefusal] = useState<JoinRefusal | null>(carried?.refusal ?? null);
+  const mounted = useRef(true);
+  useEffect(() => { mounted.current = true; return () => { mounted.current = false; }; }, []);
   const [loading, setLoading] = useState(false);
   const [showPass, setShowPass] = useState(false);
 
@@ -42,36 +71,48 @@ export default function AuthScreen() {
   const [restorePassword, setRestorePassword] = useState('');           // the new password they just used
   const [restoreCode, setRestoreCode] = useState('');
   const [restoreBusy, setRestoreBusy] = useState(false);
+  // R14 (return code v01, phone 2): the owner whose household has a member may come back in with that member's return code
+  const [returnFrom, setReturnFrom] = useState<{ name: string } | null>(null);   // the member, when there is one
+  const [restoreByReturn, setRestoreByReturn] = useState(false);
+  const [returnRefused, setReturnRefused] = useState(false);
 
   // Real-time email validation feedback
   const emailTouched = email.length > 0;
   const emailValid = isValidEmail(email);
   const showEmailError = emailTouched && !emailValid;
 
-  // Optional spouse-invite join (ported from the former onboarding account step, L-4). Returns true
-  // when we joined a shared household (and navigated Home); false to fall through to solo onboarding.
-  async function joinHousehold(uid: string): Promise<boolean> {
-    const code = inviteCode.trim();
-    if (!code) return false;
-    const inv = await lookupInvite(code);
-    if (!inv) {
-      Alert.alert('Invite code not found', "Double-check the code with your spouse — or continue without it and join later.");
-      return false;
+  // R13 (invite-and-join v01, states C to E): the invite code AND the key code are checked before anything is joined; a refusal
+  // undoes the account (nothing is half-made) and is said under the code it is about. Reading the invite needs a signed-in
+  // person, so the account is made first and deleted again when the codes do not pass.
+  async function signUpIntoHousehold(trimEmail: string): Promise<void> {
+    const code = inviteCode.trim().toUpperCase();
+    const { user, recoveryCode } = await registerUser(trimEmail, password, name.trim(), () => { /* shown once the join passes */ });
+    const check = await checkInviteCodes(code, keyCode);
+    const refusal = joinRefusalFor(check, code);
+    if (refusal || check.status !== 'ok') {
+      carriedSignUp = { name, email, password, confirm, inviteCode: code, keyCode, refusal: refusal! };
+      setJoinRefusal(refusal);
+      try { await deleteAccount(password); } catch { /* the account stays signed out either way */ }
+      if (mounted.current) carriedSignUp = null;   // still on screen: this screen says the refusal itself
+      return;
     }
-    // Claim membership FIRST (carries the code; rules gate the shared-doc read on this member doc
-    // existing), then record the pointer on our own doc, then pull the shared plan.
-    await joinHouseholdMembership(uid, inv.householdId, code);
-    await setUserHousehold(uid, inv.householdId);
-    const s: any = useStore.getState();
-    s.setHouseholdId?.(inv.householdId);
-    const data = await loadUserData(inv.householdId);
-    if (data) s.loadFromCloud?.(data);
-    s.setOnboardingDraft?.(null);
-    s.setOnboardingPaused?.(false);
-    s.setOnboardingComplete?.(true);
-    Alert.alert("You’re in! 🎉", `You’re sharing a plan with ${inv.inviterName ?? 'your spouse'} — you’ll both see the same accounts, plans and goals.`);
-    router.replace('/(tabs)/home');
-    return true;
+    setUser({ uid: user.uid, email: trimEmail, name: name.trim(), createdAt: new Date().toISOString() });
+    try {
+      const householdId = await joinHouseholdWithKeyCode(user.uid, code, keyCode, password, recoveryCode, name.trim());
+      const s: any = useStore.getState();
+      s.setHouseholdId?.(householdId);
+      const data = await loadUserData(householdId);
+      if (data) s.loadFromCloud?.(data);
+      s.setOnboardingDraft?.(null);
+      s.setOnboardingPaused?.(false);
+      s.setOnboardingComplete?.(true);
+      setPendingRecoveryCode(recoveryCode);   // Sam's recovery code, as today, once the join has passed
+      Alert.alert("You’re in! 🎉", `You’re sharing a plan with ${check.inviterName ?? 'your spouse'} — you’ll both see the same accounts, plans and goals.`);
+      router.replace('/(tabs)/home');
+    } catch {
+      setPendingRecoveryCode(recoveryCode);
+      Alert.alert("Couldn’t join the household", 'Check your connection — you can also join later. Continuing your own setup for now.');
+    }
   }
 
   async function handleSubmit() {
@@ -106,9 +147,12 @@ export default function AuthScreen() {
     }
 
     setLoading(true);
+    setJoinRefusal(null);
 
     try {
-      if (mode === 'register') {
+      if (mode === 'register' && inviteCode.trim()) {
+        await signUpIntoHousehold(trimEmail);
+      } else if (mode === 'register') {
         // Firebase rejects a duplicate email with auth/email-already-in-use (handled in catch).
         // Surface the recovery code the instant the account exists (via onCodeReady) — BEFORE the
         // slow key-wrapping/Firestore write — so it shows before the auth listener routes to onboarding.
@@ -123,15 +167,6 @@ export default function AuthScreen() {
           name: name.trim(),
           createdAt: new Date().toISOString(),
         });
-        // Optional: if they entered a spouse invite code, join that shared household. On success it
-        // navigates Home; on failure we fall through and the auth listener routes to solo onboarding.
-        if (inviteCode.trim()) {
-          try {
-            await joinHousehold(user.uid);
-          } catch {
-            Alert.alert("Couldn’t join the household", 'Check your connection — you can also join later. Continuing your own setup for now.');
-          }
-        }
 
       } else if (mode === 'login') {
         // Firebase verifies the password server-side; a bad email/password throws (handled in catch).
@@ -151,7 +186,12 @@ export default function AuthScreen() {
         if (res.needsRecovery) {
           // Password was reset and can't open the data — ask for the recovery code to restore it.
           setRestorePassword(password);
+          setRestoreByReturn(false); setReturnRefused(false); setReturnFrom(null);
           setRestoreVisible(true);
+          // the door to a member's return code shows only when the household has a member, named (return code v01, state C)
+          loadHouseholdPeople(res.user.uid, null).then((p) => {
+            if (p.role === 'owner') setReturnFrom({ name: firstNameOf(p.memberName) ?? 'a member of your household' });
+          }).catch(() => { /* offline: the recovery code is still asked for */ });
         } else if (res.recoveryCode) {
           // Legacy account just got an envelope — show its new recovery code (root), then proceed.
           setPendingRecoveryCode(res.recoveryCode);
@@ -214,6 +254,22 @@ export default function AuthScreen() {
       setRestoreBusy(false);
     }
   }
+  // R14: the member's return code opens the household's data; it re-locks under the new password, and a new recovery code follows
+  async function submitReturn() {
+    if (!restoreCode.trim() || !returnFrom) return;
+    setRestoreBusy(true); setReturnRefused(false);
+    try {
+      const newCode = await restoreOwnerWithReturnCode(restoreCode.trim(), restorePassword);
+      setRestoreVisible(false);
+      useStore.setState({ pendingRecoveryReturnedBy: returnFrom.name } as any);
+      setPendingRecoveryCode(newCode);
+      router.replace('/(tabs)/home');
+    } catch {
+      setReturnRefused(true);   // nothing is saved (R12, DEC-10749)
+    } finally {
+      setRestoreBusy(false);
+    }
+  }
   function startFresh() {
     // They don't have the recovery code → continue with a clean slate (old data stays locked).
     setRestoreVisible(false);
@@ -242,6 +298,29 @@ export default function AuthScreen() {
       <Modal visible={restoreVisible} transparent animationType="fade" onRequestClose={() => {}}>
         <View style={styles.restoreBackdrop}>
           <View style={styles.restoreCard}>
+            {restoreByReturn && returnFrom ? (<>
+              <Text style={styles.restoreTitle}>Use {returnFrom.name}’s return code</Text>
+              <Text style={styles.restoreBody}>
+                {returnFrom.name} makes the return code on {returnFrom.name}’s phone, in Settings › Household. Enter it here: it unlocks the household’s data, which then re-locks under the new password you just set.
+              </Text>
+              <TextInput
+                style={styles.restoreInput}
+                value={restoreCode}
+                onChangeText={(t) => { setRestoreCode(t); setReturnRefused(false); }}
+                placeholder="XXXX-XXXX-XXXX-XXXX-XXXX"
+                placeholderTextColor={Colors.textTertiary}
+                autoCapitalize="characters"
+                autoCorrect={false}
+                accessibilityLabel="Return code"
+              />
+              {returnRefused && (
+                <Text style={[styles.errorText, { marginTop: 0, marginBottom: Spacing.base }]}>This return code does not open the household’s data. Check it with {returnFrom.name}, or ask {returnFrom.name} to make a new one.</Text>
+              )}
+              <Button label={restoreBusy ? 'Restoring…' : 'Restore my data'} onPress={submitReturn} disabled={restoreBusy} />
+              <TouchableOpacity hitSlop={Tap.slop} onPress={() => { setRestoreByReturn(false); setRestoreCode(''); setReturnRefused(false); }} style={{ paddingVertical: 12, alignItems: 'center', minHeight: 44, justifyContent: 'center' }} accessibilityRole="button">
+                <Text style={styles.restoreDoor}>‹ Use the recovery code instead</Text>
+              </TouchableOpacity>
+            </>) : (<>
             <Text style={styles.restoreTitle}>Restore your data</Text>
             <Text style={styles.restoreBody}>
               Your data is end-to-end encrypted, so your new password can’t open it yet. Enter your
@@ -258,9 +337,15 @@ export default function AuthScreen() {
               accessibilityLabel="Recovery code"
             />
             <Button label={restoreBusy ? 'Restoring…' : 'Restore my data'} onPress={submitRestore} disabled={restoreBusy} />
+            {returnFrom && (
+              <TouchableOpacity hitSlop={Tap.slop} onPress={() => { setRestoreByReturn(true); setRestoreCode(''); }} style={{ paddingVertical: 12, alignItems: 'center', minHeight: 44, justifyContent: 'center' }} accessibilityRole="button">
+                <Text style={styles.restoreDoor}>I have a return code from {returnFrom.name} ›</Text>
+              </TouchableOpacity>
+            )}
             <TouchableOpacity hitSlop={Tap.slop} onPress={startFresh} style={{ paddingVertical: 12, alignItems: 'center' }} accessibilityRole="button" accessibilityLabel="Start fresh instead">
               <Text style={styles.restoreFresh}>I don’t have it — start fresh</Text>
             </TouchableOpacity>
+            </>)}
           </View>
         </View>
       </Modal>
@@ -357,9 +442,24 @@ export default function AuthScreen() {
             <Field
               label="Spouse invite code (optional)"
               value={inviteCode}
-              onChange={(t) => setInviteCode(t.toUpperCase())}
+              onChange={(t) => { setInviteCode(t.toUpperCase()); setJoinRefusal(null); }}
               placeholder="Have a code from your spouse?"
               autoCapitalize="characters"
+              note={joinRefusal?.under === 'invite' ? joinRefusal.text : undefined}
+              noteIsRefusal
+            />
+          )}
+
+          {/* R13 (invite-and-join v01, mark 7): the key code, shown once the invite code holds anything */}
+          {mode === 'register' && inviteCode.trim().length > 0 && (
+            <Field
+              label="Spouse key code"
+              value={keyCode}
+              onChange={(t) => { setKeyCode(t.toUpperCase()); setJoinRefusal(null); }}
+              placeholder="XXXX-XXXX-XXXX-XXXX-XXXX"
+              autoCapitalize="characters"
+              note={joinRefusal ? (joinRefusal.under === 'key' ? joinRefusal.text : undefined) : 'The invite code and the key code are both on your spouse’s phone. They last 7 days.'}
+              noteIsRefusal={joinRefusal?.under === 'key'}
             />
           )}
 
@@ -399,11 +499,12 @@ export default function AuthScreen() {
 
 function Field({
   label, value, onChange, placeholder, secureTextEntry,
-  autoComplete, autoCapitalize, keyboardType, error,
+  autoComplete, autoCapitalize, keyboardType, error, note, noteIsRefusal,
 }: {
   label: string; value: string; onChange: (t: string) => void;
   placeholder?: string; secureTextEntry?: boolean;
   autoComplete?: any; autoCapitalize?: any; keyboardType?: any; error?: string;
+  note?: string; noteIsRefusal?: boolean;
 }) {
   return (
     <View style={{ marginBottom: Spacing.md }}>
@@ -421,6 +522,7 @@ function Field({
         autoCorrect={false}
       />
       {error && <Text style={styles.errorText}>{error}</Text>}
+      {!!note && <Text style={noteIsRefusal ? styles.errorText : styles.hintText}>{note}</Text>}
     </View>
   );
 }
@@ -447,6 +549,8 @@ const styles = StyleSheet.create({
   input: { backgroundColor: Colors.bgSecondary, borderRadius: Radii.md, borderWidth: 0.5, borderColor: Colors.border, paddingHorizontal: Spacing.base, paddingVertical: 13, fontSize: Typography.sizes.md, color: Colors.textPrimary },
   inputError: { borderColor: Colors.red, borderWidth: 1 },
   errorText: { fontSize: Typography.sizes.sm, color: Colors.red, marginTop: 4 },
+  hintText: { fontSize: Typography.sizes.sm, color: Colors.textSecondary, marginTop: 4 },
+  restoreDoor: { color: Colors.primary, fontWeight: '700', fontSize: Typography.sizes.sm },
   successText: { fontSize: Typography.sizes.sm, color: Colors.primary, marginTop: 4 },
   showPassBtn: { alignSelf: 'flex-end', paddingVertical: 12, marginBottom: Spacing.xs, minHeight: 44, justifyContent: 'center' },
   showPassText: { fontSize: Typography.sizes.sm, color: Colors.primary, fontWeight: '500' },

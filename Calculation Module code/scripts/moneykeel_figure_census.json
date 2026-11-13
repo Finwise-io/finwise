@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-08",
+ "generated": "2026-11-13",
  "states": [
   "worker",
   "rich",
@@ -52,7 +52,7 @@
     },
     {
      "k": "a",
-     "s": "Your investments: $165,000. change shows once your holdings have prices. as of Nov 8. See your growth."
+     "s": "Your investments: $165,000. change shows once your holdings have prices. as of Nov 13. See your growth."
     },
     {
      "k": "t",
@@ -80,7 +80,7 @@
     },
     {
      "k": "t",
-     "s": "Nov 8"
+     "s": "Nov 13"
     },
     {
      "k": "t",
@@ -232,7 +232,7 @@
     },
     {
      "k": "t",
-     "s": "8"
+     "s": "13"
     },
     {
      "k": "t",
@@ -285,20 +285,8 @@
      "s": "Ava"
     },
     {
-     "k": "t",
-     "s": "📡 Couldn’t refresh — showing your numbers from"
-    },
-    {
-     "k": "t",
-     "s": "your last session"
-    },
-    {
-     "k": "t",
-     "s": "."
-    },
-    {
      "k": "a",
-     "s": "Your investments: $709,800. change shows once your holdings have prices. prices may be out of date, updated not updated yet. Vanguard part as of Sep 12, 57 days old, pull to refresh. See your growth."
+     "s": "Your investments: $709,800. change shows once your holdings have prices. prices may be out of date, updated not updated yet. Vanguard part as of Sep 12, 62 days old, pull to refresh. See your growth."
     },
     {
      "k": "t",
@@ -334,7 +322,7 @@
     },
     {
      "k": "t",
-     "s": "⏱ Vanguard part as of Sep 12 — 57 days old"
+     "s": "⏱ Vanguard part as of Sep 12 — 62 days old"
     },
     {
      "k": "t",
@@ -494,7 +482,7 @@
     },
     {
      "k": "t",
-     "s": "8"
+     "s": "13"
     },
     {
      "k": "t",
@@ -545,18 +533,6 @@
     {
      "k": "t",
      "s": "Ruth"
-    },
-    {
-     "k": "t",
-     "s": "📡 Couldn’t refresh — showing your numbers from"
-    },
-    {
-     "k": "t",
-     "s": "your last session"
-    },
-    {
-     "k": "t",
-     "s": "."
     },
     {
      "k": "a",
@@ -788,7 +764,7 @@
     },
     {
      "k": "t",
-     "s": "8"
+     "s": "13"
     },
     {
      "k": "t",
@@ -907,7 +883,7 @@
     },
     {
      "k": "t",
-     "s": "YOUR NET WORTH · NOV 8, 2026"
+     "s": "YOUR NET WORTH · NOV 13, 2026"
     },
     {
      "k": "a",
@@ -1177,7 +1153,7 @@
     },
     {
      "k": "t",
-     "s": "YOUR NET WORTH · NOV 8, 2026"
+     "s": "YOUR NET WORTH · NOV 13, 2026"
     },
     {
      "k": "a",
@@ -1431,7 +1407,7 @@
     },
     {
      "k": "t",
-     "s": "YOUR NET WORTH · NOV 8, 2026"
+     "s": "YOUR NET WORTH · NOV 13, 2026"
     },
     {
      "k": "a",
@@ -1901,7 +1877,7 @@
     },
     {
      "k": "t",
-     "s": "YOUR NET WORTH · NOV 8, 2026"
+     "s": "YOUR NET WORTH · NOV 13, 2026"
     },
     {
      "k": "a",
@@ -2141,7 +2117,7 @@
     },
     {
      "k": "t",
-     "s": "Linked · 57 days old"
+     "s": "Linked · 62 days old"
     },
     {
      "k": "t",
@@ -2419,7 +2395,7 @@
     },
     {
      "k": "t",
-     "s": "YOUR NET WORTH · NOV 8, 2026"
+     "s": "YOUR NET WORTH · NOV 13, 2026"
     },
     {
      "k": "a",
@@ -2673,7 +2649,7 @@
     },
     {
      "k": "t",
-     "s": "YOUR NET WORTH · NOV 8, 2026"
+     "s": "YOUR NET WORTH · NOV 13, 2026"
     },
     {
      "k": "a",
@@ -3258,7 +3234,7 @@
     },
     {
      "k": "t",
-     "s": "Nov 8, 2026"
+     "s": "Nov 13, 2026"
     },
     {
      "k": "a",
@@ -3394,11 +3370,11 @@
     },
     {
      "k": "t",
-     "s": "Nov 8"
+     "s": "Nov 13"
     },
     {
      "k": "t",
-     "s": "Nov 8"
+     "s": "Nov 13"
     },
     {
      "k": "a",
@@ -3896,7 +3872,7 @@
     },
     {
      "k": "t",
-     "s": "Nov 8, 2026"
+     "s": "Nov 13, 2026"
     },
     {
      "k": "t",
@@ -4048,11 +4024,11 @@
     },
     {
      "k": "t",
-     "s": "Nov 8"
+     "s": "Nov 13"
     },
     {
      "k": "t",
-     "s": "Nov 8"
+     "s": "Nov 13"
     },
     {
      "k": "a",
@@ -4232,7 +4208,7 @@
     },
     {
      "k": "t",
-     "s": "Linked · 57 days old"
+     "s": "Linked · 62 days old"
     },
     {
      "k": "a",
@@ -4722,7 +4698,7 @@
     },
     {
      "k": "t",
-     "s": "Nov 8, 2026"
+     "s": "Nov 13, 2026"
     },
     {
      "k": "a",
@@ -4858,11 +4834,11 @@
     },
     {
      "k": "t",
-     "s": "Nov 8"
+     "s": "Nov 13"
     },
     {
      "k": "t",
-     "s": "Nov 8"
+     "s": "Nov 13"
     },
     {
      "k": "a",
@@ -5220,7 +5196,7 @@
     },
     {
      "k": "t",
-     "s": "Nov 8, 2026"
+     "s": "Nov 13, 2026"
     },
     {
      "k": "a",
@@ -5356,11 +5332,11 @@
     },
     {
      "k": "t",
-     "s": "Nov 8"
+     "s": "Nov 13"
     },
     {
      "k": "t",
-     "s": "Nov 8"
+     "s": "Nov 13"
     },
     {
      "k": "a",
@@ -10244,7 +10220,7 @@
     },
     {
      "k": "a",
-     "s": "Chase Sapphire, pay first, 24.00% — the costliest, 1 year left, $300 a month · your payment, about $84 a month interest, payment due in 7 days, $4,200 owed. Opens it to edit; hold to delete."
+     "s": "Chase Sapphire, pay first, 24.00% — the costliest, 1 year left, $300 a month · your payment, about $84 a month interest, payment due in 2 days, $4,200 owed. Opens it to edit; hold to delete."
     },
     {
      "k": "t",
@@ -10276,7 +10252,7 @@
     },
     {
      "k": "t",
-     "s": "payment due in 7 days"
+     "s": "payment due in 2 days"
     },
     {
      "k": "t",
@@ -11096,7 +11072,7 @@
     },
     {
      "k": "a",
-     "s": "Expense pace: $0 spent of your paycheck, $4,750 a month — 0 percent spent, 27 percent of the month gone."
+     "s": "Expense pace: $0 spent of your paycheck, $4,750 a month — 0 percent spent, 43 percent of the month gone."
     },
     {
      "k": "t",
@@ -11128,7 +11104,7 @@
     },
     {
      "k": "t",
-     "s": "27"
+     "s": "43"
     },
     {
      "k": "t",
@@ -11482,7 +11458,7 @@
     },
     {
      "k": "a",
-     "s": "Expense pace: $0 spent of your paycheck, $4,750 a month — 0 percent spent, 27 percent of the month gone."
+     "s": "Expense pace: $0 spent of your paycheck, $4,750 a month — 0 percent spent, 43 percent of the month gone."
     },
     {
      "k": "t",
@@ -11514,7 +11490,7 @@
     },
     {
      "k": "t",
-     "s": "27"
+     "s": "43"
     },
     {
      "k": "t",
@@ -12266,7 +12242,7 @@
     },
     {
      "k": "a",
-     "s": "Expense pace: $0 spent of your paycheck, $4,750 a month — 0 percent spent, 27 percent of the month gone."
+     "s": "Expense pace: $0 spent of your paycheck, $4,750 a month — 0 percent spent, 43 percent of the month gone."
     },
     {
      "k": "t",
@@ -12298,7 +12274,7 @@
     },
     {
      "k": "t",
-     "s": "27"
+     "s": "43"
     },
     {
      "k": "t",
@@ -19558,11 +19534,47 @@
     },
     {
      "k": "t",
+     "s": "A question about what you entered"
+    },
+    {
+     "k": "t",
+     "s": "The value you entered on Nov 13, 2026 does not say what day its $120,000 is from. What day is it from?"
+    },
+    {
+     "k": "a",
+     "s": "Choose the day: its values are saved on that day, and the walk and Return start from it"
+    },
+    {
+     "k": "t",
+     "s": "Choose the day ›"
+    },
+    {
+     "k": "t",
+     "s": "its values are saved on that day, and the walk and Return start from it"
+    },
+    {
+     "k": "a",
+     "s": "Not known: its values count in Net worth and Performance as your file states them, with no day"
+    },
+    {
+     "k": "t",
+     "s": "Not known"
+    },
+    {
+     "k": "t",
+     "s": "its values count in Net worth and Performance as your file states them, with no day"
+    },
+    {
+     "k": "t",
      "s": "Ending market value"
     },
     {
      "k": "t",
      "s": "$120,000"
+    },
+    {
+     "k": "t",
+     "s": "date not stated"
     },
     {
      "k": "t",
@@ -19582,7 +19594,7 @@
     },
     {
      "k": "t",
-     "s": "You added this account today, so its figures start today."
+     "s": "These values are from your file, which does not say what day they are from. Wealth generated and Return start from the day you give."
     },
     {
      "k": "t",
@@ -19590,11 +19602,11 @@
     },
     {
      "k": "a",
-     "s": "Beginning market value (today), $120,000"
+     "s": "Beginning market value (date not stated), $120,000"
     },
     {
      "k": "t",
-     "s": "Beginning market value (today)"
+     "s": "Beginning market value (date not stated)"
     },
     {
      "k": "t",
@@ -19674,7 +19686,7 @@
     },
     {
      "k": "a",
-     "s": "Ending market value (today), $120,000"
+     "s": "Ending market value (date not stated), $120,000"
     },
     {
      "k": "t",
@@ -19682,7 +19694,7 @@
     },
     {
      "k": "t",
-     "s": "today"
+     "s": "date not stated"
     },
     {
      "k": "t",
@@ -19824,7 +19836,7 @@
     },
     {
      "k": "t",
-     "s": "Linked · 57 days old"
+     "s": "Linked · 62 days old"
     },
     {
      "k": "a",
@@ -20294,7 +20306,7 @@
     },
     {
      "k": "t",
-     "s": "Linked · 57 days old"
+     "s": "Linked · 62 days old"
     },
     {
      "k": "a",
@@ -20856,6 +20868,38 @@
     },
     {
      "k": "t",
+     "s": "A question about what you entered"
+    },
+    {
+     "k": "t",
+     "s": "The value you entered on Nov 13, 2026 does not say what day its $20,000 is from. What day is it from?"
+    },
+    {
+     "k": "a",
+     "s": "Choose the day: its values are saved on that day, and the walk and Return start from it"
+    },
+    {
+     "k": "t",
+     "s": "Choose the day ›"
+    },
+    {
+     "k": "t",
+     "s": "its values are saved on that day, and the walk and Return start from it"
+    },
+    {
+     "k": "a",
+     "s": "Not known: its values count in Net worth and Performance as your file states them, with no day"
+    },
+    {
+     "k": "t",
+     "s": "Not known"
+    },
+    {
+     "k": "t",
+     "s": "its values count in Net worth and Performance as your file states them, with no day"
+    },
+    {
+     "k": "t",
      "s": "Ending market value"
     },
     {
@@ -21183,6 +21227,38 @@
     {
      "k": "t",
      "s": "$400,000"
+    },
+    {
+     "k": "t",
+     "s": "A question about what you entered"
+    },
+    {
+     "k": "t",
+     "s": "The value you entered on Nov 13, 2026 does not say what day its $400,000 is from. What day is it from?"
+    },
+    {
+     "k": "a",
+     "s": "Choose the day: its values are saved on that day, and the walk and Return start from it"
+    },
+    {
+     "k": "t",
+     "s": "Choose the day ›"
+    },
+    {
+     "k": "t",
+     "s": "its values are saved on that day, and the walk and Return start from it"
+    },
+    {
+     "k": "a",
+     "s": "Not known: its values count in Net worth and Performance as your file states them, with no day"
+    },
+    {
+     "k": "t",
+     "s": "Not known"
+    },
+    {
+     "k": "t",
+     "s": "its values count in Net worth and Performance as your file states them, with no day"
     },
     {
      "k": "t",
@@ -21544,6 +21620,38 @@
     },
     {
      "k": "t",
+     "s": "A question about what you entered"
+    },
+    {
+     "k": "t",
+     "s": "The value you entered on Nov 13, 2026 does not say what day its $9,800 is from. What day is it from?"
+    },
+    {
+     "k": "a",
+     "s": "Choose the day: its values are saved on that day, and the walk and Return start from it"
+    },
+    {
+     "k": "t",
+     "s": "Choose the day ›"
+    },
+    {
+     "k": "t",
+     "s": "its values are saved on that day, and the walk and Return start from it"
+    },
+    {
+     "k": "a",
+     "s": "Not known: its values count in Net worth and Performance as your file states them, with no day"
+    },
+    {
+     "k": "t",
+     "s": "Not known"
+    },
+    {
+     "k": "t",
+     "s": "its values count in Net worth and Performance as your file states them, with no day"
+    },
+    {
+     "k": "t",
      "s": "Ending market value"
     },
     {
@@ -21772,7 +21880,7 @@
     },
     {
      "k": "a",
-     "s": "Yield if held to maturity: about 4.49% · estimate"
+     "s": "Yield if held to maturity: about 4.50% · estimate"
     },
     {
      "k": "t",
@@ -21780,7 +21888,7 @@
     },
     {
      "k": "t",
-     "s": "about 4.49% · estimate"
+     "s": "about 4.50% · estimate"
     },
     {
      "k": "a",
@@ -21796,7 +21904,7 @@
     },
     {
      "k": "t",
-     "s": "Added estimated $194 in accrued interest to bond value at 4% coupon for 177 days to calculate YTM. If this is not accurate, enter actual accrued interest"
+     "s": "Added estimated $199 in accrued interest to bond value at 4% coupon for 182 days to calculate YTM. If this is not accurate, enter actual accrued interest"
     },
     {
      "k": "t",
@@ -21844,7 +21952,7 @@
     },
     {
      "k": "t",
-     "s": "$390"
+     "s": "$380"
     },
     {
      "k": "t",
@@ -22054,11 +22162,47 @@
     },
     {
      "k": "t",
+     "s": "A question about what you entered"
+    },
+    {
+     "k": "t",
+     "s": "The value you entered on Nov 13, 2026 does not say what day its $250,000 is from. What day is it from?"
+    },
+    {
+     "k": "a",
+     "s": "Choose the day: its values are saved on that day, and the walk and Return start from it"
+    },
+    {
+     "k": "t",
+     "s": "Choose the day ›"
+    },
+    {
+     "k": "t",
+     "s": "its values are saved on that day, and the walk and Return start from it"
+    },
+    {
+     "k": "a",
+     "s": "Not known: its values count in Net worth and Performance as your file states them, with no day"
+    },
+    {
+     "k": "t",
+     "s": "Not known"
+    },
+    {
+     "k": "t",
+     "s": "its values count in Net worth and Performance as your file states them, with no day"
+    },
+    {
+     "k": "t",
      "s": "Ending market value"
     },
     {
      "k": "t",
      "s": "$250,000"
+    },
+    {
+     "k": "t",
+     "s": "date not stated"
     },
     {
      "k": "t",
@@ -22078,7 +22222,7 @@
     },
     {
      "k": "t",
-     "s": "You added this account today, so its figures start today."
+     "s": "These values are from your file, which does not say what day they are from. Wealth generated and Return start from the day you give."
     },
     {
      "k": "t",
@@ -22086,11 +22230,11 @@
     },
     {
      "k": "a",
-     "s": "Beginning market value (today), $250,000"
+     "s": "Beginning market value (date not stated), $250,000"
     },
     {
      "k": "t",
-     "s": "Beginning market value (today)"
+     "s": "Beginning market value (date not stated)"
     },
     {
      "k": "t",
@@ -22170,7 +22314,7 @@
     },
     {
      "k": "a",
-     "s": "Ending market value (today), $250,000"
+     "s": "Ending market value (date not stated), $250,000"
     },
     {
      "k": "t",
@@ -22178,7 +22322,7 @@
     },
     {
      "k": "t",
-     "s": "today"
+     "s": "date not stated"
     },
     {
      "k": "t",
@@ -23891,7 +24035,7 @@
     },
     {
      "k": "t",
-     "s": "4.49%"
+     "s": "4.50%"
     },
     {
      "k": "t",
@@ -23903,7 +24047,7 @@
     },
     {
      "k": "t",
-     "s": "Added estimated $194 in accrued interest to bond value at 4% coupon for 177 days to calculate YTM. If this is not accurate, enter actual accrued interest"
+     "s": "Added estimated $199 in accrued interest to bond value at 4% coupon for 182 days to calculate YTM. If this is not accurate, enter actual accrued interest"
     },
     {
      "k": "t",
@@ -40226,7 +40370,7 @@
  },
  "callsites": [
   {
-   "site": "MoneyKeel/functions/_figure-spec.ts:262",
+   "site": "MoneyKeel/functions/_figure-spec.ts:266",
    "routes": [
     "/account-detail",
     "/analytics",
@@ -40320,10 +40464,10 @@
     "$45,000",
     "$2,180"
    ],
-   "renders": 1622
+   "renders": 1641
   },
   {
-   "site": "MoneyKeel/functions/_figure-spec.ts:264",
+   "site": "MoneyKeel/functions/_figure-spec.ts:268",
    "routes": [
     "/account-detail",
     "/cashflow",

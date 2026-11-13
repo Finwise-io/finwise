@@ -45,7 +45,7 @@ export interface ImportResult {
   mapped: { ticker?: string; shares?: string; cost?: string; date?: string; name?: string; value?: string };
   // THE ACCOUNT THE FILE IS ABOUT, when it names one (2026-11-04): E*TRADE's "Account Summary" row gives
   // "Individual Brokerage -2203" and its Net Account Value. Absent = the file names no account.
-  account?: { name: string; number?: string; statedTotal?: number };
+  account?: { name: string; number?: string; statedTotal?: number; statedGain?: number };   // statedGain: the file's own Total Gain $ (DEC-10984)
   // THE DAY THE FILE'S FIGURES ARE FROM, when it states one ("Generated at Jun 21 2026 03:37 PM ET"). Absent = none stated.
   asOf?: string;
 }
@@ -436,17 +436,17 @@ function fileDateOf(rows: string[][]): string | undefined {
  *     h = for each of rows[i]: each (or '').trim( when missing)
  *     name at = find index((c) => ÷ ^account( name)?$ ÷ test(c))
  *     total at = find index((c) => ÷ ^(net account value|account value|total (account )?value)\b ÷ test(c))
+ *     gain at = find index((c) => ÷ ^total gain\s × \$?$ ÷ test(c))
  *     row = rows.slice(i + 1, before).find((r) => (r[name at] ?? '').trim())
  *     undefined   when row is missing
  *     raw = row[name at].trim()
  *     num = raw.match( ÷ ^(. × ?)\s × [-–#x x × •]+\s × (\d{3,})$ ÷ )
  *     total = num or na n(row[total at])   if total at ≥ 0
  *     na n   otherwise
- *     the answer:
- *     name = (num ? num[1] : raw).trim()
- *     ...(num ? { number: num[2] } : {}) = ...(num ? { number: num[2] } : {})
- *     ...(number.is finite(total) ? { stated total: total } : {}) = ...(number.is finite(total) ? { stated total: total } : {})
+ *     gain = num or na n(row[gain at])   if gain at ≥ 0
+ *     na n   otherwise
  *     [LOOP — the answer is found inside a loop the extractor cannot render; the steps above are the ones before it. Read by hand.]
+ *     … the first steps only — the rest of the body needs reading by hand.
  *
  * Called by ... MK-XS-F-015 importHoldings
  *
@@ -463,13 +463,18 @@ function fileAccountOf(rows: string[][], before: number): ImportResult['account'
     const h = rows[i].map((c) => (c ?? '').trim());
     const nameAt = h.findIndex((c) => /^account( name)?$/i.test(c));
     const totalAt = h.findIndex((c) => /^(net account value|account value|total (account )?value)\b/i.test(c));
+    // THE FILE'S OWN TOTAL GAIN, kept as the file states it (his words, 2026-11-12, DEC-10984: "import file as-is. … if you are
+    // showing gains as of June 21 - that should be the number."): E*TRADE's "Total Gain $" on the account's row, −4146.87
+    const gainAt = h.findIndex((c) => /^total gain\s*\$?$/i.test(c));
     if (nameAt < 0) continue;
     const row = rows.slice(i + 1, before).find((r) => (r[nameAt] ?? '').trim());
     if (!row) return undefined;
     const raw = row[nameAt].trim();
     const num = raw.match(/^(.*?)\s*[-–#xX*•]+\s*(\d{3,})$/);
     const total = totalAt >= 0 ? numOrNaN(row[totalAt]) : NaN;
-    return { name: (num ? num[1] : raw).trim(), ...(num ? { number: num[2] } : {}), ...(Number.isFinite(total) ? { statedTotal: total } : {}) };
+    const gain = gainAt >= 0 ? numOrNaN(row[gainAt]) : NaN;
+    return { name: (num ? num[1] : raw).trim(), ...(num ? { number: num[2] } : {}), ...(Number.isFinite(total) ? { statedTotal: total } : {}),
+      ...(Number.isFinite(gain) ? { statedGain: gain } : {}) };
   }
   return undefined;
 }
@@ -808,7 +813,8 @@ export function importedAccountOf(
       ...(isOption ? { multiplier: h.multiplier } : {}),
       ...(h.lastPrice != null ? { last_price: h.lastPrice } : {}),
       ...(h.faceValue != null ? { face_value: h.faceValue } : {}),
-      ...(h.couponRate != null ? { coupon_rate: h.couponRate } : {}),
+      // the rate is read from the holding's name, never an interest figure the file states (DEC-10983): marked so no window earns by it
+      ...(h.couponRate != null ? { coupon_rate: h.couponRate, rate_from_file: true } : {}),
       ...(h.maturityDate ? { maturity_date: h.maturityDate } : {}),
       ...(h.priceQuote ? { price_quote: h.priceQuote } : {}),
       // SAVED EXACTLY AS THE FILE GIVES THEM (DEC-0403); a file with no purchase date keeps it as not on record (DEC-6691)
@@ -829,6 +835,8 @@ export function importedAccountOf(
     // file states none (phase 2 changes no screen). value_as_of_from_file says which it is, so the master record never
     // takes the import day for the file's date (outside check, 2026-11-12; asset-record-move.ts)
     value_as_of: r.asOf ?? isoLocalDate(new Date(nowIso)), value_as_of_from_file: r.asOf != null,
+    // the file's own total gain and the day it states, saved as the file gives them, never calculated by the app (DEC-10984); no day stated → null
+    ...(r.account?.statedGain != null ? { stated_gain: { amount: r.account.statedGain, as_of: r.asOf ?? null } } : {}),
     derive_balance: true, cash_balance: cash, positions: positions as any,
     // held exact (DEC-0403): the cash plus what the file says each holding is worth; prices refresh it later
     balance: cash + values.reduce((t, v) => t + v, 0),

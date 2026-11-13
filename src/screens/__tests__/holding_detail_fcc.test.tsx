@@ -155,7 +155,7 @@ test('no price for the ticker: honest basis hero, comparison/tax/look-back all a
 
 test('sub-$2 average cost keeps 3 decimals (the LCTX case) — and still masks when hidden', () => {
   useStore.setState({
-    priceCache: {},
+    priceCache: {}, assetRecord: [],   // this account as the phone holds it here, with no record of the one before it
     assetAccounts: [{ asset_id: 'brk', label: 'Brokerage', kind: 'brokerage', tax_bucket: 'TAXABLE', balance: 0, derive_balance: true,
       positions: [{ position_id: 'p1', ticker: 'LCTX', label: 'Lineage Inc', kind: 'stocks_etf', lots: [{ lot_id: 'l1', shares: 1000, cost_per_share: 1.132, purchase_date: '2024-05-01' }] }] }],
   } as any);
@@ -168,7 +168,7 @@ test('sub-$2 average cost keeps 3 decimals (the LCTX case) — and still masks w
 });
 
 test("all lots sold: 'Position closed' with $0 — correct here, and history is kept", () => {
-  useStore.setState({
+  useStore.setState({ assetRecord: [],   // this account as the phone holds it here, with no record of the one before it
     assetAccounts: [{ asset_id: 'brk', label: 'Brokerage', kind: 'brokerage', tax_bucket: 'TAXABLE', balance: 0, derive_balance: true,
       positions: [{ ...NVDA_POS, lots: [] }, { position_id: 'p2', ticker: 'VTI', kind: 'stocks_etf', lots: [] }] }],
   } as any);

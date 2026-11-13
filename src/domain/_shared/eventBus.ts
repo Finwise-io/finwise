@@ -23,17 +23,17 @@ const handlers: Record<string, Set<Handler>> = {};
  *               MK-CF-F-298 capFirst · MK-CF-O-001 basePay
  *               MK-CF-O-017 futurePaycheck · MK-NW-F-025 accountDisplayName
  *               MK-NW-F-071 isCertificateOfDeposit · MK-NW-F-088 BENCH
- *               MK-NW-F-194 brokerUpdateToRecord · MK-NW-O-003 theNetWorth
- *               MK-NW-O-008 thePerformance · MK-PF-F-073 sharesThroughWindow
- *               MK-PL-F-004 withdrawalOrder · MK-PL-F-010 drawOrderOutcome
- *               MK-PL-F-036 weighGoals · MK-PL-F-067 willItLastInputs
- *               MK-PL-F-082 taxableIncomeSteps · MK-PL-F-083 inflationRateInForce
- *               MK-ST-F-049 formatMoney · MK-ST-F-073 rebuildDays
- *               MK-ST-F-081 timeWeightedReturn · MK-XS-F-192 typedValueDatedBack
- *               MK-XS-F-197 chainShown · MK-XS-F-199 profileOnTheWayIn
- *               MK-XS-F-216 fileDateOf
+ *               MK-NW-F-194 brokerUpdateToRecord · MK-NW-F-374 daysReadOut
+ *               MK-NW-O-003 theNetWorth · MK-NW-O-008 thePerformance
+ *               MK-PF-F-073 sharesThroughWindow · MK-PL-F-004 withdrawalOrder
+ *               MK-PL-F-010 drawOrderOutcome · MK-PL-F-036 weighGoals
+ *               MK-PL-F-067 willItLastInputs · MK-PL-F-082 taxableIncomeSteps
+ *               MK-PL-F-083 inflationRateInForce · MK-ST-F-049 formatMoney
+ *               MK-ST-F-073 rebuildDays · MK-ST-F-081 timeWeightedReturn
+ *               MK-XS-F-192 typedValueDatedBack · MK-XS-F-197 chainShown
+ *               MK-XS-F-199 profileOnTheWayIn · MK-XS-F-216 fileDateOf
  *
- * Reaches ..... 656 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 712 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -43,7 +43,7 @@ const handlers: Record<string, Set<Handler>> = {};
  *               MK-CF-F-237 LATER · MK-NW-F-081 LB
  *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
  *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
- *               … and 638 more — the full list is on functions_from_code
+ *               … and 694 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

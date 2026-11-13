@@ -5,7 +5,9 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useStore } from '../store/useStore';
 import { Card, TipCard } from '../components/UI';
 import { Colors, Typography, Spacing, Radii, Tap } from '../utils/theme';
-import { logoutUser, flushBeforeSignOut, submitFeedback, resendVerification, refreshEmailVerified, isEmailVerified, deleteAccount, regenerateRecoveryCode, currentUserEmail } from '../services/firebase';
+import { logoutUser, flushBeforeSignOut, submitFeedback, resendVerification, refreshEmailVerified, isEmailVerified, deleteAccount, regenerateRecoveryCode, currentUserEmail, loadHouseholdPeople, type HouseholdPeople } from '../services/firebase';
+import { HouseholdBox, householdOtherName } from '../components/HouseholdBox';
+import { UpdateToKeepSavingBanner } from '../components/UpdateToKeepSavingBanner';
 import { isLockAvailable, authenticate } from '../services/appLock';
 import { resolveLens } from '../domain/profile/lens';
 import { RecoveryCodeModal } from '../components/RecoveryCodeModal';
@@ -33,6 +35,7 @@ const FEEDBACK_TYPES = [
 
 export default function SettingsScreen() {
   const router = useRouter();
+  const householdId = useStore((st: any) => st.householdId ?? null);
   const { user, resetAll, setUser, setOnboardingComplete, setOnboardingPaused, setOnboardingDraft, restartOnboarding, budgetFrequency, payFrequency, displayMode, setDisplayMode, fontScale, setFontScale, appLockEnabled, setAppLockEnabled, hideBalances, toggleHideBalances, lensOverride, setLensOverride, onboardingProfile } = useStore() as any;
 
   // F-2: app lock — confirm the device can authenticate before enabling, so the user can't lock
@@ -149,10 +152,23 @@ export default function SettingsScreen() {
   // Authoritative signed-in identity (NOT the possibly-stale store user) — what delete actually acts on.
   const acctEmail = currentUserEmail() ?? user?.email ?? null;
 
+  // WHO SHARES THE HOUSEHOLD (R13, R14, R16): read from the member document, for the Household box and the delete warnings
+  const [people, setPeople] = useState<HouseholdPeople | null>(null);
+  useEffect(() => {
+    if (!user?.uid) return;
+    let live = true;
+    Promise.resolve(loadHouseholdPeople?.(user.uid, householdId)).then((p) => { if (live && p) setPeople(p); }).catch(() => {});
+    return () => { live = false; };
+  }, [user?.uid, householdId]);
+  const otherName = householdOtherName(people);
+
   function confirmDeleteAccount() {
+    // delete-account-household v01, mark 2: an owner with a member is told the household's data stays with the member (R16)
     Alert.alert(
       'Delete account?',
-      `This permanently deletes ${acctEmail ?? 'your account'} and all its MoneyKeel data from our servers. This cannot be undone.`,
+      people?.role === 'owner'
+        ? `This permanently deletes ${acctEmail ?? 'your account'}. ${otherName} shares your household, so the household’s accounts, plans and goals stay with ${otherName}. This cannot be undone.`
+        : `This permanently deletes ${acctEmail ?? 'your account'} and all its MoneyKeel data from our servers. This cannot be undone.`,
       [
         { text: 'Cancel', style: 'cancel' },
         { text: 'Continue', style: 'destructive', onPress: () => { setDelPassword(''); setDelShowPass(false); setDelVisible(true); } },
@@ -266,6 +282,9 @@ export default function SettingsScreen() {
 
   return (
     <ScrollView automaticallyAdjustKeyboardInsets style={styles.root} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+
+      {/* R8a (update-to-keep-saving v01): at the top of Settings too */}
+      <UpdateToKeepSavingBanner />
 
       {/* Profile */}
       <Card style={styles.profileCard}>
@@ -411,6 +430,9 @@ export default function SettingsScreen() {
 
       <RecoveryCodeModal visible={!!rcCode} code={rcCode ?? ''} onDone={() => setRcCode(null)} />
 
+      {/* HOUSEHOLD, after Security (delete-account-household v01 mark 1; return code v01 marks 1-4) */}
+      <HouseholdBox people={people} />
+
       {/* Actions */}
       <Card>
         {(useStore.getState() as any).snaptradeConnections?.length > 0 && (
@@ -492,9 +514,22 @@ export default function SettingsScreen() {
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.delBackdrop}>
           <View style={styles.delCard}>
             <Text style={styles.delTitle}>Confirm account deletion</Text>
+            {/* the warning naming the member (marks 3 and 5): before the password is typed, in the app's one amber box */}
+            {people?.role === 'owner' && (
+              <View style={styles.delWarn} testID="delete-household-warning">
+                <Text style={styles.delWarnHead}>⚠ {otherName} keeps the household</Text>
+                <Text style={styles.delWarnLine}>Deleting your account moves the household’s accounts, plans and goals to {otherName}. {otherName} keeps them and goes on using MoneyKeel as today. Nothing of the household stays under your account.</Text>
+              </View>
+            )}
+            {people?.role === 'member' && (
+              <View style={styles.delWarn} testID="delete-household-warning">
+                <Text style={styles.delWarnHead}>⚠ The household stays with {otherName}</Text>
+                <Text style={styles.delWarnLine}>Deleting your account removes your sign-in and your place in {otherName}’s household. Every account, plan and goal stays in {otherName}’s household.</Text>
+              </View>
+            )}
             <Text style={styles.delBody}>
               Deleting <Text style={{ fontWeight: '800', color: Colors.textPrimary }}>{acctEmail ?? 'your account'}</Text>.
-              Enter <Text style={{ fontWeight: '800' }}>this account’s</Text> password to permanently delete it and all its MoneyKeel data. This can’t be undone.
+              Enter <Text style={{ fontWeight: '800' }}>this account’s</Text> password to permanently delete it{people && people.role !== 'solo' ? '' : ' and all its MoneyKeel data'}. This can’t be undone.
             </Text>
             <View style={styles.delInputRow}>
               <TextInput
@@ -716,6 +751,9 @@ const styles = StyleSheet.create({
   delBackdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.45)', alignItems: 'center', justifyContent: 'center', padding: Spacing.lg },
   delCard: { width: '100%', maxWidth: 380, backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.lg },
   delTitle: { fontSize: Typography.sizes.lg, fontWeight: '800', color: Colors.textPrimary, marginBottom: Spacing.sm },
+  delWarn: { backgroundColor: Colors.amberLight, borderWidth: 1, borderColor: Colors.amber, borderRadius: Radii.md, paddingVertical: 10, paddingHorizontal: Spacing.md, marginBottom: Spacing.base },
+  delWarnHead: { fontSize: 13, fontWeight: '700', color: Colors.amber },
+  delWarnLine: { fontSize: 13, color: Colors.textPrimary, marginTop: 2, lineHeight: 18 },
   delBody: { fontSize: Typography.sizes.sm, color: Colors.textSecondary, lineHeight: 20, marginBottom: Spacing.base },
   delInputRow: { flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: Colors.border, borderRadius: Radii.md, paddingHorizontal: Spacing.md, marginBottom: Spacing.base },
   delInputField: { flex: 1, paddingVertical: 12, fontSize: Typography.sizes.md, color: Colors.textPrimary },

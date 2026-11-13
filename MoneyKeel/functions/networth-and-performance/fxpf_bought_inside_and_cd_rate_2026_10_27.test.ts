@@ -67,11 +67,14 @@ describe('PF-4 · a holding bought inside the window counts (R4)', () => {
     expect(pct(f.cumulative)).toBe('+9.83%');
   });
   // THE SAME CLASS: bought inside the window, its gain not knowable — named, never a silent $0
-  test('no close and no price on record, bought Jul 20 (not today): PRIV is named, Return stays VTI\'s +2.56% (40,000 ÷ 39,000 − 1)', () => {
+  // DEC-10982 (2026-11-12): no money in or out, so Return = (ending − beginning) ÷ beginning on the walk, PRIV ($1,000, no price
+  // history) counted as unchanged: $40,000 → $41,000, 1,000 ÷ 40,000 = +2.50% (it read VTI's own +2.56%, 40,000 ÷ 39,000 − 1)
+  test('no close and no price on record, bought Jul 20 (not today): PRIV is named, Return +2.50% on the walk (DEC-10982)', () => {
     const { f } = windowOf('1M', [acct('van', 'Vanguard', 41_000, [pos('p1', 'VTI', 100, 400, 300, '2024-01-02'),
       pos('p9', 'PRIV', 10, undefined, 100, '2026-07-20')])], { VTI });
-    expect(pct(f.cumulative)).toBe('+2.56%');
-    expect(f.notIncluded).toBe('Return is on the $40,000 with a price history. PRIV ($1,000) has no price history, so its gains are not included.');
+    expect(f.cumulative).toBeCloseTo((f.walk!.ending - f.walk!.beginning) / f.walk!.beginning, 12);
+    expect(pct(f.cumulative)).toBe('+2.50%');
+    expect(f.notIncluded).toBe('PRIV ($1,000) has no price history, so its gains are not included.');
   });
   test('a purchase inside the window with no price paid on record: VOO is named for that reason (it counted the first 10 shares\' $500 alone, said nowhere)', () => {
     const voo = { position_id: 'p8', ticker: 'VOO', asset_class: 'stock_etf', last_price: 550,
@@ -107,19 +110,24 @@ describe('PF-5 · a CD with a stated rate gains by its rate inside a brokerage t
   });
   test('a CD with no rate entered stays unknown and named (DEC-2748b: a rate never entered stays blank)', () => {
     const noRate = [acct('van', 'Vanguard', 50_400, [pos('p1', 'VTI', 100, 400, 300, '2024-01-02'), pos('p3', 'KEYBANK CD', 10_400, 1, 1, '2024-01-02', 'bond', { kind: 'cd' })])];
-    expect(windowOf('1Y', noRate, { VTI }).f.notIncluded).toBe('Return is on the $40,000 with a price history. KEYBANK CD ($10,400) has no price history, so its gains are not included.');
+    expect(windowOf('1Y', noRate, { VTI }).f.notIncluded).toBe('KEYBANK CD ($10,400) has no price history, so its gains are not included.');   // DEC-10982: first half not said
   });
   test('a bond (not a CD) with a coupon and no prices stays unknown: its price is not known (v17 line 131)', () => {
     const bond = [acct('van', 'Vanguard', 50_400, [pos('p1', 'VTI', 100, 400, 300, '2024-01-02'), pos('p3', 'US TREASURY 2031', 10_400, 1, 1, '2024-01-02', 'bond', { coupon_rate: 0.04 })])];
-    expect(windowOf('1Y', bond, { VTI }).f.notIncluded).toMatch(/^Return is on the \$40,000 with a price history\. US TREASURY 2031 \(\$10,400\) has no price history/);
+    expect(windowOf('1Y', bond, { VTI }).f.notIncluded).toMatch(/^US TREASURY 2031 \(\$10,400\) has no price history/);   // DEC-10982
   });
   test('a record that began May 6, 2026, 1Y joined there (DEC-6412): the 276 days before it by the rate, 1.04^(276 ÷ 365) − 1; nothing named', () => {
     const { f } = windowOf('1Y', HOUSE, { VTI }, '2026-05-06');
     // on May 6 (the record's first day): VTI 100 × $400 = $40,000; the CD 10,400 ÷ 1.04^(90 ÷ 365). The evening before the window:
     // VTI 100 × $360 = $36,000; the CD 10,400 ÷ 1.04^(366 ÷ 365). The record from May 6 holds $50,400 both days: its part +0.00%.
     const thenCd = 10_400 / Math.pow(1.04, 90 / 365), startCd = 10_400 / Math.pow(1.04, 366 / 365);
-    expect(f.cumulative).toBeCloseTo((40_000 + thenCd) / (36_000 + startCd) - 1, 12);
-    expect(pct(f.cumulative)).toBe('+9.35%');
+    // DEC-10982 (2026-11-12): no money in or out, so Return = (ending − beginning) ÷ beginning on the joined walk. Its beginning is
+    // the record's $50,400 on May 6 less what the days before it made, VTI's $4,000 and the CD's 10,400 ÷ 1.04^(90/365) − startCd
+    // = $300.99: $46,099.01; ending $50,400 → 4,300.99 ÷ 46,099.01 = +9.33% (the two parts chained read +9.35%)
+    const begin = 50_400 - (40_000 + thenCd - 36_000 - startCd);
+    expect(f.walk!.beginning).toBeCloseTo(begin, 6);
+    expect(f.cumulative).toBeCloseTo((50_400 - begin) / begin, 12);
+    expect(pct(f.cumulative)).toBe('+9.33%');
     expect(f.notIncluded).toBe('');
   });
 });

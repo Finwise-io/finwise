@@ -349,7 +349,12 @@ describe('J4 · an account built from imported holdings, cash never entered: Ava
     const ACC = look('account', { id: 'imp', period: '1M' });
     const INV = look('invest', {}, pick('1 month'));
     const NW = look('networth');
-    expect(after(ACC, 'Ending market value', -1)).toBe('$10,000');
+    // the file states no date: its question is asked above the three figures (account-page v02 rule 1), and the file's
+    // $10,000 still counts on every total, as the file states it (his "import file as-is"; never off the totals)
+    expect(ACC.lines).toContain('A question about your file');
+    expect(ACC.lines).toContain('its values count in Net worth and Performance as your file states them, with no day');
+    expect(after(ACC, 'THIS ACCOUNT · THE PAST MONTH')).toBe('$10,000');
+    expect(after(ACC, 'Ending market value')).toBe('$10,000');
     expect(after(INV, 'Ending market value')).toBe('$10,000');
     expect(after(NW, 'Own $10,000 − Owe $0')).toBe('$10,000');
     // the account page lists the stored running figure as the cash row, so its rows add up to the total: 120 × $100 − $2,000
@@ -364,12 +369,13 @@ describe('J4 · an account built from imported holdings, cash never entered: Ava
   // generated $500; the return, a purchase counted from the start of its day at what was paid (DEC-7451): 9,900 ÷ 9,500 × 12,000 ÷
   // (9,900 + 2,000) − 1 = +5.09% — what the app gives when the imported purchase carries a date. The undated purchase beside buys this
   // account recorded is now read as held when the window began, as it was before them. The app's old answer is kept below, failing.
-  test('FIXED 2026-10-25 (FIX-HOLDINGS item 1; DEC-3656, DEC-7451) · a buy in an imported account whose purchase has no date keeps its 1M window: Beginning $9,500, Wealth generated $500, Return +5.09%', () => {
+  test('FIXED 2026-10-25 (FIX-HOLDINGS item 1; DEC-3656, DEC-7451) · a buy in an imported account whose purchase has no date keeps its 1M window: Beginning $9,500, Wealth generated $500, Return +5.26% (DEC-10982)', () => {
     household({ assetAccounts: [IMPORTED()] });
     expect(walk1M(look('account', { id: 'imp', period: '1M' }))).toEqual(['$9,500', '$500', '$10,000']);
     (useStore.getState() as any).recordTransaction({ type: 'BUY', account_id: 'imp', ticker: 'VTI', shares: 20, price: 100, date: TODAY });
     const ACC = look('account', { id: 'imp', period: '1M' });
-    expect([...walk1M(ACC), after(ACC, 'Return')]).toEqual(['$9,500', '$500', '$10,000', `+${((9_900 / 9_500 * 12_000 / 11_900 - 1) * 100).toFixed(2)}%`]);
+    // DEC-10982 (2026-11-12): the account's Return is (ending − beginning) ÷ beginning: 500 ÷ 9,500 = +5.26% (it read the holding's +5.09%)
+    expect([...walk1M(ACC), after(ACC, 'Return')]).toEqual(['$9,500', '$500', '$10,000', `+${((500 / 9_500) * 100).toFixed(2)}%`]);
   });
   test.failing('· app until 2026-10-25: Beginning $10,000, Wealth generated $0, Return "—" after the buy — no longer its answer (FIXED 2026-10-25)', () => {
     household({ assetAccounts: [IMPORTED()] });

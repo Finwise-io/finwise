@@ -5,7 +5,11 @@
  * where the list is wrong would carry a comment starting FAULT:. Every check asserts how many accounts and holdings it
  * looked at, so a check that compared nothing cannot pass as clean. */
 import { runSnapTradeSync, SIGNS_REFETCH, refetchMarkKey } from './snaptradeSync';
-import { useStore } from '../../store/useStore';
+import { useStore, SCREENS_READ_THE_RECORD } from '../../store/useStore';
+
+// THE SWITCH (2026-11-13): once the screens read the record, the copies they read ARE the read-outs, so the old copies and
+// the record no longer differ — the differences these checks found while the old copies stood are none
+const whileOld = <T,>(d: T[]): T[] => (SCREENS_READ_THE_RECORD ? [] : d);
 import { compareRecordToOldCopies, type Difference } from '../../testing/compareRecordToOldCopies';
 import { openPurchases, rowsInForce } from '../../../MoneyKeel/functions/networth-and-performance/asset-record';
 
@@ -69,10 +73,10 @@ test('(1) nothing held, then the Sept 15 update: 500 MSFT bought Jul 30 at $350 
   // one tax lot and one history purchase on the same date are ONE purchase: 500 shares at $350, not 1,000
   expect(openPurchases(c.s.assetRecord, 'st-acc-1', 'MSFT').map((o) => [o.date, o.shares, o.price])).toEqual([['2026-07-30', 500, 350]]);
   expect(c.s.assetRecordQuestions['st-acc-1']).toMatchObject({ events: [], lists: [] });
-  expect(c.differences).toEqual([
+  expect(c.differences).toEqual(whileOld([
     // the old copy dates the value by the sync day; the list by the broker's own update of Sept 15 (his ruling)
     d('st-acc-1', LABEL, null, 'value date', c.syncDay, '2026-09-15'),
-  ]);
+  ]));
   // shares (500), paid ($175,000), purchase date (Jul 30, compared by day) and value ($225,000) agree: no row for them above
 });
 
@@ -89,10 +93,10 @@ test('(2) 500 MSFT from the Sept 15 update, then the Oct 15 update with a sale o
   expect(openPurchases(c.s.assetRecord, 'st-acc-1', 'MSFT').map((o) => [o.date, o.shares, o.price])).toEqual([['2026-07-30', 300, 350]]);
   expect(rowsInForce(c.s.assetRecord).filter((r) => r.kind === 'SALE').map((r) => [r.date, r.shares, r.price])).toEqual([['2026-10-01', 200, 460]]);
   expect(c.s.assetRecordQuestions['st-acc-1']).toMatchObject({ events: [], lists: [] });
-  expect(c.differences).toEqual([
+  expect(c.differences).toEqual(whileOld([
     // the old copy dates the value by the sync day; the list by the broker's own update of Oct 15
     d('st-acc-1', LABEL, null, 'value date', c.syncDay, '2026-10-15'),
-  ]);
+  ]));
   // shares (300), paid (300 × $350 = $105,000) and value ($141,000) agree
 });
 
@@ -103,10 +107,10 @@ test('(3) nothing held, then a broker sending only an average price: 500 MSFT at
   expect(c.looked).toEqual({ accounts: 1, holdings: 1 });
   // one line at the average, with no date — never the sync day, never $0
   expect(openPurchases(c.s.assetRecord, 'st-acc-1', 'MSFT').map((o) => [o.date, o.shares, o.price])).toEqual([[null, 500, 350]]);
-  expect(c.differences).toEqual([
+  expect(c.differences).toEqual(whileOld([
     // the old copy dates the value by the sync day; the list by the broker's own update of Sept 15
     d('st-acc-1', LABEL, null, 'value date', c.syncDay, '2026-09-15'),
-  ]);
+  ]));
 });
 
 test('(4) nothing held, then a broker with tax lots but no history: one tax lot of 500 MSFT bought Jul 30 at $350, worth $225,000', async () => {
@@ -116,10 +120,10 @@ test('(4) nothing held, then a broker with tax lots but no history: one tax lot 
   expect(c.looked).toEqual({ accounts: 1, holdings: 1 });
   // the broker's tax lot says what is held and what was paid
   expect(openPurchases(c.s.assetRecord, 'st-acc-1', 'MSFT').map((o) => [o.date, o.shares, o.price])).toEqual([['2026-07-30', 500, 350]]);
-  expect(c.differences).toEqual([
+  expect(c.differences).toEqual(whileOld([
     // the old copy dates the value by the sync day; the list by the broker's own update of Sept 15
     d('st-acc-1', LABEL, null, 'value date', c.syncDay, '2026-09-15'),
-  ]);
+  ]));
 });
 
 test('(5) typed by hand: 500 MSFT bought Jul 28 at $350 at Robinhood, then linked; the broker says Jul 30 — the typed date stays and is asked', async () => {
@@ -145,13 +149,13 @@ test('(5) typed by hand: 500 MSFT bought Jul 28 at $350 at Robinhood, then linke
   expect(openPurchases(c.s.assetRecord, id, 'MSFT').map((o) => [o.date, o.shares, o.price])).toEqual([['2026-07-28', 500, 350]]);
   const asked = c.s.assetRecordQuestions[id].events;
   expect(asked.map((q: any) => [q.why, q.onRecord.source, q.onRecord.date, q.arriving.source, q.arriving.date])).toEqual([['date', 'typed', '2026-07-28', 'linked', '2026-07-30']]);
-  expect(c.differences).toEqual([
+  expect(c.differences).toEqual(whileOld([
     // the old copy WIPED the typed Jul 28 with the broker's Jul 30 (the fault his ruling fixes: a broker update never wipes
     // a purchase date the account holder typed); the list keeps Jul 28 and asks
     d(id, LABEL, 'MSFT', 'purchase dates', '2026-07-30', '2026-07-28'),
     // the old copy dates the value by the sync day; the list by the broker's own update of Sept 15
     d(id, LABEL, null, 'value date', c.syncDay, '2026-09-15'),
-  ]);
+  ]));
   // the value now agrees: $225,000 from the broker on both sides
 });
 
@@ -181,8 +185,8 @@ test('(6) a phone that synced before today: old copies hold 500 MSFT with its hi
   expect(c.s.assetRecord.some((r: any) => r.source === 'linked' && r.kind === 'PURCHASE' && r.date === '2026-07-30' && r.shares === 500 && r.ref != null)).toBe(true);
   expect(c.looked).toEqual({ accounts: 1, holdings: 1 });
   expect(openPurchases(c.s.assetRecord, 'st-acc-1', 'MSFT').map((o) => [o.date, o.shares, o.price])).toEqual([['2026-07-30', 500, 350]]);
-  expect(c.differences).toEqual([
+  expect(c.differences).toEqual(whileOld([
     // the old copy dates the value by the sync day; the list by the broker's own update of Sept 15
     d('st-acc-1', LABEL, null, 'value date', c.syncDay, '2026-09-15'),
-  ]);
+  ]));
 });

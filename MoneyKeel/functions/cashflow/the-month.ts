@@ -57,7 +57,7 @@ export interface TheMonth {
  *
  * Called by ... MK-CF-F-203 MONTH
  *
- * Reaches ..... 637 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 689 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -67,7 +67,7 @@ export interface TheMonth {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 619 more — the full list is on functions_from_code
+ *               … and 671 more — the full list is on functions_from_code
  *
  * Serves ...... MK-CF-M-001 · MK-CF-M-002 · MK-CF-M-003 · MK-CF-M-004
  *               MK-CF-M-013 · MK-CF-M-014 · MK-CF-M-015 · MK-CF-M-020
@@ -181,7 +181,7 @@ const GIVEN =
  *               MK-PF-F-045 priceHistoryShortSentence · MK-PL-F-036 weighGoals
  *               MK-XS-F-004 buildDatedGrid
  *
- * Reaches ..... 637 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 689 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -191,7 +191,7 @@ const GIVEN =
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 619 more — the full list is on functions_from_code
+ *               … and 671 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -222,14 +222,15 @@ const MONTH = () => theMonth(EXAMPLE);
  *               MK-NW-F-167 COMPARE · MK-NW-F-185 valueChanged
  *               MK-NW-F-265 historyPurchaseRow · MK-NW-F-277 purchasesFromList
  *               MK-NW-F-283 splitsBetween · MK-NW-F-284 activityOf
- *               MK-NW-F-345 accountWalksShown · MK-NW-O-003 theNetWorth
- *               MK-NW-O-008 thePerformance · MK-PF-F-015 topHoldingConcentration
- *               MK-PF-F-035 unknownFigure · MK-PF-F-053 isBroadIndexOption
- *               MK-ST-F-081 timeWeightedReturn · MK-XS-F-002 dataGaps
- *               MK-XS-F-004 buildDatedGrid · MK-XS-F-058 parseReceipt
- *               MK-XS-F-094 parseReceiptText · MK-XS-F-096 pickReceipt
+ *               MK-NW-F-345 accountWalksShown · MK-NW-F-412 priceFromDay
+ *               MK-NW-O-003 theNetWorth · MK-NW-O-008 thePerformance
+ *               MK-PF-F-015 topHoldingConcentration · MK-PF-F-035 unknownFigure
+ *               MK-PF-F-053 isBroadIndexOption · MK-ST-F-081 timeWeightedReturn
+ *               MK-XS-F-002 dataGaps · MK-XS-F-004 buildDatedGrid
+ *               MK-XS-F-058 parseReceipt · MK-XS-F-094 parseReceiptText
+ *               MK-XS-F-096 pickReceipt
  *
- * Reaches ..... 637 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 689 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -239,7 +240,7 @@ const MONTH = () => theMonth(EXAMPLE);
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 619 more — the full list is on functions_from_code
+ *               … and 671 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)

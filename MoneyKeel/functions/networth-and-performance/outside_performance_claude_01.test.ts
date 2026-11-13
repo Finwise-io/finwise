@@ -261,11 +261,14 @@ describe('MK-NW-O-008 thePerformance — five cases', () => {
   test('edge · No record at all — the app\'s Return: the holding with a price history, not refused (DEC-5068)', () => {
     // VTI now $105,000, its start $105,000 ÷ (1 + r): Return = 105,000 ÷ start − 1 = r; a 3-month window, never yearly
     const r = workedBackRun(0.05);
-    expect(r.ret!).toBeCloseTo(0.05, 12);
+    // DEC-10982 (2026-11-12): no money in or out, so Return = (ending − beginning) ÷ beginning on the walk, the cash in it —
+    // ending $106,200, VTI's $5,000 gain (its dividend inside it, counted once, DEC-4644), beginning $101,200: 5,000 ÷ 101,200 = +4.94%
+    expect(r.ret!).toBeCloseTo((106200 - 101200) / 101200, 12);
     expect(r.perYear).toBeNull();
     expect(r.ending).toBe(106200);
     const adjusted = 105 / (100 * (1 - 1.2 / 100)) - 1;
-    expect(workedBackRun(adjusted).ret!).toBeCloseTo(adjusted, 12);   // 6.2753%
+    // with the feed's adjusted 6.2753%: VTI's start $98,800, gain $6,200, beginning $100,000 → 6,200 ÷ 100,000 = +6.20% (DEC-10982)
+    expect(workedBackRun(adjusted).ret!).toBeCloseTo(6200 / 100000, 9);
   });
   test('edge · The 5% read as the feed gives it — a total return, the dividend inside it once (DEC-4644)', () => {
     const w = workedBack(0.05);

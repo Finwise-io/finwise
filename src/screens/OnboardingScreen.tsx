@@ -281,7 +281,8 @@ export default function OnboardingScreen() {
         keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag" showsVerticalScrollIndicator>
         {renderBody()}
 
-        {isOptionalStep && !PRE_ANSWERED_STEPS.has(current as any) && (
+        {/* once the two codes are made the invite step carries no Skip (invite-and-join v01, state B, 2026-11-12) */}
+        {isOptionalStep && !PRE_ANSWERED_STEPS.has(current as any) && !(current === 'invitePartner' && !!answers.inviteCode) && (
           <TouchableOpacity hitSlop={Tap.slop} onPress={advance} style={{ alignSelf: 'center', paddingVertical: Spacing.sm }}>
             <Text style={styles.link}>Skip for now</Text>
           </TouchableOpacity>

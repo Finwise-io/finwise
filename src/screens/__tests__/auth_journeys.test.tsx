@@ -8,7 +8,7 @@ import { router } from 'expo-router';
 import { useStore } from '../../store/useStore';
 import AuthScreen from '../AuthScreen';
 import {
-  loginUser, registerUser, resetPassword, lookupInvite, joinHouseholdMembership, setUserHousehold,
+  loginUser, registerUser, resetPassword, checkInviteCodes, joinHouseholdWithKeyCode,
 } from '../../services/firebase';
 
 beforeEach(() => {
@@ -45,9 +45,9 @@ test('login-needs-recovery: opens the recovery-code restore prompt instead of Ho
   expect(router.replace).not.toHaveBeenCalledWith('/(tabs)/home');
 });
 
-test('signup + spouse-invite: joins the shared household and routes Home', async () => {
+test('signup + spouse-invite (R13, 2026-11-12): the invite code AND the key code are checked, then the household is joined and routes Home', async () => {
   (registerUser as jest.Mock).mockResolvedValue({ user: { uid: 'u2' }, recoveryCode: 'REC-CODE' });
-  (lookupInvite as jest.Mock).mockResolvedValue({ householdId: 'h1', inviterName: 'Sam' });
+  (checkInviteCodes as jest.Mock).mockResolvedValue({ status: 'ok', householdId: 'h1', inviterName: 'Sam', expiresAt: null });
   const { getByText, getByPlaceholderText } = render(<AuthScreen />);
   fireEvent.press(getByText(/Create account/));   // switch login → register
   fireEvent.changeText(getByPlaceholderText('Alex Johnson'), 'Pat');
@@ -55,10 +55,11 @@ test('signup + spouse-invite: joins the shared household and routes Home', async
   fireEvent.changeText(getByPlaceholderText('At least 8 characters'), 'hunter2pass');
   fireEvent.changeText(getByPlaceholderText('Repeat your password'), 'hunter2pass');
   fireEvent.changeText(getByPlaceholderText('Have a code from your spouse?'), 'k7m2qx');
+  fireEvent.changeText(getByPlaceholderText('XXXX-XXXX-XXXX-XXXX-XXXX'), 'q7rm-k2xd-8wpa-hn4c-t6vj');
   fireEvent.press(getByText('Create account'));    // submit (register button)
   await waitFor(() => expect(registerUser).toHaveBeenCalled());
-  await waitFor(() => expect(joinHouseholdMembership).toHaveBeenCalledWith('u2', 'h1', 'K7M2QX'));
-  expect(setUserHousehold).toHaveBeenCalledWith('u2', 'h1');
+  await waitFor(() => expect(joinHouseholdWithKeyCode).toHaveBeenCalledWith('u2', 'K7M2QX', 'Q7RM-K2XD-8WPA-HN4C-T6VJ', 'hunter2pass', 'REC-CODE', 'Pat'));
+  expect(checkInviteCodes).toHaveBeenCalledWith('K7M2QX', 'Q7RM-K2XD-8WPA-HN4C-T6VJ');
   await waitFor(() => expect(router.replace).toHaveBeenCalledWith('/(tabs)/home'));
 });
 

@@ -134,6 +134,11 @@ export interface AssetRow {
   facts?: Record<string, unknown>;
   /** The broker's own word for the event, kept as sent. */
   word?: string;
+  /** A broker's money the kind names one way that went the other (a dividend or interest that LEFT, a fee that came IN):
+   *  the kind it reverses and the way the money went. Kept on an OTHER row so the activity reads it as the broker sent it
+   *  and the cash moves by it, never counted as income or a cost the wrong way (switch gap, 2026-11-13: −$50 read $0). */
+  reversalOf?: 'DIVIDEND' | 'INTEREST' | 'FEE';
+  direction?: 'IN' | 'OUT';
   /** The broker's own key for the event (or, for a file's row, one made from the row), so the same event sent twice is saved once. */
   ref?: string;
   /** On a row an answer of the account holder wrote: the name of the question it answers (questionName — no figures),
@@ -233,17 +238,17 @@ export function tagOfRowName(rowId: string): string | null { const m = /^([a-z0-
  *
  * Called by ... MK-NW-F-233 addRows · MK-XS-F-282 mergeRecord
  *
- * Reaches ..... 51 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-289 activityRefs · MK-NW-F-233 addRows
+ * Reaches ..... 126 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS · MK-CF-F-205 COMING
+ *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
+ *               MK-CF-F-237 LATER · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-296 LOAD · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-289 activityRefs
+ *               MK-NW-F-233 addRows · MK-NW-F-399 after
  *               MK-NW-F-342 afterAWrite · MK-NW-F-273 answerEventQuestion
- *               MK-NW-F-278 answerListQuestion · MK-NW-F-337 answerQuestion
- *               MK-NW-F-248 answerValuesQuestion · MK-NW-F-218 arrive
- *               MK-NW-F-275 besideTheList · MK-NW-F-194 brokerUpdateToRecord
- *               MK-NW-F-326 confirmMyChangeQuestion · MK-NW-F-219 correct
- *               MK-NW-F-281 correctRow · MK-XS-F-002 dataGaps
- *               MK-NW-F-279 differsFromGiven · MK-NW-F-325 editQuestionToAsk
- *               MK-NW-F-317 eventQuestionToAsk · MK-NW-F-271 eventsThatDiffer
- *               … and 33 more — the full list is on functions_from_code
+ *               … and 108 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -275,18 +280,20 @@ const POSITIONS = new WeakMap<readonly AssetRow[], { length: number; at: Map<str
  * Called by ... MK-NW-F-243 theLater · MK-NW-F-251 oldestLotFirst
  *               MK-NW-F-252 walkHolding · MK-NW-F-284 activityOf
  *               MK-NW-F-285 factsOf · MK-NW-F-339 settleTwoPhones
+ *               MK-NW-F-359 moneyAfter · MK-NW-F-372 transactionsReadOut
+ *               MK-NW-F-421 marketValueEmptied
  *
- * Reaches ..... 77 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 168 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS · MK-CF-F-205 COMING
+ *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
+ *               MK-CF-F-237 LATER · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-296 LOAD · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-365 accountReadOut
+ *               MK-NW-F-410 accountValueDay · MK-NW-F-367 accountsReadOut
  *               MK-NW-F-284 activityOf · MK-NW-F-289 activityRefs
- *               MK-NW-F-342 afterAWrite · MK-NW-F-273 answerEventQuestion
- *               MK-NW-F-278 answerListQuestion · MK-NW-F-337 answerQuestion
- *               MK-NW-F-248 answerValuesQuestion · MK-NW-F-218 arrive
- *               MK-NW-F-275 besideTheList · MK-NW-F-194 brokerUpdateToRecord
- *               MK-XS-F-307 composeNames · MK-NW-F-326 confirmMyChangeQuestion
- *               MK-NW-F-219 correct · MK-NW-F-281 correctRow
- *               MK-XS-F-002 dataGaps · MK-NW-F-279 differsFromGiven
- *               MK-NW-F-325 editQuestionToAsk · MK-NW-F-317 eventQuestionToAsk
- *               … and 59 more — the full list is on functions_from_code
+ *               … and 150 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -337,17 +344,17 @@ export function rowPosition(record: readonly AssetRow[]): (rowId: string | null 
  *               MK-NW-F-335 writeAnswer · MK-NW-F-338 newerListUndoes
  *               MK-NW-F-356 optionOfLine
  *
- * Reaches ..... 84 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-214 accountValueRows · MK-NW-F-289 activityRefs
- *               MK-NW-F-233 addRows · MK-NW-F-342 afterAWrite
- *               MK-NW-F-273 answerEventQuestion · MK-NW-F-278 answerListQuestion
- *               MK-NW-F-337 answerQuestion · MK-NW-F-248 answerValuesQuestion
- *               MK-NW-F-218 arrive · MK-NW-F-268 arrivingKey
- *               MK-NW-F-296 askWhich · MK-NW-F-275 besideTheList
- *               MK-NW-F-194 brokerUpdateToRecord · MK-NW-F-326 confirmMyChangeQuestion
- *               MK-NW-F-219 correct · MK-NW-F-281 correctRow
- *               MK-XS-F-002 dataGaps · MK-NW-F-208 dateAsGiven
- *               … and 66 more — the full list is on functions_from_code
+ * Reaches ..... 159 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS · MK-CF-F-205 COMING
+ *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
+ *               MK-CF-F-237 LATER · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-296 LOAD · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-214 accountValueRows
+ *               MK-NW-F-289 activityRefs · MK-NW-F-233 addRows
+ *               MK-NW-F-399 after · MK-NW-F-342 afterAWrite
+ *               … and 141 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -374,17 +381,17 @@ export function dayOrNull(v: unknown): string | null {
  * Called by ... MK-NW-F-233 addRows · MK-NW-F-275 besideTheList
  *               MK-NW-F-281 correctRow
  *
- * Reaches ..... 51 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-289 activityRefs · MK-NW-F-233 addRows
+ * Reaches ..... 126 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS · MK-CF-F-205 COMING
+ *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
+ *               MK-CF-F-237 LATER · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-296 LOAD · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-289 activityRefs
+ *               MK-NW-F-233 addRows · MK-NW-F-399 after
  *               MK-NW-F-342 afterAWrite · MK-NW-F-273 answerEventQuestion
- *               MK-NW-F-278 answerListQuestion · MK-NW-F-337 answerQuestion
- *               MK-NW-F-248 answerValuesQuestion · MK-NW-F-218 arrive
- *               MK-NW-F-275 besideTheList · MK-NW-F-194 brokerUpdateToRecord
- *               MK-NW-F-326 confirmMyChangeQuestion · MK-NW-F-219 correct
- *               MK-NW-F-281 correctRow · MK-XS-F-002 dataGaps
- *               MK-NW-F-279 differsFromGiven · MK-NW-F-325 editQuestionToAsk
- *               MK-NW-F-317 eventQuestionToAsk · MK-NW-F-271 eventsThatDiffer
- *               … and 33 more — the full list is on functions_from_code
+ *               … and 108 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -406,17 +413,17 @@ const wasGiven = (v: unknown): v is string => typeof v === 'string' && v.trim() 
  *               MK-NW-F-284 activityOf · MK-NW-F-285 factsOf
  *               MK-NW-F-322 answerFactsOf · MK-NW-F-339 settleTwoPhones
  *
- * Reaches ..... 78 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 167 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS · MK-CF-F-205 COMING
+ *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
+ *               MK-CF-F-237 LATER · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-296 LOAD · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-365 accountReadOut
+ *               MK-NW-F-410 accountValueDay · MK-NW-F-367 accountsReadOut
  *               MK-NW-F-284 activityOf · MK-NW-F-289 activityRefs
- *               MK-NW-F-342 afterAWrite · MK-NW-F-273 answerEventQuestion
- *               MK-NW-F-322 answerFactsOf · MK-NW-F-278 answerListQuestion
- *               MK-NW-F-337 answerQuestion · MK-NW-F-248 answerValuesQuestion
- *               MK-NW-F-323 answeredAlready · MK-NW-F-218 arrive
- *               MK-NW-F-275 besideTheList · MK-NW-F-194 brokerUpdateToRecord
- *               MK-XS-F-307 composeNames · MK-NW-F-326 confirmMyChangeQuestion
- *               MK-NW-F-219 correct · MK-NW-F-281 correctRow
- *               MK-XS-F-002 dataGaps · MK-NW-F-279 differsFromGiven
- *               … and 60 more — the full list is on functions_from_code
+ *               … and 149 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -448,19 +455,22 @@ const instantOf = (stamp: string): number => { const t = Date.parse(stamp); retu
  *               MK-NW-F-285 factsOf · MK-NW-F-289 activityRefs
  *               MK-NW-F-297 valueOnlyHoldingName · MK-NW-F-312 optionDetailsOf
  *               MK-NW-F-317 eventQuestionToAsk · MK-NW-F-338 newerListUndoes
- *               MK-NW-F-340 oneQuestionPerExercise
+ *               MK-NW-F-340 oneQuestionPerExercise · MK-NW-F-365 accountReadOut
+ *               MK-NW-F-368 perContractOf · MK-NW-F-369 quotedFactor
+ *               MK-NW-F-380 oldActivityWords · MK-NW-F-381 readOutDifferences
+ *               MK-NW-F-382 explainedDifference · MK-NW-F-419 fileLessRecordedTrades
  *
- * Reaches ..... 92 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-284 activityOf · MK-NW-F-289 activityRefs
- *               MK-NW-F-233 addRows · MK-NW-F-342 afterAWrite
- *               MK-NW-F-273 answerEventQuestion · MK-NW-F-278 answerListQuestion
- *               MK-NW-F-337 answerQuestion · MK-NW-F-248 answerValuesQuestion
- *               MK-NW-F-218 arrive · MK-NW-F-268 arrivingKey
- *               MK-NW-F-296 askWhich · MK-NW-F-275 besideTheList
- *               MK-NW-F-194 brokerUpdateToRecord · MK-XS-F-307 composeNames
- *               MK-NW-F-326 confirmMyChangeQuestion · MK-NW-F-219 correct
- *               MK-NW-F-281 correctRow · MK-XS-F-002 dataGaps
- *               … and 74 more — the full list is on functions_from_code
+ * Reaches ..... 184 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS · MK-CF-F-205 COMING
+ *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
+ *               MK-CF-F-237 LATER · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-296 LOAD · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-365 accountReadOut
+ *               MK-NW-F-367 accountsReadOut · MK-NW-F-284 activityOf
+ *               MK-NW-F-289 activityRefs · MK-NW-F-233 addRows
+ *               … and 166 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -505,18 +515,19 @@ export const oneHoldingSpelling = (h: string | null | undefined): string | null 
  *               MK-NW-F-281 correctRow · MK-NW-F-289 activityRefs
  *               MK-NW-F-319 listQuestionToAsk · MK-NW-F-337 answerQuestion
  *               MK-NW-F-339 settleTwoPhones · MK-NW-F-342 afterAWrite
+ *               MK-NW-F-409 answersShown
  *
- * Reaches ..... 50 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-289 activityRefs · MK-NW-F-342 afterAWrite
+ * Reaches ..... 125 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS · MK-CF-F-205 COMING
+ *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
+ *               MK-CF-F-237 LATER · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-296 LOAD · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-289 activityRefs
+ *               MK-NW-F-399 after · MK-NW-F-342 afterAWrite
  *               MK-NW-F-273 answerEventQuestion · MK-NW-F-278 answerListQuestion
- *               MK-NW-F-337 answerQuestion · MK-NW-F-248 answerValuesQuestion
- *               MK-NW-F-218 arrive · MK-NW-F-275 besideTheList
- *               MK-NW-F-194 brokerUpdateToRecord · MK-NW-F-326 confirmMyChangeQuestion
- *               MK-NW-F-219 correct · MK-NW-F-281 correctRow
- *               MK-XS-F-002 dataGaps · MK-NW-F-279 differsFromGiven
- *               MK-NW-F-325 editQuestionToAsk · MK-NW-F-317 eventQuestionToAsk
- *               MK-NW-F-271 eventsThatDiffer · MK-NW-F-201 fileRowsToSave
- *               … and 32 more — the full list is on functions_from_code
+ *               … and 107 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -576,33 +587,40 @@ export function addRows(record: readonly AssetRow[], rows: readonly NewRow[], wr
  *
  * Called by ... MK-NW-F-194 brokerUpdateToRecord · MK-NW-F-201 fileRowsToSave
  *               MK-NW-F-205 priceFeedValues · MK-NW-F-216 rowOfLot
- *               MK-NW-F-224 typedChangeToRecord · MK-NW-F-228 moveOldCopies
- *               MK-NW-F-233 addRows · MK-NW-F-236 rowAsItStands
- *               MK-NW-F-238 sortArriving · MK-NW-F-242 valueBatchesOf
- *               MK-NW-F-247 valuesThatDiffer · MK-NW-F-252 walkHolding
- *               MK-NW-F-256 salesNeedingAnAnswer · MK-NW-F-257 typedSalesTheListContradicts
- *               MK-NW-F-263 sharesThatDisagree · MK-NW-F-266 listAnswered
- *               MK-NW-F-269 eventAnswers · MK-NW-F-272 salesMovedBy
- *               MK-NW-F-273 answerEventQuestion · MK-NW-F-277 purchasesFromList
- *               MK-NW-F-279 differsFromGiven · MK-NW-F-281 correctRow
- *               MK-NW-F-283 splitsBetween · MK-NW-F-284 activityOf
- *               MK-NW-F-285 factsOf · MK-NW-F-293 keptAwayByEvent
- *               MK-NW-F-294 removalKept · MK-NW-F-296 askWhich
- *               MK-NW-F-322 answerFactsOf · MK-NW-F-324 questionsOf
- *               MK-NW-F-328 keyOldAnswers · MK-NW-F-335 writeAnswer
- *               MK-NW-F-338 newerListUndoes · MK-NW-F-339 settleTwoPhones
+ *               MK-NW-F-221 lotsFollow · MK-NW-F-224 typedChangeToRecord
+ *               MK-NW-F-228 moveOldCopies · MK-NW-F-233 addRows
+ *               MK-NW-F-236 rowAsItStands · MK-NW-F-238 sortArriving
+ *               MK-NW-F-242 valueBatchesOf · MK-NW-F-247 valuesThatDiffer
+ *               MK-NW-F-252 walkHolding · MK-NW-F-256 salesNeedingAnAnswer
+ *               MK-NW-F-257 typedSalesTheListContradicts · MK-NW-F-263 sharesThatDisagree
+ *               MK-NW-F-266 listAnswered · MK-NW-F-269 eventAnswers
+ *               MK-NW-F-272 salesMovedBy · MK-NW-F-273 answerEventQuestion
+ *               MK-NW-F-277 purchasesFromList · MK-NW-F-279 differsFromGiven
+ *               MK-NW-F-281 correctRow · MK-NW-F-283 splitsBetween
+ *               MK-NW-F-284 activityOf · MK-NW-F-285 factsOf
+ *               MK-NW-F-293 keptAwayByEvent · MK-NW-F-294 removalKept
+ *               MK-NW-F-296 askWhich · MK-NW-F-322 answerFactsOf
+ *               MK-NW-F-324 questionsOf · MK-NW-F-328 keyOldAnswers
+ *               MK-NW-F-335 writeAnswer · MK-NW-F-338 newerListUndoes
+ *               MK-NW-F-339 settleTwoPhones · MK-NW-F-358 movedAt
+ *               MK-NW-F-359 moneyAfter · MK-NW-F-361 valueToday
+ *               MK-NW-F-362 heldOnRecord · MK-NW-F-365 accountReadOut
+ *               MK-NW-F-371 transactionOf · MK-NW-F-372 transactionsReadOut
+ *               MK-NW-F-382 explainedDifference · MK-NW-F-400 choiceMakes
+ *               MK-NW-F-408 answerWords · MK-NW-F-409 answersShown
+ *               MK-NW-F-419 fileLessRecordedTrades · MK-NW-F-421 marketValueEmptied
  *
- * Reaches ..... 92 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 189 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS · MK-CF-F-205 COMING
+ *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
+ *               MK-CF-F-237 LATER · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-296 LOAD · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-365 accountReadOut
+ *               MK-NW-F-410 accountValueDay · MK-NW-F-367 accountsReadOut
  *               MK-NW-F-284 activityOf · MK-NW-F-289 activityRefs
- *               MK-NW-F-233 addRows · MK-NW-F-342 afterAWrite
- *               MK-NW-F-273 answerEventQuestion · MK-NW-F-322 answerFactsOf
- *               MK-NW-F-278 answerListQuestion · MK-NW-F-337 answerQuestion
- *               MK-NW-F-248 answerValuesQuestion · MK-NW-F-323 answeredAlready
- *               MK-NW-F-218 arrive · MK-NW-F-296 askWhich
- *               MK-NW-F-275 besideTheList · MK-NW-F-194 brokerUpdateToRecord
- *               MK-XS-F-307 composeNames · MK-NW-F-326 confirmMyChangeQuestion
- *               MK-NW-F-219 correct · MK-NW-F-281 correctRow
- *               … and 74 more — the full list is on functions_from_code
+ *               … and 171 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -659,17 +677,17 @@ export const twoCorrectionsName = (rowId: string): string => `two-corrections|${
  *
  * Called by ... MK-NW-F-233 addRows · MK-NW-F-354 competingCorrections
  *
- * Reaches ..... 95 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 192 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS · MK-CF-F-205 COMING
+ *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
+ *               MK-CF-F-237 LATER · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-296 LOAD · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-365 accountReadOut
+ *               MK-NW-F-410 accountValueDay · MK-NW-F-367 accountsReadOut
  *               MK-NW-F-284 activityOf · MK-NW-F-289 activityRefs
- *               MK-NW-F-233 addRows · MK-NW-F-342 afterAWrite
- *               MK-NW-F-273 answerEventQuestion · MK-NW-F-322 answerFactsOf
- *               MK-NW-F-278 answerListQuestion · MK-NW-F-337 answerQuestion
- *               MK-NW-F-248 answerValuesQuestion · MK-NW-F-323 answeredAlready
- *               MK-NW-F-218 arrive · MK-NW-F-296 askWhich
- *               MK-NW-F-275 besideTheList · MK-NW-F-194 brokerUpdateToRecord
- *               MK-NW-F-354 competingCorrections · MK-XS-F-307 composeNames
- *               MK-NW-F-326 confirmMyChangeQuestion · MK-NW-F-219 correct
- *               … and 77 more — the full list is on functions_from_code
+ *               … and 174 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -690,17 +708,17 @@ const isTwoCorrectionsAnswer = (r: Pick<AssetRow, 'answerTo'>): boolean => typeo
  *
  * Called by ... MK-NW-F-234 rowsInForce · MK-NW-F-354 competingCorrections
  *
- * Reaches ..... 95 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 192 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS · MK-CF-F-205 COMING
+ *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
+ *               MK-CF-F-237 LATER · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-296 LOAD · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-365 accountReadOut
+ *               MK-NW-F-410 accountValueDay · MK-NW-F-367 accountsReadOut
  *               MK-NW-F-284 activityOf · MK-NW-F-289 activityRefs
- *               MK-NW-F-233 addRows · MK-NW-F-342 afterAWrite
- *               MK-NW-F-273 answerEventQuestion · MK-NW-F-322 answerFactsOf
- *               MK-NW-F-278 answerListQuestion · MK-NW-F-337 answerQuestion
- *               MK-NW-F-248 answerValuesQuestion · MK-NW-F-323 answeredAlready
- *               MK-NW-F-218 arrive · MK-NW-F-296 askWhich
- *               MK-NW-F-275 besideTheList · MK-NW-F-194 brokerUpdateToRecord
- *               MK-NW-F-354 competingCorrections · MK-XS-F-307 composeNames
- *               MK-NW-F-326 confirmMyChangeQuestion · MK-NW-F-219 correct
- *               … and 77 more — the full list is on functions_from_code
+ *               … and 174 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -736,17 +754,17 @@ function replacersOf(record: readonly AssetRow[]): Map<string, AssetRow[]> {
  *
  * Called by ... MK-NW-F-234 rowsInForce · MK-NW-F-355 keepOneCorrection
  *
- * Reaches ..... 94 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 191 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS · MK-CF-F-205 COMING
+ *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
+ *               MK-CF-F-237 LATER · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-296 LOAD · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-365 accountReadOut
+ *               MK-NW-F-410 accountValueDay · MK-NW-F-367 accountsReadOut
  *               MK-NW-F-284 activityOf · MK-NW-F-289 activityRefs
- *               MK-NW-F-233 addRows · MK-NW-F-342 afterAWrite
- *               MK-NW-F-273 answerEventQuestion · MK-NW-F-322 answerFactsOf
- *               MK-NW-F-278 answerListQuestion · MK-NW-F-337 answerQuestion
- *               MK-NW-F-248 answerValuesQuestion · MK-NW-F-323 answeredAlready
- *               MK-NW-F-218 arrive · MK-NW-F-296 askWhich
- *               MK-NW-F-275 besideTheList · MK-NW-F-194 brokerUpdateToRecord
- *               MK-XS-F-307 composeNames · MK-NW-F-326 confirmMyChangeQuestion
- *               MK-NW-F-219 correct · MK-NW-F-281 correctRow
- *               … and 76 more — the full list is on functions_from_code
+ *               … and 173 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -832,17 +850,17 @@ export function keepOneCorrection(record: readonly AssetRow[], rowId: string, ke
  *               MK-NW-F-326 confirmMyChangeQuestion · MK-NW-F-328 keyOldAnswers
  *               MK-NW-F-335 writeAnswer · MK-NW-F-336 stillAsked
  *
- * Reaches ..... 82 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 171 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS · MK-CF-F-205 COMING
+ *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
+ *               MK-CF-F-237 LATER · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-296 LOAD · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-365 accountReadOut
+ *               MK-NW-F-410 accountValueDay · MK-NW-F-367 accountsReadOut
  *               MK-NW-F-284 activityOf · MK-NW-F-289 activityRefs
- *               MK-NW-F-342 afterAWrite · MK-NW-F-273 answerEventQuestion
- *               MK-NW-F-278 answerListQuestion · MK-NW-F-337 answerQuestion
- *               MK-NW-F-248 answerValuesQuestion · MK-NW-F-218 arrive
- *               MK-NW-F-275 besideTheList · MK-NW-F-194 brokerUpdateToRecord
- *               MK-XS-F-307 composeNames · MK-NW-F-326 confirmMyChangeQuestion
- *               MK-NW-F-219 correct · MK-NW-F-281 correctRow
- *               MK-XS-F-002 dataGaps · MK-NW-F-279 differsFromGiven
- *               MK-NW-F-325 editQuestionToAsk · MK-NW-F-317 eventQuestionToAsk
- *               … and 64 more — the full list is on functions_from_code
+ *               … and 153 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -883,19 +901,22 @@ function firstRowOf(record: readonly AssetRow[]): (rowId: string) => AssetRow | 
  *               MK-NW-F-320 saleQuestionToAsk · MK-NW-F-324 questionsOf
  *               MK-NW-F-325 editQuestionToAsk · MK-NW-F-326 confirmMyChangeQuestion
  *               MK-NW-F-329 undoAnswer · MK-NW-F-333 sharesToStated
- *               MK-NW-F-335 writeAnswer
+ *               MK-NW-F-335 writeAnswer · MK-NW-F-400 choiceMakes
+ *               MK-NW-F-403 firstSourceOf · MK-NW-F-407 enteredOverGiven
+ *               MK-NW-F-408 answerWords · MK-NW-F-413 questionLotDate
+ *               MK-NW-F-414 saleNotKnownWords
  *
- * Reaches ..... 63 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-289 activityRefs · MK-NW-F-342 afterAWrite
+ * Reaches ..... 141 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS · MK-CF-F-205 COMING
+ *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
+ *               MK-CF-F-237 LATER · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-296 LOAD · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-289 activityRefs
+ *               MK-NW-F-399 after · MK-NW-F-342 afterAWrite
  *               MK-NW-F-273 answerEventQuestion · MK-NW-F-278 answerListQuestion
- *               MK-NW-F-337 answerQuestion · MK-NW-F-248 answerValuesQuestion
- *               MK-NW-F-218 arrive · MK-NW-F-275 besideTheList
- *               MK-NW-F-194 brokerUpdateToRecord · MK-XS-F-307 composeNames
- *               MK-NW-F-326 confirmMyChangeQuestion · MK-NW-F-219 correct
- *               MK-NW-F-281 correctRow · MK-XS-F-002 dataGaps
- *               MK-NW-F-279 differsFromGiven · MK-NW-F-325 editQuestionToAsk
- *               MK-NW-F-317 eventQuestionToAsk · MK-NW-F-271 eventsThatDiffer
- *               … and 45 more — the full list is on functions_from_code
+ *               … and 123 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -927,17 +948,17 @@ const EVENT_KINDS: ReadonlySet<RowKind> = new Set<RowKind>(['PURCHASE', 'SALE', 
  *               MK-NW-F-325 editQuestionToAsk · MK-NW-F-327 sameFigures
  *               MK-NW-F-330 undoAskQuestion · MK-NW-F-343 lotChange
  *
- * Reaches ..... 41 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-289 activityRefs · MK-NW-F-342 afterAWrite
+ * Reaches ..... 110 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS · MK-CF-F-205 COMING
+ *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
+ *               MK-CF-F-237 LATER · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-296 LOAD · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-289 activityRefs
+ *               MK-NW-F-399 after · MK-NW-F-342 afterAWrite
  *               MK-NW-F-273 answerEventQuestion · MK-NW-F-278 answerListQuestion
- *               MK-NW-F-337 answerQuestion · MK-NW-F-248 answerValuesQuestion
- *               MK-NW-F-218 arrive · MK-NW-F-275 besideTheList
- *               MK-NW-F-194 brokerUpdateToRecord · MK-NW-F-326 confirmMyChangeQuestion
- *               MK-NW-F-279 differsFromGiven · MK-NW-F-325 editQuestionToAsk
- *               MK-NW-F-317 eventQuestionToAsk · MK-NW-F-271 eventsThatDiffer
- *               MK-NW-F-201 fileRowsToSave · MK-NW-F-343 lotChange
- *               MK-NW-F-221 lotsFollow · MK-XS-F-282 mergeRecord
- *               … and 23 more — the full list is on functions_from_code
+ *               … and 92 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -989,17 +1010,17 @@ const sameNumber = (x: number | null | undefined, y: number | null | undefined) 
  *               MK-XS-F-192 typedValueDatedBack · MK-XS-F-199 profileOnTheWayIn
  *               MK-XS-F-282 mergeRecord
  *
- * Reaches ..... 41 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-289 activityRefs · MK-NW-F-342 afterAWrite
+ * Reaches ..... 110 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS · MK-CF-F-205 COMING
+ *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
+ *               MK-CF-F-237 LATER · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-296 LOAD · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-289 activityRefs
+ *               MK-NW-F-399 after · MK-NW-F-342 afterAWrite
  *               MK-NW-F-273 answerEventQuestion · MK-NW-F-278 answerListQuestion
- *               MK-NW-F-337 answerQuestion · MK-NW-F-248 answerValuesQuestion
- *               MK-NW-F-218 arrive · MK-NW-F-275 besideTheList
- *               MK-NW-F-194 brokerUpdateToRecord · MK-NW-F-326 confirmMyChangeQuestion
- *               MK-NW-F-279 differsFromGiven · MK-NW-F-325 editQuestionToAsk
- *               MK-NW-F-317 eventQuestionToAsk · MK-NW-F-271 eventsThatDiffer
- *               MK-NW-F-201 fileRowsToSave · MK-NW-F-343 lotChange
- *               MK-NW-F-221 lotsFollow · MK-XS-F-282 mergeRecord
- *               … and 23 more — the full list is on functions_from_code
+ *               … and 92 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -1183,7 +1204,7 @@ export interface ValueBatch {
 
 /** The rows for one account's values on one day: one row for the account itself (its cash, the broker's total, a
  *  typed value) and one for each holding, to be saved together. */
-/* ─ MK-NW-F-241 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+/* ─ MK-NW-F-241 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * valueRows
  *
  * Answers ..... The rows for one account's values on one day: one row for the account itself (its cash, the broker's total, a typed value) and one for each holding, to be saved together.
@@ -1193,20 +1214,21 @@ export interface ValueBatch {
  *
  * Called by ... MK-NW-F-194 brokerUpdateToRecord · MK-NW-F-199 fileToRecord
  *               MK-NW-F-205 priceFeedValues · MK-NW-F-214 accountValueRows
- *               MK-NW-F-217 transactionRow · MK-NW-F-226 fileValues
- *               MK-NW-F-248 answerValuesQuestion · MK-NW-F-335 writeAnswer
+ *               MK-NW-F-217 transactionRow · MK-NW-F-224 typedChangeToRecord
+ *               MK-NW-F-226 fileValues · MK-NW-F-248 answerValuesQuestion
+ *               MK-NW-F-335 writeAnswer
  *
- * Reaches ..... 20 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-214 accountValueRows · MK-NW-F-278 answerListQuestion
- *               MK-NW-F-337 answerQuestion · MK-NW-F-248 answerValuesQuestion
- *               MK-NW-F-194 brokerUpdateToRecord · MK-NW-F-201 fileRowsToSave
- *               MK-NW-F-199 fileToRecord · MK-NW-F-226 fileValues
- *               MK-XS-F-219 importedAccountOf · MK-NW-F-228 moveOldCopies
- *               MK-NW-F-205 priceFeedValues · MK-XS-F-199 profileOnTheWayIn
- *               MK-NW-F-195 readImport · MK-NW-F-217 transactionRow
- *               MK-NW-F-222 typedAccountRows · MK-NW-F-224 typedChangeToRecord
- *               MK-XS-F-229 typedIntoRecord · MK-XS-F-192 typedValueDatedBack
- *               … and 2 more — the full list is on functions_from_code
+ * Reaches ..... 96 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS · MK-CF-F-205 COMING
+ *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
+ *               MK-CF-F-237 LATER · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-296 LOAD · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-214 accountValueRows
+ *               MK-NW-F-399 after · MK-NW-F-342 afterAWrite
+ *               MK-NW-F-278 answerListQuestion · MK-NW-F-337 answerQuestion
+ *               … and 78 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -1228,7 +1250,7 @@ export function valueRows(v: {
 }
 
 /** Every set of values saved for an account, each as it was saved together — a corrected row read in its place. */
-/* ─ MK-NW-F-242 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+/* ─ MK-NW-F-242 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * valueBatchesOf
  *
  * Answers ..... Every set of values saved for an account, each as it was saved together — a corrected row read in its place.
@@ -1243,19 +1265,22 @@ export function valueRows(v: {
  *               MK-NW-F-205 priceFeedValues · MK-NW-F-244 valuesNow
  *               MK-NW-F-245 valuesLastGiven · MK-NW-F-246 valuesOn
  *               MK-NW-F-247 valuesThatDiffer · MK-NW-F-249 valuesNeedingADate
- *               MK-NW-F-321 latestListDayOf
+ *               MK-NW-F-321 latestListDayOf · MK-NW-F-361 valueToday
+ *               MK-NW-F-374 daysReadOut · MK-NW-F-385 screensReadTheRecord
+ *               MK-NW-F-391 whoSaysFor · MK-NW-F-410 accountValueDay
+ *               MK-NW-F-411 holdingPriceDay
  *
- * Reaches ..... 21 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-342 afterAWrite · MK-NW-F-278 answerListQuestion
- *               MK-NW-F-337 answerQuestion · MK-NW-F-248 answerValuesQuestion
- *               MK-NW-F-194 brokerUpdateToRecord · MK-NW-F-201 fileRowsToSave
- *               MK-NW-F-321 latestListDayOf · MK-NW-F-205 priceFeedValues
- *               MK-XS-F-199 profileOnTheWayIn · MK-NW-F-324 questionsOf
- *               MK-NW-F-341 questionsStillTrue · MK-NW-F-263 sharesThatDisagree
- *               MK-NW-F-336 stillAsked · MK-XS-F-229 typedIntoRecord
- *               MK-XS-F-192 typedValueDatedBack · MK-NW-F-245 valuesLastGiven
- *               MK-NW-F-249 valuesNeedingADate · MK-NW-F-244 valuesNow
- *               … and 3 more — the full list is on functions_from_code
+ * Reaches ..... 110 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS · MK-CF-F-205 COMING
+ *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
+ *               MK-CF-F-237 LATER · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-296 LOAD · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-365 accountReadOut
+ *               MK-NW-F-410 accountValueDay · MK-NW-F-367 accountsReadOut
+ *               MK-NW-F-399 after · MK-NW-F-342 afterAWrite
+ *               … and 92 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -1286,7 +1311,7 @@ export function valueBatchesOf(record: readonly AssetRow[], accountId: string): 
 /** Of two sets of values, the one to read: a dated one before an undated one; then the later date; on one date a
  *  given one before the price feed's, and one the person typed before the rest; then the later time-stamp; at one
  *  time-stamp, the one saved later. */
-/* ─ MK-NW-F-243 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+/* ─ MK-NW-F-243 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * theLater
  *
  * Answers ..... Of two sets of values, the one to read: a dated one before an undated one; then the later date; on one date a given one before the price feed's, and one the person typed before the rest; then the later time-stamp; at one time-stamp, the one saved later.
@@ -1311,13 +1336,17 @@ export function valueBatchesOf(record: readonly AssetRow[], accountId: string): 
  * Called by ... MK-NW-F-244 valuesNow · MK-NW-F-245 valuesLastGiven
  *               MK-NW-F-246 valuesOn
  *
- * Reaches ..... 11 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-278 answerListQuestion · MK-NW-F-337 answerQuestion
- *               MK-XS-F-199 profileOnTheWayIn · MK-NW-F-324 questionsOf
- *               MK-NW-F-263 sharesThatDisagree · MK-NW-F-336 stillAsked
- *               MK-XS-F-192 typedValueDatedBack · MK-NW-F-245 valuesLastGiven
- *               MK-NW-F-244 valuesNow · MK-NW-F-246 valuesOn
- *               MK-NW-F-335 writeAnswer
+ * Reaches ..... 101 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS · MK-CF-F-205 COMING
+ *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
+ *               MK-CF-F-237 LATER · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-296 LOAD · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-365 accountReadOut
+ *               MK-NW-F-410 accountValueDay · MK-NW-F-367 accountsReadOut
+ *               MK-NW-F-399 after · MK-NW-F-342 afterAWrite
+ *               … and 83 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -1338,7 +1367,7 @@ const theLater = (record: readonly AssetRow[]) => (a: ValueBatch, b: ValueBatch)
 /** WHAT THE SCREENS SHOW TODAY: the values with the latest date and, within that date, the latest time-stamp. On
  *  one date a value the broker, a file or the person gave stands in front of the price feed's. Values nobody dated
  *  are read only where no dated values exist. */
-/* ─ MK-NW-F-244 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+/* ─ MK-NW-F-244 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * valuesNow
  *
  * Answers ..... WHAT THE SCREENS SHOW TODAY: the values with the latest date and, within that date, the latest time-stamp.
@@ -1349,7 +1378,16 @@ const theLater = (record: readonly AssetRow[]) => (a: ValueBatch, b: ValueBatch)
  *     all.reduce((a, b) => the later(record)(a, b))   if count of all
  *     nothing   otherwise
  *
- * Called by ... nothing — it is an entry point, or nothing reaches it
+ * Called by ... MK-NW-F-361 valueToday · MK-NW-F-410 accountValueDay
+ *
+ * Reaches ..... 13 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-365 accountReadOut · MK-NW-F-410 accountValueDay
+ *               MK-NW-F-367 accountsReadOut · MK-NW-F-382 explainedDifference
+ *               MK-XS-F-324 holdTheSwitch · MK-XS-F-199 profileOnTheWayIn
+ *               MK-NW-F-376 readOuts · MK-XS-F-318 readOutsInShadow
+ *               MK-XS-F-322 savedTogether · MK-XS-F-317 screensFromTheRecord
+ *               MK-NW-F-385 screensReadTheRecord · MK-XS-F-192 typedValueDatedBack
+ *               MK-NW-F-361 valueToday
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -1363,7 +1401,7 @@ export function valuesNow(record: readonly AssetRow[], accountId: string): Value
 
 /** The latest values the broker, a file or the person gave — never the price feed's. This is what the shares on
  *  record are checked against. */
-/* ─ MK-NW-F-245 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+/* ─ MK-NW-F-245 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * valuesLastGiven
  *
  * Answers ..... The latest values the broker, a file or the person gave — never the price feed's.
@@ -1377,11 +1415,17 @@ export function valuesNow(record: readonly AssetRow[], accountId: string): Value
  * Called by ... MK-NW-F-263 sharesThatDisagree · MK-NW-F-324 questionsOf
  *               MK-NW-F-336 stillAsked
  *
- * Reaches ..... 8 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-278 answerListQuestion · MK-NW-F-337 answerQuestion
- *               MK-XS-F-199 profileOnTheWayIn · MK-NW-F-324 questionsOf
- *               MK-NW-F-263 sharesThatDisagree · MK-NW-F-336 stillAsked
- *               MK-XS-F-192 typedValueDatedBack · MK-NW-F-335 writeAnswer
+ * Reaches ..... 86 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS · MK-CF-F-205 COMING
+ *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
+ *               MK-CF-F-237 LATER · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-296 LOAD · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-399 after
+ *               MK-NW-F-342 afterAWrite · MK-NW-F-278 answerListQuestion
+ *               MK-NW-F-337 answerQuestion · MK-NW-F-408 answerWords
+ *               … and 68 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -1395,7 +1439,7 @@ export function valuesLastGiven(record: readonly AssetRow[], accountId: string):
 
 /** What an account was worth on one day: the values dated that day — given ones before the price feed's, the latest
  *  saved. Values nobody dated belong to no day. With none, nothing. */
-/* ─ MK-NW-F-246 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+/* ─ MK-NW-F-246 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * valuesOn
  *
  * Answers ..... What an account was worth on one day: the values dated that day — given ones before the price feed's, the latest saved.
@@ -1406,7 +1450,14 @@ export function valuesLastGiven(record: readonly AssetRow[], accountId: string):
  *     that.reduce((a, b) => the later(record)(a, b))   if count of that
  *     nothing   otherwise
  *
- * Called by ... nothing — it is an entry point, or nothing reaches it
+ * Called by ... MK-NW-F-374 daysReadOut
+ *
+ * Reaches ..... 9 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-374 daysReadOut · MK-XS-F-324 holdTheSwitch
+ *               MK-XS-F-199 profileOnTheWayIn · MK-NW-F-376 readOuts
+ *               MK-XS-F-318 readOutsInShadow · MK-XS-F-322 savedTogether
+ *               MK-XS-F-317 screensFromTheRecord · MK-NW-F-385 screensReadTheRecord
+ *               MK-XS-F-192 typedValueDatedBack
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -1421,7 +1472,7 @@ export function valuesOn(record: readonly AssetRow[], accountId: string, day: st
 /** ON ONE DAY, A VALUE THE ACCOUNT HOLDER TYPED AND A LATER ONE FROM A BROKER OR A FILE THAT DIFFERS: the typed one
  *  stands (the account holder can always override) and the two are handed back so the account holder is asked which is
  *  correct (his ruling, 2026-11-11: every difference is asked). */
-/* ─ MK-NW-F-247 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+/* ─ MK-NW-F-247 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * valuesThatDiffer
  *
  * Answers ..... ON ONE DAY, A VALUE THE ACCOUNT HOLDER TYPED AND A LATER ONE FROM A BROKER OR A FILE THAT DIFFERS: the typed one stands (the account holder can always override) and the two are handed back so the account holder is asked which is correct (his ruling, 2026-11-11: every difference is asked).
@@ -1434,11 +1485,17 @@ export function valuesOn(record: readonly AssetRow[], accountId: string, day: st
  * Called by ... MK-NW-F-248 answerValuesQuestion · MK-NW-F-324 questionsOf
  *               MK-NW-F-336 stillAsked
  *
- * Reaches ..... 8 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-278 answerListQuestion · MK-NW-F-337 answerQuestion
- *               MK-NW-F-248 answerValuesQuestion · MK-XS-F-199 profileOnTheWayIn
- *               MK-NW-F-324 questionsOf · MK-NW-F-336 stillAsked
- *               MK-XS-F-192 typedValueDatedBack · MK-NW-F-335 writeAnswer
+ * Reaches ..... 86 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS · MK-CF-F-205 COMING
+ *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
+ *               MK-CF-F-237 LATER · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-296 LOAD · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-399 after
+ *               MK-NW-F-342 afterAWrite · MK-NW-F-278 answerListQuestion
+ *               MK-NW-F-337 answerQuestion · MK-NW-F-248 answerValuesQuestion
+ *               … and 68 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-009 transaction date
@@ -1461,7 +1518,7 @@ export function valuesThatDiffer(record: readonly AssetRow[], accountId: string)
 
 /** The account holder's answer about a typed value and a broker's: "mine" keeps the typed one; "theirs" types the
  *  broker's figures for that day as the account holder's own. Either way the question is not asked again. */
-/* ─ MK-NW-F-248 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+/* ─ MK-NW-F-248 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * answerValuesQuestion
  *
  * Answers ..... The account holder's answer about a typed value and a broker's: "mine" keeps the typed one; "theirs" types the broker's figures for that day as the account holder's own.
@@ -1482,10 +1539,17 @@ export function valuesThatDiffer(record: readonly AssetRow[], accountId: string)
  *
  * Called by ... MK-NW-F-335 writeAnswer
  *
- * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-278 answerListQuestion · MK-NW-F-337 answerQuestion
- *               MK-XS-F-199 profileOnTheWayIn · MK-XS-F-192 typedValueDatedBack
- *               MK-NW-F-335 writeAnswer
+ * Reaches ..... 84 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS · MK-CF-F-205 COMING
+ *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
+ *               MK-CF-F-237 LATER · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-296 LOAD · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-399 after
+ *               MK-NW-F-342 afterAWrite · MK-NW-F-278 answerListQuestion
+ *               MK-NW-F-337 answerQuestion · MK-NW-F-408 answerWords
+ *               … and 66 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
@@ -1504,7 +1568,7 @@ export function answerValuesQuestion(d: { typed: ValueBatch; given: ValueBatch }
 }
 
 /** The values a broker, a file or the person gave with no date: the person is asked what day they are from. */
-/* ─ MK-NW-F-249 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+/* ─ MK-NW-F-249 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * valuesNeedingADate
  *
  * Answers ..... The values a broker, a file or the person gave with no date: the person is asked what day they are from.
@@ -1513,14 +1577,19 @@ export function answerValuesQuestion(d: { typed: ValueBatch; given: ValueBatch }
  *     value batches of(record, account id) where date = nothing and GIVEN.has(source)
  *
  * Called by ... MK-NW-F-324 questionsOf · MK-NW-F-336 stillAsked
- *               MK-NW-F-341 questionsStillTrue
+ *               MK-NW-F-341 questionsStillTrue · MK-NW-F-410 accountValueDay
  *
- * Reaches ..... 10 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-342 afterAWrite · MK-NW-F-278 answerListQuestion
- *               MK-NW-F-337 answerQuestion · MK-XS-F-199 profileOnTheWayIn
- *               MK-NW-F-324 questionsOf · MK-NW-F-341 questionsStillTrue
- *               MK-NW-F-336 stillAsked · MK-XS-F-229 typedIntoRecord
- *               MK-XS-F-192 typedValueDatedBack · MK-NW-F-335 writeAnswer
+ * Reaches ..... 87 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS · MK-CF-F-205 COMING
+ *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
+ *               MK-CF-F-237 LATER · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-296 LOAD · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-410 accountValueDay
+ *               MK-NW-F-399 after · MK-NW-F-342 afterAWrite
+ *               MK-NW-F-278 answerListQuestion · MK-NW-F-337 answerQuestion
+ *               … and 69 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -1532,7 +1601,7 @@ export function valuesNeedingADate(record: readonly AssetRow[], accountId: strin
 }
 
 /** The broker's own stated total less the total the rows add up to. Null where either is not known. */
-/* ─ MK-NW-F-250 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+/* ─ MK-NW-F-250 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * statedTotalGap
  *
  * Answers ..... The broker's own stated total less the total the rows add up to.
@@ -1543,11 +1612,17 @@ export function valuesNeedingADate(record: readonly AssetRow[], accountId: strin
  *
  * Called by ... MK-NW-F-324 questionsOf · MK-NW-F-336 stillAsked
  *
- * Reaches ..... 7 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-278 answerListQuestion · MK-NW-F-337 answerQuestion
- *               MK-XS-F-199 profileOnTheWayIn · MK-NW-F-324 questionsOf
- *               MK-NW-F-336 stillAsked · MK-XS-F-192 typedValueDatedBack
- *               MK-NW-F-335 writeAnswer
+ * Reaches ..... 85 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS · MK-CF-F-205 COMING
+ *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
+ *               MK-CF-F-237 LATER · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-296 LOAD · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-399 after
+ *               MK-NW-F-342 afterAWrite · MK-NW-F-278 answerListQuestion
+ *               MK-NW-F-337 answerQuestion · MK-NW-F-408 answerWords
+ *               … and 67 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -1621,17 +1696,17 @@ const ORDER: Partial<Record<RowKind, number>> = { SPLIT: 0, PURCHASE: 1, TRANSFE
  * Called by ... MK-NW-F-252 walkHolding · MK-NW-F-253 openPurchases
  *               MK-NW-F-256 salesNeedingAnAnswer · MK-NW-F-278 answerListQuestion
  *
- * Reaches ..... 70 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-284 activityOf · MK-NW-F-289 activityRefs
- *               MK-NW-F-342 afterAWrite · MK-NW-F-273 answerEventQuestion
- *               MK-NW-F-278 answerListQuestion · MK-NW-F-337 answerQuestion
- *               MK-NW-F-248 answerValuesQuestion · MK-NW-F-218 arrive
- *               MK-NW-F-275 besideTheList · MK-NW-F-194 brokerUpdateToRecord
- *               MK-XS-F-307 composeNames · MK-NW-F-326 confirmMyChangeQuestion
- *               MK-NW-F-219 correct · MK-NW-F-281 correctRow
- *               MK-XS-F-002 dataGaps · MK-NW-F-279 differsFromGiven
- *               MK-NW-F-325 editQuestionToAsk · MK-NW-F-317 eventQuestionToAsk
- *               … and 52 more — the full list is on functions_from_code
+ * Reaches ..... 153 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS · MK-CF-F-205 COMING
+ *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
+ *               MK-CF-F-237 LATER · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-296 LOAD · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-365 accountReadOut
+ *               MK-NW-F-367 accountsReadOut · MK-NW-F-284 activityOf
+ *               MK-NW-F-289 activityRefs · MK-NW-F-399 after
+ *               … and 135 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -1677,17 +1752,17 @@ const oldestLotFirst = (record: readonly AssetRow[]) => {
  *               MK-NW-F-282 removeRow · MK-NW-F-284 activityOf
  *               MK-NW-F-314 listNamesTheSoldLot
  *
- * Reaches ..... 69 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-284 activityOf · MK-NW-F-289 activityRefs
- *               MK-NW-F-342 afterAWrite · MK-NW-F-273 answerEventQuestion
- *               MK-NW-F-278 answerListQuestion · MK-NW-F-337 answerQuestion
- *               MK-NW-F-248 answerValuesQuestion · MK-NW-F-218 arrive
- *               MK-NW-F-275 besideTheList · MK-NW-F-194 brokerUpdateToRecord
- *               MK-XS-F-307 composeNames · MK-NW-F-326 confirmMyChangeQuestion
- *               MK-NW-F-219 correct · MK-NW-F-281 correctRow
- *               MK-XS-F-002 dataGaps · MK-NW-F-279 differsFromGiven
- *               MK-NW-F-325 editQuestionToAsk · MK-NW-F-317 eventQuestionToAsk
- *               … and 51 more — the full list is on functions_from_code
+ * Reaches ..... 152 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS · MK-CF-F-205 COMING
+ *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
+ *               MK-CF-F-237 LATER · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-296 LOAD · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-365 accountReadOut
+ *               MK-NW-F-367 accountsReadOut · MK-NW-F-284 activityOf
+ *               MK-NW-F-289 activityRefs · MK-NW-F-399 after
+ *               … and 134 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -1845,7 +1920,7 @@ function walkHolding(record: readonly AssetRow[], holding: string, upTo: string 
 /** The purchases of one holding still held in one account, each on its own: its date, its price, the shares of it
  *  left — the oldest first, one with no date before the dated. Shares that reached the account by a transfer are
  *  listed as the purchases they came from. Shares a sale took that wait for the person's answer are still listed. */
-/* ─ MK-NW-F-253 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+/* ─ MK-NW-F-253 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * openPurchases
  *
  * Answers ..... The purchases of one holding still held in one account, each on its own: its date, its price, the shares of it left — the oldest first, one with no date before the dated.
@@ -1860,18 +1935,21 @@ function walkHolding(record: readonly AssetRow[], holding: string, upTo: string 
  *
  * Called by ... MK-NW-F-201 fileRowsToSave · MK-NW-F-277 purchasesFromList
  *               MK-NW-F-279 differsFromGiven · MK-NW-F-333 sharesToStated
- *               MK-NW-F-335 writeAnswer
+ *               MK-NW-F-335 writeAnswer · MK-NW-F-364 positionReadOut
+ *               MK-NW-F-400 choiceMakes · MK-NW-F-406 purchaseOnRecord
+ *               MK-NW-F-408 answerWords
  *
- * Reaches ..... 17 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-289 activityRefs · MK-NW-F-342 afterAWrite
- *               MK-NW-F-278 answerListQuestion · MK-NW-F-337 answerQuestion
- *               MK-NW-F-194 brokerUpdateToRecord · MK-NW-F-326 confirmMyChangeQuestion
- *               MK-NW-F-279 differsFromGiven · MK-NW-F-201 fileRowsToSave
- *               MK-NW-F-338 newerListUndoes · MK-XS-F-199 profileOnTheWayIn
- *               MK-NW-F-277 purchasesFromList · MK-NW-F-341 questionsStillTrue
- *               MK-NW-F-333 sharesToStated · MK-NW-F-336 stillAsked
- *               MK-XS-F-229 typedIntoRecord · MK-XS-F-192 typedValueDatedBack
- *               MK-NW-F-335 writeAnswer
+ * Reaches ..... 103 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS · MK-CF-F-205 COMING
+ *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
+ *               MK-CF-F-237 LATER · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-296 LOAD · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-365 accountReadOut
+ *               MK-NW-F-367 accountsReadOut · MK-NW-F-289 activityRefs
+ *               MK-NW-F-399 after · MK-NW-F-342 afterAWrite
+ *               … and 85 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -1905,17 +1983,17 @@ export function openPurchases(record: readonly AssetRow[], accountId: string, ho
  *               MK-NW-F-277 purchasesFromList · MK-NW-F-278 answerListQuestion
  *               MK-NW-F-314 listNamesTheSoldLot · MK-NW-F-319 listQuestionToAsk
  *
- * Reaches ..... 30 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-289 activityRefs · MK-NW-F-342 afterAWrite
+ * Reaches ..... 100 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS · MK-CF-F-205 COMING
+ *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
+ *               MK-CF-F-237 LATER · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-296 LOAD · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-289 activityRefs
+ *               MK-NW-F-399 after · MK-NW-F-342 afterAWrite
  *               MK-NW-F-278 answerListQuestion · MK-NW-F-337 answerQuestion
- *               MK-NW-F-194 brokerUpdateToRecord · MK-XS-F-307 composeNames
- *               MK-NW-F-326 confirmMyChangeQuestion · MK-NW-F-279 differsFromGiven
- *               MK-NW-F-317 eventQuestionToAsk · MK-NW-F-201 fileRowsToSave
- *               MK-NW-F-314 listNamesTheSoldLot · MK-NW-F-319 listQuestionToAsk
- *               MK-NW-F-228 moveOldCopies · MK-NW-F-338 newerListUndoes
- *               MK-XS-F-199 profileOnTheWayIn · MK-NW-F-277 purchasesFromList
- *               MK-NW-F-324 questionsOf · MK-NW-F-341 questionsStillTrue
- *               … and 12 more — the full list is on functions_from_code
+ *               … and 82 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -1928,7 +2006,7 @@ export function sharesTakenBy(record: readonly AssetRow[], accountId: string, ho
 
 /** The sales and transfers out that took more shares than the purchases on record hold: each one, and the shares
  *  no purchase accounts for. An empty list means every share sold was a share on record. */
-/* ─ MK-NW-F-255 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+/* ─ MK-NW-F-255 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * soldBeyondRecord
  *
  * Answers ..... The sales and transfers out that took more shares than the purchases on record hold: each one, and the shares no purchase accounts for.
@@ -1939,11 +2017,17 @@ export function sharesTakenBy(record: readonly AssetRow[], accountId: string, ho
  *
  * Called by ... MK-NW-F-324 questionsOf · MK-NW-F-336 stillAsked
  *
- * Reaches ..... 7 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-278 answerListQuestion · MK-NW-F-337 answerQuestion
- *               MK-XS-F-199 profileOnTheWayIn · MK-NW-F-324 questionsOf
- *               MK-NW-F-336 stillAsked · MK-XS-F-192 typedValueDatedBack
- *               MK-NW-F-335 writeAnswer
+ * Reaches ..... 85 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS · MK-CF-F-205 COMING
+ *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
+ *               MK-CF-F-237 LATER · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-296 LOAD · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-399 after
+ *               MK-NW-F-342 afterAWrite · MK-NW-F-278 answerListQuestion
+ *               MK-NW-F-337 answerQuestion · MK-NW-F-408 answerWords
+ *               … and 67 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -1973,14 +2057,17 @@ export function soldBeyondRecord(record: readonly AssetRow[], accountId: string,
  *               MK-XS-F-199 profileOnTheWayIn · MK-XS-F-229 typedIntoRecord
  *               MK-XS-F-288 salesAskedAgain · MK-XS-F-307 composeNames
  *
- * Reaches ..... 13 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 89 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS · MK-CF-F-205 COMING
+ *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
+ *               MK-CF-F-237 LATER · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-296 LOAD · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-399 after
  *               MK-NW-F-342 afterAWrite · MK-NW-F-278 answerListQuestion
- *               MK-NW-F-337 answerQuestion · MK-XS-F-307 composeNames
- *               MK-XS-F-199 profileOnTheWayIn · MK-NW-F-324 questionsOf
- *               MK-NW-F-341 questionsStillTrue · MK-XS-F-288 salesAskedAgain
- *               MK-XS-F-286 saveRecordMerging · MK-NW-F-336 stillAsked
- *               MK-XS-F-229 typedIntoRecord · MK-XS-F-192 typedValueDatedBack
- *               MK-NW-F-335 writeAnswer
+ *               MK-NW-F-337 answerQuestion · MK-NW-F-408 answerWords
+ *               … and 71 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -2006,7 +2093,7 @@ export function salesNeedingAnAnswer(record: readonly AssetRow[], accountId: str
  *  Nothing changes; each is a question for the account holder — the sale's date, or the list, is not right. A list
  *  that was NOT taken in because it contradicts a typed sale is asked by purchasesFromList itself; one taken in on the
  *  account holder's answer that still states the shares a typed sale sold is handed back here too. */
-/* ─ MK-NW-F-257 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+/* ─ MK-NW-F-257 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * typedSalesTheListContradicts
  *
  * Answers ..... THE SALES THE ACCOUNT HOLDER TYPED THAT A LATER LIST CONTRADICTS: a sale dated on or before a day the broker's list still stated the shares as held — a list that was taken in — with no purchase in the history to sell from.
@@ -2024,11 +2111,17 @@ export function salesNeedingAnAnswer(record: readonly AssetRow[], accountId: str
  *
  * Called by ... MK-NW-F-324 questionsOf · MK-NW-F-336 stillAsked
  *
- * Reaches ..... 7 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-278 answerListQuestion · MK-NW-F-337 answerQuestion
- *               MK-XS-F-199 profileOnTheWayIn · MK-NW-F-324 questionsOf
- *               MK-NW-F-336 stillAsked · MK-XS-F-192 typedValueDatedBack
- *               MK-NW-F-335 writeAnswer
+ * Reaches ..... 85 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS · MK-CF-F-205 COMING
+ *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
+ *               MK-CF-F-237 LATER · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-296 LOAD · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-399 after
+ *               MK-NW-F-342 afterAWrite · MK-NW-F-278 answerListQuestion
+ *               MK-NW-F-337 answerQuestion · MK-NW-F-408 answerWords
+ *               … and 67 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -2056,7 +2149,7 @@ export function typedSalesTheListContradicts(record: readonly AssetRow[], accoun
 
 /** A sale as it is saved: on its own date, at its own price, its shares without a minus sign. It names purchases
  *  only where the broker or the person says which were sold. */
-/* ─ MK-NW-F-258 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+/* ─ MK-NW-F-258 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * saleRow
  *
  * Answers ..... A sale as it is saved: on its own date, at its own price, its shares without a minus sign.
@@ -2068,13 +2161,17 @@ export function typedSalesTheListContradicts(record: readonly AssetRow[], accoun
  *               MK-NW-F-217 transactionRow · MK-NW-F-228 moveOldCopies
  *               MK-NW-F-335 writeAnswer
  *
- * Reaches ..... 12 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-278 answerListQuestion · MK-NW-F-337 answerQuestion
- *               MK-NW-F-194 brokerUpdateToRecord · MK-NW-F-193 eventRow
- *               MK-NW-F-201 fileRowsToSave · MK-NW-F-228 moveOldCopies
- *               MK-XS-F-199 profileOnTheWayIn · MK-NW-F-217 transactionRow
- *               MK-NW-F-224 typedChangeToRecord · MK-XS-F-229 typedIntoRecord
- *               MK-XS-F-192 typedValueDatedBack · MK-NW-F-335 writeAnswer
+ * Reaches ..... 88 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS · MK-CF-F-205 COMING
+ *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
+ *               MK-CF-F-237 LATER · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-296 LOAD · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-399 after
+ *               MK-NW-F-342 afterAWrite · MK-NW-F-278 answerListQuestion
+ *               MK-NW-F-337 answerQuestion · MK-NW-F-408 answerWords
+ *               … and 70 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -2159,7 +2256,7 @@ export function soldFrom(record: readonly AssetRow[], saleRowId: string): { rowI
  *  price, as any split before the sale left it). Null — not known — where the sale's price or a purchase's price is
  *  not on record, where it sold more shares than the purchases on record hold, or while the person has not yet said
  *  which purchase was sold. */
-/* ─ MK-NW-F-261 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+/* ─ MK-NW-F-261 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * saleGain
  *
  * Answers ..... What a sale made, before fees: for each purchase it sold, the shares sold × (the sale's price − that purchase's price, as any split before the sale left it).
@@ -2175,13 +2272,19 @@ export function soldFrom(record: readonly AssetRow[], saleRowId: string): { rowI
  *
  * Called by ... MK-NW-F-228 moveOldCopies · MK-NW-F-272 salesMovedBy
  *               MK-NW-F-279 differsFromGiven · MK-NW-F-319 listQuestionToAsk
+ *               MK-NW-F-400 choiceMakes · MK-NW-F-408 answerWords
  *
- * Reaches ..... 9 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 22 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-408 answerWords
+ *               MK-NW-F-409 answersShown · MK-NW-F-400 choiceMakes
+ *               MK-NW-F-405 confirmChangeQuestion · MK-NW-F-415 confirmForSavedLots
  *               MK-NW-F-326 confirmMyChangeQuestion · MK-NW-F-279 differsFromGiven
- *               MK-NW-F-317 eventQuestionToAsk · MK-NW-F-319 listQuestionToAsk
- *               MK-NW-F-228 moveOldCopies · MK-XS-F-199 profileOnTheWayIn
- *               MK-NW-F-324 questionsOf · MK-NW-F-272 salesMovedBy
- *               MK-XS-F-192 typedValueDatedBack
+ *               MK-NW-F-407 enteredOverGiven · MK-NW-F-317 eventQuestionToAsk
+ *               MK-NW-F-319 listQuestionToAsk · MK-NW-F-228 moveOldCopies
+ *               MK-NW-F-396 otherSays · MK-XS-F-199 profileOnTheWayIn
+ *               MK-NW-F-402 questionFootLine · MK-NW-F-395 questionHeadline
+ *               MK-NW-F-397 questionSummary · MK-NW-F-398 questionsCountLine
+ *               … and 4 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -2208,7 +2311,7 @@ export function saleGain(record: readonly AssetRow[], saleRowId: string): number
 
 /** The shares of a holding the purchases, splits, transfers and sales on record add up to in one account — up to a
  *  given day, where one is given. Shares a sale took that wait for the person's answer are counted as sold. */
-/* ─ MK-NW-F-262 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+/* ─ MK-NW-F-262 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * sharesOnRecord
  *
  * Answers ..... The shares of a holding the purchases, splits, transfers and sales on record add up to in one account — up to a given day, where one is given.
@@ -2224,18 +2327,21 @@ export function saleGain(record: readonly AssetRow[], saleRowId: string): number
  *               MK-NW-F-317 eventQuestionToAsk · MK-NW-F-319 listQuestionToAsk
  *               MK-NW-F-333 sharesToStated · MK-NW-F-335 writeAnswer
  *               MK-NW-F-338 newerListUndoes · MK-NW-F-340 oneQuestionPerExercise
+ *               MK-NW-F-362 heldOnRecord · MK-NW-F-397 questionSummary
+ *               MK-NW-F-400 choiceMakes · MK-NW-F-402 questionFootLine
+ *               MK-NW-F-408 answerWords · MK-NW-F-420 recordsOwnTotal
  *
- * Reaches ..... 28 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-284 activityOf · MK-NW-F-289 activityRefs
- *               MK-NW-F-342 afterAWrite · MK-NW-F-278 answerListQuestion
- *               MK-NW-F-337 answerQuestion · MK-NW-F-194 brokerUpdateToRecord
- *               MK-NW-F-326 confirmMyChangeQuestion · MK-NW-F-279 differsFromGiven
- *               MK-NW-F-317 eventQuestionToAsk · MK-NW-F-193 eventRow
- *               MK-NW-F-201 fileRowsToSave · MK-NW-F-319 listQuestionToAsk
- *               MK-NW-F-228 moveOldCopies · MK-NW-F-338 newerListUndoes
- *               MK-NW-F-340 oneQuestionPerExercise · MK-NW-F-205 priceFeedValues
- *               MK-XS-F-199 profileOnTheWayIn · MK-NW-F-277 purchasesFromList
- *               … and 10 more — the full list is on functions_from_code
+ * Reaches ..... 110 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS · MK-CF-F-205 COMING
+ *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
+ *               MK-CF-F-237 LATER · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-296 LOAD · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-365 accountReadOut
+ *               MK-NW-F-367 accountsReadOut · MK-NW-F-284 activityOf
+ *               MK-NW-F-289 activityRefs · MK-NW-F-399 after
+ *               … and 92 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -2254,7 +2360,7 @@ export function sharesOnRecord(record: readonly AssetRow[], accountId: string, h
  *  values are from, so a purchase or a sale after that day raises no flag. A holding listed more than once is added
  *  up. A holding with shares on record that those values do not list is named too, as stated at 0. An empty list
  *  means every holding agrees. */
-/* ─ MK-NW-F-263 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+/* ─ MK-NW-F-263 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * sharesThatDisagree
  *
  * Answers ..... Where the purchases and sales on record do not add up to the shares stated by the latest values the broker, a file or the person gave (a gap the account holder already answered "mine is correct" for is not flagged again): the holding, the two counts, and the gap.
@@ -2277,11 +2383,17 @@ export function sharesOnRecord(record: readonly AssetRow[], accountId: string, h
  *
  * Called by ... MK-NW-F-324 questionsOf · MK-NW-F-336 stillAsked
  *
- * Reaches ..... 7 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-278 answerListQuestion · MK-NW-F-337 answerQuestion
- *               MK-XS-F-199 profileOnTheWayIn · MK-NW-F-324 questionsOf
- *               MK-NW-F-336 stillAsked · MK-XS-F-192 typedValueDatedBack
- *               MK-NW-F-335 writeAnswer
+ * Reaches ..... 85 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS · MK-CF-F-205 COMING
+ *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
+ *               MK-CF-F-237 LATER · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-296 LOAD · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-399 after
+ *               MK-NW-F-342 afterAWrite · MK-NW-F-278 answerListQuestion
+ *               MK-NW-F-337 answerQuestion · MK-NW-F-408 answerWords
+ *               … and 67 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -2316,7 +2428,12 @@ export function sharesThatDisagree(record: readonly AssetRow[], accountId: strin
     const away = keptAwayByEvent(record, accountId, h).reduce((t, r) => t + (r.shares ?? 0), 0);
     if (away > EPS) answeredGaps.set(h, [...(answeredGaps.get(h) ?? []), away]);
   }
-  return names.map((holding) => {
+  // THE ACCOUNT HOLDER IS NEVER ASKED ABOUT HIS OWN ENTRIES (DEC-10471: a discrepancy is between the broker or a file and the
+  // account holder). Where the last values are the account holder's and every purchase of a holding is his too, the newer entry
+  // stands and nothing is asked: a typed total of $28,000 with no holdings listed, then a typed buy of 100 VTI, is not "0 vs 100".
+  const ownOnly = (holding: string) => now.source === 'typed' && rowsInForce(record).every((r) => r.holding !== holding || (r.accountId !== accountId && r.toAccountId !== accountId)
+    || !(r.kind === 'PURCHASE' || r.kind === 'TRANSFER' || r.kind === 'SALE') || r.source === 'typed');
+  return names.filter((holding) => !ownOnly(holding)).map((holding) => {
     const onRecord = sharesOnRecord(record, accountId, holding, now.date), says = stated.get(holding) ?? 0;
     return { holding, onRecord, stated: says, gap: says - onRecord };
   }).filter((x) => Math.abs(x.gap) > EPS && !(answeredGaps.get(x.holding) ?? []).some((g) => sameShares(g, x.gap)));
@@ -2328,7 +2445,7 @@ export interface ListedPurchase { date: string | null; shares: number; price: nu
 
 /** The latest day a broker's or a file's list was taken into the record for one holding of one account: the latest
  *  day any of its purchases was stated by a list as still held. A list that only raised a question took nothing in. */
-/* ─ MK-NW-F-264 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+/* ─ MK-NW-F-264 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * lastListDay
  *
  * Answers ..... The latest day a broker's or a file's list was taken into the record for one holding of one account: the latest day any of its purchases was stated by a list as still held.
@@ -2343,16 +2460,17 @@ export interface ListedPurchase { date: string | null; shares: number; price: nu
  * Called by ... MK-NW-F-265 historyPurchaseRow · MK-NW-F-277 purchasesFromList
  *               MK-NW-F-321 latestListDayOf · MK-NW-F-324 questionsOf
  *
- * Reaches ..... 18 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-289 activityRefs · MK-NW-F-342 afterAWrite
+ * Reaches ..... 94 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS · MK-CF-F-205 COMING
+ *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
+ *               MK-CF-F-237 LATER · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-296 LOAD · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-289 activityRefs
+ *               MK-NW-F-399 after · MK-NW-F-342 afterAWrite
  *               MK-NW-F-278 answerListQuestion · MK-NW-F-337 answerQuestion
- *               MK-NW-F-194 brokerUpdateToRecord · MK-NW-F-193 eventRow
- *               MK-NW-F-201 fileRowsToSave · MK-NW-F-265 historyPurchaseRow
- *               MK-NW-F-321 latestListDayOf · MK-NW-F-338 newerListUndoes
- *               MK-XS-F-199 profileOnTheWayIn · MK-NW-F-277 purchasesFromList
- *               MK-NW-F-324 questionsOf · MK-NW-F-341 questionsStillTrue
- *               MK-NW-F-336 stillAsked · MK-XS-F-229 typedIntoRecord
- *               MK-XS-F-192 typedValueDatedBack · MK-NW-F-335 writeAnswer
+ *               … and 76 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
@@ -2435,17 +2553,17 @@ const NEARBY_DAYS = 5;
  *
  * Called by ... MK-NW-F-238 sortArriving
  *
- * Reaches ..... 41 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-289 activityRefs · MK-NW-F-342 afterAWrite
+ * Reaches ..... 110 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS · MK-CF-F-205 COMING
+ *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
+ *               MK-CF-F-237 LATER · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-296 LOAD · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-289 activityRefs
+ *               MK-NW-F-399 after · MK-NW-F-342 afterAWrite
  *               MK-NW-F-273 answerEventQuestion · MK-NW-F-278 answerListQuestion
- *               MK-NW-F-337 answerQuestion · MK-NW-F-248 answerValuesQuestion
- *               MK-NW-F-218 arrive · MK-NW-F-275 besideTheList
- *               MK-NW-F-194 brokerUpdateToRecord · MK-NW-F-326 confirmMyChangeQuestion
- *               MK-NW-F-279 differsFromGiven · MK-NW-F-325 editQuestionToAsk
- *               MK-NW-F-317 eventQuestionToAsk · MK-NW-F-271 eventsThatDiffer
- *               MK-NW-F-201 fileRowsToSave · MK-NW-F-343 lotChange
- *               MK-NW-F-221 lotsFollow · MK-XS-F-282 mergeRecord
- *               … and 23 more — the full list is on functions_from_code
+ *               … and 92 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
@@ -2472,17 +2590,17 @@ function listAnswered(record: readonly AssetRow[], onRecord: AssetRow, day: stri
  * Called by ... MK-NW-F-238 sortArriving · MK-NW-F-270 sameEventElsewhere
  *               MK-NW-F-275 besideTheList
  *
- * Reaches ..... 41 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-289 activityRefs · MK-NW-F-342 afterAWrite
+ * Reaches ..... 110 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS · MK-CF-F-205 COMING
+ *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
+ *               MK-CF-F-237 LATER · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-296 LOAD · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-289 activityRefs
+ *               MK-NW-F-399 after · MK-NW-F-342 afterAWrite
  *               MK-NW-F-273 answerEventQuestion · MK-NW-F-278 answerListQuestion
- *               MK-NW-F-337 answerQuestion · MK-NW-F-248 answerValuesQuestion
- *               MK-NW-F-218 arrive · MK-NW-F-275 besideTheList
- *               MK-NW-F-194 brokerUpdateToRecord · MK-NW-F-326 confirmMyChangeQuestion
- *               MK-NW-F-279 differsFromGiven · MK-NW-F-325 editQuestionToAsk
- *               MK-NW-F-317 eventQuestionToAsk · MK-NW-F-271 eventsThatDiffer
- *               MK-NW-F-201 fileRowsToSave · MK-NW-F-343 lotChange
- *               MK-NW-F-221 lotsFollow · MK-XS-F-282 mergeRecord
- *               … and 23 more — the full list is on functions_from_code
+ *               … and 92 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -2501,17 +2619,17 @@ const daysFromOneDateToAnother = (a: string, b: string) => Math.abs(Date.parse(a
  *
  * Called by ... MK-NW-F-238 sortArriving
  *
- * Reaches ..... 41 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-289 activityRefs · MK-NW-F-342 afterAWrite
+ * Reaches ..... 110 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS · MK-CF-F-205 COMING
+ *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
+ *               MK-CF-F-237 LATER · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-296 LOAD · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-289 activityRefs
+ *               MK-NW-F-399 after · MK-NW-F-342 afterAWrite
  *               MK-NW-F-273 answerEventQuestion · MK-NW-F-278 answerListQuestion
- *               MK-NW-F-337 answerQuestion · MK-NW-F-248 answerValuesQuestion
- *               MK-NW-F-218 arrive · MK-NW-F-275 besideTheList
- *               MK-NW-F-194 brokerUpdateToRecord · MK-NW-F-326 confirmMyChangeQuestion
- *               MK-NW-F-279 differsFromGiven · MK-NW-F-325 editQuestionToAsk
- *               MK-NW-F-317 eventQuestionToAsk · MK-NW-F-271 eventsThatDiffer
- *               MK-NW-F-201 fileRowsToSave · MK-NW-F-343 lotChange
- *               MK-NW-F-221 lotsFollow · MK-XS-F-282 mergeRecord
- *               … and 23 more — the full list is on functions_from_code
+ *               … and 92 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -2533,17 +2651,17 @@ const arrivingKey = (r: NewRow) => r.ref ?? [r.kind, dayOrNull(r.date) ?? '', on
  *
  * Called by ... MK-NW-F-238 sortArriving
  *
- * Reaches ..... 41 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-289 activityRefs · MK-NW-F-342 afterAWrite
+ * Reaches ..... 110 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS · MK-CF-F-205 COMING
+ *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
+ *               MK-CF-F-237 LATER · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-296 LOAD · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-289 activityRefs
+ *               MK-NW-F-399 after · MK-NW-F-342 afterAWrite
  *               MK-NW-F-273 answerEventQuestion · MK-NW-F-278 answerListQuestion
- *               MK-NW-F-337 answerQuestion · MK-NW-F-248 answerValuesQuestion
- *               MK-NW-F-218 arrive · MK-NW-F-275 besideTheList
- *               MK-NW-F-194 brokerUpdateToRecord · MK-NW-F-326 confirmMyChangeQuestion
- *               MK-NW-F-279 differsFromGiven · MK-NW-F-325 editQuestionToAsk
- *               MK-NW-F-317 eventQuestionToAsk · MK-NW-F-271 eventsThatDiffer
- *               MK-NW-F-201 fileRowsToSave · MK-NW-F-343 lotChange
- *               MK-NW-F-221 lotsFollow · MK-XS-F-282 mergeRecord
- *               … and 23 more — the full list is on functions_from_code
+ *               … and 92 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
@@ -2572,17 +2690,17 @@ function eventAnswers(record: readonly AssetRow[]): Map<string, string> {
  *
  * Called by ... MK-NW-F-238 sortArriving
  *
- * Reaches ..... 41 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-289 activityRefs · MK-NW-F-342 afterAWrite
+ * Reaches ..... 110 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS · MK-CF-F-205 COMING
+ *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
+ *               MK-CF-F-237 LATER · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-296 LOAD · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-289 activityRefs
+ *               MK-NW-F-399 after · MK-NW-F-342 afterAWrite
  *               MK-NW-F-273 answerEventQuestion · MK-NW-F-278 answerListQuestion
- *               MK-NW-F-337 answerQuestion · MK-NW-F-248 answerValuesQuestion
- *               MK-NW-F-218 arrive · MK-NW-F-275 besideTheList
- *               MK-NW-F-194 brokerUpdateToRecord · MK-NW-F-326 confirmMyChangeQuestion
- *               MK-NW-F-279 differsFromGiven · MK-NW-F-325 editQuestionToAsk
- *               MK-NW-F-317 eventQuestionToAsk · MK-NW-F-271 eventsThatDiffer
- *               MK-NW-F-201 fileRowsToSave · MK-NW-F-343 lotChange
- *               MK-NW-F-221 lotsFollow · MK-XS-F-282 mergeRecord
- *               … and 23 more — the full list is on functions_from_code
+ *               … and 92 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -2628,7 +2746,7 @@ export function eventsThatDiffer(record: readonly AssetRow[], rows: readonly New
 }
 
 /** The past sales an answer of "theirs" would move, each with what it made now and what it would make. */
-/* ─ MK-NW-F-272 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+/* ─ MK-NW-F-272 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * salesMovedBy
  *
  * Answers ..... The past sales an answer of "theirs" would move, each with what it made now and what it would make.
@@ -2639,8 +2757,15 @@ export function eventsThatDiffer(record: readonly AssetRow[], rows: readonly New
  *
  * Called by ... MK-NW-F-317 eventQuestionToAsk
  *
- * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-317 eventQuestionToAsk · MK-NW-F-324 questionsOf
+ * Reaches ..... 15 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-408 answerWords
+ *               MK-NW-F-409 answersShown · MK-NW-F-400 choiceMakes
+ *               MK-NW-F-405 confirmChangeQuestion · MK-NW-F-415 confirmForSavedLots
+ *               MK-NW-F-407 enteredOverGiven · MK-NW-F-317 eventQuestionToAsk
+ *               MK-NW-F-396 otherSays · MK-NW-F-402 questionFootLine
+ *               MK-NW-F-395 questionHeadline · MK-NW-F-397 questionSummary
+ *               MK-NW-F-398 questionsCountLine · MK-NW-F-324 questionsOf
+ *               MK-NW-F-391 whoSaysFor
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
@@ -2662,7 +2787,7 @@ export function salesMovedBy(record: readonly AssetRow[], q: EventQuestion): { s
  *  "mine": nothing changes, and the arriving event is left out from now on without asking.
  *  "both": they are two different events; the arriving one is saved beside the other.
  *  Given the record, the question is first asked again of it as it stands: an answer saved twice changes nothing more. */
-/* ─ MK-NW-F-273 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+/* ─ MK-NW-F-273 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * answerEventQuestion
  *
  * Answers ..... THE ACCOUNT HOLDER'S ANSWER ABOUT AN ARRIVING EVENT, as rows to save.
@@ -2686,17 +2811,17 @@ export function salesMovedBy(record: readonly AssetRow[], q: EventQuestion): { s
  * Called by ... MK-NW-F-237 sameNumber · MK-NW-F-272 salesMovedBy
  *               MK-NW-F-335 writeAnswer
  *
- * Reaches ..... 41 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-289 activityRefs · MK-NW-F-342 afterAWrite
+ * Reaches ..... 110 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS · MK-CF-F-205 COMING
+ *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
+ *               MK-CF-F-237 LATER · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-296 LOAD · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-289 activityRefs
+ *               MK-NW-F-399 after · MK-NW-F-342 afterAWrite
  *               MK-NW-F-273 answerEventQuestion · MK-NW-F-278 answerListQuestion
- *               MK-NW-F-337 answerQuestion · MK-NW-F-248 answerValuesQuestion
- *               MK-NW-F-218 arrive · MK-NW-F-275 besideTheList
- *               MK-NW-F-194 brokerUpdateToRecord · MK-NW-F-326 confirmMyChangeQuestion
- *               MK-NW-F-279 differsFromGiven · MK-NW-F-325 editQuestionToAsk
- *               MK-NW-F-317 eventQuestionToAsk · MK-NW-F-271 eventsThatDiffer
- *               MK-NW-F-201 fileRowsToSave · MK-NW-F-343 lotChange
- *               MK-NW-F-221 lotsFollow · MK-XS-F-282 mergeRecord
- *               … and 23 more — the full list is on functions_from_code
+ *               … and 92 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -2759,17 +2884,17 @@ export function answerEventQuestion(asked: EventQuestion, answer: 'theirs' | 'mi
  *               MK-NW-F-314 listNamesTheSoldLot · MK-NW-F-324 questionsOf
  *               MK-NW-F-340 oneQuestionPerExercise
  *
- * Reaches ..... 19 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-289 activityRefs · MK-NW-F-342 afterAWrite
+ * Reaches ..... 95 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS · MK-CF-F-205 COMING
+ *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
+ *               MK-CF-F-237 LATER · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-296 LOAD · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-289 activityRefs
+ *               MK-NW-F-399 after · MK-NW-F-342 afterAWrite
  *               MK-NW-F-278 answerListQuestion · MK-NW-F-337 answerQuestion
- *               MK-NW-F-275 besideTheList · MK-NW-F-194 brokerUpdateToRecord
- *               MK-NW-F-201 fileRowsToSave · MK-NW-F-314 listNamesTheSoldLot
- *               MK-NW-F-338 newerListUndoes · MK-NW-F-340 oneQuestionPerExercise
- *               MK-XS-F-199 profileOnTheWayIn · MK-NW-F-277 purchasesFromList
- *               MK-NW-F-324 questionsOf · MK-NW-F-341 questionsStillTrue
- *               MK-NW-F-263 sharesThatDisagree · MK-NW-F-336 stillAsked
- *               MK-XS-F-229 typedIntoRecord · MK-XS-F-192 typedValueDatedBack
- *               … and 1 more — the full list is on functions_from_code
+ *               … and 77 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -2780,7 +2905,7 @@ const sameShares = (a: number, b: number) => Math.abs(a - b) <= EPS;
 
 /** The purchases of a holding the account holder took away and then, asked about the broker sending them again,
  *  answered "mine is correct" (kept away): one removal raises two questions, and either answer settles both. */
-/* ─ MK-NW-F-293 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+/* ─ MK-NW-F-293 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * keptAwayByEvent
  *
  * Answers ..... The purchases of a holding the account holder took away and then, asked about the broker sending them again, answered "mine is correct" (kept away): one removal raises two questions, and either answer settles both.
@@ -2793,15 +2918,17 @@ const sameShares = (a: number, b: number) => Math.abs(a - b) <= EPS;
  *
  * Called by ... MK-NW-F-263 sharesThatDisagree · MK-NW-F-277 purchasesFromList
  *
- * Reaches ..... 16 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-289 activityRefs · MK-NW-F-342 afterAWrite
+ * Reaches ..... 92 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS · MK-CF-F-205 COMING
+ *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
+ *               MK-CF-F-237 LATER · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-296 LOAD · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-289 activityRefs
+ *               MK-NW-F-399 after · MK-NW-F-342 afterAWrite
  *               MK-NW-F-278 answerListQuestion · MK-NW-F-337 answerQuestion
- *               MK-NW-F-194 brokerUpdateToRecord · MK-NW-F-201 fileRowsToSave
- *               MK-NW-F-338 newerListUndoes · MK-XS-F-199 profileOnTheWayIn
- *               MK-NW-F-277 purchasesFromList · MK-NW-F-324 questionsOf
- *               MK-NW-F-341 questionsStillTrue · MK-NW-F-263 sharesThatDisagree
- *               MK-NW-F-336 stillAsked · MK-XS-F-229 typedIntoRecord
- *               MK-XS-F-192 typedValueDatedBack · MK-NW-F-335 writeAnswer
+ *               … and 74 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
@@ -2831,17 +2958,17 @@ function keptAwayByEvent(record: readonly AssetRow[], accountId: string, holding
  *
  * Called by ... MK-NW-F-238 sortArriving
  *
- * Reaches ..... 41 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-289 activityRefs · MK-NW-F-342 afterAWrite
+ * Reaches ..... 110 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS · MK-CF-F-205 COMING
+ *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
+ *               MK-CF-F-237 LATER · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-296 LOAD · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-289 activityRefs
+ *               MK-NW-F-399 after · MK-NW-F-342 afterAWrite
  *               MK-NW-F-273 answerEventQuestion · MK-NW-F-278 answerListQuestion
- *               MK-NW-F-337 answerQuestion · MK-NW-F-248 answerValuesQuestion
- *               MK-NW-F-218 arrive · MK-NW-F-275 besideTheList
- *               MK-NW-F-194 brokerUpdateToRecord · MK-NW-F-326 confirmMyChangeQuestion
- *               MK-NW-F-279 differsFromGiven · MK-NW-F-325 editQuestionToAsk
- *               MK-NW-F-317 eventQuestionToAsk · MK-NW-F-271 eventsThatDiffer
- *               MK-NW-F-201 fileRowsToSave · MK-NW-F-343 lotChange
- *               MK-NW-F-221 lotsFollow · MK-XS-F-282 mergeRecord
- *               … and 23 more — the full list is on functions_from_code
+ *               … and 92 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -2904,7 +3031,7 @@ export interface ListQuestion {
  *  same purchase with two share counts, and a listed tax lot and a purchase of the same shares dated up to five days
  *  apart are the same purchase with two dates. What is left is a tax lot the record does not hold, or a purchase the
  *  list does not state. */
-/* ─ MK-NW-F-275 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+/* ─ MK-NW-F-275 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * besideTheList
  *
  * Answers ..... Set a broker's or a file's list beside the purchases still held.
@@ -2925,14 +3052,17 @@ export interface ListQuestion {
  *
  * Called by ... MK-NW-F-277 purchasesFromList
  *
- * Reaches ..... 14 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-289 activityRefs · MK-NW-F-342 afterAWrite
+ * Reaches ..... 91 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS · MK-CF-F-205 COMING
+ *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
+ *               MK-CF-F-237 LATER · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-296 LOAD · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-289 activityRefs
+ *               MK-NW-F-399 after · MK-NW-F-342 afterAWrite
  *               MK-NW-F-278 answerListQuestion · MK-NW-F-337 answerQuestion
- *               MK-NW-F-194 brokerUpdateToRecord · MK-NW-F-201 fileRowsToSave
- *               MK-NW-F-338 newerListUndoes · MK-XS-F-199 profileOnTheWayIn
- *               MK-NW-F-277 purchasesFromList · MK-NW-F-341 questionsStillTrue
- *               MK-NW-F-336 stillAsked · MK-XS-F-229 typedIntoRecord
- *               MK-XS-F-192 typedValueDatedBack · MK-NW-F-335 writeAnswer
+ *               … and 73 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -2975,7 +3105,7 @@ function besideTheList(record: readonly AssetRow[], open: readonly OpenPurchase[
 
 /** A purchase marked as replaced: it keeps only the shares already sold from it, so each earlier sale keeps what it
  *  made; with none sold it is taken away. Either way the row itself stays in the record. */
-/* ─ MK-NW-F-276 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+/* ─ MK-NW-F-276 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * replacedPurchase
  *
  * Answers ..... A purchase marked as replaced: it keeps only the shares already sold from it, so each earlier sale keeps what it made; with none sold it is taken away.
@@ -2987,14 +3117,17 @@ function besideTheList(record: readonly AssetRow[], open: readonly OpenPurchase[
  *
  * Called by ... MK-NW-F-277 purchasesFromList
  *
- * Reaches ..... 14 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-289 activityRefs · MK-NW-F-342 afterAWrite
+ * Reaches ..... 91 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS · MK-CF-F-205 COMING
+ *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
+ *               MK-CF-F-237 LATER · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-296 LOAD · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-289 activityRefs
+ *               MK-NW-F-399 after · MK-NW-F-342 afterAWrite
  *               MK-NW-F-278 answerListQuestion · MK-NW-F-337 answerQuestion
- *               MK-NW-F-194 brokerUpdateToRecord · MK-NW-F-201 fileRowsToSave
- *               MK-NW-F-338 newerListUndoes · MK-XS-F-199 profileOnTheWayIn
- *               MK-NW-F-277 purchasesFromList · MK-NW-F-341 questionsStillTrue
- *               MK-NW-F-336 stillAsked · MK-XS-F-229 typedIntoRecord
- *               MK-XS-F-192 typedValueDatedBack · MK-NW-F-335 writeAnswer
+ *               … and 73 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -3037,7 +3170,7 @@ function replacedPurchase(record: readonly AssetRow[], p: OpenPurchase, source: 
  *  list does not state is asked about on its own and holds back nothing else. A difference already answered "mine
  *  is correct" is not asked again — also after a sale or a purchase that moves both sides alike. A difference the same
  *  update's history already asks about (`askedAlready`, the questions sortArriving returned) is not asked twice. */
-/* ─ MK-NW-F-277 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+/* ─ MK-NW-F-277 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * purchasesFromList
  *
  * Answers ..... WHAT A BROKER'S UPDATE OR A FILE DOES TO THE PURCHASES OF ONE HOLDING.
@@ -3064,14 +3197,17 @@ function replacedPurchase(record: readonly AssetRow[], p: OpenPurchase, source: 
  *               MK-NW-F-338 newerListUndoes · MK-NW-F-341 questionsStillTrue
  *               MK-XS-F-192 typedValueDatedBack · MK-XS-F-199 profileOnTheWayIn
  *
- * Reaches ..... 13 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-289 activityRefs · MK-NW-F-342 afterAWrite
+ * Reaches ..... 90 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS · MK-CF-F-205 COMING
+ *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
+ *               MK-CF-F-237 LATER · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-296 LOAD · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-289 activityRefs
+ *               MK-NW-F-399 after · MK-NW-F-342 afterAWrite
  *               MK-NW-F-278 answerListQuestion · MK-NW-F-337 answerQuestion
- *               MK-NW-F-194 brokerUpdateToRecord · MK-NW-F-201 fileRowsToSave
- *               MK-NW-F-338 newerListUndoes · MK-XS-F-199 profileOnTheWayIn
- *               MK-NW-F-341 questionsStillTrue · MK-NW-F-336 stillAsked
- *               MK-XS-F-229 typedIntoRecord · MK-XS-F-192 typedValueDatedBack
- *               MK-NW-F-335 writeAnswer
+ *               … and 72 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -3142,6 +3278,16 @@ export function purchasesFromList(
   const waitingForAnAnswer = (asOf ? walkHolding(record, H, asOf).taken.filter((t) => t.accountId === accountId) : sharesTakenBy(record, accountId, H)).reduce((n, t) => n + t.unassigned, 0);
   if (waitingForAnAnswer > EPS && sameShares(onRecordAlready, valid.reduce((t, l) => t + l.shares, 0))) return done();
 
+  // case 2, from a broker that states only an average (switch gap, 2026-11-13: 10 VTI bought and sold in the history, then a
+  // first list of 30 at an average of $200 — asked "0 or 30?" and read 0 held): the first list over a record made only of
+  // the broker's own history is taken in the same way — the average is what is held, the history is kept to show. Only
+  // where the history leaves NOTHING held: an average beside dated purchases still held is asked, never averaged over them
+  if (!lots.length && averageLines.length && last == null && stillHeldOn != null && everything.length && !open.length && onRecordAlready <= EPS
+    && everything.every((r) => r.source !== 'typed' && !r.stillHeldOn && (r.date ?? '') <= stillHeldOn)) {
+    for (const r of everything) { const { rowId: _n, writtenAt: _w, ...rest } = r; rows.push({ ...rest, inListOf: stillHeldOn, source, replacesRowId: r.rowId }); }
+    rows.push(...averageLines.map(asRow));
+    return done();
+  }
   if (lots.length || !averageLines.length) {
     // case 2: the first list, over a record made only of the broker's own history
     if (last == null && stillHeldOn != null && lots.length && everything.length && !lots.some(tookAway) && !open.some((p) => p.movedInBy != null)
@@ -3314,7 +3460,7 @@ export function purchasesFromList(
  *  "Mine is correct": nothing changes, and the answer is kept so the same difference is not asked again.
  *  The question is first asked again of the record as it stands: where a transaction saved since settled it, or the same
  *  answer was already saved, the answer changes nothing. */
-/* ─ MK-NW-F-278 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+/* ─ MK-NW-F-278 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * answerListQuestion
  *
  * Answers ..... THE ACCOUNT HOLDER'S ANSWER TO A LIST QUESTION, as rows to save.
@@ -3335,10 +3481,17 @@ export function purchasesFromList(
  *
  * Called by ... MK-NW-F-335 writeAnswer
  *
- * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-278 answerListQuestion · MK-NW-F-337 answerQuestion
- *               MK-XS-F-199 profileOnTheWayIn · MK-XS-F-192 typedValueDatedBack
- *               MK-NW-F-335 writeAnswer
+ * Reaches ..... 84 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS · MK-CF-F-205 COMING
+ *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
+ *               MK-CF-F-237 LATER · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-296 LOAD · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-399 after
+ *               MK-NW-F-342 afterAWrite · MK-NW-F-278 answerListQuestion
+ *               MK-NW-F-337 answerQuestion · MK-NW-F-408 answerWords
+ *               … and 66 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -3469,7 +3622,7 @@ export function answerListQuestion(record: readonly AssetRow[], asked: ListQuest
  *  of MSFT to 320."). The figure "given" is the one a broker or a file last gave for that field, even where the account
  *  holder has since typed over another field of the row; `shares` is what the purchase holds now. An empty list means
  *  nothing differs, or the row was the account holder's own entry from the start. */
-/* ─ MK-NW-F-279 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+/* ─ MK-NW-F-279 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * differsFromGiven
  *
  * Answers ..... WHERE WHAT THE ACCOUNT HOLDER IS ABOUT TO ENTER DIFFERS FROM WHAT A BROKER OR A FILE GAVE: each figure, as given and as entered — for the confirmation the account holder sees before the change is saved (his words, 2026-11-11: "The information from Robinhood indicates price of 350, you entered 320.
@@ -3498,7 +3651,8 @@ export function answerListQuestion(record: readonly AssetRow[], asked: ListQuest
  *
  * Called by ... MK-NW-F-326 confirmMyChangeQuestion
  *
- * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-405 confirmChangeQuestion · MK-NW-F-415 confirmForSavedLots
  *               MK-NW-F-326 confirmMyChangeQuestion · MK-XS-F-199 profileOnTheWayIn
  *               MK-XS-F-192 typedValueDatedBack
  *
@@ -3559,17 +3713,17 @@ export function differsFromGiven(record: readonly AssetRow[], rowId: string, cha
  *
  * Called by ... MK-NW-F-279 differsFromGiven · MK-NW-F-281 correctRow
  *
- * Reaches ..... 49 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-289 activityRefs · MK-NW-F-342 afterAWrite
+ * Reaches ..... 125 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS · MK-CF-F-205 COMING
+ *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
+ *               MK-CF-F-237 LATER · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-296 LOAD · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-289 activityRefs
+ *               MK-NW-F-399 after · MK-NW-F-342 afterAWrite
  *               MK-NW-F-273 answerEventQuestion · MK-NW-F-278 answerListQuestion
- *               MK-NW-F-337 answerQuestion · MK-NW-F-248 answerValuesQuestion
- *               MK-NW-F-218 arrive · MK-NW-F-275 besideTheList
- *               MK-NW-F-194 brokerUpdateToRecord · MK-NW-F-326 confirmMyChangeQuestion
- *               MK-NW-F-219 correct · MK-NW-F-281 correctRow
- *               MK-XS-F-002 dataGaps · MK-NW-F-279 differsFromGiven
- *               MK-NW-F-325 editQuestionToAsk · MK-NW-F-317 eventQuestionToAsk
- *               MK-NW-F-271 eventsThatDiffer · MK-NW-F-201 fileRowsToSave
- *               … and 31 more — the full list is on functions_from_code
+ *               … and 107 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -3626,17 +3780,17 @@ function splitByOf(record: readonly AssetRow[], row: AssetRow): number {
  *               MK-NW-F-279 differsFromGiven · MK-NW-F-282 removeRow
  *               MK-NW-F-335 writeAnswer
  *
- * Reaches ..... 48 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-289 activityRefs · MK-NW-F-342 afterAWrite
+ * Reaches ..... 124 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS · MK-CF-F-205 COMING
+ *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
+ *               MK-CF-F-237 LATER · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-296 LOAD · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-289 activityRefs
+ *               MK-NW-F-399 after · MK-NW-F-342 afterAWrite
  *               MK-NW-F-273 answerEventQuestion · MK-NW-F-278 answerListQuestion
- *               MK-NW-F-337 answerQuestion · MK-NW-F-248 answerValuesQuestion
- *               MK-NW-F-218 arrive · MK-NW-F-275 besideTheList
- *               MK-NW-F-194 brokerUpdateToRecord · MK-NW-F-326 confirmMyChangeQuestion
- *               MK-NW-F-219 correct · MK-XS-F-002 dataGaps
- *               MK-NW-F-279 differsFromGiven · MK-NW-F-325 editQuestionToAsk
- *               MK-NW-F-317 eventQuestionToAsk · MK-NW-F-271 eventsThatDiffer
- *               MK-NW-F-201 fileRowsToSave · MK-XS-F-254 giveBackSetAside
- *               … and 30 more — the full list is on functions_from_code
+ *               … and 106 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -3705,13 +3859,17 @@ export function correctRow(
  *
  * Called by ... MK-NW-F-220 remove · MK-NW-F-335 writeAnswer
  *
- * Reaches ..... 11 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-278 answerListQuestion · MK-NW-F-337 answerQuestion
- *               MK-XS-F-254 giveBackSetAside · MK-NW-F-221 lotsFollow
- *               MK-NW-F-228 moveOldCopies · MK-XS-F-199 profileOnTheWayIn
- *               MK-NW-F-220 remove · MK-NW-F-224 typedChangeToRecord
- *               MK-XS-F-229 typedIntoRecord · MK-XS-F-192 typedValueDatedBack
- *               MK-NW-F-335 writeAnswer
+ * Reaches ..... 86 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS · MK-CF-F-205 COMING
+ *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
+ *               MK-CF-F-237 LATER · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-296 LOAD · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-399 after
+ *               MK-NW-F-342 afterAWrite · MK-NW-F-278 answerListQuestion
+ *               MK-NW-F-337 answerQuestion · MK-NW-F-408 answerWords
+ *               … and 68 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -3738,7 +3896,7 @@ export function removeRow(record: readonly AssetRow[], rowId: string, source: Ro
 
 /** How many shares each share became through the splits of one holding in one account dated after `from` and on or
  *  before `to`. */
-/* ─ MK-NW-F-283 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+/* ─ MK-NW-F-283 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * splitsBetween
  *
  * Answers ..... How many shares each share became through the splits of one holding in one account dated after `from` and on or before `to`.
@@ -3748,8 +3906,13 @@ export function removeRow(record: readonly AssetRow[], rowId: string, source: Ro
  *
  * Called by ... MK-NW-F-284 activityOf
  *
- * Reaches ..... 1 function. Change the arithmetic above and these change with it:
- *               MK-NW-F-284 activityOf
+ * Reaches ..... 11 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-284 activityOf · MK-NW-F-382 explainedDifference
+ *               MK-XS-F-324 holdTheSwitch · MK-XS-F-199 profileOnTheWayIn
+ *               MK-NW-F-376 readOuts · MK-XS-F-318 readOutsInShadow
+ *               MK-XS-F-322 savedTogether · MK-XS-F-317 screensFromTheRecord
+ *               MK-NW-F-385 screensReadTheRecord · MK-NW-F-372 transactionsReadOut
+ *               MK-XS-F-192 typedValueDatedBack
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
@@ -3778,7 +3941,7 @@ function splitsBetween(record: readonly AssetRow[], accountId: string, holding: 
  *     as two holding - record them as two, and not one"). A purchase the account holder corrected shows as corrected.
  *   · THE ACTIVITY ADDS UP to the shares on record: where an answer about a list changed the shares with no
  *     transaction behind it, one ADJUSTMENT line (shown only, never saved) says by how many, dated by the list. */
-/* ─ MK-NW-F-284 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+/* ─ MK-NW-F-284 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * activityOf
  *
  * Answers ..... The activity of an account: every purchase, sale, dividend, interest payment, deposit, withdrawal, transfer (out of it or into it), fee, split and unknown word on record, the dated ones oldest first and the undated after them.
@@ -3798,7 +3961,14 @@ function splitsBetween(record: readonly AssetRow[], accountId: string, holding: 
  *     [LOOP — the answer is found inside a loop the extractor cannot render; the steps above are the ones before it. Read by hand.]
  *     … the first steps only — the rest of the body needs reading by hand.
  *
- * Called by ... nothing — it is an entry point, or nothing reaches it
+ * Called by ... MK-NW-F-372 transactionsReadOut
+ *
+ * Reaches ..... 10 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-382 explainedDifference · MK-XS-F-324 holdTheSwitch
+ *               MK-XS-F-199 profileOnTheWayIn · MK-NW-F-376 readOuts
+ *               MK-XS-F-318 readOutsInShadow · MK-XS-F-322 savedTogether
+ *               MK-XS-F-317 screensFromTheRecord · MK-NW-F-385 screensReadTheRecord
+ *               MK-NW-F-372 transactionsReadOut · MK-XS-F-192 typedValueDatedBack
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -3940,7 +4110,7 @@ export function activityOf(record: readonly AssetRow[], accountId: string): Asse
 
 /** The facts on record for an account (holding null) or one of its holdings: each fact as last given, a typed fact
  *  standing in front of a linked or file one however late that one arrived. A blank is not a fact: it changes nothing. */
-/* ─ MK-NW-F-285 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+/* ─ MK-NW-F-285 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * factsOf
  *
  * Answers ..... The facts on record for an account (holding null) or one of its holdings: each fact as last given, a typed fact standing in front of a linked or file one however late that one arrived.
@@ -3952,19 +4122,22 @@ export function activityOf(record: readonly AssetRow[], accountId: string): Asse
  *     the answer = out
  *
  * Called by ... MK-NW-F-194 brokerUpdateToRecord · MK-NW-F-205 priceFeedValues
- *               MK-NW-F-312 optionDetailsOf
+ *               MK-NW-F-312 optionDetailsOf · MK-NW-F-361 valueToday
+ *               MK-NW-F-364 positionReadOut · MK-NW-F-365 accountReadOut
+ *               MK-NW-F-366 removedOnRecord · MK-NW-F-368 perContractOf
+ *               MK-NW-F-369 quotedFactor
  *
- * Reaches ..... 21 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-289 activityRefs · MK-NW-F-342 afterAWrite
- *               MK-NW-F-278 answerListQuestion · MK-NW-F-337 answerQuestion
- *               MK-NW-F-194 brokerUpdateToRecord · MK-NW-F-193 eventRow
- *               MK-NW-F-201 fileRowsToSave · MK-NW-F-319 listQuestionToAsk
- *               MK-NW-F-338 newerListUndoes · MK-NW-F-340 oneQuestionPerExercise
- *               MK-NW-F-312 optionDetailsOf · MK-NW-F-313 optionExpiryOf
- *               MK-NW-F-205 priceFeedValues · MK-XS-F-199 profileOnTheWayIn
- *               MK-NW-F-277 purchasesFromList · MK-NW-F-324 questionsOf
- *               MK-NW-F-341 questionsStillTrue · MK-NW-F-336 stillAsked
- *               … and 3 more — the full list is on functions_from_code
+ * Reaches ..... 113 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS · MK-CF-F-205 COMING
+ *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
+ *               MK-CF-F-237 LATER · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-296 LOAD · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-365 accountReadOut
+ *               MK-NW-F-367 accountsReadOut · MK-NW-F-289 activityRefs
+ *               MK-NW-F-399 after · MK-NW-F-342 afterAWrite
+ *               … and 95 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -3981,6 +4154,8 @@ export function factsOf(record: readonly AssetRow[], accountId: string, holding:
     .sort((a, b) => instantOf(a.writtenAt) - instantOf(b.writtenAt) || at(a.rowId) - at(b.rowId));
   const out: Record<string, unknown> = {}, typed = new Set<string>();
   for (const r of rows) for (const [k, v] of Object.entries(r.facts ?? {})) {
+    // details the account holder emptied (a bond's price paid taken out of its box): taken away, never left standing
+    if (k === 'clears' && Array.isArray(v)) { for (const c of v) { delete out[String(c)]; typed.delete(String(c)); } continue; }
     if (v == null || v === '') continue;
     if (r.source !== 'typed' && typed.has(k)) continue;
     out[k] = v;
@@ -4067,7 +4242,7 @@ export const saysWho: SaysWho = (_a, source) => (source === 'file' ? 'your file'
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 /** A day in words: "Feb 10, 2026", or "Feb 10" without its year. */
-/* ─ MK-NW-F-298 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+/* ─ MK-NW-F-298 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * dayInWords
  *
  * Answers ..... A day in words: "Feb 10, 2026", or "Feb 10" without its year.
@@ -4084,17 +4259,17 @@ const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', '
  *               MK-NW-F-330 undoAskQuestion · MK-NW-F-337 answerQuestion
  *               MK-NW-F-338 newerListUndoes
  *
- * Reaches ..... 20 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 93 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS · MK-CF-F-205 COMING
+ *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
+ *               MK-CF-F-237 LATER · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-296 LOAD · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-399 after
  *               MK-NW-F-342 afterAWrite · MK-NW-F-278 answerListQuestion
- *               MK-NW-F-337 answerQuestion · MK-NW-F-326 confirmMyChangeQuestion
- *               MK-NW-F-325 editQuestionToAsk · MK-NW-F-317 eventQuestionToAsk
- *               MK-NW-F-201 fileRowsToSave · MK-NW-F-319 listQuestionToAsk
- *               MK-NW-F-318 lotsWords · MK-NW-F-338 newerListUndoes
- *               MK-XS-F-199 profileOnTheWayIn · MK-NW-F-324 questionsOf
- *               MK-NW-F-320 saleQuestionToAsk · MK-NW-F-316 salesSentence
- *               MK-NW-F-339 settleTwoPhones · MK-XS-F-229 typedIntoRecord
- *               MK-XS-F-192 typedValueDatedBack · MK-NW-F-329 undoAnswer
- *               … and 2 more — the full list is on functions_from_code
+ *               MK-NW-F-337 answerQuestion · MK-NW-F-408 answerWords
+ *               … and 75 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -4117,17 +4292,17 @@ const dayInWords = (d: string | null | undefined, year = true): string => {
  *
  * Called by ... MK-NW-F-300 countWords · MK-NW-F-301 dollarWords
  *
- * Reaches ..... 23 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 96 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS · MK-CF-F-205 COMING
+ *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
+ *               MK-CF-F-237 LATER · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-296 LOAD · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-399 after
  *               MK-NW-F-342 afterAWrite · MK-NW-F-278 answerListQuestion
- *               MK-NW-F-337 answerQuestion · MK-NW-F-326 confirmMyChangeQuestion
- *               MK-NW-F-300 countWords · MK-NW-F-301 dollarWords
- *               MK-NW-F-325 editQuestionToAsk · MK-NW-F-317 eventQuestionToAsk
- *               MK-NW-F-201 fileRowsToSave · MK-NW-F-319 listQuestionToAsk
- *               MK-NW-F-318 lotsWords · MK-NW-F-338 newerListUndoes
- *               MK-XS-F-199 profileOnTheWayIn · MK-NW-F-324 questionsOf
- *               MK-NW-F-303 ratioWords · MK-NW-F-320 saleQuestionToAsk
- *               MK-NW-F-316 salesSentence · MK-NW-F-339 settleTwoPhones
- *               … and 5 more — the full list is on functions_from_code
+ *               MK-NW-F-337 answerQuestion · MK-NW-F-408 answerWords
+ *               … and 78 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -4136,7 +4311,7 @@ const dayInWords = (d: string | null | undefined, year = true): string => {
  */
 const withCommas = (s: string) => s.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 /** A number of shares as words show it: 1,000 · 2.5. */
-/* ─ MK-NW-F-300 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+/* ─ MK-NW-F-300 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * countWords
  *
  * Answers ..... A number of shares as words show it: 1,000 · 2.5.
@@ -4152,17 +4327,17 @@ const withCommas = (s: string) => s.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
  *               MK-NW-F-326 confirmMyChangeQuestion · MK-NW-F-330 undoAskQuestion
  *               MK-NW-F-338 newerListUndoes
  *
- * Reaches ..... 21 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 94 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS · MK-CF-F-205 COMING
+ *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
+ *               MK-CF-F-237 LATER · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-296 LOAD · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-399 after
  *               MK-NW-F-342 afterAWrite · MK-NW-F-278 answerListQuestion
- *               MK-NW-F-337 answerQuestion · MK-NW-F-326 confirmMyChangeQuestion
- *               MK-NW-F-325 editQuestionToAsk · MK-NW-F-317 eventQuestionToAsk
- *               MK-NW-F-201 fileRowsToSave · MK-NW-F-319 listQuestionToAsk
- *               MK-NW-F-318 lotsWords · MK-NW-F-338 newerListUndoes
- *               MK-XS-F-199 profileOnTheWayIn · MK-NW-F-324 questionsOf
- *               MK-NW-F-303 ratioWords · MK-NW-F-320 saleQuestionToAsk
- *               MK-NW-F-316 salesSentence · MK-NW-F-339 settleTwoPhones
- *               MK-XS-F-229 typedIntoRecord · MK-XS-F-192 typedValueDatedBack
- *               … and 3 more — the full list is on functions_from_code
+ *               MK-NW-F-337 answerQuestion · MK-NW-F-408 answerWords
+ *               … and 76 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -4178,7 +4353,7 @@ const countWords = (n: number | null | undefined): string => {
   return `${n < 0 ? '−' : ''}${withCommas(w)}${f ? `.${f}` : ''}`;
 };
 /** Dollars as words show them: $210 · $4.50 · $169,665 (rounded at display only). */
-/* ─ MK-NW-F-301 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+/* ─ MK-NW-F-301 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * dollarWords
  *
  * Answers ..... Dollars as words show them: $210 · $4.50 · $169,665 (rounded at display only).
@@ -4194,17 +4369,17 @@ const countWords = (n: number | null | undefined): string => {
  *               MK-NW-F-325 editQuestionToAsk · MK-NW-F-326 confirmMyChangeQuestion
  *               MK-NW-F-330 undoAskQuestion
  *
- * Reaches ..... 20 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 93 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS · MK-CF-F-205 COMING
+ *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
+ *               MK-CF-F-237 LATER · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-296 LOAD · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-399 after
  *               MK-NW-F-342 afterAWrite · MK-NW-F-278 answerListQuestion
- *               MK-NW-F-337 answerQuestion · MK-NW-F-326 confirmMyChangeQuestion
- *               MK-NW-F-325 editQuestionToAsk · MK-NW-F-317 eventQuestionToAsk
- *               MK-NW-F-201 fileRowsToSave · MK-NW-F-319 listQuestionToAsk
- *               MK-NW-F-318 lotsWords · MK-NW-F-338 newerListUndoes
- *               MK-XS-F-199 profileOnTheWayIn · MK-NW-F-324 questionsOf
- *               MK-NW-F-320 saleQuestionToAsk · MK-NW-F-316 salesSentence
- *               MK-NW-F-339 settleTwoPhones · MK-XS-F-229 typedIntoRecord
- *               MK-XS-F-192 typedValueDatedBack · MK-NW-F-329 undoAnswer
- *               … and 2 more — the full list is on functions_from_code
+ *               MK-NW-F-337 answerQuestion · MK-NW-F-408 answerWords
+ *               … and 75 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -4232,21 +4407,29 @@ const dollarWords = (n: number | null | undefined, cents = false): string => {
  *
  * Called by ... MK-NW-F-317 eventQuestionToAsk · MK-NW-F-319 listQuestionToAsk
  *               MK-NW-F-324 questionsOf · MK-NW-F-337 answerQuestion
- *               MK-NW-F-338 newerListUndoes
+ *               MK-NW-F-338 newerListUndoes · MK-NW-F-396 otherSays
+ *               MK-NW-F-397 questionSummary · MK-NW-F-400 choiceMakes
+ *               MK-NW-F-402 questionFootLine · MK-NW-F-407 enteredOverGiven
+ *               MK-NW-F-408 answerWords
  *
- * Reaches ..... 10 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-278 answerListQuestion · MK-NW-F-337 answerQuestion
- *               MK-NW-F-317 eventQuestionToAsk · MK-NW-F-201 fileRowsToSave
- *               MK-NW-F-319 listQuestionToAsk · MK-NW-F-338 newerListUndoes
- *               MK-XS-F-199 profileOnTheWayIn · MK-NW-F-324 questionsOf
- *               MK-XS-F-192 typedValueDatedBack · MK-NW-F-335 writeAnswer
+ * Reaches ..... 86 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS · MK-CF-F-205 COMING
+ *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
+ *               MK-CF-F-237 LATER · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-296 LOAD · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-399 after
+ *               MK-NW-F-342 afterAWrite · MK-NW-F-278 answerListQuestion
+ *               MK-NW-F-337 answerQuestion · MK-NW-F-408 answerWords
+ *               … and 68 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
  * Formula also on the master file · functions_from_code · MK-NW-F-302
  * Changed ..... not in git yet (—)
  */
-const firstUp = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+export const firstUp = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 /** Writes a split ratio as words show it: 2 reads "2-for-1" and a half reads "1-for-2"; a missing ratio reads "not known". */
 /* ─ MK-NW-F-303 ──────────────────────────────────────────────────────────────────── 1 · ACTION
  * ratioWords
@@ -4258,8 +4441,15 @@ const firstUp = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
  *
  * Called by ... MK-NW-F-317 eventQuestionToAsk
  *
- * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-317 eventQuestionToAsk · MK-NW-F-324 questionsOf
+ * Reaches ..... 15 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-408 answerWords
+ *               MK-NW-F-409 answersShown · MK-NW-F-400 choiceMakes
+ *               MK-NW-F-405 confirmChangeQuestion · MK-NW-F-415 confirmForSavedLots
+ *               MK-NW-F-407 enteredOverGiven · MK-NW-F-317 eventQuestionToAsk
+ *               MK-NW-F-396 otherSays · MK-NW-F-402 questionFootLine
+ *               MK-NW-F-395 questionHeadline · MK-NW-F-397 questionSummary
+ *               MK-NW-F-398 questionsCountLine · MK-NW-F-324 questionsOf
+ *               MK-NW-F-391 whoSaysFor
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -4278,8 +4468,15 @@ const ratioWords = (r: number | null | undefined) => (r == null ? 'not known' : 
  *
  * Called by ... MK-NW-F-325 editQuestionToAsk
  *
- * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-325 editQuestionToAsk · MK-NW-F-324 questionsOf
+ * Reaches ..... 15 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-408 answerWords
+ *               MK-NW-F-409 answersShown · MK-NW-F-400 choiceMakes
+ *               MK-NW-F-405 confirmChangeQuestion · MK-NW-F-415 confirmForSavedLots
+ *               MK-NW-F-325 editQuestionToAsk · MK-NW-F-407 enteredOverGiven
+ *               MK-NW-F-396 otherSays · MK-NW-F-402 questionFootLine
+ *               MK-NW-F-395 questionHeadline · MK-NW-F-397 questionSummary
+ *               MK-NW-F-398 questionsCountLine · MK-NW-F-324 questionsOf
+ *               MK-NW-F-391 whoSaysFor
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -4300,15 +4497,17 @@ const countOf = (n: number) => (['None', 'One', 'Two', 'Three', 'Four', 'Five'][
  *               MK-NW-F-332 rowsOfChange · MK-NW-F-333 sharesToStated
  *               MK-NW-F-335 writeAnswer
  *
- * Reaches ..... 15 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 90 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS · MK-CF-F-205 COMING
+ *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
+ *               MK-CF-F-237 LATER · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-296 LOAD · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-399 after
  *               MK-NW-F-342 afterAWrite · MK-NW-F-278 answerListQuestion
- *               MK-NW-F-337 answerQuestion · MK-NW-F-201 fileRowsToSave
- *               MK-NW-F-319 listQuestionToAsk · MK-NW-F-338 newerListUndoes
- *               MK-XS-F-199 profileOnTheWayIn · MK-NW-F-324 questionsOf
- *               MK-NW-F-332 rowsOfChange · MK-NW-F-339 settleTwoPhones
- *               MK-NW-F-333 sharesToStated · MK-XS-F-229 typedIntoRecord
- *               MK-XS-F-192 typedValueDatedBack · MK-NW-F-329 undoAnswer
- *               MK-NW-F-335 writeAnswer
+ *               MK-NW-F-337 answerQuestion · MK-NW-F-408 answerWords
+ *               … and 72 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -4323,7 +4522,7 @@ const questionNameFrom = (accountId: string, holding: string | null, family: Que
 
 /** A list question's name from its signature: the purchases on record and the listed dates, without the gap or a price. A
  *  signature written by an earlier answer gives the same name, so an old answer is found by it (step 2). */
-/* ─ MK-NW-F-306 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+/* ─ MK-NW-F-306 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * listNameFromSignature
  *
  * Answers ..... A list question's name from its signature: the purchases on record and the listed dates, without the gap or a price.
@@ -4333,17 +4532,17 @@ const questionNameFrom = (accountId: string, holding: string | null, family: Que
  *
  * Called by ... MK-NW-F-308 listQuestionName · MK-NW-F-328 keyOldAnswers
  *
- * Reaches ..... 24 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 97 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS · MK-CF-F-205 COMING
+ *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
+ *               MK-CF-F-237 LATER · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-296 LOAD · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-399 after
  *               MK-NW-F-342 afterAWrite · MK-NW-F-278 answerListQuestion
- *               MK-NW-F-337 answerQuestion · MK-NW-F-326 confirmMyChangeQuestion
- *               MK-NW-F-325 editQuestionToAsk · MK-NW-F-317 eventQuestionToAsk
- *               MK-NW-F-201 fileRowsToSave · MK-NW-F-328 keyOldAnswers
- *               MK-NW-F-308 listQuestionName · MK-NW-F-319 listQuestionToAsk
- *               MK-NW-F-311 makeQuestion · MK-NW-F-338 newerListUndoes
- *               MK-XS-F-199 profileOnTheWayIn · MK-NW-F-309 questionName
- *               MK-NW-F-324 questionsOf · MK-NW-F-341 questionsStillTrue
- *               MK-NW-F-320 saleQuestionToAsk · MK-NW-F-339 settleTwoPhones
- *               … and 6 more — the full list is on functions_from_code
+ *               MK-NW-F-337 answerQuestion · MK-NW-F-408 answerWords
+ *               … and 79 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -4377,17 +4576,17 @@ export function listNameFromSignature(accountId: string, holding: string | null,
  * Called by ... MK-NW-F-309 questionName · MK-NW-F-336 stillAsked
  *               MK-NW-F-341 questionsStillTrue
  *
- * Reaches ..... 22 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 95 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS · MK-CF-F-205 COMING
+ *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
+ *               MK-CF-F-237 LATER · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-296 LOAD · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-399 after
  *               MK-NW-F-342 afterAWrite · MK-NW-F-278 answerListQuestion
- *               MK-NW-F-337 answerQuestion · MK-NW-F-326 confirmMyChangeQuestion
- *               MK-NW-F-325 editQuestionToAsk · MK-NW-F-317 eventQuestionToAsk
- *               MK-NW-F-201 fileRowsToSave · MK-NW-F-319 listQuestionToAsk
- *               MK-NW-F-311 makeQuestion · MK-NW-F-338 newerListUndoes
- *               MK-XS-F-199 profileOnTheWayIn · MK-NW-F-309 questionName
- *               MK-NW-F-324 questionsOf · MK-NW-F-341 questionsStillTrue
- *               MK-NW-F-320 saleQuestionToAsk · MK-NW-F-339 settleTwoPhones
- *               MK-NW-F-336 stillAsked · MK-XS-F-229 typedIntoRecord
- *               … and 4 more — the full list is on functions_from_code
+ *               MK-NW-F-337 answerQuestion · MK-NW-F-408 answerWords
+ *               … and 77 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -4407,17 +4606,17 @@ export const eventQuestionName = (q: EventQuestion): string => questionNameFrom(
  * Called by ... MK-NW-F-309 questionName · MK-NW-F-336 stillAsked
  *               MK-NW-F-341 questionsStillTrue
  *
- * Reaches ..... 22 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 95 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS · MK-CF-F-205 COMING
+ *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
+ *               MK-CF-F-237 LATER · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-296 LOAD · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-399 after
  *               MK-NW-F-342 afterAWrite · MK-NW-F-278 answerListQuestion
- *               MK-NW-F-337 answerQuestion · MK-NW-F-326 confirmMyChangeQuestion
- *               MK-NW-F-325 editQuestionToAsk · MK-NW-F-317 eventQuestionToAsk
- *               MK-NW-F-201 fileRowsToSave · MK-NW-F-319 listQuestionToAsk
- *               MK-NW-F-311 makeQuestion · MK-NW-F-338 newerListUndoes
- *               MK-XS-F-199 profileOnTheWayIn · MK-NW-F-309 questionName
- *               MK-NW-F-324 questionsOf · MK-NW-F-341 questionsStillTrue
- *               MK-NW-F-320 saleQuestionToAsk · MK-NW-F-339 settleTwoPhones
- *               MK-NW-F-336 stillAsked · MK-XS-F-229 typedIntoRecord
- *               … and 4 more — the full list is on functions_from_code
+ *               MK-NW-F-337 answerQuestion · MK-NW-F-408 answerWords
+ *               … and 77 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -4427,7 +4626,7 @@ export const eventQuestionName = (q: EventQuestion): string => questionNameFrom(
 export const listQuestionName = (q: ListQuestion): string => listNameFromSignature(q.accountId, q.holding, q.signature);
 
 /** Step 1: the name of any question (rule 1). */
-/* ─ MK-NW-F-309 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+/* ─ MK-NW-F-309 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * questionName
  *
  * Answers ..... Step 1: the name of any question (rule 1).
@@ -4437,17 +4636,17 @@ export const listQuestionName = (q: ListQuestion): string => listNameFromSignatu
  *
  * Called by ... MK-NW-F-311 makeQuestion
  *
- * Reaches ..... 19 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 92 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS · MK-CF-F-205 COMING
+ *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
+ *               MK-CF-F-237 LATER · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-296 LOAD · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-399 after
  *               MK-NW-F-342 afterAWrite · MK-NW-F-278 answerListQuestion
- *               MK-NW-F-337 answerQuestion · MK-NW-F-326 confirmMyChangeQuestion
- *               MK-NW-F-325 editQuestionToAsk · MK-NW-F-317 eventQuestionToAsk
- *               MK-NW-F-201 fileRowsToSave · MK-NW-F-319 listQuestionToAsk
- *               MK-NW-F-311 makeQuestion · MK-NW-F-338 newerListUndoes
- *               MK-XS-F-199 profileOnTheWayIn · MK-NW-F-324 questionsOf
- *               MK-NW-F-320 saleQuestionToAsk · MK-NW-F-339 settleTwoPhones
- *               MK-XS-F-229 typedIntoRecord · MK-XS-F-192 typedValueDatedBack
- *               MK-NW-F-329 undoAnswer · MK-NW-F-330 undoAskQuestion
- *               … and 1 more — the full list is on functions_from_code
+ *               MK-NW-F-337 answerQuestion · MK-NW-F-408 answerWords
+ *               … and 74 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -4474,7 +4673,7 @@ export function questionName(q: Omit<AssetQuestion, 'name' | 'difference' | 'sen
   }
 }
 /** Step 1: the difference of any question — its name with the figures (rule 1, rule 8). */
-/* ─ MK-NW-F-310 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+/* ─ MK-NW-F-310 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * differenceKey
  *
  * Answers ..... Step 1: the difference of any question — its name with the figures (rule 1, rule 8).
@@ -4486,17 +4685,17 @@ export function questionName(q: Omit<AssetQuestion, 'name' | 'difference' | 'sen
  *
  * Called by ... MK-NW-F-311 makeQuestion
  *
- * Reaches ..... 19 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 92 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS · MK-CF-F-205 COMING
+ *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
+ *               MK-CF-F-237 LATER · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-296 LOAD · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-399 after
  *               MK-NW-F-342 afterAWrite · MK-NW-F-278 answerListQuestion
- *               MK-NW-F-337 answerQuestion · MK-NW-F-326 confirmMyChangeQuestion
- *               MK-NW-F-325 editQuestionToAsk · MK-NW-F-317 eventQuestionToAsk
- *               MK-NW-F-201 fileRowsToSave · MK-NW-F-319 listQuestionToAsk
- *               MK-NW-F-311 makeQuestion · MK-NW-F-338 newerListUndoes
- *               MK-XS-F-199 profileOnTheWayIn · MK-NW-F-324 questionsOf
- *               MK-NW-F-320 saleQuestionToAsk · MK-NW-F-339 settleTwoPhones
- *               MK-XS-F-229 typedIntoRecord · MK-XS-F-192 typedValueDatedBack
- *               MK-NW-F-329 undoAnswer · MK-NW-F-330 undoAskQuestion
- *               … and 1 more — the full list is on functions_from_code
+ *               MK-NW-F-337 answerQuestion · MK-NW-F-408 answerWords
+ *               … and 74 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -4557,7 +4756,7 @@ const CHOICES: Record<QuestionKind, [string, string][]> = {
 };
 
 /** A question, whole: its family, name, difference and choices filled in around what it is about and its sentence. */
-/* ─ MK-NW-F-311 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+/* ─ MK-NW-F-311 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * makeQuestion
  *
  * Answers ..... A question, whole: its family, name, difference and choices filled in around what it is about and its sentence.
@@ -4571,16 +4770,17 @@ const CHOICES: Record<QuestionKind, [string, string][]> = {
  *               MK-NW-F-325 editQuestionToAsk · MK-NW-F-326 confirmMyChangeQuestion
  *               MK-NW-F-330 undoAskQuestion
  *
- * Reaches ..... 18 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 91 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS · MK-CF-F-205 COMING
+ *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
+ *               MK-CF-F-237 LATER · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-296 LOAD · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-399 after
  *               MK-NW-F-342 afterAWrite · MK-NW-F-278 answerListQuestion
- *               MK-NW-F-337 answerQuestion · MK-NW-F-326 confirmMyChangeQuestion
- *               MK-NW-F-325 editQuestionToAsk · MK-NW-F-317 eventQuestionToAsk
- *               MK-NW-F-201 fileRowsToSave · MK-NW-F-319 listQuestionToAsk
- *               MK-NW-F-338 newerListUndoes · MK-XS-F-199 profileOnTheWayIn
- *               MK-NW-F-324 questionsOf · MK-NW-F-320 saleQuestionToAsk
- *               MK-NW-F-339 settleTwoPhones · MK-XS-F-229 typedIntoRecord
- *               MK-XS-F-192 typedValueDatedBack · MK-NW-F-329 undoAnswer
- *               MK-NW-F-330 undoAskQuestion · MK-NW-F-335 writeAnswer
+ *               MK-NW-F-337 answerQuestion · MK-NW-F-408 answerWords
+ *               … and 73 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
@@ -4597,7 +4797,7 @@ function makeQuestion(q: Omit<AssetQuestion, 'family' | 'name' | 'difference' | 
 }
 
 /** What an option is, from its facts on record, else from its own name (the OCC symbol: AAPL  260220C00260000). */
-/* ─ MK-NW-F-312 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+/* ─ MK-NW-F-312 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * optionDetailsOf
  *
  * Answers ..... What an option is, from its facts on record, else from its own name (the OCC symbol: AAPL  260220C00260000).
@@ -4614,17 +4814,17 @@ function makeQuestion(q: Omit<AssetQuestion, 'family' | 'name' | 'difference' | 
  * Called by ... MK-NW-F-313 optionExpiryOf · MK-NW-F-319 listQuestionToAsk
  *               MK-NW-F-340 oneQuestionPerExercise
  *
- * Reaches ..... 19 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-289 activityRefs · MK-NW-F-342 afterAWrite
+ * Reaches ..... 94 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS · MK-CF-F-205 COMING
+ *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
+ *               MK-CF-F-237 LATER · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-296 LOAD · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-289 activityRefs
+ *               MK-NW-F-399 after · MK-NW-F-342 afterAWrite
  *               MK-NW-F-278 answerListQuestion · MK-NW-F-337 answerQuestion
- *               MK-NW-F-194 brokerUpdateToRecord · MK-NW-F-193 eventRow
- *               MK-NW-F-201 fileRowsToSave · MK-NW-F-319 listQuestionToAsk
- *               MK-NW-F-338 newerListUndoes · MK-NW-F-340 oneQuestionPerExercise
- *               MK-NW-F-313 optionExpiryOf · MK-XS-F-199 profileOnTheWayIn
- *               MK-NW-F-277 purchasesFromList · MK-NW-F-324 questionsOf
- *               MK-NW-F-341 questionsStillTrue · MK-NW-F-336 stillAsked
- *               MK-XS-F-229 typedIntoRecord · MK-XS-F-192 typedValueDatedBack
- *               … and 1 more — the full list is on functions_from_code
+ *               … and 76 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-034 option positions — contracts, strike, expiry, put or call
@@ -4645,7 +4845,7 @@ export function optionDetailsOf(record: readonly AssetRow[], accountId: string, 
   };
 }
 /** Rule 6: an option's expiry date — the fact kept for it, else its own name's. Null where the holding is not an option. */
-/* ─ MK-NW-F-313 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+/* ─ MK-NW-F-313 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * optionExpiryOf
  *
  * Answers ..... Rule 6: an option's expiry date — the fact kept for it, else its own name's.
@@ -4656,15 +4856,17 @@ export function optionDetailsOf(record: readonly AssetRow[], accountId: string, 
  * Called by ... MK-NW-F-193 eventRow · MK-NW-F-201 fileRowsToSave
  *               MK-NW-F-277 purchasesFromList · MK-NW-F-335 writeAnswer
  *
- * Reaches ..... 15 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-289 activityRefs · MK-NW-F-342 afterAWrite
+ * Reaches ..... 92 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS · MK-CF-F-205 COMING
+ *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
+ *               MK-CF-F-237 LATER · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-296 LOAD · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-289 activityRefs
+ *               MK-NW-F-399 after · MK-NW-F-342 afterAWrite
  *               MK-NW-F-278 answerListQuestion · MK-NW-F-337 answerQuestion
- *               MK-NW-F-194 brokerUpdateToRecord · MK-NW-F-193 eventRow
- *               MK-NW-F-201 fileRowsToSave · MK-NW-F-338 newerListUndoes
- *               MK-XS-F-199 profileOnTheWayIn · MK-NW-F-277 purchasesFromList
- *               MK-NW-F-341 questionsStillTrue · MK-NW-F-336 stillAsked
- *               MK-XS-F-229 typedIntoRecord · MK-XS-F-192 typedValueDatedBack
- *               MK-NW-F-335 writeAnswer
+ *               … and 74 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-034 option positions — contracts, strike, expiry, put or call
@@ -4678,7 +4880,7 @@ export function optionExpiryOf(record: readonly AssetRow[], accountId: string, h
 
 /** L6's test (rule 3): the list differs from the record only by which purchase one sale, naming none, sold from. Returns
  *  the pairs and the sale with the purchases the list names; with several such sales, each is asked which (S1). */
-/* ─ MK-NW-F-314 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+/* ─ MK-NW-F-314 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * listNamesTheSoldLot
  *
  * Answers ..... L6's test (rule 3): the list differs from the record only by which purchase one sale, naming none, sold from.
@@ -4700,14 +4902,17 @@ export function optionExpiryOf(record: readonly AssetRow[], accountId: string, h
  *
  * Called by ... MK-NW-F-277 purchasesFromList
  *
- * Reaches ..... 14 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-289 activityRefs · MK-NW-F-342 afterAWrite
+ * Reaches ..... 91 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS · MK-CF-F-205 COMING
+ *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
+ *               MK-CF-F-237 LATER · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-296 LOAD · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-289 activityRefs
+ *               MK-NW-F-399 after · MK-NW-F-342 afterAWrite
  *               MK-NW-F-278 answerListQuestion · MK-NW-F-337 answerQuestion
- *               MK-NW-F-194 brokerUpdateToRecord · MK-NW-F-201 fileRowsToSave
- *               MK-NW-F-338 newerListUndoes · MK-XS-F-199 profileOnTheWayIn
- *               MK-NW-F-277 purchasesFromList · MK-NW-F-341 questionsStillTrue
- *               MK-NW-F-336 stillAsked · MK-XS-F-229 typedIntoRecord
- *               MK-XS-F-192 typedValueDatedBack · MK-NW-F-335 writeAnswer
+ *               … and 73 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -4757,14 +4962,17 @@ function listNamesTheSoldLot(record: readonly AssetRow[], accountId: string, H: 
  *
  * Called by ... MK-NW-F-317 eventQuestionToAsk · MK-NW-F-330 undoAskQuestion
  *
- * Reaches ..... 14 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 89 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS · MK-CF-F-205 COMING
+ *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
+ *               MK-CF-F-237 LATER · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-296 LOAD · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-399 after
  *               MK-NW-F-342 afterAWrite · MK-NW-F-278 answerListQuestion
- *               MK-NW-F-337 answerQuestion · MK-NW-F-317 eventQuestionToAsk
- *               MK-NW-F-201 fileRowsToSave · MK-NW-F-338 newerListUndoes
- *               MK-XS-F-199 profileOnTheWayIn · MK-NW-F-324 questionsOf
- *               MK-NW-F-339 settleTwoPhones · MK-XS-F-229 typedIntoRecord
- *               MK-XS-F-192 typedValueDatedBack · MK-NW-F-329 undoAnswer
- *               MK-NW-F-330 undoAskQuestion · MK-NW-F-335 writeAnswer
+ *               MK-NW-F-337 answerQuestion · MK-NW-F-408 answerWords
+ *               … and 71 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
@@ -4774,18 +4982,25 @@ function listNamesTheSoldLot(record: readonly AssetRow[], accountId: string, H: 
  */
 const verbOf = (kind: RowKind) => (kind === 'PURCHASE' ? 'bought' : kind === 'SALE' ? 'sold' : kind === 'TRANSFER' ? 'moved' : kind.toLowerCase());
 /** Each past sale an answer would move, as the sentence adds it (MK-NW-F-272). */
-/* ─ MK-NW-F-316 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+/* ─ MK-NW-F-316 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * salesSentence
  *
  * Answers ..... Each past sale an answer would move, as the sentence adds it (MK-NW-F-272).
  *
  * Formula .....
- *     ` this changes the sale of ${count words(shares)} ${holding ?? ''} on ${day in words(date, false)}: it made ${dollar words(was)}, it will make ${dollar words(will)}.`; }).join('')
+ *     ` this changes the sale of ${count words(shares)} ${holding ?? 'shares'} on ${day in words(date, false)}: it made ${dollar words(was)}, it will make ${dollar words(will)}.`; }).join('')
  *
  * Called by ... MK-NW-F-317 eventQuestionToAsk
  *
- * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-317 eventQuestionToAsk · MK-NW-F-324 questionsOf
+ * Reaches ..... 15 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-408 answerWords
+ *               MK-NW-F-409 answersShown · MK-NW-F-400 choiceMakes
+ *               MK-NW-F-405 confirmChangeQuestion · MK-NW-F-415 confirmForSavedLots
+ *               MK-NW-F-407 enteredOverGiven · MK-NW-F-317 eventQuestionToAsk
+ *               MK-NW-F-396 otherSays · MK-NW-F-402 questionFootLine
+ *               MK-NW-F-395 questionHeadline · MK-NW-F-397 questionSummary
+ *               MK-NW-F-398 questionsCountLine · MK-NW-F-324 questionsOf
+ *               MK-NW-F-391 whoSaysFor
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -4795,10 +5010,11 @@ const verbOf = (kind: RowKind) => (kind === 'PURCHASE' ? 'bought' : kind === 'SA
  */
 const salesSentence = (record: readonly AssetRow[], moved: { saleRowId: string; was: number | null; will: number | null }[], holding: string | null) =>
   moved.map((m) => { const s = rowAsItStands(record, m.saleRowId);
-    return ` This changes the sale of ${countWords(s?.shares)} ${holding ?? ''} on ${dayInWords(s?.date, false)}: it made ${dollarWords(m.was)}, it will make ${dollarWords(m.will)}.`; }).join('');
+    // with no holding name the shares are called shares — it printed "70  on May 1", a double space (2026-11-12)
+    return ` This changes the sale of ${countWords(s?.shares)} ${holding ?? 'shares'} on ${dayInWords(s?.date, false)}: it made ${dollarWords(m.was)}, it will make ${dollarWords(m.will)}.`; }).join('');
 
 /** E1–E4: an arriving event that differs from one on record (MK-NW-F-238), as the account holder is asked it. */
-/* ─ MK-NW-F-317 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+/* ─ MK-NW-F-317 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * eventQuestionToAsk
  *
  * Answers ..... E1–E4: an arriving event that differs from one on record (MK-NW-F-238), as the account holder is asked it.
@@ -4816,8 +5032,14 @@ const salesSentence = (record: readonly AssetRow[], moved: { saleRowId: string; 
  *
  * Called by ... MK-NW-F-324 questionsOf
  *
- * Reaches ..... 1 function. Change the arithmetic above and these change with it:
- *               MK-NW-F-324 questionsOf
+ * Reaches ..... 14 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-408 answerWords
+ *               MK-NW-F-409 answersShown · MK-NW-F-400 choiceMakes
+ *               MK-NW-F-405 confirmChangeQuestion · MK-NW-F-415 confirmForSavedLots
+ *               MK-NW-F-407 enteredOverGiven · MK-NW-F-396 otherSays
+ *               MK-NW-F-402 questionFootLine · MK-NW-F-395 questionHeadline
+ *               MK-NW-F-397 questionSummary · MK-NW-F-398 questionsCountLine
+ *               MK-NW-F-324 questionsOf · MK-NW-F-391 whoSaysFor
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -4850,8 +5072,15 @@ export function eventQuestionToAsk(record: readonly AssetRow[], eq: EventQuestio
  *
  * Called by ... MK-NW-F-319 listQuestionToAsk
  *
- * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-319 listQuestionToAsk · MK-NW-F-324 questionsOf
+ * Reaches ..... 15 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-408 answerWords
+ *               MK-NW-F-409 answersShown · MK-NW-F-400 choiceMakes
+ *               MK-NW-F-405 confirmChangeQuestion · MK-NW-F-415 confirmForSavedLots
+ *               MK-NW-F-407 enteredOverGiven · MK-NW-F-319 listQuestionToAsk
+ *               MK-NW-F-396 otherSays · MK-NW-F-402 questionFootLine
+ *               MK-NW-F-395 questionHeadline · MK-NW-F-397 questionSummary
+ *               MK-NW-F-398 questionsCountLine · MK-NW-F-324 questionsOf
+ *               MK-NW-F-391 whoSaysFor
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -4864,7 +5093,7 @@ const lotsWords = (holding: string | null, lots: { date: string | null; shares: 
 
 /** L1–L6, X1, X2: a difference between a list and the record (MK-NW-F-277), as the account holder is asked it. A list
  *  question of several sales that named no purchase is one S1 question per sale (rule 3). */
-/* ─ MK-NW-F-319 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+/* ─ MK-NW-F-319 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * listQuestionToAsk
  *
  * Answers ..... L1–L6, X1, X2: a difference between a list and the record (MK-NW-F-277), as the account holder is asked it.
@@ -4883,14 +5112,20 @@ const lotsWords = (holding: string | null, lots: { date: string | null; shares: 
  *     to = `confirm changing ${H} to ${count words(after)} shares${lq.listed.length = 1 and lq.listed[0].date ≠ nothing ? ` bought ${day in words(lq.listed[0].date, false)}` : ''}.`
  *     make(kind, `${first up(src)}’s list of ${day} leaves out the ${count words(lq.shares on record)} ${H} ${lq.kind = 'typed' ? 'you entered' : 'on record'}, and no sale is on record. ${to}`)   when count of lq.listed is missing
  *     the answer = make(kind, `${first up(src)}’s list of ${day} indicates ${lots words(H, lq.listed)}; ${yours} ${lq.on record.length ? lots words(nothing, lots of(lq.on record)) : 'no such purchase'}. ${to}`)
+ *     `${first up(src)}’s list leaves out the ${count words(shares)} ${H} bought ${day in words(date)} at ${dollar words(price)}; that purchase stays as the record holds it.`   when l is missing
  *     gap = lq.shares listed − lq.shares on record
- *     sales = lq.sales (or none when missing)
  *     … the first steps only — the rest of the body needs reading by hand.
  *
  * Called by ... MK-NW-F-324 questionsOf
  *
- * Reaches ..... 1 function. Change the arithmetic above and these change with it:
- *               MK-NW-F-324 questionsOf
+ * Reaches ..... 14 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-408 answerWords
+ *               MK-NW-F-409 answersShown · MK-NW-F-400 choiceMakes
+ *               MK-NW-F-405 confirmChangeQuestion · MK-NW-F-415 confirmForSavedLots
+ *               MK-NW-F-407 enteredOverGiven · MK-NW-F-396 otherSays
+ *               MK-NW-F-402 questionFootLine · MK-NW-F-395 questionHeadline
+ *               MK-NW-F-397 questionSummary · MK-NW-F-398 questionsCountLine
+ *               MK-NW-F-324 questionsOf · MK-NW-F-391 whoSaysFor
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -4921,6 +5156,9 @@ export function listQuestionToAsk(record: readonly AssetRow[], lq: ListQuestion,
         return make('L4', `${firstUp(src)}’s list indicates ${dollarWords(lq.listed[0].price)} a share for ${countWords(lq.listed[0].shares)} ${H}; the record holds ${dollarWords(cost)}. Confirm changing to ${dollarWords(lq.listed[0].price)}.`);
       }
       return make('L4', lq.onRecord.map((p, i) => { const l = lq.listed[i];
+        // a purchase on record the list has no line for is named as left out, and stays as it is (answerListQuestion
+        // changes nothing without its pair) — it read "indicates not known for not known MSFT" (2026-11-12)
+        if (!l) return `${firstUp(src)}’s list leaves out the ${countWords(p.shares)} ${H} bought ${dayInWords(p.date)} at ${dollarWords(p.price)}; that purchase stays as the record holds it.`;
         return `${firstUp(src)}’s list indicates ${dollarWords(l?.price)} for ${countWords(l?.shares)} ${H} bought ${dayInWords(l?.date)}; the record holds ${dollarWords(p.price)}. Confirm changing to ${dollarWords(l?.price)}.`; }).join(' '));
     }
     case 'count': {
@@ -4959,7 +5197,7 @@ export function listQuestionToAsk(record: readonly AssetRow[], lq: ListQuestion,
 }
 
 /** S1: a sale that may have sold a purchase with no date (MK-NW-F-256, DEC-10385): which purchase did it come from. */
-/* ─ MK-NW-F-320 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+/* ─ MK-NW-F-320 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * saleQuestionToAsk
  *
  * Answers ..... S1: a sale that may have sold a purchase with no date (MK-NW-F-256, DEC-10385): which purchase did it come from.
@@ -4974,8 +5212,15 @@ export function listQuestionToAsk(record: readonly AssetRow[], lq: ListQuestion,
  *
  * Called by ... MK-NW-F-319 listQuestionToAsk · MK-NW-F-324 questionsOf
  *
- * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-319 listQuestionToAsk · MK-NW-F-324 questionsOf
+ * Reaches ..... 15 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-408 answerWords
+ *               MK-NW-F-409 answersShown · MK-NW-F-400 choiceMakes
+ *               MK-NW-F-405 confirmChangeQuestion · MK-NW-F-415 confirmForSavedLots
+ *               MK-NW-F-407 enteredOverGiven · MK-NW-F-319 listQuestionToAsk
+ *               MK-NW-F-396 otherSays · MK-NW-F-402 questionFootLine
+ *               MK-NW-F-395 questionHeadline · MK-NW-F-397 questionSummary
+ *               MK-NW-F-398 questionsCountLine · MK-NW-F-324 questionsOf
+ *               MK-NW-F-391 whoSaysFor
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -4996,7 +5241,7 @@ export function saleQuestionToAsk(record: readonly AssetRow[], s: { rowId: strin
 
 /** The latest day a broker's or a file's list was set beside the record for a holding: its purchases' list days and the
  *  days of the values it gave (rule 5). */
-/* ─ MK-NW-F-321 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+/* ─ MK-NW-F-321 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * latestListDayOf
  *
  * Answers ..... The latest day a broker's or a file's list was set beside the record for a holding: its purchases' list days and the days of the values it gave (rule 5).
@@ -5007,11 +5252,17 @@ export function saleQuestionToAsk(record: readonly AssetRow[], s: { rowId: strin
  *
  * Called by ... MK-NW-F-337 answerQuestion · MK-NW-F-341 questionsStillTrue
  *
- * Reaches ..... 8 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 85 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS · MK-CF-F-205 COMING
+ *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
+ *               MK-CF-F-237 LATER · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-296 LOAD · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-399 after
  *               MK-NW-F-342 afterAWrite · MK-NW-F-278 answerListQuestion
- *               MK-NW-F-337 answerQuestion · MK-XS-F-199 profileOnTheWayIn
- *               MK-NW-F-341 questionsStillTrue · MK-XS-F-229 typedIntoRecord
- *               MK-XS-F-192 typedValueDatedBack · MK-NW-F-335 writeAnswer
+ *               MK-NW-F-337 answerQuestion · MK-NW-F-408 answerWords
+ *               … and 67 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -5035,11 +5286,17 @@ export function latestListDayOf(record: readonly AssetRow[], accountId: string, 
  *
  * Called by ... MK-NW-F-323 answeredAlready · MK-NW-F-341 questionsStillTrue
  *
- * Reaches ..... 7 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-342 afterAWrite · MK-NW-F-323 answeredAlready
- *               MK-XS-F-199 profileOnTheWayIn · MK-NW-F-324 questionsOf
+ * Reaches ..... 20 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-342 afterAWrite
+ *               MK-NW-F-408 answerWords · MK-NW-F-323 answeredAlready
+ *               MK-NW-F-409 answersShown · MK-NW-F-400 choiceMakes
+ *               MK-NW-F-405 confirmChangeQuestion · MK-NW-F-415 confirmForSavedLots
+ *               MK-NW-F-407 enteredOverGiven · MK-NW-F-396 otherSays
+ *               MK-XS-F-199 profileOnTheWayIn · MK-NW-F-402 questionFootLine
+ *               MK-NW-F-395 questionHeadline · MK-NW-F-397 questionSummary
+ *               MK-NW-F-398 questionsCountLine · MK-NW-F-324 questionsOf
  *               MK-NW-F-341 questionsStillTrue · MK-XS-F-229 typedIntoRecord
- *               MK-XS-F-192 typedValueDatedBack
+ *               … and 2 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
@@ -5060,8 +5317,14 @@ const answerFactsOf = (record: readonly AssetRow[], name: string) =>
  *
  * Called by ... MK-NW-F-324 questionsOf
  *
- * Reaches ..... 1 function. Change the arithmetic above and these change with it:
- *               MK-NW-F-324 questionsOf
+ * Reaches ..... 14 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-408 answerWords
+ *               MK-NW-F-409 answersShown · MK-NW-F-400 choiceMakes
+ *               MK-NW-F-405 confirmChangeQuestion · MK-NW-F-415 confirmForSavedLots
+ *               MK-NW-F-407 enteredOverGiven · MK-NW-F-396 otherSays
+ *               MK-NW-F-402 questionFootLine · MK-NW-F-395 questionHeadline
+ *               MK-NW-F-397 questionSummary · MK-NW-F-398 questionsCountLine
+ *               MK-NW-F-324 questionsOf · MK-NW-F-391 whoSaysFor
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -5073,7 +5336,7 @@ const answeredAlready = (record: readonly AssetRow[], q: AssetQuestion) => answe
 /** EVERY QUESTION FOR ONE ACCOUNT, as the account holder is asked it: the ones kept (under the account, `#typed` and
  *  `#moved`) and the ones the record raises by itself (S2, S3, D1, T1, V1, V2) — each once (rule 4), an answered one only
  *  when its difference changed (rule 8). */
-/* ─ MK-NW-F-324 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+/* ─ MK-NW-F-324 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * questionsOf
  *
  * Answers ..... EVERY QUESTION FOR ONE ACCOUNT, as the account holder is asked it: the ones kept (under the account, `#typed` and `#moved`) and the ones the record raises by itself (S2, S3, D1, T1, V1, V2) — each once (rule 4), an answered one only when its difference changed (rule 8).
@@ -5093,7 +5356,17 @@ const answeredAlready = (record: readonly AssetRow[], q: AssetQuestion) => answe
  *     `${first up(who(account id, sale.source))} sends a sale of`   otherwise
  *     … the first steps only — the rest of the body needs reading by hand.
  *
- * Called by ... nothing — it is an entry point, or nothing reaches it
+ * Called by ... MK-NW-F-391 whoSaysFor · MK-NW-F-392 accountQuestions
+ *               MK-NW-F-409 answersShown
+ *
+ * Reaches ..... 13 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-408 answerWords
+ *               MK-NW-F-409 answersShown · MK-NW-F-400 choiceMakes
+ *               MK-NW-F-405 confirmChangeQuestion · MK-NW-F-415 confirmForSavedLots
+ *               MK-NW-F-407 enteredOverGiven · MK-NW-F-396 otherSays
+ *               MK-NW-F-402 questionFootLine · MK-NW-F-395 questionHeadline
+ *               MK-NW-F-397 questionSummary · MK-NW-F-398 questionsCountLine
+ *               MK-NW-F-391 whoSaysFor
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -5164,7 +5437,7 @@ export function questionsOf(record: readonly AssetRow[], stored: Record<string, 
 }
 
 /** R1: an edit that matches more than one purchase, as the account holder is asked it. */
-/* ─ MK-NW-F-325 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+/* ─ MK-NW-F-325 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * editQuestionToAsk
  *
  * Answers ..... R1: an edit that matches more than one purchase, as the account holder is asked it.
@@ -5177,8 +5450,14 @@ export function questionsOf(record: readonly AssetRow[], stored: Record<string, 
  *
  * Called by ... MK-NW-F-324 questionsOf
  *
- * Reaches ..... 1 function. Change the arithmetic above and these change with it:
- *               MK-NW-F-324 questionsOf
+ * Reaches ..... 14 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-408 answerWords
+ *               MK-NW-F-409 answersShown · MK-NW-F-400 choiceMakes
+ *               MK-NW-F-405 confirmChangeQuestion · MK-NW-F-415 confirmForSavedLots
+ *               MK-NW-F-407 enteredOverGiven · MK-NW-F-396 otherSays
+ *               MK-NW-F-402 questionFootLine · MK-NW-F-395 questionHeadline
+ *               MK-NW-F-397 questionSummary · MK-NW-F-398 questionsCountLine
+ *               MK-NW-F-324 questionsOf · MK-NW-F-391 whoSaysFor
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -5203,7 +5482,7 @@ export function editQuestionToAsk(record: readonly AssetRow[], ed: EditQuestion,
 
 /** C1: the account holder changes a figure a broker or a file gave (MK-NW-F-279): asked at once, never stored. Null where
  *  nothing differs from what was given. */
-/* ─ MK-NW-F-326 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+/* ─ MK-NW-F-326 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * confirmMyChangeQuestion
  *
  * Answers ..... C1: the account holder changes a figure a broker or a file gave (MK-NW-F-279): asked at once, never stored.
@@ -5218,9 +5497,11 @@ export function editQuestionToAsk(record: readonly AssetRow[], ed: EditQuestion,
  *     shown = (f: string, v: string | number | nothing) => (f = 'date' ? day in words(v as string | nothing) : v = nothing ? 'not known' : f = 'shares' ? count words(v as number) : string(v))
  *     the answer = ` this changes the sale of ${count words(shares)} ${holding} on ${day in words(date, false)}: it made ${dollar words(given as number | nothing)}, it will make ${dollar words(entered as number | nothing)}.`; }).join('')
  *
- * Called by ... MK-XS-F-192 typedValueDatedBack · MK-XS-F-199 profileOnTheWayIn
+ * Called by ... MK-NW-F-405 confirmChangeQuestion · MK-XS-F-192 typedValueDatedBack
+ *               MK-XS-F-199 profileOnTheWayIn
  *
- * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-405 confirmChangeQuestion · MK-NW-F-415 confirmForSavedLots
  *               MK-XS-F-199 profileOnTheWayIn · MK-XS-F-192 typedValueDatedBack
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
@@ -5255,13 +5536,17 @@ export function confirmMyChangeQuestion(record: readonly AssetRow[], rowId: stri
  *
  * Called by ... MK-NW-F-329 undoAnswer
  *
- * Reaches ..... 11 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 88 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS · MK-CF-F-205 COMING
+ *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
+ *               MK-CF-F-237 LATER · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-296 LOAD · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-399 after
  *               MK-NW-F-342 afterAWrite · MK-NW-F-278 answerListQuestion
- *               MK-NW-F-337 answerQuestion · MK-NW-F-201 fileRowsToSave
- *               MK-NW-F-338 newerListUndoes · MK-XS-F-199 profileOnTheWayIn
- *               MK-NW-F-339 settleTwoPhones · MK-XS-F-229 typedIntoRecord
- *               MK-XS-F-192 typedValueDatedBack · MK-NW-F-329 undoAnswer
- *               MK-NW-F-335 writeAnswer
+ *               MK-NW-F-337 answerQuestion · MK-NW-F-408 answerWords
+ *               … and 70 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -5277,7 +5562,7 @@ const sameFigures = (a: AssetRow | NewRow, b: AssetRow | NewRow) => (a.date ?? n
  *  rows saved with it (the same account, holding and time-stamp; a holding's value with its account's). Read in memory
  *  only: nothing saved is changed. `seen` counts the old answer rows found, `keyed` those given a name; `unkeyed` lists
  *  the rest, each in a sentence — the guard fails on any. */
-/* ─ MK-NW-F-328 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+/* ─ MK-NW-F-328 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * keyOldAnswers
  *
  * Answers ..... STEP 2 · OLD ANSWERS KEYED.
@@ -5299,13 +5584,17 @@ const sameFigures = (a: AssetRow | NewRow, b: AssetRow | NewRow) => (a.date ?? n
  * Called by ... MK-NW-F-329 undoAnswer · MK-NW-F-337 answerQuestion
  *               MK-NW-F-338 newerListUndoes
  *
- * Reaches ..... 11 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 88 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS · MK-CF-F-205 COMING
+ *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
+ *               MK-CF-F-237 LATER · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-296 LOAD · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-399 after
  *               MK-NW-F-342 afterAWrite · MK-NW-F-278 answerListQuestion
- *               MK-NW-F-337 answerQuestion · MK-NW-F-201 fileRowsToSave
- *               MK-NW-F-338 newerListUndoes · MK-XS-F-199 profileOnTheWayIn
- *               MK-NW-F-339 settleTwoPhones · MK-XS-F-229 typedIntoRecord
- *               MK-XS-F-192 typedValueDatedBack · MK-NW-F-329 undoAnswer
- *               MK-NW-F-335 writeAnswer
+ *               MK-NW-F-337 answerQuestion · MK-NW-F-408 answerWords
+ *               … and 70 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
@@ -5368,7 +5657,7 @@ export function keyOldAnswers(record: readonly AssetRow[]): { record: AssetRow[]
 /** STEP 3 · UNDO AN ANSWER (rule 2). Only the rows of that answer still in force are touched: a correction goes back to
  *  the figures it replaced, a new row is removed, a row it took away is put back. A row the account holder has changed
  *  since is not undone: he is asked instead (a C1 question). `only` narrows the rows to one of two answers (rule 10). */
-/* ─ MK-NW-F-329 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+/* ─ MK-NW-F-329 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * undoAnswer
  *
  * Answers ..... STEP 3 · UNDO AN ANSWER (rule 2).
@@ -5387,14 +5676,19 @@ export function keyOldAnswers(record: readonly AssetRow[]): { record: AssetRow[]
  *     the answer = { rows, ask }
  *
  * Called by ... MK-NW-F-337 answerQuestion · MK-NW-F-338 newerListUndoes
- *               MK-NW-F-339 settleTwoPhones
+ *               MK-NW-F-339 settleTwoPhones · MK-NW-F-409 answersShown
  *
- * Reaches ..... 10 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 87 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS · MK-CF-F-205 COMING
+ *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
+ *               MK-CF-F-237 LATER · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-296 LOAD · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-399 after
  *               MK-NW-F-342 afterAWrite · MK-NW-F-278 answerListQuestion
- *               MK-NW-F-337 answerQuestion · MK-NW-F-201 fileRowsToSave
- *               MK-NW-F-338 newerListUndoes · MK-XS-F-199 profileOnTheWayIn
- *               MK-NW-F-339 settleTwoPhones · MK-XS-F-229 typedIntoRecord
- *               MK-XS-F-192 typedValueDatedBack · MK-NW-F-335 writeAnswer
+ *               MK-NW-F-337 answerQuestion · MK-NW-F-408 answerWords
+ *               … and 69 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -5440,7 +5734,7 @@ export function undoAnswer(record: readonly AssetRow[], name: string, only?: (r:
 }
 
 /** Rule 2: the question put to the account holder when an answer would undo a row he has changed since. */
-/* ─ MK-NW-F-330 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+/* ─ MK-NW-F-330 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * undoAskQuestion
  *
  * Answers ..... Rule 2: the question put to the account holder when an answer would undo a row he has changed since.
@@ -5455,13 +5749,17 @@ export function undoAnswer(record: readonly AssetRow[], name: string, only?: (r:
  *
  * Called by ... MK-NW-F-329 undoAnswer
  *
- * Reaches ..... 11 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 88 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS · MK-CF-F-205 COMING
+ *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
+ *               MK-CF-F-237 LATER · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-296 LOAD · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-399 after
  *               MK-NW-F-342 afterAWrite · MK-NW-F-278 answerListQuestion
- *               MK-NW-F-337 answerQuestion · MK-NW-F-201 fileRowsToSave
- *               MK-NW-F-338 newerListUndoes · MK-XS-F-199 profileOnTheWayIn
- *               MK-NW-F-339 settleTwoPhones · MK-XS-F-229 typedIntoRecord
- *               MK-XS-F-192 typedValueDatedBack · MK-NW-F-329 undoAnswer
- *               MK-NW-F-335 writeAnswer
+ *               MK-NW-F-337 answerQuestion · MK-NW-F-408 answerWords
+ *               … and 70 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -5489,7 +5787,7 @@ function undoAskQuestion(record: readonly AssetRow[], now: AssetRow, before: Ass
 }
 
 /** The fact every answer writes: its question's name, the choice, and the difference it answered (rule 1, rule 8). */
-/* ─ MK-NW-F-331 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+/* ─ MK-NW-F-331 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * answerFact
  *
  * Answers ..... The fact every answer writes: its question's name, the choice, and the difference it answered (rule 1, rule 8).
@@ -5499,10 +5797,17 @@ function undoAskQuestion(record: readonly AssetRow[], now: AssetRow, before: Ass
  *
  * Called by ... MK-NW-F-337 answerQuestion
  *
- * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-278 answerListQuestion · MK-NW-F-337 answerQuestion
- *               MK-XS-F-199 profileOnTheWayIn · MK-XS-F-192 typedValueDatedBack
- *               MK-NW-F-335 writeAnswer
+ * Reaches ..... 84 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS · MK-CF-F-205 COMING
+ *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
+ *               MK-CF-F-237 LATER · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-296 LOAD · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-399 after
+ *               MK-NW-F-342 afterAWrite · MK-NW-F-278 answerListQuestion
+ *               MK-NW-F-337 answerQuestion · MK-NW-F-408 answerWords
+ *               … and 66 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
@@ -5529,10 +5834,17 @@ function answerFact(q: AssetQuestion, choice: AnswerChoice): NewRow {
  *
  * Called by ... MK-NW-F-335 writeAnswer
  *
- * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-278 answerListQuestion · MK-NW-F-337 answerQuestion
- *               MK-XS-F-199 profileOnTheWayIn · MK-XS-F-192 typedValueDatedBack
- *               MK-NW-F-335 writeAnswer
+ * Reaches ..... 84 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS · MK-CF-F-205 COMING
+ *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
+ *               MK-CF-F-237 LATER · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-296 LOAD · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-399 after
+ *               MK-NW-F-342 afterAWrite · MK-NW-F-278 answerListQuestion
+ *               MK-NW-F-337 answerQuestion · MK-NW-F-408 answerWords
+ *               … and 66 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -5543,7 +5855,7 @@ const rowsOfChange = (before: readonly AssetRow[], c: Changed): NewRow[] => (c.p
 
 /** D1 "Change": the shares go to what the broker states — shares it states beyond the record are one purchase with no date
  *  and no price; shares it states fewer of are taken from the oldest purchase first. */
-/* ─ MK-NW-F-333 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+/* ─ MK-NW-F-333 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * sharesToStated
  *
  * Answers ..... D1 "Change": the shares go to what the broker states — shares it states beyond the record are one purchase with no date and no price; shares it states fewer of are taken from the oldest purchase first.
@@ -5560,10 +5872,17 @@ const rowsOfChange = (before: readonly AssetRow[], c: Changed): NewRow[] => (c.p
  *
  * Called by ... MK-NW-F-335 writeAnswer
  *
- * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-278 answerListQuestion · MK-NW-F-337 answerQuestion
- *               MK-XS-F-199 profileOnTheWayIn · MK-XS-F-192 typedValueDatedBack
- *               MK-NW-F-335 writeAnswer
+ * Reaches ..... 84 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS · MK-CF-F-205 COMING
+ *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
+ *               MK-CF-F-237 LATER · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-296 LOAD · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-399 after
+ *               MK-NW-F-342 afterAWrite · MK-NW-F-278 answerListQuestion
+ *               MK-NW-F-337 answerQuestion · MK-NW-F-408 answerWords
+ *               … and 66 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -5604,10 +5923,17 @@ function sharesToStated(record: readonly AssetRow[], accountId: string, holding:
  *
  * Called by ... MK-NW-F-335 writeAnswer
  *
- * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-278 answerListQuestion · MK-NW-F-337 answerQuestion
- *               MK-XS-F-199 profileOnTheWayIn · MK-XS-F-192 typedValueDatedBack
- *               MK-NW-F-335 writeAnswer
+ * Reaches ..... 84 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS · MK-CF-F-205 COMING
+ *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
+ *               MK-CF-F-237 LATER · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-296 LOAD · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-399 after
+ *               MK-NW-F-342 afterAWrite · MK-NW-F-278 answerListQuestion
+ *               MK-NW-F-337 answerQuestion · MK-NW-F-408 answerWords
+ *               … and 66 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
@@ -5619,7 +5945,7 @@ const keepFact = (lq: ListQuestion): NewRow => ({ accountId: lq.accountId, holdi
   facts: { keepsOverList: lq.signature, ...(lq.holdingGap != null ? { holdingGap: lq.holdingGap } : {}) } });
 
 /** What one choice writes, on the record as it stands after the earlier answer is undone (§ 3, the right-hand column). */
-/* ─ MK-NW-F-335 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+/* ─ MK-NW-F-335 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * writeAnswer
  *
  * Answers ..... What one choice writes, on the record as it stands after the earlier answer is undone (§ 3, the right-hand column).
@@ -5645,10 +5971,17 @@ const keepFact = (lq: ListQuestion): NewRow => ({ accountId: lq.accountId, holdi
  *
  * Called by ... MK-NW-F-337 answerQuestion
  *
- * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-278 answerListQuestion · MK-NW-F-337 answerQuestion
- *               MK-XS-F-199 profileOnTheWayIn · MK-XS-F-192 typedValueDatedBack
- *               MK-NW-F-335 writeAnswer
+ * Reaches ..... 84 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS · MK-CF-F-205 COMING
+ *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
+ *               MK-CF-F-237 LATER · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-296 LOAD · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-399 after
+ *               MK-NW-F-342 afterAWrite · MK-NW-F-278 answerListQuestion
+ *               MK-NW-F-337 answerQuestion · MK-NW-F-408 answerWords
+ *               … and 66 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -5734,7 +6067,7 @@ function writeAnswer(base: AssetRow[], q: AssetQuestion, choice: AnswerChoice): 
 }
 
 /** Whether a question is still raised by the record as it stands (its own earlier answer undone). */
-/* ─ MK-NW-F-336 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+/* ─ MK-NW-F-336 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * stillAsked
  *
  * Answers ..... Whether a question is still raised by the record as it stands (its own earlier answer undone).
@@ -5746,10 +6079,17 @@ function writeAnswer(base: AssetRow[], q: AssetQuestion, choice: AnswerChoice): 
  *
  * Called by ... MK-NW-F-337 answerQuestion
  *
- * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-278 answerListQuestion · MK-NW-F-337 answerQuestion
- *               MK-XS-F-199 profileOnTheWayIn · MK-XS-F-192 typedValueDatedBack
- *               MK-NW-F-335 writeAnswer
+ * Reaches ..... 84 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS · MK-CF-F-205 COMING
+ *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
+ *               MK-CF-F-237 LATER · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-296 LOAD · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-399 after
+ *               MK-NW-F-342 afterAWrite · MK-NW-F-278 answerListQuestion
+ *               MK-NW-F-337 answerQuestion · MK-NW-F-408 answerWords
+ *               … and 66 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
@@ -5785,7 +6125,7 @@ function stillAsked(record: AssetRow[], q: AssetQuestion): boolean {
 /** STEP 3 · ANSWER A QUESTION (rules 2 and 5). A question a newer list settled writes nothing, and says so. Otherwise
  *  the earlier answer to the same name is undone first (a row he has changed since stops it: he is asked instead), then
  *  the choice is written; every row carries the question's name, beside one fact of the answer. */
-/* ─ MK-NW-F-337 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+/* ─ MK-NW-F-337 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * answerQuestion
  *
  * Answers ..... STEP 3 · ANSWER A QUESTION (rules 2 and 5).
@@ -5810,13 +6150,20 @@ function stillAsked(record: AssetRow[], q: AssetQuestion): boolean {
  *     keyed   otherwise
  *     … the first steps only — the rest of the body needs reading by hand.
  *
- * Called by ... MK-NW-F-278 answerListQuestion · MK-XS-F-192 typedValueDatedBack
- *               MK-XS-F-199 profileOnTheWayIn
+ * Called by ... MK-NW-F-278 answerListQuestion · MK-NW-F-399 after
+ *               MK-XS-F-192 typedValueDatedBack · MK-XS-F-199 profileOnTheWayIn
  *
- * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-278 answerListQuestion · MK-NW-F-337 answerQuestion
- *               MK-XS-F-199 profileOnTheWayIn · MK-XS-F-192 typedValueDatedBack
- *               MK-NW-F-335 writeAnswer
+ * Reaches ..... 84 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS · MK-CF-F-205 COMING
+ *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
+ *               MK-CF-F-237 LATER · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-296 LOAD · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-399 after
+ *               MK-NW-F-342 afterAWrite · MK-NW-F-278 answerListQuestion
+ *               MK-NW-F-337 answerQuestion · MK-NW-F-408 answerWords
+ *               … and 66 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
@@ -5843,7 +6190,8 @@ export function answerQuestion(record: readonly AssetRow[], q: AssetQuestion, ch
   const base = undo.rows.length ? addRows(keyed, undo.rows, writtenAt) : keyed;
   if (!answeredBefore && !stillAsked(base, q)) return nothing('The record already settled this; nothing changed.');
   const written = writeAnswer(base, q, choice);
-  const tagged = choice.id === 'cancel' ? [] : [...written.map((r) => ({ ...r, answerTo: q.name })), answerFact(q, choice)];
+  // "Cancel" returned at the top, so it never reaches here (its second test was a branch that could never run, removed 2026-11-12)
+  const tagged = [...written.map((r) => ({ ...r, answerTo: q.name })), answerFact(q, choice)];
   const rows = [...undo.rows, ...tagged];
   return { record: rows.length ? addRows(record, rows, writtenAt) : [...record], rows, ask: [], told: null };
 }
@@ -6098,7 +6446,7 @@ export function afterAWrite(record: readonly AssetRow[], stored: Record<string, 
 
 /** What an edit of a tax lot changes on the purchase it stands for — read from the lot before and after, never from the
  *  purchase (a lot shows the shares left after sales, so the purchase keeps its own and takes only the difference). */
-/* ─ MK-NW-F-343 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+/* ─ MK-NW-F-343 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * lotChange
  *
  * Answers ..... What an edit of a tax lot changes on the purchase it stands for — read from the lot before and after, never from the purchase (a lot shows the shares left after sales, so the purchase keeps its own and takes only the difference).
@@ -6111,12 +6459,17 @@ export function afterAWrite(record: readonly AssetRow[], stored: Record<string, 
  *
  * Called by ... MK-NW-F-221 lotsFollow · MK-NW-F-335 writeAnswer
  *
- * Reaches ..... 9 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-278 answerListQuestion · MK-NW-F-337 answerQuestion
- *               MK-NW-F-221 lotsFollow · MK-NW-F-228 moveOldCopies
- *               MK-XS-F-199 profileOnTheWayIn · MK-NW-F-224 typedChangeToRecord
- *               MK-XS-F-229 typedIntoRecord · MK-XS-F-192 typedValueDatedBack
- *               MK-NW-F-335 writeAnswer
+ * Reaches ..... 84 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS · MK-CF-F-205 COMING
+ *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
+ *               MK-CF-F-237 LATER · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-296 LOAD · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-399 after
+ *               MK-NW-F-342 afterAWrite · MK-NW-F-278 answerListQuestion
+ *               MK-NW-F-337 answerQuestion · MK-NW-F-408 answerWords
+ *               … and 66 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)

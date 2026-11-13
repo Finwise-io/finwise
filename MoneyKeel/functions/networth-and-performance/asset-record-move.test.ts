@@ -235,13 +235,21 @@ describe('outside check 2, 2026-11-12', () => {
 });
 
 describe('the rule of DEC-10749, 2026-11-12: the lots as the phone shows them, and each sale with the gain the app shows', () => {
-  const { useStore } = require('../../../src/store/useStore');
+  const { useStore, holdTheSwitch, SCREENS_READ_THE_RECORD } = require('../../../src/store/useStore');
+  // what a phone from before the update holds is built with the switch held (that build had none); oldPhone() lets it go
+  beforeEach(() => holdTheSwitch(true));
+  afterEach(() => holdTheSwitch(false));
   const { importHoldings, importedAccountOf } = require('../../../src/domain/import/holdingsImport');
   const st = () => useStore.getState() as any;
   beforeEach(() => useStore.setState({ assetAccounts: [], transactions: [], liabilities: [], priceCache: {}, txnFlags: [], allocatedByMonth: {},
     snaptradeConnections: [], wrapperConfirmQueue: [], assetRecord: [], assetRecordQuestions: {}, assetRecordFaults: [] } as any));
   // a phone from before the record: everything typed, then the record emptied, as an old copy arrives
-  const oldPhone = () => useStore.setState({ assetRecord: [], assetRecordQuestions: {}, assetRecordFaults: [] } as any);
+  // the update opens: with the screens reading the record its first save moves the phone's accounts at once
+  const oldPhone = () => {
+    useStore.setState({ assetRecord: [], assetRecordQuestions: {}, assetRecordFaults: [] } as any);
+    holdTheSwitch(false);
+    if (SCREENS_READ_THE_RECORD) st().moveOldCopiesToRecordOnce();
+  };
   const typed = (label: string) => { st().addAsset({ label, kind: 'brokerage', balance: 0, cash_balance: 0, source: 'manual', positions: [], derive_balance: true }); return String(st().assetAccounts.find((a: any) => a.label === label).asset_id); };
   const lotsShown = (id: string, h: string) => (st().assetAccounts.find((a: any) => String(a.asset_id) === id)?.positions ?? []).filter((p: any) => p.ticker === h)
     .flatMap((p: any) => p.lots).reduce((t: number, l: any) => t + l.shares, 0);

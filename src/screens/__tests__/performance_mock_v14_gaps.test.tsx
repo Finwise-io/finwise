@@ -101,6 +101,8 @@ describe('a CD is told the truth about rates', () => {
   } as any);
 
   beforeEach(() => jest.spyOn(require('expo-router'), 'useLocalSearchParams').mockReturnValue({ id: 'cd1' }));
+  // each case is its own phone: the record the case before it wrote (its CD marked as bought from the bank) is not carried in
+  beforeEach(() => useStore.setState({ assetRecord: [], assetRecordQuestions: {} } as any));
 
   test('a CD is never told its value falls when rates rise', () => {
     // marked as bought from the bank (2026-10-21): the bank sentence is for a CD marked so. Since DEC-3837 (2026-10-10) a CD is

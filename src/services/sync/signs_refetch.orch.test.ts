@@ -3,7 +3,7 @@
 // re-reads only 7 days. The first sync of the updated app reads each linked account's whole history once, hands the
 // broker's direction and $0 back to the stored records, imports nothing twice, and then returns to the weekly overlap.
 import { runSnapTradeSync, SIGNS_REFETCH, refetchMarkKey } from './snaptradeSync';
-import { useStore } from '../../store/useStore';
+import { useStore, SCREENS_READ_THE_RECORD } from '../../store/useStore';
 import { moneyIntoAccount } from '../../../Calculation Module code/engines/ledger';
 
 jest.mock('./snaptradeClient', () => ({
@@ -37,7 +37,9 @@ test('records saved before 2026-10-21 get the broker\'s direction and $0 once, t
       ({ ...t, direction: undefined, ...(t.type === 'INTEREST' ? { amount: undefined } : {}) })),
     snaptradeActivityCursor: { 'acc-1': '2026-10-15T00:00:00.000Z' },
   } as any);
-  expect(rows().map((t) => moneyIntoAccount(t))).toEqual(expect.arrayContaining([50, -5, null]));   // the wrong signs, the lost $0
+  // the wrong signs, the lost $0 — while the old copies stood; once the screens read the record (the switch, 2026-11-13) the
+  // copies are read out of it at once, and the record kept the broker's direction and $0 from the first sync
+  expect(rows().map((t) => moneyIntoAccount(t))).toEqual(expect.arrayContaining(SCREENS_READ_THE_RECORD ? [-50, 5, 0] : [50, -5, null]));
 
   jest.clearAllMocks();
   await runSnapTradeSync({ force: true });

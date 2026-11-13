@@ -144,7 +144,9 @@ describe('2 · the Tax organizer', () => {
     expect(screen.getByText(`  from your accounts' records for ${y}`)).toBeOnTheScreen();
     expect(screen.getByText('$123')).toBeOnTheScreen();
     a.unmount();
-    useStore.setState({ transactions: [] } as any);
+    // no records at all: the activity and the record it is read from (with the screens reading the record, the activity
+    // alone emptied is read back from it)
+    useStore.setState({ transactions: [], assetRecord: [] } as any);
     const b = render(<TaxOrganizerScreen />);
     expect(screen.getByText('  you entered')).toBeOnTheScreen();
     expect(screen.getByText('$1,000')).toBeOnTheScreen();

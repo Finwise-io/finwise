@@ -35,7 +35,7 @@ import { AltEditor } from './OtherInvestmentsScreen';
 import { TransactionSheet } from './PerformanceScreen';   // the ONE trade sheet, the one the Holding page opens (gap 7, 2026-10-21)
 import { accountAllowsTicker } from '../domain/assets';   // DEC-2484g: which accounts can take a recorded buy or sale
 import { theHolding, holdingRowsIn, SHARE_COUNT_NOT_STATED } from '../../MoneyKeel/functions/networth-and-performance/holding';   // each holding's value, by its own door; its window row, the one way
-import { windowStartKey, thePerformance, classReturnOf, overTheYearsSentence, howReturnCalculated, investmentAccountIdsOf, investmentRecordDates, accountWalksShown } from '../../MoneyKeel/functions/networth-and-performance/performance';
+import { windowStartKey, thePerformance, classReturnOf, overTheYearsSentence, howReturnCalculated, investmentAccountIdsOf, investmentRecordDates, accountWalksShown, walkEndingAtOwnValue } from '../../MoneyKeel/functions/networth-and-performance/performance';
 import { resolveNetWorthRows } from '../domain/snapshot';   // the Performance tab's own accounts, for its cards' shared lines (2026-11-12)
 import { txnLabel, cashEffect, type Transaction } from '../domain/transactions';
 import { moneyIntoAccount } from '../../Calculation Module code/engines/ledger';
@@ -50,6 +50,10 @@ import TopBar from '../components/TopBar';
 import { HISTORIC_TTM_TITLE, HISTORIC_TTM_BODY } from '../constants/historicReturn';
 import { CD_BOUGHT_QUESTION, CD_BOUGHT_CHOICES } from '../constants/cdBought';   // the one wording (DEC-3837)
 import { WindowSelector } from '../components/WindowSelector';   // one card, one set of words (DEC-6005)
+// THE MASTER RECORD'S QUESTIONS, ASKED BESIDE THE FIGURE THEY CHANGE (account-page v02, 2026-11-12): the account's own (V1, V2, T1) in
+// THIS ACCOUNT, a holding's on its own page with its line here saying so; the day the value is from; a price's own day when old
+import { RecordQuestionCard, AnsweredLine, QUESTIONS_SHOWN } from '../components/RecordQuestionCard';
+import { accountQuestions, askedWhere, answersShown, accountValueDay, holdingPriceDay, priceFromDay, otherSays, questionSummary, questionsCountLine } from '../domain/assets/recordQuestions';
 
 import { isoLocalDate as iso, dateShown, maturityParts } from '../domain/_shared/dates';   // maturityParts: the one reading of a maturity date (MK-NW-F-124, 2026-10-13)
 
@@ -127,6 +131,7 @@ export default function AccountPortfolioScreen() {
   // the window a person picks on THIS page; until they pick one, the page opens on the window it was opened with (below)
   const [picked, setPicked] = useState<string | null>(null);
   const [closed, setClosed] = useState<Record<string, boolean>>({});   // a class bar tapped shut (▾ → ▸), drawing v01
+  const [reasking, setReasking] = useState<string | null>(null);   // an answer being changed: its question asked again in its place (v02 row 4)
 
   // FOUNDER FINDING 2026-08-11: this was unsorted, and the list below shows only the first eight —
   // so on an account with any history the dividends and interest could be sitting past the cut and
@@ -332,7 +337,9 @@ export default function AccountPortfolioScreen() {
     const card = cards[i]?.one.walk;
     const same = !!card && (['beginning', 'contributions', 'withdrawals', 'dividends', 'interest', 'ending'] as const)
       .every((k) => Math.abs((card[k] ?? 0) - ((walk as any)[k] ?? 0)) < 0.005);
-    return same ? accountWalksShown(cards.map((c) => c.one.walk), total.walk)[i] ?? own : own;
+    const shared = same ? accountWalksShown(cards.map((c) => c.one.walk), total.walk)[i] ?? own : own;
+    // THE WALK ENDS AT THIS ACCOUNT'S OWN VALUE (2026-11-13, workplan row 435): walkEndingAtOwnValue. To reverse: return `shared`.
+    return walkEndingAtOwnValue(shared, own);
   })();
   /** A HOLDING'S PAGE OPENS ON THE WINDOW PICKED HERE (2026-10-23, E2E-63; tenet 4, one holding, one window, one figure): the
    *  row's figure and the Holding page's "Your return" are the same figure only on the same window. It opened on 1Y whatever
@@ -687,6 +694,25 @@ export default function AccountPortfolioScreen() {
    *  not below zero, red below zero, and in the text colour where nothing is measured yet (day one, a dash). */
   const signColor = (v: number | null | undefined) => (v == null || dayOneView ? Colors.textPrimary : v < 0 ? Colors.red : Colors.gainText);
   const taxNotStated = taxWordsOf(account) === TAX_TYPE_NOT_STATED;
+  // ── THE MASTER RECORD'S QUESTIONS AND DATES (account-page v02, 2026-11-12) ─────────────────────────────────────────
+  const record = (store.assetRecord ?? []) as any[];
+  const storedQs = store.assetRecordQuestions ?? {};
+  const recordQs = accountQuestions(record, storedQs, account);
+  const accountQs = recordQs.filter((q) => askedWhere(q) === 'account');
+  const holdingQs = recordQs.filter((q) => askedWhere(q) !== 'account');
+  const accountAnswers = answersShown(record, storedQs, account, QUESTIONS_SHOWN).filter((a) => a.holding == null && !accountQs.some((q) => q.name === a.name));
+  const answerQ = (q: any, id: string, date?: string) => { store.answerAssetRecordQuestion?.(String(account.asset_id), q, { id, ...(date ? { date: date } : {}) }); setReasking(null); };
+  /** the day the account's value is from — the record's latest value row, never the phone's date (rows 3 and 5) */
+  const valueDay = accountValueDay(record, String(account.asset_id));
+  const undatedValue = valueDay.onRecord && valueDay.day == null;
+  const valueDayWords = undatedValue ? 'date not stated' : valueDay.day && valueDay.day !== todayKey ? `as of ${dateShown(valueDay.day)}` : null;
+  /** the day the window's figures end on: the value's day where the record has one (row 6), else today */
+  const endDay = valueDay.onRecord && valueDay.day ? valueDay.day : todayKey;
+  /** the walk's last line names the value's day (row 5): "as of Jul 2, 2026", "date not stated"; with no value on record, as before */
+  const endingWords = valueDayWords ?? (dayOneView ? 'today' : dateShown(todayKey));
+  const questionOf = (ticker?: string) => holdingQs.find((q) => q.holding != null && String(ticker ?? '').trim().toUpperCase() === q.holding);
+  const priceFromOf = (ticker?: string): string | null => (ticker && valueDay.day ? priceFromDay(holdingPriceDay(record, String(account.asset_id), ticker, priceOf(ticker)?.points?.at?.(-1)?.date ?? null), valueDay.day) : null);
+  const anyPriceFrom = insideRows.some((rw: any) => priceFromOf(rw.ticker) != null);
   const classWords = breakdownClasses.length > 1 ? 'Mixed holdings' : ASSET_CLASS_LABEL[cls];
 
   return (
@@ -705,6 +731,15 @@ export default function AccountPortfolioScreen() {
         <InfoDot term="provenance" size={11} color={Colors.textTertiary} />
         {valueAsOfLine && <Text style={s.updated}>{valueAsOfLine}</Text>}
       </View>
+      {/* THE FILE'S OWN TOTAL GAIN, AS THE FILE STATES IT (his words, 2026-11-12, DEC-10984: "import file as-is. … if you are showing gains
+          as of June 21 - that should be the number."): an imported account prints the file's Total Gain $ with the file's date, never
+          the app's own sum of its holdings. His E*TRADE file: "Total gain from the file (Jun 21, 2026): −$4,146.87". */}
+      {source === 'imported' && (account as any).stated_gain?.amount != null && Number.isFinite((account as any).stated_gain.amount) && (
+        <Text style={s.updated} testID="file-stated-gain"
+          accessibilityLabel={`Total gain from the file${(account as any).stated_gain.as_of ? `, ${dateShown((account as any).stated_gain.as_of)}` : ''}: ${figSaid('MK-NW-M-075', (account as any).stated_gain.amount)}`}>
+          {`Total gain from the file${(account as any).stated_gain.as_of ? ` (${dateShown((account as any).stated_gain.as_of)})` : ''}: ${fig('MK-NW-M-075', (account as any).stated_gain.amount)}`}
+        </Text>
+      )}
       {/* APPROVED account-detail mock (2026-07-19): an account holding several types is called what it is — "Mixed
           holdings" — and its tax treatment is said beside it, directly under the name (drawing v01, row 7).
           NO TAX TYPE STATED IS SAID, AND OFFERED (DEC-4036f, 2026-10-10): an account with no account type chosen reads
@@ -717,6 +752,25 @@ export default function AccountPortfolioScreen() {
         </TouchableOpacity>
       ) : (
         <Text style={s.headClass}>{classWords} · {taxWordsOf(account)}</Text>
+      )}
+
+      {/* A HOLDING'S QUESTIONS, COUNTED, EACH WITH ITS DOOR (account-page v02 rows 8 and 9): asked on the holding's own page, never
+          hidden on a page he may not open */}
+      {holdingQs.length > 0 && (
+        <View style={rq.box} testID="record-questions-on-page">
+          <Text style={rq.head}>{questionsCountLine(holdingQs, account, record)}</Text>
+          {holdingQs.map((q) => {
+            const pos = positions.find((x: any) => String(x.ticker ?? '').trim().toUpperCase() === q.holding);
+            return (
+              <TouchableOpacity key={q.name} accessibilityRole="button" style={rq.row} disabled={!pos}
+                accessibilityLabel={`${questionSummary(q, account, record)} Answer on ${q.holding}’s page.`}
+                onPress={() => pos && router.push(holdingRoute((pos as any).position_id) as any)}>
+                <Text style={rq.line}>• {questionSummary(q, account, record)} <Text style={rq.door}>{`Answer on ${q.holding}’s page ›`}</Text></Text>
+              </TouchableOpacity>
+            );
+          })}
+          <Text style={rq.foot}>Until you answer, the record keeps its own figures, and every total on this page counts them.</Text>
+        </View>
       )}
 
       {classView && breakdown ? (
@@ -775,10 +829,20 @@ export default function AccountPortfolioScreen() {
       {/* ── THIS ACCOUNT · <THE WINDOW> · the trio ON ONE ROW (drawing v01; v17 frame 2's band) ─────────────────────── */}
       <View style={s.card} testID="card-summary">
         <SectionBand inCard gutter={GUTTER} title={`THIS ACCOUNT · ${windowWords.toUpperCase()}`} value={marketValueText} />
+        {/* A QUESTION ABOUT THE ACCOUNT'S OWN VALUES (V1, V2, T1), under its bar, above the three figures it changes (v02 rows 1, 2);
+            once answered, one quiet line in its place (row 4) */}
+        {accountQs.map((q) => (
+          <RecordQuestionCard key={q.name} question={q} account={account} record={record} onAnswer={(id, date) => answerQ(q, id, date)} />
+        ))}
+        {accountAnswers.map((a) => (reasking === a.name && a.question
+          ? <RecordQuestionCard key={a.name} question={a.question} account={account} record={record} onAnswer={(id, date) => answerQ(a.question, id, date)} />
+          : <AnsweredLine key={a.name} answer={a} onChange={() => setReasking(a.name)} />))}
         <View style={p.trio}>
           <View style={p.trioCell}>
             <Text style={p.trioL}>Ending market value</Text>
             <SaidText style={[p.trioV, { color: Colors.primaryDark }]}>{marketValueText}</SaidText>
+            {/* the day the value is from, whenever it is not today; "date not stated" until the day is given (v02 rows 3, 5) */}
+            {!!valueDayWords && <Text style={p.trioDay}>{valueDayWords}</Text>}
           </View>
           <View style={p.trioCell}>
             <Text style={p.trioL}>Wealth generated</Text>
@@ -798,7 +862,10 @@ export default function AccountPortfolioScreen() {
             than a year — his Q49 ruling, stated on the screen rather than assumed */}
         <View style={p.noteRow}>
           <SaidText style={p.note}>
-            {dayOneView
+            {undatedValue
+              /* VALUES WITH NO DAY (v02 row 3): nothing is dated by the day of import; the figures start from the day he gives */
+              ? 'These values are from your file, which does not say what day they are from. Wealth generated and Return start from the day you give.'
+              : dayOneView
               /* THE ACCOUNT PAGE'S OWN DAY-ONE LINE (his approval, 2026-10-19, "approved", DEC-6075): a linked account
                  whose broker sent no past activity names the broker; one added by hand says it was added today. A linked
                  account WITH past activity is not day one — its history is rebuilt. */
@@ -824,7 +891,7 @@ export default function AccountPortfolioScreen() {
                    2Y printed its yearly rate above "— not a yearly rate"; it now says the Performance tab's own sentence. */
                 : now?.perYear != null && now.cumulative != null
                 ? `${yearlyWords()} — a rate per year, so you can compare it with one year · Money you added or took out is not counted as gain`
-                : `Return is for these dates (${sinceWords} → ${dateShown(todayKey)}) — not a rate per year · Money you added or took out is not counted as gain`)}
+                : `Return is for these dates (${sinceWords} → ${dateShown(endDay)}) — not a rate per year · Money you added or took out is not counted as gain`)}
           </SaidText>
           {/* the day-one line explains no return, so it carries no dot (drawing v01, state C) */}
           {!dayOneView && <InfoDot term="timeWeighted" line={p.note} />}
@@ -867,7 +934,7 @@ export default function AccountPortfolioScreen() {
             title={figWords('MK-PF-M-003', `HOW ${fig('MK-PF-M-013', walkLines!.beginning)} BECAME ${fig('MK-PF-M-004', walkLines!.ending)} · THIS ACCOUNT`)} />
           {/* the lines as printed: whole dollars that add up to the ending (walkShown, 2026-10-21; tenet 2, MK-PF-M-015) */}
           {((ws) => [
-            [`Beginning market value (${sinceWords})`, ws.beginning, 'MK-PF-M-013', ''],
+            [`Beginning market value (${undatedValue ? 'date not stated' : sinceWords})`, ws.beginning, 'MK-PF-M-013', ''],
             ['Contributions', ws.contributions, 'MK-PF-M-015', 'flow'],
             ['Withdrawals', -Math.abs(ws.withdrawals), 'MK-PF-M-015', 'flow'],
             ['Wealth generated', ws.wealthGenerated, 'MK-PF-M-014', 'strong'],
@@ -887,8 +954,8 @@ export default function AccountPortfolioScreen() {
             </View>
           ))}
           <View style={[p.wRow, p.wTotal]} accessible
-            accessibilityLabel={`Ending market value (${dayOneView ? 'today' : dateShown(todayKey)}), ${figSaid('MK-PF-M-004', walkLines!.ending)}`}>
-            <Text style={[p.wL, p.wStrongL]}>Ending market value ({dayOneView ? 'today' : dateShown(todayKey)})</Text>
+            accessibilityLabel={`Ending market value (${endingWords}), ${figSaid('MK-PF-M-004', walkLines!.ending)}`}>
+            <Text style={[p.wL, p.wStrongL]}>Ending market value ({endingWords})</Text>
             <Text style={[p.wV, p.wStrongV, { color: Colors.primaryDark }]}>{fig('MK-PF-M-004', walkLines!.ending)}</Text>
             <View testID="right-gutter" style={p.gutter} />
           </View>
@@ -989,7 +1056,10 @@ export default function AccountPortfolioScreen() {
                       <View style={[s.insideDot, { backgroundColor: rw.color }]} />
                       <View style={{ flex: 1 }}>
                         <Text style={s.optLabel} numberOfLines={2}>{rw.name}</Text>
-                        {!!rw.sub && <Text style={s.insideSub}>{rw.sub}</Text>}
+                        {/* a price more than 7 days older than the account's value says its day, in amber; it is still used (v02 row 7) */}
+                        {!!rw.sub && <Text style={s.insideSub}>{rw.sub}{priceFromOf(rw.ticker) ? <Text style={rq.amberSmall}> · Price from {dateShown(priceFromOf(rw.ticker))}</Text> : null}</Text>}
+                        {/* a question waiting on this holding says so on its line (v02 row 8) */}
+                        {!!questionOf(rw.ticker) && <Text style={rq.amberSmall}>{[otherSays(questionOf(rw.ticker)!, account, record), 'question on its page ›'].filter(Boolean).join(' · ')}</Text>}
                       </View>
                       <Text style={[s.optVal, s.colValW]}>{rw.valueWords ? figWords('MK-NW-M-030', rw.valueWords) : fig('MK-NW-M-030', rw.value)}</Text>
                       <Text style={[s.optRet, s.colRetW]}>{returnTextFor(rw)}</Text>
@@ -1022,6 +1092,7 @@ export default function AccountPortfolioScreen() {
           <View style={p.noteRow}>
             <SaidText style={[p.note, p.notePad]}>
               A holding’s return is what its own price did in this window, its dividends included, and a bond’s or CD’s interest added; the income is also on the line beneath it.
+              {anyPriceFrom ? ' “Price from” names the day of the newest price the app has, where it is more than 7 days older than the account’s value; that price is still used.' : ''}
               {incomeParts.length > 0 && acctIncome != null
                 ? ` Income sits with the holding that earned it (${incomeParts.map(sumPart).join(' ＋ ')} = ${fig('MK-NW-M-019', acctIncome)} for this account).`
                 : ''} Tap a holding for its own page.
@@ -1865,6 +1936,18 @@ const sh = StyleSheet.create({
 });
 
 /** The v17 top (frame 2) keeps the styles it was built and diff-tested with. */
+/** THE MASTER RECORD'S QUESTIONS ON THIS PAGE (account-page v02): the app's one amber box, its headline in amber, the words in the
+ *  text colour; a holding's line and a price's day in amber at the line's 11 points. */
+const rq = StyleSheet.create({
+  box: { backgroundColor: Colors.amberLight, borderWidth: 1, borderColor: Colors.amber, borderRadius: Radii.md, paddingVertical: 10, paddingHorizontal: Spacing.md, marginVertical: Spacing.sm },
+  head: { fontSize: 13, fontWeight: '700', color: Colors.amber },
+  row: { minHeight: 44, justifyContent: 'center' },
+  line: { fontSize: 13, color: Colors.textPrimary, lineHeight: 18 },
+  door: { color: Colors.primary, fontWeight: '700' },
+  foot: { fontSize: 11, color: Colors.textTertiary, marginTop: 4, lineHeight: 16 },
+  amberSmall: { fontSize: 11, color: Colors.amber, marginTop: 1 },
+});
+
 const p = StyleSheet.create({
   root: { flex: 1, backgroundColor: Colors.bgSecondary },
   content: { padding: Spacing.lg },
@@ -1889,6 +1972,7 @@ const p = StyleSheet.create({
   trio: { flexDirection: 'row', marginTop: Spacing.sm },
   trioCell: { flex: 1, alignItems: 'center' },
   trioL: { fontSize: 11, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.3 },
+  trioDay: { fontSize: 11, color: Colors.textTertiary, marginTop: 2 },   // the value's day under it (account-page v02 rows 3, 5)
   trioV: { fontSize: 20, fontWeight: '800', color: Colors.textPrimary, marginTop: 3, fontVariant: ['tabular-nums'] },
 
   // a note and its dot: the dot sits at the note's last line, as the drawing puts it at the end of the words

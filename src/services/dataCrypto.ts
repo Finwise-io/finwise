@@ -816,7 +816,7 @@ export async function renewDeviceTag(): Promise<string> {
 }
 
 /** R13: the one-time key code the owner's phone shows beside the invite code — 20 letters from the recovery-code alphabet. */
-/* ─ MK-XS-F-264 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+/* ─ MK-XS-F-264 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * generateKeyCode
  *
  * Answers ..... R13: the one-time key code the owner's phone shows beside the invite code — 20 letters from the recovery-code alphabet.
@@ -850,12 +850,13 @@ export function generateKeyCode(): string {
  *               MK-XS-F-269 unwrapWithKeyCode · MK-XS-F-270 wrapWithReturnCode
  *               MK-XS-F-271 unwrapWithReturnCode
  *
- * Reaches ..... 10 functions. Change the arithmetic above and these change with it:
- *               MK-XS-F-277 createInviteWithKeyCode · MK-XS-F-278 joinHouseholdWithKeyCode
- *               MK-XS-F-267 keyCodeCheck · MK-XS-F-266 keyCodeProof
- *               MK-XS-F-279 leaveReturnCode · MK-XS-F-280 restoreOwnerWithReturnCode
- *               MK-XS-F-269 unwrapWithKeyCode · MK-XS-F-271 unwrapWithReturnCode
- *               MK-XS-F-268 wrapWithKeyCode · MK-XS-F-270 wrapWithReturnCode
+ * Reaches ..... 11 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-315 checkInviteCodes · MK-XS-F-277 createInviteWithKeyCode
+ *               MK-XS-F-278 joinHouseholdWithKeyCode · MK-XS-F-267 keyCodeCheck
+ *               MK-XS-F-266 keyCodeProof · MK-XS-F-279 leaveReturnCode
+ *               MK-XS-F-280 restoreOwnerWithReturnCode · MK-XS-F-269 unwrapWithKeyCode
+ *               MK-XS-F-271 unwrapWithReturnCode · MK-XS-F-268 wrapWithKeyCode
+ *               MK-XS-F-270 wrapWithReturnCode
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -864,7 +865,7 @@ export function generateKeyCode(): string {
  */
 const normCode = (c: string) => c.replace(/[\s-]/g, '').toUpperCase();
 /** R13: the proof of a key code, sent when joining (its SHA-256 is the check value the access rules compare). */
-/* ─ MK-XS-F-266 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+/* ─ MK-XS-F-266 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * keyCodeProof
  *
  * Answers ..... R13: the proof of a key code, sent when joining (its SHA-256 is the check value the access rules compare).
@@ -874,9 +875,9 @@ const normCode = (c: string) => c.replace(/[\s-]/g, '').toUpperCase();
  *
  * Called by ... MK-XS-F-267 keyCodeCheck · MK-XS-F-278 joinHouseholdWithKeyCode
  *
- * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
- *               MK-XS-F-277 createInviteWithKeyCode · MK-XS-F-278 joinHouseholdWithKeyCode
- *               MK-XS-F-267 keyCodeCheck
+ * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-315 checkInviteCodes · MK-XS-F-277 createInviteWithKeyCode
+ *               MK-XS-F-278 joinHouseholdWithKeyCode · MK-XS-F-267 keyCodeCheck
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -887,7 +888,7 @@ export function keyCodeProof(keyCode: string): string {
   return CryptoJS.SHA256('moneykeel-key-code-proof:' + normCode(keyCode)).toString(CryptoJS.enc.Hex);
 }
 /** R13: the check value the invite holds: the SHA-256 of the proof. Neither reveals the key code. */
-/* ─ MK-XS-F-267 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+/* ─ MK-XS-F-267 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * keyCodeCheck
  *
  * Answers ..... R13: the check value the invite holds: the SHA-256 of the proof.
@@ -896,9 +897,11 @@ export function keyCodeProof(keyCode: string): string {
  *     crypto js.SHA256(key code proof(key code)).to string(crypto js.enc.hex)
  *
  * Called by ... MK-XS-F-277 createInviteWithKeyCode · MK-XS-F-278 joinHouseholdWithKeyCode
+ *               MK-XS-F-315 checkInviteCodes
  *
- * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
- *               MK-XS-F-277 createInviteWithKeyCode · MK-XS-F-278 joinHouseholdWithKeyCode
+ * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-315 checkInviteCodes · MK-XS-F-277 createInviteWithKeyCode
+ *               MK-XS-F-278 joinHouseholdWithKeyCode
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -909,7 +912,7 @@ export function keyCodeCheck(keyCode: string): string {
   return CryptoJS.SHA256(keyCodeProof(keyCode)).toString(CryptoJS.enc.Hex);
 }
 /** R13: the household key locked by the key code (the invite code salts it). */
-/* ─ MK-XS-F-268 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+/* ─ MK-XS-F-268 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * wrapWithKeyCode
  *
  * Answers ..... R13: the household key locked by the key code (the invite code salts it).
@@ -931,7 +934,7 @@ export function wrapWithKeyCode(dek: string, keyCode: string, inviteCode: string
   return encryptWithKey(dek, deriveKeyFromSecret(normCode(keyCode), 'moneykeel-key-code:' + normCode(inviteCode)));
 }
 /** Opens the household key locked by a key code and the household invite code; nothing when the codes are wrong. */
-/* ─ MK-XS-F-269 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+/* ─ MK-XS-F-269 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * unwrapWithKeyCode
  *
  * Answers ..... Opens the household key locked by a key code and the household invite code; nothing when the codes are wrong.
@@ -953,7 +956,7 @@ export function unwrapWithKeyCode(wrapped: string, keyCode: string, inviteCode: 
   return decryptWithKey(wrapped, deriveKeyFromSecret(normCode(keyCode), 'moneykeel-key-code:' + normCode(inviteCode)));
 }
 /** R14: the household key locked by a one-time return code a member gives an owner who lost both codes. */
-/* ─ MK-XS-F-270 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+/* ─ MK-XS-F-270 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * wrapWithReturnCode
  *
  * Answers ..... R14: the household key locked by a one-time return code a member gives an owner who lost both codes.
@@ -975,7 +978,7 @@ export function wrapWithReturnCode(dek: string, returnCode: string, owner: strin
   return encryptWithKey(dek, deriveKeyFromSecret(normCode(returnCode), 'moneykeel-return-code:' + owner));
 }
 /** Opens the household key locked by a one-time return code for its owner; nothing when the code is wrong. */
-/* ─ MK-XS-F-271 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+/* ─ MK-XS-F-271 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * unwrapWithReturnCode
  *
  * Answers ..... Opens the household key locked by a one-time return code for its owner; nothing when the code is wrong.

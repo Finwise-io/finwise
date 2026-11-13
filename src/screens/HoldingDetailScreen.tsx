@@ -30,6 +30,10 @@ import {
 import { HoldingEditor, TransactionSheet, HistorySheet } from './PerformanceScreen';
 import { accountDisplayNames, type AssetAccount } from '../domain/assets';
 import { isoLocalDate, dateShown } from '../domain/_shared/dates';
+// THE MASTER RECORD'S QUESTIONS ABOUT THIS HOLDING, EACH BESIDE THE FIGURE IT CHANGES (holding-detail v03, 2026-11-12)
+import { RecordQuestionCard, AnsweredLine, QUESTIONS_SHOWN } from '../components/RecordQuestionCard';
+import { accountQuestions, askedWhere, answersShown, otherSays, questionLotDate, saleNotKnownWords, enteredOverGiven, confirmForSavedLots, holdingPriceDay, priceFromDay } from '../domain/assets/recordQuestions';
+import type { AssetQuestion } from '../../MoneyKeel/functions/networth-and-performance/asset-record';
 
 // EVERY PERCENT ON THIS PAGE PRINTS BY ITS IDENTIFIER (rule 11; 2026-10-21, Performance launch audit gaps 9 and 10): the
 // change since purchase and the day's move as percents (MK-NW-M-067, 068), your return, the market and the gap between them
@@ -91,6 +95,9 @@ export default function HoldingDetailScreen() {
   const [leaving, setLeaving] = useState(false);   // B47 finding 4: silent exit after delete
   const [txnOpen, setTxnOpen] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
+  const [reasking, setReasking] = useState<string | null>(null);   // an answer being changed: its question asked again in its place (v03 row 4)
+  // C1 (his own sentence, DEC-10471): a price he changed over a broker's or a file's, held until he confirms — nothing written before
+  const [pendingC1, setPendingC1] = useState<{ q: AssetQuestion; accountId: string; p: Position } | null>(null);
 
   const priceCache = store.priceCache ?? {};
   const priceOf = (t: string) => priceCache[t.trim().toUpperCase()];
@@ -221,6 +228,39 @@ export default function HoldingDetailScreen() {
   const cgNoneDated = !!cg && !cgIndex && cg.undated != null && cg.heldShares != null && cg.undated.held === cg.heldShares;
   const signedGain = (id: string, v: number) => `${v >= 0 ? '+' : '−'}${fig(id, Math.abs(v))}`;
 
+  // ── THE MASTER RECORD'S QUESTIONS ABOUT THIS HOLDING (holding-detail v03) ──────────────────────────────────────────────
+  const record = (store.assetRecord ?? []) as any[];
+  const storedQs = store.assetRecordQuestions ?? {};
+  const H = String(ticker).trim().toUpperCase();
+  const qsHere = accountQuestions(record, storedQs, account).filter((q) => q.holding === H);
+  const PURCHASE_KINDS = ['E1', 'E2', 'E3', 'E4', 'L4', 'R1', 'C1'];
+  const whereOfKind = (kind: string) => (PURCHASE_KINDS.includes(kind) ? 'purchase' : kind.startsWith('S') ? 'sale' : 'shares');
+  const answersHere = answersShown(record, storedQs, account, QUESTIONS_SHOWN)
+    .filter((a) => a.holding === H && a.kind !== 'C1' && !qsHere.some((q) => q.name === a.name));
+  const answerQ = (q: AssetQuestion, id: string, date?: string) => { store.answerAssetRecordQuestion?.(String(account.asset_id), q, { id, ...(date ? { date: date } : {}) }); setReasking(null); };
+  const card = (q: AssetQuestion) => <RecordQuestionCard key={q.name} question={q} account={account} record={record} price={row.price ?? null} onAnswer={(id, date) => answerQ(q, id, date)} />;
+  /** the questions asked at one place on the page, and the answers given there (v03 rows 1 and 4) */
+  const askedAt = (where: 'purchase' | 'shares' | 'sale', onLot?: (q: AssetQuestion | null, kind: string) => boolean) => (
+    <>
+      {qsHere.filter((q) => askedWhere(q) === where && (!onLot || onLot(q, q.kind))).map(card)}
+      {answersHere.filter((a) => whereOfKind(a.kind) === where && (!onLot || onLot(a.question, a.kind))).map((a) => (reasking === a.name && a.question
+        ? card(a.question) : <AnsweredLine key={a.name} answer={a} onChange={() => setReasking(a.name)} />))}
+    </>
+  );
+  const sharesSays = qsHere.filter((q) => askedWhere(q) === 'shares').map((q) => otherSays(q, account, record)).find(Boolean) ?? null;
+  /** S1 waiting: what the sale's purchase decides is not known until he answers (v03 row 9) */
+  const s1Waiting = qsHere.map((q) => saleNotKnownWords(record, q)).find(Boolean) ?? null;
+  /** "Price from <day>" when the newest price is more than 7 days older than today; still used for the value (v03 row 12) */
+  const seriesDay = (() => { const pts = (series?.points ?? []) as any[]; return pts.length ? String(pts[pts.length - 1].date).slice(0, 10) : null; })();
+  const recordDay = holdingPriceDay(record, String(account.asset_id), H, seriesDay);
+  const priceFrom = priceFromDay([seriesDay, recordDay].filter(Boolean).sort().pop() ?? null, todayKey);
+  /** the lot a question is about, by its day and shares on record */
+  const lotIs = (l: any) => (q: AssetQuestion | null) => {
+    const at = q ? questionLotDate(record, q) : null;
+    return !!at && (purchaseDateOnRecord(l.purchase_date) ?? null) === (at.date ?? null);
+  };
+  const onAnyLot = (q: AssetQuestion | null) => position.lots.some((l: any) => lotIs(l)(q));
+
   const tickerTxns = ((store.transactions ?? []) as any[]).filter((t) => String(t.ticker ?? '').toUpperCase() === ticker.toUpperCase());
   const realized = answer.realised;
 
@@ -230,7 +270,7 @@ export default function HoldingDetailScreen() {
     <View style={s.tRow}>
       <View style={s.kickerRow}><Text style={s.tL}>Price paid (average)</Text><InfoDot term="averagePricePaid" line={s.tL} /></View>
       {/* a hidden balance is said "hidden", never the dots (2026-10-23, E2E-68) */}
-      <Text style={s.tV} accessibilityLabel={shares == null ? undefined : figSaid('MK-NW-M-032', rawAvg)}>{shares == null ? figWords('MK-NW-M-032', SHARE_COUNT_NOT_STATED) : fig('MK-NW-M-032', rawAvg)}</Text>
+      <Text style={s.tV} accessibilityLabel={shares == null || s1Waiting ? undefined : figSaid('MK-NW-M-032', rawAvg)}>{s1Waiting ? figWords('MK-NW-M-032', s1Waiting) : shares == null ? figWords('MK-NW-M-032', SHARE_COUNT_NOT_STATED) : fig('MK-NW-M-032', rawAvg)}</Text>
     </View>
   );
 
@@ -262,6 +302,8 @@ export default function HoldingDetailScreen() {
             <Text style={s.gainLine}>Holding liquidated — all shares sold. Its history is kept below.</Text>
           </View>
         ) : null}
+        {/* sold in full: the answer that sold it sits under the line that says so (v03 state J) */}
+        {closed && askedAt('shares')}
         {/* A SOLD HOLDING STILL HAS A PRICE AND A HISTORY (approved drawing holding-detail v02, phone 3):
             the price, the day's change, the graph and its window stay; the position table goes. */}
         {hasPrice ? (
@@ -277,7 +319,9 @@ export default function HoldingDetailScreen() {
                   {dayChange.d >= 0 ? '▲ up ' : '▼ down '}{fig('MK-NW-M-060', Math.abs(dayChange.d))} ({fig('MK-NW-M-068', Math.abs(dayChange.p))}) {fresh.stale ? 'last market day' : 'today'}
                 </Text>
               )}
-              {fresh.stale && <Text style={[s.metaLine, s.warn]}>prices may be out of date ({fresh.label})</Text>}
+              {priceFrom
+                ? <Text style={[s.metaLine, s.warn]}>Price from {dateShown(priceFrom)} — more than 7 days old; still used for the value</Text>
+                : fresh.stale && <Text style={[s.metaLine, s.warn]}>prices may be out of date ({fresh.label})</Text>}
             </View>
             {graphPts.length >= 2 && (
               <>
@@ -303,12 +347,17 @@ export default function HoldingDetailScreen() {
               {/* the value and the change since purchase, said as one: the summary the card used to say (2026-10-23, E2E-68) */}
               <View accessible accessibilityLabel={headerA11y}>
                 <View style={s.tRow}><Text style={s.tL}>Current value</Text><Text style={s.tV}>{value == null ? figWords('MK-NW-M-030', valueNotKnown) : fig('MK-NW-M-030', value)}</Text></View>
-                {gain != null && (
+                {s1Waiting ? (
+                  <View style={s.tRow}><Text style={s.tL}>Change since purchase</Text><Text style={s.tV}>{figWords('MK-NW-M-059', s1Waiting)}</Text></View>
+                ) : gain != null && (
                   <View style={s.tRow}><Text style={s.tL}>Change since purchase</Text>
                     <Text style={[s.tV, { color: gain >= 0 ? Colors.gainText : Colors.red }]}>{gain >= 0 ? '▲ +' : '▼ −'}{fig('MK-NW-M-059', Math.abs(gain))}{roi != null ? ` (${fig('MK-NW-M-067', roi)})` : ''}</Text></View>
                 )}
               </View>
               <View style={s.tRow}><Text style={s.tL}>Quantity</Text><Text style={s.tV}>{figWords('MK-NW-M-031', quantityWords ?? SHARE_COUNT_NOT_STATED)}</Text></View>
+              {/* the other source's count under the record's, and the question about the shares held (v03 rows 2, 6, 8, 11) */}
+              {!!sharesSays && <Text style={[s.says, s.warn]}>{sharesSays}</Text>}
+              {askedAt('shares')}
               {avgRow()}
             </View>
             )}
@@ -326,6 +375,9 @@ export default function HoldingDetailScreen() {
             </View>
             <View style={s.tblTop}>
               <View style={s.tRow}><Text style={s.tL}>Quantity</Text><Text style={s.tV}>{figWords('MK-NW-M-031', quantityWords ?? SHARE_COUNT_NOT_STATED)}</Text></View>
+              {/* the other source's count under the record's, and the question about the shares held (v03 rows 2, 6, 8, 11) */}
+              {!!sharesSays && <Text style={[s.says, s.warn]}>{sharesSays}</Text>}
+              {askedAt('shares')}
               {avgRow()}
             </View>
             <Text style={s.note}>No market compare, dividends or tax estimate without a live price — sections appear when pricing does. Nothing invented.</Text>
@@ -401,8 +453,12 @@ export default function HoldingDetailScreen() {
           // (31 February) was written as if it did. The one reading of a date: purchaseDateOnRecord, as the gains below use.
           const bought = purchaseDateOnRecord(l.purchase_date);
           const dateWords = bought ? dateShown(bought) : 'Date not on record';
+          const lotQs = qsHere.filter((q) => askedWhere(q) === 'purchase' && lotIs(l)(q));
+          const lotSays = lotQs.map((q) => otherSays(q, account, record)).find(Boolean) ?? null;
+          const entered = enteredOverGiven(record, account, H, bought, l.shares);
           return (
-          <TouchableOpacity accessibilityRole="button" key={l.lot_id} style={s.lotRow} onPress={() => setEditOpen(true)}
+          <React.Fragment key={l.lot_id}>
+          <TouchableOpacity accessibilityRole="button" style={s.lotRow} onPress={() => setEditOpen(true)}
             // spoken in the holding's own unit (contracts, coins), as the row is drawn — it said "shares" for every holding
             accessibilityLabel={`${quantityWithUnit(position, l.shares, quantityText) ?? 'no share count on record'} at ${lotCostOnRecord(l) ? figSaid('MK-NW-M-061', l.cost_per_share as number) : 'no price paid on record'}, ${bought ? `bought ${dateWords}` : 'purchase date not on record'}. Opens the editor.`}>
             <Text style={s.lotDate}>{dateWords}</Text>
@@ -417,9 +473,28 @@ export default function HoldingDetailScreen() {
               // and the line under them say "no price paid on record", the words of his sale sentence (DEC-4643); canon row 24.
               : figWords('MK-NW-M-061', 'no price paid on record')}</Text>
           </TouchableOpacity>
+          {/* the other source's figure under his while the question waits; his correction marked, the source's beside it (v03 rows 2, 14) */}
+          {!!lotSays && <Text style={[s.says, s.warn]}>{lotSays}</Text>}
+          {!!entered && <Text style={s.says}>{entered}</Text>}
+          {askedAt('purchase', (q) => lotIs(l)(q))}
+          {pendingC1 && lotIs(l)(pendingC1.q) && (
+            <RecordQuestionCard question={pendingC1.q} account={account} record={record}
+              onAnswer={(id) => {
+                const pend = pendingC1;
+                setPendingC1(null);
+                if (id !== 'confirm' || !pend.q.confirm) return;   // Cancel writes nothing
+                // the holding's own lots first, then the record's C1 write on the purchase as it then stands: the other order wrote
+                // the purchase twice (the typed change of the lot, after the correction, added a second $320 purchase — 2026-11-12)
+                store.updatePosition(pend.accountId, pend.p.position_id, pend.p);
+                store.confirmMyChange?.(String(account.asset_id), pend.q.confirm.rowId, pend.q.confirm.change as any);
+              }} />
+          )}
+          </React.Fragment>
           );
         })}
-        <View style={[s.tRow, s.tTotal]}><Text style={[s.tL, { fontWeight: '800', color: Colors.textPrimary }]}>Total paid</Text><SaidText style={s.tV}>{shares == null ? figWords('MK-NW-M-033', SHARE_COUNT_NOT_STATED) : fig('MK-NW-M-033', basis)}</SaidText></View>
+        {/* a purchase question about no purchase on this page is asked under the purchases */}
+        {askedAt('purchase', (q) => !onAnyLot(q))}
+        <View style={[s.tRow, s.tTotal]}><Text style={[s.tL, { fontWeight: '800', color: Colors.textPrimary }]}>Total paid</Text><SaidText style={s.tV}>{s1Waiting ? figWords('MK-NW-M-033', s1Waiting) : shares == null ? figWords('MK-NW-M-033', SHARE_COUNT_NOT_STATED) : fig('MK-NW-M-033', basis)}</SaidText></View>
         <Text style={s.note}>These purchases are the cost basis — they explain the average cost above.</Text>
         {/* THE AVERAGE AND THE TOTAL PAID LEAVE OUT A PURCHASE WITH NO PRICE PAID, AND SAY SO HERE, beside the purchase that has
             none (2026-10-20). It counted that purchase as $0: 10 shares at $100 and 10 with no cost read $50.00, and Total paid read
@@ -442,20 +517,22 @@ export default function HoldingDetailScreen() {
             <View style={s.tRow}><Text style={s.tL}>Dividends received (trailing twelve months)</Text><SaidText style={s.tV}>{fig('MK-NW-M-034', dividends.trailing12)}</SaidText></View>
           )}
           <View style={s.tRow}><Text style={s.tL}>Realized from sales</Text>
-            <SaidText style={s.tV}>{realized.sellsCounted > 0
+            <SaidText style={s.tV}>{s1Waiting ? figWords('MK-NW-M-035', 'Not known') : realized.sellsCounted > 0
               ? `${realized.realizedAllTime >= 0 ? '+' : '−'}${fig('MK-NW-M-035', Math.abs(realized.realizedAllTime))} all time`
               : realized.shortOfPurchases.length > 0
               // sold, but no purchase on record behind any of it: not "nothing sold" (DEC-4643, 2026-10-12)
               ? figWords('MK-NW-M-035', 'not on record')
               : `${fig('MK-NW-M-035', 0)} — nothing sold`}</SaidText></View>
           {/* his ruling, 2026-10-04: "$0 — nothing sold" stays; the line about how sales are matched is for when there is a sale */}
-          {(realized.sellsCounted > 0 || realized.shortOfPurchases.length > 0) && (
+          {/* a question about a sale sits under Realized from sales (v03 rows 1, 9, 10) */}
+          {askedAt('sale')}
+          {!s1Waiting && (realized.sellsCounted > 0 || realized.shortOfPurchases.length > 0) && (
             <Text style={s.noteLine}>From your recorded buys and sells (oldest shares sold first).</Text>
           )}
           {/* A SALE IS COUNTED ONCE (his approval, 2026-10-12, DEC-4643): a sale bigger than the purchases on record
               says what its matched part made and how many shares have no price paid on record — one line per sale.
               It read "1 sale had no recorded purchase" beside a gain counted on the same sale, as if two sales. */}
-          {realized.shortOfPurchases.map((sale, i) => (
+          {!s1Waiting && realized.shortOfPurchases.map((sale, i) => (
             <SaidText key={`${sale.date}-${i}`} style={s.noteLine}>
               {saleShortOfPurchasesSentence(sale, position, (n) => fig('MK-NW-M-035', n), quantityText)}
             </SaidText>
@@ -467,7 +544,9 @@ export default function HoldingDetailScreen() {
       {cg && !closed && (
         <View style={s.card}>
           <SectionBand inCard inset={20} title="IF YOU SOLD TODAY" />
-          {answer.notCapitalGains ? (
+          {s1Waiting ? (
+            <View style={s.tRow}><Text style={s.tL}>Gain</Text><Text style={s.tV}>{figWords('MK-NW-M-059', s1Waiting)}</Text></View>
+          ) : answer.notCapitalGains ? (
             <>
               {/* INSIDE AN ACCOUNT TAXED AS PRE-TAX OR TAX-FREE (2026-10-21): a sale there is not a capital gain, so the
                   split by holding period has no tax meaning — the gain is shown whole, with the reason */}
@@ -519,6 +598,9 @@ export default function HoldingDetailScreen() {
         open={editOpen} accounts={accounts} existing={{ accountId: account.asset_id, position }}
         onClose={() => setEditOpen(false)}
         onSave={(accountId: string, p: Position, isNew: boolean) => {
+          // C1 (v03 row 13): a price changed over a broker's or a file's is confirmed on its purchase before anything is written
+          const c1 = isNew ? null : confirmForSavedLots(record, account, H, p.lots ?? []);
+          if (c1) { setPendingC1({ q: c1, accountId, p }); setEditOpen(false); return; }
           if (isNew) store.addPosition(accountId, p);
           else store.updatePosition(accountId, p.position_id, p);
           setEditOpen(false);
@@ -582,6 +664,8 @@ const s = StyleSheet.create({
   chipTxtOn: { color: Colors.cardBg },
   lotShares: { fontSize: 15, color: Colors.textPrimary, fontWeight: '600' },
   lotDate: { fontSize: 13, color: Colors.textSecondary },
+  // the other source's figure under the record's, in amber with its words (v03 row 2); 11 points, right-aligned under the figure
+  says: { fontSize: 11, color: Colors.textSecondary, textAlign: 'right', marginTop: -4, marginBottom: 4 },
   entryCard: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.lg, marginBottom: Spacing.md },
   entryTitle: { fontSize: 15, fontWeight: '800', color: Colors.textPrimary },
   // the two doors at the foot, as holding detail v02 draws them (.btnRow, .btn): 4 below the card, a 1-point edge in the line

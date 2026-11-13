@@ -43,7 +43,9 @@ import { DotJoined } from '../components/SepDot';
 import { wageRefusalOf } from '../domain/income/pay-frequency';   // R23a, 2026-11-01: a wage entered that cannot be read
 import { setupEntered } from '../../MoneyKeel/functions/cashflow/setup-gate';   // R26, 2026-11-02: the one set-up gate
 import { localDay } from '../domain/_shared/dates';   // the one reader of a stored day (CF-21, 2026-10-25)
-import { datedBillsIn } from '../domain/grid';   // a month's dated bills, read one way (2026-10-26)
+import { datedBillsIn } from '../domain/grid';
+import { TwoPhoneNote } from '../components/TwoPhoneNote';   // the note when one item was changed on two phones (R9, 2026-11-12)
+import { loadHouseholdPeople } from '../services/firebase';   // a month's dated bills, read one way (2026-10-26)
 
 const MONTHS_LONG = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 /** WHAT A SCREEN READER SAYS FOR A ROW THAT PRINTS A FIGURE (2026-10-24, Cash flow journey E2E-78): the row is one element, and
@@ -467,6 +469,64 @@ function IncomeTab({ op, store, ym, expected, current, monthLabel, onSetup, onSu
  *  planned · what was actually spent, by where it came from · and the big-ticket radar. Every figure is
  *  MK-CF-O-010 theMonth's; the screen prints. Every section keeps its heading when empty, "so the shape
  *  of the screen never changes — only what is in it". */
+/** R9 (two-phone change note v01, 2026-11-12): the budget is one item of the profile; when this phone's change to it was not kept,
+ *  the row whose planned amount differs between the two carries the note. Both sides are counted by the same producers the
+ *  screen prints from (theBudgetCounted → theMonth), so "Planned expenses become $2,100" is the screen's own figure for the other value. */
+function useTwoPhoneBudgetNote({ ym, grid, liabilities, expenses, planned, planShown }: { ym: string; grid: any; liabilities: any[]; expenses: any[]; planned: { label: string; monthly: number }[]; planShown: { parts: number[]; total: number } }) {
+  const profileSync = useStore((st: any) => st.profileSync);
+  const accounts = useStore((st: any) => st.assetAccounts);
+  const uid = useStore((st: any) => st.user?.uid ?? null);
+  const householdId = useStore((st: any) => st.householdId ?? null);
+  const [other, setOther] = useState<string | null>(null);   // the other person in the household, by first name
+  const notes: any[] = profileSync?.notes ?? [];
+  const idx = notes.map((n, i) => [n, i] as const).filter(([n]) => n?.item === 'onboardingProfile' && n?.lost && n?.other && n?.answered !== 'change').map(([, i]) => i).pop();
+  const note = idx != null ? notes[idx] : null;
+  useEffect(() => {
+    if (!note || !uid) return;
+    let live = true;
+    Promise.resolve(loadHouseholdPeople?.(uid, householdId)).then((p: any) => {
+      if (!live || !p) return;
+      setOther(p.role === 'owner' ? p.memberName : p.role === 'member' ? p.ownerName : null);
+    }).catch(() => {});
+    return () => { live = false; };
+  }, [!!note, uid, householdId]);
+  return useMemo(() => {
+    if (!note) return null;
+    const oc = theBudgetCounted({ profile: note.other, accounts: accounts ?? [], debts: liabilities });
+    const obva = budgetVsActual(expensesAsCounted(expenses, oc.profile), oc.profile, new Date());
+    const om = theMonth(thisMonthInputs({ grid, bva: obva, profile: oc.profile, liabilities, expenses, ym }));
+    const oShown = partsShown(om.expenses.planned.map((c: any) => c.monthly));
+    const i = planned.findIndex((c, k) => { const j = om.expenses.planned.findIndex((o: any) => o.label === c.label); return j >= 0 && oShown.parts[j] !== planShown.parts[k]; });
+    if (i < 0) return null;
+    const j = om.expenses.planned.findIndex((o: any) => o.label === planned[i].label);
+    const setAnswer = (answered: 'keep' | 'change' | undefined) => {
+      const ps: any = (useStore.getState() as any).profileSync;
+      if (!ps) return;
+      useStore.setState({ profileSync: { ...ps, notes: ps.notes.map((n: any, k: number) => (k === idx ? { ...n, answered } : n)) } } as any);
+    };
+    return {
+      label: planned[i].label,
+      props: {
+        item: planned[i].label,
+        otherPhone: other ? `${other}’s phone` : 'your other phone',
+        otherChange: other ? `${other}’s change` : 'your other phone’s change',
+        kept: `${fig('MK-CF-M-015', planShown.parts[i])}/month`, keptAt: note.keptAt ?? null,
+        mine: `${fig('MK-CF-M-015', oShown.parts[j])}/month`, mineAt: note.otherAt ?? null,
+        totalLabel: 'Planned expenses', keptTotal: fig('MK-CF-M-001', planShown.total), mineTotal: fig('MK-CF-M-001', oShown.total),
+        answered: note.answered === 'keep',
+        onKeep: () => setAnswer('keep'),
+        onReopen: () => setAnswer(undefined),
+        // "Change to …" saves this phone's value as a new change, stamped now, which then counts on both phones (R9). The budget is
+        // one item of the profile, so the value this phone entered is its whole budget — the one "Planned expenses become …" was counted from
+        onChange: () => {
+          (useStore.getState() as any).setOnboardingProfile?.(note.other);
+          setAnswer('change');
+        },
+      },
+    };
+  }, [note, other, accounts, liabilities, expenses, grid, ym, planned, planShown, idx]);
+}
+
 const MON3 = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 function ExpensesTab({ ym, grid, budgetProfile, liabilities, bva, expenses, onLog, onDebts, budgetSentence, record }: { ym: string; grid: any; budgetProfile: any; liabilities: any[]; bva: any; expenses: any[]; onLog: () => void; onDebts: () => void; budgetSentence?: string; record?: any }) {
   const topEdge = useTopEdge();
@@ -485,6 +545,7 @@ function ExpensesTab({ ym, grid, budgetProfile, liabilities, bva, expenses, onLo
   // on This month): the recurring debts, the planned groups, and the three sources under ACTUAL EXPENSES
   const recShown = partsShown(x.recurringDebt.map((r) => r.monthly));
   const planShown = partsShown(x.planned.map((c) => c.monthly));
+  const twoPhone = useTwoPhoneBudgetNote({ ym, grid, liabilities, expenses, planned: x.planned, planShown });
   // ROWS ROUND ONCE, TO THE CENT (2026-10-27, FX-CF-A; the lead's ruling R5 on CF2-06; cash-flow_v01's READ THIS FIRST row of that date):
   // an expense, a payment logged and a payment received are written to the cent, so every total over them is too, and the rows as
   // printed add up to it — two $200.40 payments read $200 + $200 under $401, each rounded to the dollar alone. Each list shares its
@@ -550,14 +611,18 @@ function ExpensesTab({ ym, grid, budgetProfile, liabilities, bva, expenses, onLo
         <SectionBand inCard onRowEdges inset={16} title="PLANNED EXPENSES" value={budgetSet ? fig('MK-CF-M-001', planShown.total) : '—'} />
         {!!budgetSentence && <Text style={[styles.note, { paddingHorizontal: 16 }]}>{budgetSentence}</Text>}
         {budgetSet ? (
-          <TouchableOpacity accessibilityRole="button" activeOpacity={0.7} onPress={() => setBudgetOpen(true)}
+          <TouchableOpacity accessibilityRole="button" activeOpacity={0.7} onPress={() => setBudgetOpen(true)} accessible={!twoPhone}
             // the rows are inside the door, so the door says them — it said only "by category", and no amount was ever heard
             accessibilityLabel={`Planned expenses: ${[...x.planned.map((c, i) => sayRow(c.label, fig('MK-CF-M-015', planShown.parts[i]))), sayRow('total', fig('MK-CF-M-001', planShown.total))].join('; ')}. Opens your budget.`}>
             {x.planned.map((c, i) => (
-              <View key={c.label} style={styles.mRow}>
-                <Text style={styles.rowL}>{c.label}</Text>
-                <Text style={[styles.rowV, styles.rowFig]}>{fig('MK-CF-M-015', planShown.parts[i])}</Text>
-              </View>
+              <React.Fragment key={c.label}>
+                <View style={styles.mRow}>
+                  <Text style={styles.rowL}>{c.label}</Text>
+                  <Text style={[styles.rowV, styles.rowFig]}>{fig('MK-CF-M-015', planShown.parts[i])}</Text>
+                </View>
+                {/* R9 (two-phone change note v01): under the item it is about, on the phone whose change was not kept */}
+                {twoPhone?.label === c.label && <TwoPhoneNote {...twoPhone.props} />}
+              </React.Fragment>
             ))}
             <View style={[styles.mRow, styles.mTotal]}>
               <Text style={[styles.rowL, { fontWeight: '800' }]}>= Total</Text>

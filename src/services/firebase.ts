@@ -29,6 +29,7 @@ import {
   deleteField,
   addDoc,
   collection,
+  getDocs,
   serverTimestamp,
   runTransaction,
 } from 'firebase/firestore';
@@ -188,7 +189,7 @@ export function isEmailVerified(): boolean {
  *
  * Called by ... MK-XS-F-147 call
  *
- * Reaches ..... 637 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 689 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -198,7 +199,7 @@ export function isEmailVerified(): boolean {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 619 more — the full list is on functions_from_code
+ *               … and 671 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -937,7 +938,7 @@ function makeInviteCode(): string {
 }
 
 /** Create an invite code pointing at this household's shared data doc. */
-/* ─ MK-XS-F-075 ───────────────────────────────────────────── 2 · DISPLAYED (presentation only)
+/* ─ MK-XS-F-075 ──────────────────────────────────────────────────────────────────── 1 · ACTION
  * createInvite
  *
  * Answers ..... Create an invite code pointing at this household's shared data doc.
@@ -1301,7 +1302,7 @@ export function deleteAccountUrl(): string | null {
 /** R13: an invite that shares the household's key. The owner's phone shows the 6-letter invite code AND a one-time 20-letter
  *  key code; the invite holds the key locked by the key code and a check value of it, and the access rules give it 7 days
  *  from the server's creation time. Needs the key on the phone. (The screen that shows the key code waits for its mock.) */
-/* ─ MK-XS-F-277 ──────────────────────────────────────────────────────────────────── 1 · ACTION
+/* ─ MK-XS-F-277 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * createInviteWithKeyCode
  *
  * Answers ..... R13: an invite that shares the household's key.
@@ -1357,7 +1358,7 @@ export async function createInviteWithKeyCode(householdId: string, inviterName: 
  * Formula also on the master file · functions_from_code · MK-XS-F-278
  * Changed ..... not in git yet (—)
  */
-export async function joinHouseholdWithKeyCode(uid: string, inviteCode: string, keyCode: string, password: string, recoveryCode: string): Promise<string> {
+export async function joinHouseholdWithKeyCode(uid: string, inviteCode: string, keyCode: string, password: string, recoveryCode: string, memberName?: string | null): Promise<string> {
   const code = inviteCode.trim().toUpperCase();
   const snap = await getDoc(doc(db, 'invites', code));
   const inv: any = snap.exists() ? snap.data() : null;
@@ -1365,7 +1366,10 @@ export async function joinHouseholdWithKeyCode(uid: string, inviteCode: string, 
   if (keyCodeCheck(keyCode) !== inv.keyCodeCheck) throw new Error('That key code does not match the invite.');
   const hhKey = unwrapWithKeyCode(inv.wrappedKey, keyCode, code);
   if (!hhKey) throw new Error('That key code does not match the invite.');
-  await setDoc(doc(db, 'households', inv.householdId, 'members', uid), { code, joinedAt: serverTimestamp(), keyCodeProof: keyCodeProof(keyCode) });
+  // the two first names the household's screens say (Settings' Household box, the return code, the delete warning): kept in the
+  // member document as plain first names, because the owner's phone must name the member BEFORE the data is unlocked (R14)
+  await setDoc(doc(db, 'households', inv.householdId, 'members', uid), { code, joinedAt: serverTimestamp(), keyCodeProof: keyCodeProof(keyCode),
+    name: firstNameOf(memberName), ownerName: firstNameOf(inv.inviterName) });
   await setDoc(doc(db, 'users', uid), { householdId: inv.householdId, householdKeyEnvelope: makeEnvelope(hhKey, uid, password, recoveryCode) }, { merge: true });
   await cacheDataKey(hhKey);
   try { await deleteDoc(doc(db, 'invites', code)); } catch { /* the 7 days end it anyway */ }
@@ -1375,7 +1379,7 @@ export async function joinHouseholdWithKeyCode(uid: string, inviteCode: string, 
 
 /** R14: a member gives an owner who lost both codes a one-time return code: the member's phone stores the household key
  *  locked by it beside the household (7 days). Returns the code to pass on. */
-/* ─ MK-XS-F-279 ──────────────────────────────────────────────────────────────────── 1 · ACTION
+/* ─ MK-XS-F-279 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * leaveReturnCode
  *
  * Answers ..... R14: a member gives an owner who lost both codes a one-time return code: the member's phone stores the household key locked by it beside the household (7 days).
@@ -1446,4 +1450,200 @@ export async function restoreOwnerWithReturnCode(returnCode: string, newPassword
   try { await deleteDoc(doc(db, 'households', u.uid, 'keyReturn', 'current')); } catch { /* expires */ }
   await dataKeyIsReady();
   return recoveryCode;
+}
+
+/** A person's first name, as the household's screens say it ("Pat Rivera" → "Pat"); nothing when no name was given. */
+/* ─ MK-XS-F-312 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * firstNameOf
+ *
+ * Answers ..... A person's first name, as the household's screens say it ("Pat Rivera" → "Pat"); nothing when no name was given.
+ *
+ * Formula .....
+ *     first = the first of string(name ?? '').trim().split( ÷ \s+ ÷ )
+ *     the answer:
+ *     first   if first
+ *     nothing   otherwise
+ *
+ * Called by ... MK-XS-F-278 joinHouseholdWithKeyCode · MK-XS-F-315 checkInviteCodes
+ *
+ * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-315 checkInviteCodes · MK-XS-F-278 joinHouseholdWithKeyCode
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-312
+ * Changed ..... not in git yet (—)
+ */
+export function firstNameOf(name: string | null | undefined): string | null {
+  const first = String(name ?? '').trim().split(/\s+/)[0];
+  return first ? first : null;
+}
+
+/** When a cloud time stamp was, in milliseconds (a server Timestamp, a Date, an ISO string or a number); nothing when unreadable. */
+/* ─ MK-XS-F-313 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * stampMillis
+ *
+ * Answers ..... When a cloud time stamp was, in milliseconds (a server Timestamp, a Date, an ISO string or a number); nothing when unreadable.
+ *
+ * Formula .....
+ *     nothing   when v = nothing
+ *     to millis()   when to millis is a function
+ *     get time()   when v instanceof date
+ *     v   when v is a number
+ *     t = date.parse(string(v))
+ *     the answer:
+ *     t   if number.is finite(t)
+ *     nothing   otherwise
+ *
+ * Called by ... MK-XS-F-314 loadHouseholdPeople · MK-XS-F-315 checkInviteCodes
+ *
+ * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-315 checkInviteCodes · MK-XS-F-314 loadHouseholdPeople
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-313
+ * Changed ..... not in git yet (—)
+ */
+function stampMillis(v: any): number | null {
+  if (v == null) return null;
+  if (typeof v?.toMillis === 'function') return v.toMillis();
+  if (v instanceof Date) return v.getTime();
+  if (typeof v === 'number') return v;
+  const t = Date.parse(String(v));
+  return Number.isFinite(t) ? t : null;
+}
+
+/** Who shares this person's household, read from the member document (R13, R14, R16): the owner sees the member's first name and
+ *  since when; a member sees the owner's first name and since when; solo is nobody. Never needs the data key, so the owner's phone
+ *  can name the member on "Restore your data". */
+export type HouseholdPeople =
+  | { role: 'solo' }
+  | { role: 'owner'; memberUid: string; memberName: string | null; joinedAt: number | null }
+  | { role: 'member'; owner: string; ownerName: string | null; joinedAt: number | null };
+/** WHO SHARES THIS HOUSEHOLD, for the Settings box: a member is told whose household they joined and when; an owner is told the one person who joined and when; anyone else is on their own. */
+/* ─ MK-XS-F-314 ──────────────────────────────────────────────────────────── 4 · BRINGS DATA IN
+ * loadHouseholdPeople
+ *
+ * Answers ..... WHO SHARES THIS HOUSEHOLD, for the Settings box: a member is told whose household they joined and when; an owner is told the one person who joined and when; anyone else is on their own.
+ *
+ * Formula .....
+ *     snap = await get doc(doc(db, 'households', household id, 'members', uid))
+ *     d = snap.data()   if snap.exists()
+ *     nothing   otherwise
+ *     the answer:
+ *     role = 'member'
+ *     owner = household id
+ *     owner name = owner name (or nothing when missing)
+ *     joined at = stamp millis(joined at)
+ *     list = await get docs(collection(db, 'households', uid, 'members'))
+ *     first = the first of list.docs?.
+ *     role = 'solo'   when first is missing
+ *     d = first.data()
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Decides .....
+ *     · Uses a built-in i n v i t e d a y s of 7.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-314
+ * Changed ..... not in git yet (—)
+ */
+export async function loadHouseholdPeople(uid: string, householdId: string | null | undefined): Promise<HouseholdPeople> {
+  if (householdId && householdId !== uid) {
+    const snap = await getDoc(doc(db, 'households', householdId, 'members', uid));
+    const d: any = snap.exists() ? snap.data() : null;
+    return { role: 'member', owner: householdId, ownerName: d?.ownerName ?? null, joinedAt: stampMillis(d?.joinedAt) };
+  }
+  const list = await getDocs(collection(db, 'households', uid, 'members'));
+  const first: any = list.docs?.[0];
+  if (!first) return { role: 'solo' };
+  const d: any = first.data();
+  return { role: 'owner', memberUid: first.id, memberName: d?.name ?? null, joinedAt: stampMillis(d?.joinedAt) };
+}
+
+/** R13: what an invite code and a key code typed at sign-up come to, before anything is joined: the invite is not there, ran out
+ *  (7 days from its server creation time, the access rules' own count), has no key code typed, or the key code does not match. */
+export type InviteCheck =
+  | { status: 'ok'; householdId: string; inviterName: string | null; expiresAt: number | null }
+  | { status: 'not-found' }
+  | { status: 'expired'; inviterName: string | null; expiresAt: number }
+  | { status: 'no-key-code' | 'wrong-key-code'; inviterName: string | null; expiresAt: number | null };
+export const INVITE_DAYS = 7;
+/** WHAT AN INVITE CODE AND A KEY CODE COME TO, before anything is joined: the invite is not there, it ran out (after its days), the key code is missing or wrong, or both are right and the household is named. */
+/* ─ MK-XS-F-315 ──────────────────────────────────────────────────────────── 4 · BRINGS DATA IN
+ * checkInviteCodes
+ *
+ * Answers ..... WHAT AN INVITE CODE AND A KEY CODE COME TO, before anything is joined: the invite is not there, it ran out (after its days), the key code is missing or wrong, or both are right and the household is named.
+ *
+ * Formula .....
+ *     code = invite code.trim().to upper case()
+ *     snap = await get doc(doc(db, 'invites', code))
+ *     inv = snap.data()   if snap.exists()
+ *     nothing   otherwise
+ *     status = 'not − found'   when inv.household id is missing
+ *     made = stamp millis(inv.created at)
+ *     expires at = nothing   if made = nothing
+ *     made + INVITE_DAYS × 86400000   otherwise
+ *     inviter name = first name of(inv.inviter name)
+ *     status = 'expired'
+ *     inviter name = inviter name
+ *     expires at = expires at   when expires at ≠ nothing and date.now() ≥ expires at
+ *     status = 'no − key − code'
+ *     inviter name = inviter name
+ *     expires at = expires at   when !key code.trim()
+ *     status = 'wrong − key − code'
+ *     inviter name = inviter name
+ *     expires at = expires at   when inv.key code check is missing (or key code check(key code) ! = inv.key code check when missing or zero)
+ *     the answer:
+ *     status = 'ok'
+ *     household id = inv.household id
+ *     inviter name = inviter name
+ *     expires at = expires at
+ *     … the first steps only — the rest of the body needs reading by hand.
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Decides .....
+ *     · Uses today's date from the device clock, so the answer changes by itself overnight.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-315
+ * Changed ..... not in git yet (—)
+ */
+export async function checkInviteCodes(inviteCode: string, keyCode: string): Promise<InviteCheck> {
+  const code = inviteCode.trim().toUpperCase();
+  const snap = await getDoc(doc(db, 'invites', code));
+  const inv: any = snap.exists() ? snap.data() : null;
+  if (!inv?.householdId) return { status: 'not-found' };
+  const made = stampMillis(inv.createdAt);
+  const expiresAt = made == null ? null : made + INVITE_DAYS * 86400000;
+  const inviterName = firstNameOf(inv.inviterName);
+  if (expiresAt != null && Date.now() >= expiresAt) return { status: 'expired', inviterName, expiresAt };
+  if (!keyCode.trim()) return { status: 'no-key-code', inviterName, expiresAt };
+  if (!inv.keyCodeCheck || keyCodeCheck(keyCode) !== inv.keyCodeCheck) return { status: 'wrong-key-code', inviterName, expiresAt };
+  return { status: 'ok', householdId: inv.householdId, inviterName, expiresAt };
+}
+
+/** R13: the first pair of codes stops working when the owner creates the two codes again — its invite is deleted. */
+/* ─ MK-XS-F-316 ──────────────────────────────────────────────────────────────────── 1 · ACTION
+ * withdrawInvite
+ *
+ * Answers ..... R13: the first pair of codes stops working when the owner creates the two codes again — its invite is deleted.
+ *
+ * Formula .....
+ *     It reaches outside the app for data and hands back what came back — no arithmetic of its own.
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-316
+ * Changed ..... not in git yet (—)
+ */
+export async function withdrawInvite(code: string): Promise<void> {
+  try { await deleteDoc(doc(db, 'invites', code.trim().toUpperCase())); } catch { /* the 7 days end it anyway */ }
 }

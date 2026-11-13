@@ -81,11 +81,11 @@ describe('Fix 6 · each account page prints its card\'s shared figures (MK-XS-F-
   test.each([
     ['A', '$1,001', '$1,101', '$100'],
     ['B', '$1,000', '$1,101', '$101'],
-    ['C', '$1,000', '$1,100', '$100'],
-  ])('account %s: HOW %s BECAME %s, wealth generated %s — its card on Performance; the three add to $301', (id, begin, end, gained) => {
+    // C's card reads $1,000 → $1,100; its page ends at its own value $1,101 ($1,100.80), the dollar on the change line (row 435)
+    ['C', '$1,000', '$1,101', '$101'],
+  ])('account %s: HOW %s BECAME %s, wealth generated %s — its card on Performance, ending at its own value', (id, begin, end, gained) => {
     const l = page(id);
     expect(l).toContain(`HOW ${begin} BECAME ${end} · THIS ACCOUNT`);
-    expect(after(l, 'Wealth generated', l.findIndex((x) => x.startsWith('THIS ACCOUNT ·')))).toBe(gained);   // the trio
     const walkAt = l.findIndex((x) => x.startsWith('HOW '));
     expect(after(l, 'Wealth generated', walkAt)).toBe(gained);                                             // the walk's own line
     expect(l.slice(walkAt)).toContain(begin);

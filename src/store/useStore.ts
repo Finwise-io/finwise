@@ -33,7 +33,7 @@ import { fetchPriceSeries } from '../services/marketData';
  *               MK-ST-F-028 buildDayFromAccounts · MK-XS-F-199 profileOnTheWayIn
  *               MK-XS-F-205 recordsOnTheWayIn
  *
- * Reaches ..... 637 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 689 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -43,7 +43,7 @@ import { fetchPriceSeries } from '../services/marketData';
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 619 more — the full list is on functions_from_code
+ *               … and 671 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
@@ -103,20 +103,18 @@ function recomputeBalances(accs: AssetAccount[], cache: Record<string, PriceSeri
  * Answers ..... WHAT THE ACCOUNT HOLDER ENTERED, saved into the master record beside the old copies (phase 2, 2026-11-11).
  *
  * Formula .....
+ *     debts = a list with no repeats of for each of liabilities (or none when missing): string(debt id)
+ *     changes = changes0 where not ('transaction' in each and debts.has(string((each as any).transaction.account id)))
  *     {}   when count of changes is missing
- *     at = the date ).to isostring(
  *     record = asset record (or none when missing)
+ *     last = record.reduce((m, r) => (written at > m ? written at : m), '')
+ *     now = the date ).to isostring(
+ *     at = the date date.parse(last) + 1).to isostring(   if last and now ≤ last
+ *     now   otherwise
  *     questions = { ...(asset record questions ?? {}) }
  *     faults = [...(asset record faults ?? [])]
  *     out = typed change to record(record, c, at)
  *     touched = new set<string>()
- *     sales = sales needing an answer(record, id)
- *     was = questions[id]
- *     checked = after awrite(record, questions, at)
- *     the answer:
- *     asset record = checked.record
- *     asset record questions = checked.questions
- *     asset record faults = faults.slice(-50)
  *     … the first steps only — the rest of the body needs reading by hand.
  *
  * Called by ... MK-XS-F-199 profileOnTheWayIn
@@ -133,10 +131,19 @@ function recomputeBalances(accs: AssetAccount[], cache: Record<string, PriceSeri
  * Formula also on the master file · functions_from_code · MK-XS-F-229
  * Changed ..... not in git yet (—)
  */
-function typedIntoRecord(s: any, changes: TypedChange[]): Record<string, unknown> {
+function typedIntoRecord(s: any, changes0: TypedChange[]): Record<string, unknown> {
+  // A DEBT'S ACTIVITY IS NOT AN ASSET ACCOUNT'S (switch gap, 2026-11-13: a $200 mortgage payment was saved on the record as
+  // activity of an account named after the mortgage, read back as an adjustment, and Net worth's "Debt principal you paid"
+  // read $0): the master record holds what is owned; a payment on a debt stays in the activity list as recorded
+  const debts = new Set((s.liabilities ?? []).map((d: any) => String(d.debt_id)));
+  const changes = changes0.filter((c) => !('transaction' in c && debts.has(String((c as any).transaction?.account_id))));
   if (!changes.length) return {};
-  const at = new Date().toISOString();
   let record: AssetRow[] = s.assetRecord ?? [];
+  // a save is stamped after everything already on record (switch gap, 2026-11-13: a BUY saved in the same millisecond as
+  // the one-time move was read as part of the move, and its $3,000 never left the cash)
+  const last = record.reduce((m, r) => (r.writtenAt > m ? r.writtenAt : m), '');
+  const now = new Date().toISOString();
+  const at = last && now <= last ? new Date(Date.parse(last) + 1).toISOString() : now;
   const questions = { ...(s.assetRecordQuestions ?? {}) };
   const faults = [...(s.assetRecordFaults ?? [])];
   for (const c of changes) {
@@ -173,6 +180,148 @@ function typedIntoRecord(s: any, changes: TypedChange[]): Record<string, unknown
   return { assetRecord: checked.record, assetRecordQuestions: checked.questions, assetRecordFaults: faults.slice(-50) };
 }
 
+/** A number the account holder gave, or null where none was given (not a number, or not finite). */
+/* ─ MK-XS-F-319 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+ * numOrNull
+ *
+ * Answers ..... A number the account holder gave, or null where none was given (not a number, or not finite).
+ *
+ * Formula .....
+ *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
+ *
+ * Called by ... MK-XS-F-320 typedValueDatedByDays · MK-XS-F-321 valueAsTheDaysTakeIt
+ *
+ * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-199 profileOnTheWayIn · MK-XS-F-320 typedValueDatedByDays
+ *               MK-XS-F-321 valueAsTheDaysTakeIt
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-319
+ * Changed ..... not in git yet (—)
+ */
+function numOrNull(x: unknown): number | null { return typeof x === 'number' && Number.isFinite(x) ? x : null; }
+/** THE ONE-TIME MOVE DATES A TYPED VALUE WHERE THE RECORDED DAYS HOLD IT (switch gap, 2026-11-13): a Treasury at $19,650
+ *  "as of Sep 1" after a $5,000 sale on Oct 5 has held $19,650 on the recorded days only from Oct 5 — moved as of Sep 1,
+ *  it wrote $19,650 over Sep 1 to Oct 4, which hold $24,650. The value is moved as of the first day of the last run of
+ *  recorded days that hold it; with no recorded day after its date, or none holding it, its own date stands. */
+/* ─ MK-XS-F-320 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+ * typedValueDatedByDays
+ *
+ * Answers ..... THE ONE-TIME MOVE DATES A TYPED VALUE WHERE THE RECORDED DAYS HOLD IT (switch gap, 2026-11-13): a Treasury at $19,650 "as of Sep 1" after a $5,000 sale on Oct 5 has held $19,650 on the recorded days only from Oct 5 — moved as of Sep 1, it wrote $19,650 over Sep 1 to Oct 4, which hold $24,650.
+ *
+ * Formula .....
+ *     bal = num or null(balance)
+ *     one = a list with no repeats of [string(asset id)]
+ *     held = for each of [...days].sort((x, y) => date.locale compare(date)): date = date
+ *     v = value on days([each] as snapshot day[], one, date) where v ≠ nothing
+ *     start = nothing
+ *     the answer:
+ *     ...a = ...a
+ *     value as of = start   if start
+ *     a   otherwise
+ *     a   when count of bal = nothing (or value as of is not a string (or source = 'connected' (or (source as string) = 'imported' (or (a as any).derive balance = true (or positions (or none when missing) when missing or zero) when missing or zero) when missing or zero) when missing or zero) when missing or zero)
+ *     as of = money days[money days.length − 1]   if money days.length and money days[money days.length − 1] ≤ iso local date(new date())
+ *     value as of   otherwise
+ *     id = a list with no repeats of [string(asset id)]
+ *     start = nothing
+ *     [LOOP — the answer is found inside a loop the extractor cannot render; the steps above are the ones before it. Read by hand.]
+ *
+ * Called by ... MK-XS-F-199 profileOnTheWayIn
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-XS-F-199 profileOnTheWayIn
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-001 account balance
+ *               MK-XS-I-009 transaction date
+ *               MK-XS-I-024 logged expenses
+ *               MK-XS-I-031 daily and monthly snapshots
+ *               MK-XS-I-033 the date a hand-typed value was set
+ *
+ * Decides .....
+ *     · Uses today's date from the device clock, so the answer changes by itself overnight.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-320
+ * Changed ..... not in git yet (—)
+ */
+function typedValueDatedByDays(a: AssetAccount, days: readonly SnapshotDay[], transactions: readonly Transaction[] = []): AssetAccount {
+  const bal = numOrNull(a.balance);
+  // A VALUE THE PHONE NEVER DATED takes the first day of the last run of recorded days that hold it (switch gap,
+  // 2026-11-13: Chase Checking at $3,200 with no date, recorded at $3,200 since Jun 2, was asked for its date on its page —
+  // the recorded days already say it). With no recorded day holding it, it stays undated and is asked
+  if (bal != null && a.value_as_of == null && a.source !== 'connected' && (a.source as string) !== 'imported' && (a as any).derive_balance !== true && !(a.positions ?? []).length) {
+    const one = new Set([String(a.asset_id)]);
+    const held = [...days].sort((x, y) => x.date.localeCompare(y.date)).map((d) => ({ date: d.date, v: valueOnDays([d] as SnapshotDay[], one, d.date) })).filter((x) => x.v != null);
+    let start: string | null = null;
+    for (let i = held.length - 1; i >= 0 && Math.abs((held[i].v as number) - bal) < 0.005; i--) start = held[i].date;
+    return start ? { ...a, value_as_of: start } : a;
+  }
+  if (bal == null || typeof a.value_as_of !== 'string' || a.source === 'connected' || (a.source as string) === 'imported' || (a as any).derive_balance === true || (a.positions ?? []).length) return a;
+  // MONEY RECORDED AFTER THE VALUE'S DATE is already inside the balance the phone shows (the old copies raise a typed total
+  // by each deposit and keep its date): $5,000 "as of Jan 1, 2025", a $1,000 deposit on May 1 and a $200 withdrawal on Aug 1
+  // show $5,800 — which the account held from Aug 1, never on Jan 1. The value is moved as of the last of those days
+  const moneyDays = transactions.filter((t) => String(t.account_id) === String(a.asset_id) && t.source !== 'connected'
+    && ['DEPOSIT', 'WITHDRAWAL', 'TRANSFER', 'FEE'].includes(t.type) && typeof t.date === 'string' && localDay(t.date) > (a.value_as_of as string))
+    .map((t) => localDay(t.date)).sort();
+  const asOf = moneyDays.length && moneyDays[moneyDays.length - 1] <= isoLocalDate(new Date()) ? moneyDays[moneyDays.length - 1] : a.value_as_of;
+  if (asOf !== a.value_as_of) a = { ...a, value_as_of: asOf };
+  const id = new Set([String(a.asset_id)]);
+  const held = [...days].filter((d) => d.date >= asOf).sort((x, y) => x.date.localeCompare(y.date))
+    .map((d) => ({ date: d.date, v: valueOnDays([d] as SnapshotDay[], id, d.date) })).filter((x) => x.v != null);
+  let start: string | null = null;
+  for (let i = held.length - 1; i >= 0 && Math.abs((held[i].v as number) - bal) < 0.005; i--) start = held[i].date;
+  return start && start > asOf ? { ...a, value_as_of: start } : a;
+}
+/** THE TYPED VALUE ON THE DAY THE DAILY VALUES TAKE IT (switch gap, 2026-11-13). A value typed with an earlier "value as
+ *  of" date is saved into the record on the day the recorded days take it from (typedValueOnItsDate): $19,800 typed with
+ *  Sep 1 left in the box after a sale on Oct 5 is saved as of Oct 5, never over Sep 1 to Oct 4, which hold $24,650. The
+ *  same value saved again with no later date (the coupon alone) saves no value. */
+/* ─ MK-XS-F-321 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+ * valueAsTheDaysTakeIt
+ *
+ * Answers ..... THE TYPED VALUE ON THE DAY THE DAILY VALUES TAKE IT (switch gap, 2026-11-13).
+ *
+ * Formula .....
+ *     { after, update }   when not ('value_as_of' in update) and !('balance' in update)
+ *     the answer:
+ *     after = after
+ *     update = rest
+ *     after = ...after = ...after
+ *     value as of = iso local date(new date())
+ *     update = update   when not ('value_as_of' in update)
+ *     from = moved[0].date
+ *
+ * Called by ... MK-XS-F-199 profileOnTheWayIn
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-XS-F-199 profileOnTheWayIn
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-001 account balance
+ *               MK-XS-I-033 the date a hand-typed value was set
+ *
+ * Decides .....
+ *     · Uses today's date from the device clock, so the answer changes by itself overnight.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-321
+ * Changed ..... not in git yet (—)
+ */
+function valueAsTheDaysTakeIt(s: any, was: AssetAccount, after: AssetAccount, update: Partial<AssetAccount>): { after: AssetAccount; update: Partial<AssetAccount> } {
+  if (!('value_as_of' in update) && !('balance' in update)) return { after, update };
+  const sameValue = numOrNull(was.balance) != null && numOrNull(was.balance) === numOrNull(after.balance)
+    && String(after.value_as_of ?? '') <= String(was.value_as_of ?? '') && !('cash_balance' in update && (update as any).cash_balance !== (was as any).cash_balance);
+  if (sameValue) {
+    const { balance, value_as_of, cash_balance, ...rest } = update as any;
+    return { after, update: rest };
+  }
+  // a balance saved with no date of its own (the app lowering it, a bond split out) is a value from today: the recorded
+  // days before today keep what they hold
+  if (!('value_as_of' in update)) return { after: { ...after, value_as_of: isoLocalDate(new Date()) }, update };
+  const { moved } = typedValueOnItsDate(s.snapshotDays ?? [], after as any, isoLocalDate(new Date()), new Date().toISOString(), was as any);
+  const from = moved[0]?.date;
+  return from && from !== after.value_as_of ? { after: { ...after, value_as_of: from }, update } : { after, update };
+}
 /** A VALUE TYPED WITH AN EARLIER "VALUE AS OF" DATE GOES ON THAT DATE (2026-10-20). The Bonds and Other investments
  *  editors let a person date a value ("$24,900, as of Sep 30"); the daily record was written from today's accounts, so
  *  that value read as a change today. The function typedValueOnItsDate (snapshots.ts) supersedes the recorded days from
@@ -236,7 +385,7 @@ function typedValueDatedBack(s: any, update: Partial<AssetAccount>, account: Ass
 }
 import { debtsFromOnboarding, type Debt } from '../domain/debt';
 import { ingestSync as ingestSyncPure, fixStoredMoney, fixStoredFees, type AccountSyncPayload } from '../services/sync/ingest';
-import { buildDayFromAccounts, record as recordSnapshotDay, prune as pruneSnapshots, dailyWindowStart, typedValueOnItsDate, type SnapshotDay } from '../../Calculation Module code/engines/snapshots';
+import { buildDayFromAccounts, record as recordSnapshotDay, prune as pruneSnapshots, dailyWindowStart, typedValueOnItsDate, valueOn as valueOnDays, type SnapshotDay } from '../../Calculation Module code/engines/snapshots';
 import { rebuildDays, fillBetweenObservations } from '../../Calculation Module code/engines/rebuild-history';
 import { newEntityId } from '../domain/_shared/ids';
 import { addRows as addRecordRows, sortArriving, purchasesFromList, salesNeedingAnAnswer, type AssetRow, type NewRow as NewRecordRow, type EventQuestion, type ListQuestion } from '../../MoneyKeel/functions/networth-and-performance/asset-record';
@@ -245,12 +394,13 @@ import { afterAWrite, answerQuestion, confirmMyChangeQuestion, correctRow as cor
 import { brokerUpdateToRecord } from '../../MoneyKeel/functions/networth-and-performance/asset-record-from-broker';
 import { fileRowsToSave } from '../../MoneyKeel/functions/networth-and-performance/asset-record-from-file';
 import { typedChangeToRecord, type TypedChange } from '../../MoneyKeel/functions/networth-and-performance/asset-record-from-typed';
+import { readOuts, readOutDifferences, explainedDifference, screensReadTheRecord, type ReadOuts } from '../../MoneyKeel/functions/networth-and-performance/asset-record-readouts';
 import { priceFeedValues } from '../../MoneyKeel/functions/networth-and-performance/asset-record-from-prices';
 import { moveOldCopies } from '../../MoneyKeel/functions/networth-and-performance/asset-record-move';
 import type { ImportResult } from '../domain/import/holdingsImport';
 import { goalsFromOnboarding } from '../domain/goals';
 import { setMoneyFormat, CURRENCIES } from '../domain/_shared/money';
-import { isoLocalDate, localMoment } from '../domain/_shared/dates';
+import { isoLocalDate, localMoment, localDay } from '../domain/_shared/dates';
 
 export type IncomeEntry = {
   id: string;
@@ -748,9 +898,9 @@ const DEFAULT_BADGES: Badge[] = [
  *               MK-XS-F-222 saveAssetRecordPart · MK-XS-F-223 loadAssetRecordPart
  *               MK-XS-F-231 loadAssetRecordMarker · MK-XS-F-233 commitAssetRecord
  *               MK-XS-F-242 readUserProfile · MK-XS-F-278 joinHouseholdWithKeyCode
- *               MK-XS-F-280 restoreOwnerWithReturnCode
+ *               MK-XS-F-280 restoreOwnerWithReturnCode · MK-XS-F-314 loadHouseholdPeople
  *
- * Reaches ..... 637 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 689 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -760,7 +910,7 @@ const DEFAULT_BADGES: Badge[] = [
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 619 more — the full list is on functions_from_code
+ *               … and 671 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -1142,8 +1292,9 @@ export const useStore = create<AppState>()(
         const after = assetAccounts.find((x) => x.asset_id === id);
         const transactions = u.positions && after && after.source !== 'connected' ? purchaseRecordsFollowReimport(s.transactions, id, u.positions as Position[]) : s.transactions;
         const was = s.assetAccounts.find((x) => x.asset_id === id);
+        const onRecord = was && after ? valueAsTheDaysTakeIt(s, was, after, u) : null;
         return { assetAccounts, ...typedValueDatedBack(s, u, after), ...(transactions !== s.transactions ? { transactions } : {}),
-          ...(was && after ? typedIntoRecord(s, [{ kind: 'account-changed', before: was, after, update: u }]) : {}) };
+          ...(was && after && onRecord ? typedIntoRecord(s, [{ kind: 'account-changed', before: was, after: onRecord.after, update: onRecord.update }]) : {}) };
       }),
       deleteAsset:    (id) => set((s) => ({ assetAccounts: s.assetAccounts.filter((x) => x.asset_id !== id),
         ...(s.assetAccounts.some((x) => x.asset_id === id) ? typedIntoRecord(s, [{ kind: 'account-removed', accountId: String(id) }]) : {}) })),
@@ -1440,7 +1591,10 @@ export const useStore = create<AppState>()(
       moveOldCopiesToRecordOnce: () => set((s: any) => {
         const at = new Date().toISOString();
         try {
-          const out = moveOldCopies(s.assetRecord ?? [], s.assetAccounts ?? [], s.transactions ?? [], at);
+          const accounts = (s.assetAccounts ?? []).map((a: AssetAccount) => typedValueDatedByDays(a, s.snapshotDays ?? [], s.transactions ?? []));
+          // a debt's activity is not moved: the record holds what is owned (a payment on a debt stays in the activity list)
+          const debts = new Set((s.liabilities ?? []).map((d: any) => String(d.debt_id)));
+          const out = moveOldCopies(s.assetRecord ?? [], accounts, (s.transactions ?? []).filter((t: Transaction) => !debts.has(String(t.account_id))), at);
           if (!out.moved.length) return {};
           const questions = { ...(s.assetRecordQuestions ?? {}) };
           for (const q of out.ask) questions[`${q.accountId}#moved`] = { events: q.events, lists: q.lists, unexplained: q.unexplained, at };
@@ -1801,6 +1955,212 @@ export const useStore = create<AppState>()(
     }
   )
 );
+
+// ── THE READ-OUTS IN SHADOW (phase 3, stage 2, 2026-11-12) ─────────────────────────────────────────────────────────────
+// After every save that changes the master record, the accounts, the activity or the prices, the old copies are read out
+// of the record (asset-record-readouts.ts) and kept here, beside the old copies — outside the store, so nothing is saved,
+// sent to the cloud or redrawn. A dev check sets each read-out beside its old copy and records a fault for every
+// difference no reason explains. NOTHING READS THEM YET: screens switch to them stage by stage (plan stages 3 to 6). Runs
+// in development and tests only; a release build does none of it.
+//
+// THE SWITCH (stages 3 to 5, 2026-11-13) is built — screensFromTheRecord replaces the accounts, the activity and the
+// daily values with their read-outs after every save. ON since 2026-11-13 (SCREENS_READ_THE_RECORD): switched on across
+// the whole suite it first changed 102 checks in 34 files, most of them real gaps between the record and what the screens
+// show; those were closed first (the phase 3 report), and the screens match the last approved drawings with it on.
+export const SCREENS_READ_THE_RECORD = true;
+export interface ReadOutFault { at: string; accountId: string; holding: string | null; what: string; old: unknown; readOut: unknown }
+export const readOutShadow: { readOuts: ReadOuts | null; faults: ReadOutFault[]; runs: number } = { readOuts: null, faults: [], runs: 0 };
+let shadowSeen: unknown[] = [];
+/** The shadow read-outs and the dev check, calculated again after a save that changed what they are read from. */
+/* ─ MK-XS-F-318 ──────────────────────────────────────────────────────────────────── 1 · ACTION
+ * readOutsInShadow
+ *
+ * Answers ..... The shadow read-outs and the dev check, calculated again after a save that changed what they are read from.
+ *
+ * Formula .....
+ *     inputs = [asset record, asset accounts, transactions, price cache, asset record questions]
+ *     at = the date ).to isostring(
+ *     read = read outs(s, iso local date(new date()))
+ *     old = asset accounts = asset accounts (or none when missing)
+ *     transactions = transactions (or none when missing)
+ *
+ * Called by ... MK-XS-F-324 holdTheSwitch
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-XS-F-324 holdTheSwitch
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-024 logged expenses
+ *
+ * Decides .....
+ *     · Uses a built-in saves held of 0.
+ *     · Uses today's date from the device clock, so the answer changes by itself overnight.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-318
+ * Changed ..... not in git yet (—)
+ */
+function readOutsInShadow(s: any): void {
+  const inputs = [s.assetRecord, s.assetAccounts, s.transactions, s.priceCache, s.assetRecordQuestions];
+  if (inputs.every((x, i) => x === shadowSeen[i])) return;
+  shadowSeen = inputs;
+  const at = new Date().toISOString();
+  try {
+    const read = readOuts(s, isoLocalDate(new Date()));
+    readOutShadow.readOuts = read;
+    readOutShadow.runs++;
+    const old = { assetAccounts: s.assetAccounts ?? [], transactions: s.transactions ?? [] };
+    const found = readOutDifferences(read, old).differences
+      .filter((d) => explainedDifference(d, old, s.assetRecordQuestions ?? {}, s.assetRecord ?? []) == null)
+      .map((d) => ({ at, accountId: d.accountId, holding: d.holding, what: d.what, old: d.old, readOut: d.readOut }));
+    readOutShadow.faults = [...readOutShadow.faults, ...found].slice(-50);
+  } catch (e) {
+    readOutShadow.faults = [...readOutShadow.faults, { at, accountId: '', holding: null, what: 'read-out failed', old: null, readOut: String((e as Error)?.message ?? e).slice(0, 300) }].slice(-50);
+  }
+}
+let switchSeen: unknown[] = [];
+let savesHeld = 0;
+/** Several store actions saved as ONE change for the switch: it reads the record once, after the last of them (switch gap,
+ *  2026-11-13: an import adds the account, then saves the file's rows; the switch ran between the two, moved the account
+ *  onto the record as if it were an old copy, and the file's Jun 21 values were saved twice). */
+/* ─ MK-XS-F-322 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * savedTogether
+ *
+ * Answers ..... Several store actions saved as ONE change for the switch: it reads the record once, after the last of them (switch gap, 2026-11-13: an import adds the account, then saves the file's rows; the switch ran between the two, moved the account onto the record as if it were an old copy, and the file's Jun 21 values were saved twice).
+ *
+ * Formula .....
+ *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-322
+ * Changed ..... not in git yet (—)
+ */
+export function savedTogether<T>(fn: () => T): T {
+  savesHeld++;
+  try { return fn(); } finally {
+    savesHeld--;
+    if (!savesHeld && SCREENS_READ_THE_RECORD && !switchHeldForATest) screensFromTheRecord(useStore.getState());   // a switch a test holds stays held
+  }
+}
+/** True where two lists hold the same records in the same order (or two day-tables the same figures): nothing to write back. */
+/* ─ MK-XS-F-323 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * sameEntries
+ *
+ * Answers ..... True where two lists hold the same records in the same order (or two day-tables the same figures): nothing to write back.
+ *
+ * Formula .....
+ *     true   when a = b
+ *     length = length and every((x, i) => x = b[i] or JSON.stringify(x) = JSON.stringify(b[i]))   when array.is array(a) and array.is array(b)
+ *     JSON.stringify(a) = JSON.stringify(b)   when a and b and typeof a = 'object' and typeof b = 'object'
+ *     false
+ *
+ * Called by ... MK-XS-F-317 screensFromTheRecord
+ *
+ * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-324 holdTheSwitch · MK-XS-F-322 savedTogether
+ *               MK-XS-F-317 screensFromTheRecord
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-323
+ * Changed ..... not in git yet (—)
+ */
+function sameEntries(a: unknown, b: unknown): boolean {
+  if (a === b) return true;
+  if (Array.isArray(a) && Array.isArray(b)) return a.length === b.length && a.every((x, i) => x === b[i] || JSON.stringify(x) === JSON.stringify(b[i]));
+  if (a && b && typeof a === 'object' && typeof b === 'object') return JSON.stringify(a) === JSON.stringify(b);
+  return false;
+}
+const moveTried = new Set<string>();
+/** THE SWITCH, held off: the copies the screens read, replaced by their read-outs of the record after a save that changed
+ *  what they are read from; an account the record has not taken in is moved onto it first, as the phone does on opening. */
+/* ─ MK-XS-F-317 ──────────────────────────────────────────────────────────────────── 1 · ACTION
+ * screensFromTheRecord
+ *
+ * Answers ..... THE SWITCH, held off: the copies the screens read, replaced by their read-outs of the record after a save that changed what they are read from; an account the record has not taken in is moved onto it first, as the phone does on opening.
+ *
+ * Formula .....
+ *     inputs = [asset record, asset accounts, transactions, price cache, snapshot days, inv daily]
+ *     at = the date ).to isostring(
+ *     on record = a list with no repeats of for each of asset record (or none when missing): account id
+ *     out = screens read the record(s, iso local date(new date()))
+ *     patch = {}
+ *     [LOOP — the answer is found inside a loop the extractor cannot render; the steps above are the ones before it. Read by hand.]
+ *
+ * Called by ... MK-XS-F-322 savedTogether · MK-XS-F-324 holdTheSwitch
+ *
+ * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-324 holdTheSwitch · MK-XS-F-322 savedTogether
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-024 logged expenses
+ *
+ * Decides .....
+ *     · Uses today's date from the device clock, so the answer changes by itself overnight.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-317
+ * Changed ..... not in git yet (—)
+ */
+function screensFromTheRecord(s: any): void {
+  if (savesHeld) return;   // inside savedTogether: read once, after the last action
+  const inputs = [s.assetRecord, s.assetAccounts, s.transactions, s.priceCache, s.snapshotDays, s.invDaily];
+  if (inputs.every((x, i) => x === switchSeen[i])) return;
+  switchSeen = inputs;
+  if (!(s.assetRecord ?? []).length) moveTried.clear();
+  const at = new Date().toISOString();
+  try {
+    // only an account the record has not taken in at all is moved: an import, a typed account or a bank link saved since the
+    // update is on the record already (switch gap, 2026-11-13: his imported file, already on the record, was moved again)
+    const onRecord = new Set((s.assetRecord ?? []).map((r: AssetRow) => r.accountId));   // a transfer INTO an account is not the account's own
+    const waiting = (s.assetAccounts ?? []).filter((a: AssetAccount) => a.source !== 'connected' && !moveTried.has(String(a.asset_id))
+      && !onRecord.has(String(a.asset_id)));
+    if (waiting.length) {
+      for (const a of waiting) moveTried.add(String(a.asset_id));
+      switchSeen = [];
+      useStore.getState().moveOldCopiesToRecordOnce();
+      if ((useStore.getState() as any).assetRecord !== s.assetRecord) return;
+    }
+    const out = screensReadTheRecord(s, isoLocalDate(new Date()));
+    if (!out) return;
+    const patch: Record<string, unknown> = {};
+    // a read-out with the same entries as what the screens hold is not a change: a new list of the same records written back
+    // made every screen draw again, and a screen that saves on drawing (Home's daily value) started the next read-out —
+    // "Maximum update depth exceeded" (switch gap, 2026-11-13)
+    for (const k of ['assetAccounts', 'transactions', 'snapshotDays', 'invDaily'] as const) if (!sameEntries(out[k], s[k])) patch[k] = out[k];
+    if (!Object.keys(patch).length) return;
+    switchSeen = [s.assetRecord, out.assetAccounts, out.transactions, s.priceCache, out.snapshotDays, out.invDaily];
+    useStore.setState(patch as any);
+  } catch (e) {
+    readOutShadow.faults = [...readOutShadow.faults, { at, accountId: '', holding: null, what: 'read-out failed', old: null, readOut: String((e as Error)?.message ?? e).slice(0, 300) }].slice(-50);
+  }
+}
+/** A PHONE FROM BEFORE THE UPDATE, built for a test: while held, the screens do not read the record (the build before this
+ *  one had no switch), so a test can build what such a phone holds; the first save after it is let go moves it, as the
+ *  update does on opening. Never held by the app. */
+let switchHeldForATest = false;
+/** Holds the switch for a test that builds a phone from before the update (true), or lets it go (false). Never called by the app. */
+/* ─ MK-XS-F-324 ──────────────────────────────────────────────────────────────────── 1 · ACTION
+ * holdTheSwitch
+ *
+ * Answers ..... Holds the switch for a test that builds a phone from before the update (true), or lets it go (false).
+ *
+ * Formula .....
+ *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-006 price fetched at
+ *               MK-XS-I-029 inflation rate
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-324
+ * Changed ..... not in git yet (—)
+ */
+export function holdTheSwitch(held: boolean): void { switchHeldForATest = held; }
+if (SCREENS_READ_THE_RECORD) useStore.subscribe((s) => { if (!switchHeldForATest) screensFromTheRecord(s); });
+else if (typeof __DEV__ === 'undefined' || __DEV__) useStore.subscribe((s) => readOutsInShadow(s));
 
 // ── WHOSE DATA THE PHONE HOLDS, AND ONE PERSON'S DATA SET ASIDE (DEC-10813, his "fix it", 2026-11-12) ─────────────────
 // Shipped in Build 57: A signed out, the phone kept A's data, B signed in, and every synced item B's cloud profile lacked

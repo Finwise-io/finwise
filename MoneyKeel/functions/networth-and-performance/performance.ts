@@ -932,6 +932,69 @@ export function overTheYearsSentence(f: { cumulative: number | null; perYear: nu
   return `${write(f.cumulative)} over the ${yearsWords(f.years)}, which is ${write(f.perYear, 'year')}`;
 }
 
+/** RETURN = (ENDING − BEGINNING) ÷ BEGINNING (his ruling, 2026-11-12, DEC-10982: "It is basic finance - return on investment
+ *  is always ending value - begining value divided by begining value."). Where no money went in or out inside the window, the
+ *  Return is the walk's own two printed values — the beginning and the ending the screen shows — so anyone can work it by hand.
+ *  Cash and a holding with no price history are inside the beginning and the ending (unchanged), so they are inside the Return
+ *  too. It replaces, for this case, DEC-5068's "Return is on the holdings with a history" (2.12% on an unshown $157,817 beside a
+ *  printed $166,322). Money put in or taken out keeps DEC-1669's time-weighted Return (`otherwise`). A refusal (`otherwise` null)
+ *  stands: nothing here invents a figure. His E*TRADE file, 1 year: beginning $170,411.12, ending $169,664.71 →
+ *  (169,664.71 − 170,411.12) ÷ 170,411.12 = −0.44%. To reverse: return `otherwise`. */
+/* ─ MK-NW-F-386 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * endOverBeginning
+ *
+ * Answers ..... RETURN = (ENDING − BEGINNING) ÷ BEGINNING (his ruling, 2026-11-12, DEC-10982: "It is basic finance - return on investment is always ending value - begining value divided by begining value.").
+ *
+ * Formula .....
+ *     nothing   when otherwise = nothing
+ *     otherwise   when walk is missing (or walk.contributions ! = 0 (or walk.withdrawals ! = 0 (or not (walk.beginning > 0) when missing or zero) when missing or zero) when missing or zero)
+ *     (walk.ending − walk.beginning) ÷ walk.beginning
+ *
+ * Called by ... MK-NW-O-008 thePerformance
+ *
+ * Reaches ..... 6 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-140 LEFT_OUT
+ *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
+ *               MK-NW-F-093 QUIET_PERF · MK-NW-O-008 thePerformance
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-386
+ * Changed ..... not in git yet (—)
+ */
+export function endOverBeginning(walk: { beginning: number; ending: number; contributions: number; withdrawals: number } | null | undefined,
+  otherwise: number | null): number | null {
+  if (otherwise == null) return null;
+  if (!walk || walk.contributions !== 0 || walk.withdrawals !== 0 || !(walk.beginning > 0)) return otherwise;
+  return (walk.ending - walk.beginning) / walk.beginning;
+}
+
+/** THE RETURN WORKED BY HAND, BESIDE IT (his ruling, 2026-11-12, DEC-10982): where no money went in or out, the summary shows the
+ *  sum with the two values it is made of, as printed: "Return = (ending $169,665 − beginning $170,411) ÷ beginning $170,411 =
+ *  −0.44%." The caller hands in the two writers (dollars, percent). Null where money moved (the time-weighted pieces say how) or
+ *  where there is no Return. The beginning and the ending are written by their own figure writers (MK-PF-M-018, MK-PF-M-001). */
+/* ─ MK-NW-F-387 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * returnBySum
+ *
+ * Answers ..... THE RETURN WORKED BY HAND, BESIDE IT (his ruling, 2026-11-12, DEC-10982): where no money went in or out, the summary shows the sum with the two values it is made of, as printed: "Return = (ending $169,665 − beginning $170,411) ÷ beginning $170,411 = −0.44%." The caller hands in the two writers (dollars, percent).
+ *
+ * Formula .....
+ *     nothing   when walk is missing (or total = nothing (or walk.contributions ! = 0 (or walk.withdrawals ! = 0 (or not (walk.beginning > 0) when missing or zero) when missing or zero) when missing or zero) when missing or zero)
+ *     `return = (ending ${end(walk.ending)} − beginning ${begin(walk.beginning)}) ÷ beginning ${begin(walk.beginning)} = ${write(total)}.`
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-387
+ * Changed ..... not in git yet (—)
+ */
+export function returnBySum(walk: { beginning: number; ending: number; contributions: number; withdrawals: number } | null | undefined,
+  total: number | null, begin: (v: number) => string, end: (v: number) => string, write: (v: number) => string): string | null {
+  if (!walk || total == null || walk.contributions !== 0 || walk.withdrawals !== 0 || !(walk.beginning > 0)) return null;
+  return `Return = (ending ${end(walk.ending)} − beginning ${begin(walk.beginning)}) ÷ beginning ${begin(walk.beginning)} = ${write(total)}.`;
+}
+
 /** HOW THE RETURN WAS CALCULATED, WITH THIS WINDOW'S OWN FIGURES (design review, 2026-11-07; his "change words to recommended"):
  *  the time-weighted method (DEC-1669) said in words, with the pieces the Return is made of. No money moved: one piece, the change
  *  in value. Up to four pieces: each one's growth, then their product. More: how many, then their product. The caller hands in the
@@ -1069,7 +1132,7 @@ function gainRowBetween(r: GainRow, from: string, to: string, priceOf: (ticker: 
   // them, as it does over the whole window — its value on a day is its value today ÷ (1 + rate)^(the days from then to today ÷
   // 365). $10,400 at 4.00% with the record beginning 90 days ago, over 1Y: on the record's first day 10,400 ÷ 1.04^(90 ÷ 365),
   // and over the 276 days before it +2.97%. It was named "has no price history". Bought inside those days, it stays unknown.
-  const rate = closeTo == null ? statedCdRate(p) : null;
+  const rate = closeTo == null ? statedCdRate(p, accounts) : null;   // never a rate read from an imported file (DEC-10983)
   if (rate != null && today != null && r.marketValue != null && r.marketValue > 0 && !inside.length && lots.length > 0 && to <= today) {
     // its rate stops at its maturity date (2026-11-12, phase 4 item 3; DEC-7933, DEC-9675): a day after it is read as that date
     const matured = calendarDay(String(p.maturity_date ?? '').slice(0, 10));
@@ -1447,7 +1510,7 @@ export function thePerformance(input: {
       name: names.get(a.asset_id) ?? a.label ?? 'this account',
       marketValue: a.balance,
       // a CD's entered rate, 0% included; no rate entered → null, so its gain stays unknown (DEC-2748b, 2026-10-12)
-      couponRate: isCertificateOfDeposit(a) && a.coupon_rate != null && Number.isFinite(a.coupon_rate) && a.coupon_rate >= 0 ? a.coupon_rate : null,
+      couponRate: isCertificateOfDeposit(a) && a.source !== 'imported' && a.coupon_rate != null && Number.isFinite(a.coupon_rate) && a.coupon_rate >= 0 ? a.coupon_rate : null,
       // its rate stops at its maturity date (2026-11-12, phase 4 item 3): the window's days up to it ÷ 365
       couponYears: windowStart && bounds ? daysEarning(windowStart, today, a.maturity_date) / 365 : null,
       periodReturn: null,
@@ -1528,13 +1591,16 @@ export function thePerformance(input: {
         });
         const lateRows = late.flatMap(rowsOf);
         const reachedRefused = reached.cumulative == null && !!reached.sentence;
-        const ccum = reachedRefused ? null : knownHoldingsReturn([
+        const left = lateRows.filter((r) => gainOfRow(r, years) == null).map((r) => ({ name: gainRowName(r), value: leftOutValueOf(r), why: whyLeftOut(r) }));
+        // (ending − beginning) ÷ beginning only where the walk's beginning is real: a purchase or sale on record with no price
+        // (why 'paid' / 'sale') moved shares with money the walk cannot see, so the holdings' own return stands (DEC-5068)
+        const sumRule = !left.some((u) => u.why === 'paid' || u.why === 'sale');
+        const ccum = reachedRefused ? null : (sumRule ? endOverBeginning : (_w: unknown, r: number | null) => r)(cwalk, knownHoldingsReturn([
           ...lateRows,
           // the reached accounts' start is their beginning read from the record — counted where they lost everything, so a
           // −100% there is not left out of the summary (2026-10-21, tenet 4)
           ...(reached.cumulative != null ? [{ marketValue: reached.ending, periodReturn: reached.cumulative, periodTotal: reached.cumulative, startValue: reached.measured }] : []),
-        ], years);
-        const left = lateRows.filter((r) => gainOfRow(r, years) == null).map((r) => ({ name: gainRowName(r), value: leftOutValueOf(r), why: whyLeftOut(r) }));
+        ], years));   // (ending − beginning) ÷ beginning where no money moved (DEC-10982)
         // the dollars the return is on: the reached accounts' value where their return is measured, and each late
         // holding knownHoldingsReturn keeps — asked of it one row at a time, so the rule is its own (DEC-6076)
         const countedHere = (reached.cumulative != null ? reached.ending : 0)
@@ -1545,7 +1611,7 @@ export function thePerformance(input: {
           windowStart, ledger, walk: cwalk, ending: cwalk.ending, measured: null, covered: false,
           beginningAsOf: bounds.beginningAsOf, ret: cPerYear ?? ccum, cumulative: ccum, perYear: cPerYear, years,
           sentence: reachedRefused ? reached.sentence : '',
-          notIncluded: [left.length ? notIncludedSentence(left, countedHere) : '', staleNote(lateRows.filter((r) => gainOfRow(r, years) != null), startEve)].filter(Boolean).join(' '), workedBack: true,
+          notIncluded: [left.length ? notIncludedSentence(left, cwalk.contributions || cwalk.withdrawals || !sumRule ? countedHere : 0) : '', staleNote(lateRows.filter((r) => gainOfRow(r, years) != null), startEve)].filter(Boolean).join(' '), workedBack: true,
         };
       }
     }
@@ -1622,7 +1688,10 @@ export function thePerformance(input: {
       contributions: gapMoved.contributions + w.contributions, withdrawals: gapMoved.withdrawals + w.withdrawals,
       dividends: gapMoved.dividends + w.dividends, interest: gapMoved.interest + w.interest,
     });
-    const cum = part.cumulative == null ? null : (1 + rGap) * (1 + part.cumulative) - 1;
+    const leftGap = pairs.filter((_, i) => gapGains[i] == null).map((x) => whyLeftOut(x.gap));
+    const sumRuleJoined = !leftGap.some((w) => w === 'paid' || w === 'sale');   // a trade with no price: the beginning is not real
+    const joinedRate = part.cumulative == null ? null : (1 + rGap) * (1 + part.cumulative) - 1;
+    const cum = sumRuleJoined ? endOverBeginning(walkJoined, joinedRate) : joinedRate;   // DEC-10982
     const yb = windowStartKey('1Y', [], today);
     const yrs = bounds!.days / 365;
     const per = cum != null && yb != null && windowStart! < yb && yrs > 1 && !input.wholeRecord ? Math.pow(1 + cum, 1 / yrs) - 1 : null;
@@ -1634,7 +1703,7 @@ export function thePerformance(input: {
       windowStart, ledger, walk: walkJoined, ending: walkJoined.ending, measured: null, covered: false,
       beginningAsOf: B, ret: per ?? cum, cumulative: cum, perYear: per, years: yrs,
       sentence: cum == null ? part.sentence : '',
-      notIncluded: [left.length ? beforeTheRecordSentence(left, countedToday, first) : '', staleNote(pairs.filter((_, i) => gapGains[i] != null).map((x) => x.now), B)].filter(Boolean).join(' '),
+      notIncluded: [left.length ? beforeTheRecordSentence(left, walkJoined.contributions || walkJoined.withdrawals || !sumRuleJoined ? countedToday : 0, first) : '', staleNote(pairs.filter((_, i) => gapGains[i] != null).map((x) => x.now), B)].filter(Boolean).join(' '),
       workedBack: true, recordBegins: first,
     };
   };
@@ -1694,7 +1763,10 @@ export function thePerformance(input: {
   // history and $40,000 of an account whose total was typed, worked back from its records.' Elsewhere his sentence stands word for word.
   const fig21 = (v: number) => writeFigure(PERFORMANCE_FIGURES['MK-PF-M-021'], v);
   const typedCount = typedParts.filter((x) => x.f.cumulative != null).length;
-  const notIncludedBase = workedBack && unknownNames.length > 0 ? notIncludedSentence(unknownNames, countedValue) : '';
+  // the Return on the walk's own two values (DEC-10982) is on the whole beginning, so the first sentence ("Return is on the $X with a price
+  // history") is not said there — only what has no history, and that its gains are not included
+  const onWhole = contributions === 0 && withdrawals === 0 && !unknownNames.some((u) => u.why === 'paid' || u.why === 'sale');
+  const notIncludedBase = workedBack && unknownNames.length > 0 ? notIncludedSentence(unknownNames, onWhole ? 0 : countedValue) : '';
   const firstSentence = `Return is on the ${fig21(countedValue)} with a price history.`;
   const notIncludedTyped = typedRest > 0.5 && notIncludedBase.startsWith(firstSentence)
     ? notIncludedBase.replace(firstSentence, `Return is on the ${fig21(countedValue + typedRest)}: ${fig21(countedValue)} with a price history and ${fig21(typedRest)} of ${typedCount > 1 ? 'accounts whose totals were typed' : 'an account whose total was typed'}, worked back from its records.`)
@@ -1840,7 +1912,9 @@ export function thePerformance(input: {
   const walkReturn: number | null | undefined = workedBack && typedWalk && walk && tradeNotOnRecord ? null
     : workedBack && typedWalk && walk && unknownNames.length === 0
     ? (contributions === 0 && withdrawals === 0 && walk.beginning > 0 ? walk.ending / walk.beginning - 1 : flowTwr()) : undefined;
-  const cumulative = covered ? verdict?.rate ?? null : workedBack ? (walkReturn !== undefined ? walkReturn : knownReturn) : null;
+  // (ending − beginning) ÷ beginning (DEC-10982) where the beginning is real; a trade on record with no price keeps the rule above
+  const rateBefore = covered ? verdict?.rate ?? null : workedBack ? (walkReturn !== undefined ? walkReturn : knownReturn) : null;
+  const cumulative = tradeNotOnRecord ? rateBefore : endOverBeginning(walk, rateBefore);
   // a yearly rate only for a window longer than a year: (1 + the return)^(365 ÷ days) − 1. "Since" is
   // the whole record: its figure is the window's own total, said with its two dates.
   // LONGER THAN A YEAR is read on the calendar, the way the window itself is (DEC-3768b): a window that opens
@@ -2582,7 +2656,7 @@ export const PERFORMANCE_FIGURES = declareFigures({
     label: 'Return', unit: 'percent-signed', screens: ['/account-detail', '/invest'], grain: 'one account',
     answers: 'How much this one account grew over the window you picked, with money you added or took out left out. '
       + 'Shown per year when the window is longer than a year.',
-    formula: 'split the window at every day money moved in or out; each day\u2019s link = that evening\u2019s value \u00f7 (the previous evening\u2019s value + money added that day \u2212 money taken out that day) \u2014 money that moves on a day counts for that whole day (DEC-4439); multiply the pieces and take 1 off \u2014 a time-weighted return; a window longer than a year is turned into a yearly rate: (1 + the return)^(365 \u00f7 days) \u2212 1',
+    formula: 'no money in or out inside the window: (ending market value \u2212 beginning market value) \u00f7 beginning market value, the two values the walk prints (DEC-10982, his words of 2026-11-12); otherwise split the window at every day money moved in or out; each day\u2019s link = that evening\u2019s value \u00f7 (the previous evening\u2019s value + money added that day \u2212 money taken out that day) \u2014 money that moves on a day counts for that whole day (DEC-4439); multiply the pieces and take 1 off \u2014 a time-weighted return; a window longer than a year is turned into a yearly rate: (1 + the return)^(365 \u00f7 days) \u2212 1',
     inputs: ['MK-NW-I-003 the recorded history', 'MK-NW-I-004 the activity records'],
     decisions: [
       'TWO DECIMALS AND ITS SIGN, always (Q49): +6.67%, \u22120.57% \u2014 never +6.7%, never a bare 6.67%.',
@@ -2666,7 +2740,7 @@ export const PERFORMANCE_FIGURES = declareFigures({
     label: 'Return', unit: 'percent-signed', screens: ['/invest'], grain: 'every account together',
     answers: 'How much all your investments grew over the window you picked, with money you added or took out left out. '
       + 'Per year when the window is longer than a year.',
-    formula: 'over every investment account together: split the window at every day money moved in or out; each day\u2019s link = that evening\u2019s value \u00f7 (the previous evening\u2019s value + money added that day \u2212 money taken out that day) \u2014 money that moves on a day counts for that whole day (DEC-4439); multiply the pieces and take 1 off \u2014 a time-weighted return; a window longer than a year is turned into a yearly rate: (1 + the return)^(365 \u00f7 days) \u2212 1',
+    formula: 'over every investment account together: no money in or out inside the window: (ending market value \u2212 beginning market value) \u00f7 beginning market value, the two values the walk prints, and the sum shown beside it (DEC-10982, his words of 2026-11-12); otherwise split the window at every day money moved in or out; each day\u2019s link = that evening\u2019s value \u00f7 (the previous evening\u2019s value + money added that day \u2212 money taken out that day) \u2014 money that moves on a day counts for that whole day (DEC-4439); multiply the pieces and take 1 off \u2014 a time-weighted return; a window longer than a year is turned into a yearly rate: (1 + the return)^(365 \u00f7 days) \u2212 1',
     inputs: ['MK-NW-I-003 the recorded history', 'MK-NW-I-004 the activity records'],
     decisions: [
       'TWO DECIMALS AND ITS SIGN, always (Q49).',
@@ -2720,10 +2794,11 @@ export const PERFORMANCE_FIGURES = declareFigures({
     answers: 'How many of today\u2019s dollars the Return is measured on, where some holdings have no price history.',
     formula: 'today\u2019s value of every holding the return counts (MK-NW-F-138 knownHoldingsReturn: a price history over the window, or a CD\u2019s stated rate), added up',
     inputs: ['MK-NW-I-001 your accounts', 'MK-NW-I-005 the price feed'],
-    decisions: ['DEC-6076 \u2014 the sentence says what the Return is on, so +10% is read as 10% of $40,000, not of $50,000.', 'DEC-5068 \u2014 a holding with no price history is left out, never counted at 0%.'],
-    refusal: 'No holding is counted: the first sentence is not said, only the left-out one.',
+    decisions: ['DEC-6076 \u2014 the sentence says what the Return is on, so +10% is read as 10% of $40,000, not of $50,000.', 'DEC-5068 \u2014 a holding with no price history is left out, never counted at 0%.',
+      'DEC-10982 (his words, 2026-11-12) \u2014 where no money went in or out, the Return is (ending \u2212 beginning) \u00f7 beginning on the whole walk, so this first sentence is said only where money moved in the window.'],
+    refusal: 'No holding is counted, or no money went in or out (DEC-10982): the first sentence is not said, only the left-out one.',
     ruled: '2026-10-19',
-    worked: { given: LEFT_GIVEN, answer: 'Return is on the $40,000 with a price history. Treasury 2031 ($10,000) has no price history, so its gains are not included.', run: () => LEFT_OUT().notIncluded },
+    worked: { given: LEFT_GIVEN, answer: 'Treasury 2031 ($10,000) has no price history, so its gains are not included.', run: () => LEFT_OUT().notIncluded },
   },
   'MK-PF-M-022': {
     label: 'the value left out (no price history)', unit: 'money', screens: ['/invest', '/account-detail', '/home'],
@@ -2734,7 +2809,7 @@ export const PERFORMANCE_FIGURES = declareFigures({
     decisions: ['DEC-6076 \u2014 named in brackets after the holdings it is the value of.'],
     refusal: 'A holding whose value is not known: the brackets are left off.',
     ruled: '2026-10-19',
-    worked: { given: LEFT_GIVEN, answer: 'Return is on the $40,000 with a price history. Treasury 2031 ($10,000) has no price history, so its gains are not included.', run: () => LEFT_OUT().notIncluded },
+    worked: { given: LEFT_GIVEN, answer: 'Treasury 2031 ($10,000) has no price history, so its gains are not included.', run: () => LEFT_OUT().notIncluded },
   },
   'MK-PF-M-006': {
     label: 'WHAT EACH CATEGORY EARNED — RETURN', unit: 'percent-signed', screens: ['/invest'],
@@ -2996,4 +3071,36 @@ export function accountWalksShown(walks: (ChangeWalk | null | undefined)[], tota
       marketChange, wealthGenerated: dividends[j] + interest[j] + marketChange, ending: ending[j] };
   });
   return out;
+}
+
+/** THE ACCOUNT PAGE'S WALK ENDS AT THE ACCOUNT'S OWN VALUE (2026-11-13, workplan row 435; DEC-3523 tenets 2 and 4): the page's value
+ *  line reads the account's own rounded value, so its walk ends there too. The card's share of the total (accountWalksShown) is kept
+ *  line for line, and the dollar it moved off the ending is taken up on the walk's last line, the change in investment value, so the
+ *  walk still adds up. Account C of three, $1,000.40 → $1,100.80: card $1,000 → $1,100 (change $100); own ending $1,101; page
+ *  $1,000 → $1,101, change in value $101, wealth generated $101. Where the two endings agree, the card's lines as they are. */
+/* ─ MK-NW-F-416 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * walkEndingAtOwnValue
+ *
+ * Answers ..... THE ACCOUNT PAGE'S WALK ENDS AT THE ACCOUNT'S OWN VALUE (2026-11-13, workplan row 435; DEC-3523 tenets 2 and 4): the page's value line reads the account's own rounded value, so its walk ends there too.
+ *
+ * Formula .....
+ *     gap = own.ending − shared.ending
+ *     shared   when gap = 0
+ *     the answer:
+ *     ...shared = ...shared
+ *     ending = own.ending
+ *     market change = shared.market change + gap
+ *     wealth generated = shared.wealth generated + gap
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-416
+ * Changed ..... not in git yet (—)
+ */
+export function walkEndingAtOwnValue(shared: WalkLines, own: WalkLines): WalkLines {
+  const gap = own.ending - shared.ending;
+  if (gap === 0) return shared;
+  return { ...shared, ending: own.ending, marketChange: shared.marketChange + gap, wealthGenerated: shared.wealthGenerated + gap };
 }

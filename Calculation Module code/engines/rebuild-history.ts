@@ -114,11 +114,17 @@ const stepDay = (d: string, days: number) => new Date(utcOfDay(d) + days * DAY).
  *
  * Called by ... MK-ST-F-072 undo · MK-ST-F-073 rebuildDays
  *
- * Reaches ..... 7 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-278 answerListQuestion · MK-NW-F-337 answerQuestion
- *               MK-XS-F-199 profileOnTheWayIn · MK-ST-F-073 rebuildDays
- *               MK-XS-F-192 typedValueDatedBack · MK-ST-F-072 undo
- *               MK-NW-F-335 writeAnswer
+ * Reaches ..... 86 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS · MK-CF-F-205 COMING
+ *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
+ *               MK-CF-F-237 LATER · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-296 LOAD · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-399 after
+ *               MK-NW-F-342 afterAWrite · MK-NW-F-278 answerListQuestion
+ *               MK-NW-F-337 answerQuestion · MK-NW-F-408 answerWords
+ *               … and 68 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -137,11 +143,17 @@ const amountOf = (v: unknown) => (typeof v === 'number' && Number.isFinite(v) ? 
  * Formula .....
  *     type = 'OPENING_POSITION' (or type = 'OPENING_CASH' when missing or zero)
  *
- * Called by ... MK-ST-F-071 rebuildableFrom · MK-ST-F-073 rebuildDays
+ * Called by ... MK-NW-F-361 valueToday · MK-ST-F-071 rebuildableFrom
+ *               MK-ST-F-073 rebuildDays
  *
- * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
- *               MK-XS-F-199 profileOnTheWayIn · MK-ST-F-073 rebuildDays
- *               MK-ST-F-071 rebuildableFrom · MK-XS-F-192 typedValueDatedBack
+ * Reaches ..... 14 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-365 accountReadOut · MK-NW-F-367 accountsReadOut
+ *               MK-NW-F-382 explainedDifference · MK-XS-F-324 holdTheSwitch
+ *               MK-XS-F-199 profileOnTheWayIn · MK-NW-F-376 readOuts
+ *               MK-XS-F-318 readOutsInShadow · MK-ST-F-073 rebuildDays
+ *               MK-ST-F-071 rebuildableFrom · MK-XS-F-322 savedTogether
+ *               MK-XS-F-317 screensFromTheRecord · MK-NW-F-385 screensReadTheRecord
+ *               MK-XS-F-192 typedValueDatedBack · MK-NW-F-361 valueToday
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -211,10 +223,17 @@ export function rebuildableFrom(txns: RebuildTxn[], accountId: string): string |
  *
  * Called by ... MK-NW-F-337 answerQuestion · MK-ST-F-073 rebuildDays
  *
- * Reaches ..... 6 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-278 answerListQuestion · MK-NW-F-337 answerQuestion
- *               MK-XS-F-199 profileOnTheWayIn · MK-ST-F-073 rebuildDays
- *               MK-XS-F-192 typedValueDatedBack · MK-NW-F-335 writeAnswer
+ * Reaches ..... 85 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS · MK-CF-F-205 COMING
+ *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
+ *               MK-CF-F-237 LATER · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-296 LOAD · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-399 after
+ *               MK-NW-F-342 afterAWrite · MK-NW-F-278 answerListQuestion
+ *               MK-NW-F-337 answerQuestion · MK-NW-F-408 answerWords
+ *               … and 67 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)

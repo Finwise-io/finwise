@@ -263,7 +263,9 @@ const openCard = (s: typeof screen) => {
   const bar = s.getAllByRole('button').find((b) => /^Fidelity Brokerage, .*Expands its walk\.$/.test(String(b.props.accessibilityLabel ?? '')));
   if (bar) fireEvent.press(bar);
 };
-const LEFT_SENTENCE = /Return is on the (\$[\d,]+) with a price history\. Treasury 2031 \((\$[\d,]+)\) has no price history/;
+// DEC-10982 (his words, 2026-11-12): with no money in or out the Return is on the whole walk, so "Return is on the $… with a price
+// history." is not said; the left-out half is, with its value
+const LEFT_SENTENCE = /^Treasury 2031 \((\$[\d,]+)\) has no price history/;
 
 describe('C · row 32 — every Performance figure printed on two or more screens reads the same on each', () => {
   const HOME = once(() => shoot('home', H_LEFT, TODAY_C));
@@ -271,11 +273,12 @@ describe('C · row 32 — every Performance figure printed on two or more screen
   const ACC = once(() => shoot('account', H_LEFT, TODAY_C, { id: 'fid', period: '1M' }));
   const sentence = (sh: Shot) => sh.lines.map((l) => l.match(LEFT_SENTENCE)).filter(Boolean) as RegExpMatchArray[];
 
-  test('MK-PF-M-021 and MK-PF-M-022 — Home, the Performance tab and the account page say the return is on $40,000 and leave out Treasury 2031 ($10,000)', () => {
+  test('MK-PF-M-022 — Home, the Performance tab and the account page leave out Treasury 2031 ($10,000), in the same words (DEC-10982)', () => {
     for (const sh of [HOME(), INV(), ACC()]) {
       const found = sentence(sh);
       expect(found.length).toBeGreaterThanOrEqual(1);
-      for (const m of found) { expect(m[1]).toBe('$40,000'); expect(m[2]).toBe('$10,000'); }
+      for (const m of found) expect(m[1]).toBe('$10,000');
+      expect(sh.lines.some((l) => /^Return is on the /.test(l))).toBe(false);
     }
   });
 
@@ -452,10 +455,11 @@ describe('E · the account page and the Holding page say their figures in words,
 describe('F · the left-out sentence under hide-balances — dots on screen, "hidden" spoken, on all three screens', () => {
   test.each([['home', {}], ['invest', {}], ['account', { id: 'fid', period: '1M' }]] as [string, Record<string, string>][])('%s', (name, params) => {
     const sh = shoot(name, { ...H_LEFT, hideBalances: true }, TODAY_C, params, name === 'invest' ? pick('1 month') : undefined);
-    const shownLine = sh.lines.find((l) => /^Return is on the /.test(l));
-    expect(shownLine).toMatch(/^Return is on the •••• with a price history\. Treasury 2031 \(••••\) has no price history/);
+    // DEC-10982: the left-out half alone (no money in or out), its value dotted
+    const shownLine = sh.lines.find((l) => /^Treasury 2031 \(/.test(l));
+    expect(shownLine).toMatch(/^Treasury 2031 \(••••\) has no price history/);
     expect(sh.lines.filter((l) => /\$\d/.test(l) && /price history/.test(l))).toEqual([]);
-    if (name !== 'home') expect(sh.heard.some((l) => /^Return is on the hidden with a price history\. Treasury 2031 \(hidden\)/.test(l))).toBe(true);
+    if (name !== 'home') expect(sh.heard.some((l) => /^Treasury 2031 \(hidden\)/.test(l))).toBe(true);
   });
 });
 
@@ -493,13 +497,13 @@ describe('G · Home\'s hero card is heard line by line, in printed order', () =>
     expect(inOrder(heroLabel(shoot('home', H_PERF, '2026-09-28'))!, ['Your investments: $35,775', 'up $8,200, 21.35 percent this month',
       "This month’s change is on $46,600: your investment accounts with the cash in them", 'prices ', 'See your growth.'])).toBe('in order');
     expect(inOrder(heroLabel(shoot('home', H_LEFT, TODAY_C))!, ['Your investments: $50,000', 'this month', "This month’s change is on $52,000",
-      'Return is on the $40,000 with a price history. Treasury 2031 ($10,000) has no price history'])).toBe('in order');
+      'Treasury 2031 ($10,000) has no price history'])).toBe('in order');   // DEC-10982: the first half is not said
     expect(heroLabel(shoot('home', WITH_MARKET, TODAY_C))).toMatch(/you plus \d+\.\d\d% \(including dividends and interest\), market plus 2\.00%, (ahead|behind) by \d+\.\d\d%/);
     expect(heroLabel(shoot('home', STALE, '2026-09-28'))).toMatch(/Fidelity part as of Sep 20, \d+ days old, pull to refresh\. See your growth\.$/);
     expect(heroLabel(shoot('home', SAVINGS_ONLY, TODAY_C))).toMatch(/^Your investments: \$0\. Nothing entered yet\. Add your accounts\. nothing invested yet/);
     // hidden: the dollars are "hidden", the percents stay (a rate is not a balance)
     expect(inOrder(heroLabel(shoot('home', { ...H_LEFT, hideBalances: true }, TODAY_C))!, ['Your investments: hidden', 'up hidden', "This month’s change is on hidden",
-      'Return is on the hidden with a price history. Treasury 2031 (hidden)'])).toBe('in order');
+      'Treasury 2031 (hidden)'])).toBe('in order');
   });
 });
 

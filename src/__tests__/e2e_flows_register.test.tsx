@@ -291,7 +291,8 @@ test('E2E-53 milestone arc across two crossings', () => {
   fireEvent.press(screen.getByLabelText(/just crossed \$250k. Tap to dismiss/));
   expect((useStore.getState() as any).milestoneHighSeen).toBe(250000);
   h1.unmount();
-  useStore.setState({ assetAccounts: [{ asset_id: 'a', label: 'Brokerage', kind: 'stocks_etf', tax_bucket: 'TAXABLE', balance: 600000 }] } as any);
+  // the balance rises the way the app saves it (the editor's save), so the record and the screens both hold $600,000
+  (useStore.getState() as any).updateAsset('a', { balance: 600000 });
   render(<HomeScreen />);
   expect(screen.getByText(/just crossed \$500k/)).toBeOnTheScreen();
 });

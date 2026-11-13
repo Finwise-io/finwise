@@ -28,7 +28,8 @@ describe('his Build 55 file (2026-11-04)', () => {
   const r = importHoldings(HIS_FILE);
 
   test('the file names its account, its total and its date — all three are read', () => {
-    expect(r.account).toEqual({ name: 'Individual Brokerage', number: '2203', statedTotal: 169664.71 });
+    // the file's own Total Gain $ is read too since DEC-10984 (his words, 2026-11-12: "import file as-is"): −$4,146.87
+    expect(r.account).toEqual({ name: 'Individual Brokerage', number: '2203', statedTotal: 169664.71, statedGain: -4146.87 });
     expect(r.asOf).toBe('2026-06-21');
   });
 

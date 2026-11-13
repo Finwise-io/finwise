@@ -4,7 +4,9 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Share, ActivityIndicator } from 'react-native';
 import { Colors, Typography, Spacing, Radii } from '../utils/theme';
 
-export function RecoveryCodeModal({ visible, code, onDone, securing = false }: { visible: boolean; code: string; onDone: () => void; securing?: boolean }) {
+/** `returnedBy`: the member whose return code just opened the data (return code v01, phone 3, mark 8) — the first sentence then says
+ *  the data is back and the old recovery code no longer works. */
+export function RecoveryCodeModal({ visible, code, onDone, securing = false, returnedBy = null }: { visible: boolean; code: string; onDone: () => void; securing?: boolean; returnedBy?: string | null }) {
   const [ack, setAck] = useState(false);
   // The component stays mounted between signups (it just renders null when hidden), so reset the
   // "I've saved it" checkbox each time it reappears — otherwise a second signup shows it pre-checked.
@@ -26,6 +28,13 @@ export function RecoveryCodeModal({ visible, code, onDone, securing = false }: {
           <Text style={s.emoji}>🔑</Text>
           <Text style={s.title}>Save your recovery code</Text>
           <Text style={s.privacy}>🔒 End-to-end encrypted · never sent to AI</Text>
+          {returnedBy ? (
+          <Text style={s.body}>
+            <Text style={s.bold}>Your data is back, unlocked by {returnedBy}’s return code.</Text> Your old recovery code no longer works; this is your new one.
+            {'\n\n'}
+            If you ever forget your password, this code is <Text style={s.bold}>the only way back into your data</Text>, with a return code from {returnedBy}.
+          </Text>
+          ) : (
           <Text style={s.body}>
             If you ever forget your password, this code is <Text style={s.bold}>the only way back into your data.</Text>
             {'\n\n'}
@@ -33,6 +42,7 @@ export function RecoveryCodeModal({ visible, code, onDone, securing = false }: {
             {'\n\n'}
             Your data is encrypted so even we can’t read it, and it’s <Text style={s.bold}>never sent to AI services</Text> — which means <Text style={s.bold}>if you lose both your password and this code, no one (including MoneyKeel) can recover your data.</Text> We’ll never ask you for it.
           </Text>
+          )}
 
           <View style={s.codeBox}>
             <Text style={s.code} accessibilityLabel={`Recovery code ${code.split('').join(' ')}`} selectable>{code}</Text>

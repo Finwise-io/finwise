@@ -34,7 +34,10 @@ jest.mock('expo-router', () => ({
 
 const TODAY = isoLocalDate(new Date());
 const daysAgo = (n: number) => { const d = new Date(`${TODAY}T12:00:00`); d.setDate(d.getDate() - n); return isoLocalDate(d); };
-const SENTENCE = "Return is on the $40,000 with a price history. Treasury 2031 ($10,000) has no price history, so its gains are not included.";   // reworded 2026-10-19 by DEC-6076
+// reworded 2026-10-19 by DEC-6076; its first half is not said since DEC-10982 (2026-11-12): with no money in or out the Return is
+// (ending − beginning) ÷ beginning over all accounts, the Treasury counted as unchanged. By hand: the month, VTI $40,000 at 245 → 250
+// gained $800 on 39,200 + 10,000 = $49,200: +1.63%; the year, $3,636.36 on $46,363.64: +7.84%. Vanguard alone keeps +10.00%.
+const SENTENCE = "Treasury 2031 ($10,000) has no price history, so its gains are not included.";
 
 const VANGUARD = { asset_id: 'van', label: 'BROKERAGE', institution: 'Vanguard', kind: 'brokerage', asset_class: 'stocks_etf', tax_bucket: 'TAXABLE',
   balance: 40000, target_return: 0.05, source: 'connected', last_synced: new Date().toISOString(),
@@ -59,15 +62,15 @@ function openHomeFirst() {
 }
 
 describe('the approved example: Vanguard linked today + Treasury 2031 by hand, the record begins today (DEC-5291)', () => {
-  test('Home: the month is worked back from VTI\'s prices — ▲ up $800 (2.04%), the Treasury named below', () => {
+  test('Home: the month is worked back from VTI\'s prices — ▲ up $800 (1.63%), the Treasury named below', () => {
     openHomeFirst();
     expect(((useStore.getState() as any).snapshotDays ?? []).map((d: any) => d.date)).toEqual([TODAY]);   // the record begins today
-    expect(screen.getByText(/▲ up \$800 \(2\.04%\)/)).toBeOnTheScreen();
+    expect(screen.getByText(/▲ up \$800 \(1\.63%\)/)).toBeOnTheScreen();
     expect(screen.getByText(SENTENCE)).toBeOnTheScreen();
     expect(screen.queryByText('change shows once your holdings have prices')).toBeNull();
   });
 
-  test('Performance: day one says the longer windows come from price history; 1Y +10.00% is not greyed; summary $3,636 · +10.00% and the sentence', () => {
+  test('Performance: day one says the longer windows come from price history; 1Y +7.84% is not greyed; summary $3,636 · +7.84% and the sentence', () => {
     openHomeFirst();
     screen.unmount();
     render(<PerformanceScreen />);
@@ -76,7 +79,7 @@ describe('the approved example: Vanguard linked today + Treasury 2031 by hand, t
     expect(screen.getByText("You added your accounts today. Figures for 1 month, 1 year and longer come from each holding’s past prices.")).toBeOnTheScreen();
     expect(screen.queryByText(/your value is real and your daily record/)).toBeNull();
     expect(screen.queryByText(/We never back-fill a year we didn’t see/)).toBeNull();
-    for (const [k, v] of [['1 month', '+2.04%'], ['1 year', '+10.00%']]) {
+    for (const [k, v] of [['1 month', '+1.63%'], ['1 year', '+7.84%']]) {
       const b = screen.getAllByRole('button').find((x) => new RegExp(`^Show ${k}, `).test(x.props.accessibilityLabel ?? ''));
       expect(b!.props.accessibilityLabel).toBe(`Show ${k}, ${v}`);
       expect(b!.props.accessibilityState?.disabled).toBe(false);
@@ -84,7 +87,7 @@ describe('the approved example: Vanguard linked today + Treasury 2031 by hand, t
     fireEvent.press(screen.getAllByRole('button').find((x) => /^Show 1 year, /.test(x.props.accessibilityLabel ?? ''))!);
     expect(screen.getByText('SUMMARY · PAST YEAR')).toBeOnTheScreen();
     expect(screen.getAllByText('$3,636').length).toBeGreaterThanOrEqual(2);   // the summary's Wealth generated and the walk's
-    expect(screen.getAllByText('+10.00%').length).toBeGreaterThanOrEqual(2);  // the summary's Return and the window's button
+    expect(screen.getAllByText('+7.84%').length).toBeGreaterThanOrEqual(2);   // the summary's Return and the window's button
     expect(screen.getAllByText(SENTENCE).length).toBeGreaterThanOrEqual(1);
     expect(screen.queryByText(/^The record begins /)).toBeNull();
     expect(screen.getByText('HOW $46,364 BECAME $50,000 · ALL ACCOUNTS')).toBeOnTheScreen();

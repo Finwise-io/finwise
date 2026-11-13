@@ -13,7 +13,7 @@ import { SectionBand } from '../components/SectionBand';
 import { SourceChip, sourceWords } from '../components/SourceChip';
 import { DataGapsBanner } from '../components/DataGapsBanner';
 import { dataGaps } from '../domain/gaps';
-import { thePerformance, categoryEarnings, categoriesEarnedTotal, walkDirectionWords, windowStartKey, investmentAccountIdsOf, investmentRecordDates, overTheYearsSentence, howReturnCalculated, accountWalksShown } from '../../MoneyKeel/functions/networth-and-performance/performance';
+import { thePerformance, categoryEarnings, categoriesEarnedTotal, walkDirectionWords, windowStartKey, investmentAccountIdsOf, investmentRecordDates, overTheYearsSentence, howReturnCalculated, returnBySum, accountWalksShown } from '../../MoneyKeel/functions/networth-and-performance/performance';
 import { personalFlowTotals } from '../../Calculation Module code/engines/ledger';
 import { windowBounds } from '../../Calculation Module code/engines/window-return';
 import { Dec } from '../../Calculation Module code/engines/decimal';
@@ -415,7 +415,13 @@ export default function PerformanceScreen() {
         )}
         {/* HOW THE RETURN WAS CALCULATED, with this window's own pieces (design review, 2026-11-07, his "change words to recommended";
             DEC-1669's method in words). Only where the Return is measured from the record; a worked-back one says where it came from above. */}
-        {!dayOneView && !nothingEntered && (() => {
+        {/* RETURN = (ENDING − BEGINNING) ÷ BEGINNING, WORKED BESIDE IT (his words, 2026-11-12, DEC-10982): where no money went in or out,
+            the sum with the two values the walk prints, so it can be checked by hand. Where money moved, the time-weighted pieces below. */}
+        {!dayOneView && !nothingEntered && walk && (() => {
+          const sum = returnBySum(walkShown(walk), now.cumulative, (v) => fig('MK-PF-M-018', v), (v) => fig('MK-PF-M-001', v), (v) => fig('MK-PF-M-017', v));
+          return sum ? <SaidText style={styles.sumNote} testID="return-by-sum">{sum}</SaidText> : null;
+        })()}
+        {!dayOneView && !nothingEntered && !(walk && returnBySum(walk, now.cumulative, String, String, String)) && (() => {
           const how = howReturnCalculated(now.pieces, now.cumulative, (v) => fig('MK-PF-M-017', v));
           return how ? <SaidText style={styles.sumNote} testID="how-return-worked-out">{how}</SaidText> : null;
         })()}

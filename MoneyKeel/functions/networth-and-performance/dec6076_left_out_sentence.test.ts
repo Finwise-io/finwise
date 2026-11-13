@@ -20,15 +20,17 @@ const ask = (holdings: any[], balance: number) => thePerformance({
 
 test('one left out: the $50,000 account — Return is on the $40,000; Treasury 2031 ($10,000) is left out', () => {
   const f = ask([VTI, T31], 50000);
-  expect(f.ret!).toBeCloseTo(0.10, 12);
+  // DEC-10982 (2026-11-12): no money in or out, so the Return is (ending − beginning) ÷ beginning on the walk, the Treasury counted
+  // as unchanged — 3,636.36 ÷ 46,363.64 = +7.84% — and only the left-out half of the sentence is said
+  expect(f.ret!).toBeCloseTo((50000 - 40000 / 1.1 - 10000) / (40000 / 1.1 + 10000), 12);
   expect(f.walk!.ending).toBe(50000);
-  expect(f.notIncluded).toBe('Return is on the $40,000 with a price history. Treasury 2031 ($10,000) has no price history, so its gains are not included.');
+  expect(f.notIncluded).toBe('Treasury 2031 ($10,000) has no price history, so its gains are not included.');
 });
 
 test('several left out: their values added, "have" and "their"', () => {
   const f = ask([VTI, T31, MUNI], 55000);
-  expect(f.ret!).toBeCloseTo(0.10, 12);
-  expect(f.notIncluded).toBe('Return is on the $40,000 with a price history. Treasury 2031 and Muni 2029 ($15,000) have no price history, so their gains are not included.');
+  expect(f.ret!).toBeCloseTo((40000 - 40000 / 1.1) / (40000 / 1.1 + 15000), 12);   // DEC-10982: 3,636.36 ÷ 51,363.64 = +7.08%
+  expect(f.notIncluded).toBe('Treasury 2031 and Muni 2029 ($15,000) have no price history, so their gains are not included.');
 });
 
 test('nothing counted: no return to explain, so only the left-out sentence', () => {

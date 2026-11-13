@@ -251,6 +251,7 @@ export const ROLE: Record<string, Role> = {
   'PlanPrepare#title': 'row name',   // PlanGoals' two came off 2026-10-31: the Goals sub-tab is built to goals v03, every heading on a bar (FX-PLAN)
   'PlanHubScreen#nextKicker': 'tag', 'PlanHubScreen#nextTitle': 'row name', 'PlanHubScreen#rowDue': 'tag', 'PlanHubScreen#rowTitle': 'row name',
   'RewardsScreen#sectionTitle': 'BOX TITLE', 'RewardsScreen#subsection': 'SUB-TITLE',
+  'HouseholdBox#sheetTitle': 'sheet title',   // the invite card's sheet and the return code sheet (2026-11-12)
   'SettingsScreen#delTitle': 'sheet title', 'SettingsScreen#modalTitle': 'sheet title', 'SettingsScreen#feedbackTitle': 'row name',
   'SettingsScreen#disclaimerTitle': 'BOX TITLE', 'SettingsScreen#sectionTitle': 'BOX TITLE',
   'SharpenPlanScreen#doorTitle': 'row name', 'SnapTradeConnect#kicker': 'BOX TITLE',

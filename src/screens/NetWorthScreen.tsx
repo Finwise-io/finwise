@@ -50,6 +50,7 @@ const DEBTS_DOOR_WORDS = EMPTY_DOORS.debts.label.replace(/ ›$/, '');
 import { type GlossaryTerm } from '../domain/glossary';
 import { HeroAmount } from '../components/HeroAmount';
 import { HiddenBalancesBanner } from '../components/HiddenBalancesBanner';
+import { UpdateToKeepSavingBanner } from '../components/UpdateToKeepSavingBanner';
 import { modalAnimation } from '../hooks/reducedMotion';
 import { SourceChip } from '../components/SourceChip';
 import { DebtEditorSheet } from '../components/DebtEditorSheet';   // B47 finding 11: THE one debt editor
@@ -637,6 +638,8 @@ export default function NetWorthScreen() {
     // and show THE ONE app-wide retirement sample (identical to Home's) — never a reinvented one.
     body = (
       <ScrollView contentContainerStyle={styles.contentFlat} showsVerticalScrollIndicator={false}>
+        {/* R8a (update-to-keep-saving v01, state C): the first day carries the banner too — a new account's typing also waits */}
+        <View style={styles.inset}><UpdateToKeepSavingBanner /></View>
         {/* the same full-width green banners the with-data screen wears (founder 2026-08-11) — one
             titling treatment, whatever state the screen is in. No date: nothing has been measured yet. */}
         <View style={styles.heroBlock}>

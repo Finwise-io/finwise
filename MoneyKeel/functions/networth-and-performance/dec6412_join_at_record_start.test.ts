@@ -126,12 +126,13 @@ describe('DEC-6412 · case (2): a record that begins today — exactly DEC-5291\
     return thePerformance({ windowStart: start, windowLabel: '1Y', today: TODAY, holdings: holdings as any, ...(withPrices ? { priceOf } : {}),
       transactions: [], snapshotDays: [linkedDay('fid', TODAY, 50_000)], investmentAccountIds: new Set(['fid']), accounts: [FID] });
   };
-  test('state D: +10.00%, Wealth generated $3,636, the DEC-6076 sentence — identical with or without the join', () => {
+  // DEC-10982 (2026-11-12): no money in or out, so Return = (ending − beginning) ÷ beginning = 3,636.36 ÷ 46,363.64 = +7.84%
+  test('state D: +7.84%, Wealth generated $3,636, the left-out sentence — identical with or without the join', () => {
     const joined = ask(true), before = ask(false);
     expect(joined).toEqual(before);
-    expect(joined.ret!).toBeCloseTo(0.10, 12);
+    expect(joined.ret!).toBeCloseTo((40_000 - 40_000 / 1.1) / (40_000 / 1.1 + 10_000), 9);
     expect(joined.walk!.wealthGenerated).toBeCloseTo(40_000 * (1 - 1 / 1.1), 6);
-    expect(joined.notIncluded).toBe('Return is on the $40,000 with a price history. Treasury 2031 ($10,000) has no price history, so its gains are not included.');
+    expect(joined.notIncluded).toBe('Treasury 2031 ($10,000) has no price history, so its gains are not included.');
     expect(joined.recordBegins).toBeUndefined();
   });
 });

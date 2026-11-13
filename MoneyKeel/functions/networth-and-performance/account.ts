@@ -113,6 +113,7 @@ export interface Itemising {
  *
  * Serves ...... MK-NW-M-019 · MK-NW-M-020 · MK-NW-M-021 · MK-NW-M-038
  *               MK-NW-M-039 · MK-NW-M-040 · MK-NW-M-062 · MK-NW-M-073
+ *               MK-NW-M-075 · MK-NW-M-076 · MK-NW-M-077
  * Reads ....... MK-XS-I-001 account balance
  *               MK-XS-I-005 holding price
  *               MK-XS-I-008 transaction amount
@@ -641,5 +642,44 @@ export const ACCOUNT_FIGURES = declareFigures({
     ruled: '2026-10-21',
     worked: { given: 'A brokerage account where you entered 2.1 as its historic 12-month return, in percent.', answer: '2.10%',
       run: () => ({ ...EXAMPLE_ACCOUNT, actual_ttm: 0.021 }).actual_ttm },
+  },
+  // ISSUED AND DECLARED 2026-11-12 (his words, DEC-10984: "import file as-is. Yes, if you are showing gains as of June 21 - that should
+  // be the number."): an imported file's own Total Gain $, shown on the account page with the file's date, exactly as the file states it.
+  // Nothing computes it. To reverse: delete this row and the line on the account page.
+  'MK-NW-M-075': {
+    label: 'Total gain (as the imported file states it)', unit: 'money-cents', screens: ['/account-detail'], grain: 'one account',
+    answers: 'The total gain the imported file states for this account, on the day the file states.',
+    formula: 'the file\u2019s own Total Gain $ on the account\u2019s row, saved as given (nothing computes it)',
+    inputs: ['MK-XS-I-001 account balance'],
+    decisions: ['IMPORTED AS IT IS (DEC-10984, DEC-0403): the file\u2019s figure to the cent, with the file\u2019s date beside it, never the app\u2019s own sum of the holdings.',
+      'A FILE THAT STATES NO TOTAL GAIN shows no line.'],
+    refusal: 'No line.',
+    ruled: '2026-11-12',
+    worked: { given: 'His E*TRADE file, Individual Brokerage -2203, Generated at Jun 21 2026: Total Gain $ −4146.87.', answer: '\u2212$4,146.87',
+      run: () => ({ ...EXAMPLE_ACCOUNT, stated_gain: { amount: -4146.87, as_of: '2026-06-21' } } as any).stated_gain.amount },
+  },
+  // ISSUED AND DECLARED 2026-11-13 (rule 11): the figures a question to the account holder quotes — what the broker or file says
+  // and what the account holder entered, side by side (his confirm sentence of 2026-11-11, DEC-10471: "The information from Robinhood
+  // indicates price of 350, you entered 320."). They were written with no identifier. Nothing is calculated here beyond shares × price.
+  // To reverse: delete these two rows and print the two writers in src/domain/assets/recordQuestions.ts with no identifier again.
+  'MK-NW-M-076': {
+    label: 'An amount in a question to the account holder', unit: 'money', screens: ['/account-detail', '/holding-detail'], grain: 'one question',
+    answers: 'A dollar amount a question quotes: what a purchase cost in all (shares × price), what a holding is worth, or what a sale made.',
+    formula: 'the amount the record gives; a total paid = shares × price as given',
+    inputs: ['MK-XS-I-001 account balance'],
+    decisions: ['WHOLE DOLLARS, because it is a total (Q49).', 'BOTH SOURCES NAMED, both values shown (DEC-10471).'],
+    refusal: 'not known',
+    ruled: '2026-11-13',
+    worked: { given: 'A question about 100 shares of MSFT bought at $350.', answer: '$35,000', run: () => 100 * 350 },
+  },
+  'MK-NW-M-077': {
+    label: 'A price in a question to the account holder', unit: 'money-cents', screens: ['/account-detail', '/holding-detail'], grain: 'one question',
+    answers: 'A price per share a question quotes, as the broker, the file or the account holder gave it.',
+    formula: 'the price as given (nothing computes it)',
+    inputs: ['MK-XS-I-001 account balance'],
+    decisions: ['TWO DECIMALS, because it is a price (Q49); a whole price is written without cents where the sentence says so.', 'BOTH SOURCES NAMED, both values shown (DEC-10471).'],
+    refusal: 'not known',
+    ruled: '2026-11-13',
+    worked: { given: 'Robinhood says MSFT was bought at $350.35.', answer: '$350.35', run: () => 350.35 },
   },
 });

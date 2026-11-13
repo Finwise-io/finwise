@@ -280,14 +280,17 @@ const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', '
  *
  * Called by ... MK-XS-F-106 mapOptionHolding
  *
- * Reaches ..... 14 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 25 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-194 brokerUpdateToRecord · MK-NW-F-193 eventRow
- *               MK-NW-F-201 fileRowsToSave · MK-NW-F-199 fileToRecord
- *               MK-NW-F-226 fileValues · MK-XS-F-219 importedAccountOf
+ *               MK-NW-F-382 explainedDifference · MK-NW-F-201 fileRowsToSave
+ *               MK-NW-F-199 fileToRecord · MK-NW-F-226 fileValues
+ *               MK-XS-F-324 holdTheSwitch · MK-XS-F-219 importedAccountOf
  *               MK-XS-F-102 ingestSync · MK-XS-F-106 mapOptionHolding
  *               MK-NW-F-228 moveOldCopies · MK-NW-F-192 optionName
- *               MK-XS-F-199 profileOnTheWayIn · MK-NW-F-195 readImport
- *               MK-NW-F-191 sharesPerContract · MK-XS-F-221 valueOnlyAccountsOf
+ *               MK-NW-F-368 perContractOf · MK-XS-F-199 profileOnTheWayIn
+ *               MK-NW-F-195 readImport · MK-NW-F-376 readOuts
+ *               MK-XS-F-318 readOutsInShadow · MK-XS-F-322 savedTogether
+ *               … and 7 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-007 purchase price and date (per lot)
@@ -322,14 +325,17 @@ export interface MappedOption { label: string; contracts: number; value: number;
  * Called by ... MK-NW-F-191 sharesPerContract · MK-NW-F-192 optionName
  *               MK-NW-F-194 brokerUpdateToRecord · MK-XS-F-102 ingestSync
  *
- * Reaches ..... 13 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 24 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-194 brokerUpdateToRecord · MK-NW-F-193 eventRow
- *               MK-NW-F-201 fileRowsToSave · MK-NW-F-199 fileToRecord
- *               MK-NW-F-226 fileValues · MK-XS-F-219 importedAccountOf
+ *               MK-NW-F-382 explainedDifference · MK-NW-F-201 fileRowsToSave
+ *               MK-NW-F-199 fileToRecord · MK-NW-F-226 fileValues
+ *               MK-XS-F-324 holdTheSwitch · MK-XS-F-219 importedAccountOf
  *               MK-XS-F-102 ingestSync · MK-NW-F-228 moveOldCopies
- *               MK-NW-F-192 optionName · MK-XS-F-199 profileOnTheWayIn
- *               MK-NW-F-195 readImport · MK-NW-F-191 sharesPerContract
- *               MK-XS-F-221 valueOnlyAccountsOf
+ *               MK-NW-F-192 optionName · MK-NW-F-368 perContractOf
+ *               MK-XS-F-199 profileOnTheWayIn · MK-NW-F-195 readImport
+ *               MK-NW-F-376 readOuts · MK-XS-F-318 readOutsInShadow
+ *               MK-XS-F-322 savedTogether · MK-XS-F-317 screensFromTheRecord
+ *               … and 6 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-007 purchase price and date (per lot)

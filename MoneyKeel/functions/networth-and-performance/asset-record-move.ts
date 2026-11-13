@@ -258,7 +258,7 @@ function fileFacts(a: AssetAccount): NewRow[] {
 /** A holding's tax lots as the phone shows them, in shares (an option's contracts times its shares a contract). */
 type ShownLot = { shares: number; date: string | null; price: number | null };
 /** A holding's tax lots with more than zero shares, each as shares (times the shares a contract), its purchase day and its price per share. */
-/* ─ MK-NW-F-291 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+/* ─ MK-NW-F-291 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * lotsOf
  *
  * Answers ..... A holding's tax lots with more than zero shares, each as shares (times the shares a contract), its purchase day and its price per share.
@@ -273,9 +273,16 @@ type ShownLot = { shares: number; date: string | null; price: number | null };
  *
  * Called by ... MK-NW-F-228 moveOldCopies · MK-NW-F-319 listQuestionToAsk
  *
- * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-319 listQuestionToAsk · MK-NW-F-228 moveOldCopies
- *               MK-XS-F-199 profileOnTheWayIn · MK-NW-F-324 questionsOf
+ * Reaches ..... 17 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-408 answerWords
+ *               MK-NW-F-409 answersShown · MK-NW-F-400 choiceMakes
+ *               MK-NW-F-405 confirmChangeQuestion · MK-NW-F-415 confirmForSavedLots
+ *               MK-NW-F-407 enteredOverGiven · MK-NW-F-319 listQuestionToAsk
+ *               MK-NW-F-228 moveOldCopies · MK-NW-F-396 otherSays
+ *               MK-XS-F-199 profileOnTheWayIn · MK-NW-F-402 questionFootLine
+ *               MK-NW-F-395 questionHeadline · MK-NW-F-397 questionSummary
+ *               MK-NW-F-398 questionsCountLine · MK-NW-F-324 questionsOf
+ *               MK-NW-F-391 whoSaysFor
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -304,12 +311,12 @@ const lotsOf = (p: Position, per: number): ShownLot[] => (p.lots ?? []).filter((
  *     in force = rows in force(record)
  *     marked = a list with no repeats of in force where kind = 'FACT' and ref = moved mark(account id)for each of : account id
  *     known = a list with no repeats of for each of accounts: string(asset id)
+ *     read out = a list with no repeats of transactions where (each as any).record row ≠ nothing and account id ≠ nothingfor each of : string(account id)
  *     moving ids = a list with no repeats of for each of moving: string(asset id)
  *     account of = (id: string) => moving.find((a) => string(asset id) = id)
  *     imported = (id: string) => (account of(id).source as string) = 'imported'
  *     source of = (id: string): row source => (imported(id) ? 'file' : 'typed')
  *     holding of = (t: transaction) => (SHARE_MOVES.has(type) ? one holding spelling(ticker ?? nothing) : nothing)
- *     h = holding of(t)
  *     … the first steps only — the rest of the body needs reading by hand.
  *
  * Called by ... MK-XS-F-199 profileOnTheWayIn
@@ -352,7 +359,15 @@ export function moveOldCopies(record: readonly AssetRow[], accounts: readonly As
   const known = new Set(accounts.map((a) => String(a.asset_id)));
   const deletedIds = new Set([...new Set(transactions.filter((t) => t.source !== 'connected' && t.account_id != null && !known.has(String(t.account_id)))
     .map((t) => String(t.account_id)))].filter((id) => !marked.has(id)));
-  const moving: AssetAccount[] = [...accounts.filter((a) => a.source !== 'connected' && !marked.has(String(a.asset_id))),
+  // COPIES ALREADY READ OUT OF A RECORD are never moved (switch gap, 2026-11-13: a phone that lost its record moved its
+  // read-out copies, and his file read a balance of −$4,146.21 and cash of −$166,714.10 — the tax lots saved as buys): an
+  // account whose activity carries the record row it was read from was on a record already. It is refused and said so;
+  // the screens keep the copies they hold, which are the figures that record gave
+  const readOut = new Set(transactions.filter((t) => (t as any).record_row != null && t.account_id != null).map((t) => String(t.account_id)));
+  for (const a of accounts) if (readOut.has(String(a.asset_id)) && a.source !== 'connected' && !marked.has(String(a.asset_id))) {
+    out.problems.push(`not moved: ${a.label ?? a.asset_id} holds copies read out of a record (its activity names the record’s rows); kept as it is`);
+  }
+  const moving: AssetAccount[] = [...accounts.filter((a) => a.source !== 'connected' && !marked.has(String(a.asset_id)) && !readOut.has(String(a.asset_id))),
     ...[...deletedIds].map((id) => ({ asset_id: id, label: id, kind: 'brokerage', source: 'manual', positions: [] }) as unknown as AssetAccount)];
   const movingIds = new Set(moving.map((a) => String(a.asset_id)));
   const accountOf = (id: string) => moving.find((a) => String(a.asset_id) === id);

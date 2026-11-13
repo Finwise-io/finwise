@@ -203,7 +203,8 @@ const ROW_WORDS: Record<string, Record<string, string>> = {
 };
 /** THE DRAWING'S CORRECTION OF 2026-11-01 — row 93 (the lead's ruling R20, NW4-03): the 2Y chip's figure is a yearly rate and says so,
  *  '+11.79%/year' where '+11.79%' is drawn. Each state's 2Y figure is the only line of its state with those words (held below). */
-const ROW_93: Record<string, Record<string, string>> = { A: { '+10.87%': '+10.87%/year' }, D: { '+11.79%': '+11.79%/year' } };
+// state D's 2Y figure reads +9.10% since his DEC-10982 (src/testing/ruledSince.ts), so the row-93 '/year' is put on that figure
+const ROW_93: Record<string, Record<string, string>> = { A: { '+10.87%': '+10.87%/year' }, D: { '+9.10%': '+9.10%/year' } };
 for (const [k, m] of Object.entries(ROW_93)) ROW_WORDS[k] = { ...ROW_WORDS[k], ...m };
 /** THE DRAWING'S ROW 98 OF 2026-11-04 (his Build 55 words): a BOND FACTS fact that reads not entered carries a › after its words, on a
  *  line of its own beside them, and opens the bond's editor. Each line named here is followed by '›' in the same box. */
@@ -850,7 +851,8 @@ const BARS: Record<string, [string, string, 'on' | 'no' | ''][]> = {
   B: [['Since Jun 2, 2026', '+1.50%', 'on'], ['1 month', '+1.50%', ''], ['This year', '—', 'no'], ['1 year', '—', 'no'], ['2 years', '—', 'no']],
   C: [['Since today', '—', 'on'], ['1 month', '—', 'no'], ['This year', '—', 'no'], ['1 year', '—', 'no'], ['2 years', '—', 'no']],
   // Since today is never greyed (2026-10-19): state C draws it picked with a dash, state D at rest with a dash, and it can be picked
-  D: [['Since today', '—', ''], ['1 month', '+2.46%', ''], ['This year', '+5.93%', ''], ['1 year', '+10.00%', 'on'], ['2 years', '+11.79%/year', '']],   // row 93: /year, the same +11.79% a year
+  // DEC-10982 (his words, 2026-11-12): the account's Return is (ending − beginning) ÷ beginning, worked by hand in src/testing/ruledSince.ts
+  D: [['Since today', '—', ''], ['1 month', '+1.96%', ''], ['This year', '+4.69%', ''], ['1 year', '+7.84%', 'on'], ['2 years', '+9.10%/year', '']],   // row 93: /year
   E: [['Since Jun 2, 2026', '+0.00%', 'on'], ['1 month', '+0.00%', ''], ['This year', '—', 'no'], ['1 year', '—', 'no'], ['2 years', '—', 'no']],
   F: [['Since Jun 2, 2026', '+0.00%', 'on'], ['1 month', '+0.00%', ''], ['This year', '—', 'no'], ['1 year', '—', 'no'], ['2 years', '—', 'no']],
 };

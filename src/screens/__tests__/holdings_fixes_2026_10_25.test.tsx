@@ -151,6 +151,10 @@ const money0 = (n: number) => `$${Math.round(n).toLocaleString('en-US')}`;   // 
 //   from the start of its day at what was paid (DEC-4439, DEC-7451): 9,900 ÷ 9,500 × 12,000 ÷ (9,900 + 2,000) − 1 = +5.09%.
 // It read $10,000, $0 and "—": the buy made VTI "bought inside the window" from Sep 30, and its return refused (DEC-7216).
 const R1 = 9_900 / 9_500 * 12_000 / 11_900 - 1;
+// THE ACCOUNT'S RETURN SINCE DEC-10982 (his words, 2026-11-12): no money in or out, so (ending − beginning) ÷ beginning on the walk —
+// $9,500 → $10,000: 500 ÷ 9,500 = +5.26%; with $5,000 of cash, $14,500 → $15,000: 500 ÷ 14,500 = +3.45%. The holding's own return
+// on its page stays R1, +5.09%.
+const ACCT_R = 500 / 9_500, ACCT_R_CASH = 500 / 14_500;
 const pct = (r: number) => `+${(r * 100).toFixed(2)}%`;
 describe('H1 · item 1 · a buy in an account built from imported holdings keeps its 1M window: Beginning $9,500, Wealth generated $500, Return +5.09%', () => {
   test('bought on the account page: the account page, the Holding page and the Performance tab read one window, and Net worth the one total', () => {
@@ -164,24 +168,24 @@ describe('H1 · item 1 · a buy in an account built from imported holdings keeps
     const HOLD = look('holding', { account: 'imp', position: 'vti', period: '1M' });
     const INV = look('invest', {}, pick('1 month'));
     const NW = look('networth');
-    expect([...walk1M(ACC), after(ACC, 'Return')]).toEqual(['$9,500', '$500', '$10,000', pct(R1)]);
+    expect([...walk1M(ACC), after(ACC, 'Return')]).toEqual(['$9,500', '$500', '$10,000', pct(ACCT_R)]);
     expect([after(ACC, 'Contributions'), after(ACC, 'Withdrawals')]).toEqual(['$0', '$0']);      // a buy is not money put in
     // THE HOLDING PAGE: its own return over the same month, never the undated-purchase refusal
     expect(after(HOLD, 'Your return, past month')).toBe(pct(R1));
     expect(HOLD.lines).not.toContain('A purchase of this holding has no date on record, so its return since purchase cannot be measured.');
     // THE PERFORMANCE TAB, and NET WORTH: the same beginning, wealth, return and ending — one account, one window, one figure
-    expect([...walk1M(INV), after(INV, 'Return')]).toEqual(walk1M(ACC).concat(pct(R1)));
+    expect([...walk1M(INV), after(INV, 'Return')]).toEqual(walk1M(ACC).concat(pct(ACCT_R)));
     expect(after(INV, 'Ending market value')).toBe('$10,000');
     expect(after(NW, 'Own $10,000 − Owe $0')).toBe('$10,000');
   });
-  test('with cash entered ($5,000) it holds too: Beginning $14,500, Wealth generated $500, the holdings\' return +5.09%, cash $3,000', () => {
+  test('with cash entered ($5,000) it holds too: Beginning $14,500, Wealth generated $500, Return +3.45% (DEC-10982), cash $3,000', () => {
     household({ assetAccounts: [IMPORTED(5_000)] });
     expect(walk1M(look('account', { id: 'imp', period: '1M' }))).toEqual(['$14,500', '$500', '$15,000']);
     (useStore.getState() as any).recordTransaction({ type: 'BUY', account_id: 'imp', ticker: 'VTI', shares: 20, price: 100, date: TODAY });
     expect(acct('imp').cash_balance).toBe(3_000);
     const ACC = look('account', { id: 'imp', period: '1M' });
-    expect([...walk1M(ACC), after(ACC, 'Return')]).toEqual(['$14,500', '$500', '$15,000', pct(R1)]);
-    expect(after(look('invest', {}, pick('1 month')), 'Return')).toBe(pct(R1));
+    expect([...walk1M(ACC), after(ACC, 'Return')]).toEqual(['$14,500', '$500', '$15,000', pct(ACCT_R_CASH)]);
+    expect(after(look('invest', {}, pick('1 month')), 'Return')).toBe(pct(ACCT_R_CASH));
   });
   test('a purchase with no date beside a purchase only typed on the holding, with no buy recorded for it, keeps DEC-7216: no return since purchase', () => {
     // the same 100 imported, and 20 typed on the holding as bought today — no buy record says when they came, so their order is not known

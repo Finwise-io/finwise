@@ -4,11 +4,18 @@ import React from 'react';
 import { Text, StyleSheet } from 'react-native';
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
+import { UpdateToKeepSavingBanner } from './UpdateToKeepSavingBanner';
 
+/** The top of every money tab: "Update MoneyKeel to keep saving" first when the cloud asks for a newer version
+ *  (update-to-keep-saving v01, 2026-11-12: "When both banners show, this one comes first"), then the hidden-balances line. */
 export function HiddenBalancesBanner() {
   const hidden = useStore((s) => s.hideBalances);
-  if (!hidden) return null;
-  return <Text style={s.banner}>Balances hidden — tap the eye to show</Text>;
+  return (
+    <>
+      <UpdateToKeepSavingBanner />
+      {hidden && <Text style={s.banner}>Balances hidden — tap the eye to show</Text>}
+    </>
+  );
 }
 
 const s = StyleSheet.create({

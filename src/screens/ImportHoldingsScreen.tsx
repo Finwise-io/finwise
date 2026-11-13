@@ -9,7 +9,7 @@ import {
 import { useRouter } from 'expo-router';
 import * as DocumentPicker from 'expo-document-picker';
 import { readFileString } from '../services/fileRead';   // T19: supported read path (legacy readAsStringAsync throws at runtime)
-import { useStore } from '../store/useStore';
+import { useStore, savedTogether } from '../store/useStore';
 import { SectionBand } from '../components/SectionBand';
 import { importHoldings, importedAccountOf, valueOnlyAccountsOf, valueOnlyAccountMatchOf, decodeCsvBase64, matchImportAccount, type ImportResult } from '../domain/import/holdingsImport';
 import { ASSET_CLASS_LABEL, type AssetClass } from '../domain/assets';
@@ -108,32 +108,35 @@ export default function ImportHoldingsScreen() {
       // A ROW AN EARLIER IMPORT ALREADY MADE AN ACCOUNT FOR is updated in that account, never added again (outside check,
       // 2026-11-12: the same file imported twice made a second account for its $5,000 bond, so the bond counted twice);
       // "Add as a new account" still adds every account new
-      const reuse = !(matched && mergeChoice === 'new');
-      const taken = new Set<string>();
-      const valueOnlyIds = valueOnlyAccountsOf(result, { institution }).map((a) => {
-        const was = reuse ? valueOnlyAccountMatchOf(useStore.getState().assetAccounts ?? [], a, taken) : null;
-        if (was) {
-          taken.add(String(was.asset_id));
-          store.updateAsset(was.asset_id, a);
-          return String(was.asset_id);
+      // the account and the file's rows are ONE save (savedTogether): nothing reads the record between the two
+      savedTogether(() => {
+        const reuse = !(matched && mergeChoice === 'new');
+        const taken = new Set<string>();
+        const valueOnlyIds = valueOnlyAccountsOf(result, { institution }).map((a) => {
+          const was = reuse ? valueOnlyAccountMatchOf(useStore.getState().assetAccounts ?? [], a, taken) : null;
+          if (was) {
+            taken.add(String(was.asset_id));
+            store.updateAsset(was.asset_id, a);
+            return String(was.asset_id);
+          }
+          store.addAsset(a);
+          return String(useStore.getState().assetAccounts[0]?.asset_id);
+        });
+        if (!holdsSomething) {
+          // a file of value-only rows: nothing for the one account to hold, so no empty account is made
+          if (valueOnlyIds.length) store.recordFileImport?.(result, null, valueOnlyIds);
+        } else if (matched && mergeChoice === 'update') {
+          // Merge-not-duplicate (Import v2): refresh the existing account. asset_id is preserved,
+          // so its history, retirement earmark and class settings survive. Never a twin.
+          store.updateAsset(matched.asset_id, acct);
+          store.recordFileImport?.(result, String(matched.asset_id), valueOnlyIds);   // the master record, beside the old copies (phase 2)
+        } else {
+          store.addAsset(acct);
+          // the account just added is the first on the list (addAsset puts it there)
+          const added = useStore.getState().assetAccounts[0];
+          if (added) store.recordFileImport?.(result, String(added.asset_id), valueOnlyIds);
         }
-        store.addAsset(a);
-        return String(useStore.getState().assetAccounts[0]?.asset_id);
       });
-      if (!holdsSomething) {
-        // a file of value-only rows: nothing for the one account to hold, so no empty account is made
-        if (valueOnlyIds.length) store.recordFileImport?.(result, null, valueOnlyIds);
-      } else if (matched && mergeChoice === 'update') {
-        // Merge-not-duplicate (Import v2): refresh the existing account. asset_id is preserved,
-        // so its history, retirement earmark and class settings survive. Never a twin.
-        store.updateAsset(matched.asset_id, acct);
-        store.recordFileImport?.(result, String(matched.asset_id), valueOnlyIds);   // the master record, beside the old copies (phase 2)
-      } else {
-        store.addAsset(acct);
-        // the account just added is the first on the list (addAsset puts it there)
-        const added = useStore.getState().assetAccounts[0];
-        if (added) store.recordFileImport?.(result, String(added.asset_id), valueOnlyIds);
-      }
       store.refreshPrices?.();   // best-effort: pull live prices so equity market values populate
       Alert.alert('Holdings imported 🎉', `Added ${plural(result.holdings.length, 'holding')} to ${acct.label}.`, [
         { text: 'Done', onPress: () => router.back() },

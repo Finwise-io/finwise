@@ -2,7 +2,7 @@ import { MoneyBox } from '../components/MoneyBox';   // every money box, one com
 import { RETIRE_AGE_ASSUMED } from '../domain/retirement/willItLast';   // the one assumed retirement age (R10)
 import { plural } from '../domain/_shared/plural';   // the one list of words and plurals (DEC-4082, 2026-10-10)
 import React from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Modal, ScrollView, Share } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Modal, ScrollView } from 'react-native';
 import Svg, { Circle, G } from 'react-native-svg';
 import { Card } from '../components/UI';
 import { SectionBand } from '../components/SectionBand';   // box titles on the dark bar, sub-titles on the light (DEC-8839, R1; 2026-10-27)
@@ -21,7 +21,8 @@ import { balanceGrownTo } from '../domain/debt/mortgageVsTreasury';
 import { currentAge as domainCurrentAge, ageToday } from '../domain/profile/calc';
 import { colFactor } from '../domain/retirement/col';
 import { capitalNeeded } from '../domain/retirement';
-import { createInvite, resendVerification, refreshEmailVerified } from '../services/firebase';
+import { resendVerification, refreshEmailVerified } from '../services/firebase';
+import { HouseholdInviteCard } from '../components/HouseholdInviteCard';   // the two codes (invite-and-join v01, 2026-11-12)
 import { useStore } from '../store/useStore';
 import { savingsByMonth, spendBuckets, annualCashflow, plannedMonthlySpend } from '../domain/budget';
 // ONE take-home in the whole app. This screen used to calculate it for itself — tax on the full
@@ -2523,41 +2524,11 @@ export function RentalEditor({ ctx }: { ctx: StepCtx }) {
 // data doc) and hands it to the system share sheet. The spouse enters the code at sign-up and
 // lands in the SAME household: both see and edit the same accounts, plans and goals.
 function InvitePartner({ ctx }: { ctx: StepCtx }) {
-  const code = ctx.answers.inviteCode as string | undefined;
-  const [busy, setBusy] = React.useState(false);
-  const [err, setErr] = React.useState('');
-  const shareCode = (c: string) =>
-    Share.share({ message: `Join me on MoneyKeel so we can plan our money together! Get the app, create your account, and enter invite code ${c} on the sign-up screen.` });
-  const createAndShare = async () => {
-    setErr('');
-    const st = useStore.getState() as any;
-    const uid = st.user?.uid;
-    if (!uid) { setErr('Create your account first — it holds the plan you two will share.'); return; }
-    try {
-      setBusy(true);
-      const c = code ?? await createInvite(st.householdId ?? uid, st.user?.name ?? null);
-      if (!code) ctx.setAnswer('inviteCode', c);
-      await shareCode(c);
-    } catch {
-      setErr("Couldn’t create the invite — check your connection and try again.");
-    } finally { setBusy(false); }
-  };
+  // invite-and-join v01, phone 1 (2026-11-12, R13): the two codes, drawn by the one card Settings opens too
   return (<>
     <Header emoji="✉️" title="Invite your spouse (optional)" sub="They’ll see and manage the same accounts, plans and goals as you." />
-    <Card>
-      {code ? (<>
-        <Text style={s.heroLabel}>Their invite code</Text>
-        <Text style={{ fontSize: 30, fontWeight: '800', textAlign: 'center', letterSpacing: 6, color: Colors.textPrimary, paddingVertical: 8 }}>{code}</Text>
-        <Text style={[s.hint, { textAlign: 'center' }]}>They enter this on the sign-up screen. Re-share it anytime.</Text>
-      </>) : (
-        <Text style={s.note}>We’ll create a one-time code your spouse enters when they sign up — no email needed, share it however you like.</Text>
-      )}
-      <TouchableOpacity hitSlop={Tap.slop} style={[s.addBtn, busy && { opacity: 0.5 }]} disabled={busy}
-        onPress={code ? () => shareCode(code) : createAndShare}>
-        <Text style={s.addBtnT}>{busy ? 'Creating…' : code ? 'Share the code' : '✉️ Create & share invite code'}</Text>
-      </TouchableOpacity>
-      {!!err && <Text style={[s.hint, { color: Colors.red, textAlign: 'center' }]}>{err}</Text>}
-    </Card>
+    <HouseholdInviteCard code={ctx.answers.inviteCode as string | undefined}
+      onCodes={(c, expiresAt) => { ctx.setAnswer('inviteCode', c); ctx.setAnswer('inviteExpiresAt', expiresAt); }} />
   </>);
 }
 

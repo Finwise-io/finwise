@@ -21,7 +21,14 @@ import * as path from 'path';
 import { render, fireEvent, waitFor, screen } from '@testing-library/react-native';
 import * as DocumentPicker from 'expo-document-picker';
 import * as FileSystem from 'expo-file-system';
-import { useStore } from '../../store/useStore';
+import { useStore, SCREENS_READ_THE_RECORD } from '../../store/useStore';
+
+// THE SWITCH (2026-11-13): once the screens read the record, the copies they read ARE the read-outs, so the old copies and
+// the record no longer differ — the differences these checks found while the old copies stood are none. The app moves an
+// account onto the record ONCE, from the copies it held before; a move of copies already read out of the record is not a
+// path it takes, so those checks run while the old copies stand
+const whileOld = <T,>(d: T[]): T[] => (SCREENS_READ_THE_RECORD ? [] : d);
+const whileOldCopies = SCREENS_READ_THE_RECORD ? test.skip : test;
 import ImportHoldingsScreen from '../ImportHoldingsScreen';
 import { compareRecordToOldCopies, type Difference } from '../../testing/compareRecordToOldCopies';
 import { moveOldCopies } from '../../../MoneyKeel/functions/networth-and-performance/asset-record-move';
@@ -147,13 +154,13 @@ test('(3) the re-saved file states no date: the same differences, plus the value
     ...FROM_THE_IMPORT,
     // His ruling (an undated file stays undated and asks for a date): the old copy dates the values by the phone's
     // day of import; the record leaves the day blank and the account holder is asked it.
-    { label: 'Individual Brokerage', holding: null, what: 'value date', old: isoLocalDate(new Date()), list: null },
+    ...whileOld([{ label: 'Individual Brokerage', holding: null, what: 'value date', old: isoLocalDate(new Date()), list: null }]),
   ]);
   expect(st().assetRecordQuestions[String(acct.asset_id)].needsADate).toBe(true);
   expect(valuesNow(st().assetRecord, String(acct.asset_id))!.total).toBeCloseTo(169_664.71, 6);
 });
 
-test('(4) the one-time move of what the import left, onto an empty record: 1 account and 4 holdings compared', async () => {
+whileOldCopies('(4) the one-time move of what the import left, onto an empty record: 1 account and 4 holdings compared', async () => {
   const file = countFile(HIS_FILE);
   await importThroughScreen(HIS_FILE);
   const { assetAccounts, transactions } = st();
@@ -191,7 +198,8 @@ test('(5) the record\'s total for the file\'s account is $169,664.71 dated 2026-
   const accounts = st().assetAccounts;
   expect(accounts.length).toBe(file.accounts);
   const moved = moveOldCopies([], accounts, st().transactions, '2026-11-11T10:00:00.000Z').record;
-  for (const record of [st().assetRecord, moved]) {
+  // with the switch on, the copies are read out of the record already; the move of them is not a path the app takes
+  for (const record of SCREENS_READ_THE_RECORD ? [st().assetRecord] : [st().assetRecord, moved]) {
     const now = accounts.map((a: any) => valuesNow(record, String(a.asset_id))!);
     expect(now.map((n: any) => n.date)).toEqual(['2026-06-21']);
     expect(now.reduce((t: number, n: any) => t + n.total, 0)).toBeCloseTo(169_664.71, 6);

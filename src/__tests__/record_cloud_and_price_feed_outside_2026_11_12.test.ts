@@ -3,7 +3,7 @@
  * states its numbers so it can be worked by hand. */
 let mockPRICES: any = {};
 jest.mock('../services/marketData', () => ({ ...jest.requireActual('../services/marketData'), fetchPriceSeries: jest.fn(async () => mockPRICES) }));
-import { useStore } from '../store/useStore';
+import { useStore, SCREENS_READ_THE_RECORD } from '../store/useStore';
 import { rowsInForce, valuesNow } from '../../MoneyKeel/functions/networth-and-performance/asset-record';
 
 const st = () => useStore.getState() as any;
@@ -52,8 +52,12 @@ test('user A (Savings $12,400) signs out and user B signs in with cloud data: th
   st().addAsset({ label: 'A savings', institution: 'Ally', kind: 'savings', tax_bucket: 'CASH', balance: 12_400, source: 'manual', value_as_of: '2026-09-01' });
   useStore.setState({ assetRecordQuestions: { x: { events: [], lists: [], at: 't' } }, assetRecordFaults: [{ at: 't', where: 'w', message: 'm' }] } as any);
   expect(st().assetRecord.length).toBeGreaterThan(0);
+  const aId = String(st().assetAccounts[0].asset_id);
   st().loadFromCloud({ assetAccounts: [{ asset_id: 'b1', label: 'B checking', kind: 'checking', tax_bucket: 'CASH', balance: 900 }], onboardingComplete: true });
-  expect(st().assetRecord).toEqual([]);
+  // none of A's rows. With the screens reading the record B's own $900, from a cloud copy with no record, is moved onto it
+  expect(st().assetRecord.filter((r: any) => r.accountId === aId)).toEqual([]);
+  expect([...new Set(st().assetRecord.map((r: any) => r.accountId))]).toEqual(SCREENS_READ_THE_RECORD ? ['b1'] : []);
+  if (SCREENS_READ_THE_RECORD) expect(st().assetAccounts[0].balance).toBe(900);
   expect(st().assetRecordQuestions).toEqual({});
   expect(st().assetRecordFaults).toEqual([]);
   expect(st().assetAccounts.map((a: any) => a.label)).toEqual(['B checking']);

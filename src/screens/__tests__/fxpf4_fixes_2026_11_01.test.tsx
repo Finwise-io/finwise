@@ -64,17 +64,20 @@ describe('R18 · a typed-total account\'s Return is its walk\'s own — one func
     pick('1 month');
     const l = builtLines(screen.toJSON());
     const sum = l.findIndex((x) => x.startsWith('SUMMARY ·'));
-    expect(after(l, 'Return', sum)).toBe(pct(F));                                      // the Treasury, no price history, left out
+    // ALL ACCOUNTS TOGETHER, NO MONEY IN OR OUT: (ending − beginning) ÷ beginning (DEC-10982, his words 2026-11-12) over the whole
+    // household, the Treasury ($9,850, no price history) counted as unchanged: 1,035 ÷ (48,965 + 9,850) = 1,035 ÷ 58,815 = +1.76%
+    expect(after(l, 'Return', sum)).toBe(pct(1_035 / 58_815));
     // Vanguard's own card: open (the first of two accounts), its Return under its walk — the holding and category rows keep VTI's own
     const bar = l.indexOf('▾ Vanguard Brokerage');
     expect(bar).toBeGreaterThan(sum);
     expect(after(l, 'Return', bar)).toBe(pct(F));
   });
-  test('Home, this month (Sep 1 → Sep 30, its start read on the Aug 28 close): ▲ up $1,035 (2.11%), the walk\'s own', () => {
+  test('Home, this month (Sep 1 → Sep 30, its start read on the Aug 28 close): ▲ up $1,035 (1.76%), the household\'s (DEC-10982)', () => {
     state('F'); mockParams = {};
     render(React.createElement(require('../HomeScreen').default));
     const l = builtLines(screen.toJSON());
-    expect(l.some((x) => /^▲ up \$1,035 \(2\.11%\) this month$/.test(x) || /up \$1,035, 2\.11 percent this month/.test(x))).toBe(true);
+    // 1,035 ÷ (48,965 + 9,850) = +1.76%: Home's month is the household's, the Treasury counted as unchanged (DEC-10982)
+    expect(l.some((x) => /^▲ up \$1,035 \(1\.76%\) this month$/.test(x) || /up \$1,035, 1\.76 percent this month/.test(x))).toBe(true);
   });
   test('money moved inside the window is split at its day: D, $200 taken out Sep 3 — 49,200 ÷ 49,200 × 50,000 ÷ 49,000 − 1 = +2.04%', () => {
     const st = state('D'); mockParams = st.params;
@@ -196,11 +199,13 @@ describe('state I · 1M and 1Y agree on the account page, the tab\'s card and th
     pick(w);
     l = builtLines(screen.toJSON());
     const sum = l.findIndex((x) => x.startsWith('SUMMARY ·'));
-    expect(after(l, 'Return', sum)).toBe(pct(I));
+    // the summary is the household's, no money in or out (DEC-10982): 1,100 ÷ (48,900 + 9,850) = 1,100 ÷ 58,750 = +1.87%
+    expect(after(l, 'Return', sum)).toBe(pct(1_100 / 58_750));
     expect(after(l, 'Return', l.indexOf('▾ Vanguard Brokerage'))).toBe(pct(I));       // the card prints what the summary prints
-    // one true sentence in his shape (DEC-6076): the whole the Return is worked on and its two parts, from the state's own figures —
-    // VTI 100 × $100 = $10,000 with a price history; Vanguard's typed $50,000 − $10,000 = $40,000; 10,000 + 40,000 = 50,000
-    expect(l).toContain('Return is on the $50,000: $10,000 with a price history and $40,000 of an account whose total was typed, worked back from its records. US Treasury 4.00% 2030 ($9,850) has no price history, so its gains are not included.');
+    // no money in or out, so the Return is on the whole walk (DEC-10982) and "Return is on …" is not said; the left-out holding is
+    // still named (DEC-5068's sentence, its first half dropped)
+    expect(l).toContain('US Treasury 4.00% 2030 ($9,850) has no price history, so its gains are not included.');
+    expect(l.some((x) => x.startsWith('Return is on the'))).toBe(false);
   });
 });
 
@@ -273,7 +278,9 @@ describe('NW6-01 · a buy saved without its price: Return "—", the purchase na
     const s: any = useStore.getState();
     const accts = s.assetAccounts.map((a: any) => a.asset_id !== 'van' ? a : { ...a, positions: a.positions.map((p: any) => ({ ...p,
       lots: [...p.lots, { lot_id: 'np', shares: 10, purchase_date: '2026-09-20' }] })) });
-    useStore.setState({ assetAccounts: accts, transactions: [{ id: 'b1', account_id: 'van', source: 'manual', created_at: '', type: 'BUY', ticker: 'VTI', shares: 10, date: '2026-09-20' }] } as any);
+    // the phone as it is here, with no record of the state before it (with the screens reading the record, that record
+    // would be read back over the buy written straight into the phone's copies)
+    useStore.setState({ assetRecord: [], assetAccounts: accts, transactions: [{ id: 'b1', account_id: 'van', source: 'manual', created_at: '', type: 'BUY', ticker: 'VTI', shares: 10, date: '2026-09-20' }] } as any);
     render(React.createElement(require('../AccountPortfolioScreen').default));
     pick('1 month');
     const l = builtLines(screen.toJSON());

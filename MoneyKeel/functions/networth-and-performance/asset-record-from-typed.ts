@@ -39,14 +39,15 @@ const EPS = 1e-9;
  * Called by ... MK-CF-F-087 monthlyTaxRates · MK-CF-F-107 buildPaycheckYear
  *               MK-NW-F-084 categoryEarnings · MK-NW-F-194 brokerUpdateToRecord
  *               MK-NW-F-199 fileToRecord · MK-NW-F-216 rowOfLot
- *               MK-NW-F-221 lotsFollow · MK-NW-F-228 moveOldCopies
- *               MK-NW-F-238 sortArriving · MK-NW-F-281 correctRow
- *               MK-NW-F-289 activityRefs · MK-NW-F-296 askWhich
- *               MK-NW-F-343 lotChange · MK-PF-F-015 topHoldingConcentration
+ *               MK-NW-F-221 lotsFollow · MK-NW-F-224 typedChangeToRecord
+ *               MK-NW-F-228 moveOldCopies · MK-NW-F-238 sortArriving
+ *               MK-NW-F-281 correctRow · MK-NW-F-289 activityRefs
+ *               MK-NW-F-296 askWhich · MK-NW-F-343 lotChange
+ *               MK-NW-F-385 screensReadTheRecord · MK-PF-F-015 topHoldingConcentration
  *               MK-ST-F-084 fillBetweenObservations · MK-ST-F-093 typedValueOnItsDate
  *               MK-XS-F-079 loadUserRoot
  *
- * Reaches ..... 637 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 689 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -56,7 +57,7 @@ const EPS = 1e-9;
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 619 more — the full list is on functions_from_code
+ *               … and 671 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -78,17 +79,19 @@ const same = (x: number | null | undefined, y: number | null | undefined) => (x 
  *               MK-NW-F-217 transactionRow · MK-NW-F-223 openingRow
  *               MK-NW-F-224 typedChangeToRecord · MK-NW-F-226 fileValues
  *               MK-NW-F-228 moveOldCopies · MK-NW-F-291 lotsOf
+ *               MK-NW-F-419 fileLessRecordedTrades
  *
- * Reaches ..... 17 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-214 accountValueRows · MK-NW-F-296 askWhich
+ * Reaches ..... 31 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-214 accountValueRows
+ *               MK-NW-F-408 answerWords · MK-NW-F-409 answersShown
+ *               MK-NW-F-296 askWhich · MK-NW-F-400 choiceMakes
+ *               MK-NW-F-405 confirmChangeQuestion · MK-NW-F-415 confirmForSavedLots
+ *               MK-NW-F-407 enteredOverGiven · MK-NW-F-419 fileLessRecordedTrades
  *               MK-NW-F-226 fileValues · MK-NW-F-319 listQuestionToAsk
  *               MK-NW-F-213 lotRow · MK-NW-F-221 lotsFollow
  *               MK-NW-F-291 lotsOf · MK-NW-F-228 moveOldCopies
- *               MK-NW-F-223 openingRow · MK-XS-F-199 profileOnTheWayIn
- *               MK-NW-F-324 questionsOf · MK-NW-F-216 rowOfLot
- *               MK-NW-F-217 transactionRow · MK-NW-F-222 typedAccountRows
- *               MK-NW-F-224 typedChangeToRecord · MK-XS-F-229 typedIntoRecord
- *               MK-XS-F-192 typedValueDatedBack
+ *               MK-NW-F-223 openingRow · MK-NW-F-396 otherSays
+ *               … and 13 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -238,15 +241,20 @@ export const txnRef = (t: Pick<Transaction, 'id'>): string => `typed-txn:${t.id}
  *     contract multiplier(p as any)   otherwise
  *
  * Called by ... MK-NW-F-213 lotRow · MK-NW-F-228 moveOldCopies
- *               MK-NW-F-291 lotsOf
+ *               MK-NW-F-291 lotsOf · MK-NW-F-364 positionReadOut
+ *               MK-NW-F-369 quotedFactor
  *
- * Reaches ..... 12 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-296 askWhich · MK-NW-F-319 listQuestionToAsk
- *               MK-NW-F-213 lotRow · MK-NW-F-221 lotsFollow
- *               MK-NW-F-291 lotsOf · MK-NW-F-228 moveOldCopies
- *               MK-XS-F-199 profileOnTheWayIn · MK-NW-F-324 questionsOf
- *               MK-NW-F-216 rowOfLot · MK-NW-F-224 typedChangeToRecord
- *               MK-XS-F-229 typedIntoRecord · MK-XS-F-192 typedValueDatedBack
+ * Reaches ..... 38 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-365 accountReadOut
+ *               MK-NW-F-367 accountsReadOut · MK-NW-F-408 answerWords
+ *               MK-NW-F-409 answersShown · MK-NW-F-296 askWhich
+ *               MK-NW-F-400 choiceMakes · MK-NW-F-405 confirmChangeQuestion
+ *               MK-NW-F-415 confirmForSavedLots · MK-NW-F-407 enteredOverGiven
+ *               MK-NW-F-382 explainedDifference · MK-XS-F-324 holdTheSwitch
+ *               MK-NW-F-319 listQuestionToAsk · MK-NW-F-213 lotRow
+ *               MK-NW-F-221 lotsFollow · MK-NW-F-291 lotsOf
+ *               MK-NW-F-228 moveOldCopies · MK-NW-F-396 otherSays
+ *               … and 20 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
@@ -320,8 +328,11 @@ function lotRow(accountId: string, p: Position, lot: Lot): NewRow | null {
  *     the answer:
  *     []   if cash = nothing
  *     value rows({ account id: string(asset id), date, source: SOURCE, cash })   otherwise
- *     []   when (a as any).value basis ≠ nothing
+ *     [{ account id: string(asset id), holding: nothing, kind: 'FACT', date: nothing, source: SOURCE, facts: { no market value: true } }]   when (a as any).value basis ≠ nothing
  *     typed value = given number(balance)
+ *     []   when typed value = nothing
+ *     cash given = given number((a as any).cash balance)   if tax bucket ! = 'CASH' and tax bucket ! = 'PROPERTY' and (a as any).cash not entered ! = true
+ *     nothing   otherwise
  *
  * Called by ... MK-NW-F-222 typedAccountRows · MK-NW-F-224 typedChangeToRecord
  *
@@ -332,13 +343,13 @@ function lotRow(accountId: string, p: Position, lot: Lot): NewRow | null {
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
+ *               MK-XS-I-002 account type (taxable, pre-tax, Roth)
  *               MK-XS-I-007 purchase price and date (per lot)
  *               MK-XS-I-011 bond face value
  *               MK-XS-I-012 bond coupon rate
  *               MK-XS-I-013 bond maturity date
  *               MK-XS-I-033 the date a hand-typed value was set
- *               MK-XS-I-065 accrued interest on a bond — interest earned since the last coupon
- *               MK-XS-I-067 what was paid for a bond or CD held as its own account
+ *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
  *
  * Formula also on the master file · functions_from_code · MK-NW-F-214
  * Changed ..... not in git yet (—)
@@ -351,9 +362,18 @@ function accountValueRows(a: AssetAccount): NewRow[] {
   }
   // a bond's or CD's balance set from what was paid or its face value is not a value the account holder gave (DEC-0281):
   // those figures are its facts, and no value is written
-  if ((a as any).value_basis != null) return [];
+  // …and where the market value box was emptied, the value typed before is no longer the value: said so on the record
+  // (switch gap, 2026-11-13: the market value of $24,650 emptied, $24,100.37 paid, still read $24,650)
+  if ((a as any).value_basis != null) return [{ accountId: String(a.asset_id), holding: null, kind: 'FACT', date: null, source: SOURCE, facts: { noMarketValue: true } }];
   const typedValue = givenNumber(a.balance);
-  return typedValue == null ? [] : valueRows({ accountId: String(a.asset_id), date, source: SOURCE, typedValue });
+  if (typedValue == null) return [];
+  // THE CASH INSIDE A TYPED TOTAL (switch gap, 2026-11-13: a brokerage typed with $1,000 cash, then a $250 deposit, read
+  // $250 cash — the move kept the total and dropped the cash). The total already counts its cash, so the cash is kept as
+  // the account's own fact beside the value, never added to it; "not given" where the account holder gave none
+  const cashGiven = a.tax_bucket !== 'CASH' && a.tax_bucket !== 'PROPERTY' && (a as any).cash_not_entered !== true ? givenNumber((a as any).cash_balance) : null;
+  const cashFact: NewRow[] = a.tax_bucket === 'CASH' || a.tax_bucket === 'PROPERTY' ? []
+    : [{ accountId: String(a.asset_id), holding: null, kind: 'FACT', date: null, source: SOURCE, facts: { cashInTypedTotal: cashGiven ?? 'not given' } }];
+  return [...valueRows({ accountId: String(a.asset_id), date, source: SOURCE, typedValue }), ...cashFact];
 }
 
 const BOND_FACTS = ['face_value', 'coupon_rate', 'maturity_date', 'purchase_date', 'amount_paid', 'cd_bought', 'accrued_interest'] as const;
@@ -366,6 +386,7 @@ const BOND_FACTS = ['face_value', 'coupon_rate', 'maturity_date', 'purchase_date
  * Formula .....
  *     from = (only ?? a) as record<string, unknown>
  *     facts = {}
+ *     emptied = only ? BOND_FACTS where each in from and (from[each] = nothing or from[each] = ''): []
  *     the answer:
  *     account id = string(asset id)
  *     holding = nothing
@@ -393,6 +414,9 @@ function factRow(a: AssetAccount, only?: Partial<AssetAccount>): NewRow | null {
   const from = (only ?? a) as Record<string, unknown>;
   const facts: Record<string, unknown> = {};
   for (const k of BOND_FACTS) if (k in from && from[k] != null && from[k] !== '') facts[k] = from[k];
+  // a detail the account holder emptied in an edit is taken away (switch gap, 2026-11-13: a price paid cleared still stood)
+  const emptied = only ? BOND_FACTS.filter((k) => k in from && (from[k] == null || from[k] === '')) : [];
+  if (emptied.length) facts.clears = emptied;
   return Object.keys(facts).length ? { accountId: String(a.asset_id), holding: null, kind: 'FACT', date: null, source: SOURCE, facts } : null;
 }
 
@@ -463,6 +487,8 @@ function rowOfLot(record: readonly AssetRow[], accountId: string, p: Position, l
  *     fee = nothing   if given number(fee) = nothing
  *     size of(fee read as a number)   otherwise
  *     date = date as given(date), ref = txn ref(t)
+ *     negative = given number(amount) ≠ nothing and number(amount) < 0
+ *     goes = (own: 'IN' | 'OUT'): 'IN' | 'OUT' => { const d = direction ?? own; return negative ? (d = 'IN' ? 'OUT' : 'IN') : d; }
  *     cash row('OTHER')   when holding = nothing (or shares = nothing when missing or zero)
  *     the answer:
  *     account id = account id
@@ -471,13 +497,10 @@ function rowOfLot(record: readonly AssetRow[], accountId: string, p: Position, l
  *     date = date
  *     shares = shares
  *     price = price
- *     amount = amount (or nothing   if price = nothing
- *     shares × price   otherwise when missing)
+ *     amount = trade amount(shares, price, amount)
  *     fee = fee
  *     source = SOURCE
  *     ref = ref
- *     cash row('OTHER')   when holding = nothing (or shares = nothing when missing or zero)
- *     cash row('OTHER')   when holding = nothing (or shares = nothing when missing or zero)
  *     … the first steps only — the rest of the body needs reading by hand.
  *
  * Called by ... MK-NW-F-224 typedChangeToRecord
@@ -505,23 +528,44 @@ function transactionRow(t: Transaction): NewRow | null {
   const amount = givenNumber(t.amount) == null ? null : Math.abs(Number(t.amount));
   const fee = givenNumber(t.fee) == null ? null : Math.abs(Number(t.fee));
   const date = dateAsGiven(t.date), ref = txnRef(t);
+  const negative = givenNumber(t.amount) != null && Number(t.amount) < 0;
+  // a bond quoted per $100 of face keeps the amount given where it is the face at that quote ($4,000 at 101 = $4,040)
+  const tradeAmount = (n: number, p: number | null, given: number | null): number | null =>
+    p == null ? given : given != null && Math.abs(given - (n * p) / 100) <= 0.005 ? given : n * p;
+  const goes = (own: 'IN' | 'OUT'): 'IN' | 'OUT' => { const d = t.direction ?? own; return negative ? (d === 'IN' ? 'OUT' : 'IN') : d; };
   const cashRow = (kind: NewRow['kind']): NewRow => ({ accountId, holding, kind, date, amount, fee, source: SOURCE, ref,
     ...(shares != null ? { shares } : {}), ...(price != null ? { price } : {}) });
   switch (t.type) {
     case 'BUY':
       if (holding == null || shares == null) return cashRow('OTHER');
-      return { accountId, holding, kind: 'PURCHASE', date, shares, price, amount: amount ?? (price == null ? null : shares * price), fee, source: SOURCE, ref };
+      // a trade's money is its shares at its price, as the app applies it (switch gap, 2026-11-13: a sale of 4 at $10.00
+      // corrected on its ✎ to $12.00 was re-recorded still carrying the old $40); the amount given stands only with no price
+      return { accountId, holding, kind: 'PURCHASE', date, shares, price, amount: tradeAmount(shares, price, amount), fee, source: SOURCE, ref };
     case 'SELL':
+      // AN AMOUNT SOLD OF AN ACCOUNT WITH NO HOLDINGS (a bond, a CD, an alternative typed as one value; switch gap,
+      // 2026-11-13: $4,000 sold of a $10,000 CD read $10,000): a sale with no holding, its amount the value that left
+      if ((holding == null || shares == null) && amount != null && amount > 0) return { ...cashRow('SALE'), holding: null, shares: undefined, price: undefined };
       if (holding == null || shares == null) return cashRow('OTHER');
-      return saleRow({ accountId, holding, date, shares, price, amount, fee, source: SOURCE, ref });
-    case 'DIVIDEND': return cashRow('DIVIDEND');
-    case 'INTEREST': case 'COUPON': return cashRow('INTEREST');
-    case 'DEPOSIT': return cashRow(t.direction === 'OUT' ? 'WITHDRAWAL' : 'DEPOSIT');
-    case 'WITHDRAWAL': return cashRow(t.direction === 'IN' ? 'DEPOSIT' : 'WITHDRAWAL');
-    case 'FEE': return cashRow('FEE');
-    case 'TRANSFER':
-      // cash between two of the account holder's accounts: one row, from the account to the one named
-      return { ...cashRow('TRANSFER'), holding: null, ...(t.counter_account_id ? { toAccountId: String(t.counter_account_id) } : {}) };
+      return saleRow({ accountId, holding, date, shares, price, amount: tradeAmount(shares, price, amount), fee, source: SOURCE, ref });
+    // THE WAY THE MONEY WENT, as the app applies it (switch gap, 2026-11-13: a dividend reversed, a fee refunded, a deposit
+    // typed as −$250.11 and a transfer INTO the account were each saved the usual way round, so the cash moved the wrong
+    // way): the direction given, else the kind's own way, turned round by a negative amount
+    case 'DIVIDEND': case 'INTEREST': case 'COUPON': {
+      const kind = t.type === 'DIVIDEND' ? 'DIVIDEND' as const : 'INTEREST' as const;
+      return goes('IN') === 'OUT' ? { ...cashRow('OTHER'), reversalOf: kind, direction: 'OUT' } : cashRow(kind);
+    }
+    case 'DEPOSIT': return cashRow(goes('IN') === 'OUT' ? 'WITHDRAWAL' : 'DEPOSIT');
+    case 'WITHDRAWAL': return cashRow(goes('OUT') === 'IN' ? 'DEPOSIT' : 'WITHDRAWAL');
+    case 'FEE': return goes('OUT') === 'IN' ? { ...cashRow('OTHER'), reversalOf: 'FEE', direction: 'IN' } : cashRow('FEE');
+    case 'TRANSFER': {
+      // cash between two of the account holder's accounts: one row, from the account the money left to the one it reached;
+      // a transfer with no other account named moves money in or out of this one (out unless said)
+      const into = goes('OUT') === 'IN';
+      if (t.counter_account_id) return into
+        ? { ...cashRow('TRANSFER'), accountId: String(t.counter_account_id), holding: null, toAccountId: accountId }
+        : { ...cashRow('TRANSFER'), holding: null, toAccountId: String(t.counter_account_id) };
+      return { ...cashRow('TRANSFER'), holding: null, ...(into ? { arrives: true } : {}) };
+    }
     case 'TRANSFER_IN_KIND':
       if (holding == null || shares == null) return cashRow('OTHER');
       if (t.direction === 'IN') return { accountId, holding, kind: 'TRANSFER', date, shares, source: SOURCE, ref, arrives: true };
@@ -582,17 +626,17 @@ function arrive(out: TypedResult, rows: NewRow[], writtenAt: string): void {
  *               MK-NW-F-270 sameEventElsewhere · MK-NW-F-278 answerListQuestion
  *               MK-NW-F-294 removalKept · MK-XS-F-002 dataGaps
  *
- * Reaches ..... 44 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-289 activityRefs · MK-NW-F-342 afterAWrite
+ * Reaches ..... 120 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS · MK-CF-F-205 COMING
+ *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
+ *               MK-CF-F-237 LATER · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-296 LOAD · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-392 accountQuestions · MK-NW-F-289 activityRefs
+ *               MK-NW-F-399 after · MK-NW-F-342 afterAWrite
  *               MK-NW-F-273 answerEventQuestion · MK-NW-F-278 answerListQuestion
- *               MK-NW-F-337 answerQuestion · MK-NW-F-248 answerValuesQuestion
- *               MK-NW-F-218 arrive · MK-NW-F-275 besideTheList
- *               MK-NW-F-194 brokerUpdateToRecord · MK-NW-F-326 confirmMyChangeQuestion
- *               MK-XS-F-002 dataGaps · MK-NW-F-279 differsFromGiven
- *               MK-NW-F-325 editQuestionToAsk · MK-NW-F-317 eventQuestionToAsk
- *               MK-NW-F-271 eventsThatDiffer · MK-NW-F-201 fileRowsToSave
- *               MK-NW-F-343 lotChange · MK-NW-F-221 lotsFollow
- *               … and 26 more — the full list is on functions_from_code
+ *               … and 102 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -659,7 +703,11 @@ function remove(out: TypedResult, rowId: string, writtenAt: string): void {
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
+ *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
  *               MK-XS-I-082 the purchase an opening record is of — so editing or removing that purchase changes or removes its record
+ *
+ * Decides .....
+ *     · If shares is missing it uses 0.
  *
  * Formula also on the master file · functions_from_code · MK-NW-F-221
  * Changed ..... not in git yet (—)
@@ -693,12 +741,25 @@ function lotsFollow(out: TypedResult, accountId: string, before: Position | null
     // sale of 30 counted again, leaving 40)
     const change = lotChange(from ?? at, at, to);
     if (Object.keys(change).length) correct(out, at.rowId, change, writtenAt);
+    // THE SHARES ALREADY SOLD FROM THE LOT follow its corrected price (switch gap, 2026-11-13: 50 VTI at $200, 10 sold at
+    // $260 before the record began, the lot of 40 then corrected to $205 — the sale kept a $600 gain where the app shows
+    // 10 × ($260 − $205) = $550). The one-time move saved those sold shares as their own purchase at the lot's price; it
+    // takes the new price where only this lot of the holding was bought at the old one
+    if (from && to && from.price != null && to.price != null && !same(from.price, to.price)
+      && (before?.lots ?? []).filter((l) => { const r = lotRow(accountId, before as Position, l); return r != null && same(r.price, from.price); }).length === 1) {
+      for (const r of rowsInForce(out.record).filter((x) => x.kind === 'PURCHASE' && x.accountId === accountId && x.holding === to.holding
+        && (x.facts as any)?.behindSaleBeforeRecord === true && same(x.price, from.price))) {
+        correct(out, r.rowId, { price: to.price, amount: (r.shares ?? 0) * to.price }, writtenAt);
+      }
+    }
   }
   for (const [id, old] of was) {
     if (now.has(id)) continue;
     const at = rowOfLot(out.record, accountId, before as Position, old);
     if (at === 'many') askWhich(out, accountId, before as Position, old, lotRow(accountId, before as Position, old), null);
-    else if (at !== 'none') remove(out, at.rowId, writtenAt);
+    // a purchase the account holder RECORDED (a buy, not a lot typed as already owned) stays when a file's holdings replace
+    // the lots: it moved cash (switch gap, 2026-11-13: 100 VTI, a buy of 10, then a file of 110 — the buy was removed)
+    else if (at !== 'none' && !at.ref?.startsWith('typed-txn:')) remove(out, at.rowId, writtenAt);
   }
   arrive(out, added, writtenAt);
 }
@@ -803,6 +864,63 @@ export function openingRow(t: Transaction): NewRow | null {
     amount: price == null ? null : shares * per * price, source: SOURCE, ref: t.lot_id ? lotRef(String(t.account_id), { lot_id: t.lot_id }) : txnRef(t) };
 }
 
+/** A file's holding handed in again, read against the trades the account holder recorded: its shares less the shares those
+ *  buys and sales explain, so a purchase is never counted twice (the old copies' rule, workplan #294; switch gap 2026-11-13:
+ *  100 VTI, a buy of 10, then a file of 110 read 110 owned plus the buy). With no lot typed as already owned but trades on
+ *  record, the trades explain the holding and the file adds nothing; a file with no share count is taken as it is. */
+/* ─ MK-NW-F-419 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+ * fileLessRecordedTrades
+ *
+ * Answers ..... A file's holding handed in again, read against the trades the account holder recorded: its shares less the shares those buys and sales explain, so a purchase is never counted twice (the old copies' rule, workplan #294; switch gap 2026-11-13: 100 VTI, a buy of 10, then a file of 110 read 110 owned plus the buy).
+ *
+ * Formula .....
+ *     h = one holding spelling(ticker ?? nothing)
+ *     p   when h = nothing
+ *     live = rows in force(record) where account id = account id and holding = h
+ *     trades = live where (kind = 'PURCHASE' or kind = 'SALE') and ref.starts with('typed − txn:')
+ *     p   when count of trades is missing
+ *     owned = live.some((r) => kind = 'PURCHASE' and ref.starts with('typed − lot:'))
+ *     ...p = ...p
+ *     lots = []   when owned is missing
+ *     lots = lots (or none when missing)
+ *     p   when count of lots is missing (or lots.some((l) => given number(shares) = nothing) when missing or zero)
+ *     file shares = Σ over lots of (shares read as a number)
+ *     net = Σ over trades of ((kind = 'PURCHASE' ? 1 : -1) × size of(shares (or 0 when missing)))
+ *     … the first steps only — the rest of the body needs reading by hand.
+ *
+ * Called by ... MK-NW-F-224 typedChangeToRecord
+ *
+ * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-228 moveOldCopies · MK-XS-F-199 profileOnTheWayIn
+ *               MK-NW-F-224 typedChangeToRecord · MK-XS-F-229 typedIntoRecord
+ *               MK-XS-F-192 typedValueDatedBack
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-004 holding quantity (shares)
+ *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
+ *
+ * Decides .....
+ *     · If shares is missing it uses 0.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-419
+ * Changed ..... not in git yet (—)
+ */
+function fileLessRecordedTrades(record: readonly AssetRow[], accountId: string, p: Position): Position {
+  const h = oneHoldingSpelling(p.ticker ?? null);
+  if (h == null) return p;
+  const live = rowsInForce(record).filter((r) => r.accountId === accountId && r.holding === h);
+  const trades = live.filter((r) => (r.kind === 'PURCHASE' || r.kind === 'SALE') && r.ref?.startsWith('typed-txn:'));
+  if (!trades.length) return p;
+  const owned = live.some((r) => r.kind === 'PURCHASE' && r.ref?.startsWith('typed-lot:'));
+  if (!owned) return { ...p, lots: [] };
+  const lots = p.lots ?? [];
+  if (!lots.length || lots.some((l) => givenNumber(l.shares) == null)) return p;
+  const fileShares = lots.reduce((t, l) => t + Number(l.shares), 0);
+  const net = trades.reduce((t, r) => t + (r.kind === 'PURCHASE' ? 1 : -1) * Math.abs(r.shares ?? 0), 0);
+  const left = fileShares - net;
+  return { ...p, lots: left > EPS ? [{ ...lots[0], shares: left }] : [] };
+}
+
 /** WHAT THE ACCOUNT HOLDER ENTERED, saved into the record. `record` is the record before the change. */
 /* ─ MK-NW-F-224 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
  * typedChangeToRecord
@@ -821,7 +939,10 @@ export function openingRow(t: Transaction): NewRow | null {
  *     t = change.transaction
  *     h = one holding spelling(ticker ?? nothing)
  *     r = transaction row(t)
- *     the answer = out
+ *     rh = one holding spelling(ticker ?? nothing), rs = given number(shares), rp = given number(price)
+ *     named = (change.transaction as any).record row as string | undefined
+ *     found = rows in force(out.record) where ref = txn ref(change.transaction) (or ref = `${txn ref(change.transaction)}:reinvested` (or named ≠ nothing and row id = named when missing or zero) when missing or zero)
+ *     … the first steps only — the rest of the body needs reading by hand.
  *
  * Called by ... MK-NW-F-228 moveOldCopies · MK-XS-F-192 typedValueDatedBack
  *               MK-XS-F-229 typedIntoRecord
@@ -832,10 +953,13 @@ export function openingRow(t: Transaction): NewRow | null {
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
+ *               MK-XS-I-002 account type (taxable, pre-tax, Roth)
  *               MK-XS-I-004 holding quantity (shares)
+ *               MK-XS-I-009 transaction date
  *               MK-XS-I-033 the date a hand-typed value was set
  *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
  *               MK-XS-I-063 option contract multiplier — 100 unless the broker or the person states otherwise
+ *               MK-XS-I-066 last successful update of a linked or imported account
  *
  * Formula also on the master file · functions_from_code · MK-NW-F-224
  * Changed ..... 2026-11-11 (d188fd68)
@@ -853,15 +977,28 @@ export function typedChangeToRecord(record: readonly AssetRow[], change: TypedCh
     }
     case 'account-changed': {
       const { before, after, update } = change;
+      // A BANK LINKED OVER AN ACCOUNT TYPED BY HAND (switch gap, 2026-11-13: Chase typed at $3,000, linked at $4,211.35, read
+      // $3,000): the bank's balance is saved as the linked value of the day it was read; the typed rows stay as they were
+      if (!valuesAreTyped(after) && valuesAreTyped(before) && 'balance' in update && givenNumber(after.balance) != null) {
+        // the person's own day the bank was read (the stamp is kept in UTC)
+        const read = (after as any).last_synced ? new Date((after as any).last_synced) : null;
+        const day = read && !Number.isNaN(read.getTime())
+          ? [String(read.getFullYear()), String(read.getMonth() + 1).padStart(2, '0'), String(read.getDate()).padStart(2, '0')].join('-') : null;
+        out.record = addRows(out.record, valueRows({ accountId: String(after.asset_id), date: day, source: 'linked', statedTotal: givenNumber(after.balance),
+          ...(after.tax_bucket === 'CASH' ? { cash: givenNumber(after.balance) } : {}) }), writtenAt);
+        break;
+      }
       if (!valuesAreTyped(after)) break;
       const valued = 'balance' in update || 'value_as_of' in update || 'cash_balance' in update;
       const fact = factRow(after, update);
       out.record = addRows(out.record, [...(valued ? accountValueRows(after) : []), ...(fact ? [fact] : [])], writtenAt);
       if ('positions' in update && valuesAreTyped(before)) {
-        const ids = new Set([...(before.positions ?? []), ...(after.positions ?? [])].map((p) => p.position_id));
+        const aid = String(after.asset_id);
+        const afterPositions = (after.positions ?? []).map((p) => fileLessRecordedTrades(out.record, aid, p));
+        const ids = new Set([...(before.positions ?? []), ...afterPositions].map((p) => p.position_id));
         for (const pid of ids) {
-          lotsFollow(out, String(after.asset_id), (before.positions ?? []).find((p) => p.position_id === pid) ?? null,
-            (after.positions ?? []).find((p) => p.position_id === pid) ?? null, writtenAt);
+          lotsFollow(out, aid, (before.positions ?? []).find((p) => p.position_id === pid) ?? null,
+            afterPositions.find((p) => p.position_id === pid) ?? null, writtenAt);
         }
       }
       break;
@@ -893,13 +1030,40 @@ export function typedChangeToRecord(record: readonly AssetRow[], change: TypedCh
         if (held > EPS) t = { ...t, shares: held, multiplier: undefined };
       }
       const r = transactionRow(t);
+      // A REINVESTED DIVIDEND OR INTEREST buys more of a holding already held (switch gap, 2026-11-13: 10 VTI and a $155
+      // dividend reinvested as 0.5 at $310 still read 10): the income, and the purchase it paid for, so the cash is unchanged
+      const rh = oneHoldingSpelling(t.ticker ?? null), rs = givenNumber(t.shares), rp = givenNumber(t.price);
+      const reinvests = (t.type === 'DIVIDEND' || t.type === 'INTEREST') && t.reinvested === true && rh != null && rs != null && rs > 0 && rp != null
+        && sharesOnRecord(out.record, String(t.account_id), rh) > EPS;
       if (r?.kind === 'VALUE') out.record = addRows(out.record, [r], writtenAt);
+      else if (r && reinvests) arrive(out, [{ ...r, amount: r.amount ?? rs! * rp!, shares: undefined, price: undefined },
+        { accountId: String(t.account_id), holding: rh, kind: 'PURCHASE', date: r.date, shares: rs!, price: rp, amount: rs! * rp!, source: SOURCE, ref: `${r.ref}:reinvested` }], writtenAt);
       else if (r) arrive(out, [r], writtenAt);
       break;
     }
-    case 'transaction-deleted':
-      for (const r of rowsInForce(out.record).filter((x) => x.ref === txnRef(change.transaction))) remove(out, r.rowId, writtenAt);
+    case 'transaction-deleted': {
+      // a record read out of the master record names its row (record_row): a broker's or a file's event is removed by it
+      const named = (change.transaction as any).record_row as string | undefined;
+      const found = rowsInForce(out.record).filter((x) => x.ref === txnRef(change.transaction) || x.ref === `${txnRef(change.transaction)}:reinvested` || (named != null && x.rowId === named));
+      for (const r of found) remove(out, r.rowId, writtenAt);
+      // A BUY THE ONE-TIME MOVE SAVED AS THE TAX LOT IT MADE (switch gap, 2026-11-13: 10 UNKNOWN123 bought at $100, moved as
+      // the phone's lot, then corrected to $98 — the delete found nothing, the $100 purchase stayed and the corrected buy
+      // was asked about): the one lot the move saved on the buy's day, with its shares and price, is the buy's
+      const t = change.transaction, h = oneHoldingSpelling(t.ticker ?? null), acct = String(t.account_id);
+      if (!found.length && (t.type === 'BUY' || t.type === 'OPENING_POSITION') && h != null && givenNumber(t.shares) != null) {
+        const movedAt = new Set(rowsInForce(out.record).filter((x) => x.kind === 'FACT' && x.accountId === acct && x.ref === `moved-from-phone:${acct}`).map((x) => x.writtenAt));
+        const per = t.multiplier != null && t.multiplier > 0 ? t.multiplier : 1;
+        const lots = rowsInForce(out.record).filter((x) => x.kind === 'PURCHASE' && x.accountId === acct && x.holding === h && movedAt.has(x.writtenAt)
+          && (x.ref?.startsWith('typed-lot:') || x.ref?.startsWith('moved-')) && (x.date ?? null) === dateAsGiven(t.date)
+          && same(x.shares, Math.abs(Number(t.shares)) * per) && (givenNumber(t.price) == null || same(x.price, givenNumber(t.price))));
+        if (lots.length === 1) {
+          remove(out, lots[0].rowId, writtenAt);
+          // the lot stood for a buy, so the cash it took is given back (a lot typed as already owned took none)
+          out.record = addRows(out.record, [{ accountId: acct, holding: null, kind: 'FACT', date: null, source: SOURCE, facts: { [`boughtNotOwned:${lots[0].rowId}`]: true } }], writtenAt);
+        }
+      }
       break;
+    }
     case 'savings-moved':
       if (change.amount > 0) arrive(out, [{ accountId: change.accountId, holding: null, kind: 'DEPOSIT', date: dateAsGiven(change.date), amount: change.amount, source: SOURCE, ref: `typed-savings:${change.accountId}:${writtenAt}` }], writtenAt);
       break;

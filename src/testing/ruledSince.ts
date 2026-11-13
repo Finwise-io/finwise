@@ -57,6 +57,24 @@ export function ruledHtml(file: string, html: string): string {
     s = s.replace(/Earned = dividends \+ interest received in this window/g, 'Earned = dividends and interest paid to you between these dates');
     s = s.replace(/open this account(&#39;|’|&#8217;|')s portfolio/g, 'open this account$1s page');
   }
+  // HIS RULING OF 2026-11-12 (DEC-10982: "return on investment is always ending value - begining value divided by begining value"),
+  // on account-page v01's state D, which the READ THIS FIRST block of account-page v03 (row C) states: $50,000 = VTI $40,000 +
+  // Treasury 2031 $10,000, no money in or out, so the account's Return is (ending − beginning) ÷ beginning with the Treasury counted
+  // as unchanged. Worked by hand from VTI's own drawn returns: 1M 40,000 − 40,000 ÷ 1.0246 = $960.40 on $49,039.60 = +1.96%; This year
+  // 40,000 − 40,000 ÷ 1.0593 = $2,239.39 on $47,760.61 = +4.69%; 1Y $3,636.36 on $46,363.64 = +7.84%; 2Y VTI 1.1179^(731/365) =
+  // 1.25 → $8,000 on $42,000 = 19.05% over the window, +9.10% a year. The chips, the trio's Return and the table's Total read these;
+  // the VTI and Stocks / Funds rows keep VTI's own +10.00%. "Return is on the $40,000 with a price history." is no longer said.
+  if (/moneykeel_pres_mock_account-page_v01\.html$/.test(file)) {
+    const from = s.indexOf('STATE D'), to = s.indexOf('STATE E', from);
+    if (from >= 0 && to > from) {
+      let d = s.slice(from, to);
+      d = d.replace(/>(\s*)\+2\.46%(\s*)</g, '>$1+1.96%$2<').replace(/>(\s*)\+5\.93%(\s*)</g, '>$1+4.69%$2<').replace(/>(\s*)\+11\.79%(\s*)</g, '>$1+9.10%$2<');
+      let n = 0;
+      d = d.replace(/>(\s*)\+10\.00%(\s*)</g, (m, a, b) => { n += 1; return n === 1 || n === 2 || n === 5 ? `>${a}+7.84%${b}<` : m; });
+      d = d.replace(/Return is on the \$40,000 with a price history\. /g, '');
+      s = s.slice(0, from) + d + s.slice(to);
+    }
+  }
   if (NW_DRAWING.test(file)) {
     s = s.replace(/(💵|📈|📜|🪙|🏠|🚗|🧩|🏛️)\s?(?=(?:<[^>]*>)*\s*[−-]?\$)/gu, (_m, e: string) => `${CLASS_OF[e]} `);
     s = s.replace(/(💵|📈|📜|🪙|🏠|🚗|🧩|🏛️)\s?/gu, '');

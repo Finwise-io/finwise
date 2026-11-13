@@ -20,7 +20,9 @@ import { buildDayFromAccounts } from '../../../Calculation Module code/engines/s
 
 const TODAY = '2026-10-13';
 const ONE_YEAR = windowStartKey('1Y', [], TODAY)!;          // 2025-10-13; the beginning is read for 2025-10-12
-const SENTENCE = "Return is on the $40,000 with a price history. Treasury 2031 ($10,000) has no price history, so its gains are not included.";   // reworded 2026-10-19 by DEC-6076
+// reworded 2026-10-19 by DEC-6076; its first half ("Return is on the $40,000 with a price history.") is not said since DEC-10982
+// (2026-11-12): with no money in or out the Return is on the whole walk
+const SENTENCE = "Treasury 2031 ($10,000) has no price history, so its gains are not included.";
 
 const VANGUARD = { asset_id: 'van', label: 'BROKERAGE', institution: 'Vanguard', kind: 'brokerage', asset_class: 'stocks_etf', balance: 40000,
   source: 'connected', positions: [{ position_id: 'p-vti', ticker: 'VTI', last_price: 250, lots: [{ lot_id: 'l1', shares: 160, cost_per_share: 200, purchase_date: '2023-01-03' }] }] };
@@ -46,7 +48,8 @@ describe('MK-NW-O-008 thePerformance — a record that begins today, worked back
     expect(f.walk!.ending).toBe(50000);
     expect(f.walk!.wealthGenerated).toBeCloseTo(3636.3636, 4);
     expect(f.walk!.beginning).toBeCloseTo(46363.6364, 4);
-    expect(f.ret!).toBeCloseTo(0.10, 12);
+    // DEC-10982: (ending − beginning) ÷ beginning = 3,636.36 ÷ 46,363.64 = +7.84%
+    expect(f.ret!).toBeCloseTo((50000 - 46363.6364) / 46363.6364, 6);
     expect(f.notIncluded).toBe(SENTENCE);
     expect(f.sentence).toBe('');                                          // was "The record begins Oct 13, 2026, so it cannot say what these accounts were worth on Oct 12, 2025."
   });
@@ -85,7 +88,8 @@ describe('MK-NW-O-008 thePerformance — a record that begins today, worked back
     const f = ask(['van'], [withCash], [VTI_ROW, cashRow], recordToday([withCash]));
     expect(f.walk!.wealthGenerated).toBeCloseTo(3636.3636, 4);            // the cash added $0
     expect(f.walk!.beginning).toBeCloseTo(45000 - 3636.3636, 4);
-    expect(f.ret!).toBeCloseTo(0.10, 12);                                 // Return is the holdings with a price history
+    // DEC-10982: the cash is in the walk, so Return = 3,636.36 ÷ (36,363.64 + 5,000) = 3,636.36 ÷ 41,363.64 = +8.79%
+    expect(f.ret!).toBeCloseTo(3636.3636 / 41363.6364, 6);
     expect(f.notIncluded).toBe('');                                       // cash is not "no price history"
   });
 });
@@ -125,7 +129,7 @@ describe('the mixed case: one account the record reaches, one it does not (DEC-5
     const all = ask(['fid', 'van'], accts, [VTI_ROW, tRow], [typedDay('2025-06-01', { fid: 100000 }), ...recordToday(accts)]);
     expect(all.walk!.beginning).toBeCloseTo(100000 + 46363.6364, 4);
     // the return is on Fidelity's measured $112,000 and VTI's $40,000 = $152,000 (DEC-6076)
-    expect(all.notIncluded).toBe('Return is on the $152,000 with a price history. Treasury 2031 ($10,000) has no price history, so its gains are not included.');
+    expect(all.notIncluded).toBe('Treasury 2031 ($10,000) has no price history, so its gains are not included.');   // DEC-10982: first half not said
   });
 });
 

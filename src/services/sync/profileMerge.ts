@@ -239,7 +239,10 @@ export interface ProfileStamps { [item: string]: any; deletions?: Record<string,
 /** One unsaved change on this phone: when, and the value (`deleted` where the item was taken away). */
 export interface PendingChange { at: string; value?: any; deleted?: boolean }
 /** R9: the value that lost, shown in a note. */
-export interface MergeNote { item: string; kept: any; other: any; otherAt: string | null; at: string }
+export interface MergeNote { item: string; kept: any; other: any; otherAt: string | null; at: string;
+  /** when the kept value was set, and `lost` where it is this phone's change that was not kept: the note the person sees
+   *  (two-phone change note v01, 2026-11-12) sits on that phone only; `answered` is the person's Keep / Change */
+  keptAt?: string | null; lost?: boolean; answered?: 'keep' | 'change' }
 /** What the phone keeps of its profile's sync, for one data owner: the items as last agreed with the cloud (written out), its
  *  unsaved changes, and the notes of values that lost. */
 export interface ProfileSync { owner: string; base: Record<string, string>; pending: Record<string, PendingChange>; notes: MergeNote[] }
@@ -395,6 +398,11 @@ export function trackChanges(sync: ProfileSync, profile: Record<string, any>, at
  *               MK-NW-F-286 dayOfInstant · MK-NW-F-314 listNamesTheSoldLot
  *               MK-NW-F-319 listQuestionToAsk · MK-NW-F-340 oneQuestionPerExercise
  *               MK-NW-F-345 accountWalksShown · MK-NW-F-356 optionOfLine
+ *               MK-NW-F-361 valueToday · MK-NW-F-365 accountReadOut
+ *               MK-NW-F-372 transactionsReadOut · MK-NW-F-375 invDailyReadOut
+ *               MK-NW-F-379 lotsSummary · MK-NW-F-381 readOutDifferences
+ *               MK-NW-F-383 keepActivityIds · MK-NW-F-385 screensReadTheRecord
+ *               MK-NW-F-400 choiceMakes · MK-NW-F-419 fileLessRecordedTrades
  *               MK-NW-O-002 theAccount · MK-NW-O-003 theNetWorth
  *               MK-NW-O-005 theAlternativesOutlook · MK-NW-O-006 theHolding
  *               MK-NW-O-008 thePerformance · MK-PF-F-014 buildPerformance
@@ -428,8 +436,9 @@ export function trackChanges(sync: ProfileSync, profile: Record<string, any>, at
  *               MK-XS-F-193 walkShown · MK-XS-F-194 partsShown
  *               MK-XS-F-199 profileOnTheWayIn · MK-XS-F-219 importedAccountOf
  *               MK-XS-F-298 mergeProfile · MK-XS-F-303 renameInside
+ *               MK-XS-F-313 stampMillis · MK-XS-F-320 typedValueDatedByDays
  *
- * Reaches ..... 706 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 762 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -439,7 +448,7 @@ export function trackChanges(sync: ProfileSync, profile: Record<string, any>, at
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-296 LOAD
- *               … and 688 more — the full list is on functions_from_code
+ *               … and 744 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -515,7 +524,7 @@ export function mergeProfile(cloud: Record<string, any> | null, cloudStamps: Pro
         else { kept.push([k, p.value]); stamps[k] = p.at; delete deletions[k]; }
       } else {
         // the cloud's value counts; a change of this phone's that lost is noted (R9)
-        if (p) notes.push({ item: k, kept: cloudHas ? cloudVals.get(k) : null, other: p.deleted ? null : p.value, otherAt: p.at, at });
+        if (p) notes.push({ item: k, kept: cloudHas ? cloudVals.get(k) : null, other: p.deleted ? null : p.value, otherAt: p.at, at, keptAt: cloudAt, lost: true });
         if (cloudHas) kept.push([k, cloudVals.get(k)]);
       }
     }

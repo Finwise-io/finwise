@@ -63,6 +63,15 @@ jest.mock('./src/services/firebase', () => ({
   setUserHousehold: jest.fn(), joinHouseholdMembership: jest.fn(() => Promise.resolve()),
   loadUserRoot: jest.fn(() => Promise.resolve({ householdId: null, appState: null })),
   submitFeedback: jest.fn(() => Promise.resolve()),
+  // the household's codes (cloud copy R13, R14; screens of 2026-11-12)
+  createInviteWithKeyCode: jest.fn(() => Promise.resolve({ code: 'K7MQ2D', keyCode: 'Q7RMK2XD8WPAHN4CT6VJ' })),
+  withdrawInvite: jest.fn(() => Promise.resolve()),
+  checkInviteCodes: jest.fn(() => Promise.resolve({ status: 'not-found' })),
+  joinHouseholdWithKeyCode: jest.fn(() => Promise.resolve('pat')),
+  loadHouseholdPeople: jest.fn(() => Promise.resolve({ role: 'solo' })),
+  leaveReturnCode: jest.fn(() => Promise.resolve('M4TX-9QLB-2HRE-W7KD-C3NP')),
+  restoreOwnerWithReturnCode: jest.fn(() => Promise.resolve('H2WN-7FKC-QX4M-R9TB-L6DS')),
+  firstNameOf: (n) => { const f = String(n ?? '').trim().split(/\s+/)[0]; return f ? f : null; },
 }));
 jest.mock('./src/services/notifications', () => ({
   __esModule: true,

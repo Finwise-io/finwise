@@ -322,6 +322,21 @@ function r18Page(html: string, key: string, dPage: Line[]): Line[] {
   });
 }
 
+/** THE ROW OF 2026-11-13 ON EDIT-RECORD v04 (DEC-10749 RULE 4, newer than the drawing): in state I, once the screens read the record,
+ *  the question box about the moved sale sits between the account's figure line and "Ending market value" — its four lines as the row
+ *  quotes them. Read only on a drawing carrying the row, only in state I, only where the build shows the box (with the switch off
+ *  there is no move and no box); each line's look is the built box's, as the row says nothing else moves. */
+const Q_ROW = /<tr><td>22<\/td><td>2026-11-13 · State I, the page under the sheet, once the screens read the master record: a sale moved from the phone with no price paid on record shows the question box between the account's figure line and “Ending market value”, four lines — ((?:“[^”]*”(?: · )?){4})/;
+function qRow(html: string, key: string, dPage: Line[], built: Line[]): Line[] {
+  const m = Q_ROW.exec(html);
+  if (key !== 'I' || !m) return dPage;
+  const words = [...m[1].matchAll(/“([^”]*)”/g)].map((x) => x[1]);
+  const at = built.findIndex((l) => l.t === words[0]);
+  if (at < 0) return dPage;                                                     // no box on this build (the switch off)
+  const before = dPage.findIndex((l) => l.t === 'Ending market value');
+  const box = words.map((t, j) => ({ ...built[at + j], t }));
+  return [...dPage.slice(0, before), ...box, ...dPage.slice(before)];
+}
 /** the true number of sheet choices under 44 points tall on 2026-10-31 (NW3-S05) — it may only fall */
 const RATCHET_SHORT_CHOICES = 0;    // 0 of 900 on 2026-11-01, after FX-SHARED's Tap.slop (92 of 900 that morning; 628 on 2026-10-31, before Tap.min): it may only fall
 /** FX-SHARED'S ROW OF 2026-10-31 ON THE TRADE SHEET, THE HOLDING EDITOR AND THE RECORDER (DEC-0141, NW3-16/17): "every choice on the sheet
@@ -372,7 +387,8 @@ describe.each(SHEETS.map((s) => [s.file, s] as [string, Sheet]))('%s', (_file, s
     const bSheet = built.filter((l) => l.sheet);
     const emptied = drawn.filter((l) => l.sheet && R16_ROW.test(D.html) && greyFigure(l)).length;
     const dSheet = tapRow(D.html, moneyBoxRow(D.html, emptyRow(D.html, drawn.filter((l) => l.sheet)), bSheet), bSheet);
-    const dPage = r18Page(D.html, k, asCorrected(D.html, k, drawn.filter((l) => !l.sheet))), bPage = built.filter((l) => !l.sheet).slice(0, dPage.length);
+    const dPage = qRow(D.html, k, r18Page(D.html, k, asCorrected(D.html, k, drawn.filter((l) => !l.sheet))), built.filter((l) => !l.sheet)),
+      bPage = built.filter((l) => !l.sheet).slice(0, dPage.length);
     const diff = firstDifference(dSheet.map((l) => l.t), bSheet.map((l) => l.t)) ?? firstDifference(dPage.map((l) => l.t), bPage.map((l) => l.t));
     REPORT.push(`${sheet.id} ${k}: sheet ${dSheet.length} of ${bSheet.length} lines drawn; page ${dPage.length} lines drawn above it${diff ? ` — ${diff}` : ', identical'}`);
     if (diff) throw new Error(`state ${k}: ${diff}`);

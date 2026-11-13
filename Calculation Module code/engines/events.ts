@@ -196,16 +196,17 @@ export interface Classified {
  *
  * Called by ... MK-ST-F-012 toLedgerRow · MK-XS-F-106 mapOptionHolding
  *
- * Reaches ..... 17 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 27 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-194 brokerUpdateToRecord · MK-NW-F-193 eventRow
- *               MK-NW-F-201 fileRowsToSave · MK-NW-F-199 fileToRecord
- *               MK-NW-F-226 fileValues · MK-XS-F-188 fixStoredFees
+ *               MK-NW-F-382 explainedDifference · MK-NW-F-201 fileRowsToSave
+ *               MK-NW-F-199 fileToRecord · MK-NW-F-226 fileValues
+ *               MK-XS-F-188 fixStoredFees · MK-XS-F-324 holdTheSwitch
  *               MK-XS-F-219 importedAccountOf · MK-XS-F-102 ingestSync
  *               MK-XS-F-106 mapOptionHolding · MK-NW-F-228 moveOldCopies
- *               MK-NW-F-192 optionName · MK-XS-F-199 profileOnTheWayIn
- *               MK-NW-F-195 readImport · MK-NW-F-191 sharesPerContract
- *               MK-ST-F-012 toLedgerRow · MK-XS-F-192 typedValueDatedBack
- *               MK-XS-F-221 valueOnlyAccountsOf
+ *               MK-NW-F-192 optionName · MK-NW-F-368 perContractOf
+ *               MK-XS-F-199 profileOnTheWayIn · MK-NW-F-195 readImport
+ *               MK-NW-F-376 readOuts · MK-XS-F-318 readOutsInShadow
+ *               … and 9 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

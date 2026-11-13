@@ -34,7 +34,9 @@ const TODAY = isoLocalDate(new Date());
 const daysAgo = (n: number) => { const d = new Date(`${TODAY}T12:00:00`); d.setDate(d.getDate() - n); return isoLocalDate(d); };
 /** one year back to the day, then the day before it — on the calendar, so a leap year cannot shift it */
 const yearAndADayBack = () => { const d = new Date(`${TODAY}T12:00:00`); d.setFullYear(d.getFullYear() - 1); d.setDate(d.getDate() - 1); return isoLocalDate(d); };
-const SENTENCE = "Return is on the $40,000 with a price history. Treasury 2031 ($10,000) has no price history, so its gains are not included.";   // reworded 2026-10-19 by DEC-6076
+// reworded 2026-10-19 by DEC-6076; its first half is not said since DEC-10982 (his words, 2026-11-12): with no money in or out the
+// Return is (ending − beginning) ÷ beginning on the whole walk, the Treasury counted as unchanged — 3,636.36 ÷ 46,363.64 = +7.84%
+const SENTENCE = "Treasury 2031 ($10,000) has no price history, so its gains are not included.";
 
 /** the $50,000 account, typed by hand, holding VTI (priced) and Treasury 2031 (no price history) */
 const SCHWAB = {
@@ -65,7 +67,7 @@ function seed(accounts: any[], extra: Record<string, unknown> = {}) {
 }
 
 describe('the account page, past year (DEC-5068, 2026-10-13)', () => {
-  test('$50,000 = VTI $40,000 (+10%) + Treasury 2031 $10,000: Wealth generated $3,636, Return +10.00%, the walk, and the sentence below', () => {
+  test('$50,000 = VTI $40,000 (+10%) + Treasury 2031 $10,000: Wealth generated $3,636, Return +7.84% (DEC-10982), the walk, and the sentence below', () => {
     mockParams = { id: 'sch' };
     // the account's only record: the VTI purchase, 700 days ago — it opens the account's history, and moves no money
     seed([SCHWAB], { transactions: [{ id: 'b1', account_id: 'sch', type: 'BUY', ticker: 'VTI', shares: 160, price: 200, amount: 32000, date: daysAgo(700) }] });
@@ -73,15 +75,15 @@ describe('the account page, past year (DEC-5068, 2026-10-13)', () => {
     // the account page prints the Performance tab's own control since DEC-6079 (2026-10-19): its labels say Show …
     const oneYear = screen.getAllByRole('button').find((b) => /^Show 1 year, /.test(b.props.accessibilityLabel ?? ''));
     expect(oneYear).toBeTruthy();
-    // the chip itself carries the return: +10.00% (it read "no figure" before DEC-5068)
-    expect(oneYear!.props.accessibilityLabel).toBe('Show 1 year, +10.00%');
+    // the chip itself carries the return: 3,636 ÷ 46,364 = +7.84% (DEC-10982; it read +10.00%, and "no figure" before DEC-5068)
+    expect(oneYear!.props.accessibilityLabel).toBe('Show 1 year, +7.84%');
     fireEvent.press(oneYear!);
 
     // THE SUMMARY TRIO
     expect(screen.getByText('THIS ACCOUNT · THE PAST YEAR')).toBeOnTheScreen();   // the account-page drawing v01's band (state D)
     expect(screen.getAllByText('$50,000').length).toBeGreaterThan(0);
     expect(screen.getAllByText('$3,636').length).toBeGreaterThan(0);          // Wealth generated
-    expect(screen.getAllByText('+10.00%').length).toBeGreaterThan(0);         // Return
+    expect(screen.getAllByText('+7.84%').length).toBeGreaterThan(0);          // Return
     // the sentence below it, in his words with the holding's name
     expect(screen.getByText(SENTENCE)).toBeOnTheScreen();
     // the worked-back note says how the beginning was found, and no longer that "no return is measured"
@@ -101,7 +103,7 @@ describe('the account page, past year (DEC-5068, 2026-10-13)', () => {
 });
 
 describe('the Performance tab, that account\'s card (DEC-5068, 2026-10-13)', () => {
-  test('beside a linked account with a record: the card shows wealth generated $3,636 · return +10.00% and the sentence; open, the walk and Return', () => {
+  test('beside a linked account with a record: the card shows wealth generated $3,636 · return +7.84% and the sentence; open, the walk and Return', () => {
     const start = daysAgo(400);
     const rec = (date: string, value: number) => ({ date, origin: 'observed', writtenAt: `${date}T00:00:00Z`,
       holdings: [{ date, accountId: 'van', securityKey: 'VXUS', symbol: 'VXUS', units: 100, price: value / 100, value, currency: 'USD' }],
@@ -117,46 +119,44 @@ describe('the Performance tab, that account\'s card (DEC-5068, 2026-10-13)', () 
     });
     render(<PerformanceScreen />);
     // closed: the one quiet line carries the figures, and the sentence sits below it
-    expect(screen.getByText(/· wealth generated \$3,636 · return \+10\.00%$/)).toBeOnTheScreen();
+    expect(screen.getByText(/· wealth generated \$3,636 · return \+7\.84%$/)).toBeOnTheScreen();
     // SETTLED 2026-10-13 by DEC-5291: some accounts reach (Vanguard), one does not (Schwab) — the summary is the
     // cards added up, so the sentence is under the summary too (it was once, on the card: Schwab arrived as money put in).
     // Summary: $30,000 + $46,364 = $76,364 became $33,000 + $50,000 = $83,000; wealth generated $3,000 + $3,636 = $6,636.
     // DEC-6076 (2026-10-19): each sentence names the dollars ITS return is on — the card Schwab's VTI $40,000, the
     // summary Vanguard's measured $33,000 + VTI's $40,000 = $73,000
-    const SUMMARY_SENTENCE = 'Return is on the $73,000 with a price history. Treasury 2031 ($10,000) has no price history, so its gains are not included.';
-    expect(screen.getAllByText(SENTENCE).length).toBe(1);
-    expect(screen.getAllByText(SUMMARY_SENTENCE).length).toBe(1);
+    // since DEC-10982 neither says "Return is on …" (no money in or out), so the card's and the summary's sentences are the same words
+    expect(screen.getAllByText(SENTENCE).length).toBe(2);
     expect(screen.getByText('HOW $76,364 BECAME $83,000 · ALL ACCOUNTS')).toBeOnTheScreen();
     expect(screen.getAllByText('$6,636').length).toBeGreaterThan(0);
     // open the card: the walk rows, its Return row, and the sentence below them
     const toggle = screen.getAllByLabelText(/Expands its walk/).find((t) => /^Schwab/.test(t.props.accessibilityLabel ?? ''));
     expect(toggle).toBeTruthy();
     fireEvent.press(toggle!);
-    expect(screen.getAllByText(SENTENCE).length).toBe(1);
-    expect(screen.getAllByText(SUMMARY_SENTENCE).length).toBe(1);
+    expect(screen.getAllByText(SENTENCE).length).toBe(2);
     expect(screen.getAllByText('$46,364').length).toBeGreaterThan(0);          // its beginning
     expect(screen.getAllByText('$3,636').length).toBeGreaterThan(0);           // its wealth generated
-    expect(screen.getAllByText('+10.00%').length).toBeGreaterThan(0);          // its Return row
+    expect(screen.getAllByText('+7.84%').length).toBeGreaterThan(0);           // its Return row: 3,636 ÷ 46,364 (DEC-10982)
     expect(screen.getAllByText('Change in investment value').length).toBeGreaterThan(0);
     expect(screen.getAllByText(`Beginning market value (${dateShown(start)})`).length).toBeGreaterThan(0);
   });
 });
 
 describe('the Performance tab, all accounts together, worked back (DEC-5068 — the summary agrees with the card)', () => {
-  test('the single $50,000 account, no daily record, past year: summary $3,636 / +10.00%, the sentence, the walk, and the card the same', () => {
+  test('the single $50,000 account, no daily record, past year: summary $3,636 / +7.84%, the sentence, the walk, and the card the same', () => {
     seed([SCHWAB]);
     render(<PerformanceScreen />);
     // the past-year window is worked back, so it is not greyed: it carries the return and can be picked
     const oneYear = screen.getAllByRole('button').find((b) => /^Show 1 year, /.test(b.props.accessibilityLabel ?? ''));
     expect(oneYear).toBeTruthy();
-    expect(oneYear!.props.accessibilityLabel).toBe('Show 1 year, +10.00%');
+    expect(oneYear!.props.accessibilityLabel).toBe('Show 1 year, +7.84%');   // 3,636 ÷ 46,364 (DEC-10982)
     expect(oneYear!.props.accessibilityState?.disabled).toBe(false);
     fireEvent.press(oneYear!);
 
     // THE SUMMARY: Ending value $50,000 · Wealth generated $3,636 · Return +10.00%, then the note and the sentence
     expect(screen.getByText('SUMMARY · PAST YEAR')).toBeOnTheScreen();
     expect(screen.getAllByText('$3,636').length).toBeGreaterThanOrEqual(3);   // summary, the walk's Wealth generated and its change in value
-    expect(screen.getAllByText('+10.00%').length).toBeGreaterThanOrEqual(2);  // the summary's Return and the window's chip
+    expect(screen.getAllByText('+7.84%').length).toBeGreaterThanOrEqual(2);   // the summary's Return and the window's chip
     expect(screen.getByText(/so the starting value comes from today’s values and each holding’s past prices\.$/)).toBeOnTheScreen();
     expect(screen.queryByText(/^Day one:/)).toBeNull();                       // a worked-back window is not day one
     // the sentence: once under the summary, once under the account's card
@@ -169,7 +169,7 @@ describe('the Performance tab, all accounts together, worked back (DEC-5068 — 
     expect(screen.getAllByText('$46,364').length).toBeGreaterThanOrEqual(1);
 
     // THE CARD (one account, so it is the whole): the same $3,636 and +10.00% — the summary is the sum of the cards
-    expect(screen.getByText(/· wealth generated \$3,636 · return \+10\.00%$/)).toBeOnTheScreen();
+    expect(screen.getByText(/· wealth generated \$3,636 · return \+7\.84%$/)).toBeOnTheScreen();
   });
 
   // SETTLED 2026-10-13 by DEC-5291 ("approved."): the month is a window the record exists for but cannot reach, and
@@ -183,13 +183,13 @@ describe('the Performance tab, all accounts together, worked back (DEC-5068 — 
     // Home records today’s values the moment it opens (captureDailyNw): the record now begins today
     expect(((useStore.getState() as any).snapshotDays ?? []).map((d: any) => d.date)).toEqual([TODAY]);
     // VTI's close before the month opened is $227.27…, today $250: +10.00%, $3,636; the Treasury named below
-    expect(screen.getByText(/▲ up \$3,636 \(10\.00%\)/)).toBeOnTheScreen();
+    expect(screen.getByText(/▲ up \$3,636 \(7\.84%\)/)).toBeOnTheScreen();   // 3,636 ÷ 46,364 (DEC-10982)
     expect(screen.getByText(SENTENCE)).toBeOnTheScreen();
     screen.unmount();
     // the same store on Performance: the month window carries the same +10.00%, and can be picked
     render(<PerformanceScreen />);
     const oneMonth = screen.getAllByRole('button').find((b) => /^Show 1 month, /.test(b.props.accessibilityLabel ?? ''));
-    expect(oneMonth!.props.accessibilityLabel).toBe('Show 1 month, +10.00%');
+    expect(oneMonth!.props.accessibilityLabel).toBe('Show 1 month, +7.84%');
     expect(oneMonth!.props.accessibilityState?.disabled).toBe(false);
   });
 });
